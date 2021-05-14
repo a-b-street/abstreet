@@ -462,6 +462,9 @@
 <span id="459">459</span>
 <span id="460">460</span>
 <span id="461">461</span>
+<span id="462">462</span>
+<span id="463">463</span>
+<span id="464">464</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">File</span>;
@@ -487,7 +490,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">TripSummaries</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">filter</span>: <span class="ident">Filter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">filter</span>: <span class="ident">Filter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">filters</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;Filters&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>)];
         <span class="kw">for</span> <span class="ident">mode</span> <span class="kw">in</span> <span class="ident">TripMode</span>::<span class="ident">all</span>() {
             <span class="ident">filters</span>.<span class="ident">push</span>(<span class="ident">Toggle</span>::<span class="ident">colored_checkbox</span>(
@@ -517,7 +520,7 @@
         );
 
         <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">TripSummaries</span> {
-            <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
+            <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new_builder</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">DashTab</span>::<span class="ident">TripSummaries</span>.<span class="ident">picker</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="ident">filters</span>).<span class="ident">section</span>(<span class="ident">ctx</span>),
@@ -543,17 +546,17 @@
             <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
                 <span class="string">&quot;Export to CSV&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="kw">match</span> <span class="ident">export_times</span>(<span class="ident">app</span>) {
-                        <span class="prelude-val">Ok</span>(<span class="ident">path</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">PopupMsg</span>::<span class="ident">new</span>(
+                        <span class="prelude-val">Ok</span>(<span class="ident">path</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">PopupMsg</span>::<span class="ident">new_state</span>(
                             <span class="ident">ctx</span>,
                             <span class="string">&quot;Data exported&quot;</span>,
                             <span class="macro">vec</span><span class="macro">!</span>[<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Data exported to {}&quot;</span>, <span class="ident">path</span>)],
                         ),
-                        <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">PopupMsg</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="string">&quot;Export failed&quot;</span>, <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">err</span>.<span class="ident">to_string</span>()]),
+                        <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                            <span class="ident">PopupMsg</span>::<span class="ident">new_state</span>(<span class="ident">ctx</span>, <span class="string">&quot;Export failed&quot;</span>, <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">err</span>.<span class="ident">to_string</span>()])
+                        }
                     });
                 }
-                <span class="string">&quot;close&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Pop</span>;
-                }
+                <span class="string">&quot;close&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition</span>::<span class="ident">Pop</span>,
                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
             },
             <span class="ident">Outcome</span>::<span class="ident">Changed</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
@@ -570,7 +573,7 @@
                         <span class="ident">filter</span>.<span class="ident">modes</span>.<span class="ident">insert</span>(<span class="ident">m</span>);
                     }
                 }
-                <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">TripSummaries</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">filter</span>))
+                <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">TripSummaries</span>::<span class="ident">new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">filter</span>))
             }
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition</span>::<span class="ident">Keep</span>,
         }
@@ -688,7 +691,7 @@
         <span class="ident">Line</span>(<span class="string">&quot;Trip time before and after&quot;</span>)
             .<span class="ident">small_heading</span>()
             .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-        <span class="ident">CompareTimes</span>::<span class="ident">new</span>(
+        <span class="ident">CompareTimes</span>::<span class="ident">new_widget</span>(
             <span class="ident">ctx</span>,
             <span class="macro">format</span><span class="macro">!</span>(
                 <span class="string">&quot;Trip time before \&quot;{}\&quot;&quot;</span>,
@@ -767,12 +770,16 @@
             <span class="ident">idx</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
         }
 
-        <span class="kw">if</span> <span class="ident">a</span> <span class="op">&gt;</span> <span class="ident">b</span> {
-            <span class="ident">losses_per_bucket</span>[<span class="ident">idx</span>].<span class="number">0</span> <span class="op">+</span><span class="op">=</span> <span class="ident">a</span> <span class="op">-</span> <span class="ident">b</span>;
-            <span class="ident">losses_per_bucket</span>[<span class="ident">idx</span>].<span class="number">1</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">a</span> <span class="op">&lt;</span> <span class="ident">b</span> {
-            <span class="ident">savings_per_bucket</span>[<span class="ident">idx</span>].<span class="number">0</span> <span class="op">+</span><span class="op">=</span> <span class="ident">b</span> <span class="op">-</span> <span class="ident">a</span>;
-            <span class="ident">savings_per_bucket</span>[<span class="ident">idx</span>].<span class="number">1</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+        <span class="kw">match</span> <span class="ident">a</span>.<span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="ident">b</span>) {
+            <span class="ident">std</span>::<span class="ident">cmp</span>::<span class="ident">Ordering</span>::<span class="ident">Greater</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">losses_per_bucket</span>[<span class="ident">idx</span>].<span class="number">0</span> <span class="op">+</span><span class="op">=</span> <span class="ident">a</span> <span class="op">-</span> <span class="ident">b</span>;
+                <span class="ident">losses_per_bucket</span>[<span class="ident">idx</span>].<span class="number">1</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+            }
+            <span class="ident">std</span>::<span class="ident">cmp</span>::<span class="ident">Ordering</span>::<span class="ident">Less</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">savings_per_bucket</span>[<span class="ident">idx</span>].<span class="number">0</span> <span class="op">+</span><span class="op">=</span> <span class="ident">b</span> <span class="op">-</span> <span class="ident">a</span>;
+                <span class="ident">savings_per_bucket</span>[<span class="ident">idx</span>].<span class="number">1</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+            }
+            <span class="ident">std</span>::<span class="ident">cmp</span>::<span class="ident">Ordering</span>::<span class="ident">Equal</span> <span class="op">=</span><span class="op">&gt;</span> {}
         }
     }
     <span class="kw">let</span> <span class="ident">max_y</span> <span class="op">=</span> <span class="ident">losses_per_bucket</span>
@@ -788,10 +795,10 @@
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">outlines</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tooltips</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">x1</span> <span class="op">=</span> <span class="number">0.0</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">idx</span> <span class="op">=</span> <span class="number">0</span>;
-    <span class="kw">for</span> ((<span class="ident">total_savings</span>, <span class="ident">num_savings</span>), (<span class="ident">total_loss</span>, <span class="ident">num_loss</span>)) <span class="kw">in</span> <span class="ident">savings_per_bucket</span>
+    <span class="kw">for</span> (<span class="ident">idx</span>, ((<span class="ident">total_savings</span>, <span class="ident">num_savings</span>), (<span class="ident">total_loss</span>, <span class="ident">num_loss</span>))) <span class="kw">in</span> <span class="ident">savings_per_bucket</span>
         .<span class="ident">into_iter</span>()
         .<span class="ident">zip</span>(<span class="ident">losses_per_bucket</span>.<span class="ident">into_iter</span>())
+        .<span class="ident">enumerate</span>()
     {
         <span class="kw">if</span> <span class="ident">num_savings</span> <span class="op">&gt;</span> <span class="number">0</span> {
             <span class="kw">let</span> <span class="ident">height</span> <span class="op">=</span> (<span class="ident">total_savings</span> <span class="op">/</span> <span class="ident">max_y</span>) <span class="op">*</span> <span class="ident">max_bar_height</span>;
@@ -835,7 +842,6 @@
             ));
         }
         <span class="ident">x1</span> <span class="op">+</span><span class="op">=</span> <span class="ident">bar_width</span>;
-        <span class="ident">idx</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
     }
     <span class="ident">batch</span>.<span class="ident">extend</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>, <span class="ident">outlines</span>);
 
@@ -848,7 +854,7 @@
         <span class="ident">Line</span>(<span class="string">&quot;Total Time Saved (faster)&quot;</span>)
             .<span class="ident">secondary</span>()
             .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-        <span class="ident">DrawWithTooltips</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">batch</span>, <span class="ident">tooltips</span>, <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>())),
+        <span class="ident">DrawWithTooltips</span>::<span class="ident">new_widget</span>(<span class="ident">ctx</span>, <span class="ident">batch</span>, <span class="ident">tooltips</span>, <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>())),
         <span class="ident">Line</span>(<span class="string">&quot;Total Time Lost (slower)&quot;</span>)
             .<span class="ident">secondary</span>()
             .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),

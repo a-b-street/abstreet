@@ -331,18 +331,6 @@
 <span id="328">328</span>
 <span id="329">329</span>
 <span id="330">330</span>
-<span id="331">331</span>
-<span id="332">332</span>
-<span id="333">333</span>
-<span id="334">334</span>
-<span id="335">335</span>
-<span id="336">336</span>
-<span id="337">337</span>
-<span id="338">338</span>
-<span id="339">339</span>
-<span id="340">340</span>
-<span id="341">341</span>
-<span id="342">342</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! An experimental SEIR model by https://github.com/omalaspinas/ glued to the traffic simulation.</span>
 <span class="doccomment">//! Transmission may occur when people spend time in shared spaces like buildings, bus stops, and</span>
@@ -410,9 +398,9 @@
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Time</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">AnyTime</span> {
-    <span class="kw">fn</span> <span class="ident">into</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Time</span> {
-        <span class="ident">Time</span>::<span class="ident">START_OF_DAY</span> <span class="op">+</span> <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="self">self</span>.<span class="ident">inner_seconds</span>())
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">AnyTime</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Time</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">time</span>: <span class="ident">AnyTime</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="ident">Time</span>::<span class="ident">START_OF_DAY</span> <span class="op">+</span> <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="ident">time</span>.<span class="ident">inner_seconds</span>())
     }
 }
 
@@ -560,31 +548,19 @@
     }
 
     <span class="kw">fn</span> <span class="ident">is_exposed</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">State</span>::<span class="ident">Exposed</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
-        }
+        <span class="macro">matches</span><span class="macro">!</span>(<span class="self">self</span>, <span class="ident">State</span>::<span class="ident">Exposed</span>(<span class="kw">_</span>))
     }
 
     <span class="kw">fn</span> <span class="ident">is_infectious</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">State</span>::<span class="ident">Infectious</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">State</span>::<span class="ident">Hospitalized</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
-        }
+        <span class="macro">matches</span><span class="macro">!</span>(<span class="self">self</span>, <span class="ident">State</span>::<span class="ident">Infectious</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">State</span>::<span class="ident">Hospitalized</span>(<span class="kw">_</span>))
     }
 
     <span class="kw">fn</span> <span class="ident">is_recovered</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">State</span>::<span class="ident">Recovered</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
-        }
+        <span class="macro">matches</span><span class="macro">!</span>(<span class="self">self</span>, <span class="ident">State</span>::<span class="ident">Recovered</span>(<span class="kw">_</span>))
     }
 
     <span class="kw">fn</span> <span class="ident">is_dead</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">State</span>::<span class="ident">Dead</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
-        }
+        <span class="macro">matches</span><span class="macro">!</span>(<span class="self">self</span>, <span class="ident">State</span>::<span class="ident">Dead</span>(<span class="kw">_</span>))
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_time</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Time</span><span class="op">&gt;</span> {

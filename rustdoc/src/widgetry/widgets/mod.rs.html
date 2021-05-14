@@ -847,6 +847,9 @@
 <span id="844">844</span>
 <span id="845">845</span>
 <span id="846">846</span>
+<span id="847">847</span>
+<span id="848">848</span>
+<span id="849">849</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 
@@ -1312,7 +1315,11 @@
     }
 
     <span class="comment">// Also returns the hitbox of the entire widget</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_geom</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">exact_pct_width</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">GeomBatch</span>, <span class="ident">Polygon</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_geom</span>(
+        <span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>,
+        <span class="ident">exact_pct_width</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">GeomBatch</span>, <span class="ident">Polygon</span>) {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">w</span>) <span class="op">=</span> <span class="ident">exact_pct_width</span> {
             <span class="comment">// TODO 35 is a sad magic number. By default, Panels have padding of 16, so assuming</span>
             <span class="comment">// this geometry is going in one of those, it makes sense to subtract 32. But that still</span>
@@ -1394,7 +1401,7 @@
     <span class="comment">// Populate a flattened list of Nodes, matching the traversal order</span>
     <span class="kw">fn</span> <span class="ident">get_flexbox</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">parent</span>: <span class="ident">Node</span>, <span class="ident">stretch</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Stretch</span>, <span class="ident">nodes</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Node</span><span class="op">&gt;</span>) {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">container</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">widget</span>.<span class="ident">downcast_ref</span>::<span class="op">&lt;</span><span class="ident">Container</span><span class="op">&gt;</span>() {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">style</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">layout</span>.<span class="ident">style</span>.<span class="ident">clone</span>();
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">style</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">layout</span>.<span class="ident">style</span>;
             <span class="ident">style</span>.<span class="ident">flex_direction</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">container</span>.<span class="ident">is_row</span> {
                 <span class="ident">FlexDirection</span>::<span class="ident">Row</span>
             } <span class="kw">else</span> {
@@ -1406,9 +1413,8 @@
                 <span class="ident">widget</span>.<span class="ident">get_flexbox</span>(<span class="ident">node</span>, <span class="ident">stretch</span>, <span class="ident">nodes</span>);
             }
             <span class="ident">stretch</span>.<span class="ident">add_child</span>(<span class="ident">parent</span>, <span class="ident">node</span>).<span class="ident">unwrap</span>();
-            <span class="kw">return</span>;
         } <span class="kw">else</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">style</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">layout</span>.<span class="ident">style</span>.<span class="ident">clone</span>();
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">style</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">layout</span>.<span class="ident">style</span>;
             <span class="ident">style</span>.<span class="ident">size</span> <span class="op">=</span> <span class="ident">Size</span> {
                 <span class="ident">width</span>: <span class="ident">Dimension</span>::<span class="ident">Points</span>(<span class="self">self</span>.<span class="ident">widget</span>.<span class="ident">get_dims</span>().<span class="ident">width</span> <span class="kw">as</span> <span class="ident">f32</span>),
                 <span class="ident">height</span>: <span class="ident">Dimension</span>::<span class="ident">Points</span>(<span class="self">self</span>.<span class="ident">widget</span>.<span class="ident">get_dims</span>().<span class="ident">height</span> <span class="kw">as</span> <span class="ident">f32</span>),

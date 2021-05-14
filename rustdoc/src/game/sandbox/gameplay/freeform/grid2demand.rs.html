@@ -78,7 +78,7 @@
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">import</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span> {
     <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">outer_progress_rx</span>) <span class="op">=</span> <span class="ident">futures_channel</span>::<span class="ident">mpsc</span>::<span class="ident">channel</span>(<span class="number">1</span>);
     <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">inner_progress_rx</span>) <span class="op">=</span> <span class="ident">futures_channel</span>::<span class="ident">mpsc</span>::<span class="ident">channel</span>(<span class="number">1</span>);
-    <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">FutureLoader</span>::<span class="op">&lt;</span><span class="ident">App</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">new</span>(
+    <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">FutureLoader</span>::<span class="op">&lt;</span><span class="ident">App</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">new_state</span>(
         <span class="ident">ctx</span>,
         <span class="ident">Box</span>::<span class="ident">pin</span>(<span class="kw">async</span> {
             <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">rfd</span>::<span class="ident">AsyncFileDialog</span>::<span class="ident">new</span>()
@@ -94,7 +94,7 @@
         <span class="string">&quot;Waiting for a file to be chosen&quot;</span>,
         <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">maybe_path</span><span class="op">|</span> {
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">path</span>)) <span class="op">=</span> <span class="ident">maybe_path</span> {
-                <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">RunCommand</span>::<span class="ident">new</span>(
+                <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">RunCommand</span>::<span class="ident">new_state</span>(
                     <span class="ident">ctx</span>,
                     <span class="ident">app</span>,
                     <span class="macro">vec</span><span class="macro">!</span>[

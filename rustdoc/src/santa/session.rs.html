@@ -276,7 +276,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">record_score</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">level</span>: <span class="ident">String</span>, <span class="ident">score</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">scores</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">high_scores</span>.<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">level</span>).<span class="ident">unwrap</span>();
         <span class="ident">scores</span>.<span class="ident">push</span>(<span class="ident">score</span>);
-        <span class="ident">scores</span>.<span class="ident">sort</span>();
+        <span class="ident">scores</span>.<span class="ident">sort_unstable</span>();
         <span class="ident">scores</span>.<span class="ident">reverse</span>();
         <span class="ident">scores</span>.<span class="ident">truncate</span>(<span class="number">3</span>);
 
@@ -289,12 +289,12 @@
         <span class="kw">let</span> <span class="ident">msg</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span> <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">levels_unlocked</span> <span class="op">&amp;&amp;</span> <span class="ident">score</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">level</span>.<span class="ident">goal</span> {
             <span class="kw">if</span> <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span> <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">levels</span>.<span class="ident">len</span>() {
                 <span class="prelude-val">Some</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                    <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;All levels complete! Nice.&quot;</span>),
-                    <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Can you improve your score on other levels?&quot;</span>),
+                    <span class="string">&quot;All levels complete! Nice.&quot;</span>.<span class="ident">to_string</span>(),
+                    <span class="string">&quot;Can you improve your score on other levels?&quot;</span>.<span class="ident">to_string</span>(),
                 ])
             } <span class="kw">else</span> {
                 <span class="self">self</span>.<span class="ident">levels_unlocked</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">messages</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;New level unlocked!&quot;</span>)];
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">messages</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;New level unlocked!&quot;</span>.<span class="ident">to_string</span>()];
                 <span class="kw">if</span> <span class="ident">level</span>.<span class="ident">unlock_upzones</span> <span class="op">&gt;</span> <span class="number">0</span> {
                     <span class="self">self</span>.<span class="ident">upzones_unlocked</span> <span class="op">+</span><span class="op">=</span> <span class="ident">level</span>.<span class="ident">unlock_upzones</span>;
                     <span class="ident">messages</span>.<span class="ident">push</span>(<span class="macro">format</span><span class="macro">!</span>(

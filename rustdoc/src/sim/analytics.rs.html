@@ -680,8 +680,6 @@
 <span id="677">677</span>
 <span id="678">678</span>
 <span id="679">679</span>
-<span id="680">680</span>
-<span id="681">681</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">VecDeque</span>};
 
@@ -827,11 +825,9 @@
             };
         }
         <span class="kw">match</span> <span class="ident">ev</span> {
-            <span class="ident">Event</span>::<span class="ident">PersonLeavesMap</span>(<span class="kw">_</span>, <span class="ident">maybe_a</span>, <span class="ident">i</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Event</span>::<span class="ident">PersonLeavesMap</span>(<span class="kw">_</span>, <span class="prelude-val">Some</span>(<span class="ident">a</span>), <span class="ident">i</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="comment">// Ignore cancelled trips</span>
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">a</span>) <span class="op">=</span> <span class="ident">maybe_a</span> {
-                    <span class="self">self</span>.<span class="ident">intersection_thruput</span>.<span class="ident">record</span>(<span class="ident">time</span>, <span class="ident">i</span>, <span class="ident">a</span>.<span class="ident">to_type</span>(), <span class="number">1</span>);
-                }
+                <span class="self">self</span>.<span class="ident">intersection_thruput</span>.<span class="ident">record</span>(<span class="ident">time</span>, <span class="ident">i</span>, <span class="ident">a</span>.<span class="ident">to_type</span>(), <span class="number">1</span>);
             }
             <span class="ident">Event</span>::<span class="ident">PersonEntersMap</span>(<span class="kw">_</span>, <span class="ident">a</span>, <span class="ident">i</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="self">self</span>.<span class="ident">intersection_thruput</span>.<span class="ident">record</span>(<span class="ident">time</span>, <span class="ident">i</span>, <span class="ident">a</span>.<span class="ident">to_type</span>(), <span class="number">1</span>);
@@ -994,7 +990,7 @@
         <span class="comment">// TODO This is so inefficient!</span>
         <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">id</span>, <span class="kw">_</span>, <span class="ident">maybe_dt</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">finished_trips</span> {
             <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">id</span> <span class="op">=</span><span class="op">=</span> <span class="ident">trip</span> {
-                <span class="kw">return</span> <span class="ident">maybe_dt</span>.<span class="ident">clone</span>();
+                <span class="kw">return</span> <span class="kw-2">*</span><span class="ident">maybe_dt</span>;
             }
         }
         <span class="prelude-val">None</span>

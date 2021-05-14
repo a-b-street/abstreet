@@ -761,10 +761,6 @@
 <span id="758">758</span>
 <span id="759">759</span>
 <span id="760">760</span>
-<span id="761">761</span>
-<span id="762">762</span>
-<span id="763">763</span>
-<span id="764">764</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! A bunch of (mostly read-only) queries on a Map.</span>
 
@@ -928,7 +924,7 @@
                 <span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="number">1.0</span>, <span class="number">1.0</span>),
                 <span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="number">0.0</span>, <span class="number">0.0</span>),
             ])
-            .<span class="ident">to_polygon</span>(),
+            .<span class="ident">into_polygon</span>(),
             <span class="ident">stop_signs</span>: <span class="ident">BTreeMap</span>::<span class="ident">new</span>(),
             <span class="ident">traffic_signals</span>: <span class="ident">BTreeMap</span>::<span class="ident">new</span>(),
             <span class="ident">gps_bounds</span>: <span class="ident">GPSBounds</span>::<span class="ident">new</span>(),
@@ -1326,10 +1322,8 @@
                 .<span class="ident">into_iter</span>()
                 .<span class="ident">chain</span>(<span class="ident">r</span>.<span class="ident">children_backwards</span>().<span class="ident">into_iter</span>())
             {
-                <span class="kw">if</span> <span class="ident">lt</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType</span>::<span class="ident">Driving</span> {
-                    <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">driving_blackhole</span> {
-                        <span class="kw">return</span> <span class="ident">l</span>;
-                    }
+                <span class="kw">if</span> <span class="ident">lt</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType</span>::<span class="ident">Driving</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">driving_blackhole</span> {
+                    <span class="kw">return</span> <span class="ident">l</span>;
                 }
             }
 
@@ -1352,7 +1346,7 @@
             .<span class="ident">pathfinder</span>
             .<span class="ident">pathfind</span>(<span class="ident">req</span>.<span class="ident">clone</span>(), <span class="self">self</span>)
             .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">anyhow</span><span class="macro">!</span>(<span class="string">&quot;can&#39;t fulfill {}&quot;</span>, <span class="ident">req</span>))<span class="question-mark">?</span>;
-        <span class="ident">path</span>.<span class="ident">to_v1</span>(<span class="self">self</span>)
+        <span class="ident">path</span>.<span class="ident">into_v1</span>(<span class="self">self</span>)
     }
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pathfind_avoiding_roads</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
@@ -1361,7 +1355,7 @@
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span> {
         <span class="macro">assert</span><span class="macro">!</span>(<span class="op">!</span><span class="self">self</span>.<span class="ident">pathfinder_dirty</span>);
         <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">pathfinder</span>.<span class="ident">pathfind_avoiding_roads</span>(<span class="ident">req</span>, <span class="ident">avoid</span>, <span class="self">self</span>)<span class="question-mark">?</span>;
-        <span class="ident">path</span>.<span class="ident">to_v1</span>(<span class="self">self</span>)
+        <span class="ident">path</span>.<span class="ident">into_v1</span>(<span class="self">self</span>)
     }
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pathfind_with_params</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">req</span>: <span class="ident">PathRequest</span>, <span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="ident">RoutingParams</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span> {
         <span class="macro">assert</span><span class="macro">!</span>(<span class="op">!</span><span class="self">self</span>.<span class="ident">pathfinder_dirty</span>);
@@ -1369,7 +1363,7 @@
             .<span class="ident">pathfinder</span>
             .<span class="ident">pathfind_with_params</span>(<span class="ident">req</span>.<span class="ident">clone</span>(), <span class="ident">params</span>, <span class="self">self</span>)
             .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">anyhow</span><span class="macro">!</span>(<span class="string">&quot;can&#39;t fulfill {}&quot;</span>, <span class="ident">req</span>))<span class="question-mark">?</span>;
-        <span class="ident">path</span>.<span class="ident">to_v1</span>(<span class="self">self</span>)
+        <span class="ident">path</span>.<span class="ident">into_v1</span>(<span class="self">self</span>)
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">should_use_transit</span>(
@@ -1487,10 +1481,8 @@
         }
         <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">all_buildings</span>() {
             <span class="kw">for</span> <span class="ident">a</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">b</span>.<span class="ident">amenities</span> {
-                <span class="kw">for</span> <span class="ident">key</span> <span class="kw">in</span> <span class="ident">a</span>.<span class="ident">names</span>.<span class="number">0</span>.<span class="ident">keys</span>() {
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">lang</span>) <span class="op">=</span> <span class="ident">key</span> {
-                        <span class="ident">languages</span>.<span class="ident">insert</span>(<span class="ident">lang</span>);
-                    }
+                <span class="kw">for</span> <span class="ident">lang</span> <span class="kw">in</span> <span class="ident">a</span>.<span class="ident">names</span>.<span class="number">0</span>.<span class="ident">keys</span>().<span class="ident">flatten</span>() {
+                    <span class="ident">languages</span>.<span class="ident">insert</span>(<span class="ident">lang</span>);
                 }
             }
         }

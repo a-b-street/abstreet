@@ -646,18 +646,6 @@
 <span id="643">643</span>
 <span id="644">644</span>
 <span id="645">645</span>
-<span id="646">646</span>
-<span id="647">647</span>
-<span id="648">648</span>
-<span id="649">649</span>
-<span id="650">650</span>
-<span id="651">651</span>
-<span id="652">652</span>
-<span id="653">653</span>
-<span id="654">654</span>
-<span id="655">655</span>
-<span id="656">656</span>
-<span id="657">657</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">CornerRadii</span>, <span class="ident">Distance</span>};
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">render</span>::{<span class="ident">Renderable</span>, <span class="ident">OUTLINE_THICKNESS</span>};
@@ -687,7 +675,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">RoadEditor</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>, <span class="ident">r</span>: <span class="ident">RoadID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>, <span class="ident">r</span>: <span class="ident">RoadID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> <span class="op">=</span> <span class="prelude-val">None</span>;
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">editor</span> <span class="op">=</span> <span class="ident">RoadEditor</span> {
@@ -750,8 +738,8 @@
     <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span> {
         <span class="ident">ctx</span>.<span class="ident">canvas_movement</span>();
 
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">top_panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">top_panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
+            <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
                 <span class="string">&quot;Finish&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="comment">// Compress all of the edits, unless there were 0 or 1 changes</span>
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">clone</span>();
@@ -797,8 +785,7 @@
                     <span class="self">self</span>.<span class="ident">recalc_all_panels</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
                 }
                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
-            },
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
+            }
         }
 
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">main_panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
@@ -926,7 +913,7 @@
     <span class="ident">num_edit_cmds_originally</span>: <span class="ident">usize</span>,
     <span class="ident">no_redo_cmds</span>: <span class="ident">bool</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Panel</span> {
-    <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+    <span class="ident">Panel</span>::<span class="ident">new_builder</span>(<span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
         <span class="ident">ctx</span>.<span class="ident">style</span>()
             .<span class="ident">btn_solid_primary</span>
             .<span class="ident">text</span>(<span class="string">&quot;Finish&quot;</span>)
@@ -1012,21 +999,14 @@
             <span class="ident">lt</span> <span class="op">=</span><span class="op">=</span> <span class="ident">current</span>
         } <span class="kw">else</span> {
             <span class="comment">// Only 2 parking lanes or walkable lanes total make sense</span>
-            <span class="kw">if</span> <span class="ident">lt</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType</span>::<span class="ident">Parking</span>
+            (<span class="ident">lt</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType</span>::<span class="ident">Parking</span>
                 <span class="op">&amp;&amp;</span> <span class="ident">current_lts</span>
                     .<span class="ident">iter</span>()
                     .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType</span>::<span class="ident">Parking</span>)
                     .<span class="ident">count</span>()
-                    <span class="op">=</span><span class="op">=</span> <span class="number">2</span>
-            {
-                <span class="bool-val">true</span>
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">lt</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType</span>::<span class="ident">Sidewalk</span>
-                <span class="op">&amp;&amp;</span> <span class="ident">current_lts</span>.<span class="ident">iter</span>().<span class="ident">filter</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">is_walkable</span>()).<span class="ident">count</span>() <span class="op">=</span><span class="op">=</span> <span class="number">2</span>
-            {
-                <span class="bool-val">true</span>
-            } <span class="kw">else</span> {
-                <span class="bool-val">false</span>
-            }
+                    <span class="op">=</span><span class="op">=</span> <span class="number">2</span>)
+                <span class="op">|</span><span class="op">|</span> (<span class="ident">lt</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType</span>::<span class="ident">Sidewalk</span>
+                    <span class="op">&amp;&amp;</span> <span class="ident">current_lts</span>.<span class="ident">iter</span>().<span class="ident">filter</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">is_walkable</span>()).<span class="ident">count</span>() <span class="op">=</span><span class="op">=</span> <span class="number">2</span>)
         };
 
         <span class="ident">ctx</span>.<span class="ident">style</span>()
@@ -1137,7 +1117,7 @@
         ),
     ]);
 
-    <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
+    <span class="ident">Panel</span>::<span class="ident">new_builder</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
         <span class="ident">modify_lane</span>,
         <span class="ident">available_lane_types_row</span>,
         <span class="ident">current_lanes_ltr</span>,
@@ -1218,12 +1198,10 @@
         } <span class="kw">else</span> {
             <span class="number">0</span>
         }
+    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">road</span>.<span class="ident">lanes_ltr</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>().<span class="ident">lt</span>.<span class="ident">is_walkable</span>() {
+        <span class="ident">road</span>.<span class="ident">lanes_ltr</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>
     } <span class="kw">else</span> {
-        <span class="kw">if</span> <span class="ident">road</span>.<span class="ident">lanes_ltr</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>().<span class="ident">lt</span>.<span class="ident">is_walkable</span>() {
-            <span class="ident">road</span>.<span class="ident">lanes_ltr</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>
-        } <span class="kw">else</span> {
-            <span class="ident">road</span>.<span class="ident">lanes_ltr</span>.<span class="ident">len</span>()
-        }
+        <span class="ident">road</span>.<span class="ident">lanes_ltr</span>.<span class="ident">len</span>()
     }
 }
 
@@ -1243,12 +1221,10 @@
         } <span class="kw">else</span> {
             <span class="ident">Direction</span>::<span class="ident">Back</span>
         }
+    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">minority</span> {
+        <span class="ident">Direction</span>::<span class="ident">Back</span>
     } <span class="kw">else</span> {
-        <span class="kw">if</span> <span class="ident">minority</span> {
-            <span class="ident">Direction</span>::<span class="ident">Back</span>
-        } <span class="kw">else</span> {
-            <span class="ident">Direction</span>::<span class="ident">Fwd</span>
-        }
+        <span class="ident">Direction</span>::<span class="ident">Fwd</span>
     }
 }
 
@@ -1259,7 +1235,7 @@
         <span class="ident">LaneType</span>::<span class="ident">Biking</span> <span class="op">|</span> <span class="ident">LaneType</span>::<span class="ident">Bus</span> <span class="op">|</span> <span class="ident">LaneType</span>::<span class="ident">Parking</span> <span class="op">|</span> <span class="ident">LaneType</span>::<span class="ident">Construction</span> <span class="op">=</span><span class="op">&gt;</span> {
             <span class="kw">let</span> <span class="ident">relevant_lanes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">LaneSpec</span><span class="op">&gt;</span> <span class="op">=</span>
                 <span class="ident">road</span>.<span class="ident">lanes_ltr</span>.<span class="ident">iter</span>().<span class="ident">filter</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">lt</span> <span class="op">=</span><span class="op">=</span> <span class="ident">lt</span>).<span class="ident">collect</span>();
-            <span class="kw">if</span> <span class="ident">relevant_lanes</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">0</span> {
+            <span class="kw">if</span> <span class="op">!</span><span class="ident">relevant_lanes</span>.<span class="ident">is_empty</span>() {
                 <span class="comment">// When a lane already exists then default to the direction on the other side of the</span>
                 <span class="comment">// road</span>
                 <span class="kw">if</span> <span class="ident">relevant_lanes</span>[<span class="number">0</span>].<span class="ident">dir</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Direction</span>::<span class="ident">Fwd</span> {

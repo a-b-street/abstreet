@@ -281,7 +281,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Strategize</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(
         <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
         <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>,
         <span class="ident">score</span>: <span class="ident">usize</span>,
@@ -355,7 +355,7 @@
 
         <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color</span>::<span class="ident">CYAN</span>, <span class="ident">path</span>.<span class="ident">render</span>(<span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">2.0</span>)));
 
-        <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
+        <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel</span>::<span class="ident">new_builder</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">txt</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
             <span class="ident">ctx</span>.<span class="ident">style</span>()
                 .<span class="ident">btn_outline</span>
@@ -375,7 +375,7 @@
         ]))
         .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment</span>::<span class="ident">Right</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Top</span>)
         .<span class="ident">build</span>(<span class="ident">ctx</span>);
-        <span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">SimpleState</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">new</span>(
+        <span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">SimpleState</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">new_state</span>(
             <span class="ident">panel</span>,
             <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">Strategize</span> {
                 <span class="ident">unlock_messages</span>,
@@ -391,10 +391,10 @@
             <span class="string">&quot;Back to title screen&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">transitions</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">Transition</span>::<span class="ident">Pop</span>,
-                    <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">TitleScreen</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)),
+                    <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">TitleScreen</span>::<span class="ident">new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)),
                 ];
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">msgs</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">unlock_messages</span>.<span class="ident">take</span>() {
-                    <span class="ident">transitions</span>.<span class="ident">push</span>(<span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">PopupMsg</span>::<span class="ident">new</span>(
+                    <span class="ident">transitions</span>.<span class="ident">push</span>(<span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">PopupMsg</span>::<span class="ident">new_state</span>(
                         <span class="ident">ctx</span>,
                         <span class="string">&quot;Level complete!&quot;</span>,
                         <span class="ident">msgs</span>,
@@ -421,7 +421,7 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Results</span>;
 
 <span class="kw">impl</span> <span class="ident">Results</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(
         <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
         <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>,
         <span class="ident">score</span>: <span class="ident">usize</span>,
@@ -456,8 +456,8 @@
             }
         }
 
-        <span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">SimpleState</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">new</span>(
-            <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
+        <span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">SimpleState</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">new_state</span>(
+            <span class="ident">Panel</span>::<span class="ident">new_builder</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">txt</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
                     .<span class="ident">btn_solid_primary</span>

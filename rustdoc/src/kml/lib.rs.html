@@ -315,7 +315,7 @@
             }
         }
         <span class="kw">if</span> <span class="ident">any_ok</span> <span class="op">&amp;&amp;</span> (<span class="op">!</span><span class="ident">any_oob</span> <span class="op">|</span><span class="op">|</span> <span class="op">!</span><span class="ident">require_all_pts_in_bounds</span>) {
-            <span class="kw">let</span> <span class="ident">attributes</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">mem</span>::<span class="ident">replace</span>(<span class="ident">kv</span>, <span class="ident">BTreeMap</span>::<span class="ident">new</span>());
+            <span class="kw">let</span> <span class="ident">attributes</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">mem</span>::<span class="ident">take</span>(<span class="ident">kv</span>);
             <span class="ident">shapes</span>.<span class="ident">push</span>(<span class="ident">ExtraShape</span> {
                 <span class="ident">points</span>: <span class="ident">pts</span>,
                 <span class="ident">attributes</span>,

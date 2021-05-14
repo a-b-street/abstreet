@@ -277,8 +277,8 @@
             <span class="ident">sink</span>.<span class="ident">set_volume</span>(<span class="number">0.0</span>);
         }
 
-        <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel</span>::<span class="ident">new</span>(
-            <span class="ident">Toggle</span>::<span class="ident">new</span>(
+        <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel</span>::<span class="ident">new_builder</span>(
+            <span class="ident">Toggle</span>::<span class="ident">new_widget</span>(
                 <span class="ident">play_music</span>,
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
                     .<span class="ident">btn_plain</span>

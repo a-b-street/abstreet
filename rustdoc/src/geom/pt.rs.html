@@ -211,8 +211,6 @@
 <span id="208">208</span>
 <span id="209">209</span>
 <span id="210">210</span>
-<span id="211">211</span>
-<span id="212">212</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
 
@@ -348,9 +346,7 @@
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
         <span class="kw">for</span> <span class="ident">pt</span> <span class="kw">in</span> <span class="ident">pts</span> {
-            <span class="kw">if</span> <span class="ident">result</span>.<span class="ident">is_empty</span>() <span class="op">&amp;&amp;</span> <span class="ident">pt</span>.<span class="ident">approx_eq</span>(<span class="ident">start</span>, <span class="ident">threshold</span>) {
-                <span class="ident">result</span>.<span class="ident">push</span>(<span class="kw-2">*</span><span class="ident">pt</span>);
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="op">!</span><span class="ident">result</span>.<span class="ident">is_empty</span>() {
+            <span class="kw">if</span> (<span class="ident">result</span>.<span class="ident">is_empty</span>() <span class="op">&amp;&amp;</span> <span class="ident">pt</span>.<span class="ident">approx_eq</span>(<span class="ident">start</span>, <span class="ident">threshold</span>)) <span class="op">|</span><span class="op">|</span> (<span class="op">!</span><span class="ident">result</span>.<span class="ident">is_empty</span>()) {
                 <span class="ident">result</span>.<span class="ident">push</span>(<span class="kw-2">*</span><span class="ident">pt</span>);
             }
             <span class="comment">// start and end might be the same.</span>

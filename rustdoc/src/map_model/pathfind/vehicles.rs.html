@@ -364,7 +364,7 @@
         <span class="comment">// Find all uber-turns and make a node for them too.</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">uber_turns</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
         <span class="kw">for</span> <span class="ident">ic</span> <span class="kw">in</span> <span class="ident">IntersectionCluster</span>::<span class="ident">find_all</span>(<span class="ident">map</span>) {
-            <span class="kw">for</span> <span class="ident">ut</span> <span class="kw">in</span> <span class="ident">ic</span>.<span class="ident">to_v2</span>(<span class="ident">map</span>) {
+            <span class="kw">for</span> <span class="ident">ut</span> <span class="kw">in</span> <span class="ident">ic</span>.<span class="ident">into_v2</span>(<span class="ident">map</span>) {
                 <span class="ident">nodes</span>.<span class="ident">get_or_insert</span>(<span class="ident">Node</span>::<span class="ident">UberTurn</span>(<span class="ident">uber_turns</span>.<span class="ident">len</span>()));
                 <span class="ident">uber_turns</span>.<span class="ident">push</span>(<span class="ident">ut</span>);
             }

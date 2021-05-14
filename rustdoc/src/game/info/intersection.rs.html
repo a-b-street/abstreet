@@ -713,7 +713,7 @@
     <span class="ident">rows</span>.<span class="ident">push</span>(
         <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">txt</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-            <span class="ident">DrawWithTooltips</span>::<span class="ident">new</span>(
+            <span class="ident">DrawWithTooltips</span>::<span class="ident">new_widget</span>(
                 <span class="ident">ctx</span>,
                 <span class="ident">batch</span>,
                 <span class="ident">tooltips</span>,
@@ -902,9 +902,9 @@
             .<span class="ident">small_heading</span>()
             .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
         <span class="kw">if</span> <span class="ident">fan_chart</span> {
-            <span class="ident">FanChart</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">series</span>, <span class="ident">plot_opts</span>)
+            <span class="ident">FanChart</span>::<span class="ident">new_widget</span>(<span class="ident">ctx</span>, <span class="ident">series</span>, <span class="ident">plot_opts</span>)
         } <span class="kw">else</span> {
-            <span class="ident">ScatterPlot</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">series</span>, <span class="ident">plot_opts</span>)
+            <span class="ident">ScatterPlot</span>::<span class="ident">new_widget</span>(<span class="ident">ctx</span>, <span class="ident">series</span>, <span class="ident">plot_opts</span>)
         },
     ])
     .<span class="ident">padding</span>(<span class="number">10</span>)

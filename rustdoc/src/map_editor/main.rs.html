@@ -585,7 +585,7 @@
             <span class="ident">App</span> { <span class="ident">model</span> },
             <span class="ident">MainState</span> {
                 <span class="ident">mode</span>: <span class="ident">Mode</span>::<span class="ident">Viewing</span>,
-                <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new_builder</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                         <span class="ident">Line</span>(<span class="string">&quot;Map Editor&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                         <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
@@ -728,7 +728,7 @@
                             <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">merge_r</span>(<span class="ident">ctx</span>, <span class="ident">r</span>);
                             <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">handle_mouseover</span>(<span class="ident">ctx</span>);
                         } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">normal_left_click</span>() {
-                            <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">edit</span>::<span class="ident">EditRoad</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">r</span>));
+                            <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">edit</span>::<span class="ident">EditRoad</span>::<span class="ident">new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">r</span>));
                         }
 
                         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">new</span>();

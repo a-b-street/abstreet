@@ -244,10 +244,6 @@
 <span id="241">241</span>
 <span id="242">242</span>
 <span id="243">243</span>
-<span id="244">244</span>
-<span id="245">245</span>
-<span id="246">246</span>
-<span id="247">247</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Duration</span>;
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">TripEndpoint</span>, <span class="ident">TripID</span>, <span class="ident">TripPhaseType</span>};
@@ -269,7 +265,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">ParkingOverhead</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">table</span> <span class="op">=</span> <span class="ident">make_table</span>(<span class="ident">app</span>);
         <span class="kw">let</span> <span class="ident">col</span> <span class="op">=</span> <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">DashTab</span>::<span class="ident">ParkingOverhead</span>.<span class="ident">picker</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
@@ -309,7 +305,9 @@
             .<span class="ident">section</span>(<span class="ident">ctx</span>),
         ]);
 
-        <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">col</span>).<span class="ident">exact_size_percent</span>(<span class="number">90</span>, <span class="number">90</span>).<span class="ident">build</span>(<span class="ident">ctx</span>);
+        <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel</span>::<span class="ident">new_builder</span>(<span class="ident">col</span>)
+            .<span class="ident">exact_size_percent</span>(<span class="number">90</span>, <span class="number">90</span>)
+            .<span class="ident">build</span>(<span class="ident">ctx</span>);
 
         <span class="ident">Box</span>::<span class="ident">new</span>(<span class="self">Self</span> {
             <span class="ident">tab</span>: <span class="ident">DashTab</span>::<span class="ident">ParkingOverhead</span>,
@@ -374,14 +372,8 @@
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
     <span class="kw">for</span> (<span class="ident">id</span>, <span class="ident">phases</span>) <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_analytics</span>().<span class="ident">get_all_trip_phases</span>() {
         <span class="kw">let</span> <span class="ident">trip</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">trip_info</span>(<span class="ident">id</span>);
-        <span class="kw">let</span> <span class="ident">starts_off_map</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">trip</span>.<span class="ident">start</span> {
-            <span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
-        };
-        <span class="kw">let</span> <span class="ident">ends_off_map</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">trip</span>.<span class="ident">end</span> {
-            <span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
-        };
+        <span class="kw">let</span> <span class="ident">starts_off_map</span> <span class="op">=</span> <span class="macro">matches</span><span class="macro">!</span>(<span class="ident">trip</span>.<span class="ident">start</span>, <span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="kw">_</span>));
+        <span class="kw">let</span> <span class="ident">ends_off_map</span> <span class="op">=</span> <span class="macro">matches</span><span class="macro">!</span>(<span class="ident">trip</span>.<span class="ident">end</span>, <span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="kw">_</span>));
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">total_duration</span> <span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">ZERO</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">driving_duration</span> <span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">ZERO</span>;

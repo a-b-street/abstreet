@@ -334,6 +334,7 @@
 <span id="331">331</span>
 <span id="332">332</span>
 <span id="333">333</span>
+<span id="334">334</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
@@ -401,18 +402,19 @@
 
         <span class="kw">let</span> <span class="ident">person</span> <span class="op">=</span> <span class="ident">OrigPersonID</span>(<span class="ident">rec</span>.<span class="ident">hhno</span> <span class="kw">as</span> <span class="ident">usize</span>, <span class="ident">rec</span>.<span class="ident">pno</span> <span class="kw">as</span> <span class="ident">usize</span>);
         <span class="ident">people</span>.<span class="ident">insert</span>(<span class="ident">person</span>);
+        <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">float_cmp</span>)]</span>
         <span class="kw">let</span> <span class="ident">seq</span> <span class="op">=</span> (<span class="ident">rec</span>.<span class="ident">tour</span> <span class="kw">as</span> <span class="ident">usize</span>, <span class="ident">rec</span>.<span class="ident">half</span> <span class="op">=</span><span class="op">=</span> <span class="number">2.0</span>, <span class="ident">rec</span>.<span class="ident">tseg</span> <span class="kw">as</span> <span class="ident">usize</span>);
 
         <span class="ident">trips</span>.<span class="ident">push</span>(<span class="ident">OrigTrip</span> {
             <span class="ident">from</span>,
             <span class="ident">to</span>,
             <span class="ident">depart_at</span>,
-            <span class="ident">purpose</span>,
             <span class="ident">mode</span>,
-            <span class="ident">trip_time</span>,
-            <span class="ident">trip_dist</span>,
             <span class="ident">person</span>,
             <span class="ident">seq</span>,
+            <span class="ident">purpose</span>,
+            <span class="ident">trip_time</span>,
+            <span class="ident">trip_dist</span>,
         });
     }
     <span class="ident">done</span>(<span class="ident">timer</span>);

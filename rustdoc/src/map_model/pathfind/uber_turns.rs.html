@@ -555,7 +555,7 @@
 
 <span class="kw">impl</span> <span class="ident">IntersectionCluster</span> {
     <span class="doccomment">/// Group lane-based uber-turns into road-based UberTurnV2s.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_v2</span>(<span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">UberTurnV2</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_v2</span>(<span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">UberTurnV2</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">BTreeSet</span>::<span class="ident">new</span>();
         <span class="kw">for</span> <span class="ident">ut</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">uber_turns</span> {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();

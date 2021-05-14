@@ -853,7 +853,7 @@
             <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Can&#39;t cancel_iter_early() while a TimerSpan is top of the stack&quot;</span>);
         };
         <span class="self">self</span>.<span class="ident">stack</span>.<span class="ident">pop</span>();
-        <span class="self">self</span>.<span class="ident">add_result</span>(<span class="ident">elapsed</span>, <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;cancelled early&quot;</span>));
+        <span class="self">self</span>.<span class="ident">add_result</span>(<span class="ident">elapsed</span>, <span class="string">&quot;cancelled early&quot;</span>.<span class="ident">to_string</span>());
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_result</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">elapsed</span>: <span class="ident">f64</span>, <span class="ident">line</span>: <span class="ident">String</span>) {

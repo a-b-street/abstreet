@@ -740,10 +740,6 @@
 <span id="737">737</span>
 <span id="738">738</span>
 <span id="739">739</span>
-<span id="740">740</span>
-<span id="741">741</span>
-<span id="742">742</span>
-<span id="743">743</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeMap</span>;
 
@@ -969,7 +965,7 @@
         .<span class="ident">outline</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">section_outline</span>)
         .<span class="ident">padding</span>(<span class="number">16</span>)
         .<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">inner_panel_bg</span>)
-        .<span class="ident">to_geom</span>(<span class="ident">ctx</span>, <span class="prelude-val">Some</span>(<span class="number">0.3</span>));
+        .<span class="ident">into_geom</span>(<span class="ident">ctx</span>, <span class="prelude-val">Some</span>(<span class="number">0.3</span>));
         <span class="ident">rows</span>.<span class="ident">push</span>(
             <span class="ident">ctx</span>.<span class="ident">style</span>()
                 .<span class="ident">btn_solid</span>
@@ -1095,31 +1091,27 @@
     <span class="kw">for</span> <span class="ident">v</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">person</span>.<span class="ident">vehicles</span> {
         <span class="kw">if</span> <span class="ident">v</span>.<span class="ident">vehicle_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">VehicleType</span>::<span class="ident">Bike</span> {
             <span class="ident">has_bike</span> <span class="op">=</span> <span class="bool-val">true</span>;
-        } <span class="kw">else</span> {
-            <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">lookup_parked_car</span>(<span class="ident">v</span>.<span class="ident">id</span>).<span class="ident">is_some</span>() {
-                <span class="ident">rows</span>.<span class="ident">push</span>(
-                    <span class="ident">ctx</span>.<span class="ident">style</span>()
-                        .<span class="ident">btn_outline</span>
-                        .<span class="ident">text</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Owner of {} (parked)&quot;</span>, <span class="ident">v</span>.<span class="ident">id</span>))
-                        .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-                );
-                <span class="ident">details</span>
-                    .<span class="ident">hyperlinks</span>
-                    .<span class="ident">insert</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Owner of {} (parked)&quot;</span>, <span class="ident">v</span>.<span class="ident">id</span>), <span class="ident">Tab</span>::<span class="ident">ParkedCar</span>(<span class="ident">v</span>.<span class="ident">id</span>));
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="ident">PersonState</span>::<span class="ident">Trip</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident">person</span>.<span class="ident">state</span> {
-                <span class="kw">match</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">trip_to_agent</span>(<span class="ident">t</span>) {
-                    <span class="ident">TripResult</span>::<span class="prelude-val">Ok</span>(<span class="ident">AgentID</span>::<span class="ident">Car</span>(<span class="ident">x</span>)) <span class="kw">if</span> <span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="ident">v</span>.<span class="ident">id</span> <span class="op">=</span><span class="op">&gt;</span> {
-                        <span class="ident">rows</span>.<span class="ident">push</span>(
-                            <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Owner of {} (currently driving)&quot;</span>, <span class="ident">v</span>.<span class="ident">id</span>).<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
-                        );
-                    }
-                    <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
-                        <span class="ident">rows</span>.<span class="ident">push</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Owner of {} (off-map)&quot;</span>, <span class="ident">v</span>.<span class="ident">id</span>).<span class="ident">text_widget</span>(<span class="ident">ctx</span>));
-                    }
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">lookup_parked_car</span>(<span class="ident">v</span>.<span class="ident">id</span>).<span class="ident">is_some</span>() {
+            <span class="ident">rows</span>.<span class="ident">push</span>(
+                <span class="ident">ctx</span>.<span class="ident">style</span>()
+                    .<span class="ident">btn_outline</span>
+                    .<span class="ident">text</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Owner of {} (parked)&quot;</span>, <span class="ident">v</span>.<span class="ident">id</span>))
+                    .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+            );
+            <span class="ident">details</span>
+                .<span class="ident">hyperlinks</span>
+                .<span class="ident">insert</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Owner of {} (parked)&quot;</span>, <span class="ident">v</span>.<span class="ident">id</span>), <span class="ident">Tab</span>::<span class="ident">ParkedCar</span>(<span class="ident">v</span>.<span class="ident">id</span>));
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="ident">PersonState</span>::<span class="ident">Trip</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident">person</span>.<span class="ident">state</span> {
+            <span class="kw">match</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">trip_to_agent</span>(<span class="ident">t</span>) {
+                <span class="ident">TripResult</span>::<span class="prelude-val">Ok</span>(<span class="ident">AgentID</span>::<span class="ident">Car</span>(<span class="ident">x</span>)) <span class="kw">if</span> <span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="ident">v</span>.<span class="ident">id</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="ident">rows</span>.<span class="ident">push</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Owner of {} (currently driving)&quot;</span>, <span class="ident">v</span>.<span class="ident">id</span>).<span class="ident">text_widget</span>(<span class="ident">ctx</span>));
                 }
-            } <span class="kw">else</span> {
-                <span class="ident">rows</span>.<span class="ident">push</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Owner of {} (off-map)&quot;</span>, <span class="ident">v</span>.<span class="ident">id</span>).<span class="ident">text_widget</span>(<span class="ident">ctx</span>));
+                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="ident">rows</span>.<span class="ident">push</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Owner of {} (off-map)&quot;</span>, <span class="ident">v</span>.<span class="ident">id</span>).<span class="ident">text_widget</span>(<span class="ident">ctx</span>));
+                }
             }
+        } <span class="kw">else</span> {
+            <span class="ident">rows</span>.<span class="ident">push</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Owner of {} (off-map)&quot;</span>, <span class="ident">v</span>.<span class="ident">id</span>).<span class="ident">text_widget</span>(<span class="ident">ctx</span>));
         }
     }
     <span class="kw">if</span> <span class="ident">has_bike</span> {
@@ -1239,7 +1231,7 @@
     <span class="ident">members</span>: <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PedestrianID</span><span class="op">&gt;</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rows</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[];
-    <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">id</span>) <span class="kw">in</span> <span class="ident">members</span>.<span class="ident">into_iter</span>().<span class="ident">enumerate</span>() {
+    <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">id</span>) <span class="kw">in</span> <span class="ident">members</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
         <span class="kw">let</span> <span class="ident">person</span> <span class="op">=</span> <span class="ident">app</span>
             .<span class="ident">primary</span>
             .<span class="ident">sim</span>
@@ -1415,7 +1407,7 @@
             <span class="ident">Widget</span>::<span class="ident">nothing</span>()
         }
         .<span class="ident">centered_vert</span>(),
-        <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">descr</span>))
+        <span class="ident">Line</span>(<span class="ident">descr</span>.<span class="ident">to_string</span>())
             .<span class="ident">small_heading</span>()
             .<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#A3A3A3&quot;</span>))
             .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)

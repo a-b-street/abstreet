@@ -1451,7 +1451,7 @@
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">collect_events</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Event</span><span class="op">&gt;</span> {
-        <span class="ident">std</span>::<span class="ident">mem</span>::<span class="ident">replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">events</span>, <span class="ident">Vec</span>::<span class="ident">new</span>())
+        <span class="ident">std</span>::<span class="ident">mem</span>::<span class="ident">take</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">events</span>)
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">find_trips_to_parking</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">evicted_cars</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParkedCar</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">AgentID</span>, <span class="ident">TripID</span>)<span class="op">&gt;</span> {
@@ -1626,7 +1626,7 @@
                 <span class="kw">let</span> <span class="ident">line</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">get_pl</span>(<span class="ident">pl</span>).<span class="ident">sidewalk_line</span>;
                 (
                     <span class="ident">line</span>.<span class="ident">percent_along</span>(<span class="ident">time_int</span>.<span class="ident">percent</span>(<span class="ident">now</span>))
-                        .<span class="ident">unwrap_or</span>(<span class="ident">line</span>.<span class="ident">pt1</span>()),
+                        .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">line</span>.<span class="ident">pt1</span>()),
                     <span class="ident">line</span>.<span class="ident">angle</span>(),
                 )
             }
@@ -1635,18 +1635,18 @@
                 (
                     <span class="ident">line</span>.<span class="ident">reverse</span>()
                         .<span class="ident">percent_along</span>(<span class="ident">time_int</span>.<span class="ident">percent</span>(<span class="ident">now</span>))
-                        .<span class="ident">unwrap_or</span>(<span class="ident">line</span>.<span class="ident">pt1</span>()),
+                        .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">line</span>.<span class="ident">pt1</span>()),
                     <span class="ident">line</span>.<span class="ident">angle</span>().<span class="ident">opposite</span>(),
                 )
             }
             <span class="ident">PedState</span>::<span class="ident">StartingToBike</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">line</span>, <span class="kw-2">ref</span> <span class="ident">time_int</span>) <span class="op">=</span><span class="op">&gt;</span> (
                 <span class="ident">line</span>.<span class="ident">percent_along</span>(<span class="ident">time_int</span>.<span class="ident">percent</span>(<span class="ident">now</span>))
-                    .<span class="ident">unwrap_or</span>(<span class="ident">line</span>.<span class="ident">pt1</span>()),
+                    .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">line</span>.<span class="ident">pt1</span>()),
                 <span class="ident">line</span>.<span class="ident">angle</span>(),
             ),
             <span class="ident">PedState</span>::<span class="ident">FinishingBiking</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">line</span>, <span class="kw-2">ref</span> <span class="ident">time_int</span>) <span class="op">=</span><span class="op">&gt;</span> (
                 <span class="ident">line</span>.<span class="ident">percent_along</span>(<span class="ident">time_int</span>.<span class="ident">percent</span>(<span class="ident">now</span>))
-                    .<span class="ident">unwrap_or</span>(<span class="ident">line</span>.<span class="ident">pt1</span>()),
+                    .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">line</span>.<span class="ident">pt1</span>()),
                 <span class="ident">line</span>.<span class="ident">angle</span>(),
             ),
             <span class="ident">PedState</span>::<span class="ident">WaitingForBus</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {

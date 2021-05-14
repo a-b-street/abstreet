@@ -1722,8 +1722,8 @@
 
         <span class="kw">let</span> <span class="ident">info</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">trips</span>[<span class="ident">trip</span>.<span class="number">0</span>].<span class="ident">info</span>;
         <span class="kw">let</span> <span class="ident">spec</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">TripSpec</span>::<span class="ident">maybe_new</span>(
-            <span class="ident">info</span>.<span class="ident">start</span>.<span class="ident">clone</span>(),
-            <span class="ident">info</span>.<span class="ident">end</span>.<span class="ident">clone</span>(),
+            <span class="ident">info</span>.<span class="ident">start</span>,
+            <span class="ident">info</span>.<span class="ident">end</span>,
             <span class="ident">info</span>.<span class="ident">mode</span>,
             <span class="ident">args</span>.<span class="ident">use_vehicle</span>,
             <span class="ident">args</span>.<span class="ident">retry_if_no_room</span>,
@@ -1736,7 +1736,7 @@
             },
         };
         <span class="comment">// to_plan might actually change the TripSpec</span>
-        <span class="kw">let</span> (<span class="ident">spec</span>, <span class="ident">legs</span>) <span class="op">=</span> <span class="ident">spec</span>.<span class="ident">to_plan</span>(<span class="ident">ctx</span>.<span class="ident">map</span>);
+        <span class="kw">let</span> (<span class="ident">spec</span>, <span class="ident">legs</span>) <span class="op">=</span> <span class="ident">spec</span>.<span class="ident">into_plan</span>(<span class="ident">ctx</span>.<span class="ident">map</span>);
         <span class="macro">assert</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">trips</span>[<span class="ident">trip</span>.<span class="number">0</span>].<span class="ident">legs</span>.<span class="ident">is_empty</span>());
         <span class="self">self</span>.<span class="ident">trips</span>[<span class="ident">trip</span>.<span class="number">0</span>].<span class="ident">legs</span>.<span class="ident">extend</span>(<span class="ident">legs</span>);
 
@@ -2010,7 +2010,7 @@
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">collect_events</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Event</span><span class="op">&gt;</span> {
-        <span class="ident">std</span>::<span class="ident">mem</span>::<span class="ident">replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">events</span>, <span class="ident">Vec</span>::<span class="ident">new</span>())
+        <span class="ident">std</span>::<span class="ident">mem</span>::<span class="ident">take</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">events</span>)
     }
 }
 
@@ -2597,7 +2597,7 @@
     ) {
         <span class="kw">let</span> <span class="ident">trip</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">trips</span>[<span class="ident">id</span>.<span class="number">0</span>];
         <span class="self">self</span>.<span class="ident">unfinished_trips</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
-        <span class="ident">trip</span>.<span class="ident">info</span>.<span class="ident">cancellation_reason</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">reason</span>.<span class="ident">to_string</span>());
+        <span class="ident">trip</span>.<span class="ident">info</span>.<span class="ident">cancellation_reason</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">reason</span>);
         <span class="self">self</span>.<span class="ident">events</span>
             .<span class="ident">push</span>(<span class="ident">Event</span>::<span class="ident">TripCancelled</span>(<span class="ident">trip</span>.<span class="ident">id</span>, <span class="ident">trip</span>.<span class="ident">info</span>.<span class="ident">mode</span>));
         <span class="kw">let</span> <span class="ident">person</span> <span class="op">=</span> <span class="ident">trip</span>.<span class="ident">person</span>;
@@ -2637,7 +2637,7 @@
                         <span class="comment">// TODO Could pick something closer, but meh, cancelled trips are bugs</span>
                         <span class="comment">// anyway</span>
                         .<span class="ident">get</span>(<span class="number">0</span>)
-                        .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">spot</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">spot</span>.<span class="ident">clone</span>())
+                        .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">spot</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="kw-2">*</span><span class="ident">spot</span>)
                         .<span class="ident">or_else</span>(<span class="op">|</span><span class="op">|</span> {
                             <span class="ident">ctx</span>.<span class="ident">parking</span>
                                 .<span class="ident">path_to_free_parking_spot</span>(<span class="ident">driving_lane</span>, <span class="kw-2">&amp;</span><span class="ident">vehicle</span>, <span class="ident">b</span>, <span class="ident">ctx</span>.<span class="ident">map</span>)
@@ -2900,7 +2900,7 @@
         <span class="kw">for</span> <span class="ident">p</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">people</span> {
             <span class="ident">scenario</span>.<span class="ident">people</span>.<span class="ident">push</span>(<span class="ident">PersonSpec</span> {
                 <span class="ident">orig_id</span>: <span class="ident">p</span>.<span class="ident">orig_id</span>,
-                <span class="ident">origin</span>: <span class="self">self</span>.<span class="ident">trips</span>[<span class="ident">p</span>.<span class="ident">trips</span>[<span class="number">0</span>].<span class="number">0</span>].<span class="ident">info</span>.<span class="ident">start</span>.<span class="ident">clone</span>(),
+                <span class="ident">origin</span>: <span class="self">self</span>.<span class="ident">trips</span>[<span class="ident">p</span>.<span class="ident">trips</span>[<span class="number">0</span>].<span class="number">0</span>].<span class="ident">info</span>.<span class="ident">start</span>,
                 <span class="ident">trips</span>: <span class="ident">p</span>
                     .<span class="ident">trips</span>
                     .<span class="ident">iter</span>()
@@ -2909,7 +2909,7 @@
                         <span class="ident">IndividTrip</span>::<span class="ident">new</span>(
                             <span class="ident">trip</span>.<span class="ident">info</span>.<span class="ident">departure</span>,
                             <span class="ident">trip</span>.<span class="ident">info</span>.<span class="ident">purpose</span>,
-                            <span class="ident">trip</span>.<span class="ident">info</span>.<span class="ident">end</span>.<span class="ident">clone</span>(),
+                            <span class="ident">trip</span>.<span class="ident">info</span>.<span class="ident">end</span>,
                             <span class="ident">trip</span>.<span class="ident">info</span>.<span class="ident">mode</span>,
                         )
                     })

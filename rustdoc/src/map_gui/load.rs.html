@@ -621,7 +621,7 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MapLoader</span>;
 
 <span class="kw">impl</span> <span class="ident">MapLoader</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">AppLike</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span>(
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">AppLike</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span>(
         <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
         <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">A</span>,
         <span class="ident">name</span>: <span class="ident">MapName</span>,
@@ -641,15 +641,15 @@
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
         } {
             <span class="kw">if</span> <span class="op">!</span><span class="ident">ctx</span>.<span class="ident">is_font_loaded</span>(<span class="ident">extra_font</span>) {
-                <span class="kw">return</span> <span class="ident">RawFileLoader</span>::<span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>::<span class="ident">new</span>(
+                <span class="kw">return</span> <span class="ident">RawFileLoader</span>::<span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>::<span class="ident">new_state</span>(
                     <span class="ident">ctx</span>,
                     <span class="ident">abstio</span>::<span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;system/extra_fonts/{}&quot;</span>, <span class="ident">extra_font</span>)),
                     <span class="ident">Box</span>::<span class="ident">new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">bytes</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">bytes</span> {
                         <span class="prelude-val">Ok</span>(<span class="ident">bytes</span>) <span class="op">=</span><span class="op">&gt;</span> {
                             <span class="ident">ctx</span>.<span class="ident">load_font</span>(<span class="ident">extra_font</span>, <span class="ident">bytes</span>);
-                            <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">MapLoader</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">name</span>, <span class="ident">on_load</span>))
+                            <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">MapLoader</span>::<span class="ident">new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">name</span>, <span class="ident">on_load</span>))
                         }
-                        <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">PopupMsg</span>::<span class="ident">new</span>(
+                        <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">PopupMsg</span>::<span class="ident">new_state</span>(
                             <span class="ident">ctx</span>,
                             <span class="string">&quot;Error&quot;</span>,
                             <span class="macro">vec</span><span class="macro">!</span>[<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Couldn&#39;t load {}&quot;</span>, <span class="ident">extra_font</span>), <span class="ident">err</span>.<span class="ident">to_string</span>()],
@@ -659,7 +659,7 @@
             }
         }
 
-        <span class="ident">FileLoader</span>::<span class="op">&lt;</span><span class="ident">A</span>, <span class="ident">map_model</span>::<span class="ident">Map</span><span class="op">&gt;</span>::<span class="ident">new</span>(
+        <span class="ident">FileLoader</span>::<span class="op">&lt;</span><span class="ident">A</span>, <span class="ident">map_model</span>::<span class="ident">Map</span><span class="op">&gt;</span>::<span class="ident">new_state</span>(
             <span class="ident">ctx</span>,
             <span class="ident">name</span>.<span class="ident">path</span>(),
             <span class="ident">Box</span>::<span class="ident">new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">timer</span>, <span class="ident">map</span><span class="op">|</span> {
@@ -672,7 +672,7 @@
 
                         (<span class="ident">on_load</span>)(<span class="ident">ctx</span>, <span class="ident">app</span>)
                     }
-                    <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">PopupMsg</span>::<span class="ident">new</span>(
+                    <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">PopupMsg</span>::<span class="ident">new_state</span>(
                         <span class="ident">ctx</span>,
                         <span class="string">&quot;Error&quot;</span>,
                         <span class="macro">vec</span><span class="macro">!</span>[
@@ -710,7 +710,7 @@
     }
 
     <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">AppLike</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>, <span class="ident">T</span>: <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">DeserializeOwned</span><span class="op">&gt;</span> <span class="ident">FileLoader</span><span class="op">&lt;</span><span class="ident">A</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(
+        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(
             <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
             <span class="ident">path</span>: <span class="ident">String</span>,
             <span class="ident">on_load</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span>,
@@ -747,7 +747,7 @@
     }
 
     <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">AppLike</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span> <span class="ident">RawFileLoader</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> {
-        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(
+        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(
             <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
             <span class="ident">path</span>: <span class="ident">String</span>,
             <span class="ident">on_load</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span>,
@@ -1068,7 +1068,7 @@
     }
 
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>))]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(
         <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
         <span class="ident">future</span>: <span class="ident">Pin</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">Future</span><span class="op">&lt;</span><span class="ident">Output</span> <span class="op">=</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="ident">A</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
         <span class="ident">outer_progress_receiver</span>: <span class="ident">mpsc</span>::<span class="ident">Receiver</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
@@ -1107,7 +1107,7 @@
             <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="macro">error</span><span class="macro">!</span>(<span class="string">&quot;channel failed: {:?}&quot;</span>, <span class="ident">e</span>);
                 <span class="kw">let</span> <span class="ident">on_load</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">on_load</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>();
-                <span class="kw">return</span> <span class="ident">on_load</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="prelude-val">Err</span>(<span class="macro">anyhow</span><span class="macro">!</span>(<span class="string">&quot;channel canceled&quot;</span>)));
+                <span class="ident">on_load</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="prelude-val">Err</span>(<span class="macro">anyhow</span><span class="macro">!</span>(<span class="string">&quot;channel canceled&quot;</span>)))
             }
             <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">rx</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">outer_progress_receiver</span> {
@@ -1159,18 +1159,18 @@
                 <span class="comment">// Until the response is received, just ask winit to regularly call event(), so we</span>
                 <span class="comment">// can keep polling the channel.</span>
                 <span class="ident">ctx</span>.<span class="ident">request_update</span>(<span class="ident">UpdateType</span>::<span class="ident">Game</span>);
-                <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Keep</span>;
+                <span class="ident">Transition</span>::<span class="ident">Keep</span>
             }
             <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="prelude-val">Err</span>(<span class="ident">e</span>))) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="macro">error</span><span class="macro">!</span>(<span class="string">&quot;error in fetching data&quot;</span>);
                 <span class="kw">let</span> <span class="ident">on_load</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">on_load</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>();
-                <span class="kw">return</span> <span class="ident">on_load</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="prelude-val">Err</span>(<span class="ident">e</span>));
+                <span class="ident">on_load</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="prelude-val">Err</span>(<span class="ident">e</span>))
             }
             <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(<span class="ident">builder</span>))) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="macro">debug</span><span class="macro">!</span>(<span class="string">&quot;future complete&quot;</span>);
                 <span class="kw">let</span> <span class="ident">t</span> <span class="op">=</span> <span class="ident">builder</span>(<span class="ident">app</span>);
                 <span class="kw">let</span> <span class="ident">on_load</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">on_load</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>();
-                <span class="kw">return</span> <span class="ident">on_load</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="prelude-val">Ok</span>(<span class="ident">t</span>));
+                <span class="ident">on_load</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="prelude-val">Ok</span>(<span class="ident">t</span>))
             }
         }
     }

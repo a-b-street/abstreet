@@ -57,9 +57,6 @@
 <span id="54">54</span>
 <span id="55">55</span>
 <span id="56">56</span>
-<span id="57">57</span>
-<span id="58">58</span>
-<span id="59">59</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>, <span class="ident">Widget</span>, <span class="ident">WidgetImpl</span>, <span class="ident">WidgetOutput</span>};
 
@@ -109,11 +106,8 @@
 
     <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">WidgetOutput</span>) {
         <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">is_window_resized</span>() {
-            <span class="kw">match</span> <span class="self">self</span>.<span class="ident">resize</span> {
-                <span class="ident">ResizeRule</span>::<span class="ident">RatioWidthSquare</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">parent_width</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw-2">*</span><span class="ident">parent_width</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_width</span>;
-                }
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
+            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">ResizeRule</span>::<span class="ident">RatioWidthSquare</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">parent_width</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">resize</span> {
+                <span class="kw-2">*</span><span class="ident">parent_width</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_width</span>;
             };
         }
     }

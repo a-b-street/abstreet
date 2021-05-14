@@ -145,6 +145,9 @@
 <span id="142">142</span>
 <span id="143">143</span>
 <span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">LonLat</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
@@ -172,10 +175,14 @@
 }
 
 <span class="kw">impl</span> <span class="ident">PolygonEditor</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">name</span>: <span class="ident">String</span>, <span class="kw-2">mut</span> <span class="ident">points</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LonLat</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(
+        <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
+        <span class="ident">name</span>: <span class="ident">String</span>,
+        <span class="kw-2">mut</span> <span class="ident">points</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LonLat</span><span class="op">&gt;</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="ident">points</span>.<span class="ident">pop</span>();
         <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">PolygonEditor</span> {
-            <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
+            <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new_builder</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">Line</span>(<span class="string">&quot;Polygon editor&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                     <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
@@ -213,8 +220,8 @@
             <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Keep</span>;
         }
 
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
+            <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
                 <span class="string">&quot;close&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Pop</span>;
                 }
@@ -228,8 +235,7 @@
                     }
                 }
                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
-            },
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
+            }
         }
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">cursor</span>) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_map_space</span>() {
@@ -266,7 +272,7 @@
         <span class="kw">if</span> <span class="ident">pts</span>.<span class="ident">len</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="number">3</span> {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span> <span class="op">=</span> <span class="ident">pts</span>.<span class="ident">clone</span>();
             <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">pts</span>[<span class="number">0</span>]);
-            <span class="ident">g</span>.<span class="ident">draw_polygon</span>(<span class="ident">POLYGON_COLOR</span>, <span class="ident">Ring</span>::<span class="ident">must_new</span>(<span class="ident">pts</span>).<span class="ident">to_polygon</span>());
+            <span class="ident">g</span>.<span class="ident">draw_polygon</span>(<span class="ident">POLYGON_COLOR</span>, <span class="ident">Ring</span>::<span class="ident">must_new</span>(<span class="ident">pts</span>).<span class="ident">into_polygon</span>());
         }
         <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">pt</span>) <span class="kw">in</span> <span class="ident">pts</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
             <span class="kw">let</span> <span class="ident">color</span> <span class="op">=</span> <span class="kw">if</span> <span class="prelude-val">Some</span>(<span class="ident">idx</span>) <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">mouseover_pt</span> {

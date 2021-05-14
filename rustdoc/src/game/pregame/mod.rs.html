@@ -411,9 +411,6 @@
 <span id="408">408</span>
 <span id="409">409</span>
 <span id="410">410</span>
-<span id="411">411</span>
-<span id="412">412</span>
-<span id="413">413</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">instant</span>::<span class="ident">Instant</span>;
 <span class="kw">use</span> <span class="ident">rand</span>::<span class="ident">Rng</span>;
@@ -455,7 +452,7 @@
             .<span class="ident">instantiate</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rng</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>);
 
         <span class="ident">TitleScreen</span> {
-            <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new</span>(
+            <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new_builder</span>(
                 <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">Image</span>::<span class="ident">untinted</span>(<span class="string">&quot;system/assets/pregame/logo.svg&quot;</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                     <span class="comment">// TODO that nicer font</span>
@@ -480,15 +477,14 @@
 
 <span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">TitleScreen</span> {
     <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
+            <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
                 <span class="string">&quot;start game&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">clear_sim</span>();
-                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">MainMenu</span>::<span class="ident">new</span>(<span class="ident">ctx</span>));
+                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">MainMenu</span>::<span class="ident">new_state</span>(<span class="ident">ctx</span>));
                 }
                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
-            },
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
+            }
         }
 
         <span class="self">self</span>.<span class="ident">screensaver</span>.<span class="ident">update</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">rng</span>, <span class="ident">ctx</span>, <span class="ident">app</span>);
@@ -506,7 +502,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">MainMenu</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">col</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
             {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="string">&quot;A/B STREET&quot;</span>).<span class="ident">display_title</span>());
@@ -596,7 +592,7 @@
         ];
 
         <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">MainMenu</span> {
-            <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="ident">col</span>).<span class="ident">evenly_spaced</span>())
+            <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new_builder</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="ident">col</span>).<span class="ident">evenly_spaced</span>())
                 .<span class="ident">exact_size_percent</span>(<span class="number">90</span>, <span class="number">85</span>)
                 .<span class="ident">build_custom</span>(<span class="ident">ctx</span>),
         })
@@ -605,8 +601,8 @@
 
 <span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">MainMenu</span> {
     <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
+            <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
                 <span class="string">&quot;Tutorial&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">return</span> <span class="ident">Tutorial</span>::<span class="ident">start</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
                 }
@@ -621,23 +617,22 @@
                     ));
                 }
                 <span class="string">&quot;Challenges&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">ChallengesPicker</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
+                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">ChallengesPicker</span>::<span class="ident">new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
                 }
                 <span class="string">&quot;About&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">About</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
+                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">About</span>::<span class="ident">new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
                 }
                 <span class="string">&quot;Feedback&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="ident">open_browser</span>(<span class="string">&quot;https://forms.gle/ocvbek1bTaZUr3k49&quot;</span>);
                 }
                 <span class="string">&quot;Community Proposals&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">proposals</span>::<span class="ident">Proposals</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="prelude-val">None</span>));
+                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">proposals</span>::<span class="ident">Proposals</span>::<span class="ident">new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="prelude-val">None</span>));
                 }
                 <span class="string">&quot;Internal Dev Tools&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">DevToolsMode</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
+                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">DevToolsMode</span>::<span class="ident">new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
                 }
                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
-            },
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
+            }
         }
 
         <span class="ident">Transition</span>::<span class="ident">Keep</span>
@@ -658,7 +653,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">About</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">col</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">ctx</span>.<span class="ident">style</span>()
                 .<span class="ident">btn_back</span>(<span class="string">&quot;Home&quot;</span>)
@@ -702,7 +697,7 @@
         ];
 
         <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">About</span> {
-            <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">custom_col</span>(<span class="ident">col</span>))
+            <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new_builder</span>(<span class="ident">Widget</span>::<span class="ident">custom_col</span>(<span class="ident">col</span>))
                 .<span class="ident">exact_size_percent</span>(<span class="number">90</span>, <span class="number">85</span>)
                 .<span class="ident">build_custom</span>(<span class="ident">ctx</span>),
         })
@@ -711,8 +706,8 @@
 
 <span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">About</span> {
     <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
+            <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
                 <span class="string">&quot;back&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Pop</span>;
                 }
@@ -720,8 +715,7 @@
                     <span class="ident">open_browser</span>(<span class="string">&quot;https://github.com/a-b-street/abstreet#credits&quot;</span>);
                 }
                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
-            },
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
+            }
         }
 
         <span class="ident">Transition</span>::<span class="ident">Keep</span>
@@ -794,7 +788,7 @@
         <span class="kw">return</span> <span class="string">&quot;weekday&quot;</span>.<span class="ident">to_string</span>();
     }
     <span class="kw">if</span> <span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">country</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;gb&quot;</span> {
-        <span class="kw">for</span> <span class="ident">x</span> <span class="kw">in</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;background&quot;</span>, <span class="string">&quot;base_with_bg&quot;</span>] {
+        <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="ident">x</span> <span class="kw">in</span> <span class="kw-2">&amp;</span>[<span class="string">&quot;background&quot;</span>, <span class="string">&quot;base_with_bg&quot;</span>] {
             <span class="kw">if</span> <span class="ident">abstio</span>::<span class="ident">file_exists</span>(<span class="ident">abstio</span>::<span class="ident">path_scenario</span>(<span class="ident">name</span>, <span class="ident">x</span>)) {
                 <span class="kw">return</span> <span class="ident">x</span>.<span class="ident">to_string</span>();
             }
@@ -816,7 +810,7 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">from</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;This version built on {}&quot;</span>, <span class="ident">t</span>.<span class="ident">date</span>().<span class="ident">naive_local</span>()));
         <span class="comment">// Releases every Sunday</span>
         <span class="kw">if</span> (<span class="ident">chrono</span>::<span class="ident">Utc</span>::<span class="ident">now</span>() <span class="op">-</span> <span class="ident">t</span>).<span class="ident">num_days</span>() <span class="op">&gt;</span> <span class="number">8</span> {
-            <span class="ident">txt</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot; (get the new release from abstreet.org)&quot;</span>)).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">RED</span>));
+            <span class="ident">txt</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="string">&quot; (get the new release from abstreet.org)&quot;</span>.<span class="ident">to_string</span>()).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">RED</span>));
         }
         <span class="ident">txt</span>
     }

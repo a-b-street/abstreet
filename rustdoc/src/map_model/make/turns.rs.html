@@ -930,7 +930,7 @@
     <span class="comment">// Just based on relative ordering around the intersection, turns (from road, to road, should</span>
     <span class="comment">// have this type)</span>
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">expected_turn_types</span>: <span class="ident">HashMap</span><span class="op">&lt;</span>(<span class="ident">RoadID</span>, <span class="ident">RoadID</span>), <span class="ident">TurnType</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">HashMap</span>::<span class="ident">new</span>();
-    <span class="kw">for</span> (<span class="ident">offset</span>, <span class="ident">turn_type</span>) <span class="kw">in</span> <span class="macro">vec</span><span class="macro">!</span>[
+    <span class="kw">for</span> <span class="kw-2">&amp;</span>(<span class="ident">offset</span>, <span class="ident">turn_type</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span>[
         (<span class="number">1</span>, <span class="ident">TurnType</span>::<span class="ident">Left</span>),
         (<span class="number">2</span>, <span class="ident">TurnType</span>::<span class="ident">Straight</span>),
         (<span class="number">3</span>, <span class="ident">TurnType</span>::<span class="ident">Right</span>),

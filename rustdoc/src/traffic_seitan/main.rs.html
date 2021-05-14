@@ -192,7 +192,7 @@
     <span class="kw">let</span> <span class="ident">edit_frequency</span> <span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">minutes</span>(<span class="number">5</span>);
 
     <span class="kw">while</span> <span class="op">!</span><span class="ident">sim</span>.<span class="ident">is_done</span>() {
-        <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;&quot;</span>);
+        <span class="macro">println</span><span class="macro">!</span>();
         <span class="ident">sim</span>.<span class="ident">timed_step</span>(<span class="ident">map</span>, <span class="ident">edit_frequency</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="prelude-val">None</span>, <span class="ident">timer</span>);
         <span class="ident">sim</span>.<span class="ident">save</span>();
         <span class="ident">map</span>.<span class="ident">save_edits</span>();

@@ -134,6 +134,7 @@
 <span id="131">131</span>
 <span id="132">132</span>
 <span id="133">133</span>
+<span id="134">134</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeSet</span>, <span class="ident">VecDeque</span>};
 
@@ -146,13 +147,14 @@
 <span class="doccomment">/// Merge tiny &quot;roads&quot; that&#39;re actually just part of a complicated intersection. Returns all</span>
 <span class="doccomment">/// surviving intersections adjacent to one of these merged roads.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">merge_short_roads</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">RawMap</span>, <span class="ident">consolidate_all</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">NodeID</span><span class="op">&gt;</span> {
+    <span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">logic_bug</span>)]</span> <span class="comment">// remove once the TODO below is taken care of</span>
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">merged</span> <span class="op">=</span> <span class="ident">BTreeSet</span>::<span class="ident">new</span>();
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">queue</span>: <span class="ident">VecDeque</span><span class="op">&lt;</span><span class="ident">OriginalRoad</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">VecDeque</span>::<span class="ident">new</span>();
     <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">roads</span>.<span class="ident">keys</span>() {
         <span class="ident">queue</span>.<span class="ident">push_back</span>(<span class="kw-2">*</span><span class="ident">r</span>);
 
-        <span class="comment">// TODO Remove after improving this heuristic.</span>
+        <span class="comment">// TODO Enable after improving this heuristic.</span>
         <span class="kw">if</span> <span class="bool-val">false</span> <span class="op">&amp;&amp;</span> <span class="ident">connects_dual_carriageway</span>(<span class="ident">map</span>, <span class="ident">r</span>) {
             <span class="macro">debug</span><span class="macro">!</span>(<span class="string">&quot;{} connects dual carriageways&quot;</span>, <span class="ident">r</span>);
         }

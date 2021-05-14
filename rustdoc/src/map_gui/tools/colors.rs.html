@@ -792,7 +792,7 @@
     }
 
     <span class="kw">fn</span> <span class="ident">inner_eval</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pct</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">usize</span>, <span class="ident">f64</span>) {
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">pct</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">0.0</span> <span class="op">&amp;&amp;</span> <span class="ident">pct</span> <span class="op">&lt;</span><span class="op">=</span> <span class="number">1.0</span>);
+        <span class="macro">assert</span><span class="macro">!</span>((<span class="number">0.0</span>..<span class="op">=</span><span class="number">1.0</span>).<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">pct</span>));
         <span class="comment">// What&#39;s the interval between each pair of colors?</span>
         <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span> <span class="number">1.0</span> <span class="op">/</span> (<span class="self">self</span>.<span class="number">0</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>) <span class="kw">as</span> <span class="ident">f64</span>;
         <span class="kw">let</span> <span class="ident">low</span> <span class="op">=</span> (<span class="ident">pct</span> <span class="op">/</span> <span class="ident">width</span>).<span class="ident">floor</span>() <span class="kw">as</span> <span class="ident">usize</span>;

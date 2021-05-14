@@ -239,7 +239,7 @@
             <span class="ident">read_svg</span>,
         };
         <span class="ident">a</span>.<span class="ident">text_opts</span>.<span class="ident">borrow_mut</span>().<span class="ident">fontdb</span> <span class="op">=</span> <span class="ident">fontdb</span>;
-        <span class="kw">for</span> <span class="ident">font</span> <span class="kw">in</span> <span class="macro">vec</span><span class="macro">!</span>[
+        <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="ident">font</span> <span class="kw">in</span> <span class="kw-2">&amp;</span>[
             <span class="ident">Font</span>::<span class="ident">BungeeInlineRegular</span>,
             <span class="ident">Font</span>::<span class="ident">BungeeRegular</span>,
             <span class="ident">Font</span>::<span class="ident">OverpassBold</span>,
@@ -253,7 +253,7 @@
                     .<span class="ident">borrow</span>()
                     .<span class="ident">fontdb</span>
                     .<span class="ident">query</span>(<span class="kw-2">&amp;</span><span class="ident">fontdb</span>::<span class="ident">Query</span> {
-                        <span class="ident">families</span>: <span class="kw-2">&amp;</span><span class="macro">vec</span><span class="macro">!</span>[<span class="ident">fontdb</span>::<span class="ident">Family</span>::<span class="ident">Name</span>(<span class="ident">font</span>.<span class="ident">family</span>())],
+                        <span class="ident">families</span>: <span class="kw-2">&amp;</span>[<span class="ident">fontdb</span>::<span class="ident">Family</span>::<span class="ident">Name</span>(<span class="ident">font</span>.<span class="ident">family</span>())],
                         <span class="ident">weight</span>: <span class="kw">match</span> <span class="ident">font</span> {
                             <span class="ident">Font</span>::<span class="ident">OverpassBold</span> <span class="op">|</span> <span class="ident">Font</span>::<span class="ident">OverpassMonoBold</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">fontdb</span>::<span class="ident">Weight</span>::<span class="ident">BOLD</span>,
                             <span class="ident">Font</span>::<span class="ident">OverpassSemiBold</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">fontdb</span>::<span class="ident">Weight</span>::<span class="ident">SEMIBOLD</span>,
@@ -271,7 +271,7 @@
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">base_url</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">base_url</span>.<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="ident">String</span>::<span class="ident">as_str</span>)
+        <span class="self">self</span>.<span class="ident">base_url</span>.<span class="ident">as_deref</span>()
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">are_gzipped</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {

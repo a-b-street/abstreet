@@ -269,7 +269,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">ZoneEditor</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>, <span class="ident">start</span>: <span class="ident">RoadID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>, <span class="ident">start</span>: <span class="ident">RoadID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">start</span>);
         <span class="kw">let</span> <span class="ident">members</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">z</span>) <span class="op">=</span> <span class="ident">start</span>.<span class="ident">get_zone</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>) {
             <span class="ident">z</span>.<span class="ident">members</span>.<span class="ident">clone</span>()
@@ -281,7 +281,7 @@
             .<span class="ident">access_restrictions</span>
             .<span class="ident">allow_through_traffic</span>
             .<span class="ident">into_iter</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">TripMode</span>::<span class="ident">from_constraints</span>(<span class="ident">c</span>))
+            .<span class="ident">map</span>(<span class="ident">TripMode</span>::<span class="ident">from_constraints</span>)
             .<span class="ident">collect</span>();
         <span class="kw">let</span> <span class="ident">cap_vehicles_per_hour</span> <span class="op">=</span> <span class="ident">start</span>.<span class="ident">access_restrictions</span>.<span class="ident">cap_vehicles_per_hour</span>;
 
@@ -290,7 +290,7 @@
         <span class="kw">let</span> <span class="ident">selector</span> <span class="op">=</span> <span class="ident">RoadSelector</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">members</span>);
 
         <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">ZoneEditor</span> {
-            <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
+            <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new_builder</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">Line</span>(<span class="string">&quot;Editing restricted access zone&quot;</span>)
                     .<span class="ident">small_heading</span>()
                     .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),

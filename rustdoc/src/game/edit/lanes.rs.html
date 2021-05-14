@@ -242,6 +242,15 @@
 <span id="239">239</span>
 <span id="240">240</span>
 <span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
+<span id="244">244</span>
+<span id="245">245</span>
+<span id="246">246</span>
+<span id="247">247</span>
+<span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">render</span>::<span class="ident">Renderable</span>;
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">ID</span>;
@@ -266,7 +275,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">LaneEditor</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(
         <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
         <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
         <span class="ident">l</span>: <span class="ident">LaneID</span>,
@@ -274,7 +283,7 @@
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">row</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
         <span class="kw">let</span> <span class="ident">current_lt</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">lane_type</span>;
-        <span class="kw">for</span> (<span class="ident">icon</span>, <span class="ident">label</span>, <span class="ident">key</span>, <span class="ident">lt</span>) <span class="kw">in</span> <span class="macro">vec</span><span class="macro">!</span>[
+        <span class="kw">for</span> <span class="kw-2">&amp;</span>(<span class="ident">icon</span>, <span class="ident">label</span>, <span class="ident">key</span>, <span class="ident">lt</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span>[
             (
                 <span class="string">&quot;driving&quot;</span>,
                 <span class="string">&quot;convert to a driving lane&quot;</span>,
@@ -356,30 +365,34 @@
                 .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Escape</span>)
                 .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
         ];
-        <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="ident">col</span>))
+        <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel</span>::<span class="ident">new_builder</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="ident">col</span>))
             .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment</span>::<span class="ident">Center</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Top</span>)
             .<span class="ident">build</span>(<span class="ident">ctx</span>);
 
-        <span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">SimpleState</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">new</span>(<span class="ident">panel</span>, <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">LaneEditor</span> { <span class="ident">l</span>, <span class="ident">mode</span> }))
+        <span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">SimpleState</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">new_state</span>(<span class="ident">panel</span>, <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">LaneEditor</span> { <span class="ident">l</span>, <span class="ident">mode</span> }))
     }
 }
 
 <span class="kw">impl</span> <span class="ident">SimpleState</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">LaneEditor</span> {
     <span class="kw">fn</span> <span class="ident">on_click</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>, <span class="ident">x</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">Panel</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span> {
         <span class="kw">match</span> <span class="ident">x</span> {
-            <span class="string">&quot;Edit multiple lanes&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="kw">crate</span>::<span class="ident">edit</span>::<span class="ident">bulk</span>::<span class="ident">BulkSelect</span>::<span class="ident">new</span>(
+            <span class="string">&quot;Edit multiple lanes&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="kw">crate</span>::<span class="ident">edit</span>::<span class="ident">bulk</span>::<span class="ident">BulkSelect</span>::<span class="ident">new_state</span>(
                 <span class="ident">ctx</span>,
                 <span class="ident">app</span>,
                 <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="self">self</span>.<span class="ident">l</span>).<span class="ident">parent</span>,
             )),
-            <span class="string">&quot;Change access restrictions&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">ZoneEditor</span>::<span class="ident">new</span>(
+            <span class="string">&quot;Change access restrictions&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">ZoneEditor</span>::<span class="ident">new_state</span>(
                 <span class="ident">ctx</span>,
                 <span class="ident">app</span>,
                 <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="self">self</span>.<span class="ident">l</span>).<span class="ident">parent</span>,
             )),
-            <span class="string">&quot;Modify entire road (experimental!)&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(
-                <span class="kw">crate</span>::<span class="ident">edit</span>::<span class="ident">roads</span>::<span class="ident">RoadEditor</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="self">self</span>.<span class="ident">l</span>).<span class="ident">parent</span>),
-            ),
+            <span class="string">&quot;Modify entire road (experimental!)&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="kw">crate</span>::<span class="ident">edit</span>::<span class="ident">roads</span>::<span class="ident">RoadEditor</span>::<span class="ident">new_state</span>(
+                    <span class="ident">ctx</span>,
+                    <span class="ident">app</span>,
+                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="self">self</span>.<span class="ident">l</span>).<span class="ident">parent</span>,
+                ))
+            }
             <span class="string">&quot;Finish&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition</span>::<span class="ident">Pop</span>,
             <span class="ident">x</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>;
@@ -406,7 +419,12 @@
                         <span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">push</span>(<span class="ident">cmd</span>);
                         <span class="ident">apply_map_edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">edits</span>);
 
-                        <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">LaneEditor</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">l</span>, <span class="self">self</span>.<span class="ident">mode</span>.<span class="ident">clone</span>()))
+                        <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">LaneEditor</span>::<span class="ident">new_state</span>(
+                            <span class="ident">ctx</span>,
+                            <span class="ident">app</span>,
+                            <span class="self">self</span>.<span class="ident">l</span>,
+                            <span class="self">self</span>.<span class="ident">mode</span>.<span class="ident">clone</span>(),
+                        ))
                     }
                     <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">err</span>),
                 }
@@ -428,7 +446,7 @@
             },
         ));
         <span class="ident">apply_map_edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">edits</span>);
-        <span class="prelude-val">Some</span>(<span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">LaneEditor</span>::<span class="ident">new</span>(
+        <span class="prelude-val">Some</span>(<span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">LaneEditor</span>::<span class="ident">new_state</span>(
             <span class="ident">ctx</span>,
             <span class="ident">app</span>,
             <span class="self">self</span>.<span class="ident">l</span>,
@@ -452,7 +470,7 @@
     <span class="kw">fn</span> <span class="ident">other_event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span> {
         <span class="ident">ctx</span>.<span class="ident">canvas_movement</span>();
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">l</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">click_on_lane</span>(<span class="ident">ctx</span>, <span class="string">&quot;edit this lane&quot;</span>) {
-            <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">LaneEditor</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">l</span>, <span class="self">self</span>.<span class="ident">mode</span>.<span class="ident">clone</span>()));
+            <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">LaneEditor</span>::<span class="ident">new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">l</span>, <span class="self">self</span>.<span class="ident">mode</span>.<span class="ident">clone</span>()));
         }
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">Intersection</span>(<span class="ident">id</span>)) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> {
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">state</span>) <span class="op">=</span> <span class="ident">maybe_edit_intersection</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">mode</span>) {

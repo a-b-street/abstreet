@@ -215,7 +215,7 @@
         {
             <span class="kw">continue</span>;
         }
-        <span class="kw">let</span> <span class="ident">region</span> <span class="op">=</span> <span class="ident">Ring</span>::<span class="ident">must_new</span>(<span class="ident">pts</span>).<span class="ident">to_polygon</span>();
+        <span class="kw">let</span> <span class="ident">region</span> <span class="op">=</span> <span class="ident">Ring</span>::<span class="ident">must_new</span>(<span class="ident">pts</span>).<span class="ident">into_polygon</span>();
         <span class="comment">// Deterministically seed using the planning area&#39;s ID.</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span>
             <span class="ident">XorShiftRng</span>::<span class="ident">seed_from_u64</span>(<span class="ident">shape</span>.<span class="ident">attributes</span>[<span class="string">&quot;spatial_name&quot;</span>].<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>());

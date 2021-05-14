@@ -231,7 +231,7 @@
         }
         <span class="kw">let</span> (<span class="ident">unzoomed</span>, <span class="ident">zoomed</span>, <span class="ident">legend</span>) <span class="op">=</span> <span class="ident">colorer</span>.<span class="ident">build</span>(<span class="ident">ctx</span>);
 
-        <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
+        <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel</span>::<span class="ident">new_builder</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">header</span>(<span class="ident">ctx</span>, <span class="string">&quot;Transit network&quot;</span>),
             <span class="ident">Toggle</span>::<span class="ident">switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;show all routes&quot;</span>, <span class="prelude-val">None</span>, <span class="ident">show_all_routes</span>),
             <span class="ident">Toggle</span>::<span class="ident">switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;show buses&quot;</span>, <span class="prelude-val">None</span>, <span class="ident">show_buses</span>),

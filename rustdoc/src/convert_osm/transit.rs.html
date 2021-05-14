@@ -318,7 +318,6 @@
 <span id="315">315</span>
 <span id="316">316</span>
 <span id="317">317</span>
-<span id="318">318</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashMap</span>;
 
@@ -431,11 +430,9 @@
     <span class="kw">for</span> <span class="ident">stop</span> <span class="kw">in</span> <span class="ident">stops</span> {
         <span class="kw">if</span> <span class="ident">boundary</span>.<span class="ident">contains_pt</span>(<span class="ident">stop</span>.<span class="ident">vehicle_pos</span>.<span class="number">1</span>) {
             <span class="ident">keep_stops</span>.<span class="ident">push</span>(<span class="ident">stop</span>);
-        } <span class="kw">else</span> {
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">keep_stops</span>.<span class="ident">is_empty</span>() {
-                <span class="comment">// That&#39;s the end of them</span>
-                <span class="kw">break</span>;
-            }
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="op">!</span><span class="ident">keep_stops</span>.<span class="ident">is_empty</span>() {
+            <span class="comment">// That&#39;s the end of them</span>
+            <span class="kw">break</span>;
         }
     }
     <span class="macro">println</span><span class="macro">!</span>(
@@ -612,6 +609,7 @@
             .<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">road</span>)
             .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">anyhow</span><span class="macro">!</span>(<span class="string">&quot;{} isn&#39;t an extracted road&quot;</span>, <span class="ident">road</span>))<span class="question-mark">?</span>
             .<span class="ident">osm_tags</span>;
+        <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">if_same_then_else</span>)]</span>
         <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">is</span>(<span class="ident">osm</span>::<span class="ident">INFERRED_SIDEWALKS</span>, <span class="string">&quot;true&quot;</span>) {
             <span class="kw">let</span> <span class="ident">current</span> <span class="op">=</span> <span class="ident">tags</span>.<span class="ident">get</span>(<span class="ident">osm</span>::<span class="ident">SIDEWALK</span>).<span class="ident">unwrap</span>();
             <span class="kw">if</span> <span class="ident">current</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;none&quot;</span> {

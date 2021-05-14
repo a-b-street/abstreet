@@ -371,7 +371,7 @@
             <span class="ident">trips</span>: <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">IndividTrip</span>::<span class="ident">new</span>(
                 <span class="ident">depart</span>,
                 <span class="ident">TripPurpose</span>::<span class="ident">Shopping</span>,
-                <span class="self">self</span>.<span class="ident">goal</span>.<span class="ident">clone</span>().<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> {
+                <span class="self">self</span>.<span class="ident">goal</span>.<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> {
                     <span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="ident">map</span>.<span class="ident">all_buildings</span>().<span class="ident">choose</span>(<span class="ident">rng</span>).<span class="ident">unwrap</span>().<span class="ident">id</span>)
                 }),
                 <span class="ident">mode</span>,
@@ -389,7 +389,7 @@
             <span class="ident">trips</span>: <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">IndividTrip</span>::<span class="ident">new</span>(
                 <span class="ident">depart</span>,
                 <span class="ident">TripPurpose</span>::<span class="ident">Shopping</span>,
-                <span class="self">self</span>.<span class="ident">goal</span>.<span class="ident">clone</span>().<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> {
+                <span class="self">self</span>.<span class="ident">goal</span>.<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> {
                     <span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="ident">map</span>.<span class="ident">all_buildings</span>().<span class="ident">choose</span>(<span class="ident">rng</span>).<span class="ident">unwrap</span>().<span class="ident">id</span>)
                 }),
                 <span class="ident">mode</span>,

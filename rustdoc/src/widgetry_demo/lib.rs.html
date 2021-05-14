@@ -623,9 +623,6 @@
 <span id="620">620</span>
 <span id="621">621</span>
 <span id="622">622</span>
-<span id="623">623</span>
-<span id="624">624</span>
-<span id="625">625</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 
@@ -687,7 +684,7 @@
             <span class="ident">scrollable_canvas</span>: <span class="ident">setup_scrollable_canvas</span>(<span class="ident">ctx</span>),
             <span class="ident">texture_demo</span>: <span class="ident">setup_texture_demo</span>(<span class="ident">ctx</span>, <span class="ident">Texture</span>::<span class="ident">SAND</span>, <span class="ident">Texture</span>::<span class="ident">CACTUS</span>),
             <span class="ident">elapsed</span>: <span class="ident">Duration</span>::<span class="ident">ZERO</span>,
-            <span class="ident">tabs</span>: <span class="ident">tabs</span>,
+            <span class="ident">tabs</span>,
         }
     }
 
@@ -706,7 +703,7 @@
             <span class="ident">col3</span>.<span class="ident">push</span>(<span class="ident">Line</span>(<span class="ident">s</span>.<span class="ident">pow</span>(<span class="number">2</span>).<span class="ident">to_string</span>()).<span class="ident">secondary</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>));
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">c</span> <span class="op">=</span> <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">c</span> <span class="op">=</span> <span class="ident">Panel</span>::<span class="ident">new_builder</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">Line</span>(<span class="string">&quot;Here&#39;s a bunch of text to force some scrolling.&quot;</span>).<span class="ident">small_heading</span>(),
                 <span class="ident">Line</span>(
@@ -722,7 +719,7 @@
                 <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="ident">col</span>).<span class="ident">outline</span>((<span class="number">5.0</span>, <span class="ident">Color</span>::<span class="ident">BLACK</span>)).<span class="ident">padding</span>(<span class="number">5</span>),
                 <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="ident">col3</span>).<span class="ident">outline</span>((<span class="number">5.0</span>, <span class="ident">Color</span>::<span class="ident">BLUE</span>)).<span class="ident">padding</span>(<span class="number">5</span>),
             ]),
-            <span class="ident">LinePlot</span>::<span class="ident">new</span>(
+            <span class="ident">LinePlot</span>::<span class="ident">new_widget</span>(
                 <span class="ident">ctx</span>,
                 <span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">Series</span> {
@@ -782,8 +779,8 @@
         <span class="ident">ctx</span>.<span class="ident">canvas_movement</span>();
 
         <span class="comment">// This dispatches event handling to all of the widgets inside.</span>
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">controls</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">controls</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
+            <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
                 <span class="comment">// These outcomes should probably be a custom enum per Panel, to be more</span>
                 <span class="comment">// typesafe.</span>
                 <span class="string">&quot;reset the stopwatch&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
@@ -813,8 +810,7 @@
                         <span class="macro">unimplemented</span><span class="macro">!</span>(<span class="string">&quot;clicked: {:?}&quot;</span>, <span class="ident">x</span>);
                     }
                 }
-            },
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
+            }
         }
 
         <span class="comment">// An update event means that no keyboard/mouse input happened, but time has passed.</span>
@@ -842,10 +838,8 @@
         }
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">p</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">timeseries_panel</span> {
-            <span class="kw">match</span> <span class="ident">p</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-                <span class="comment">// No buttons in there</span>
-                <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
+            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="kw">_</span>) <span class="op">=</span> <span class="ident">p</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
+                <span class="macro">unreachable</span><span class="macro">!</span>()
             }
         }
 
@@ -900,7 +894,7 @@
         <span class="ident">Fill</span>::<span class="ident">ColoredTexture</span>(<span class="ident">Color</span>::<span class="ident">RED</span>, <span class="ident">bg_texture</span>),
         <span class="ident">circle_poly</span>.<span class="ident">clone</span>(),
     );
-    <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">fg_texture</span>, <span class="ident">circle_poly</span>.<span class="ident">clone</span>());
+    <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">fg_texture</span>, <span class="ident">circle_poly</span>);
 
     <span class="ident">batch</span>.<span class="ident">upload</span>(<span class="ident">ctx</span>)
 }
@@ -1137,7 +1131,7 @@
 }
 
 <span class="kw">fn</span> <span class="ident">make_controls</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">tabs</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">TabController</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Panel</span> {
-    <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
+    <span class="ident">Panel</span>::<span class="ident">new_builder</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
         <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="string">&quot;widgetry demo&quot;</span>).<span class="ident">big_heading_styled</span>()).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
         <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">Text</span>::<span class="ident">from</span>(
@@ -1158,7 +1152,7 @@
                 .<span class="ident">named</span>(<span class="string">&quot;stopwatch&quot;</span>)
                 .<span class="ident">margin_above</span>(<span class="number">30</span>),
             <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                <span class="ident">Toggle</span>::<span class="ident">new</span>(
+                <span class="ident">Toggle</span>::<span class="ident">new_widget</span>(
                     <span class="bool-val">false</span>,
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
                         .<span class="ident">btn_outline</span>

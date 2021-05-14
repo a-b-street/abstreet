@@ -546,6 +546,8 @@
 <span id="543">543</span>
 <span id="544">544</span>
 <span id="545">545</span>
+<span id="546">546</span>
+<span id="547">547</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeMap</span>;
 
@@ -573,7 +575,7 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">AppLike</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span> <span class="ident">CityPicker</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(
         <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
         <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span>,
         <span class="ident">on_load</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span>,
@@ -587,7 +589,7 @@
         <span class="ident">on_load</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span>,
         <span class="ident">city_name</span>: <span class="ident">CityName</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="ident">FileLoader</span>::<span class="op">&lt;</span><span class="ident">A</span>, <span class="ident">City</span><span class="op">&gt;</span>::<span class="ident">new</span>(
+        <span class="ident">FileLoader</span>::<span class="op">&lt;</span><span class="ident">A</span>, <span class="ident">City</span><span class="op">&gt;</span>::<span class="ident">new_state</span>(
             <span class="ident">ctx</span>,
             <span class="ident">abstio</span>::<span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(
                 <span class="string">&quot;system/{}/{}/city.bin&quot;</span>,
@@ -700,7 +702,7 @@
                     <span class="ident">districts</span>,
                     <span class="ident">selected</span>: <span class="prelude-val">None</span>,
                     <span class="ident">on_load</span>: <span class="prelude-val">Some</span>(<span class="ident">on_load</span>),
-                    <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                    <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new_builder</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                         <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                             <span class="ident">Line</span>(<span class="string">&quot;Select a district&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                             <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
@@ -736,13 +738,13 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">AppLike</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">CityPicker</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
+            <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
                 <span class="string">&quot;close&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Pop</span>;
                 }
                 <span class="string">&quot;Search all maps&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">AllCityPicker</span>::<span class="ident">new</span>(
+                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">AllCityPicker</span>::<span class="ident">new_state</span>(
                         <span class="ident">ctx</span>,
                         <span class="self">self</span>.<span class="ident">on_load</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>(),
                     ));
@@ -756,7 +758,7 @@
                     }
                     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>))]</span>
                     {
-                        <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="kw">crate</span>::<span class="ident">tools</span>::<span class="ident">importer</span>::<span class="ident">ImportCity</span>::<span class="ident">new</span>(
+                        <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="kw">crate</span>::<span class="ident">tools</span>::<span class="ident">importer</span>::<span class="ident">ImportCity</span>::<span class="ident">new_state</span>(
                             <span class="ident">ctx</span>,
                             <span class="self">self</span>.<span class="ident">on_load</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>(),
                         ));
@@ -767,15 +769,14 @@
                         <span class="kw">return</span> <span class="ident">chose_city</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">name</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">on_load</span>);
                     }
                     <span class="comment">// Browse cities for another country</span>
-                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">CitiesInCountryPicker</span>::<span class="ident">new</span>(
+                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">CitiesInCountryPicker</span>::<span class="ident">new_state</span>(
                         <span class="ident">ctx</span>,
                         <span class="ident">app</span>,
                         <span class="self">self</span>.<span class="ident">on_load</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>(),
                         <span class="ident">x</span>,
                     ));
                 }
-            },
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
+            }
         }
 
         <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">redo_mouseover</span>() {
@@ -841,7 +842,7 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">AppLike</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span> <span class="ident">AllCityPicker</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(
+    <span class="kw">fn</span> <span class="ident">new_state</span>(
         <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
         <span class="ident">on_load</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span> {
@@ -862,14 +863,14 @@
 
         <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">AllCityPicker</span> {
             <span class="ident">on_load</span>: <span class="prelude-val">Some</span>(<span class="ident">on_load</span>),
-            <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
+            <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new_builder</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">Line</span>(<span class="string">&quot;Select a district&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                     <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
                 ]),
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">Image</span>::<span class="ident">from_path</span>(<span class="string">&quot;system/assets/tools/search.svg&quot;</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                    <span class="ident">Autocomplete</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">autocomplete_entries</span>).<span class="ident">named</span>(<span class="string">&quot;search&quot;</span>),
+                    <span class="ident">Autocomplete</span>::<span class="ident">new_widget</span>(<span class="ident">ctx</span>, <span class="ident">autocomplete_entries</span>).<span class="ident">named</span>(<span class="string">&quot;search&quot;</span>),
                 ])
                 .<span class="ident">padding</span>(<span class="number">8</span>),
                 <span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="ident">buttons</span>).<span class="ident">flex_wrap</span>(<span class="ident">ctx</span>, <span class="ident">Percent</span>::<span class="ident">int</span>(<span class="number">70</span>)),
@@ -882,8 +883,8 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">AppLike</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">AllCityPicker</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
+            <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
                 <span class="string">&quot;close&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Pop</span>;
                 }
@@ -895,8 +896,7 @@
                         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">on_load</span>,
                     );
                 }
-            },
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
+            }
         }
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">mut</span> <span class="ident">paths</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">autocomplete_done</span>::<span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>(<span class="string">&quot;search&quot;</span>) {
             <span class="kw">if</span> <span class="op">!</span><span class="ident">paths</span>.<span class="ident">is_empty</span>() {
@@ -929,7 +929,7 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">AppLike</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span> <span class="ident">CitiesInCountryPicker</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(
+    <span class="kw">fn</span> <span class="ident">new_state</span>(
         <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
         <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">A</span>,
         <span class="ident">on_load</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span>,
@@ -1000,7 +1000,7 @@
 
         <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">CitiesInCountryPicker</span> {
             <span class="ident">on_load</span>: <span class="prelude-val">Some</span>(<span class="ident">on_load</span>),
-            <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="ident">col</span>))
+            <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new_builder</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="ident">col</span>))
                 .<span class="ident">exact_size_percent</span>(<span class="number">80</span>, <span class="number">80</span>)
                 .<span class="ident">build</span>(<span class="ident">ctx</span>),
         })
@@ -1009,11 +1009,11 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">AppLike</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">CitiesInCountryPicker</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
+            <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
                 <span class="string">&quot;close&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="comment">// Go back to the screen that lets you choose all countries.</span>
-                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">CityPicker</span>::<span class="ident">new</span>(
+                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">CityPicker</span>::<span class="ident">new_state</span>(
                         <span class="ident">ctx</span>,
                         <span class="ident">app</span>,
                         <span class="self">self</span>.<span class="ident">on_load</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>(),
@@ -1049,8 +1049,7 @@
                         <span class="ident">city</span>,
                     ));
                 }
-            },
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
+            }
         }
 
         <span class="ident">Transition</span>::<span class="ident">Keep</span>
@@ -1090,7 +1089,12 @@
         }
     }
 
-    <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">MapLoader</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">name</span>, <span class="ident">on_load</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>()))
+    <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">MapLoader</span>::<span class="ident">new_state</span>(
+        <span class="ident">ctx</span>,
+        <span class="ident">app</span>,
+        <span class="ident">name</span>,
+        <span class="ident">on_load</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>(),
+    ))
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_gui" data-search-js="../../../search-index.js"></div>

@@ -433,20 +433,6 @@
 <span id="430">430</span>
 <span id="431">431</span>
 <span id="432">432</span>
-<span id="433">433</span>
-<span id="434">434</span>
-<span id="435">435</span>
-<span id="436">436</span>
-<span id="437">437</span>
-<span id="438">438</span>
-<span id="439">439</span>
-<span id="440">440</span>
-<span id="441">441</span>
-<span id="442">442</span>
-<span id="443">443</span>
-<span id="444">444</span>
-<span id="445">445</span>
-<span id="446">446</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeMap</span>;
 
@@ -544,10 +530,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">count_sane</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
         <span class="self">self</span>.<span class="ident">pop</span>
             .<span class="ident">iter</span>()
-            .<span class="ident">filter</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">state</span>)<span class="op">|</span> <span class="kw">match</span> <span class="ident">state</span> {
-                <span class="ident">State</span>::<span class="ident">Sane</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
-            })
+            .<span class="ident">filter</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">state</span>)<span class="op">|</span> <span class="macro">matches</span><span class="macro">!</span>(<span class="ident">state</span>, <span class="ident">State</span>::<span class="ident">Sane</span>(<span class="kw">_</span>)))
             .<span class="ident">count</span>()
         <span class="comment">// self.sane.len()</span>
     }
@@ -555,10 +538,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">count_exposed</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
         <span class="self">self</span>.<span class="ident">pop</span>
             .<span class="ident">iter</span>()
-            .<span class="ident">filter</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">state</span>)<span class="op">|</span> <span class="kw">match</span> <span class="ident">state</span> {
-                <span class="ident">State</span>::<span class="ident">Exposed</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
-            })
+            .<span class="ident">filter</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">state</span>)<span class="op">|</span> <span class="macro">matches</span><span class="macro">!</span>(<span class="ident">state</span>, <span class="ident">State</span>::<span class="ident">Exposed</span>(<span class="kw">_</span>)))
             .<span class="ident">count</span>()
         <span class="comment">// self.exposed.len()</span>
     }
@@ -567,20 +547,14 @@
         <span class="comment">// self.infected.len()</span>
         <span class="self">self</span>.<span class="ident">pop</span>
             .<span class="ident">iter</span>()
-            .<span class="ident">filter</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">state</span>)<span class="op">|</span> <span class="kw">match</span> <span class="ident">state</span> {
-                <span class="ident">State</span>::<span class="ident">Infectious</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">State</span>::<span class="ident">Hospitalized</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
-            })
+            .<span class="ident">filter</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">state</span>)<span class="op">|</span> <span class="macro">matches</span><span class="macro">!</span>(<span class="ident">state</span>, <span class="ident">State</span>::<span class="ident">Infectious</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">State</span>::<span class="ident">Hospitalized</span>(<span class="kw">_</span>)))
             .<span class="ident">count</span>()
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">count_recovered</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
         <span class="self">self</span>.<span class="ident">pop</span>
             .<span class="ident">iter</span>()
-            .<span class="ident">filter</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">state</span>)<span class="op">|</span> <span class="kw">match</span> <span class="ident">state</span> {
-                <span class="ident">State</span>::<span class="ident">Recovered</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
-            })
+            .<span class="ident">filter</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">state</span>)<span class="op">|</span> <span class="macro">matches</span><span class="macro">!</span>(<span class="ident">state</span>, <span class="ident">State</span>::<span class="ident">Recovered</span>(<span class="kw">_</span>)))
             .<span class="ident">count</span>()
         <span class="comment">// self.recovered.len()</span>
     }
@@ -588,10 +562,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">count_dead</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
         <span class="self">self</span>.<span class="ident">pop</span>
             .<span class="ident">iter</span>()
-            .<span class="ident">filter</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">state</span>)<span class="op">|</span> <span class="kw">match</span> <span class="ident">state</span> {
-                <span class="ident">State</span>::<span class="ident">Dead</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
-            })
+            .<span class="ident">filter</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">state</span>)<span class="op">|</span> <span class="macro">matches</span><span class="macro">!</span>(<span class="ident">state</span>, <span class="ident">State</span>::<span class="ident">Dead</span>(<span class="kw">_</span>)))
             .<span class="ident">count</span>()
         <span class="comment">// self.recovered.len()</span>
     }
@@ -756,7 +727,8 @@
         <span class="ident">person</span>: <span class="ident">PersonID</span>,
         <span class="ident">_scheduler</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Scheduler</span>,
     ) {
-        <span class="comment">// When poeple become expose</span>
+        <span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">float_cmp</span>)]</span> <span class="comment">// false positive</span>
+                                     <span class="comment">// When people become exposed</span>
         <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">pop</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">person</span>).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq</span><span class="macro">!</span>(
             <span class="ident">state</span>.<span class="ident">get_event_time</span>().<span class="ident">unwrap</span>().<span class="ident">inner_seconds</span>(),

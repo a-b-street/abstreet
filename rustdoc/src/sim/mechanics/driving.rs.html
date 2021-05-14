@@ -1788,7 +1788,7 @@
                         <span class="ident">trips</span>.<span class="ident">cancel_trip</span>(
                             <span class="ident">now</span>,
                             <span class="ident">car</span>.<span class="ident">trip_and_person</span>.<span class="ident">unwrap</span>().<span class="number">0</span>,
-                            <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;no available parking anywhere&quot;</span>),
+                            <span class="string">&quot;no available parking anywhere&quot;</span>.<span class="ident">to_string</span>(),
                             <span class="comment">// If we couldn&#39;t find parking normally, doesn&#39;t make sense to warp the</span>
                             <span class="comment">// car to the destination. There&#39;s no parking!</span>
                             <span class="prelude-val">None</span>,
@@ -2151,7 +2151,7 @@
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">collect_events</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Event</span><span class="op">&gt;</span> {
-        <span class="ident">std</span>::<span class="ident">mem</span>::<span class="ident">replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">events</span>, <span class="ident">Vec</span>::<span class="ident">new</span>())
+        <span class="ident">std</span>::<span class="ident">mem</span>::<span class="ident">take</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">events</span>)
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">handle_live_edits</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) {
@@ -2337,7 +2337,7 @@
                 <span class="ident">total_dist</span>: <span class="ident">path</span>.<span class="ident">total_length</span>(),
             }
         } <span class="kw">else</span> {
-            <span class="kw">for</span> (<span class="ident">car</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">waiting_to_spawn</span> {
+            <span class="kw">for</span> <span class="ident">car</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">waiting_to_spawn</span>.<span class="ident">keys</span>() {
                 <span class="kw">if</span> <span class="ident">id</span> <span class="op">=</span><span class="op">=</span> <span class="kw-2">*</span><span class="ident">car</span> {
                     <span class="comment">// If the vehicle is waiting to spawn, we don&#39;t have any stats on them yet.  We</span>
                     <span class="comment">// could track when they originally tried to spawn and use for a few of these</span>

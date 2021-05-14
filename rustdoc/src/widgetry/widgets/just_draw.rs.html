@@ -199,7 +199,7 @@
     <span class="doccomment">///             the respective `hitbox`</span>
     <span class="doccomment">/// `hover`: returns a GeomBatch to render upon hovering. Return an `GeomBox::new()` if</span>
     <span class="doccomment">///          you want hovering to be a no-op</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_widget</span>(
         <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>,
         <span class="ident">batch</span>: <span class="ident">GeomBatch</span>,
         <span class="ident">tooltips</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Polygon</span>, <span class="ident">Text</span>)<span class="op">&gt;</span>,
@@ -258,7 +258,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">DeferDraw</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">batch</span>: <span class="ident">GeomBatch</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_widget</span>(<span class="ident">batch</span>: <span class="ident">GeomBatch</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
         <span class="ident">Widget</span>::<span class="ident">new</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">DeferDraw</span> {
             <span class="ident">dims</span>: <span class="ident">batch</span>.<span class="ident">get_dims</span>(),
             <span class="ident">batch</span>,

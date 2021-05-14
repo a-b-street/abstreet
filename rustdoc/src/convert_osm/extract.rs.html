@@ -645,8 +645,6 @@
 <span id="642">642</span>
 <span id="643">643</span>
 <span id="644">644</span>
-<span id="645">645</span>
-<span id="646">646</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>};
 
@@ -782,7 +780,7 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">deduped</span> <span class="op">=</span> <span class="ident">way</span>.<span class="ident">pts</span>.<span class="ident">clone</span>();
         <span class="ident">deduped</span>.<span class="ident">dedup</span>();
         <span class="kw">let</span> <span class="ident">polygon</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">ring</span>) <span class="op">=</span> <span class="ident">Ring</span>::<span class="ident">new</span>(<span class="ident">deduped</span>) {
-            <span class="ident">ring</span>.<span class="ident">to_polygon</span>()
+            <span class="ident">ring</span>.<span class="ident">into_polygon</span>()
         } <span class="kw">else</span> {
             <span class="kw">continue</span>;
         };
@@ -940,7 +938,7 @@
                 }
                 <span class="kw">if</span> <span class="kw">let</span> <span class="ident">OsmID</span>::<span class="ident">Way</span>(<span class="ident">w</span>) <span class="op">=</span> <span class="ident">member</span> {
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">ring</span>) <span class="op">=</span> <span class="ident">Ring</span>::<span class="ident">new</span>(<span class="ident">doc</span>.<span class="ident">ways</span>[<span class="ident">w</span>].<span class="ident">pts</span>.<span class="ident">clone</span>()) {
-                        <span class="ident">amenity_areas</span>.<span class="ident">push</span>((<span class="ident">ring</span>.<span class="ident">to_polygon</span>(), <span class="ident">amenity</span>.<span class="ident">clone</span>()));
+                        <span class="ident">amenity_areas</span>.<span class="ident">push</span>((<span class="ident">ring</span>.<span class="ident">into_polygon</span>(), <span class="ident">amenity</span>.<span class="ident">clone</span>()));
                     }
                 }
             }
@@ -1095,6 +1093,7 @@
         <span class="kw">return</span> <span class="bool-val">false</span>;
     }
 
+    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">collapsible_if</span>)]</span> <span class="comment">// better readability</span>
     <span class="kw">if</span> (<span class="ident">highway</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;footway&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">highway</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;path&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">highway</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;steps&quot;</span>)
         <span class="op">&amp;&amp;</span> <span class="ident">opts</span>.<span class="ident">map_config</span>.<span class="ident">inferred_sidewalks</span>
     {
@@ -1189,7 +1188,7 @@
 
 <span class="kw">fn</span> <span class="ident">get_bldg_amenities</span>(<span class="ident">tags</span>: <span class="kw-2">&amp;</span><span class="ident">Tags</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Amenity</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">amenities</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
-    <span class="kw">for</span> <span class="ident">key</span> <span class="kw">in</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;amenity&quot;</span>, <span class="string">&quot;shop&quot;</span>, <span class="string">&quot;craft&quot;</span>, <span class="string">&quot;office&quot;</span>, <span class="string">&quot;tourism&quot;</span>, <span class="string">&quot;leisure&quot;</span>] {
+    <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="ident">key</span> <span class="kw">in</span> <span class="kw-2">&amp;</span>[<span class="string">&quot;amenity&quot;</span>, <span class="string">&quot;shop&quot;</span>, <span class="string">&quot;craft&quot;</span>, <span class="string">&quot;office&quot;</span>, <span class="string">&quot;tourism&quot;</span>, <span class="string">&quot;leisure&quot;</span>] {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">amenity</span>) <span class="op">=</span> <span class="ident">tags</span>.<span class="ident">get</span>(<span class="ident">key</span>) {
             <span class="ident">amenities</span>.<span class="ident">push</span>(<span class="ident">Amenity</span> {
                 <span class="ident">names</span>: <span class="ident">NamePerLanguage</span>::<span class="ident">new</span>(<span class="ident">tags</span>).<span class="ident">unwrap_or_else</span>(<span class="ident">NamePerLanguage</span>::<span class="ident">unnamed</span>),
@@ -1273,24 +1272,21 @@
 }
 
 <span class="kw">fn</span> <span class="ident">service_road_crosses_parking_lot</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">RawMap</span>, <span class="ident">road</span>: <span class="kw-2">&amp;</span><span class="ident">RawRoad</span>, <span class="ident">candidates</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-    <span class="kw">match</span> <span class="ident">Ring</span>::<span class="ident">split_points</span>(<span class="kw-2">&amp;</span><span class="ident">road</span>.<span class="ident">center_points</span>) {
-        <span class="prelude-val">Ok</span>((<span class="ident">polylines</span>, <span class="ident">rings</span>)) <span class="op">=</span><span class="op">&gt;</span> {
-            <span class="kw">for</span> <span class="ident">pl</span> <span class="kw">in</span> <span class="ident">polylines</span> {
-                <span class="kw">for</span> <span class="ident">idx</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">candidates</span> {
-                    <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">parking_lots</span>[<span class="kw-2">*</span><span class="ident">idx</span>].<span class="ident">polygon</span>.<span class="ident">clip_polyline</span>(<span class="kw-2">&amp;</span><span class="ident">pl</span>).<span class="ident">is_some</span>() {
-                        <span class="kw">return</span> <span class="bool-val">true</span>;
-                    }
-                }
-            }
-            <span class="kw">for</span> <span class="ident">ring</span> <span class="kw">in</span> <span class="ident">rings</span> {
-                <span class="kw">for</span> <span class="ident">idx</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">candidates</span> {
-                    <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">parking_lots</span>[<span class="kw-2">*</span><span class="ident">idx</span>].<span class="ident">polygon</span>.<span class="ident">clip_ring</span>(<span class="kw-2">&amp;</span><span class="ident">ring</span>).<span class="ident">is_some</span>() {
-                        <span class="kw">return</span> <span class="bool-val">true</span>;
-                    }
+    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>((<span class="ident">polylines</span>, <span class="ident">rings</span>)) <span class="op">=</span> <span class="ident">Ring</span>::<span class="ident">split_points</span>(<span class="kw-2">&amp;</span><span class="ident">road</span>.<span class="ident">center_points</span>) {
+        <span class="kw">for</span> <span class="ident">pl</span> <span class="kw">in</span> <span class="ident">polylines</span> {
+            <span class="kw">for</span> <span class="ident">idx</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">candidates</span> {
+                <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">parking_lots</span>[<span class="kw-2">*</span><span class="ident">idx</span>].<span class="ident">polygon</span>.<span class="ident">clip_polyline</span>(<span class="kw-2">&amp;</span><span class="ident">pl</span>).<span class="ident">is_some</span>() {
+                    <span class="kw">return</span> <span class="bool-val">true</span>;
                 }
             }
         }
-        <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {}
+        <span class="kw">for</span> <span class="ident">ring</span> <span class="kw">in</span> <span class="ident">rings</span> {
+            <span class="kw">for</span> <span class="ident">idx</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">candidates</span> {
+                <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">parking_lots</span>[<span class="kw-2">*</span><span class="ident">idx</span>].<span class="ident">polygon</span>.<span class="ident">clip_ring</span>(<span class="kw-2">&amp;</span><span class="ident">ring</span>).<span class="ident">is_some</span>() {
+                    <span class="kw">return</span> <span class="bool-val">true</span>;
+                }
+            }
+        }
     }
     <span class="bool-val">false</span>
 }

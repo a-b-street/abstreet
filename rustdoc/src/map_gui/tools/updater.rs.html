@@ -231,7 +231,7 @@
     <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
     <span class="ident">map_name</span>: <span class="ident">MapName</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> {
-    <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">ChooseSomething</span>::<span class="ident">new</span>(
+    <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">ChooseSomething</span>::<span class="ident">new_state</span>(
         <span class="ident">ctx</span>,
         <span class="macro">format</span><span class="macro">!</span>(
             <span class="string">&quot;Missing data. Download {} for {}?&quot;</span>,
@@ -256,7 +256,7 @@
 
             <span class="kw">let</span> (<span class="ident">outer_progress_tx</span>, <span class="ident">outer_progress_rx</span>) <span class="op">=</span> <span class="ident">futures_channel</span>::<span class="ident">mpsc</span>::<span class="ident">channel</span>(<span class="number">1000</span>);
             <span class="kw">let</span> (<span class="ident">inner_progress_tx</span>, <span class="ident">inner_progress_rx</span>) <span class="op">=</span> <span class="ident">futures_channel</span>::<span class="ident">mpsc</span>::<span class="ident">channel</span>(<span class="number">1000</span>);
-            <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">FutureLoader</span>::<span class="op">&lt;</span><span class="ident">A</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">new</span>(
+            <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">FutureLoader</span>::<span class="op">&lt;</span><span class="ident">A</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">new_state</span>(
                 <span class="ident">ctx</span>,
                 <span class="ident">Box</span>::<span class="ident">pin</span>(<span class="kw">async</span> {
                     <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span>
@@ -273,7 +273,7 @@
                         <span class="prelude-val">Ok</span>(<span class="ident">m</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">m</span>,
                         <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Something went very wrong: {}&quot;</span>, <span class="ident">err</span>)],
                     };
-                    <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">PopupMsg</span>::<span class="ident">new</span>(
+                    <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">PopupMsg</span>::<span class="ident">new_state</span>(
                         <span class="ident">ctx</span>,
                         <span class="string">&quot;Download complete. Try again!&quot;</span>,
                         <span class="ident">messages</span>,

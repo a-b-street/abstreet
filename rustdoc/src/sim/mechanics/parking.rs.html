@@ -1035,7 +1035,7 @@
 <span id="1032">1032</span>
 <span id="1033">1033</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">BinaryHeap</span>, <span class="ident">HashMap</span>};
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">hash_map</span>::<span class="ident">Entry</span>, <span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">BinaryHeap</span>, <span class="ident">HashMap</span>};
 
 <span class="kw">use</span> <span class="ident">enum_dispatch</span>::<span class="ident">enum_dispatch</span>;
 <span class="kw">use</span> <span class="ident">rand</span>::{<span class="ident">Rng</span>, <span class="ident">SeedableRng</span>};
@@ -1626,7 +1626,7 @@
                 }
             }
             <span class="kw">for</span> <span class="ident">turn</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">get_turns_for</span>(<span class="ident">current</span>, <span class="ident">PathConstraints</span>::<span class="ident">Car</span>) {
-                <span class="kw">if</span> <span class="op">!</span><span class="ident">backrefs</span>.<span class="ident">contains_key</span>(<span class="kw-2">&amp;</span><span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">dst</span>) {
+                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Entry</span>::<span class="ident">Vacant</span>(<span class="ident">e</span>) <span class="op">=</span> <span class="ident">backrefs</span>.<span class="ident">entry</span>(<span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">dst</span>) {
                     <span class="kw">let</span> <span class="ident">dist_this_step</span> <span class="op">=</span> <span class="ident">turn</span>.<span class="ident">geom</span>.<span class="ident">length</span>() <span class="op">+</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">current</span>).<span class="ident">length</span>();
                     <span class="comment">// When vehicles search away from the first lane for a spot, don&#39;t all go in</span>
                     <span class="comment">// the same direction! Do this by jittering which turn they explore.</span>
@@ -1636,7 +1636,7 @@
                     <span class="comment">// number here many times in a row, and if there are only a few lanes away, it</span>
                     <span class="comment">// doesn&#39;t matter that much anyway.</span>
                     <span class="kw">let</span> <span class="ident">jitter</span> <span class="op">=</span> <span class="ident">rng</span>.<span class="ident">gen_range</span>(<span class="number">0.1</span>..<span class="number">0.9</span>);
-                    <span class="ident">backrefs</span>.<span class="ident">insert</span>(<span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">dst</span>, <span class="ident">turn</span>.<span class="ident">id</span>);
+                    <span class="ident">e</span>.<span class="ident">insert</span>(<span class="ident">turn</span>.<span class="ident">id</span>);
                     <span class="comment">// Remember, keep things negative</span>
                     <span class="ident">queue</span>.<span class="ident">push</span>((<span class="ident">dist_so_far</span> <span class="op">-</span> <span class="ident">jitter</span> <span class="op">*</span> <span class="ident">dist_this_step</span>, <span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">dst</span>));
                 }
@@ -1647,7 +1647,7 @@
     }
 
     <span class="kw">fn</span> <span class="ident">collect_events</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Event</span><span class="op">&gt;</span> {
-        <span class="ident">std</span>::<span class="ident">mem</span>::<span class="ident">replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">events</span>, <span class="ident">Vec</span>::<span class="ident">new</span>())
+        <span class="ident">std</span>::<span class="ident">mem</span>::<span class="ident">take</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">events</span>)
     }
 
     <span class="kw">fn</span> <span class="ident">all_parked_car_positions</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Position</span>, <span class="ident">PersonID</span>)<span class="op">&gt;</span> {
@@ -2027,9 +2027,9 @@
                 }
             }
             <span class="kw">for</span> <span class="ident">turn</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">get_turns_for</span>(<span class="ident">current</span>, <span class="ident">PathConstraints</span>::<span class="ident">Car</span>) {
-                <span class="kw">if</span> <span class="op">!</span><span class="ident">backrefs</span>.<span class="ident">contains_key</span>(<span class="kw-2">&amp;</span><span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">dst</span>) {
+                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Entry</span>::<span class="ident">Vacant</span>(<span class="ident">e</span>) <span class="op">=</span> <span class="ident">backrefs</span>.<span class="ident">entry</span>(<span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">dst</span>) {
                     <span class="kw">let</span> <span class="ident">dist_this_step</span> <span class="op">=</span> <span class="ident">turn</span>.<span class="ident">geom</span>.<span class="ident">length</span>() <span class="op">+</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">current</span>).<span class="ident">length</span>();
-                    <span class="ident">backrefs</span>.<span class="ident">insert</span>(<span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">dst</span>, <span class="ident">turn</span>.<span class="ident">id</span>);
+                    <span class="ident">e</span>.<span class="ident">insert</span>(<span class="ident">turn</span>.<span class="ident">id</span>);
                     <span class="comment">// Remember, keep things negative</span>
                     <span class="ident">queue</span>.<span class="ident">push</span>((<span class="ident">dist_so_far</span> <span class="op">-</span> <span class="ident">dist_this_step</span>, <span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">dst</span>));
                 }
@@ -2040,7 +2040,7 @@
     }
 
     <span class="kw">fn</span> <span class="ident">collect_events</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Event</span><span class="op">&gt;</span> {
-        <span class="ident">std</span>::<span class="ident">mem</span>::<span class="ident">replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">events</span>, <span class="ident">Vec</span>::<span class="ident">new</span>())
+        <span class="ident">std</span>::<span class="ident">mem</span>::<span class="ident">take</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">events</span>)
     }
 
     <span class="kw">fn</span> <span class="ident">all_parked_car_positions</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Position</span>, <span class="ident">PersonID</span>)<span class="op">&gt;</span> {

@@ -388,6 +388,17 @@
 <span id="385">385</span>
 <span id="386">386</span>
 <span id="387">387</span>
+<span id="388">388</span>
+<span id="389">389</span>
+<span id="390">390</span>
+<span id="391">391</span>
+<span id="392">392</span>
+<span id="393">393</span>
+<span id="394">394</span>
+<span id="395">395</span>
+<span id="396">396</span>
+<span id="397">397</span>
+<span id="398">398</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">ID</span>;
@@ -417,7 +428,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">FixTrafficSignals</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">GameplayState</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">GameplayState</span><span class="op">&gt;</span> {
         <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">FixTrafficSignals</span> {
             <span class="ident">top_right</span>: <span class="ident">Panel</span>::<span class="ident">empty</span>(<span class="ident">ctx</span>),
             <span class="ident">time</span>: <span class="ident">Time</span>::<span class="ident">START_OF_DAY</span>,
@@ -519,7 +530,7 @@
 
                 <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition</span>::<span class="ident">Multi</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">final_score</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">mode</span>.<span class="ident">clone</span>(), <span class="bool-val">true</span>)),
-                    <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">Warping</span>::<span class="ident">new</span>(
+                    <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">Warping</span>::<span class="ident">new_state</span>(
                         <span class="ident">ctx</span>,
                         <span class="ident">app</span>.<span class="ident">primary</span>
                             .<span class="ident">canonical_point</span>(<span class="ident">ID</span>::<span class="ident">Intersection</span>(<span class="self">self</span>.<span class="ident">worst</span>.<span class="ident">unwrap</span>().<span class="number">0</span>))
@@ -545,14 +556,22 @@
             }
         }
 
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">top_right</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">top_right</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
+            <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
                 <span class="string">&quot;edit map&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">EditMode</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">mode</span>.<span class="ident">clone</span>())));
+                    <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">EditMode</span>::<span class="ident">new_state</span>(
+                        <span class="ident">ctx</span>,
+                        <span class="ident">app</span>,
+                        <span class="self">self</span>.<span class="ident">mode</span>.<span class="ident">clone</span>(),
+                    )));
                 }
                 <span class="string">&quot;instructions&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">let</span> <span class="ident">contents</span> <span class="op">=</span> <span class="ident">cutscene_pt1_task</span>(<span class="ident">ctx</span>);
-                    <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">FYI</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">contents</span>, <span class="ident">Color</span>::<span class="ident">WHITE</span>)));
+                    <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">FYI</span>::<span class="ident">new_state</span>(
+                        <span class="ident">ctx</span>,
+                        <span class="ident">contents</span>,
+                        <span class="ident">Color</span>::<span class="ident">WHITE</span>,
+                    )));
                 }
                 <span class="string">&quot;hint&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="comment">// TODO Multiple hints. Point to layers.</span>
@@ -568,7 +587,11 @@
                         <span class="ident">Line</span>(<span class="string">&quot;ams&quot;</span>),
                     ]);
                     <span class="kw">let</span> <span class="ident">contents</span> <span class="op">=</span> <span class="ident">txt</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>);
-                    <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">FYI</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">contents</span>, <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">panel_bg</span>)));
+                    <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">FYI</span>::<span class="ident">new_state</span>(
+                        <span class="ident">ctx</span>,
+                        <span class="ident">contents</span>,
+                        <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">panel_bg</span>,
+                    )));
                 }
                 <span class="string">&quot;try again&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">SandboxMode</span>::<span class="ident">simple_new</span>(
@@ -586,7 +609,7 @@
                         .<span class="ident">unwrap</span>()
                         .<span class="ident">currently_delayed</span>[<span class="number">0</span>]
                         .<span class="number">0</span>;
-                    <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">Warping</span>::<span class="ident">new</span>(
+                    <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">Warping</span>::<span class="ident">new_state</span>(
                         <span class="ident">ctx</span>,
                         <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">canonical_point</span>(<span class="ident">ID</span>::<span class="ident">Intersection</span>(<span class="ident">i</span>)).<span class="ident">unwrap</span>(),
                         <span class="prelude-val">Some</span>(<span class="number">10.0</span>),
@@ -596,13 +619,13 @@
                 }
                 <span class="string">&quot;explain score&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="comment">// TODO Adjust wording</span>
-                    <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">FYI</span>::<span class="ident">new</span>(
+                    <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">FYI</span>::<span class="ident">new_state</span>(
                         <span class="ident">ctx</span>,
                         <span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
                             <span class="ident">Line</span>(<span class="string">&quot;You changed some traffic signals in the middle of the day.&quot;</span>),
                             <span class="ident">Line</span>(
                                 <span class="string">&quot;First see if you can survive for a full day, making changes \
-                                 along the way.&quot;</span>,
+                                along the way.&quot;</span>,
                             ),
                             <span class="ident">Line</span>(<span class="string">&quot;Then you should check if your changes work from midnight.&quot;</span>),
                         ])
@@ -611,8 +634,7 @@
                     )));
                 }
                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
-            },
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
+            }
         }
 
         <span class="prelude-val">None</span>
@@ -624,7 +646,7 @@
 
     <span class="kw">fn</span> <span class="ident">recreate_panels</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">time</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">done_at</span> {
-            <span class="self">self</span>.<span class="ident">top_right</span> <span class="op">=</span> <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
+            <span class="self">self</span>.<span class="ident">top_right</span> <span class="op">=</span> <span class="ident">Panel</span>::<span class="ident">new_builder</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">challenge_header</span>(<span class="ident">ctx</span>, <span class="string">&quot;Traffic signal survivor&quot;</span>),
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Delay exceeded {} at {}&quot;</span>, <span class="ident">THRESHOLD</span>, <span class="ident">time</span>))
@@ -670,7 +692,7 @@
                 },
             ]);
 
-            <span class="self">self</span>.<span class="ident">top_right</span> <span class="op">=</span> <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
+            <span class="self">self</span>.<span class="ident">top_right</span> <span class="op">=</span> <span class="ident">Panel</span>::<span class="ident">new_builder</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">challenge_header</span>(<span class="ident">ctx</span>, <span class="string">&quot;Traffic signal survivor&quot;</span>),
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(
@@ -724,7 +746,7 @@
     } <span class="kw">else</span> {
         <span class="string">&quot;Wow, you managed to fix the signals. Great job!&quot;</span>.<span class="ident">to_string</span>()
     };
-    <span class="ident">FinalScore</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">msg</span>, <span class="ident">mode</span>, <span class="prelude-val">None</span>)
+    <span class="ident">FinalScore</span>::<span class="ident">new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">msg</span>, <span class="ident">mode</span>, <span class="prelude-val">None</span>)
 }
 
 <span class="comment">// TODO Can we automatically transform text and SVG colors?</span>

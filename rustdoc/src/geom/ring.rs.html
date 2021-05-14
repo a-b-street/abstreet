@@ -262,7 +262,7 @@
         <span class="ident">PolyLine</span>::<span class="ident">unchecked_new</span>(<span class="self">self</span>.<span class="ident">pts</span>.<span class="ident">clone</span>()).<span class="ident">make_polygons</span>(<span class="ident">thickness</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_polygon</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Polygon</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_polygon</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Polygon</span> {
         <span class="ident">Polygon</span>::<span class="ident">with_holes</span>(<span class="self">self</span>, <span class="ident">Vec</span>::<span class="ident">new</span>())
     }
 

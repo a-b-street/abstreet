@@ -112,6 +112,9 @@
 <span id="109">109</span>
 <span id="110">110</span>
 <span id="111">111</span>
+<span id="112">112</span>
+<span id="113">113</span>
+<span id="114">114</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
@@ -147,7 +150,7 @@
             <span class="kw">let</span> <span class="ident">pts</span> <span class="op">=</span> <span class="ident">LonLat</span>::<span class="ident">read_osmosis_polygon</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>).<span class="ident">unwrap</span>();
             (
                 <span class="ident">MapName</span>::<span class="ident">from_city</span>(<span class="kw-2">&amp;</span><span class="ident">city_name</span>, <span class="kw-2">&amp;</span><span class="ident">abstutil</span>::<span class="ident">basename</span>(<span class="ident">path</span>)),
-                <span class="ident">Ring</span>::<span class="ident">must_new</span>(<span class="ident">huge_map</span>.<span class="ident">get_gps_bounds</span>().<span class="ident">convert</span>(<span class="kw-2">&amp;</span><span class="ident">pts</span>)).<span class="ident">to_polygon</span>(),
+                <span class="ident">Ring</span>::<span class="ident">must_new</span>(<span class="ident">huge_map</span>.<span class="ident">get_gps_bounds</span>().<span class="ident">convert</span>(<span class="kw-2">&amp;</span><span class="ident">pts</span>)).<span class="ident">into_polygon</span>(),
             )
         })
         .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
@@ -194,7 +197,10 @@
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">districts</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
         <span class="kw">for</span> (<span class="ident">name</span>, <span class="ident">pts</span>) <span class="kw">in</span> <span class="ident">boundary_per_district</span> {
-            <span class="ident">districts</span>.<span class="ident">push</span>((<span class="ident">name</span>, <span class="ident">Ring</span>::<span class="ident">must_new</span>(<span class="ident">gps_bounds</span>.<span class="ident">convert</span>(<span class="kw-2">&amp;</span><span class="ident">pts</span>)).<span class="ident">to_polygon</span>()));
+            <span class="ident">districts</span>.<span class="ident">push</span>((
+                <span class="ident">name</span>,
+                <span class="ident">Ring</span>::<span class="ident">must_new</span>(<span class="ident">gps_bounds</span>.<span class="ident">convert</span>(<span class="kw-2">&amp;</span><span class="ident">pts</span>)).<span class="ident">into_polygon</span>(),
+            ));
         }
         <span class="comment">// Just a sort of z-ordering hack so that the largest encompassing district isn&#39;t first</span>
         <span class="comment">// later in the UI picker.</span>
@@ -211,7 +217,7 @@
                 <span class="kw">let</span> <span class="ident">pts</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">gps_bounds</span>.<span class="ident">convert_back</span>(<span class="ident">area</span>.<span class="ident">polygon</span>.<span class="ident">points</span>());
                 <span class="comment">// TODO Holes in the polygons get lost</span>
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">ring</span>) <span class="op">=</span> <span class="ident">Ring</span>::<span class="ident">new</span>(<span class="ident">gps_bounds</span>.<span class="ident">convert</span>(<span class="kw-2">&amp;</span><span class="ident">pts</span>)) {
-                    <span class="ident">areas</span>.<span class="ident">push</span>((<span class="ident">area</span>.<span class="ident">area_type</span>, <span class="ident">ring</span>.<span class="ident">to_polygon</span>()));
+                    <span class="ident">areas</span>.<span class="ident">push</span>((<span class="ident">area</span>.<span class="ident">area_type</span>, <span class="ident">ring</span>.<span class="ident">into_polygon</span>()));
                 }
             }
         }

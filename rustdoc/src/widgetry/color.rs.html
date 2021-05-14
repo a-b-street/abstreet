@@ -366,7 +366,7 @@
         <span class="ident">Color</span>::<span class="ident">rgb</span>(<span class="ident">r</span>, <span class="ident">g</span>, <span class="ident">b</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_hex</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_hex</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
         <span class="macro">format</span><span class="macro">!</span>(
             <span class="string">&quot;#{:02X}{:02X}{:02X}&quot;</span>,
             (<span class="self">self</span>.<span class="ident">r</span> <span class="op">*</span> <span class="number">255.0</span>) <span class="kw">as</span> <span class="ident">usize</span>,
@@ -410,7 +410,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">LinearGradient</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">lg</span>: <span class="kw-2">&amp;</span><span class="ident">usvg</span>::<span class="ident">LinearGradient</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Fill</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new_fill</span>(<span class="ident">lg</span>: <span class="kw-2">&amp;</span><span class="ident">usvg</span>::<span class="ident">LinearGradient</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Fill</span> {
         <span class="kw">let</span> <span class="ident">line</span> <span class="op">=</span> <span class="ident">Line</span>::<span class="ident">must_new</span>(<span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="ident">lg</span>.<span class="ident">x1</span>, <span class="ident">lg</span>.<span class="ident">y1</span>), <span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="ident">lg</span>.<span class="ident">x2</span>, <span class="ident">lg</span>.<span class="ident">y2</span>));
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stops</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
         <span class="kw">for</span> <span class="ident">stop</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">lg</span>.<span class="ident">stops</span> {

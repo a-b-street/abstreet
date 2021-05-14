@@ -303,8 +303,6 @@
 <span id="300">300</span>
 <span id="301">301</span>
 <span id="302">302</span>
-<span id="303">303</span>
-<span id="304">304</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 
@@ -399,7 +397,7 @@
             <span class="ident">Line</span>(<span class="string">&quot;Parking spots available&quot;</span>)
                 .<span class="ident">small_heading</span>()
                 .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-            <span class="ident">LinePlot</span>::<span class="ident">new</span>(
+            <span class="ident">LinePlot</span>::<span class="ident">new_widget</span>(
                 <span class="ident">ctx</span>,
                 <span class="ident">series</span>,
                 <span class="ident">PlotOptions</span> {
@@ -433,9 +431,7 @@
     <span class="kw">let</span> <span class="ident">l</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">id</span>);
     <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">l</span>.<span class="ident">parent</span>);
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">kv</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
-
-    <span class="ident">kv</span>.<span class="ident">push</span>((<span class="string">&quot;Parent&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">r</span>.<span class="ident">id</span>.<span class="ident">to_string</span>()));
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">kv</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[(<span class="string">&quot;Parent&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">r</span>.<span class="ident">id</span>.<span class="ident">to_string</span>())];
 
     <span class="kw">if</span> <span class="ident">l</span>.<span class="ident">lane_type</span>.<span class="ident">is_for_moving_vehicles</span>() {
         <span class="ident">kv</span>.<span class="ident">push</span>((

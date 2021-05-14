@@ -979,7 +979,7 @@
         <span class="ident">JustDraw</span>::<span class="ident">wrap</span>(<span class="ident">ctx</span>, <span class="self">self</span>.<span class="ident">render</span>(<span class="ident">ctx</span>))
     }
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">batch</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
-        <span class="ident">DeferDraw</span>::<span class="ident">new</span>(<span class="self">self</span>.<span class="ident">render</span>(<span class="ident">ctx</span>))
+        <span class="ident">DeferDraw</span>::<span class="ident">new_widget</span>(<span class="self">self</span>.<span class="ident">render</span>(<span class="ident">ctx</span>))
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">wrap_to_pct</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">pct</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Text</span> {
@@ -1068,7 +1068,7 @@
                 <span class="ident">Font</span>::<span class="ident">OverpassSemiBold</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;font-weight=\&quot;600\&quot;&quot;</span>,
                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;&quot;</span>,
             },
-            <span class="ident">fg_color</span>.<span class="ident">to_hex</span>(),
+            <span class="ident">fg_color</span>.<span class="ident">as_hex</span>(),
             <span class="ident">fg_color</span>.<span class="ident">a</span>,
             <span class="kw">if</span> <span class="ident">span</span>.<span class="ident">underlined</span> {
                 <span class="string">&quot;text-decoration=\&quot;underline\&quot;&quot;</span>
@@ -1141,7 +1141,7 @@
             <span class="ident">path</span>.<span class="ident">points</span>()[<span class="number">0</span>].<span class="ident">y</span>()
         )
         .<span class="ident">unwrap</span>();
-        <span class="kw">for</span> <span class="ident">pt</span> <span class="kw">in</span> <span class="ident">path</span>.<span class="ident">points</span>().<span class="ident">into_iter</span>().<span class="ident">skip</span>(<span class="number">1</span>) {
+        <span class="kw">for</span> <span class="ident">pt</span> <span class="kw">in</span> <span class="ident">path</span>.<span class="ident">points</span>().<span class="ident">iter</span>().<span class="ident">skip</span>(<span class="number">1</span>) {
             <span class="macro">write</span><span class="macro">!</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">svg</span>, <span class="string">&quot; L {} {}&quot;</span>, <span class="ident">pt</span>.<span class="ident">x</span>(), <span class="ident">pt</span>.<span class="ident">y</span>()).<span class="ident">unwrap</span>();
         }
         <span class="macro">write</span><span class="macro">!</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">svg</span>, <span class="string">&quot;\&quot; /&gt;&quot;</span>).<span class="ident">unwrap</span>();
@@ -1162,7 +1162,7 @@
                 <span class="ident">Font</span>::<span class="ident">OverpassSemiBold</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;font-weight=\&quot;600\&quot;&quot;</span>,
                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;&quot;</span>,
             },
-            <span class="ident">fg_color</span>.<span class="ident">to_hex</span>(),
+            <span class="ident">fg_color</span>.<span class="ident">as_hex</span>(),
             <span class="ident">fg_color</span>.<span class="ident">a</span>,
             <span class="ident">start_offset</span>,
         )

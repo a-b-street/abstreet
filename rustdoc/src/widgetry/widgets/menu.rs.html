@@ -208,8 +208,6 @@
 <span id="205">205</span>
 <span id="206">206</span>
 <span id="207">207</span>
-<span id="208">208</span>
-<span id="209">209</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Pt2D</span>;
 
@@ -365,13 +363,11 @@
         }
 
         <span class="comment">// Handle nav keys</span>
+        <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">collapsible_if</span>)]</span>
         <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key</span>::<span class="ident">Enter</span>) {
             <span class="kw">let</span> <span class="ident">choice</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">choices</span>[<span class="self">self</span>.<span class="ident">current_idx</span>];
             <span class="kw">if</span> <span class="ident">choice</span>.<span class="ident">active</span> {
                 <span class="ident">output</span>.<span class="ident">outcome</span> <span class="op">=</span> <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">choice</span>.<span class="ident">label</span>.<span class="ident">clone</span>());
-                <span class="kw">return</span>;
-            } <span class="kw">else</span> {
-                <span class="kw">return</span>;
             }
         } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key</span>::<span class="ident">UpArrow</span>) {
             <span class="kw">if</span> <span class="self">self</span>.<span class="ident">current_idx</span> <span class="op">&gt;</span> <span class="number">0</span> {

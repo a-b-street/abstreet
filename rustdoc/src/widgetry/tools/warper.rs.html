@@ -68,6 +68,7 @@
 <span id="65">65</span>
 <span id="66">66</span>
 <span id="67">67</span>
+<span id="68">68</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">instant</span>::<span class="ident">Instant</span>;
 
@@ -94,6 +95,7 @@
     <span class="comment">// false means done</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="comment">// Actually nothing for us to do</span>
+        <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">float_cmp</span>)]</span>
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">line</span>.<span class="ident">is_none</span>() <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">cam_zoom</span>.<span class="number">0</span> <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">cam_zoom</span>.<span class="number">1</span> {
             <span class="kw">return</span> <span class="bool-val">false</span>;
         }

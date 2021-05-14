@@ -143,7 +143,7 @@
         <span class="ident">prebake</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>, <span class="ident">scenario</span>, <span class="prelude-val">None</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>);
     }
 
-    <span class="kw">for</span> <span class="ident">scenario_name</span> <span class="kw">in</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;base&quot;</span>, <span class="string">&quot;go_active&quot;</span>, <span class="string">&quot;base_with_bg&quot;</span>, <span class="string">&quot;go_active_with_bg&quot;</span>] {
+    <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="ident">scenario_name</span> <span class="kw">in</span> <span class="kw-2">&amp;</span>[<span class="string">&quot;base&quot;</span>, <span class="string">&quot;go_active&quot;</span>, <span class="string">&quot;base_with_bg&quot;</span>, <span class="string">&quot;go_active_with_bg&quot;</span>] {
         <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">map_model</span>::<span class="ident">Map</span>::<span class="ident">load_synchronously</span>(
             <span class="ident">MapName</span>::<span class="ident">new</span>(<span class="string">&quot;gb&quot;</span>, <span class="string">&quot;poundbury&quot;</span>, <span class="string">&quot;center&quot;</span>).<span class="ident">path</span>(),
             <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>,

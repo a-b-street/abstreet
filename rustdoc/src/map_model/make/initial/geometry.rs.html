@@ -634,8 +634,6 @@
 <span id="631">631</span>
 <span id="632">632</span>
 <span id="633">633</span>
-<span id="634">634</span>
-<span id="635">635</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! OSM describes roads as center-lines that intersect. Turn these into road and intersection</span>
 <span class="doccomment">//! polygons roughly by</span>
@@ -925,13 +923,13 @@
     <span class="ident">deduped</span> <span class="op">=</span> <span class="ident">Pt2D</span>::<span class="ident">approx_dedupe</span>(<span class="ident">deduped</span>, <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">0.1</span>));
     <span class="ident">deduped</span> <span class="op">=</span> <span class="ident">close_off_polygon</span>(<span class="ident">deduped</span>);
     <span class="kw">if</span> <span class="ident">main_result</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">deduped</span>.<span class="ident">len</span>() {
-        <span class="prelude-val">Ok</span>((<span class="ident">Ring</span>::<span class="ident">must_new</span>(<span class="ident">main_result</span>).<span class="ident">to_polygon</span>(), <span class="ident">debug</span>))
+        <span class="prelude-val">Ok</span>((<span class="ident">Ring</span>::<span class="ident">must_new</span>(<span class="ident">main_result</span>).<span class="ident">into_polygon</span>(), <span class="ident">debug</span>))
     } <span class="kw">else</span> {
         <span class="macro">warn</span><span class="macro">!</span>(
             <span class="string">&quot;{}&#39;s polygon has weird repeats, forcibly removing points&quot;</span>,
             <span class="ident">i</span>
         );
-        <span class="prelude-val">Ok</span>((<span class="ident">Ring</span>::<span class="ident">must_new</span>(<span class="ident">deduped</span>).<span class="ident">to_polygon</span>(), <span class="ident">debug</span>))
+        <span class="prelude-val">Ok</span>((<span class="ident">Ring</span>::<span class="ident">must_new</span>(<span class="ident">deduped</span>).<span class="ident">into_polygon</span>(), <span class="ident">debug</span>))
     }
 
     <span class="comment">// TODO Or always sort points? Helps some cases, hurts other for downtown Seattle.</span>
@@ -970,15 +968,13 @@
                 .<span class="ident">exact_slice</span>(<span class="ident">Distance</span>::<span class="ident">ZERO</span>, <span class="ident">r</span>.<span class="ident">trimmed_center_pts</span>.<span class="ident">length</span>() <span class="op">-</span> <span class="ident">len</span>);
         }
         <span class="ident">r</span>.<span class="ident">trimmed_center_pts</span>.<span class="ident">clone</span>()
+    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">src_i</span> <span class="op">=</span><span class="op">=</span> <span class="ident">i</span> {
+        <span class="ident">r</span>.<span class="ident">trimmed_center_pts</span>.<span class="ident">extend_to_length</span>(<span class="ident">len_with_buffer</span>)
     } <span class="kw">else</span> {
-        <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">src_i</span> <span class="op">=</span><span class="op">=</span> <span class="ident">i</span> {
-            <span class="ident">r</span>.<span class="ident">trimmed_center_pts</span>.<span class="ident">extend_to_length</span>(<span class="ident">len_with_buffer</span>)
-        } <span class="kw">else</span> {
-            <span class="ident">r</span>.<span class="ident">trimmed_center_pts</span>
-                .<span class="ident">reversed</span>()
-                .<span class="ident">extend_to_length</span>(<span class="ident">len_with_buffer</span>)
-                .<span class="ident">reversed</span>()
-        }
+        <span class="ident">r</span>.<span class="ident">trimmed_center_pts</span>
+            .<span class="ident">reversed</span>()
+            .<span class="ident">extend_to_length</span>(<span class="ident">len_with_buffer</span>)
+            .<span class="ident">reversed</span>()
     };
 
     <span class="comment">// After trimming the center points, the two sides of the road may be at different</span>
@@ -995,7 +991,7 @@
 
     <span class="ident">endpts</span>.<span class="ident">dedup</span>();
     <span class="prelude-val">Ok</span>((
-        <span class="ident">Ring</span>::<span class="ident">must_new</span>(<span class="ident">close_off_polygon</span>(<span class="ident">endpts</span>)).<span class="ident">to_polygon</span>(),
+        <span class="ident">Ring</span>::<span class="ident">must_new</span>(<span class="ident">close_off_polygon</span>(<span class="ident">endpts</span>)).<span class="ident">into_polygon</span>(),
         <span class="ident">Vec</span>::<span class="ident">new</span>(),
     ))
 }
@@ -1080,9 +1076,9 @@
     <span class="comment">// Find where the thin hits the thick farthest along.</span>
     <span class="comment">// (trimmed thin center, trimmed thick center, the thick road we hit)</span>
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">best_hit</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">PolyLine</span>, <span class="ident">PolyLine</span>, <span class="ident">OriginalRoad</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-    <span class="kw">for</span> <span class="ident">thin_pl</span> <span class="kw">in</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="kw-2">&amp;</span><span class="ident">thin</span>.<span class="ident">left</span>, <span class="kw-2">&amp;</span><span class="ident">thin</span>.<span class="ident">right</span>] {
-        <span class="kw">for</span> <span class="ident">thick</span> <span class="kw">in</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="kw-2">&amp;</span><span class="ident">thick1</span>, <span class="kw-2">&amp;</span><span class="ident">thick2</span>] {
-            <span class="kw">for</span> <span class="ident">thick_pl</span> <span class="kw">in</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="kw-2">&amp;</span><span class="ident">thick</span>.<span class="ident">left</span>, <span class="kw-2">&amp;</span><span class="ident">thick</span>.<span class="ident">right</span>] {
+    <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="ident">thin_pl</span> <span class="kw">in</span> <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="ident">thin</span>.<span class="ident">left</span>, <span class="kw-2">&amp;</span><span class="ident">thin</span>.<span class="ident">right</span>] {
+        <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="ident">thick</span> <span class="kw">in</span> <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="ident">thick1</span>, <span class="kw-2">&amp;</span><span class="ident">thick2</span>] {
+            <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="ident">thick_pl</span> <span class="kw">in</span> <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="ident">thick</span>.<span class="ident">left</span>, <span class="kw-2">&amp;</span><span class="ident">thick</span>.<span class="ident">right</span>] {
                 <span class="kw">if</span> <span class="ident">thin_pl</span> <span class="op">=</span><span class="op">=</span> <span class="ident">thick_pl</span> {
                     <span class="comment">// How? Just bail.</span>
                     <span class="kw">return</span> <span class="prelude-val">None</span>;
@@ -1117,15 +1113,15 @@
 
                     <span class="kw">if</span> <span class="bool-val">false</span> {
                         <span class="ident">debug</span>.<span class="ident">push</span>((
-                            <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;1&quot;</span>),
+                            <span class="string">&quot;1&quot;</span>.<span class="ident">to_string</span>(),
                             <span class="ident">Circle</span>::<span class="ident">new</span>(<span class="ident">hit</span>, <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">3.0</span>)).<span class="ident">to_polygon</span>(),
                         ));
                         <span class="ident">debug</span>.<span class="ident">push</span>((
-                            <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;2&quot;</span>),
+                            <span class="string">&quot;2&quot;</span>.<span class="ident">to_string</span>(),
                             <span class="ident">Circle</span>::<span class="ident">new</span>(<span class="ident">trimmed_thin</span>.<span class="ident">last_pt</span>(), <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">3.0</span>)).<span class="ident">to_polygon</span>(),
                         ));
                         <span class="ident">debug</span>.<span class="ident">push</span>((
-                            <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;3&quot;</span>),
+                            <span class="string">&quot;3&quot;</span>.<span class="ident">to_string</span>(),
                             <span class="ident">Circle</span>::<span class="ident">new</span>(<span class="ident">trimmed_thick</span>.<span class="ident">last_pt</span>(), <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">3.0</span>))
                                 .<span class="ident">to_polygon</span>(),
                         ));
@@ -1191,7 +1187,7 @@
 
     <span class="comment">// Now build the actual polygon</span>
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">endpoints</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
-    <span class="kw">for</span> <span class="ident">id</span> <span class="kw">in</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">thin</span>.<span class="ident">id</span>, <span class="ident">thick1</span>.<span class="ident">id</span>, <span class="ident">thick2</span>.<span class="ident">id</span>] {
+    <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="ident">id</span> <span class="kw">in</span> <span class="kw-2">&amp;</span>[<span class="ident">thin</span>.<span class="ident">id</span>, <span class="ident">thick1</span>.<span class="ident">id</span>, <span class="ident">thick2</span>.<span class="ident">id</span>] {
         <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">roads</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>];
         <span class="comment">// Shift those final centers out again to find the main endpoints for the polygon.</span>
         <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">dst_i</span> <span class="op">=</span><span class="op">=</span> <span class="ident">i</span> {
@@ -1232,7 +1228,7 @@
     <span class="ident">endpoints</span>.<span class="ident">sort_by_key</span>(<span class="op">|</span><span class="ident">pt</span><span class="op">|</span> <span class="ident">pt</span>.<span class="ident">angle_to</span>(<span class="ident">center</span>).<span class="ident">normalized_degrees</span>() <span class="kw">as</span> <span class="ident">i64</span>);
     <span class="ident">endpoints</span>.<span class="ident">dedup</span>();
     <span class="prelude-val">Some</span>((
-        <span class="ident">Ring</span>::<span class="ident">must_new</span>(<span class="ident">close_off_polygon</span>(<span class="ident">endpoints</span>)).<span class="ident">to_polygon</span>(),
+        <span class="ident">Ring</span>::<span class="ident">must_new</span>(<span class="ident">close_off_polygon</span>(<span class="ident">endpoints</span>)).<span class="ident">into_polygon</span>(),
         <span class="ident">debug</span>,
     ))
 

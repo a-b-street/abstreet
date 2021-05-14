@@ -296,11 +296,11 @@
         <span class="comment">// -111.9446 33.425474, -111.9442814 33.4254737, -111.9442762 33.426894</span>
         <span class="kw">for</span> <span class="ident">pair</span> <span class="kw">in</span> <span class="ident">raw</span>
             .<span class="ident">strip_prefix</span>(<span class="string">&quot;LINESTRING (&quot;</span>)<span class="question-mark">?</span>
-            .<span class="ident">strip_suffix</span>(<span class="string">&quot;)&quot;</span>)<span class="question-mark">?</span>
+            .<span class="ident">strip_suffix</span>(<span class="string">&#39;)&#39;</span>)<span class="question-mark">?</span>
             .<span class="ident">split</span>(<span class="string">&quot;, &quot;</span>)
         {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">nums</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
-            <span class="kw">for</span> <span class="ident">x</span> <span class="kw">in</span> <span class="ident">pair</span>.<span class="ident">split</span>(<span class="string">&quot; &quot;</span>) {
+            <span class="kw">for</span> <span class="ident">x</span> <span class="kw">in</span> <span class="ident">pair</span>.<span class="ident">split</span>(<span class="string">&#39; &#39;</span>) {
                 <span class="ident">nums</span>.<span class="ident">push</span>(<span class="ident">x</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>().<span class="ident">ok</span>()<span class="question-mark">?</span>);
             }
             <span class="kw">if</span> <span class="ident">nums</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">2</span> {

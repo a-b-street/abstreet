@@ -178,7 +178,7 @@
 
                         <span class="comment">// To properly compute border nodes, we include all nodes of ways that are</span>
                         <span class="comment">// at least partially in the boundary.</span>
-                        <span class="ident">way_node_ids</span>.<span class="ident">extend</span>(<span class="ident">way</span>.<span class="ident">nodes</span>().<span class="ident">into_iter</span>().<span class="ident">cloned</span>());
+                        <span class="ident">way_node_ids</span>.<span class="ident">extend</span>(<span class="ident">way</span>.<span class="ident">nodes</span>().<span class="ident">iter</span>().<span class="ident">cloned</span>());
                     }
                 }
                 <span class="ident">OSMObjectType</span>::<span class="ident">Relation</span> <span class="op">=</span><span class="op">&gt;</span> {

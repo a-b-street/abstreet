@@ -1048,30 +1048,30 @@
     <span class="comment">// and changing it to use a nice hex string is way too hard.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">export</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">f</span> <span class="op">=</span> <span class="ident">File</span>::<span class="ident">create</span>(<span class="ident">path</span>)<span class="question-mark">?</span>;
-        <span class="macro">writeln</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;unzoomed_highway {}&quot;</span>, <span class="self">self</span>.<span class="ident">unzoomed_highway</span>.<span class="ident">to_hex</span>())<span class="question-mark">?</span>;
-        <span class="macro">writeln</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;unzoomed_arterial {}&quot;</span>, <span class="self">self</span>.<span class="ident">unzoomed_arterial</span>.<span class="ident">to_hex</span>())<span class="question-mark">?</span>;
+        <span class="macro">writeln</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;unzoomed_highway {}&quot;</span>, <span class="self">self</span>.<span class="ident">unzoomed_highway</span>.<span class="ident">as_hex</span>())<span class="question-mark">?</span>;
+        <span class="macro">writeln</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;unzoomed_arterial {}&quot;</span>, <span class="self">self</span>.<span class="ident">unzoomed_arterial</span>.<span class="ident">as_hex</span>())<span class="question-mark">?</span>;
         <span class="macro">writeln</span><span class="macro">!</span>(
             <span class="ident">f</span>,
             <span class="string">&quot;unzoomed_residential {}&quot;</span>,
-            <span class="self">self</span>.<span class="ident">unzoomed_residential</span>.<span class="ident">to_hex</span>()
+            <span class="self">self</span>.<span class="ident">unzoomed_residential</span>.<span class="ident">as_hex</span>()
         )<span class="question-mark">?</span>;
-        <span class="macro">writeln</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;unzoomed_trail {}&quot;</span>, <span class="self">self</span>.<span class="ident">unzoomed_trail</span>.<span class="ident">to_hex</span>())<span class="question-mark">?</span>;
-        <span class="macro">writeln</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;private_road {}&quot;</span>, <span class="self">self</span>.<span class="ident">private_road</span>.<span class="ident">to_hex</span>())<span class="question-mark">?</span>;
+        <span class="macro">writeln</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;unzoomed_trail {}&quot;</span>, <span class="self">self</span>.<span class="ident">unzoomed_trail</span>.<span class="ident">as_hex</span>())<span class="question-mark">?</span>;
+        <span class="macro">writeln</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;private_road {}&quot;</span>, <span class="self">self</span>.<span class="ident">private_road</span>.<span class="ident">as_hex</span>())<span class="question-mark">?</span>;
         <span class="macro">writeln</span><span class="macro">!</span>(
             <span class="ident">f</span>,
             <span class="string">&quot;residential_building {}&quot;</span>,
-            <span class="self">self</span>.<span class="ident">residential_building</span>.<span class="ident">to_hex</span>()
+            <span class="self">self</span>.<span class="ident">residential_building</span>.<span class="ident">as_hex</span>()
         )<span class="question-mark">?</span>;
         <span class="macro">writeln</span><span class="macro">!</span>(
             <span class="ident">f</span>,
             <span class="string">&quot;commercial_building {}&quot;</span>,
-            <span class="self">self</span>.<span class="ident">commercial_building</span>.<span class="ident">to_hex</span>()
+            <span class="self">self</span>.<span class="ident">commercial_building</span>.<span class="ident">as_hex</span>()
         )<span class="question-mark">?</span>;
         <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Fill</span>::<span class="ident">Color</span>(<span class="ident">c</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">grass</span> {
-            <span class="macro">writeln</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;grass {}&quot;</span>, <span class="ident">c</span>.<span class="ident">to_hex</span>())<span class="question-mark">?</span>;
+            <span class="macro">writeln</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;grass {}&quot;</span>, <span class="ident">c</span>.<span class="ident">as_hex</span>())<span class="question-mark">?</span>;
         }
         <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Fill</span>::<span class="ident">Color</span>(<span class="ident">c</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">water</span> {
-            <span class="macro">writeln</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;water {}&quot;</span>, <span class="ident">c</span>.<span class="ident">to_hex</span>())<span class="question-mark">?</span>;
+            <span class="macro">writeln</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;water {}&quot;</span>, <span class="ident">c</span>.<span class="ident">as_hex</span>())<span class="question-mark">?</span>;
         }
         <span class="prelude-val">Ok</span>(())
     }
@@ -1079,11 +1079,11 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">import</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">raw</span> <span class="op">=</span> <span class="ident">String</span>::<span class="ident">from_utf8</span>(<span class="ident">abstio</span>::<span class="ident">slurp_file</span>(<span class="ident">path</span>)<span class="question-mark">?</span>)<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">colors</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
-        <span class="kw">for</span> <span class="ident">line</span> <span class="kw">in</span> <span class="ident">raw</span>.<span class="ident">split</span>(<span class="string">&quot;\n&quot;</span>) {
-            <span class="kw">if</span> <span class="ident">line</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;&quot;</span> {
+        <span class="kw">for</span> <span class="ident">line</span> <span class="kw">in</span> <span class="ident">raw</span>.<span class="ident">split</span>(<span class="string">&#39;\n&#39;</span>) {
+            <span class="kw">if</span> <span class="ident">line</span>.<span class="ident">is_empty</span>() {
                 <span class="kw">continue</span>;
             }
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">parts</span> <span class="op">=</span> <span class="ident">line</span>.<span class="ident">split</span>(<span class="string">&quot; &quot;</span>);
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">parts</span> <span class="op">=</span> <span class="ident">line</span>.<span class="ident">split</span>(<span class="string">&#39; &#39;</span>);
             <span class="ident">parts</span>.<span class="ident">next</span>();
             <span class="ident">colors</span>.<span class="ident">push</span>(<span class="ident">Color</span>::<span class="ident">hex</span>(<span class="ident">parts</span>.<span class="ident">next</span>().<span class="ident">unwrap</span>()));
         }
@@ -1238,8 +1238,8 @@
         <span class="ident">cs</span>.<span class="ident">unzoomed_residential</span> <span class="op">=</span> <span class="ident">Color</span>::<span class="ident">WHITE</span>;
         <span class="ident">cs</span>.<span class="ident">grass</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#ECEEED&quot;</span>).<span class="ident">into</span>();
         <span class="ident">cs</span>.<span class="ident">water</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#CAD2D3&quot;</span>).<span class="ident">into</span>();
-        <span class="ident">cs</span>.<span class="ident">residential_building</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#E9E9E7&quot;</span>).<span class="ident">into</span>();
-        <span class="ident">cs</span>.<span class="ident">commercial_building</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#E9E9E7&quot;</span>).<span class="ident">into</span>();
+        <span class="ident">cs</span>.<span class="ident">residential_building</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#E9E9E7&quot;</span>);
+        <span class="ident">cs</span>.<span class="ident">commercial_building</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#E9E9E7&quot;</span>);
         <span class="ident">cs</span>
     }
 
@@ -1252,8 +1252,8 @@
         <span class="ident">cs</span>.<span class="ident">unzoomed_residential</span> <span class="op">=</span> <span class="ident">road</span>;
         <span class="ident">cs</span>.<span class="ident">grass</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#323432&quot;</span>).<span class="ident">into</span>();
         <span class="ident">cs</span>.<span class="ident">water</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#181919&quot;</span>).<span class="ident">into</span>();
-        <span class="ident">cs</span>.<span class="ident">residential_building</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#2C2C2B&quot;</span>).<span class="ident">into</span>();
-        <span class="ident">cs</span>.<span class="ident">commercial_building</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#2C2C2B&quot;</span>).<span class="ident">into</span>();
+        <span class="ident">cs</span>.<span class="ident">residential_building</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#2C2C2B&quot;</span>);
+        <span class="ident">cs</span>.<span class="ident">commercial_building</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#2C2C2B&quot;</span>);
 
         <span class="comment">// TODO Things like this could be refactored in zoomed_road_surface</span>
         <span class="ident">cs</span>.<span class="ident">driving_lane</span> <span class="op">=</span> <span class="ident">road</span>;

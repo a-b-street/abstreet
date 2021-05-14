@@ -763,7 +763,7 @@
             <span class="kw">return</span> <span class="prelude-val">None</span>;
         }
         <span class="comment">// Empty means no restrictions</span>
-        <span class="kw">if</span> <span class="ident">part</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;&quot;</span> {
+        <span class="kw">if</span> <span class="ident">part</span>.<span class="ident">is_empty</span>() {
             <span class="kw">return</span> <span class="prelude-val">None</span>;
         }
         <span class="prelude-val">Some</span>(
@@ -861,7 +861,7 @@
         }
         <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">pts</span>[<span class="number">0</span>]);
         <span class="ident">pts</span>.<span class="ident">dedup</span>();
-        <span class="prelude-val">Some</span>((<span class="ident">Ring</span>::<span class="ident">new</span>(<span class="ident">pts</span>).<span class="ident">ok</span>()<span class="question-mark">?</span>.<span class="ident">to_polygon</span>(), <span class="ident">visited</span>))
+        <span class="prelude-val">Some</span>((<span class="ident">Ring</span>::<span class="ident">new</span>(<span class="ident">pts</span>).<span class="ident">ok</span>()<span class="question-mark">?</span>.<span class="ident">into_polygon</span>(), <span class="ident">visited</span>))
     }
 }
 

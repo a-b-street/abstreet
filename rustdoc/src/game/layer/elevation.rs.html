@@ -440,7 +440,7 @@
         ])
         .<span class="ident">make_polygons</span>(<span class="ident">thickness</span>)
         .<span class="ident">scale</span>(<span class="number">5.0</span>);
-        <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
+        <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel</span>::<span class="ident">new_builder</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">header</span>(<span class="ident">ctx</span>, <span class="string">&quot;Steep streets&quot;</span>),
             <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">GeomBatch</span>::<span class="ident">from</span>(<span class="macro">vec</span><span class="macro">!</span>[(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_fg_color</span>, <span class="ident">panel_arrow</span>)])
@@ -519,7 +519,7 @@
 
         <span class="kw">let</span> (<span class="ident">closest_elevation</span>, <span class="ident">unzoomed</span>) <span class="op">=</span> <span class="ident">make_contours</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">low</span>, <span class="ident">high</span>);
 
-        <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
+        <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel</span>::<span class="ident">new_builder</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">header</span>(<span class="ident">ctx</span>, <span class="string">&quot;Elevation&quot;</span>),
             <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Elevation from {} to {}&quot;</span>, <span class="ident">low</span>, <span class="ident">high</span>).<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
         ]))

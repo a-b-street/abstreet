@@ -1040,10 +1040,6 @@
 <span id="1037">1037</span>
 <span id="1038">1038</span>
 <span id="1039">1039</span>
-<span id="1040">1040</span>
-<span id="1041">1041</span>
-<span id="1042">1042</span>
-<span id="1043">1043</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// This file has a jumbled mess of queries, setup, and mutating methods.</span>
 
@@ -1258,11 +1254,7 @@
             <span class="ident">transit</span>: <span class="ident">TransitSimState</span>::<span class="ident">new</span>(<span class="ident">map</span>),
             <span class="ident">cap</span>: <span class="ident">CapSimState</span>::<span class="ident">new</span>(<span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="ident">opts</span>),
             <span class="ident">trips</span>: <span class="ident">TripManager</span>::<span class="ident">new</span>(),
-            <span class="ident">pandemic</span>: <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">rng</span>) <span class="op">=</span> <span class="ident">opts</span>.<span class="ident">enable_pandemic_model</span> {
-                <span class="prelude-val">Some</span>(<span class="ident">PandemicModel</span>::<span class="ident">new</span>(<span class="ident">rng</span>))
-            } <span class="kw">else</span> {
-                <span class="prelude-val">None</span>
-            },
+            <span class="ident">pandemic</span>: <span class="ident">opts</span>.<span class="ident">enable_pandemic_model</span>.<span class="ident">map</span>(<span class="ident">PandemicModel</span>::<span class="ident">new</span>),
             <span class="ident">scheduler</span>,
             <span class="ident">time</span>: <span class="ident">Time</span>::<span class="ident">START_OF_DAY</span>,
 
@@ -1347,7 +1339,7 @@
             .<span class="ident">get_all_free_spots</span>(<span class="ident">Position</span>::<span class="ident">start</span>(<span class="ident">driving_lane</span>), <span class="kw-2">&amp;</span><span class="ident">vehicle</span>, <span class="ident">b</span>, <span class="ident">map</span>)
             .<span class="ident">get</span>(<span class="number">0</span>)
         {
-            <span class="ident">spot</span>.<span class="ident">clone</span>()
+            <span class="kw-2">*</span><span class="ident">spot</span>
         } <span class="kw">else</span> {
             <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">spot</span>, <span class="kw">_</span>) <span class="op">=</span>
                 <span class="self">self</span>.<span class="ident">parking</span>
@@ -1921,7 +1913,7 @@
                     <span class="self">self</span>.<span class="ident">trips</span>.<span class="ident">cancel_trip</span>(
                         <span class="self">self</span>.<span class="ident">time</span>,
                         <span class="ident">trip</span>,
-                        <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;map edited without reset&quot;</span>),
+                        <span class="string">&quot;map edited without reset&quot;</span>.<span class="ident">to_string</span>(),
                         <span class="prelude-val">Some</span>(<span class="ident">vehicle</span>),
                         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ctx</span>,
                     );
@@ -1932,7 +1924,7 @@
                     <span class="self">self</span>.<span class="ident">trips</span>.<span class="ident">cancel_trip</span>(
                         <span class="self">self</span>.<span class="ident">time</span>,
                         <span class="ident">trip</span>,
-                        <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;map edited without reset&quot;</span>),
+                        <span class="string">&quot;map edited without reset&quot;</span>.<span class="ident">to_string</span>(),
                         <span class="prelude-val">None</span>,
                         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ctx</span>,
                     );
@@ -2041,7 +2033,7 @@
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clear_alerts</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Time</span>, <span class="ident">AlertLocation</span>, <span class="ident">String</span>)<span class="op">&gt;</span> {
-        <span class="ident">std</span>::<span class="ident">mem</span>::<span class="ident">replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">analytics</span>.<span class="ident">alerts</span>, <span class="ident">Vec</span>::<span class="ident">new</span>())
+        <span class="ident">std</span>::<span class="ident">mem</span>::<span class="ident">take</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">analytics</span>.<span class="ident">alerts</span>)
     }
 }
 

@@ -135,9 +135,6 @@
 <span id="132">132</span>
 <span id="133">133</span>
 <span id="134">134</span>
-<span id="135">135</span>
-<span id="136">136</span>
-<span id="137">137</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Duration</span>;
 
@@ -238,10 +235,7 @@
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_window_resized</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">event</span> {
-            <span class="ident">Event</span>::<span class="ident">WindowResized</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
-        }
+        <span class="macro">matches</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">event</span>, <span class="ident">Event</span>::<span class="ident">WindowResized</span>(<span class="kw">_</span>))
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">nonblocking_is_update_event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span> {

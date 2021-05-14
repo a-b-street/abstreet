@@ -1462,7 +1462,7 @@
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">x1</span> <span class="op">=</span> <span class="number">0.0</span>;
     <span class="kw">let</span> <span class="ident">rectangle_height</span> <span class="op">=</span> <span class="number">15.0</span>;
     <span class="kw">let</span> <span class="ident">icon_height</span> <span class="op">=</span> <span class="number">30.0</span>;
-    <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">p</span>) <span class="kw">in</span> <span class="ident">phases</span>.<span class="ident">into_iter</span>().<span class="ident">enumerate</span>() {
+    <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">p</span>) <span class="kw">in</span> <span class="ident">phases</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tooltip</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">p</span>.<span class="ident">phase_type</span>.<span class="ident">describe</span>(<span class="ident">map</span>),
             <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;  Started at {}&quot;</span>, <span class="ident">p</span>.<span class="ident">start_time</span>.<span class="ident">ampm_tostring</span>()),
@@ -1543,7 +1543,7 @@
         <span class="ident">x1</span> <span class="op">+</span><span class="op">=</span> <span class="ident">phase_width</span>;
     }
 
-    <span class="ident">DrawWithTooltips</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">batch</span>, <span class="ident">tooltips</span>, <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>()))
+    <span class="ident">DrawWithTooltips</span>::<span class="ident">new_widget</span>(<span class="ident">ctx</span>, <span class="ident">batch</span>, <span class="ident">tooltips</span>, <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>()))
 }
 
 <span class="doccomment">/// Creates the timeline, location warp, and time warp buttons for one trip, and draws the route on</span>
@@ -1732,7 +1732,7 @@
         <span class="ident">dist</span> <span class="op">+</span><span class="op">=</span> <span class="ident">step</span>.<span class="ident">as_traversable</span>().<span class="ident">get_polyline</span>(<span class="ident">map</span>).<span class="ident">length</span>();
     }
     <span class="comment">// TODO Show roughly where we are in the trip; use distance covered by current path for this</span>
-    <span class="ident">LinePlot</span>::<span class="ident">new</span>(
+    <span class="ident">LinePlot</span>::<span class="ident">new_widget</span>(
         <span class="ident">ctx</span>,
         <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Series</span> {
             <span class="ident">label</span>: <span class="kw">if</span> <span class="ident">walking</span> {

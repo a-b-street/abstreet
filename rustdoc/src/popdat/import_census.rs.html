@@ -125,7 +125,7 @@
 
         <span class="kw">let</span> <span class="ident">bounding_rect</span> <span class="op">=</span> <span class="ident">geo_map_area</span>
             .<span class="ident">bounding_rect</span>()
-            .<span class="ident">ok_or</span>(<span class="macro">anyhow</span><span class="macro">!</span>(<span class="string">&quot;missing bound rect&quot;</span>))<span class="question-mark">?</span>;
+            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">anyhow</span><span class="macro">!</span>(<span class="string">&quot;missing bound rect&quot;</span>))<span class="question-mark">?</span>;
         <span class="ident">fgb</span>.<span class="ident">select_bbox</span>(
             <span class="ident">bounding_rect</span>.<span class="ident">min</span>().<span class="ident">x</span>,
             <span class="ident">bounding_rect</span>.<span class="ident">min</span>().<span class="ident">y</span>,
@@ -157,7 +157,7 @@
                 <span class="kw">let</span> <span class="ident">geo_polygon</span> <span class="op">=</span> <span class="ident">multi_poly</span>
                     .<span class="number">0</span>
                     .<span class="ident">first</span>()
-                    .<span class="ident">ok_or</span>(<span class="macro">anyhow</span><span class="macro">!</span>(<span class="string">&quot;multipolygon was unexpectedly empty&quot;</span>))<span class="question-mark">?</span>;
+                    .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">anyhow</span><span class="macro">!</span>(<span class="string">&quot;multipolygon was unexpectedly empty&quot;</span>))<span class="question-mark">?</span>;
                 <span class="kw">if</span> <span class="ident">multi_poly</span>.<span class="number">0</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">1</span> {
                     <span class="macro">warn</span><span class="macro">!</span>(
                         <span class="string">&quot;dropping {} extra polygons from census area: {:?}&quot;</span>,

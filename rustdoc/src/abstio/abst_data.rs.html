@@ -254,7 +254,7 @@
                 }
             }
 
-            <span class="kw">let</span> <span class="ident">parts</span> <span class="op">=</span> <span class="ident">path</span>.<span class="ident">split</span>(<span class="string">&quot;/&quot;</span>).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
+            <span class="kw">let</span> <span class="ident">parts</span> <span class="op">=</span> <span class="ident">path</span>.<span class="ident">split</span>(<span class="string">&#39;/&#39;</span>).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">data_pack</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}/{}&quot;</span>, <span class="ident">parts</span>[<span class="number">2</span>], <span class="ident">parts</span>[<span class="number">3</span>]);
             <span class="kw">if</span> <span class="ident">Manifest</span>::<span class="ident">is_file_part_of_huge_seattle</span>(<span class="ident">path</span>) {
                 <span class="ident">data_pack</span> <span class="op">=</span> <span class="string">&quot;us/huge_seattle&quot;</span>.<span class="ident">to_string</span>();
@@ -286,13 +286,13 @@
         <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">path</span>
             .<span class="ident">strip_prefix</span>(<span class="kw-2">&amp;</span><span class="kw">crate</span>::<span class="ident">path</span>(<span class="string">&quot;&quot;</span>))
             .<span class="ident">or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">path</span>.<span class="ident">strip_prefix</span>(<span class="string">&quot;data/&quot;</span>))
-            .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">path</span>);
+            .<span class="ident">unwrap_or</span>(<span class="ident">path</span>);
         <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="ident">path</span>.<span class="ident">strip_prefix</span>(<span class="string">&quot;system/us/seattle/maps/&quot;</span>) {
             <span class="ident">x</span>.<span class="ident">strip_suffix</span>(<span class="string">&quot;.bin&quot;</span>).<span class="ident">unwrap</span>()
         } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="ident">path</span>.<span class="ident">strip_prefix</span>(<span class="string">&quot;system/us/seattle/scenarios/&quot;</span>) {
-            <span class="ident">x</span>.<span class="ident">split</span>(<span class="string">&quot;/&quot;</span>).<span class="ident">next</span>().<span class="ident">unwrap</span>()
+            <span class="ident">x</span>.<span class="ident">split</span>(<span class="string">&#39;/&#39;</span>).<span class="ident">next</span>().<span class="ident">unwrap</span>()
         } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="ident">path</span>.<span class="ident">strip_prefix</span>(<span class="string">&quot;system/us/seattle/prebaked_results/&quot;</span>) {
-            <span class="ident">x</span>.<span class="ident">split</span>(<span class="string">&quot;/&quot;</span>).<span class="ident">next</span>().<span class="ident">unwrap</span>()
+            <span class="ident">x</span>.<span class="ident">split</span>(<span class="string">&#39;/&#39;</span>).<span class="ident">next</span>().<span class="ident">unwrap</span>()
         } <span class="kw">else</span> {
             <span class="kw">return</span> <span class="bool-val">false</span>;
         };
@@ -305,7 +305,7 @@
 
     <span class="doccomment">/// If an entry&#39;s path is system data, return the city.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">path_to_city</span>(<span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">CityName</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">parts</span> <span class="op">=</span> <span class="ident">path</span>.<span class="ident">split</span>(<span class="string">&quot;/&quot;</span>).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
+        <span class="kw">let</span> <span class="ident">parts</span> <span class="op">=</span> <span class="ident">path</span>.<span class="ident">split</span>(<span class="string">&#39;/&#39;</span>).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
         <span class="kw">if</span> <span class="ident">parts</span>[<span class="number">1</span>] <span class="op">=</span><span class="op">=</span> <span class="string">&quot;system&quot;</span> {
             <span class="kw">if</span> <span class="ident">parts</span>[<span class="number">2</span>] <span class="op">=</span><span class="op">=</span> <span class="string">&quot;assets&quot;</span>
                 <span class="op">|</span><span class="op">|</span> <span class="ident">parts</span>[<span class="number">2</span>] <span class="op">=</span><span class="op">=</span> <span class="string">&quot;extra_fonts&quot;</span>

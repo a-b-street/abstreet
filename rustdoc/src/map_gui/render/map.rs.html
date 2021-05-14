@@ -672,7 +672,7 @@
                 <span class="ident">quadtree</span>.<span class="ident">insert_with_box</span>(<span class="ident">obj</span>.<span class="ident">get_id</span>(), <span class="ident">obj</span>.<span class="ident">get_outline</span>(<span class="ident">map</span>).<span class="ident">get_bounds</span>().<span class="ident">as_bbox</span>());
             <span class="ident">quadtree_ids</span>.<span class="ident">insert</span>(<span class="ident">obj</span>.<span class="ident">get_id</span>(), <span class="ident">item_id</span>);
         }
-        <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">obj</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">lanes</span> {
+        <span class="kw">for</span> <span class="ident">obj</span> <span class="kw">in</span> <span class="ident">lanes</span>.<span class="ident">values</span>() {
             <span class="kw">let</span> <span class="ident">item_id</span> <span class="op">=</span>
                 <span class="ident">quadtree</span>.<span class="ident">insert_with_box</span>(<span class="ident">obj</span>.<span class="ident">get_id</span>(), <span class="ident">obj</span>.<span class="ident">get_outline</span>(<span class="ident">map</span>).<span class="ident">get_bounds</span>().<span class="ident">as_bbox</span>());
             <span class="ident">quadtree_ids</span>.<span class="ident">insert</span>(<span class="ident">obj</span>.<span class="ident">get_id</span>(), <span class="ident">item_id</span>);

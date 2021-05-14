@@ -335,7 +335,7 @@
                 <span class="ident">tip_pt</span>.<span class="ident">project_away</span>(<span class="ident">CAR_WIDTH</span> <span class="op">/</span> <span class="number">4.0</span>, <span class="ident">tip_angle</span>.<span class="ident">rotate_degs</span>(<span class="number">90.0</span>)),
                 <span class="ident">corner_pt</span>.<span class="ident">project_away</span>(<span class="ident">CAR_WIDTH</span> <span class="op">/</span> <span class="number">2.0</span>, <span class="ident">corner_angle</span>.<span class="ident">rotate_degs</span>(<span class="number">90.0</span>)),
             ]) {
-                <span class="prelude-val">Ok</span>(<span class="ident">front</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">front</span>.<span class="ident">to_polygon</span>().<span class="ident">union</span>(<span class="ident">thick_line</span>),
+                <span class="prelude-val">Ok</span>(<span class="ident">front</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">front</span>.<span class="ident">into_polygon</span>().<span class="ident">union</span>(<span class="ident">thick_line</span>),
                 <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">thick_line</span>,
             }
         };

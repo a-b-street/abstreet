@@ -188,14 +188,14 @@
 <span class="kw">impl</span> <span class="ident">Floodfiller</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">floodfill</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">l</span>: <span class="ident">LaneID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">constraints</span> <span class="op">=</span> <span class="ident">PathConstraints</span>::<span class="ident">from_lt</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">lane_type</span>);
-        <span class="ident">Floodfiller</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">Source</span>::<span class="ident">Floodfill</span>(<span class="ident">l</span>), <span class="ident">constraints</span>)
+        <span class="ident">Floodfiller</span>::<span class="ident">new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">Source</span>::<span class="ident">Floodfill</span>(<span class="ident">l</span>), <span class="ident">constraints</span>)
     }
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">scc</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">l</span>: <span class="ident">LaneID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">constraints</span> <span class="op">=</span> <span class="ident">PathConstraints</span>::<span class="ident">from_lt</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">lane_type</span>);
-        <span class="ident">Floodfiller</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">Source</span>::<span class="ident">SCC</span>, <span class="ident">constraints</span>)
+        <span class="ident">Floodfiller</span>::<span class="ident">new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">Source</span>::<span class="ident">SCC</span>, <span class="ident">constraints</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">new</span>(
+    <span class="kw">fn</span> <span class="ident">new_state</span>(
         <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
         <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
         <span class="ident">source</span>: <span class="ident">Source</span>,
@@ -217,7 +217,7 @@
 
         <span class="kw">let</span> (<span class="ident">unzoomed</span>, <span class="ident">zoomed</span>, <span class="ident">legend</span>) <span class="op">=</span> <span class="ident">colorer</span>.<span class="ident">build</span>(<span class="ident">ctx</span>);
         <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">Floodfiller</span> {
-            <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
+            <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new_builder</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="ident">Line</span>(<span class="ident">title</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                     <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
@@ -261,7 +261,7 @@
                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
             },
             <span class="ident">Outcome</span>::<span class="ident">Changed</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">Floodfiller</span>::<span class="ident">new</span>(
+                <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">Floodfiller</span>::<span class="ident">new_state</span>(
                     <span class="ident">ctx</span>,
                     <span class="ident">app</span>,
                     <span class="self">self</span>.<span class="ident">source</span>.<span class="ident">clone</span>(),
@@ -325,7 +325,7 @@
             }
             <span class="ident">Source</span>::<span class="ident">SCC</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> (<span class="ident">good</span>, <span class="ident">bad</span>) <span class="op">=</span> <span class="ident">connectivity</span>::<span class="ident">find_scc</span>(<span class="ident">map</span>, <span class="ident">constraints</span>);
-                (<span class="ident">good</span>, <span class="ident">bad</span>, <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;strongpy-connected component&quot;</span>))
+                (<span class="ident">good</span>, <span class="ident">bad</span>, <span class="string">&quot;strongly-connected component&quot;</span>.<span class="ident">to_string</span>())
             }
         }
     }

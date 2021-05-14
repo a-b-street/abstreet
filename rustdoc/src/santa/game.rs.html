@@ -698,6 +698,10 @@
 <span id="695">695</span>
 <span id="696">696</span>
 <span id="697">697</span>
+<span id="698">698</span>
+<span id="699">699</span>
+<span id="700">700</span>
+<span id="701">701</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 
@@ -738,7 +742,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Game</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(
         <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
         <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>,
         <span class="ident">level</span>: <span class="ident">Level</span>,
@@ -749,7 +753,7 @@
         <span class="ident">app</span>.<span class="ident">time</span> <span class="op">=</span> <span class="ident">Time</span>::<span class="ident">START_OF_DAY</span>;
         <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">music</span>.<span class="ident">specify_volume</span>(<span class="kw">crate</span>::<span class="ident">music</span>::<span class="ident">IN_GAME</span>);
 
-        <span class="kw">let</span> <span class="ident">status_panel</span> <span class="op">=</span> <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
+        <span class="kw">let</span> <span class="ident">status_panel</span> <span class="op">=</span> <span class="ident">Panel</span>::<span class="ident">new_builder</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="string">&quot;15-min Santa&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
             <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="comment">// TODO The blur is messed up</span>
@@ -768,14 +772,14 @@
         .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment</span>::<span class="ident">RightInset</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">TopInset</span>)
         .<span class="ident">build</span>(<span class="ident">ctx</span>);
 
-        <span class="kw">let</span> <span class="ident">time_panel</span> <span class="op">=</span> <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+        <span class="kw">let</span> <span class="ident">time_panel</span> <span class="op">=</span> <span class="ident">Panel</span>::<span class="ident">new_builder</span>(<span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">GeomBatch</span>::<span class="ident">new</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;time circle&quot;</span>),
             <span class="string">&quot;Time&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>().<span class="ident">named</span>(<span class="string">&quot;time label&quot;</span>),
         ]))
         .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment</span>::<span class="ident">LeftInset</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">TopInset</span>)
         .<span class="ident">build</span>(<span class="ident">ctx</span>);
 
-        <span class="kw">let</span> <span class="ident">pause_panel</span> <span class="op">=</span> <span class="ident">Panel</span>::<span class="ident">new</span>(
+        <span class="kw">let</span> <span class="ident">pause_panel</span> <span class="op">=</span> <span class="ident">Panel</span>::<span class="ident">new_builder</span>(
             <span class="ident">ctx</span>.<span class="ident">style</span>()
                 .<span class="ident">btn_plain</span>
                 .<span class="ident">icon_text</span>(<span class="string">&quot;system/assets/speed/pause.svg&quot;</span>, <span class="string">&quot;Pause&quot;</span>)
@@ -793,7 +797,7 @@
         <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="ident">app</span>
             .<span class="ident">map</span>
             .<span class="ident">find_i_by_osm_id</span>(<span class="ident">level</span>.<span class="ident">start</span>)
-            .<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;can&#39;t find {}&quot;</span>, <span class="ident">level</span>.<span class="ident">start</span>));
+            .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;can&#39;t find {}&quot;</span>, <span class="ident">level</span>.<span class="ident">start</span>));
         <span class="kw">let</span> <span class="ident">player</span> <span class="op">=</span> <span class="ident">Player</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">start</span>);
 
         <span class="kw">let</span> <span class="ident">bldgs</span> <span class="op">=</span> <span class="ident">Buildings</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">upzones</span>);
@@ -1038,7 +1042,7 @@
 
             <span class="kw">if</span> <span class="self">self</span>.<span class="ident">animator</span>.<span class="ident">is_done</span>() {
                 <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Multi</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                    <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">Strategize</span>::<span class="ident">new</span>(
+                    <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">Strategize</span>::<span class="ident">new_state</span>(
                         <span class="ident">ctx</span>,
                         <span class="ident">app</span>,
                         <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">score</span>,
@@ -1046,7 +1050,12 @@
                         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">state</span>.<span class="ident">bldgs</span>,
                         <span class="ident">std</span>::<span class="ident">mem</span>::<span class="ident">replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">record_path</span>, <span class="ident">RecordPath</span>::<span class="ident">new</span>()),
                     )),
-                    <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">Results</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">score</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">state</span>.<span class="ident">level</span>)),
+                    <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">Results</span>::<span class="ident">new_state</span>(
+                        <span class="ident">ctx</span>,
+                        <span class="ident">app</span>,
+                        <span class="self">self</span>.<span class="ident">state</span>.<span class="ident">score</span>,
+                        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">state</span>.<span class="ident">level</span>,
+                    )),
                 ]);
             }
 
@@ -1145,11 +1154,11 @@
             <span class="kw">return</span> <span class="ident">t</span>;
         }
 
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">pause_panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">pause_panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
+            <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
                 <span class="string">&quot;pause&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">music</span>.<span class="ident">specify_volume</span>(<span class="kw">crate</span>::<span class="ident">music</span>::<span class="ident">OUT_OF_GAME</span>);
-                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">ChooseSomething</span>::<span class="ident">new</span>(
+                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">ChooseSomething</span>::<span class="ident">new_state</span>(
                         <span class="ident">ctx</span>,
                         <span class="string">&quot;Game Paused&quot;</span>,
                         <span class="macro">vec</span><span class="macro">!</span>[
@@ -1167,8 +1176,7 @@
                     ));
                 }
                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
-            },
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
+            }
         }
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="ident">dy</span>)) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">get_mouse_scroll</span>() {

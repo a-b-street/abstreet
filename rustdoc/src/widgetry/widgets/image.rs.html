@@ -310,7 +310,6 @@
 <span id="307">307</span>
 <span id="308">308</span>
 <span id="309">309</span>
-<span id="310">310</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">Color</span>, <span class="ident">ContentMode</span>, <span class="ident">CornerRounding</span>, <span class="ident">DrawWithTooltips</span>, <span class="ident">EdgeInsets</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>,
@@ -356,10 +355,9 @@
         <span class="kw">match</span> <span class="self">self</span> {
             <span class="ident">ImageSource</span>::<span class="ident">Path</span>(<span class="ident">image_path</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">svg</span>::<span class="ident">load_svg</span>(<span class="ident">prerender</span>, <span class="ident">image_path</span>),
             <span class="ident">ImageSource</span>::<span class="ident">Bytes</span> { <span class="ident">bytes</span>, <span class="ident">cache_key</span> } <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="ident">svg</span>::<span class="ident">load_svg_bytes</span>(<span class="ident">prerender</span>, <span class="ident">cache_key</span>, <span class="ident">bytes</span>).<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="macro">format</span><span class="macro">!</span>(
-                    <span class="string">&quot;Failed to load svg from bytes. cache_key: {}&quot;</span>,
-                    <span class="ident">cache_key</span>
-                ))
+                <span class="ident">svg</span>::<span class="ident">load_svg_bytes</span>(<span class="ident">prerender</span>, <span class="ident">cache_key</span>, <span class="ident">bytes</span>).<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> {
+                    <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Failed to load svg from bytes. cache_key: {}&quot;</span>, <span class="ident">cache_key</span>)
+                })
             }
             <span class="ident">ImageSource</span>::<span class="ident">GeomBatch</span>(<span class="ident">geom_batch</span>, <span class="ident">bounds</span>) <span class="op">=</span><span class="op">&gt;</span> (<span class="ident">geom_batch</span>.<span class="ident">clone</span>(), <span class="kw-2">*</span><span class="ident">bounds</span>),
         }
@@ -465,16 +463,16 @@
     <span class="doccomment">/// Create a new `Image` based on `self`, but overriding with any values set on `other`.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">merged_image_style</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;c</span> <span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;c</span> <span class="self">Self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="kw">let</span> <span class="ident">source_cow</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span>, <span class="ident">ImageSource</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span>
-            <span class="ident">other</span>.<span class="ident">source</span>.<span class="ident">as_ref</span>().<span class="ident">or</span>(<span class="self">self</span>.<span class="ident">source</span>.<span class="ident">as_ref</span>());
+            <span class="ident">other</span>.<span class="ident">source</span>.<span class="ident">as_ref</span>().<span class="ident">or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">source</span>.<span class="ident">as_ref</span>());
         <span class="kw">let</span> <span class="ident">source</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span>, <span class="ident">ImageSource</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">source_cow</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">source</span>: <span class="kw-2">&amp;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="ident">ImageSource</span><span class="op">&gt;</span><span class="op">|</span> {
-            <span class="kw">let</span> <span class="ident">source</span>: <span class="kw-2">&amp;</span><span class="ident">ImageSource</span> <span class="op">=</span> <span class="kw-2">*</span><span class="kw-2">&amp;</span><span class="ident">source</span>;
+            <span class="kw">let</span> <span class="ident">source</span>: <span class="kw-2">&amp;</span><span class="ident">ImageSource</span> <span class="op">=</span> <span class="ident">source</span>;
             <span class="ident">Cow</span>::<span class="ident">Borrowed</span>(<span class="ident">source</span>)
         });
 
         <span class="self">Self</span> {
             <span class="ident">source</span>,
             <span class="comment">// PERF: we could make tooltip a cow to eliminate clone</span>
-            <span class="ident">tooltip</span>: <span class="ident">other</span>.<span class="ident">tooltip</span>.<span class="ident">clone</span>().<span class="ident">or</span>(<span class="self">self</span>.<span class="ident">tooltip</span>.<span class="ident">clone</span>()),
+            <span class="ident">tooltip</span>: <span class="ident">other</span>.<span class="ident">tooltip</span>.<span class="ident">clone</span>().<span class="ident">or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">tooltip</span>.<span class="ident">clone</span>()),
             <span class="ident">color</span>: <span class="ident">other</span>.<span class="ident">color</span>.<span class="ident">or</span>(<span class="self">self</span>.<span class="ident">color</span>),
             <span class="ident">content_mode</span>: <span class="ident">other</span>.<span class="ident">content_mode</span>.<span class="ident">or</span>(<span class="self">self</span>.<span class="ident">content_mode</span>),
             <span class="ident">corner_rounding</span>: <span class="ident">other</span>.<span class="ident">corner_rounding</span>.<span class="ident">or</span>(<span class="self">self</span>.<span class="ident">corner_rounding</span>),
@@ -537,7 +535,7 @@
 
             <span class="ident">image_batch</span> <span class="op">=</span> <span class="ident">image_batch</span>.<span class="ident">color</span>(
                 <span class="self">self</span>.<span class="ident">color</span>
-                    .<span class="ident">unwrap_or</span>(<span class="ident">RewriteColor</span>::<span class="ident">ChangeAll</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">icon_fg</span>)),
+                    .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">RewriteColor</span>::<span class="ident">ChangeAll</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">icon_fg</span>)),
             );
 
             <span class="kw">match</span> <span class="self">self</span>.<span class="ident">dims</span> {
@@ -605,7 +603,7 @@
             <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Widget</span>::<span class="ident">nothing</span>(),
             <span class="prelude-val">Some</span>((<span class="ident">batch</span>, <span class="ident">bounds</span>)) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">tooltip</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">tooltip</span> {
-                    <span class="ident">DrawWithTooltips</span>::<span class="ident">new</span>(
+                    <span class="ident">DrawWithTooltips</span>::<span class="ident">new_widget</span>(
                         <span class="ident">ctx</span>,
                         <span class="ident">batch</span>,
                         <span class="macro">vec</span><span class="macro">!</span>[(<span class="ident">bounds</span>.<span class="ident">get_rectangle</span>(), <span class="ident">tooltip</span>)],

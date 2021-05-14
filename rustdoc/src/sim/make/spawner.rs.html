@@ -408,9 +408,6 @@
 <span id="405">405</span>
 <span id="406">406</span>
 <span id="407">407</span>
-<span id="408">408</span>
-<span id="409">409</span>
-<span id="410">410</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Intermediate structures used to instantiate a Scenario. Badly needs simplification:</span>
 <span class="doccomment">//! https://github.com/a-b-street/abstreet/issues/258</span>
@@ -474,7 +471,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">TripSpec</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_plan</span>(<span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">TripSpec</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TripLeg</span><span class="op">&gt;</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_plan</span>(<span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">TripSpec</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TripLeg</span><span class="op">&gt;</span>) {
         <span class="comment">// TODO We&#39;ll want to repeat this validation when we spawn stuff later for a second leg...</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">legs</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
         <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="self">self</span> {
@@ -511,10 +508,10 @@
 
                 <span class="kw">if</span> <span class="ident">goal</span>.<span class="ident">goal_pos</span>(<span class="ident">constraints</span>, <span class="ident">map</span>).<span class="ident">is_none</span>() {
                     <span class="kw">return</span> <span class="ident">TripSpec</span>::<span class="ident">SpawningFailure</span> {
-                        <span class="ident">use_vehicle</span>: <span class="prelude-val">Some</span>(<span class="ident">use_vehicle</span>.<span class="ident">clone</span>()),
+                        <span class="ident">use_vehicle</span>: <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">use_vehicle</span>),
                         <span class="ident">error</span>: <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;goal_pos to {:?} for a {:?} failed&quot;</span>, <span class="ident">goal</span>, <span class="ident">constraints</span>),
                     }
-                    .<span class="ident">to_plan</span>(<span class="ident">map</span>);
+                    .<span class="ident">into_plan</span>(<span class="ident">map</span>);
                 }
             }
             <span class="ident">TripSpec</span>::<span class="ident">SpawningFailure</span> { .. } <span class="op">=</span><span class="op">&gt;</span> {
@@ -566,14 +563,14 @@
                                      sidewalk!&quot;</span>,
                                     <span class="ident">start</span>, <span class="ident">b</span>
                                 );
-                                <span class="kw">return</span> <span class="ident">backup_plan</span>.<span class="ident">unwrap</span>().<span class="ident">to_plan</span>(<span class="ident">map</span>);
+                                <span class="kw">return</span> <span class="ident">backup_plan</span>.<span class="ident">unwrap</span>().<span class="ident">into_plan</span>(<span class="ident">map</span>);
                             }
                         } <span class="kw">else</span> {
                             <span class="macro">info</span><span class="macro">!</span>(
                                 <span class="string">&quot;Can&#39;t find biking connection for goal {}, walking instead&quot;</span>,
                                 <span class="ident">b</span>
                             );
-                            <span class="kw">return</span> <span class="ident">backup_plan</span>.<span class="ident">unwrap</span>().<span class="ident">to_plan</span>(<span class="ident">map</span>);
+                            <span class="kw">return</span> <span class="ident">backup_plan</span>.<span class="ident">unwrap</span>().<span class="ident">into_plan</span>(<span class="ident">map</span>);
                         }
                     }
 
@@ -585,9 +582,9 @@
                         }
                         <span class="ident">DrivingGoal</span>::<span class="ident">Border</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {}
                     }
-                } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">backup_plan</span>.<span class="ident">is_some</span>() {
+                } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">plan</span>) <span class="op">=</span> <span class="ident">backup_plan</span> {
                     <span class="macro">info</span><span class="macro">!</span>(<span class="string">&quot;Can&#39;t start biking from {}. Walking instead&quot;</span>, <span class="ident">start</span>);
-                    <span class="kw">return</span> <span class="ident">backup_plan</span>.<span class="ident">unwrap</span>().<span class="ident">to_plan</span>(<span class="ident">map</span>);
+                    <span class="kw">return</span> <span class="ident">plan</span>.<span class="ident">into_plan</span>(<span class="ident">map</span>);
                 } <span class="kw">else</span> {
                     <span class="kw">return</span> <span class="ident">TripSpec</span>::<span class="ident">SpawningFailure</span> {
                         <span class="ident">use_vehicle</span>: <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">bike</span>),
@@ -596,7 +593,7 @@
                             <span class="ident">start</span>, <span class="ident">goal</span>
                         ),
                     }
-                    .<span class="ident">to_plan</span>(<span class="ident">map</span>);
+                    .<span class="ident">into_plan</span>(<span class="ident">map</span>);
                 }
             }
             <span class="ident">TripSpec</span>::<span class="ident">UsingTransit</span> {
@@ -609,15 +606,12 @@
                 <span class="kw">let</span> <span class="ident">walk_to</span> <span class="op">=</span> <span class="ident">SidewalkSpot</span>::<span class="ident">bus_stop</span>(<span class="kw-2">*</span><span class="ident">stop1</span>, <span class="ident">map</span>);
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">stop2</span>) <span class="op">=</span> <span class="ident">maybe_stop2</span> {
                     <span class="ident">legs</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
-                        <span class="ident">TripLeg</span>::<span class="ident">Walk</span>(<span class="ident">walk_to</span>.<span class="ident">clone</span>()),
+                        <span class="ident">TripLeg</span>::<span class="ident">Walk</span>(<span class="ident">walk_to</span>),
                         <span class="ident">TripLeg</span>::<span class="ident">RideBus</span>(<span class="kw-2">*</span><span class="ident">route</span>, <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">stop2</span>)),
                         <span class="ident">TripLeg</span>::<span class="ident">Walk</span>(<span class="ident">goal</span>.<span class="ident">clone</span>()),
                     ];
                 } <span class="kw">else</span> {
-                    <span class="ident">legs</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
-                        <span class="ident">TripLeg</span>::<span class="ident">Walk</span>(<span class="ident">walk_to</span>.<span class="ident">clone</span>()),
-                        <span class="ident">TripLeg</span>::<span class="ident">RideBus</span>(<span class="kw-2">*</span><span class="ident">route</span>, <span class="prelude-val">None</span>),
-                    ];
+                    <span class="ident">legs</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">TripLeg</span>::<span class="ident">Walk</span>(<span class="ident">walk_to</span>), <span class="ident">TripLeg</span>::<span class="ident">RideBus</span>(<span class="kw-2">*</span><span class="ident">route</span>, <span class="prelude-val">None</span>)];
                 }
             }
         };
@@ -732,8 +726,8 @@
         <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathRequest</span><span class="op">&gt;</span> {
         <span class="prelude-val">Some</span>(<span class="ident">PathRequest</span> {
-            <span class="ident">start</span>: <span class="ident">from</span>.<span class="ident">clone</span>().<span class="ident">pos</span>(<span class="ident">mode</span>, <span class="bool-val">true</span>, <span class="ident">map</span>)<span class="question-mark">?</span>,
-            <span class="ident">end</span>: <span class="ident">to</span>.<span class="ident">clone</span>().<span class="ident">pos</span>(<span class="ident">mode</span>, <span class="bool-val">false</span>, <span class="ident">map</span>)<span class="question-mark">?</span>,
+            <span class="ident">start</span>: <span class="ident">from</span>.<span class="ident">pos</span>(<span class="ident">mode</span>, <span class="bool-val">true</span>, <span class="ident">map</span>)<span class="question-mark">?</span>,
+            <span class="ident">end</span>: <span class="ident">to</span>.<span class="ident">pos</span>(<span class="ident">mode</span>, <span class="bool-val">false</span>, <span class="ident">map</span>)<span class="question-mark">?</span>,
             <span class="ident">constraints</span>: <span class="kw">match</span> <span class="ident">mode</span> {
                 <span class="ident">TripMode</span>::<span class="ident">Walk</span> <span class="op">|</span> <span class="ident">TripMode</span>::<span class="ident">Transit</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">PathConstraints</span>::<span class="ident">Pedestrian</span>,
                 <span class="ident">TripMode</span>::<span class="ident">Drive</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">PathConstraints</span>::<span class="ident">Car</span>,

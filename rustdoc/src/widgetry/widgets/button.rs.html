@@ -763,6 +763,7 @@
 <span id="760">760</span>
 <span id="761">761</span>
 <span id="762">762</span>
+<span id="763">763</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Polygon</span>};
 
@@ -1363,37 +1364,34 @@
         <span class="kw">let</span> <span class="ident">label_batch</span> <span class="op">=</span> <span class="ident">state_style</span>
             .<span class="ident">label</span>
             .<span class="ident">as_ref</span>()
-            .<span class="ident">or</span>(<span class="ident">default_style</span>.<span class="ident">label</span>.<span class="ident">as_ref</span>())
+            .<span class="ident">or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">default_style</span>.<span class="ident">label</span>.<span class="ident">as_ref</span>())
             .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">label</span><span class="op">|</span> {
                 <span class="kw">let</span> <span class="ident">default</span> <span class="op">=</span> <span class="ident">default_style</span>.<span class="ident">label</span>.<span class="ident">as_ref</span>();
 
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">styled_text</span>) <span class="op">=</span> <span class="ident">label</span>
                     .<span class="ident">styled_text</span>
                     .<span class="ident">as_ref</span>()
-                    .<span class="ident">or</span>(<span class="ident">default</span>.<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">d</span><span class="op">|</span> <span class="ident">d</span>.<span class="ident">styled_text</span>.<span class="ident">as_ref</span>()))
+                    .<span class="ident">or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">default</span>.<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">d</span><span class="op">|</span> <span class="ident">d</span>.<span class="ident">styled_text</span>.<span class="ident">as_ref</span>()))
                 {
                     <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">styled_text</span>.<span class="ident">clone</span>().<span class="ident">bg</span>(<span class="ident">Color</span>::<span class="ident">CLEAR</span>).<span class="ident">render</span>(<span class="ident">ctx</span>));
                 }
 
-                <span class="kw">let</span> <span class="ident">text</span> <span class="op">=</span> <span class="ident">label</span>.<span class="ident">text</span>.<span class="ident">clone</span>().<span class="ident">or</span>(<span class="ident">default</span>.<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">d</span><span class="op">|</span> <span class="ident">d</span>.<span class="ident">text</span>.<span class="ident">clone</span>()));
-
-                <span class="comment">// Is there a better way to do this like a `guard let`?</span>
-                <span class="kw">if</span> <span class="ident">text</span>.<span class="ident">is_none</span>() {
-                    <span class="kw">return</span> <span class="prelude-val">None</span>;
-                }
-                <span class="kw">let</span> <span class="ident">text</span> <span class="op">=</span> <span class="ident">text</span>.<span class="ident">unwrap</span>();
+                <span class="kw">let</span> <span class="ident">text</span> <span class="op">=</span> <span class="ident">label</span>
+                    .<span class="ident">text</span>
+                    .<span class="ident">clone</span>()
+                    .<span class="ident">or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">default</span>.<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">d</span><span class="op">|</span> <span class="ident">d</span>.<span class="ident">text</span>.<span class="ident">clone</span>()))<span class="question-mark">?</span>;
 
                 <span class="kw">let</span> <span class="ident">color</span> <span class="op">=</span> <span class="ident">label</span>
                     .<span class="ident">color</span>
-                    .<span class="ident">or</span>(<span class="ident">default</span>.<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">d</span><span class="op">|</span> <span class="ident">d</span>.<span class="ident">color</span>))
-                    .<span class="ident">unwrap_or</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_fg_color</span>);
+                    .<span class="ident">or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">default</span>.<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">d</span><span class="op">|</span> <span class="ident">d</span>.<span class="ident">color</span>))
+                    .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_fg_color</span>);
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">line</span> <span class="op">=</span> <span class="ident">Line</span>(<span class="ident">text</span>).<span class="ident">fg</span>(<span class="ident">color</span>);
 
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">font_size</span>) <span class="op">=</span> <span class="ident">label</span>.<span class="ident">font_size</span>.<span class="ident">or</span>(<span class="ident">default</span>.<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">d</span><span class="op">|</span> <span class="ident">d</span>.<span class="ident">font_size</span>)) {
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">font_size</span>) <span class="op">=</span> <span class="ident">label</span>.<span class="ident">font_size</span>.<span class="ident">or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">default</span>.<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">d</span><span class="op">|</span> <span class="ident">d</span>.<span class="ident">font_size</span>)) {
                     <span class="ident">line</span> <span class="op">=</span> <span class="ident">line</span>.<span class="ident">size</span>(<span class="ident">font_size</span>);
                 }
 
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">font</span>) <span class="op">=</span> <span class="ident">label</span>.<span class="ident">font</span>.<span class="ident">or</span>(<span class="ident">default</span>.<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">d</span><span class="op">|</span> <span class="ident">d</span>.<span class="ident">font</span>)) {
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">font</span>) <span class="op">=</span> <span class="ident">label</span>.<span class="ident">font</span>.<span class="ident">or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">default</span>.<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">d</span><span class="op">|</span> <span class="ident">d</span>.<span class="ident">font</span>)) {
                     <span class="ident">line</span> <span class="op">=</span> <span class="ident">line</span>.<span class="ident">font</span>(<span class="ident">font</span>);
                 }
 
@@ -1445,7 +1443,7 @@
             <span class="ident">button_widget</span> <span class="op">=</span> <span class="ident">button_widget</span>.<span class="ident">corner_rounding</span>(<span class="ident">corner_rounding</span>);
         }
 
-        <span class="kw">let</span> (<span class="ident">geom_batch</span>, <span class="ident">_hitbox</span>) <span class="op">=</span> <span class="ident">button_widget</span>.<span class="ident">to_geom</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>);
+        <span class="kw">let</span> (<span class="ident">geom_batch</span>, <span class="ident">_hitbox</span>) <span class="op">=</span> <span class="ident">button_widget</span>.<span class="ident">into_geom</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>);
         <span class="ident">geom_batch</span>
     }
 }
@@ -1470,7 +1468,11 @@
 }
 
 <span class="kw">impl</span> <span class="ident">MultiButton</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">batch</span>: <span class="ident">GeomBatch</span>, <span class="ident">hitboxes</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Polygon</span>, <span class="ident">String</span>)<span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_widget</span>(
+        <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>,
+        <span class="ident">batch</span>: <span class="ident">GeomBatch</span>,
+        <span class="ident">hitboxes</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Polygon</span>, <span class="ident">String</span>)<span class="op">&gt;</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
         <span class="ident">Widget</span>::<span class="ident">new</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">MultiButton</span> {
             <span class="ident">dims</span>: <span class="ident">batch</span>.<span class="ident">get_dims</span>(),
             <span class="ident">top_left</span>: <span class="ident">ScreenPt</span>::<span class="ident">new</span>(<span class="number">0.0</span>, <span class="number">0.0</span>),

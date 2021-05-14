@@ -761,6 +761,8 @@
 <span id="758">758</span>
 <span id="759">759</span>
 <span id="760">760</span>
+<span id="761">761</span>
+<span id="762">762</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>};
 
@@ -862,7 +864,7 @@
         ]);
         <span class="ident">tabs</span>.<span class="ident">push_tab</span>(<span class="ident">unfinished_trips_btn</span>, <span class="ident">unfinished_trips_content</span>);
 
-        <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
+        <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel</span>::<span class="ident">new_builder</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">DashTab</span>::<span class="ident">TripTable</span>.<span class="ident">picker</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
             <span class="ident">tabs</span>.<span class="ident">build_widget</span>(<span class="ident">ctx</span>),
         ]))
@@ -908,13 +910,13 @@
                     <span class="comment">// Set the recompute_filters bit, so we re-apply the filters when the selector</span>
                     <span class="comment">// state is done.</span>
                     <span class="self">self</span>.<span class="ident">recompute_filters</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">RectangularSelector</span>::<span class="ident">new</span>(
+                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">RectangularSelector</span>::<span class="ident">new_state</span>(
                         <span class="ident">ctx</span>,
                         <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">stash</span>(<span class="string">&quot;starts_in&quot;</span>),
                     ));
                 } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;filter ends&quot;</span> {
                     <span class="self">self</span>.<span class="ident">recompute_filters</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">RectangularSelector</span>::<span class="ident">new</span>(
+                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">RectangularSelector</span>::<span class="ident">new_state</span>(
                         <span class="ident">ctx</span>,
                         <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">stash</span>(<span class="string">&quot;ends_in&quot;</span>),
                     ));
@@ -1043,9 +1045,9 @@
         };
 
         <span class="kw">if</span> <span class="ident">maybe_duration_after</span>.<span class="ident">is_none</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">duration_before</span>.<span class="ident">is_none</span>() {
-            <span class="kw">let</span> <span class="ident">reason</span> <span class="op">=</span> <span class="ident">trip</span>.<span class="ident">cancellation_reason</span>.<span class="ident">clone</span>().<span class="ident">unwrap_or</span>(<span class="macro">format</span><span class="macro">!</span>(
-                <span class="string">&quot;trip succeeded now, but not before the current proposal&quot;</span>
-            ));
+            <span class="kw">let</span> <span class="ident">reason</span> <span class="op">=</span> <span class="ident">trip</span>.<span class="ident">cancellation_reason</span>.<span class="ident">clone</span>().<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> {
+                <span class="string">&quot;trip succeeded now, but not before the current proposal&quot;</span>.<span class="ident">to_string</span>()
+            });
             <span class="ident">cancelled</span>.<span class="ident">push</span>(<span class="ident">CancelledTrip</span> {
                 <span class="ident">id</span>: <span class="kw-2">*</span><span class="ident">id</span>,
                 <span class="ident">mode</span>: <span class="kw-2">*</span><span class="ident">mode</span>,
@@ -1107,8 +1109,8 @@
                     <span class="ident">Toggle</span>::<span class="ident">switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;ending off-map&quot;</span>, <span class="prelude-val">None</span>, <span class="ident">state</span>.<span class="ident">off_map_ends</span>),
                     <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_plain</span>.<span class="ident">text</span>(<span class="string">&quot;filter starts&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                     <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_plain</span>.<span class="ident">text</span>(<span class="string">&quot;filter ends&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-                    <span class="ident">Stash</span>::<span class="ident">new</span>(<span class="string">&quot;starts_in&quot;</span>, <span class="ident">state</span>.<span class="ident">starts_in</span>.<span class="ident">clone</span>()),
-                    <span class="ident">Stash</span>::<span class="ident">new</span>(<span class="string">&quot;ends_in&quot;</span>, <span class="ident">state</span>.<span class="ident">ends_in</span>.<span class="ident">clone</span>()),
+                    <span class="ident">Stash</span>::<span class="ident">new_widget</span>(<span class="string">&quot;starts_in&quot;</span>, <span class="ident">state</span>.<span class="ident">starts_in</span>.<span class="ident">clone</span>()),
+                    <span class="ident">Stash</span>::<span class="ident">new_widget</span>(<span class="string">&quot;ends_in&quot;</span>, <span class="ident">state</span>.<span class="ident">ends_in</span>.<span class="ident">clone</span>()),
                     <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">has_modified_trips</span> {
                         <span class="ident">Toggle</span>::<span class="ident">switch</span>(
                             <span class="ident">ctx</span>,
@@ -1283,18 +1285,20 @@
         <span class="ident">table</span>.<span class="ident">column</span>(
             <span class="string">&quot;Normalized&quot;</span>,
             <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">ctx</span>, <span class="kw">_</span>, <span class="ident">x</span><span class="op">|</span> {
-                <span class="ident">Text</span>::<span class="ident">from</span>(<span class="kw">if</span> <span class="ident">x</span>.<span class="ident">duration_after</span> <span class="op">=</span><span class="op">=</span> <span class="ident">x</span>.<span class="ident">duration_before</span> {
-                    <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;same&quot;</span>)
-                } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">x</span>.<span class="ident">duration_after</span> <span class="op">&lt;</span> <span class="ident">x</span>.<span class="ident">duration_before</span> {
-                    <span class="macro">format</span><span class="macro">!</span>(
-                        <span class="string">&quot;{}% faster&quot;</span>,
-                        (<span class="number">100.0</span> <span class="op">*</span> (<span class="number">1.0</span> <span class="op">-</span> (<span class="ident">x</span>.<span class="ident">duration_after</span> <span class="op">/</span> <span class="ident">x</span>.<span class="ident">duration_before</span>))) <span class="kw">as</span> <span class="ident">usize</span>
-                    )
-                } <span class="kw">else</span> {
-                    <span class="macro">format</span><span class="macro">!</span>(
-                        <span class="string">&quot;{}% slower &quot;</span>,
-                        (<span class="number">100.0</span> <span class="op">*</span> ((<span class="ident">x</span>.<span class="ident">duration_after</span> <span class="op">/</span> <span class="ident">x</span>.<span class="ident">duration_before</span>) <span class="op">-</span> <span class="number">1.0</span>)) <span class="kw">as</span> <span class="ident">usize</span>
-                    )
+                <span class="ident">Text</span>::<span class="ident">from</span>(<span class="kw">match</span> <span class="ident">x</span>.<span class="ident">duration_after</span>.<span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="ident">x</span>.<span class="ident">duration_before</span>) {
+                    <span class="ident">std</span>::<span class="ident">cmp</span>::<span class="ident">Ordering</span>::<span class="ident">Equal</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;same&quot;</span>.<span class="ident">to_string</span>(),
+                    <span class="ident">std</span>::<span class="ident">cmp</span>::<span class="ident">Ordering</span>::<span class="ident">Less</span> <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="macro">format</span><span class="macro">!</span>(
+                            <span class="string">&quot;{}% faster&quot;</span>,
+                            (<span class="number">100.0</span> <span class="op">*</span> (<span class="number">1.0</span> <span class="op">-</span> (<span class="ident">x</span>.<span class="ident">duration_after</span> <span class="op">/</span> <span class="ident">x</span>.<span class="ident">duration_before</span>))) <span class="kw">as</span> <span class="ident">usize</span>
+                        )
+                    }
+                    <span class="ident">std</span>::<span class="ident">cmp</span>::<span class="ident">Ordering</span>::<span class="ident">Greater</span> <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="macro">format</span><span class="macro">!</span>(
+                            <span class="string">&quot;{}% slower &quot;</span>,
+                            (<span class="number">100.0</span> <span class="op">*</span> ((<span class="ident">x</span>.<span class="ident">duration_after</span> <span class="op">/</span> <span class="ident">x</span>.<span class="ident">duration_before</span>) <span class="op">-</span> <span class="number">1.0</span>)) <span class="kw">as</span> <span class="ident">usize</span>
+                        )
+                    }
                 })
                 .<span class="ident">render</span>(<span class="ident">ctx</span>)
             }),

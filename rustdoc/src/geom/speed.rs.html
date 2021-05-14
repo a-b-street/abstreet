@@ -116,6 +116,8 @@
 <span id="113">113</span>
 <span id="114">114</span>
 <span id="115">115</span>
+<span id="116">116</span>
+<span id="117">117</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">cmp</span>, <span class="ident">ops</span>};
 
@@ -129,6 +131,8 @@
 
 <span class="comment">// By construction, Speed is a finite f64 with trimmed precision.</span>
 <span class="kw">impl</span> <span class="ident">Eq</span> <span class="kw">for</span> <span class="ident">Speed</span> {}
+
+<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">derive_ord_xor_partial_ord</span>)]</span> <span class="comment">// false positive</span>
 <span class="kw">impl</span> <span class="ident">Ord</span> <span class="kw">for</span> <span class="ident">Speed</span> {
     <span class="kw">fn</span> <span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">Speed</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">cmp</span>::<span class="ident">Ordering</span> {
         <span class="self">self</span>.<span class="ident">partial_cmp</span>(<span class="ident">other</span>).<span class="ident">unwrap</span>()

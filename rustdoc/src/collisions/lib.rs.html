@@ -271,7 +271,7 @@
 
 <span class="comment">// INCDTTM is something like &quot;11/12/2019 7:30:00 AM&quot;</span>
 <span class="kw">fn</span> <span class="ident">parse_incdttm</span>(<span class="ident">x</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">parts</span> <span class="op">=</span> <span class="ident">x</span>.<span class="ident">split</span>(<span class="string">&quot; &quot;</span>).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
+    <span class="kw">let</span> <span class="ident">parts</span> <span class="op">=</span> <span class="ident">x</span>.<span class="ident">split</span>(<span class="string">&#39; &#39;</span>).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
     <span class="kw">if</span> <span class="ident">parts</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">3</span> {
         <span class="kw">return</span> <span class="prelude-val">None</span>;
     }

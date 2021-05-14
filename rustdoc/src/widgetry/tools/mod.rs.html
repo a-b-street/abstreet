@@ -39,6 +39,12 @@
 <span id="36">36</span>
 <span id="37">37</span>
 <span id="38">38</span>
+<span id="39">39</span>
+<span id="40">40</span>
+<span id="41">41</span>
+<span id="42">42</span>
+<span id="43">43</span>
+<span id="44">44</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">screenshot</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">warper</span>;
@@ -76,6 +82,12 @@
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clear</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
         <span class="self">self</span>.<span class="ident">contents</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+    }
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">K</span>: <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Clone</span>, <span class="ident">V</span><span class="op">&gt;</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">Cached</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="ident">Cached</span>::<span class="ident">new</span>()
     }
 }
 </pre></div>

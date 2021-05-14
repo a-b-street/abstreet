@@ -700,12 +700,6 @@
 <span id="697">697</span>
 <span id="698">698</span>
 <span id="699">699</span>
-<span id="700">700</span>
-<span id="701">701</span>
-<span id="702">702</span>
-<span id="703">703</span>
-<span id="704">704</span>
-<span id="705">705</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
@@ -778,7 +772,7 @@
 <span class="kw">type</span> <span class="ident">BlockID</span> <span class="op">=</span> <span class="ident">usize</span>;
 
 <span class="kw">impl</span> <span class="ident">CommuterPatterns</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> (<span class="ident">bldg_to_block</span>, <span class="ident">border_to_block</span>, <span class="ident">blocks</span>) <span class="op">=</span>
             <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;group buildings into blocks&quot;</span>, <span class="op">|</span><span class="kw">_</span>, <span class="kw">_</span><span class="op">|</span> <span class="ident">group_bldgs</span>(<span class="ident">app</span>));
 
@@ -927,12 +921,9 @@
                 <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>), <span class="ident">base_block</span>.<span class="ident">shape</span>.<span class="ident">clone</span>());
 
                 <span class="comment">// Draw outline for Locked Selection</span>
-                <span class="kw">match</span> <span class="ident">block_selection</span> {
-                    <span class="ident">BlockSelection</span>::<span class="ident">Locked</span> { .. } <span class="op">=</span><span class="op">&gt;</span> {
-                        <span class="kw">let</span> <span class="ident">outline</span> <span class="op">=</span> <span class="ident">base_block</span>.<span class="ident">shape</span>.<span class="ident">to_outline</span>(<span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">10.0</span>)).<span class="ident">unwrap</span>();
-                        <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>, <span class="ident">outline</span>);
-                    }
-                    <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
+                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">BlockSelection</span>::<span class="ident">Locked</span> { .. } <span class="op">=</span> <span class="ident">block_selection</span> {
+                    <span class="kw">let</span> <span class="ident">outline</span> <span class="op">=</span> <span class="ident">base_block</span>.<span class="ident">shape</span>.<span class="ident">to_outline</span>(<span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">10.0</span>)).<span class="ident">unwrap</span>();
+                    <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>, <span class="ident">outline</span>);
                 };
 
                 {
@@ -970,43 +961,41 @@
 
                 <span class="comment">// While selection is locked, draw an overlay with compare_to information for the</span>
                 <span class="comment">// hovered block</span>
-                <span class="kw">match</span> <span class="ident">block_selection</span> {
-                    <span class="ident">BlockSelection</span>::<span class="ident">Locked</span> {
-                        <span class="ident">base</span>: <span class="kw">_</span>,
-                        <span class="ident">compare_to</span>: <span class="prelude-val">Some</span>(<span class="ident">compare_to</span>),
-                    } <span class="op">=</span><span class="op">&gt;</span> {
-                        <span class="kw">let</span> <span class="ident">compare_to_block</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">blocks</span>[<span class="ident">compare_to</span>];
+                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">BlockSelection</span>::<span class="ident">Locked</span> {
+                    <span class="ident">base</span>: <span class="kw">_</span>,
+                    <span class="ident">compare_to</span>: <span class="prelude-val">Some</span>(<span class="ident">compare_to</span>),
+                } <span class="op">=</span> <span class="ident">block_selection</span>
+                {
+                    <span class="kw">let</span> <span class="ident">compare_to_block</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">blocks</span>[<span class="ident">compare_to</span>];
 
-                        <span class="kw">let</span> <span class="ident">border</span> <span class="op">=</span> <span class="ident">compare_to_block</span>
-                            .<span class="ident">shape</span>
-                            .<span class="ident">to_outline</span>(<span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">10.0</span>))
-                            .<span class="ident">unwrap</span>();
-                        <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color</span>::<span class="ident">WHITE</span>.<span class="ident">alpha</span>(<span class="number">0.8</span>), <span class="ident">border</span>);
+                    <span class="kw">let</span> <span class="ident">border</span> <span class="op">=</span> <span class="ident">compare_to_block</span>
+                        .<span class="ident">shape</span>
+                        .<span class="ident">to_outline</span>(<span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">10.0</span>))
+                        .<span class="ident">unwrap</span>();
+                    <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color</span>::<span class="ident">WHITE</span>.<span class="ident">alpha</span>(<span class="number">0.8</span>), <span class="ident">border</span>);
 
-                        <span class="kw">let</span> <span class="ident">count</span> <span class="op">=</span> <span class="ident">others</span>
-                            .<span class="ident">into_iter</span>()
-                            .<span class="ident">find</span>(<span class="op">|</span>(<span class="ident">b</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">b</span>.<span class="ident">id</span> <span class="op">=</span><span class="op">=</span> <span class="ident">compare_to</span>)
-                            .<span class="ident">map</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">count</span>)<span class="op">|</span> <span class="ident">count</span>)
-                            .<span class="ident">unwrap_or</span>(<span class="number">0</span>);
-                        <span class="kw">let</span> <span class="ident">label_text</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">abstutil</span>::<span class="ident">prettyprint_usize</span>(<span class="ident">count</span>));
-                        <span class="kw">let</span> <span class="ident">label</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">label_text</span>).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>))
-                            .<span class="ident">render_autocropped</span>(<span class="ident">ctx</span>)
-                            .<span class="ident">scale</span>(<span class="number">2.0</span>)
-                            .<span class="ident">centered_on</span>(<span class="ident">compare_to_block</span>.<span class="ident">shape</span>.<span class="ident">polylabel</span>());
+                    <span class="kw">let</span> <span class="ident">count</span> <span class="op">=</span> <span class="ident">others</span>
+                        .<span class="ident">into_iter</span>()
+                        .<span class="ident">find</span>(<span class="op">|</span>(<span class="ident">b</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">b</span>.<span class="ident">id</span> <span class="op">=</span><span class="op">=</span> <span class="ident">compare_to</span>)
+                        .<span class="ident">map</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">count</span>)<span class="op">|</span> <span class="ident">count</span>)
+                        .<span class="ident">unwrap_or</span>(<span class="number">0</span>);
+                    <span class="kw">let</span> <span class="ident">label_text</span> <span class="op">=</span> <span class="ident">abstutil</span>::<span class="ident">prettyprint_usize</span>(<span class="ident">count</span>);
+                    <span class="kw">let</span> <span class="ident">label</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">label_text</span>).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>))
+                        .<span class="ident">render_autocropped</span>(<span class="ident">ctx</span>)
+                        .<span class="ident">scale</span>(<span class="number">2.0</span>)
+                        .<span class="ident">centered_on</span>(<span class="ident">compare_to_block</span>.<span class="ident">shape</span>.<span class="ident">polylabel</span>());
 
-                        <span class="kw">let</span> <span class="ident">dims</span> <span class="op">=</span> <span class="ident">label</span>.<span class="ident">get_dims</span>();
-                        <span class="kw">let</span> <span class="ident">label_bg</span> <span class="op">=</span> <span class="ident">Polygon</span>::<span class="ident">pill</span>(<span class="ident">dims</span>.<span class="ident">width</span> <span class="op">+</span> <span class="number">70.0</span>, <span class="ident">dims</span>.<span class="ident">height</span> <span class="op">+</span> <span class="number">20.0</span>);
-                        <span class="kw">let</span> <span class="ident">bg</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">from</span>(<span class="macro">vec</span><span class="macro">!</span>[(<span class="ident">Color</span>::<span class="ident">WHITE</span>, <span class="ident">label_bg</span>)])
-                            .<span class="ident">centered_on</span>(<span class="ident">compare_to_block</span>.<span class="ident">shape</span>.<span class="ident">polylabel</span>());
-                        <span class="ident">batch</span>.<span class="ident">append</span>(<span class="ident">bg</span>);
-                        <span class="ident">batch</span>.<span class="ident">append</span>(<span class="ident">label</span>);
-                    }
-                    <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
+                    <span class="kw">let</span> <span class="ident">dims</span> <span class="op">=</span> <span class="ident">label</span>.<span class="ident">get_dims</span>();
+                    <span class="kw">let</span> <span class="ident">label_bg</span> <span class="op">=</span> <span class="ident">Polygon</span>::<span class="ident">pill</span>(<span class="ident">dims</span>.<span class="ident">width</span> <span class="op">+</span> <span class="number">70.0</span>, <span class="ident">dims</span>.<span class="ident">height</span> <span class="op">+</span> <span class="number">20.0</span>);
+                    <span class="kw">let</span> <span class="ident">bg</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">from</span>(<span class="macro">vec</span><span class="macro">!</span>[(<span class="ident">Color</span>::<span class="ident">WHITE</span>, <span class="ident">label_bg</span>)])
+                        .<span class="ident">centered_on</span>(<span class="ident">compare_to_block</span>.<span class="ident">shape</span>.<span class="ident">polylabel</span>());
+                    <span class="ident">batch</span>.<span class="ident">append</span>(<span class="ident">bg</span>);
+                    <span class="ident">batch</span>.<span class="ident">append</span>(<span class="ident">label</span>);
                 };
                 <span class="kw">let</span> <span class="ident">panel_data</span> <span class="op">=</span> <span class="ident">PanelState</span> {
                     <span class="ident">building_counts</span>,
-                    <span class="ident">total_trips</span>,
                     <span class="ident">max_count</span>,
+                    <span class="ident">total_trips</span>,
                 };
                 (<span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">batch</span>), <span class="prelude-val">Some</span>(<span class="ident">panel_data</span>))
             }
@@ -1049,15 +1038,14 @@
     <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span> {
         <span class="ident">ctx</span>.<span class="ident">canvas_movement</span>();
 
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
+            <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
                 <span class="string">&quot;close&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">suspended_sim</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>();
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Pop</span>;
                 }
                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
-            },
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
+            }
         }
 
         <span class="kw">let</span> <span class="ident">block_selection</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="prelude-val">Some</span>(<span class="ident">b</span>)) <span class="op">=</span> <span class="ident">ctx</span>
@@ -1388,7 +1376,7 @@
 }
 
 <span class="kw">fn</span> <span class="ident">make_panel</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Panel</span> {
-    <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
+    <span class="ident">Panel</span>::<span class="ident">new_builder</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
         <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">Line</span>(<span class="string">&quot;Commute map by block&quot;</span>)
                 .<span class="ident">small_heading</span>()
