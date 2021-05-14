@@ -25,7 +25,7 @@ impl RiskSummaries {
         };
 
         Box::new(RiskSummaries {
-            panel: Panel::new(Widget::col(vec![
+            panel: Panel::new_builder(Widget::col(vec![
                 DashTab::RiskSummaries.picker(ctx, app),
                 Widget::col(vec![
                     "Filters".text_widget(ctx),
@@ -401,7 +401,7 @@ impl<X: Copy + PartialOrd + Display, Y: Copy + PartialOrd + Display> Matrix<X, Y
         let mut chart = GeomBatchStack::vertical(vec![row.batch(), x_axis_label]);
         chart.set_spacing(16);
 
-        DrawWithTooltips::new(ctx, chart.batch(), tooltips, Box::new(|_| GeomBatch::new()))
+        DrawWithTooltips::new_widget(ctx, chart.batch(), tooltips, Box::new(|_| GeomBatch::new()))
     }
 }
 

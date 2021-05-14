@@ -74,11 +74,11 @@ impl DashTab {
                 summaries::TripSummaries::new_state(ctx, app, summaries::Filter::new())
             }
             DashTab::RiskSummaries => risks::RiskSummaries::new(ctx, app, false),
-            DashTab::ParkingOverhead => parking_overhead::ParkingOverhead::new(ctx, app),
-            DashTab::ActiveTraffic => misc::ActiveTraffic::new(ctx, app),
-            DashTab::TransitRoutes => misc::TransitRoutes::new(ctx, app),
-            DashTab::CommuterPatterns => CommuterPatterns::new(ctx, app),
-            DashTab::TrafficSignals => TrafficSignalDemand::new(ctx, app),
+            DashTab::ParkingOverhead => parking_overhead::ParkingOverhead::new_state(ctx, app),
+            DashTab::ActiveTraffic => misc::ActiveTraffic::new_state(ctx, app),
+            DashTab::TransitRoutes => misc::TransitRoutes::new_state(ctx, app),
+            DashTab::CommuterPatterns => CommuterPatterns::new_state(ctx, app),
+            DashTab::TrafficSignals => TrafficSignalDemand::new_state(ctx, app),
         }))
     }
 }

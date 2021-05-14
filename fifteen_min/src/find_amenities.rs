@@ -11,13 +11,11 @@ use crate::viewer::{draw_star, HoverKey, HoverOnBuilding};
 use crate::App;
 
 /// Calculate isochrones around each amenity on a map and merge them together using the min value
-pub struct FindAmenity {
-    options: Options,
-}
+pub struct FindAmenity;
 
 impl FindAmenity {
     pub fn new(ctx: &mut EventCtx, options: Options) -> Box<dyn State<App>> {
-        ChooseSomething::new(
+        ChooseSomething::new_state(
             ctx,
             "Choose an amenity",
             AmenityType::all()
@@ -47,7 +45,7 @@ fn create_multi_isochrone(
             stores.push(b.id);
         }
     }
-    Isochrone::new(ctx, app, stores, options.clone())
+    Isochrone::new(ctx, app, stores, options)
 }
 
 struct Results {
@@ -63,7 +61,7 @@ impl Results {
         isochrone: Isochrone,
         category: AmenityType,
     ) -> Box<dyn State<App>> {
-        let panel = Panel::new(Widget::col(vec![
+        let panel = Panel::new_builder(Widget::col(vec![
             Widget::row(vec![
                 Line(format!("{} within 15 minutes", category))
                     .small_heading()
@@ -88,7 +86,7 @@ impl Results {
             batch.append(draw_star(ctx, app.map.get_b(start)));
         }
 
-        SimpleState::new(
+        <dyn SimpleState<_>>::new_state(
             panel,
             Box::new(Results {
                 draw: ctx.upload(batch),

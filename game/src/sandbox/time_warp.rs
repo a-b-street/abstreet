@@ -360,6 +360,7 @@ impl State<App> for TimeWarpScreen {
                 }
                 _ => unreachable!(),
             }
+            _ => {}
         }
         if self.panel.clicked_outside(ctx) {
             return Transition::Pop;
