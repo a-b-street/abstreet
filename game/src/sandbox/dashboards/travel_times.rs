@@ -263,14 +263,40 @@ fn contingency_table(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
     batch.autocrop_dims = false;
 
     // Draw the X axis
+    let text_height = ctx.default_line_height();
+    let text_v_padding = 12.0;
+    let padded_text_height = text_height + text_v_padding;
+    let line_thickness = Distance::meters(1.5);
     for (idx, mins) in duration_buckets.iter().skip(1).enumerate() {
+        let x = (idx as f64 + 1.0) / (num_buckets as f64) * total_width;
+        let y = total_height / 2.0;
+
+        {
+            let bottom_of_top_bar = (total_height - padded_text_height) / 2.0;
+            let line_top = bottom_of_top_bar;
+            let line_bottom = bottom_of_top_bar + text_v_padding / 2.0 + 2.0;
+            batch.push(
+                ctx.style().text_secondary_color.shade(0.2),
+                geom::Line::new(Pt2D::new(x, line_top), Pt2D::new(x, line_bottom))
+                    .unwrap()
+                    .make_polygons(line_thickness),
+            );
+        }
+        {
+            let top_of_bottom_bar = (total_height - padded_text_height) / 2.0 + padded_text_height;
+            let line_bottom = top_of_bottom_bar;
+            let line_top = line_bottom - text_v_padding / 2.0 - 2.0;
+            batch.push(
+                ctx.style().text_secondary_color.shade(0.2),
+                geom::Line::new(Pt2D::new(x, line_top), Pt2D::new(x, line_bottom))
+                    .unwrap()
+                    .make_polygons(line_thickness),
+            );
+        }
         batch.append(
             Text::from(Line(mins.to_string()).secondary())
                 .render(ctx)
-                .centered_on(Pt2D::new(
-                    (idx as f64 + 1.0) / (num_buckets as f64) * total_width,
-                    total_height / 2.0,
-                )),
+                .centered_on(Pt2D::new(x, y - 4.0)),
         );
     }
     // TODO Position this better
@@ -336,7 +362,6 @@ fn contingency_table(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
 
     // Draw the bars!
     let bar_width = total_width / (num_buckets as f64);
-    let padded_text_height = ctx.default_line_height() + 12.0;
     let max_bar_height = (total_height - padded_text_height) / 2.0;
     let min_bar_height = 8.0;
     let mut outlines = Vec::new();
@@ -362,7 +387,7 @@ fn contingency_table(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
         if num_savings > 0 {
             let height = ((total_savings / max_y) * max_bar_height).max(min_bar_height);
             let rect = Polygon::rectangle(bar_width, height).translate(x1, max_bar_height - height);
-            if let Ok(o) = rect.to_outline(Distance::meters(1.5)) {
+            if let Ok(o) = rect.to_outline(line_thickness) {
                 outlines.push(o);
             }
             batch.push(Color::GREEN, rect.clone());
@@ -395,7 +420,7 @@ fn contingency_table(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
             let height = ((total_loss / max_y) * max_bar_height).max(min_bar_height);
             let rect =
                 Polygon::rectangle(bar_width, height).translate(x1, total_height - max_bar_height);
-            if let Ok(o) = rect.to_outline(Distance::meters(1.5)) {
+            if let Ok(o) = rect.to_outline(line_thickness) {
                 outlines.push(o);
             }
             batch.push(Color::RED, rect.clone());
