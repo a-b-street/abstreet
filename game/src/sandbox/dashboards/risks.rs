@@ -195,8 +195,6 @@ fn safety_matrix(
                             format!("encountered {}-{} more problems.", problems1, problems2 - 1)
                         }
                     }
-                } else {
-                    format!("encountered {}-{} more problems.", problems1, problems2 - 1)
                 });
                 txt
             }),
