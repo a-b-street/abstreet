@@ -134,8 +134,6 @@
 <span id="131">131</span>
 <span id="132">132</span>
 <span id="133">133</span>
-<span id="134">134</span>
-<span id="135">135</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">tools</span>::{<span class="ident">ChooseSomething</span>, <span class="ident">ColorLegend</span>};
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">ID</span>;
@@ -150,13 +148,11 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">App</span>;
 
 <span class="doccomment">/// Calculate isochrones around each amenity on a map and merge them together using the min value</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">FindAmenity</span> {
-    <span class="ident">options</span>: <span class="ident">Options</span>,
-}
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">FindAmenity</span>;
 
 <span class="kw">impl</span> <span class="ident">FindAmenity</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">options</span>: <span class="ident">Options</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="ident">ChooseSomething</span>::<span class="ident">new</span>(
+        <span class="ident">ChooseSomething</span>::<span class="ident">new_state</span>(
             <span class="ident">ctx</span>,
             <span class="string">&quot;Choose an amenity&quot;</span>,
             <span class="ident">AmenityType</span>::<span class="ident">all</span>()
@@ -186,7 +182,7 @@
             <span class="ident">stores</span>.<span class="ident">push</span>(<span class="ident">b</span>.<span class="ident">id</span>);
         }
     }
-    <span class="ident">Isochrone</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">stores</span>, <span class="ident">options</span>.<span class="ident">clone</span>())
+    <span class="ident">Isochrone</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">stores</span>, <span class="ident">options</span>)
 }
 
 <span class="kw">struct</span> <span class="ident">Results</span> {
@@ -202,7 +198,7 @@
         <span class="ident">isochrone</span>: <span class="ident">Isochrone</span>,
         <span class="ident">category</span>: <span class="ident">AmenityType</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel</span>::<span class="ident">new</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
+        <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel</span>::<span class="ident">new_builder</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} within 15 minutes&quot;</span>, <span class="ident">category</span>))
                     .<span class="ident">small_heading</span>()
@@ -227,7 +223,7 @@
             <span class="ident">batch</span>.<span class="ident">append</span>(<span class="ident">draw_star</span>(<span class="ident">ctx</span>, <span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">start</span>)));
         }
 
-        <span class="ident">SimpleState</span>::<span class="ident">new</span>(
+        <span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">SimpleState</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">new_state</span>(
             <span class="ident">panel</span>,
             <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">Results</span> {
                 <span class="ident">draw</span>: <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">batch</span>),
