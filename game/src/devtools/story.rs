@@ -29,6 +29,7 @@ pub struct StoryMapEditor {
     hovering: Option<usize>,
 }
 
+#[allow(clippy::large_enum_variant)]
 enum Mode {
     View,
     PlacingMarker,
