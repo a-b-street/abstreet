@@ -90,7 +90,7 @@ impl Results {
             panel,
             Box::new(Results {
                 draw: ctx.upload(batch),
-                isochrone: isochrone,
+                isochrone,
                 hovering_on_bldg: Cached::new(),
             }),
         )
