@@ -24,7 +24,7 @@ impl Floodfiller {
     }
     pub fn scc(ctx: &mut EventCtx, app: &App, l: LaneID) -> Box<dyn State<App>> {
         let constraints = PathConstraints::from_lt(app.primary.map.get_l(l).lane_type);
-        Floodfiller::new_state(ctx, app, Source::SCC, constraints)
+        Floodfiller::new_state(ctx, app, Source::Scc, constraints)
     }
 
     fn new_state(
@@ -119,7 +119,7 @@ impl State<App> for Floodfiller {
 #[derive(Clone)]
 enum Source {
     Floodfill(LaneID),
-    SCC,
+    Scc,
 }
 
 impl Source {
@@ -155,7 +155,7 @@ impl Source {
 
                 (visited, unreached, format!("Floodfill from {}", start))
             }
-            Source::SCC => {
+            Source::Scc => {
                 let (good, bad) = connectivity::find_scc(map, constraints);
                 (good, bad, "strongly-connected component".to_string())
             }

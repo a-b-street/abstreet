@@ -26,7 +26,7 @@ pub struct ParkingMapper {
 
 #[derive(Clone, Copy, PartialEq, Debug)]
 enum Show {
-    TODO,
+    ToDo,
     Done,
     DividedHighways,
     UnmappedDividedHighways,
@@ -44,7 +44,7 @@ pub enum Value {
 
 impl ParkingMapper {
     pub fn new_state(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
-        ParkingMapper::make(ctx, app, Show::TODO, BTreeMap::new())
+        ParkingMapper::make(ctx, app, Show::ToDo, BTreeMap::new())
     }
 
     fn make(
@@ -56,7 +56,7 @@ impl ParkingMapper {
         let map = &app.map;
 
         let color = match show {
-            Show::TODO => Color::RED,
+            Show::ToDo => Color::RED,
             Show::Done => Color::BLUE,
             Show::DividedHighways | Show::UnmappedDividedHighways => Color::RED,
             Show::OverlappingStuff => Color::RED,
@@ -73,7 +73,7 @@ impl ParkingMapper {
                 && !data.contains_key(&r.orig_id.osm_way_id)
             {
                 todo.insert(r.orig_id.osm_way_id);
-                if show == Show::TODO {
+                if show == Show::ToDo {
                     batch.push(color, map.get_r(r.id).get_thick_polygon(map));
                 }
             } else {
@@ -114,7 +114,7 @@ impl ParkingMapper {
                 r.osm_tags.contains_key(osm::INFERRED_PARKING)
                     && !data.contains_key(&r.orig_id.osm_way_id)
             });
-            if matches!((show, is_todo), (Show::TODO, true) | (Show::Done, false)) {
+            if matches!((show, is_todo), (Show::ToDo, true) | (Show::Done, false)) {
                 batch.push(color, i.polygon.clone());
             }
         }
@@ -144,7 +144,7 @@ impl ParkingMapper {
                         "Show",
                         show,
                         vec![
-                            Choice::new("missing tags", Show::TODO),
+                            Choice::new("missing tags", Show::ToDo),
                             Choice::new("already mapped", Show::Done),
                             Choice::new("divided highways", Show::DividedHighways).tooltip(
                                 "Roads divided in OSM often have the wrong number of lanes tagged",
@@ -161,7 +161,7 @@ impl ParkingMapper {
                         ctx,
                         color,
                         match show {
-                            Show::TODO => "TODO",
+                            Show::ToDo => "TODO",
                             Show::Done => "done",
                             Show::DividedHighways => "divided highways",
                             Show::UnmappedDividedHighways => "unmapped divided highways",
@@ -344,7 +344,7 @@ impl State<App> for ParkingMapper {
                                 Transition::Replace(ParkingMapper::make(
                                     ctx,
                                     app,
-                                    Show::TODO,
+                                    Show::ToDo,
                                     BTreeMap::new(),
                                 )),
                             ])
