@@ -47,7 +47,7 @@ impl<T: 'static> Menu<T> {
             let mut text_color = if is_hovered {
                 choice.fg.unwrap_or(style.btn_solid.fg)
             } else {
-                choice.fg.unwrap_or(style.text_fg_color)
+                choice.fg.unwrap_or(style.text_primary_color)
             };
 
             if choice.active {

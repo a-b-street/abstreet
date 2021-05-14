@@ -68,7 +68,7 @@ impl TextSpan {
     }
 
     pub fn fg_color_for_style(&self, style: &Style) -> Color {
-        self.fg_color.unwrap_or(style.text_fg_color)
+        self.fg_color.unwrap_or(style.text_primary_color)
     }
 
     pub fn into_widget(self, ctx: &EventCtx) -> Widget {

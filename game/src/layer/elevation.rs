@@ -128,7 +128,7 @@ impl SteepStreets {
         let panel = Panel::new_builder(Widget::col(vec![
             header(ctx, "Steep streets"),
             Widget::row(vec![
-                GeomBatch::from(vec![(ctx.style().text_fg_color, panel_arrow)])
+                GeomBatch::from(vec![(ctx.style().text_primary_color, panel_arrow)])
                     .autocrop()
                     .into_widget(ctx),
                 "points uphill".text_widget(ctx).centered_vert(),

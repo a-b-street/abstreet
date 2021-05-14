@@ -13,15 +13,15 @@ mod misc;
 mod parking_overhead;
 mod risks;
 mod selector;
-mod summaries;
 mod traffic_signals;
+mod travel_times;
 mod trip_table;
 
 // Oh the dashboards melted, but we still had the radio
 #[derive(Clone, Copy, PartialEq, Debug)]
 pub enum DashTab {
     TripTable,
-    TripSummaries,
+    TravelTimes,
     RiskSummaries,
     ParkingOverhead,
     ActiveTraffic,
@@ -34,7 +34,7 @@ impl DashTab {
     pub fn picker(self, ctx: &EventCtx, app: &App) -> Widget {
         let mut choices = vec![
             Choice::new("Trip Table", DashTab::TripTable),
-            Choice::new("Trip Summaries", DashTab::TripSummaries),
+            Choice::new("Travel Times", DashTab::TravelTimes),
             Choice::new("Risk Exposure", DashTab::RiskSummaries),
             Choice::new("Parking Overhead", DashTab::ParkingOverhead),
             Choice::new("Active Traffic", DashTab::ActiveTraffic),
@@ -70,10 +70,10 @@ impl DashTab {
 
         Some(Transition::Replace(match tab {
             DashTab::TripTable => Box::new(TripTable::new(ctx, app)),
-            DashTab::TripSummaries => {
-                summaries::TripSummaries::new_state(ctx, app, summaries::Filter::new())
+            DashTab::TravelTimes => {
+                travel_times::TravelTimes::new_state(ctx, app, travel_times::Filter::new())
             }
-            DashTab::RiskSummaries => risks::RiskSummaries::new(ctx, app, false),
+            DashTab::RiskSummaries => risks::RiskSummaries::new_state(ctx, app, false),
             DashTab::ParkingOverhead => parking_overhead::ParkingOverhead::new_state(ctx, app),
             DashTab::ActiveTraffic => misc::ActiveTraffic::new_state(ctx, app),
             DashTab::TransitRoutes => misc::TransitRoutes::new_state(ctx, app),
