@@ -242,9 +242,10 @@ fn dedupe_angles(pts: Vec<Pt2D>) -> Vec<Pt2D> {
     let mut result: Vec<Pt2D> = Vec::new();
     for pt in pts {
         let l = result.len();
-        if l >= 2 && result[l - 2]
-            .angle_to(result[l - 1])
-            .approx_eq(result[l - 1].angle_to(pt), 0.1)
+        if l >= 2
+            && result[l - 2]
+                .angle_to(result[l - 1])
+                .approx_eq(result[l - 1].angle_to(pt), 0.1)
         {
             result.pop();
         }

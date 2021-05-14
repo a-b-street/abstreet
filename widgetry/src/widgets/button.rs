@@ -620,7 +620,10 @@ impl<'b, 'a: 'b, 'c> ButtonBuilder<'a, 'c> {
                     .unwrap_or_else(|| ctx.style().text_fg_color);
                 let mut line = Line(text).fg(color);
 
-                if let Some(font_size) = label.font_size.or_else(|| default.and_then(|d| d.font_size)) {
+                if let Some(font_size) = label
+                    .font_size
+                    .or_else(|| default.and_then(|d| d.font_size))
+                {
                     line = line.size(font_size);
                 }
 

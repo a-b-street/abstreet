@@ -272,7 +272,8 @@ pub fn dont_walk_icon(movement: &Movement, prerender: &Prerender) -> GeomBatch {
 fn crosswalk_icon(geom: &PolyLine) -> (Pt2D, Angle) {
     let l = Line::must_new(geom.points()[1], geom.points()[2]);
     (
-        l.dist_along(Distance::meters(1.0)).unwrap_or_else(|| l.pt1()),
+        l.dist_along(Distance::meters(1.0))
+            .unwrap_or_else(|| l.pt1()),
         l.angle().shortest_rotation_towards(Angle::degrees(90.0)),
     )
 }

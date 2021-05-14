@@ -529,11 +529,7 @@ fn modify_lanes(map: &mut Map, r: RoadID, lanes_ltr: Vec<LaneSpec>, effects: &mu
         effects.changed_roads.insert(r);
         let mut dummy_id_counter = 0;
         let lanes_ltr = map.get_r(r).lane_specs(map);
-        let real_lane_ids = map
-            .get_r(r)
-            .lanes_ltr()
-            .into_iter()
-            .map(|(l, _, _)| l);
+        let real_lane_ids = map.get_r(r).lanes_ltr().into_iter().map(|(l, _, _)| l);
         for (lane, id) in map
             .get_r(r)
             .create_lanes(lanes_ltr, &mut dummy_id_counter)
