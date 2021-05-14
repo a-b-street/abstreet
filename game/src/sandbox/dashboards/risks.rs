@@ -18,7 +18,7 @@ pub struct RiskSummaries {
 }
 
 impl RiskSummaries {
-    pub fn new(ctx: &mut EventCtx, app: &App, include_no_changes: bool) -> Box<dyn State<App>> {
+    pub fn new_state(ctx: &mut EventCtx, app: &App, include_no_changes: bool) -> Box<dyn State<App>> {
         let bike_filter = Filter {
             modes: maplit::btreeset! { TripMode::Bike },
             include_no_changes,
@@ -100,7 +100,7 @@ impl State<App> for RiskSummaries {
                 }
 
                 let include_no_changes = self.panel.is_checked("include trips without any changes");
-                Transition::Replace(RiskSummaries::new(ctx, app, include_no_changes))
+                Transition::Replace(RiskSummaries::new_state(ctx, app, include_no_changes))
             }
             _ => Transition::Keep,
         }
