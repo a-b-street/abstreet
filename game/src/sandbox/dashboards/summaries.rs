@@ -117,10 +117,6 @@ impl State<App> for TripSummaries {
 }
 
 fn summary_boxes(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
-    if app.has_prebaked().is_none() {
-        return Widget::nothing();
-    }
-
     let mut num_same = 0;
     let mut num_faster = 0;
     let mut num_slower = 0;
@@ -218,10 +214,6 @@ fn summary_boxes(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
 }
 
 fn scatter_plot(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
-    if app.has_prebaked().is_none() {
-        return Widget::nothing();
-    }
-
     let points = filter.get_trips(app);
     if points.is_empty() {
         return Widget::nothing();
@@ -249,10 +241,6 @@ fn scatter_plot(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
 }
 
 fn contingency_table(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
-    if app.has_prebaked().is_none() {
-        return Widget::nothing();
-    }
-
     let total_width = 500.0;
     let total_height = 300.0;
 

@@ -401,7 +401,7 @@ fn make_main_panel(
                 .unwrap()
                 .0,
         ]);
-        stack.spacing(20.0);
+        stack.set_spacing(20.0);
 
         if can_reverse(lt) {
             stack.push(
@@ -447,7 +447,7 @@ fn make_main_panel(
     }
 
     let current_lanes_ltr =
-        Widget::evenly_spaced_row(current_lanes_ltr, 2).bg(Color::hex("#979797"));
+        Widget::evenly_spaced_row(2, current_lanes_ltr).bg(Color::hex("#979797"));
 
     let road_settings = Widget::row(vec![
         Text::from_all(vec![

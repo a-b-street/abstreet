@@ -57,6 +57,7 @@ impl Panel {
             Dims::ExactPercent(w, h) => {
                 ScreenDims::new(w * canvas_dims.width, h * canvas_dims.height)
             }
+            Dims::ExactSize(dims) => dims,
             Dims::ExactHeight(h) => {
                 ScreenDims::new(self.contents_dims.width.min(canvas_dims.width), h)
             }
@@ -537,6 +538,7 @@ enum Dims {
     MaxPercent(Percent, Percent),
     ExactPercent(f64, f64),
     ExactHeight(f64),
+    ExactSize(ScreenDims),
 }
 
 impl PanelBuilder {
@@ -559,16 +561,22 @@ impl PanelBuilder {
             container_dims: ScreenDims::new(0.0, 0.0),
             clip_rect: None,
         };
-        if let Dims::ExactPercent(w, h) = panel.dims {
-            // Don't set size, because then scrolling breaks -- the actual size has to be based on
-            // the contents.
-            panel.top_level.layout.style.min_size = Size {
-                width: Dimension::Points((w * ctx.canvas.window_width) as f32),
-                height: Dimension::Points((h * ctx.canvas.window_height) as f32),
-            };
-        }
-        if let Dims::ExactHeight(h) = panel.dims {
-            panel.top_level.layout.style.min_size.height = Dimension::Points(h as f32);
+        match panel.dims {
+            Dims::ExactPercent(w, h) => {
+                // Don't set size, because then scrolling breaks -- the actual size has to be based on
+                // the contents.
+                panel.top_level.layout.style.min_size = Size {
+                    width: Dimension::Points((w * ctx.canvas.window_width) as f32),
+                    height: Dimension::Points((h * ctx.canvas.window_height) as f32),
+                };
+            }
+            Dims::ExactHeight(h) => {
+                panel.top_level.layout.style.min_size.height = Dimension::Points(h as f32);
+            }
+            Dims::ExactSize(dims) => {
+                panel.top_level.layout.style.min_size = dims.into();
+            }
+            Dims::MaxPercent(_, _) => {}
         }
 
         // There is a dependency cycle in our layout logic. As a consequence:
@@ -622,6 +630,11 @@ impl PanelBuilder {
 
     pub fn exact_height(mut self, height: f64) -> PanelBuilder {
         self.dims = Dims::ExactHeight(height);
+        self
+    }
+
+    pub fn exact_size(mut self, size: ScreenDims) -> PanelBuilder {
+        self.dims = Dims::ExactSize(size);
         self
     }
 }

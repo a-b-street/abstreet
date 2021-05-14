@@ -40,7 +40,9 @@ pub use crate::color::{Color, Fill, LinearGradient, Texture};
 pub use crate::drawing::{GfxCtx, Prerender};
 pub use crate::event::{hotkeys, lctrl, Event, Key, MultiKey};
 pub use crate::event_ctx::{EventCtx, UpdateType};
-pub use crate::geom::geom_batch_stack::{Axis, GeomBatchStack};
+pub use crate::geom::geom_batch_stack::{
+    Alignment as StackAlignment, Axis as StackAxis, GeomBatchStack,
+};
 pub use crate::geom::{GeomBatch, RewriteColor};
 pub use crate::input::UserInput;
 pub use crate::runner::{run, Settings};

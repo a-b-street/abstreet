@@ -1324,6 +1324,7 @@ dependencies = [
  "getrandom",
  "instant",
  "kml",
+ "lazy_static",
  "log",
  "lttb",
  "map_gui",

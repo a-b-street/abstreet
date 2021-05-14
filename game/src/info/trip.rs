@@ -441,7 +441,7 @@ fn describe_problems(
         ]);
 
         Widget::custom_row(vec![
-            Line("Risk exposure")
+            Line("Risk Exposure")
                 .secondary()
                 .into_widget(ctx)
                 .container()

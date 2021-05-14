@@ -412,8 +412,8 @@ impl<'b, 'a: 'b, 'c> ButtonBuilder<'a, 'c> {
     }
 
     /// Set a hotkey for the button
-    pub fn hotkey<MK: Into<MultiKey>>(mut self, key: MK) -> Self {
-        self.hotkey = Some(key.into());
+    pub fn hotkey<MK: Into<Option<MultiKey>>>(mut self, key: MK) -> Self {
+        self.hotkey = key.into();
         self
     }
 
@@ -653,7 +653,7 @@ impl<'b, 'a: 'b, 'c> ButtonBuilder<'a, 'c> {
         if let Some(stack_axis) = self.stack_axis {
             stack.set_axis(stack_axis);
         }
-        stack.spacing(self.stack_spacing);
+        stack.set_spacing(self.stack_spacing);
 
         let mut button_widget = stack
             .batch()
