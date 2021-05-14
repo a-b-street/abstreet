@@ -262,12 +262,12 @@
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">cursor_x</span> <span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">line</span>.<span class="ident">len</span>() {
             <span class="comment">// TODO This &quot;cursor&quot; looks awful!</span>
             <span class="ident">txt</span>.<span class="ident">append_all</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                <span class="ident">Line</span>(<span class="string">&quot;|&quot;</span>).<span class="ident">fg</span>(<span class="ident">style</span>.<span class="ident">text_fg_color</span>),
+                <span class="ident">Line</span>(<span class="string">&quot;|&quot;</span>).<span class="ident">fg</span>(<span class="ident">style</span>.<span class="ident">text_primary_color</span>),
                 <span class="ident">Line</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">line</span>[<span class="self">self</span>.<span class="ident">cursor_x</span>..<span class="op">=</span><span class="self">self</span>.<span class="ident">cursor_x</span>]),
                 <span class="ident">Line</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">line</span>[<span class="self">self</span>.<span class="ident">cursor_x</span> <span class="op">+</span> <span class="number">1</span>..]),
             ]);
         } <span class="kw">else</span> {
-            <span class="ident">txt</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="string">&quot;|&quot;</span>).<span class="ident">fg</span>(<span class="ident">style</span>.<span class="ident">text_fg_color</span>));
+            <span class="ident">txt</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="string">&quot;|&quot;</span>).<span class="ident">fg</span>(<span class="ident">style</span>.<span class="ident">text_primary_color</span>));
         }
         <span class="ident">txt</span>
     }

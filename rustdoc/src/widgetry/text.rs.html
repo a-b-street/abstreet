@@ -664,7 +664,7 @@
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fg_color_for_style</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">style</span>: <span class="kw-2">&amp;</span><span class="ident">Style</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Color</span> {
-        <span class="self">self</span>.<span class="ident">fg_color</span>.<span class="ident">unwrap_or</span>(<span class="ident">style</span>.<span class="ident">text_fg_color</span>)
+        <span class="self">self</span>.<span class="ident">fg_color</span>.<span class="ident">unwrap_or</span>(<span class="ident">style</span>.<span class="ident">text_primary_color</span>)
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_widget</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {

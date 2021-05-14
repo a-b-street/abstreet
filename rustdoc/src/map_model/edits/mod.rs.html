@@ -915,10 +915,6 @@
 <span id="912">912</span>
 <span id="913">913</span>
 <span id="914">914</span>
-<span id="915">915</span>
-<span id="916">916</span>
-<span id="917">917</span>
-<span id="918">918</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Once a Map exists, the player can edit it in the UI (producing `MapEdits` in-memory), then save</span>
 <span class="doccomment">//! the changes to a file (as `PermanentMapEdits`). See</span>
@@ -1451,11 +1447,7 @@
         <span class="ident">effects</span>.<span class="ident">changed_roads</span>.<span class="ident">insert</span>(<span class="ident">r</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">dummy_id_counter</span> <span class="op">=</span> <span class="number">0</span>;
         <span class="kw">let</span> <span class="ident">lanes_ltr</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>).<span class="ident">lane_specs</span>(<span class="ident">map</span>);
-        <span class="kw">let</span> <span class="ident">real_lane_ids</span> <span class="op">=</span> <span class="ident">map</span>
-            .<span class="ident">get_r</span>(<span class="ident">r</span>)
-            .<span class="ident">lanes_ltr</span>()
-            .<span class="ident">into_iter</span>()
-            .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">l</span>, <span class="kw">_</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">l</span>);
+        <span class="kw">let</span> <span class="ident">real_lane_ids</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>).<span class="ident">lanes_ltr</span>().<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">l</span>, <span class="kw">_</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">l</span>);
         <span class="kw">for</span> (<span class="ident">lane</span>, <span class="ident">id</span>) <span class="kw">in</span> <span class="ident">map</span>
             .<span class="ident">get_r</span>(<span class="ident">r</span>)
             .<span class="ident">create_lanes</span>(<span class="ident">lanes_ltr</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">dummy_id_counter</span>)

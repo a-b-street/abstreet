@@ -764,6 +764,9 @@
 <span id="761">761</span>
 <span id="762">762</span>
 <span id="763">763</span>
+<span id="764">764</span>
+<span id="765">765</span>
+<span id="766">766</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Polygon</span>};
 
@@ -1384,10 +1387,13 @@
                 <span class="kw">let</span> <span class="ident">color</span> <span class="op">=</span> <span class="ident">label</span>
                     .<span class="ident">color</span>
                     .<span class="ident">or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">default</span>.<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">d</span><span class="op">|</span> <span class="ident">d</span>.<span class="ident">color</span>))
-                    .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_fg_color</span>);
+                    .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_primary_color</span>);
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">line</span> <span class="op">=</span> <span class="ident">Line</span>(<span class="ident">text</span>).<span class="ident">fg</span>(<span class="ident">color</span>);
 
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">font_size</span>) <span class="op">=</span> <span class="ident">label</span>.<span class="ident">font_size</span>.<span class="ident">or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">default</span>.<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">d</span><span class="op">|</span> <span class="ident">d</span>.<span class="ident">font_size</span>)) {
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">font_size</span>) <span class="op">=</span> <span class="ident">label</span>
+                    .<span class="ident">font_size</span>
+                    .<span class="ident">or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">default</span>.<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">d</span><span class="op">|</span> <span class="ident">d</span>.<span class="ident">font_size</span>))
+                {
                     <span class="ident">line</span> <span class="op">=</span> <span class="ident">line</span>.<span class="ident">size</span>(<span class="ident">font_size</span>);
                 }
 

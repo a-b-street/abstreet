@@ -443,7 +443,7 @@
         <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel</span>::<span class="ident">new_builder</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">header</span>(<span class="ident">ctx</span>, <span class="string">&quot;Steep streets&quot;</span>),
             <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                <span class="ident">GeomBatch</span>::<span class="ident">from</span>(<span class="macro">vec</span><span class="macro">!</span>[(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_fg_color</span>, <span class="ident">panel_arrow</span>)])
+                <span class="ident">GeomBatch</span>::<span class="ident">from</span>(<span class="macro">vec</span><span class="macro">!</span>[(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_primary_color</span>, <span class="ident">panel_arrow</span>)])
                     .<span class="ident">autocrop</span>()
                     .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                 <span class="string">&quot;points uphill&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
