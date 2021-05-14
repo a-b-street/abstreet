@@ -157,7 +157,7 @@ impl Source {
             }
             Source::SCC => {
                 let (good, bad) = connectivity::find_scc(map, constraints);
-                (good, bad, "strongpy-connected component".to_string())
+                (good, bad, "strongly-connected component".to_string())
             }
         }
     }
