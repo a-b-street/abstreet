@@ -178,7 +178,10 @@ impl State<App> for Viewer {
                     ));
                 }
                 "Search by amenity" => {
-                    return Transition::Push(FindAmenity::new_state(ctx, self.isochrone.options.clone()));
+                    return Transition::Push(FindAmenity::new_state(
+                        ctx,
+                        self.isochrone.options.clone(),
+                    ));
                 }
                 x => {
                     if let Some(category) = x.strip_prefix("businesses: ") {

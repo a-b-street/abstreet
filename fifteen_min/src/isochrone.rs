@@ -125,14 +125,11 @@ impl Isochrone {
             Options::Biking => PathConstraints::Bike,
         };
 
-        let all_paths = self
-            .start
-            .iter()
-            .map(|b_id| {
-                map.pathfind(PathRequest::between_buildings(map, *b_id, to, constraints).unwrap())
-                    .ok()
-                    .unwrap()
-            });
+        let all_paths = self.start.iter().map(|b_id| {
+            map.pathfind(PathRequest::between_buildings(map, *b_id, to, constraints).unwrap())
+                .ok()
+                .unwrap()
+        });
 
         all_paths.min_by_key(|path| path.total_length())
     }

@@ -416,8 +416,9 @@ impl IntersectionSimState {
             map.get_t(req.turn).turn_type == TurnType::SharedSidewalkCorner;
 
         let readonly_pair = maybe_cars_and_queues.as_ref().map(|(_, c, q)| (*c, &**q));
-        let started_uber_turn = |state: &Self, car: &Car|
-            state.handle_uber_turns && car.router.get_path().currently_inside_ut().is_some();
+        let started_uber_turn = |state: &Self, car: &Car| {
+            state.handle_uber_turns && car.router.get_path().currently_inside_ut().is_some()
+        };
         #[allow(clippy::if_same_then_else)]
         let allowed = if shared_sidewalk_corner {
             // SharedSidewalkCorner doesn't conflict with anything -- fastpath!
