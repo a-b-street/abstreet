@@ -6,14 +6,14 @@ use std::ops;
 
 use anyhow::Result;
 
-pub use pandemic::{Cmd, PandemicModel};
+pub use model::{Cmd, PandemicModel};
 use rand::Rng;
 use rand_distr::{Distribution, Exp, Normal};
 use rand_xorshift::XorShiftRng;
 
 use geom::{Duration, Time};
 
-mod pandemic;
+mod model;
 
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
 pub struct AnyTime(f64);
