@@ -73,7 +73,7 @@ impl DashTab {
             DashTab::TravelTimes => {
                 travel_times::TravelTimes::new_state(ctx, app, travel_times::Filter::new())
             }
-            DashTab::RiskSummaries => risks::RiskSummaries::new(ctx, app, false),
+            DashTab::RiskSummaries => risks::RiskSummaries::new_state(ctx, app, false),
             DashTab::ParkingOverhead => parking_overhead::ParkingOverhead::new_state(ctx, app),
             DashTab::ActiveTraffic => misc::ActiveTraffic::new_state(ctx, app),
             DashTab::TransitRoutes => misc::TransitRoutes::new_state(ctx, app),

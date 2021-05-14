@@ -18,7 +18,11 @@ pub struct RiskSummaries {
 }
 
 impl RiskSummaries {
-    pub fn new(ctx: &mut EventCtx, app: &App, include_no_changes: bool) -> Box<dyn State<App>> {
+    pub fn new_state(
+        ctx: &mut EventCtx,
+        app: &App,
+        include_no_changes: bool,
+    ) -> Box<dyn State<App>> {
         let bike_filter = Filter {
             modes: maplit::btreeset! { TripMode::Bike },
             include_no_changes,
@@ -89,9 +93,7 @@ impl State<App> for RiskSummaries {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
-                "close" => {
-                    return Transition::Pop;
-                }
+                "close" => Transition::Pop,
                 _ => unreachable!(),
             },
             Outcome::Changed(_) => {
@@ -100,7 +102,7 @@ impl State<App> for RiskSummaries {
                 }
 
                 let include_no_changes = self.panel.is_checked("include trips without any changes");
-                Transition::Replace(RiskSummaries::new(ctx, app, include_no_changes))
+                Transition::Replace(RiskSummaries::new_state(ctx, app, include_no_changes))
             }
             _ => Transition::Keep,
         }
@@ -143,14 +145,10 @@ fn safety_matrix(
         MatrixOptions {
             total_width: 600.0,
             total_height: 600.0,
-            color_scale_for_bucket: Box::new(|app, _, n| {
-                if n == 0 {
-                    &CLEAR_COLOR_SCALE
-                } else if n < 0 {
-                    &app.cs.good_to_bad_green
-                } else {
-                    &app.cs.good_to_bad_red
-                }
+            color_scale_for_bucket: Box::new(|app, _, n| match n.cmp(&0) {
+                std::cmp::Ordering::Equal => &CLEAR_COLOR_SCALE,
+                std::cmp::Ordering::Less => &app.cs.good_to_bad_green,
+                std::cmp::Ordering::Greater => &app.cs.good_to_bad_red,
             }),
             tooltip_for_bucket: Box::new(|(t1, t2), (problems1, problems2), count| {
                 let trip_string = if count == 1 {
@@ -167,31 +165,35 @@ fn safety_matrix(
                     }
                 };
                 let mut txt = Text::from(format!("{} {}", trip_string, duration_string));
-                txt.add_line(if problems1 == 0 {
-                    "had no change in the number of problems encountered.".to_string()
-                } else if problems1 < 0 {
-                    if problems1.abs() == problems2.abs() + 1 {
-                        if problems1.abs() == 1 {
-                            "encountered 1 fewer problem.".to_string()
-                        } else {
-                            format!("encountered {} fewer problems.", problems1.abs())
-                        }
-                    } else {
-                        format!(
-                            "encountered {}-{} fewer problems.",
-                            problems2.abs() + 1,
-                            problems1.abs()
-                        )
+                txt.add_line(match problems1.cmp(&0) {
+                    std::cmp::Ordering::Equal => {
+                        "had no change in the number of problems encountered.".to_string()
                     }
-                } else {
-                    if problems1 == problems2 - 1 {
-                        if problems1 == 1 {
-                            "encountered 1 more problems.".to_string()
+                    std::cmp::Ordering::Less => {
+                        if problems1.abs() == problems2.abs() + 1 {
+                            if problems1.abs() == 1 {
+                                "encountered 1 fewer problem.".to_string()
+                            } else {
+                                format!("encountered {} fewer problems.", problems1.abs())
+                            }
                         } else {
-                            format!("encountered {} more problems.", problems1,)
+                            format!(
+                                "encountered {}-{} fewer problems.",
+                                problems2.abs() + 1,
+                                problems1.abs()
+                            )
                         }
-                    } else {
-                        format!("encountered {}-{} more problems.", problems1, problems2 - 1)
+                    }
+                    std::cmp::Ordering::Greater => {
+                        if problems1 == problems2 - 1 {
+                            if problems1 == 1 {
+                                "encountered 1 more problems.".to_string()
+                            } else {
+                                format!("encountered {} more problems.", problems1,)
+                            }
+                        } else {
+                            format!("encountered {}-{} more problems.", problems1, problems2 - 1)
+                        }
                     }
                 });
                 txt
@@ -425,7 +427,7 @@ fn bucketize_isizes(max_buckets: usize, pts: &Vec<(Duration, isize)>) -> Vec<isi
         Some(t) if (t.1.abs() as usize) >= positive_buckets => t.1.abs(),
         _ => {
             // Enforce a bucket width of at least 1.
-            let negative_buckets = positive_buckets as isize * -1;
+            let negative_buckets = -(positive_buckets as isize);
             return (negative_buckets..=(positive_buckets as isize + 1)).collect();
         }
     };
@@ -442,7 +444,7 @@ fn bucketize_isizes(max_buckets: usize, pts: &Vec<(Duration, isize)>) -> Vec<isi
     for i in 1..=positive_buckets {
         buckets.push(-(i as isize) * bucket_size);
     }
-    buckets.sort();
+    buckets.sort_unstable();
     debug!("buckets: {:?}", buckets);
 
     buckets
