@@ -389,6 +389,7 @@ impl IntersectionSimState {
             &mut HashMap<Traversable, Queue>,
         )>,
     ) -> bool {
+        #![allow(clippy::logic_bug)] // Remove once TODO below is taken care of
         let req = Request { agent, turn };
         let entry = self
             .state
@@ -432,17 +433,15 @@ impl IntersectionSimState {
         {
             // If we started an uber-turn, then finish it! But alert if we're running a red light.
             // TODO: Consider reenabling alert
-            /*
             if let Some(ref signal) = map.maybe_get_traffic_signal(turn.parent) {
                 // Don't pass in the scheduler, aka, don't pause before yielding.
-                if !self.traffic_signal_policy(&req, map, signal, speed, now, None) {
+                if !self.traffic_signal_policy(&req, map, signal, speed, now, None) && false {
                     self.events.push(Event::Alert(
                         AlertLocation::Intersection(req.turn.parent),
                         format!("Running a red light inside an uber-turn: {:?}", req),
                     ));
                 }
             }
-            */
 
             true
         } else if self.use_freeform_policy_everywhere {
