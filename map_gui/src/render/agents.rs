@@ -232,9 +232,3 @@ impl UnzoomedAgents {
         self.peds = panel.is_checked("Walk");
     }
 }
-
-impl Default for UnzoomedAgents {
-    fn default() -> Self {
-        UnzoomedAgents::new()
-    }
-}

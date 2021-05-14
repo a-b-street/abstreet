@@ -263,12 +263,6 @@ impl GeomBatch {
     }
 }
 
-impl Default for GeomBatch {
-    fn default() -> Self {
-        GeomBatch::new()
-    }
-}
-
 impl<F: Into<Fill>> From<Vec<(F, Polygon)>> for GeomBatch {
     /// Creates a batch of filled polygons.
     fn from(list: Vec<(F, Polygon)>) -> GeomBatch {

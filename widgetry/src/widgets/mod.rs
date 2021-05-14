@@ -95,12 +95,6 @@ impl WidgetOutput {
     }
 }
 
-impl Default for WidgetOutput {
-    fn default() -> Self {
-        WidgetOutput::new()
-    }
-}
-
 downcast_rs::impl_downcast!(WidgetImpl);
 
 pub struct Widget {

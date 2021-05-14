@@ -115,12 +115,6 @@ impl Bounds {
     }
 }
 
-impl Default for Bounds {
-    fn default() -> Self {
-        Bounds::new()
-    }
-}
-
 /// Represents a rectangular boundary of `LonLat` points. After building one of these, `LonLat`s
 /// can be transformed into `Pt2D`s, treating the top-left of the boundary as (0, 0), and growing
 /// to the right and down (screen-drawing order, not Cartesian) in meters.
@@ -207,11 +201,5 @@ impl GPSBounds {
     /// is the same as the one used to originally produce the `Pt2D`s.
     pub fn convert_back(&self, pts: &Vec<Pt2D>) -> Vec<LonLat> {
         pts.iter().map(|pt| pt.to_gps(self)).collect()
-    }
-}
-
-impl Default for GPSBounds {
-    fn default() -> Self {
-        GPSBounds::new()
     }
 }

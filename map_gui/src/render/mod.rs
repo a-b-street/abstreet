@@ -93,12 +93,6 @@ impl DrawOptions {
     }
 }
 
-impl Default for DrawOptions {
-    fn default() -> Self {
-        DrawOptions::new()
-    }
-}
-
 pub fn unzoomed_agent_radius(vt: Option<VehicleType>) -> Distance {
     // Lane thickness is a little hard to see, so double it. Most of the time, the circles don't
     // leak out of the road too much.

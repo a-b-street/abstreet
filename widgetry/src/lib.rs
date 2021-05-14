@@ -26,6 +26,7 @@
 //#![warn(missing_docs)]
 #![allow(clippy::too_many_arguments, clippy::type_complexity)]
 #![allow(clippy::borrowed_box, clippy::ptr_arg)]
+#![allow(clippy::new_without_default)]
 
 #[macro_use]
 extern crate anyhow;

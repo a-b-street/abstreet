@@ -590,9 +590,3 @@ impl TextSpan {
         }
     }
 }
-
-impl Default for Text {
-    fn default() -> Self {
-        Text::new()
-    }
-}

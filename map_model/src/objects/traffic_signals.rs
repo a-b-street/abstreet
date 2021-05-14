@@ -421,12 +421,6 @@ impl Stage {
     }
 }
 
-impl Default for Stage {
-    fn default() -> Self {
-        Stage::new()
-    }
-}
-
 impl ControlTrafficSignal {
     pub fn export(&self, map: &Map) -> traffic_signal_data::TrafficSignal {
         traffic_signal_data::TrafficSignal {

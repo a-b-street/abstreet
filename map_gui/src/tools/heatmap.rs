@@ -84,12 +84,6 @@ impl HeatmapOptions {
     }
 }
 
-impl Default for HeatmapOptions {
-    fn default() -> Self {
-        HeatmapOptions::new()
-    }
-}
-
 // Returns a legend
 pub fn make_heatmap(
     ctx: &mut EventCtx,
