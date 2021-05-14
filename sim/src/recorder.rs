@@ -30,33 +30,31 @@ impl TrafficRecorder {
     }
 
     pub fn handle_event(&mut self, time: Time, ev: &Event, map: &Map, driving: &DrivingSimState) {
-        if let Event::AgentEntersTraversable(a, Some(trip), on, _) = ev {
-            if let AgentID::Car(car) = a {
-                if self.seen_trips.contains(&trip) {
-                    return;
-                }
-                if let Traversable::Lane(l) = on {
-                    if self.capture_points.contains(&map.get_l(*l).src_i) {
-                        // Where do they exit?
-                        for step in driving.get_path(*car).unwrap().get_steps() {
-                            if let PathStep::Turn(t) = step {
-                                if self.capture_points.contains(&t.parent) {
-                                    self.trips.push((
-                                        TripEndpoint::SuddenlyAppear(Position::start(*l)),
-                                        IndividTrip::new(
-                                            time,
-                                            TripPurpose::Shopping,
-                                            TripEndpoint::Border(t.parent),
-                                            if car.vehicle_type == VehicleType::Bike {
-                                                TripMode::Bike
-                                            } else {
-                                                TripMode::Drive
-                                            },
-                                        ),
-                                    ));
-                                    self.seen_trips.insert(*trip);
-                                    return;
-                                }
+        if let Event::AgentEntersTraversable(AgentID::Car(car), Some(trip), on, _) = ev {
+            if self.seen_trips.contains(&trip) {
+                return;
+            }
+            if let Traversable::Lane(l) = on {
+                if self.capture_points.contains(&map.get_l(*l).src_i) {
+                    // Where do they exit?
+                    for step in driving.get_path(*car).unwrap().get_steps() {
+                        if let PathStep::Turn(t) = step {
+                            if self.capture_points.contains(&t.parent) {
+                                self.trips.push((
+                                    TripEndpoint::SuddenlyAppear(Position::start(*l)),
+                                    IndividTrip::new(
+                                        time,
+                                        TripPurpose::Shopping,
+                                        TripEndpoint::Border(t.parent),
+                                        if car.vehicle_type == VehicleType::Bike {
+                                            TripMode::Bike
+                                        } else {
+                                            TripMode::Drive
+                                        },
+                                    ),
+                                ));
+                                self.seen_trips.insert(*trip);
+                                return;
                             }
                         }
                     }
