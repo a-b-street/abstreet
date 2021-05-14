@@ -76,14 +76,13 @@ impl PandemicModel {
                         &mut self.rng,
                     )
                     .unwrap();
-                let next_state = if self.rng.gen_bool(State::ini_infectious_ratio()) {
+                if self.rng.gen_bool(State::ini_infectious_ratio()) {
                     next_state
                         .next_default(AnyTime::from(Time::START_OF_DAY), &mut self.rng)
                         .unwrap()
                 } else {
                     next_state
-                };
-                next_state
+                }
             } else {
                 state
             };
