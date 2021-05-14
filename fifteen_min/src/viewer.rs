@@ -258,7 +258,6 @@ fn options_to_controls(ctx: &mut EventCtx, opts: &Options) -> Widget {
 }
 
 fn options_from_controls(panel: &Panel) -> Options {
-    #![allow(clippy::or_fun_call)]
     if panel.is_checked("walking / biking") {
         Options::Walking(WalkingOptions {
             allow_shoulders: panel
@@ -266,7 +265,7 @@ fn options_from_controls(panel: &Panel) -> Options {
                 .unwrap_or(true),
             walking_speed: panel
                 .maybe_dropdown_value("speed")
-                .unwrap_or(WalkingOptions::default_speed()),
+                .unwrap_or_else(WalkingOptions::default_speed),
         })
     } else {
         Options::Biking

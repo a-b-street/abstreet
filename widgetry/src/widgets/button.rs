@@ -594,18 +594,17 @@ impl<'b, 'a: 'b, 'c> ButtonBuilder<'a, 'c> {
         }
         .map(|b| b.0);
 
-        #[allow(clippy::or_fun_call)]
         let label_batch = state_style
             .label
             .as_ref()
-            .or(default_style.label.as_ref())
+            .or_else(|| default_style.label.as_ref())
             .and_then(|label| {
                 let default = default_style.label.as_ref();
 
                 if let Some(styled_text) = label
                     .styled_text
                     .as_ref()
-                    .or(default.and_then(|d| d.styled_text.as_ref()))
+                    .or_else(|| default.and_then(|d| d.styled_text.as_ref()))
                 {
                     return Some(styled_text.clone().bg(Color::CLEAR).render(ctx));
                 }
@@ -613,19 +612,19 @@ impl<'b, 'a: 'b, 'c> ButtonBuilder<'a, 'c> {
                 let text = label
                     .text
                     .clone()
-                    .or(default.and_then(|d| d.text.clone()))?;
+                    .or_else(|| default.and_then(|d| d.text.clone()))?;
 
                 let color = label
                     .color
-                    .or(default.and_then(|d| d.color))
-                    .unwrap_or(ctx.style().text_fg_color);
+                    .or_else(|| default.and_then(|d| d.color))
+                    .unwrap_or_else(|| ctx.style().text_fg_color);
                 let mut line = Line(text).fg(color);
 
-                if let Some(font_size) = label.font_size.or(default.and_then(|d| d.font_size)) {
+                if let Some(font_size) = label.font_size.or_else(|| default.and_then(|d| d.font_size)) {
                     line = line.size(font_size);
                 }
 
-                if let Some(font) = label.font.or(default.and_then(|d| d.font)) {
+                if let Some(font) = label.font.or_else(|| default.and_then(|d| d.font)) {
                     line = line.font(font);
                 }
 

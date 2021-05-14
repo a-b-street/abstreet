@@ -24,7 +24,6 @@ impl<X: Axis<X>, Y: Axis<Y>> LinePlot<X, Y> {
         mut series: Vec<Series<X, Y>>,
         opts: PlotOptions<X, Y>,
     ) -> Widget {
-        #![allow(clippy::or_fun_call)]
         let legend = make_legend(ctx, &series, &opts);
         series.retain(|s| !opts.disabled.contains(&s.label));
 
@@ -32,9 +31,9 @@ impl<X: Axis<X>, Y: Axis<Y>> LinePlot<X, Y> {
         let max_x = opts.max_x.unwrap_or_else(|| {
             series
                 .iter()
-                .map(|s| s.pts.iter().map(|(x, _)| *x).max().unwrap_or(X::zero()))
+                .map(|s| s.pts.iter().map(|(x, _)| *x).max().unwrap_or_else(X::zero))
                 .max()
-                .unwrap_or(X::zero())
+                .unwrap_or_else(X::zero)
         });
         let max_y = opts.max_y.unwrap_or_else(|| {
             series
@@ -44,10 +43,10 @@ impl<X: Axis<X>, Y: Axis<Y>> LinePlot<X, Y> {
                         .iter()
                         .map(|(_, value)| *value)
                         .max()
-                        .unwrap_or(Y::zero())
+                        .unwrap_or_else(Y::zero)
                 })
                 .max()
-                .unwrap_or(Y::zero())
+                .unwrap_or_else(Y::zero)
         });
 
         // TODO Tuned to fit the info panel. Instead these should somehow stretch to fill their

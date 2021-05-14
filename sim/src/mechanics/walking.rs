@@ -654,7 +654,6 @@ impl Pedestrian {
     }
 
     fn get_draw_ped(&self, now: Time, map: &Map) -> DrawPedestrianInput {
-        #![allow(clippy::or_fun_call)] // false positive
         let on = self.path.current_step().as_traversable();
         let err = format!("at {}, {}'s position is broken", now, self.id);
         let angle_offset = if map.get_config().driving_side == DrivingSide::Right {
@@ -718,7 +717,7 @@ impl Pedestrian {
                 let line = &map.get_pl(pl).sidewalk_line;
                 (
                     line.percent_along(time_int.percent(now))
-                        .unwrap_or(line.pt1()),
+                        .unwrap_or_else(|| line.pt1()),
                     line.angle(),
                 )
             }
@@ -727,18 +726,18 @@ impl Pedestrian {
                 (
                     line.reverse()
                         .percent_along(time_int.percent(now))
-                        .unwrap_or(line.pt1()),
+                        .unwrap_or_else(|| line.pt1()),
                     line.angle().opposite(),
                 )
             }
             PedState::StartingToBike(_, ref line, ref time_int) => (
                 line.percent_along(time_int.percent(now))
-                    .unwrap_or(line.pt1()),
+                    .unwrap_or_else(|| line.pt1()),
                 line.angle(),
             ),
             PedState::FinishingBiking(_, ref line, ref time_int) => (
                 line.percent_along(time_int.percent(now))
-                    .unwrap_or(line.pt1()),
+                    .unwrap_or_else(|| line.pt1()),
                 line.angle(),
             ),
             PedState::WaitingForBus(_, _) => {

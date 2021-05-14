@@ -149,9 +149,8 @@ impl<'a, 'c> Image<'a, 'c> {
 
     /// Create a new `Image` based on `self`, but overriding with any values set on `other`.
     pub fn merged_image_style(&'c self, other: &'c Self) -> Self {
-        #![allow(clippy::or_fun_call)]
         let source_cow: Option<&Cow<'c, ImageSource>> =
-            other.source.as_ref().or(self.source.as_ref());
+            other.source.as_ref().or_else(|| self.source.as_ref());
         let source: Option<Cow<'c, ImageSource>> = source_cow.map(|source: &Cow<ImageSource>| {
             let source: &ImageSource = source;
             Cow::Borrowed(source)
@@ -160,7 +159,7 @@ impl<'a, 'c> Image<'a, 'c> {
         Self {
             source,
             // PERF: we could make tooltip a cow to eliminate clone
-            tooltip: other.tooltip.clone().or(self.tooltip.clone()),
+            tooltip: other.tooltip.clone().or_else(|| self.tooltip.clone()),
             color: other.color.or(self.color),
             content_mode: other.content_mode.or(self.content_mode),
             corner_rounding: other.corner_rounding.or(self.corner_rounding),
@@ -218,13 +217,12 @@ impl<'a, 'c> Image<'a, 'c> {
 
     /// Render the `Image` and any styling (padding, background, etc.) to a `GeomBatch`.
     pub fn build_batch(&self, ctx: &EventCtx) -> Option<(GeomBatch, Bounds)> {
-        #![allow(clippy::or_fun_call)]
         self.source.as_ref().map(|source| {
             let (mut image_batch, image_bounds) = source.load(ctx.prerender);
 
             image_batch = image_batch.color(
                 self.color
-                    .unwrap_or(RewriteColor::ChangeAll(ctx.style().icon_fg)),
+                    .unwrap_or_else(|| RewriteColor::ChangeAll(ctx.style().icon_fg)),
             );
 
             match self.dims {

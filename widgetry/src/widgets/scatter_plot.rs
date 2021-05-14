@@ -38,7 +38,6 @@ impl ScatterPlot {
                 .max()
                 .unwrap_or(Time::START_OF_DAY)
         });
-        #[allow(clippy::or_fun_call)]
         let max_y = opts.max_y.unwrap_or_else(|| {
             series
                 .iter()
@@ -47,10 +46,10 @@ impl ScatterPlot {
                         .iter()
                         .map(|(_, value)| *value)
                         .max()
-                        .unwrap_or(Y::zero())
+                        .unwrap_or_else(Y::zero)
                 })
                 .max()
-                .unwrap_or(Y::zero())
+                .unwrap_or_else(Y::zero)
         });
 
         // TODO Tuned to fit the info panel. Instead these should somehow stretch to fill their

@@ -89,14 +89,13 @@ impl Network {
 
             let mut lanes = Vec::new();
             for lane in edge.lanes {
-                #[allow(clippy::or_fun_call)]
                 lanes.push(Lane {
                     id: LaneID(lane.id),
                     index: lane.index,
                     speed: lane.speed,
                     length: lane.length,
                     // https://sumo.dlr.de/docs/Simulation/SublaneModel.html
-                    width: lane.width.unwrap_or(Distance::meters(3.2)),
+                    width: lane.width.unwrap_or_else(|| Distance::meters(3.2)),
                     center_line: lane.shape.unwrap(),
                     allow: lane.allow,
                 });
