@@ -15,6 +15,7 @@ mod risks;
 mod selector;
 mod traffic_signals;
 mod travel_times;
+mod trip_problems;
 mod trip_table;
 
 // Oh the dashboards melted, but we still had the radio

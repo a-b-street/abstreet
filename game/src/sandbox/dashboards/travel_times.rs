@@ -13,6 +13,7 @@ use widgetry::{
     Panel, State, Text, TextExt, Toggle, Widget,
 };
 
+use super::trip_problems::{problem_matrix, ProblemType, TripProblemFilter};
 use crate::app::{App, Transition};
 use crate::common::color_for_mode;
 use crate::sandbox::dashboards::DashTab;
@@ -32,17 +33,7 @@ impl TravelTimes {
                 filter.modes.contains(&mode),
             ));
         }
-        filters.push(Widget::dropdown(
-            ctx,
-            "filter",
-            filter.changes_pct,
-            vec![
-                Choice::new("any change", None),
-                Choice::new("at least 1% change", Some(0.01)),
-                Choice::new("at least 10% change", Some(0.1)),
-                Choice::new("at least 50% change", Some(0.5)),
-            ],
-        ));
+
         filters.push(
             ctx.style()
                 .btn_plain
@@ -58,11 +49,52 @@ impl TravelTimes {
                     Widget::col(filters).section(ctx),
                     Widget::col(vec![
                         summary_boxes(ctx, app, &filter),
-                        Widget::row(vec![
-                            contingency_table(ctx, app, &filter).bg(ctx.style().section_bg),
-                            scatter_plot(ctx, app, &filter).bg(ctx.style().section_bg),
+                        Widget::col(vec![
+                            Text::from(Line("Travel Times").small_heading()).into_widget(ctx),
+                            Widget::row(vec![
+                                "filter:".text_widget(ctx).centered_vert(),
+                                Widget::dropdown(
+                                    ctx,
+                                    "filter",
+                                    filter.changes_pct,
+                                    vec![
+                                        Choice::new("any change", None),
+                                        Choice::new("at least 1% change", Some(0.01)),
+                                        Choice::new("at least 10% change", Some(0.1)),
+                                        Choice::new("at least 50% change", Some(0.5)),
+                                    ],
+                                ),
+                            ])
+                            .margin_above(8),
+                            Widget::horiz_separator(ctx, 1.0),
+                            Widget::row(vec![
+                                contingency_table(ctx, app, &filter).bg(ctx.style().section_bg),
+                                scatter_plot(ctx, app, &filter)
+                                    .bg(ctx.style().section_bg)
+                                    .margin_left(32),
+                            ]),
                         ])
+                        .section(ctx)
                         .evenly_spaced(),
+                        Widget::row(vec![
+                            Widget::col(vec![
+                                Text::from(Line("Intersection Delays").small_heading())
+                                    .into_widget(ctx),
+                                Toggle::checkbox(
+                                    ctx,
+                                    "include trips without any changes",
+                                    None,
+                                    filter.include_no_changes(),
+                                ),
+                            ]),
+                            problem_matrix(
+                                ctx,
+                                app,
+                                &filter.trip_problems(app, ProblemType::IntersectionDelay),
+                            )
+                            .margin_left(32),
+                        ])
+                        .section(ctx),
                     ]),
                 ]),
             ]))
@@ -99,6 +131,7 @@ impl State<App> for TravelTimes {
                 let mut filter = Filter {
                     changes_pct: self.panel.dropdown_value("filter"),
                     modes: BTreeSet::new(),
+                    include_no_changes: self.panel.is_checked("include trips without any changes"),
                 };
                 for m in TripMode::all() {
                     if self.panel.is_checked(m.ongoing_verb()) {
@@ -236,8 +269,6 @@ fn scatter_plot(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
             points,
         ),
     ])
-    .padding(16)
-    .outline(ctx.style().section_outline)
 }
 
 fn contingency_table(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
@@ -455,10 +486,14 @@ fn contingency_table(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
 
     Widget::col(vec![
         Text::from_multiline(vec![
-            Line("Time difference by trip length").small_heading(),
-            Line("Grouped by the length of the trip before your changes."),
+            Line("Aggregate difference by trip length").small_heading(),
+            Line(format!(
+                "Grouped by the length of the trip before\n\"{}\" changes.",
+                app.primary.map.get_edits().edits_name
+            )),
         ])
-        .into_widget(ctx),
+        .into_widget(ctx)
+        .container(),
         Line("Total Time Saved (faster)")
             .secondary()
             .into_widget(ctx),
@@ -467,13 +502,22 @@ fn contingency_table(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
             .secondary()
             .into_widget(ctx),
     ])
-    .padding(16)
-    .outline(ctx.style().section_outline)
 }
 
 pub struct Filter {
     changes_pct: Option<f64>,
     modes: BTreeSet<TripMode>,
+    include_no_changes: bool,
+}
+
+impl TripProblemFilter for Filter {
+    fn includes_mode(&self, mode: &TripMode) -> bool {
+        self.modes.contains(mode)
+    }
+
+    fn include_no_changes(&self) -> bool {
+        self.include_no_changes
+    }
 }
 
 impl Filter {
@@ -481,6 +525,7 @@ impl Filter {
         Filter {
             changes_pct: None,
             modes: TripMode::all().into_iter().collect(),
+            include_no_changes: false,
         }
     }
 
