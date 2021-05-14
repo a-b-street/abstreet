@@ -346,7 +346,7 @@ impl<X: Copy + PartialOrd + Display, Y: Copy + PartialOrd + Display> Matrix<X, Y
                         abbreviated_format(count)
                     })
                     .change_fg(if count == 0 || is_middle_ybucket {
-                        ctx.style().text_fg_color
+                        ctx.style().text_primary_color
                     } else {
                         Color::WHITE
                     })
@@ -380,14 +380,14 @@ impl<X: Copy + PartialOrd + Display, Y: Copy + PartialOrd + Display> Matrix<X, Y
 
         // Axis Labels
         let mut y_axis_label = Text::from("More Problems <--------> Fewer Problems")
-            .change_fg(ctx.style().text_fg_color.dull(0.8))
+            .change_fg(ctx.style().text_secondary_color)
             .render(ctx)
             .rotate(Angle::degrees(-90.0));
         y_axis_label.autocrop_dims = true;
         y_axis_label = y_axis_label.autocrop();
 
         let x_axis_label = Text::from("Short Trips <--------> Long Trips")
-            .change_fg(ctx.style().text_fg_color.dull(0.8))
+            .change_fg(ctx.style().text_secondary_color)
             .render(ctx);
 
         let vmargin = 32.0;
