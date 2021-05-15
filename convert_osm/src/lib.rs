@@ -7,7 +7,7 @@ use anyhow::Result;
 
 use abstio::MapName;
 use abstutil::{Tags, Timer};
-use geom::{Distance, FindClosest, GPSBounds, LonLat, Pt2D, Ring};
+use geom::{Distance, FindClosest, GPSBounds, LonLat, Polygon, Pt2D, Ring};
 use map_model::raw::RawMap;
 use map_model::{osm, raw, Amenity, MapConfig};
 use serde::{Deserialize, Serialize};
@@ -145,35 +145,10 @@ fn use_amenities(map: &mut RawMap, amenities: Vec<(Pt2D, Amenity)>, timer: &mut 
 }
 
 fn add_extra_buildings(map: &mut RawMap, path: &str) -> Result<()> {
-    // TODO Refactor code that just extracts polygons from geojson.
-    let mut polygons = Vec::new();
-
-    let bytes = abstio::slurp_file(path)?;
-    let raw_string = std::str::from_utf8(&bytes)?;
-    let geojson = raw_string.parse::<geojson::GeoJson>()?;
-
-    if let geojson::GeoJson::FeatureCollection(collection) = geojson {
-        for feature in collection.features {
-            if let Some(geom) = feature.geometry {
-                if let geojson::Value::Polygon(raw_pts) = geom.value {
-                    // TODO Handle holes, and also, refactor this!
-                    let gps_pts: Vec<LonLat> = raw_pts[0]
-                        .iter()
-                        .map(|pt| LonLat::new(pt[0], pt[1]))
-                        .collect();
-                    if let Some(pts) = map.gps_bounds.try_convert(&gps_pts) {
-                        if let Ok(ring) = Ring::new(pts) {
-                            polygons.push(ring.into_polygon());
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    // Add these as new buildings, generating a new dummy OSM ID.
+    let force_convert = false;
     let mut id = -1;
-    for polygon in polygons {
+    for (polygon, _) in Polygon::from_geojson_file(path, &map.gps_bounds, force_convert)? {
+        // Add these as new buildings, generating a new dummy OSM ID.
         map.buildings.insert(
             osm::OsmID::Way(osm::WayID(id)),
             raw::RawBuilding {
@@ -188,6 +163,5 @@ fn add_extra_buildings(map: &mut RawMap, path: &str) -> Result<()> {
         // new OSM IDs.
         id -= -1;
     }
-
     Ok(())
 }

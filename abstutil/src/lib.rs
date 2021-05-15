@@ -6,6 +6,9 @@
 #![allow(clippy::ptr_arg)] // very noisy
 #![allow(clippy::new_without_default)]
 
+#[macro_use]
+extern crate anyhow;
+
 // I'm not generally a fan of wildcard exports, but they're more maintable here.
 pub use crate::serde::*;
 pub use cli::*;

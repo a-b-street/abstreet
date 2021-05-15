@@ -563,8 +563,8 @@ impl PanelBuilder {
         };
         match panel.dims {
             Dims::ExactPercent(w, h) => {
-                // Don't set size, because then scrolling breaks -- the actual size has to be based on
-                // the contents.
+                // Don't set size, because then scrolling breaks -- the actual size has to be based
+                // on the contents.
                 panel.top_level.layout.style.min_size = Size {
                     width: Dimension::Points((w * ctx.canvas.window_width) as f32),
                     height: Dimension::Points((h * ctx.canvas.window_height) as f32),
