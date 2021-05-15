@@ -8,7 +8,7 @@ use serde::Deserialize;
 
 use abstio::path_shared_input;
 use abstutil::{prettyprint_usize, Timer};
-use geom::{GPSBounds, LonLat, Polygon, Ring};
+use geom::{GPSBounds, Polygon};
 use map_model::raw::RawMap;
 use map_model::Map;
 use popdat::od::DesireLine;
@@ -185,74 +185,25 @@ struct Record {
 // Transforms all zones into the map's coordinate space, no matter how far out-of-bounds they are.
 fn parse_zones(gps_bounds: &GPSBounds, path: String) -> Result<HashMap<String, Polygon>> {
     let mut zones = HashMap::new();
-
-    let bytes = abstio::slurp_file(path)?;
-    let raw_string = std::str::from_utf8(&bytes)?;
-    let geojson = raw_string.parse::<geojson::GeoJson>()?;
-
-    if let geojson::GeoJson::FeatureCollection(collection) = geojson {
-        for feature in collection.features {
-            let zone = feature
-                .property("geo_code")
-                .and_then(|x| x.as_str())
-                .ok_or_else(|| anyhow!("no geo_code"))?
-                .to_string();
-            if let Some(geom) = feature.geometry {
-                if let geojson::Value::MultiPolygon(mut raw_polygons) = geom.value {
-                    if raw_polygons.len() != 1 {
-                        // We'll just one of them arbitrarily
-                        warn!(
-                            "Zone {} has a multipolygon with {} members",
-                            zone,
-                            raw_polygons.len()
-                        );
-                    }
-                    match parse_polygon(raw_polygons.pop().unwrap(), gps_bounds) {
-                        Ok(polygon) => {
-                            zones.insert(zone, polygon);
-                        }
-                        Err(err) => {
-                            warn!("Zone {} has bad geometry: {}", zone, err);
-                        }
-                    }
-                }
-            }
-        }
+    let require_in_bounds = false;
+    for (polygon, tags) in Polygon::from_geojson_file(path, gps_bounds, require_in_bounds)? {
+        zones.insert(tags.get_result("geo_code")?.to_string(), polygon);
     }
-
     Ok(zones)
 }
 
-// TODO Clean up the exploding number of geojson readers everywhere.
-fn parse_polygon(input: Vec<Vec<Vec<f64>>>, gps_bounds: &GPSBounds) -> Result<Polygon> {
-    let mut rings = Vec::new();
-    for ring in input {
-        let gps_pts: Vec<LonLat> = ring
-            .into_iter()
-            .map(|pt| LonLat::new(pt[0], pt[1]))
-            .collect();
-        let pts = gps_bounds.convert(&gps_pts);
-        rings.push(Ring::new(pts)?);
-    }
-    Ok(Polygon::from_rings(rings))
-}
-
 fn load_study_area(map: &Map) -> Result<Polygon> {
-    let bytes = abstio::slurp_file(abstio::path(format!(
-        "system/study_areas/{}.geojson",
-        map.get_name().city.city.replace("_", "-")
-    )))?;
-    let raw_string = std::str::from_utf8(&bytes)?;
-    let geojson = raw_string.parse::<geojson::GeoJson>()?;
-
-    if let geojson::GeoJson::FeatureCollection(collection) = geojson {
-        for feature in collection.features {
-            if let Some(geom) = feature.geometry {
-                if let geojson::Value::Polygon(raw_pts) = geom.value {
-                    return parse_polygon(raw_pts, map.get_gps_bounds());
-                }
-            }
-        }
+    let require_in_bounds = true;
+    let mut list = Polygon::from_geojson_file(
+        abstio::path(format!(
+            "system/study_areas/{}.geojson",
+            map.get_name().city.city.replace("_", "-")
+        )),
+        map.get_gps_bounds(),
+        require_in_bounds,
+    )?;
+    if list.len() != 1 {
+        bail!("study area geojson has {} polygons", list.len());
     }
-    bail!("no study area");
+    Ok(list.pop().unwrap().0)
 }

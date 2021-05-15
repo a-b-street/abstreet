@@ -6,8 +6,8 @@ use maplit::btreemap;
 use rand::seq::{IteratorRandom, SliceRandom};
 
 use abstio::MapName;
-use abstutil::{Tags, Timer};
-use geom::{Bounds, Circle, Distance, Duration, LonLat, Pt2D, Ring, Time};
+use abstutil::Timer;
+use geom::{Bounds, Circle, Distance, Duration, Polygon, Pt2D, Time};
 use map_gui::colors::ColorScheme;
 use map_gui::load::FileLoader;
 use map_gui::options::Options;
@@ -880,35 +880,13 @@ impl SharedAppState for App {
 
 /// Load an extra GeoJSON file, and add the area to the map dynamically.
 fn add_study_area(map: &mut Map, name: &str) -> Result<()> {
-    let bytes = abstio::slurp_file(abstio::path(format!("system/study_areas/{}.geojson", name)))?;
-    let raw_string = std::str::from_utf8(&bytes)?;
-    let geojson = raw_string.parse::<geojson::GeoJson>()?;
-
-    if let geojson::GeoJson::FeatureCollection(collection) = geojson {
-        for feature in collection.features {
-            if let Some(geom) = feature.geometry {
-                if let geojson::Value::Polygon(raw_pts) = geom.value {
-                    // TODO Handle holes, and also, refactor this!
-                    let gps_pts: Vec<LonLat> = raw_pts[0]
-                        .iter()
-                        .map(|pt| LonLat::new(pt[0], pt[1]))
-                        .collect();
-                    if let Some(pts) = map.get_gps_bounds().try_convert(&gps_pts) {
-                        let mut tags = Tags::empty();
-                        if let Some(props) = feature.properties {
-                            for (k, v) in props {
-                                tags.insert(k, v.to_string());
-                            }
-                        }
-
-                        if let Ok(ring) = Ring::new(pts) {
-                            map.hack_add_area(AreaType::StudyArea, ring.into_polygon(), tags);
-                        }
-                    }
-                }
-            }
-        }
+    let require_in_bounds = true;
+    for (polygon, tags) in Polygon::from_geojson_file(
+        abstio::path(format!("system/study_areas/{}.geojson", name)),
+        map.get_gps_bounds(),
+        require_in_bounds,
+    )? {
+        map.hack_add_area(AreaType::StudyArea, polygon, tags);
     }
-
     Ok(())
 }

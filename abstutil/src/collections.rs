@@ -2,6 +2,8 @@ use std::cmp::Ord;
 use std::collections::{BTreeMap, BTreeSet};
 use std::marker::PhantomData;
 
+use anyhow::Result;
+
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 
@@ -256,6 +258,10 @@ impl Tags {
 
     pub fn get(&self, k: &str) -> Option<&String> {
         self.0.get(k)
+    }
+
+    pub fn get_result(&self, k: &str) -> Result<&String> {
+        self.0.get(k).ok_or_else(|| anyhow!("missing {}", k))
     }
 
     pub fn contains_key(&self, k: &str) -> bool {

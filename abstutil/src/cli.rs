@@ -141,8 +141,6 @@ impl CmdArgs {
 /// between arguments. So for instance "?--dev&--color_scheme=night%20mode" becomes vec!["--dev",
 /// "--color_scheme=night mode"].
 fn parse_args() -> anyhow::Result<Vec<String>> {
-    use anyhow::{anyhow, bail};
-
     let window = web_sys::window().ok_or(anyhow!("no window?"))?;
     let url = window.location().href().map_err(|err| {
         anyhow!(err
