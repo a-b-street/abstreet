@@ -13,6 +13,10 @@ const MD5_BUF_READ_SIZE: usize = 4096;
 
 #[tokio::main]
 async fn main() {
+    if !std::path::Path::new("data").exists() {
+        panic!("Your current directory doesn't have the data/ directory. Run from the git root: cd ../; cargo run --bin updater -- args");
+    }
+
     let mut args = CmdArgs::new();
     let version = args
         .optional("--version")
