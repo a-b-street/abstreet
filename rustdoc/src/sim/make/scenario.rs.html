@@ -651,7 +651,7 @@
         <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>,
     ) {
         <span class="comment">// Any case where map edits could change the calls to the RNG, we have to fork.</span>
-        <span class="ident">sim</span>.<span class="ident">set_name</span>(<span class="self">self</span>.<span class="ident">scenario_name</span>.<span class="ident">clone</span>());
+        <span class="ident">sim</span>.<span class="ident">set_run_name</span>(<span class="self">self</span>.<span class="ident">scenario_name</span>.<span class="ident">clone</span>());
 
         <span class="ident">timer</span>.<span class="ident">start</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Instantiating {}&quot;</span>, <span class="self">self</span>.<span class="ident">scenario_name</span>));
 
