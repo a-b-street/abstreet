@@ -465,12 +465,7 @@ fn schedule_body(ctx: &mut EventCtx, app: &App, id: PersonID) -> Widget {
     Widget::col(rows)
 }
 
-pub fn crowd(
-    ctx: &EventCtx,
-    app: &App,
-    details: &mut Details,
-    members: &[PedestrianID],
-) -> Widget {
+pub fn crowd(ctx: &EventCtx, app: &App, details: &mut Details, members: &[PedestrianID]) -> Widget {
     let header = Widget::custom_col(vec![
         Line("Pedestrian crowd").small_heading().into_widget(ctx),
         header_btns(ctx),

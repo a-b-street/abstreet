@@ -328,12 +328,7 @@ fn validate_positions(
     }
 }
 
-fn dump_cars(
-    dists: &[(CarID, Distance)],
-    cars: &FixedMap<CarID, Car>,
-    id: Traversable,
-    now: Time,
-) {
+fn dump_cars(dists: &[(CarID, Distance)], cars: &FixedMap<CarID, Car>, id: Traversable, now: Time) {
     println!("\nOn {} at {}...", id, now);
     for (id, dist) in dists {
         let car = &cars[id];
