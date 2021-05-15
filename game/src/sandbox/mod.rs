@@ -605,7 +605,7 @@ impl State<App> for SandboxLoader {
                     let mut gameplay = self.mode.initialize(ctx, app);
                     gameplay.recreate_panels(ctx, app);
                     let sandbox = Box::new(SandboxMode {
-                        controls: SandboxControls::new(ctx, app, &gameplay),
+                        controls: SandboxControls::new(ctx, app, gameplay.as_ref()),
                         gameplay,
                         gameplay_mode: self.mode.clone(),
                         recalc_unzoomed_agent: None,
@@ -662,7 +662,7 @@ impl SandboxControls {
     pub fn new(
         ctx: &mut EventCtx,
         app: &App,
-        gameplay: &Box<dyn gameplay::GameplayState>,
+        gameplay: &dyn gameplay::GameplayState,
     ) -> SandboxControls {
         SandboxControls {
             common: if gameplay.has_common() {

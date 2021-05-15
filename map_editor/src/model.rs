@@ -402,7 +402,7 @@ impl Model {
         let mut closest = FindClosest::new(&self.compute_bounds());
         let pts = &mut self.map.roads.get_mut(&id).unwrap().center_points;
         for (idx, pair) in pts.windows(2).enumerate() {
-            closest.add(idx + 1, &vec![pair[0], pair[1]]);
+            closest.add(idx + 1, &[pair[0], pair[1]]);
         }
         let new_id = if let Some((idx, _)) = closest.closest_pt(pt, Distance::meters(5.0)) {
             pts.insert(idx, pt);

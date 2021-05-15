@@ -133,6 +133,7 @@ impl Assets {
         height
     }
 
+    #[allow(clippy::ptr_arg)] // &[str] does not work with `LruCache`
     pub fn get_cached_text(&self, key: &String) -> Option<GeomBatch> {
         self.text_cache.borrow_mut().get(key).cloned()
     }

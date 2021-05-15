@@ -95,7 +95,7 @@ impl LonLat {
     /// Writes a set of points to a file in the
     /// https://wiki.openstreetmap.org/wiki/Osmosis/Polygon_Filter_File_Format. The input should
     /// be a closed ring, with the first and last point matching.
-    pub fn write_osmosis_polygon(path: &str, pts: &Vec<LonLat>) -> Result<()> {
+    pub fn write_osmosis_polygon(path: &str, pts: &[LonLat]) -> Result<()> {
         let mut f = File::create(path)?;
         writeln!(f, "boundary")?;
         writeln!(f, "1")?;
@@ -108,7 +108,7 @@ impl LonLat {
     }
 
     /// Finds the average of a set of coordinates.
-    pub fn center(pts: &Vec<LonLat>) -> LonLat {
+    pub fn center(pts: &[LonLat]) -> LonLat {
         if pts.is_empty() {
             panic!("Can't find center of 0 points");
         }

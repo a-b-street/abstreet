@@ -158,7 +158,7 @@ pub struct Series<X, Y> {
 
 pub fn make_legend<X: Axis<X>, Y: Axis<Y>>(
     ctx: &EventCtx,
-    series: &Vec<Series<X, Y>>,
+    series: &[Series<X, Y>],
     opts: &PlotOptions<X, Y>,
 ) -> Widget {
     let mut row = Vec::new();

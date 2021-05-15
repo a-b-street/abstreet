@@ -469,7 +469,7 @@ pub fn crowd(
     ctx: &EventCtx,
     app: &App,
     details: &mut Details,
-    members: &Vec<PedestrianID>,
+    members: &[PedestrianID],
 ) -> Widget {
     let header = Widget::custom_col(vec![
         Line("Pedestrian crowd").small_heading().into_widget(ctx),
@@ -485,7 +485,7 @@ fn crowd_body(
     ctx: &EventCtx,
     app: &App,
     details: &mut Details,
-    members: &Vec<PedestrianID>,
+    members: &[PedestrianID],
 ) -> Widget {
     let mut rows = vec![];
     for (idx, id) in members.iter().enumerate() {

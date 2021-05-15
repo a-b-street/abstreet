@@ -169,7 +169,7 @@ impl<T: Ord + PartialEq + Clone> Counter<T> {
     }
 }
 
-pub fn wraparound_get<T>(vec: &Vec<T>, idx: isize) -> &T {
+pub fn wraparound_get<T>(vec: &[T], idx: isize) -> &T {
     let len = vec.len() as isize;
     let idx = idx % len;
     let idx = if idx >= 0 { idx } else { idx + len };
@@ -203,7 +203,7 @@ pub fn retain_btreeset<K: Ord + Clone, F: FnMut(&K) -> bool>(set: &mut BTreeSet<
     }
 }
 
-pub fn contains_duplicates<T: Ord>(vec: &Vec<T>) -> bool {
+pub fn contains_duplicates<T: Ord>(vec: &[T]) -> bool {
     let mut set = BTreeSet::new();
     for item in vec {
         if set.contains(item) {

@@ -109,7 +109,7 @@ pub(crate) fn add_svg_inner(
         );
     }
     let size = svg_tree.svg_node().size;
-    Ok(Bounds::from(&vec![
+    Ok(Bounds::from(&[
         Pt2D::new(0.0, 0.0),
         Pt2D::new(size.width(), size.height()),
     ]))

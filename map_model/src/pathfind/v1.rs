@@ -466,7 +466,7 @@ impl PathRequest {
     }
 }
 
-fn validate_continuity(map: &Map, steps: &Vec<PathStep>) {
+fn validate_continuity(map: &Map, steps: &[PathStep]) {
     if steps.is_empty() {
         panic!("Empty path");
     }
@@ -509,7 +509,7 @@ fn validate_continuity(map: &Map, steps: &Vec<PathStep>) {
     }
 }
 
-fn validate_restrictions(map: &Map, steps: &Vec<PathStep>) {
+fn validate_restrictions(map: &Map, steps: &[PathStep]) {
     for triple in steps.windows(5) {
         if let (PathStep::Lane(l1), PathStep::Lane(l2), PathStep::Lane(l3)) =
             (triple[0], triple[2], triple[4])
@@ -530,7 +530,7 @@ fn validate_restrictions(map: &Map, steps: &Vec<PathStep>) {
     }
 }
 
-fn validate_zones(map: &Map, steps: &Vec<PathStep>, req: &PathRequest) {
+fn validate_zones(map: &Map, steps: &[PathStep], req: &PathRequest) {
     let z1 = map.get_parent(req.start.lane()).get_zone(map);
     let z2 = map.get_parent(req.end.lane()).get_zone(map);
 

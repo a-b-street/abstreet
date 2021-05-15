@@ -16,8 +16,8 @@ use crate::{
 /// sidewalk + driving lane, then automatically generate individual parking spots perpendicular to
 /// the aisles.
 pub fn make_all_parking_lots(
-    input: &Vec<RawParkingLot>,
-    aisles: &Vec<(osm::WayID, Vec<Pt2D>)>,
+    input: &[RawParkingLot],
+    aisles: &[(osm::WayID, Vec<Pt2D>)],
     map: &Map,
     timer: &mut Timer,
 ) -> Vec<ParkingLot> {
@@ -183,7 +183,7 @@ pub fn snap_driveway(
     Ok((driveway_line, driving_pos, sidewalk_line, *sidewalk_pos))
 }
 
-fn infer_spots(lot_polygon: &Polygon, aisles: &Vec<Vec<Pt2D>>) -> Vec<(Pt2D, Angle)> {
+fn infer_spots(lot_polygon: &Polygon, aisles: &[Vec<Pt2D>]) -> Vec<(Pt2D, Angle)> {
     let mut spots = Vec::new();
     let mut finalized_lines = Vec::new();
 
@@ -233,9 +233,9 @@ fn infer_spots(lot_polygon: &Polygon, aisles: &Vec<Vec<Pt2D>>) -> Vec<(Pt2D, Ang
 
 fn line_valid(
     lot_polygon: &Polygon,
-    aisles: &Vec<Vec<Pt2D>>,
+    aisles: &[Vec<Pt2D>],
     line: &Line,
-    finalized_lines: &Vec<Line>,
+    finalized_lines: &[Line],
 ) -> bool {
     // Don't leak out of the parking lot
     // TODO Entire line

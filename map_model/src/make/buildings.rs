@@ -137,7 +137,7 @@ fn get_address(tags: &Tags, sidewalk: LaneID, map: &Map) -> String {
 
 fn classify_bldg(
     tags: &Tags,
-    amenities: &Vec<Amenity>,
+    amenities: &[Amenity],
     levels: f64,
     ground_area_sq_meters: f64,
     rng: &mut XorShiftRng,

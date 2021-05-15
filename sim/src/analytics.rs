@@ -465,7 +465,7 @@ impl Analytics {
 
     fn parking_spot_availability(
         now: Time,
-        changes: &Vec<(Time, bool)>,
+        changes: &[(Time, bool)],
         capacity: usize,
     ) -> Vec<(Time, usize)> {
         let mut pts = Vec::new();

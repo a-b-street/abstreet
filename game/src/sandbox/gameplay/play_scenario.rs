@@ -28,7 +28,7 @@ impl PlayScenario {
     pub fn new_state(
         ctx: &mut EventCtx,
         app: &App,
-        name: &String,
+        name: &str,
         modifiers: Vec<ScenarioModifier>,
     ) -> Box<dyn GameplayState> {
         if let Err(err) = URLManager::update_url_free_param(

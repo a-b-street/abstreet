@@ -299,7 +299,7 @@ fn make_lt_switcher(
 fn make_bulk_edits(
     ctx: &mut EventCtx,
     app: &mut App,
-    roads: &Vec<RoadID>,
+    roads: &[RoadID],
     speed_limit: Option<Speed>,
     lt_transformations: Vec<(Option<LaneType>, Option<LaneType>)>,
 ) -> Box<dyn State<App>> {

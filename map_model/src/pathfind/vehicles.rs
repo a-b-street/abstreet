@@ -142,7 +142,7 @@ impl VehiclePathfinder {
 fn make_input_graph(
     map: &Map,
     nodes: &NodeMap<Node>,
-    uber_turns: &Vec<UberTurnV2>,
+    uber_turns: &[UberTurnV2],
     constraints: PathConstraints,
 ) -> InputGraph {
     let mut input_graph = InputGraph::new();

@@ -13,7 +13,7 @@ use crate::{
 
 /// Construct the final model of bus/train stops and routes. This is quite broken currently, so not
 /// going to describe how it works.
-pub fn make_stops_and_routes(map: &mut Map, raw_routes: &Vec<RawBusRoute>, timer: &mut Timer) {
+pub fn make_stops_and_routes(map: &mut Map, raw_routes: &[RawBusRoute], timer: &mut Timer) {
     timer.start("make transit stops and routes");
     let matcher = Matcher::new(raw_routes, map, timer);
 
@@ -198,7 +198,7 @@ struct Matcher {
 }
 
 impl Matcher {
-    fn new(routes: &Vec<RawBusRoute>, map: &Map, timer: &mut Timer) -> Matcher {
+    fn new(routes: &[RawBusRoute], map: &Map, timer: &mut Timer) -> Matcher {
         // Match all of the points to an exact position along a lane.
         let mut lookup_sidewalk_pts = HashSet::new();
         let mut lookup_light_rail_pts = HashSet::new();

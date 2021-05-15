@@ -210,7 +210,7 @@ enum ProblemType {
 }
 
 impl ProblemType {
-    fn count(self, problems: &Vec<(Time, Problem)>) -> usize {
+    fn count(self, problems: &[(Time, Problem)]) -> usize {
         let mut cnt = 0;
         for (_, problem) in problems {
             if match problem {
@@ -414,7 +414,7 @@ struct MatrixOptions<X, Y> {
     tooltip_for_bucket: Box<dyn Fn((Option<X>, Option<X>), (Y, Y), usize) -> Text>,
 }
 
-fn bucketize_isizes(max_buckets: usize, pts: &Vec<(Duration, isize)>) -> Vec<isize> {
+fn bucketize_isizes(max_buckets: usize, pts: &[(Duration, isize)]) -> Vec<isize> {
     debug_assert!(
         max_buckets % 2 == 1,
         "num_buckets must be odd to have a symmetrical number of buckets around axis"
@@ -458,7 +458,7 @@ mod tests {
     fn test_bucketize_isizes() {
         let buckets = bucketize_isizes(
             7,
-            &vec![
+            &[
                 (Duration::minutes(3), -3),
                 (Duration::minutes(3), -3),
                 (Duration::minutes(3), -1),
@@ -477,7 +477,7 @@ mod tests {
 
     #[test]
     fn test_bucketize_empty_isizes() {
-        let buckets = bucketize_isizes(7, &vec![]);
+        let buckets = bucketize_isizes(7, &[]);
         assert_eq!(buckets, vec![-2, -1, 0, 1, 2])
     }
 
@@ -485,7 +485,7 @@ mod tests {
     fn test_bucketize_small_isizes() {
         let buckets = bucketize_isizes(
             7,
-            &vec![
+            &[
                 (Duration::minutes(3), -1),
                 (Duration::minutes(3), -1),
                 (Duration::minutes(3), 0),
