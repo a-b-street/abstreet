@@ -1422,6 +1422,17 @@
 <span id="1419">1419</span>
 <span id="1420">1420</span>
 <span id="1421">1421</span>
+<span id="1422">1422</span>
+<span id="1423">1423</span>
+<span id="1424">1424</span>
+<span id="1425">1425</span>
+<span id="1426">1426</span>
+<span id="1427">1427</span>
+<span id="1428">1428</span>
+<span id="1429">1429</span>
+<span id="1430">1430</span>
+<span id="1431">1431</span>
+<span id="1432">1432</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 
@@ -1835,8 +1846,19 @@
 
         <span class="comment">// Special things</span>
         <span class="kw">if</span> <span class="ident">tut</span>.<span class="ident">interaction</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">Task</span>::<span class="ident">Camera</span> {
+            <span class="kw">let</span> <span class="ident">fire</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">load_svg</span>(<span class="ident">g</span>, <span class="string">&quot;system/assets/tools/fire.svg&quot;</span>)
+                .<span class="ident">scale</span>(<span class="kw">if</span> <span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span> <span class="op">&lt;</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">min_zoom_for_detail</span> {
+                    <span class="number">0.2</span>
+                } <span class="kw">else</span> {
+                    <span class="number">0.1</span>
+                })
+                .<span class="ident">autocrop</span>()
+                .<span class="ident">centered_on</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">tut</span>.<span class="ident">fire_station</span>).<span class="ident">polygon</span>.<span class="ident">polylabel</span>());
+            <span class="kw">let</span> <span class="ident">offset</span> <span class="op">=</span> <span class="op">-</span><span class="ident">fire</span>.<span class="ident">get_dims</span>().<span class="ident">height</span> <span class="op">/</span> <span class="number">2.0</span>;
+            <span class="ident">fire</span>.<span class="ident">translate</span>(<span class="number">0.0</span>, <span class="ident">offset</span>).<span class="ident">draw</span>(<span class="ident">g</span>);
+
             <span class="ident">g</span>.<span class="ident">draw_polygon</span>(
-                <span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#e25822&quot;</span>),
+                <span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#FEDE17&quot;</span>),
                 <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">tut</span>.<span class="ident">fire_station</span>).<span class="ident">polygon</span>.<span class="ident">clone</span>(),
             );
         } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">tut</span>.<span class="ident">interaction</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">Task</span>::<span class="ident">Escort</span> {
