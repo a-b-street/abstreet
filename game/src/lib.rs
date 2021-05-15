@@ -13,7 +13,7 @@ use geom::Duration;
 use map_gui::options::Options;
 use map_gui::tools::URLManager;
 use map_model::Map;
-use sim::{Sim, SimFlags};
+use sim::{Analytics, Sim, SimFlags};
 use widgetry::{EventCtx, Settings, State, Transition};
 
 use crate::app::{App, Flags};
@@ -242,6 +242,19 @@ fn setup_app(
             per_obj: crate::app::PerObjectActions::new(),
             session: crate::app::SessionState::empty(),
         };
+
+        let scenario_name = app.primary.sim.get_run_name().to_string();
+        if let Ok(prebaked) = abstio::maybe_read_binary::<Analytics>(
+            abstio::path_prebaked_results(app.primary.map.get_name(), &scenario_name),
+            &mut Timer::throwaway(),
+        ) {
+            app.set_prebaked(Some((
+                app.primary.map.get_name().clone(),
+                scenario_name,
+                prebaked,
+            )));
+        }
+
         let states = finish_app_setup(
             ctx,
             &mut app,

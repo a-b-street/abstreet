@@ -378,8 +378,12 @@ impl Sim {
         );
     }
 
-    pub fn set_name(&mut self, name: String) {
+    pub fn set_run_name(&mut self, name: String) {
         self.run_name = name;
+    }
+
+    pub fn get_run_name(&self) -> &String {
+        &self.run_name
     }
 }
 

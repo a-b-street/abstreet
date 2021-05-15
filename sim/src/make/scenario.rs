@@ -123,7 +123,7 @@ impl Scenario {
         timer: &mut Timer,
     ) {
         // Any case where map edits could change the calls to the RNG, we have to fork.
-        sim.set_name(self.scenario_name.clone());
+        sim.set_run_name(self.scenario_name.clone());
 
         timer.start(format!("Instantiating {}", self.scenario_name));
 
