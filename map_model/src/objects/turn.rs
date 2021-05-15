@@ -361,8 +361,7 @@ fn movement_geom(
 
     let mut pts = Vec::new();
     for idx in 0..num_pts {
-        let v: Vec<_> = polylines.iter().map(|pl| pl.points()[idx]).collect();
-        pts.push(Pt2D::center(&v));
+        pts.push(Pt2D::center(&polylines.iter().map(|pl| pl.points()[idx]).collect::<Vec<_>>()));
     }
     PolyLine::deduping_new(pts)
 }

@@ -730,8 +730,7 @@ impl ContextualActions for Actions {
                 let center = if pts[0] == *pts.last().unwrap() {
                     // TODO The center looks really wrong for Volunteer Park and others, but I
                     // think it's because they have many points along some edges.
-                    let v: Vec<_> = pts.iter().skip(1).cloned().collect();
-                    Pt2D::center(&v)
+                    Pt2D::center(&pts.iter().skip(1).cloned().collect::<Vec<_>>())
                 } else {
                     Pt2D::center(pts)
                 };

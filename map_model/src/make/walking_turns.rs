@@ -473,8 +473,7 @@ fn make_shared_sidewalk_corner(
         let mut deduped = pts;
         deduped.dedup();
         if deduped.len() >= 2 {
-            let v: Vec<_> = deduped.iter().map(|pt| pt.to_hashable()).collect();
-            if abstutil::contains_duplicates(&v) {
+            if abstutil::contains_duplicates(&deduped.iter().map(|pt| pt.to_hashable()).collect::<Vec<_>>()) {
                 warn!(
                     "SharedSidewalkCorner between {} and {} has weird duplicate geometry, so just \
                      doing straight line",
@@ -513,8 +512,7 @@ fn make_shared_sidewalk_corner(
         final_pts.pop();
         final_pts.push(l2.first_pt());
     }
-    let v: Vec<_> = final_pts.iter().map(|pt| pt.to_hashable()).collect();
-    if abstutil::contains_duplicates(&v) {
+    if abstutil::contains_duplicates(&final_pts.iter().map(|pt| pt.to_hashable()).collect::<Vec<_>>()) {
         warn!(
             "SharedSidewalkCorner between {} and {} has weird duplicate geometry, so just doing \
              straight line",
