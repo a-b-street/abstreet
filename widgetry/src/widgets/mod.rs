@@ -204,9 +204,13 @@ impl Widget {
         self.layout.style.size.width = Dimension::Points(width as f32);
         self
     }
-    pub fn force_width_pct(mut self, ctx: &EventCtx, width: Percent) -> Widget {
+    pub fn force_width_window_pct(mut self, ctx: &EventCtx, width: Percent) -> Widget {
         self.layout.style.size.width =
             Dimension::Points((ctx.canvas.window_width * width.inner()) as f32);
+        self
+    }
+    pub fn force_width_parent_pct(mut self, width: f64) -> Widget {
+        self.layout.style.size.width = Dimension::Percent(width as f32);
         self
     }
 
@@ -510,12 +514,15 @@ impl Widget {
         (batch, hitbox)
     }
 
-    pub fn horiz_separator(ctx: &mut EventCtx, pct_width: f64) -> Widget {
+    pub fn horiz_separator(ctx: &mut EventCtx, pct_container_width: f64) -> Widget {
         GeomBatch::from(vec![(
             ctx.style().btn_outline.fg,
-            Polygon::rectangle(pct_width * ctx.canvas.window_width, 2.0),
+            Polygon::rectangle(0.0, 2.0),
         )])
         .into_widget(ctx)
+        .container()
+        .bg(ctx.style().btn_outline.fg)
+        .force_width_parent_pct(pct_container_width)
         .centered_horiz()
     }
 

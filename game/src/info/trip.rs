@@ -70,7 +70,7 @@ pub fn ongoing(
     {
         col.push(Widget::custom_row(vec![
             Widget::custom_row(vec![Line("Trip time").secondary().into_widget(ctx)])
-                .force_width_pct(ctx, col_width),
+                .force_width_window_pct(ctx, col_width),
             Text::from_all(vec![
                 Line(props.total_time.to_string(&app.opts.units)),
                 Line(format!(
@@ -86,7 +86,7 @@ pub fn ongoing(
     {
         col.push(Widget::custom_row(vec![
             Widget::custom_row(vec![Line("Distance").secondary().into_widget(ctx)])
-                .force_width_pct(ctx, col_width),
+                .force_width_window_pct(ctx, col_width),
             Text::from_all(vec![
                 Line(props.dist_crossed.to_string(&app.opts.units)),
                 Line(format!("/{}", props.total_dist.to_string(&app.opts.units))).secondary(),
@@ -100,7 +100,7 @@ pub fn ongoing(
                 .secondary()
                 .into_widget(ctx)
                 .container()
-                .force_width_pct(ctx, col_width),
+                .force_width_window_pct(ctx, col_width),
             Widget::col(vec![
                 format!("{} here", props.waiting_here.to_string(&app.opts.units)).text_widget(ctx),
                 Text::from_all(vec![
@@ -128,7 +128,7 @@ pub fn ongoing(
     {
         col.push(Widget::custom_row(vec![
             Widget::custom_row(vec![Line("Purpose").secondary().into_widget(ctx)])
-                .force_width_pct(ctx, col_width),
+                .force_width_window_pct(ctx, col_width),
             Line(trip.purpose.to_string()).secondary().into_widget(ctx),
         ]));
     }
@@ -311,7 +311,7 @@ pub fn finished(
         if let Some(end_time) = phases.last().as_ref().and_then(|p| p.end_time) {
             col.push(Widget::custom_row(vec![
                 Widget::custom_row(vec![Line("Trip time").secondary().into_widget(ctx)])
-                    .force_width_pct(ctx, col_width),
+                    .force_width_window_pct(ctx, col_width),
                 (end_time - trip.departure)
                     .to_string(&app.opts.units)
                     .text_widget(ctx),
@@ -319,7 +319,7 @@ pub fn finished(
         } else {
             col.push(Widget::custom_row(vec![
                 Widget::custom_row(vec![Line("Trip time").secondary().into_widget(ctx)])
-                    .force_width_pct(ctx, col_width),
+                    .force_width_window_pct(ctx, col_width),
                 "Trip didn't complete before map changes".text_widget(ctx),
             ]));
         }
@@ -331,13 +331,13 @@ pub fn finished(
             Widget::custom_row(vec![Line("Total waiting time")
                 .secondary()
                 .into_widget(ctx)])
-            .force_width_pct(ctx, col_width),
+            .force_width_window_pct(ctx, col_width),
             waiting.to_string(&app.opts.units).text_widget(ctx),
         ]));
 
         col.push(Widget::custom_row(vec![
             Widget::custom_row(vec![Line("Purpose").secondary().into_widget(ctx)])
-                .force_width_pct(ctx, col_width),
+                .force_width_window_pct(ctx, col_width),
             Line(trip.purpose.to_string()).secondary().into_widget(ctx),
         ]));
     }
@@ -445,7 +445,7 @@ fn describe_problems(
                 .secondary()
                 .into_widget(ctx)
                 .container()
-                .force_width_pct(ctx, col_width),
+                .force_width_window_pct(ctx, col_width),
             txt.into_widget(ctx),
         ])
     } else {

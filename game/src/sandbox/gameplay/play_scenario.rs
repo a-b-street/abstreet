@@ -264,7 +264,7 @@ impl EditScenarioModifiers {
                 .text("Repeat schedule multiple days")
                 .build_def(ctx),
         ]));
-        rows.push(Widget::horiz_separator(ctx, 0.5));
+        rows.push(Widget::horiz_separator(ctx, 1.0));
         rows.push(
             Widget::row(vec![
                 ctx.style()
@@ -418,7 +418,7 @@ impl ChangeMode {
                     "Departing until:".text_widget(ctx),
                     Slider::area(ctx, 0.25 * ctx.canvas.window_width, 0.3).named("depart to"),
                 ]),
-                Widget::horiz_separator(ctx, 0.5),
+                Widget::horiz_separator(ctx, 1.0),
                 Widget::row(vec![
                     "Change to trip type:".text_widget(ctx),
                     Widget::dropdown(ctx, "to_mode", Some(TripMode::Bike), {

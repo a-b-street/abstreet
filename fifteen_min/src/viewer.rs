@@ -344,7 +344,7 @@ fn build_panel(ctx: &mut EventCtx, app: &App, start: &Building, isochrone: &Isoc
     }
 
     // Start of toolbar
-    rows.push(Widget::horiz_separator(ctx, 0.3).margin_above(10));
+    rows.push(Widget::horiz_separator(ctx, 1.0).margin_above(10));
 
     rows.push(options_to_controls(ctx, &isochrone.options));
     rows.push(

@@ -78,9 +78,9 @@ impl Viewer {
                     .build_widget(ctx, "search"),
                 ctx.style().btn_plain.text("About").build_def(ctx),
             ]),
-            Widget::horiz_separator(ctx, 0.3),
+            Widget::horiz_separator(ctx, 1.0),
             self.calculate_tags(ctx, app),
-            Widget::horiz_separator(ctx, 0.3),
+            Widget::horiz_separator(ctx, 1.0),
             if let Some(ref b) = self.businesses {
                 biz_search_panel.unwrap_or_else(|| b.render(ctx).named("Search for businesses"))
             } else {

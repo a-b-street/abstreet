@@ -173,7 +173,7 @@ impl<'a> EventCtx<'a> {
                     .bg(Color::BLACK)
                     .padding(15)
                     .outline((5.0, Color::YELLOW))
-                    .force_width_pct(self, Percent::int(30))
+                    .force_width_window_pct(self, Percent::int(30))
                     .margin_below(5),
                 GeomBatch::from(vec![(Color::grey(0.5), Polygon::rectangle(10.0, 100.0))])
                     .into_widget(self)
