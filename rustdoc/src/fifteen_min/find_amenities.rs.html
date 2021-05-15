@@ -151,7 +151,7 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">FindAmenity</span>;
 
 <span class="kw">impl</span> <span class="ident">FindAmenity</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">options</span>: <span class="ident">Options</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">options</span>: <span class="ident">Options</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="ident">ChooseSomething</span>::<span class="ident">new_state</span>(
             <span class="ident">ctx</span>,
             <span class="string">&quot;Choose an amenity&quot;</span>,
@@ -161,7 +161,7 @@
                 .<span class="ident">collect</span>(),
             <span class="ident">Box</span>::<span class="ident">new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">at</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
                 <span class="kw">let</span> <span class="ident">multi_isochrone</span> <span class="op">=</span> <span class="ident">create_multi_isochrone</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">at</span>, <span class="ident">options</span>.<span class="ident">clone</span>());
-                <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">Results</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">multi_isochrone</span>, <span class="ident">at</span>));
+                <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">Results</span>::<span class="ident">new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">multi_isochrone</span>, <span class="ident">at</span>));
             }),
         )
     }
@@ -192,7 +192,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Results</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(
+    <span class="kw">fn</span> <span class="ident">new_state</span>(
         <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
         <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
         <span class="ident">isochrone</span>: <span class="ident">Isochrone</span>,
@@ -227,7 +227,7 @@
             <span class="ident">panel</span>,
             <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">Results</span> {
                 <span class="ident">draw</span>: <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">batch</span>),
-                <span class="ident">isochrone</span>: <span class="ident">isochrone</span>,
+                <span class="ident">isochrone</span>,
                 <span class="ident">hovering_on_bldg</span>: <span class="ident">Cached</span>::<span class="ident">new</span>(),
             }),
         )

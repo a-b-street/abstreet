@@ -450,7 +450,7 @@
             <span class="ident">dev</span>: <span class="bool-val">false</span>,
             <span class="ident">debug_all_agents</span>: <span class="bool-val">false</span>,
 
-            <span class="ident">traffic_signal_style</span>: <span class="ident">TrafficSignalStyle</span>::<span class="ident">BAP</span>,
+            <span class="ident">traffic_signal_style</span>: <span class="ident">TrafficSignalStyle</span>::<span class="ident">Brian</span>,
             <span class="ident">color_scheme</span>: <span class="ident">ColorSchemeChoice</span>::<span class="ident">DayMode</span>,
             <span class="ident">toggle_day_night_colors</span>: <span class="bool-val">false</span>,
             <span class="ident">min_zoom_for_detail</span>: <span class="number">4.0</span>,
@@ -502,7 +502,7 @@
 <span class="doccomment">/// Different ways of drawing traffic signals. The names of these aren&#39;t super meaningful...</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">TrafficSignalStyle</span> {
-    <span class="ident">BAP</span>,
+    <span class="ident">Brian</span>,
     <span class="ident">Yuwen</span>,
     <span class="ident">IndividualTurnArrows</span>,
 }
@@ -578,7 +578,7 @@
                             <span class="string">&quot;Traffic signal rendering&quot;</span>,
                             <span class="ident">app</span>.<span class="ident">opts</span>().<span class="ident">traffic_signal_style</span>.<span class="ident">clone</span>(),
                             <span class="macro">vec</span><span class="macro">!</span>[
-                                <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;Default (Brian&#39;s style)&quot;</span>, <span class="ident">TrafficSignalStyle</span>::<span class="ident">BAP</span>),
+                                <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;Default (Brian&#39;s style)&quot;</span>, <span class="ident">TrafficSignalStyle</span>::<span class="ident">Brian</span>),
                                 <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;Yuwen&#39;s style&quot;</span>, <span class="ident">TrafficSignalStyle</span>::<span class="ident">Yuwen</span>),
                                 <span class="ident">Choice</span>::<span class="ident">new</span>(
                                     <span class="string">&quot;arrows showing individual turns (to debug)&quot;</span>,

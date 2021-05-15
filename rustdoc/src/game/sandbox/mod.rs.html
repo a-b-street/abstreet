@@ -707,6 +707,7 @@
 <span id="704">704</span>
 <span id="705">705</span>
 <span id="706">706</span>
+<span id="707">707</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span>;
 <span class="kw">use</span> <span class="ident">maplit</span>::<span class="ident">btreeset</span>;
@@ -1125,6 +1126,7 @@
 <span class="comment">// Ideally there&#39;d be a much simpler way to express this using Rust&#39;s async, to let the compiler</span>
 <span class="comment">// express this state machine for us.</span>
 
+<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">large_enum_variant</span>)]</span>
 <span class="kw">enum</span> <span class="ident">LoadStage</span> {
     <span class="ident">LoadingMap</span>,
     <span class="ident">LoadingScenario</span>,

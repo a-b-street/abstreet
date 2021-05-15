@@ -410,7 +410,7 @@
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">Transition</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::{<span class="ident">App</span>, <span class="ident">FindDelayedIntersections</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">challenges</span>::<span class="ident">cutscene</span>::{<span class="ident">CutsceneBuilder</span>, <span class="ident">FYI</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">challenges</span>::<span class="ident">cutscene</span>::{<span class="ident">CutsceneBuilder</span>, <span class="ident">ShowMessage</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">challenges</span>::<span class="ident">HighScore</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">common</span>::<span class="ident">Warping</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">edit</span>::<span class="ident">EditMode</span>;
@@ -567,7 +567,7 @@
                 }
                 <span class="string">&quot;instructions&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">let</span> <span class="ident">contents</span> <span class="op">=</span> <span class="ident">cutscene_pt1_task</span>(<span class="ident">ctx</span>);
-                    <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">FYI</span>::<span class="ident">new_state</span>(
+                    <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">ShowMessage</span>::<span class="ident">new_state</span>(
                         <span class="ident">ctx</span>,
                         <span class="ident">contents</span>,
                         <span class="ident">Color</span>::<span class="ident">WHITE</span>,
@@ -587,7 +587,7 @@
                         <span class="ident">Line</span>(<span class="string">&quot;ams&quot;</span>),
                     ]);
                     <span class="kw">let</span> <span class="ident">contents</span> <span class="op">=</span> <span class="ident">txt</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>);
-                    <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">FYI</span>::<span class="ident">new_state</span>(
+                    <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">ShowMessage</span>::<span class="ident">new_state</span>(
                         <span class="ident">ctx</span>,
                         <span class="ident">contents</span>,
                         <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">panel_bg</span>,
@@ -619,7 +619,7 @@
                 }
                 <span class="string">&quot;explain score&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="comment">// TODO Adjust wording</span>
-                    <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">FYI</span>::<span class="ident">new_state</span>(
+                    <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">ShowMessage</span>::<span class="ident">new_state</span>(
                         <span class="ident">ctx</span>,
                         <span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
                             <span class="ident">Line</span>(<span class="string">&quot;You changed some traffic signals in the middle of the day.&quot;</span>),

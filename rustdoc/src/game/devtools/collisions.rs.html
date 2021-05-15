@@ -413,7 +413,7 @@
                 <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} collisions&quot;</span>, <span class="ident">prettyprint_usize</span>(<span class="ident">count</span>))
                     .<span class="ident">text_widget</span>(<span class="ident">ctx</span>)
                     .<span class="ident">named</span>(<span class="string">&quot;count&quot;</span>),
-                <span class="ident">Filters</span>::<span class="ident">to_controls</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;controls&quot;</span>),
+                <span class="ident">Filters</span>::<span class="ident">make_controls</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;controls&quot;</span>),
             ]))
             .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment</span>::<span class="ident">Right</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Top</span>)
             .<span class="ident">build</span>(<span class="ident">ctx</span>),
@@ -455,7 +455,7 @@
         <span class="ident">indices</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">to_controls</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+    <span class="kw">fn</span> <span class="ident">make_controls</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
         <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">Toggle</span>::<span class="ident">choice</span>(
                 <span class="ident">ctx</span>,

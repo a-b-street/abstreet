@@ -706,7 +706,7 @@
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>, <span class="ident">Debug</span>)]</span>
 <span class="kw">enum</span> <span class="ident">Show</span> {
-    <span class="ident">TODO</span>,
+    <span class="ident">ToDo</span>,
     <span class="ident">Done</span>,
     <span class="ident">DividedHighways</span>,
     <span class="ident">UnmappedDividedHighways</span>,
@@ -724,7 +724,7 @@
 
 <span class="kw">impl</span> <span class="ident">ParkingMapper</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="ident">ParkingMapper</span>::<span class="ident">make</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">Show</span>::<span class="ident">TODO</span>, <span class="ident">BTreeMap</span>::<span class="ident">new</span>())
+        <span class="ident">ParkingMapper</span>::<span class="ident">make</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">Show</span>::<span class="ident">ToDo</span>, <span class="ident">BTreeMap</span>::<span class="ident">new</span>())
     }
 
     <span class="kw">fn</span> <span class="ident">make</span>(
@@ -736,7 +736,7 @@
         <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">map</span>;
 
         <span class="kw">let</span> <span class="ident">color</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">show</span> {
-            <span class="ident">Show</span>::<span class="ident">TODO</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Color</span>::<span class="ident">RED</span>,
+            <span class="ident">Show</span>::<span class="ident">ToDo</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Color</span>::<span class="ident">RED</span>,
             <span class="ident">Show</span>::<span class="ident">Done</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Color</span>::<span class="ident">BLUE</span>,
             <span class="ident">Show</span>::<span class="ident">DividedHighways</span> <span class="op">|</span> <span class="ident">Show</span>::<span class="ident">UnmappedDividedHighways</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Color</span>::<span class="ident">RED</span>,
             <span class="ident">Show</span>::<span class="ident">OverlappingStuff</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Color</span>::<span class="ident">RED</span>,
@@ -753,7 +753,7 @@
                 <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">data</span>.<span class="ident">contains_key</span>(<span class="kw-2">&amp;</span><span class="ident">r</span>.<span class="ident">orig_id</span>.<span class="ident">osm_way_id</span>)
             {
                 <span class="ident">todo</span>.<span class="ident">insert</span>(<span class="ident">r</span>.<span class="ident">orig_id</span>.<span class="ident">osm_way_id</span>);
-                <span class="kw">if</span> <span class="ident">show</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Show</span>::<span class="ident">TODO</span> {
+                <span class="kw">if</span> <span class="ident">show</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Show</span>::<span class="ident">ToDo</span> {
                     <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">color</span>, <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>.<span class="ident">id</span>).<span class="ident">get_thick_polygon</span>(<span class="ident">map</span>));
                 }
             } <span class="kw">else</span> {
@@ -794,7 +794,7 @@
                 <span class="ident">r</span>.<span class="ident">osm_tags</span>.<span class="ident">contains_key</span>(<span class="ident">osm</span>::<span class="ident">INFERRED_PARKING</span>)
                     <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">data</span>.<span class="ident">contains_key</span>(<span class="kw-2">&amp;</span><span class="ident">r</span>.<span class="ident">orig_id</span>.<span class="ident">osm_way_id</span>)
             });
-            <span class="kw">if</span> <span class="macro">matches</span><span class="macro">!</span>((<span class="ident">show</span>, <span class="ident">is_todo</span>), (<span class="ident">Show</span>::<span class="ident">TODO</span>, <span class="bool-val">true</span>) <span class="op">|</span> (<span class="ident">Show</span>::<span class="ident">Done</span>, <span class="bool-val">false</span>)) {
+            <span class="kw">if</span> <span class="macro">matches</span><span class="macro">!</span>((<span class="ident">show</span>, <span class="ident">is_todo</span>), (<span class="ident">Show</span>::<span class="ident">ToDo</span>, <span class="bool-val">true</span>) <span class="op">|</span> (<span class="ident">Show</span>::<span class="ident">Done</span>, <span class="bool-val">false</span>)) {
                 <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">color</span>, <span class="ident">i</span>.<span class="ident">polygon</span>.<span class="ident">clone</span>());
             }
         }
@@ -824,7 +824,7 @@
                         <span class="string">&quot;Show&quot;</span>,
                         <span class="ident">show</span>,
                         <span class="macro">vec</span><span class="macro">!</span>[
-                            <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;missing tags&quot;</span>, <span class="ident">Show</span>::<span class="ident">TODO</span>),
+                            <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;missing tags&quot;</span>, <span class="ident">Show</span>::<span class="ident">ToDo</span>),
                             <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;already mapped&quot;</span>, <span class="ident">Show</span>::<span class="ident">Done</span>),
                             <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;divided highways&quot;</span>, <span class="ident">Show</span>::<span class="ident">DividedHighways</span>).<span class="ident">tooltip</span>(
                                 <span class="string">&quot;Roads divided in OSM often have the wrong number of lanes tagged&quot;</span>,
@@ -841,7 +841,7 @@
                         <span class="ident">ctx</span>,
                         <span class="ident">color</span>,
                         <span class="kw">match</span> <span class="ident">show</span> {
-                            <span class="ident">Show</span>::<span class="ident">TODO</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;TODO&quot;</span>,
+                            <span class="ident">Show</span>::<span class="ident">ToDo</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;TODO&quot;</span>,
                             <span class="ident">Show</span>::<span class="ident">Done</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;done&quot;</span>,
                             <span class="ident">Show</span>::<span class="ident">DividedHighways</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;divided highways&quot;</span>,
                             <span class="ident">Show</span>::<span class="ident">UnmappedDividedHighways</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;unmapped divided highways&quot;</span>,
@@ -1024,7 +1024,7 @@
                                 <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">ParkingMapper</span>::<span class="ident">make</span>(
                                     <span class="ident">ctx</span>,
                                     <span class="ident">app</span>,
-                                    <span class="ident">Show</span>::<span class="ident">TODO</span>,
+                                    <span class="ident">Show</span>::<span class="ident">ToDo</span>,
                                     <span class="ident">BTreeMap</span>::<span class="ident">new</span>(),
                                 )),
                             ])

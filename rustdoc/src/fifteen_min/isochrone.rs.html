@@ -206,10 +206,6 @@
 <span id="203">203</span>
 <span id="204">204</span>
 <span id="205">205</span>
-<span id="206">206</span>
-<span id="207">207</span>
-<span id="208">208</span>
-<span id="209">209</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
@@ -338,17 +334,13 @@
             <span class="ident">Options</span>::<span class="ident">Biking</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">PathConstraints</span>::<span class="ident">Bike</span>,
         };
 
-        <span class="kw">let</span> <span class="ident">all_paths</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">start</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">b_id</span><span class="op">|</span> {
-                <span class="ident">map</span>.<span class="ident">pathfind</span>(<span class="ident">PathRequest</span>::<span class="ident">between_buildings</span>(<span class="ident">map</span>, <span class="kw-2">*</span><span class="ident">b_id</span>, <span class="ident">to</span>, <span class="ident">constraints</span>).<span class="ident">unwrap</span>())
-                    .<span class="ident">ok</span>()
-                    .<span class="ident">unwrap</span>()
-            })
-            .<span class="ident">collect</span>();
+        <span class="kw">let</span> <span class="ident">all_paths</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">start</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">b_id</span><span class="op">|</span> {
+            <span class="ident">map</span>.<span class="ident">pathfind</span>(<span class="ident">PathRequest</span>::<span class="ident">between_buildings</span>(<span class="ident">map</span>, <span class="kw-2">*</span><span class="ident">b_id</span>, <span class="ident">to</span>, <span class="ident">constraints</span>).<span class="ident">unwrap</span>())
+                .<span class="ident">ok</span>()
+                .<span class="ident">unwrap</span>()
+        });
 
-        <span class="ident">all_paths</span>.<span class="ident">into_iter</span>().<span class="ident">min_by_key</span>(<span class="op">|</span><span class="ident">path</span><span class="op">|</span> <span class="ident">path</span>.<span class="ident">total_length</span>())
+        <span class="ident">all_paths</span>.<span class="ident">min_by_key</span>(<span class="op">|</span><span class="ident">path</span><span class="op">|</span> <span class="ident">path</span>.<span class="ident">total_length</span>())
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw_isochrone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">GeomBatch</span> {

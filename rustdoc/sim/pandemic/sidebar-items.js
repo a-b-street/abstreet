@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["State",""],["StateEvent",""]],"mod":[["pandemic",""]],"struct":[["AnyTime",""],["Event",""]]});
+initSidebarItems({"enum":[["State",""],["StateEvent",""]],"mod":[["model",""]],"struct":[["AnyTime",""],["Event",""]]});

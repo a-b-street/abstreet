@@ -583,6 +583,9 @@
 <span id="580">580</span>
 <span id="581">581</span>
 <span id="582">582</span>
+<span id="583">583</span>
+<span id="584">584</span>
+<span id="585">585</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! This is a tool to experiment with the concept of 15-minute neighborhoods. Can you access your</span>
 <span class="doccomment">//! daily needs (like groceries, a cafe, a library) within a 15-minute walk, bike ride, or public</span>
@@ -764,7 +767,10 @@
                     ));
                 }
                 <span class="string">&quot;Search by amenity&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">FindAmenity</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="self">self</span>.<span class="ident">isochrone</span>.<span class="ident">options</span>.<span class="ident">clone</span>()));
+                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">FindAmenity</span>::<span class="ident">new_state</span>(
+                        <span class="ident">ctx</span>,
+                        <span class="self">self</span>.<span class="ident">isochrone</span>.<span class="ident">options</span>.<span class="ident">clone</span>(),
+                    ));
                 }
                 <span class="ident">x</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">category</span>) <span class="op">=</span> <span class="ident">x</span>.<span class="ident">strip_prefix</span>(<span class="string">&quot;businesses: &quot;</span>) {

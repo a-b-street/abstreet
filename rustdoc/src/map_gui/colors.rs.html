@@ -687,8 +687,8 @@
     <span class="ident">Pregame</span>,
     <span class="ident">SAMGreenDay</span>,
     <span class="ident">SAMDesertDay</span>,
-    <span class="ident">BAP</span>,
-    <span class="ident">OSM</span>,
+    <span class="ident">Brian</span>,
+    <span class="ident">Osm</span>,
     <span class="ident">Starcat</span>,
     <span class="ident">Textured</span>,
     <span class="ident">MapboxLight</span>,
@@ -705,8 +705,8 @@
             <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;pregame&quot;</span>, <span class="ident">ColorSchemeChoice</span>::<span class="ident">Pregame</span>),
             <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;sam green day&quot;</span>, <span class="ident">ColorSchemeChoice</span>::<span class="ident">SAMGreenDay</span>),
             <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;sam desert day&quot;</span>, <span class="ident">ColorSchemeChoice</span>::<span class="ident">SAMDesertDay</span>),
-            <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;bap&quot;</span>, <span class="ident">ColorSchemeChoice</span>::<span class="ident">BAP</span>),
-            <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;osm&quot;</span>, <span class="ident">ColorSchemeChoice</span>::<span class="ident">OSM</span>),
+            <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;Brian&#39;s style&quot;</span>, <span class="ident">ColorSchemeChoice</span>::<span class="ident">Brian</span>),
+            <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;osm&quot;</span>, <span class="ident">ColorSchemeChoice</span>::<span class="ident">Osm</span>),
             <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;starcat&quot;</span>, <span class="ident">ColorSchemeChoice</span>::<span class="ident">Starcat</span>),
             <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;textured&quot;</span>, <span class="ident">ColorSchemeChoice</span>::<span class="ident">Textured</span>),
             <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;mapbox light&quot;</span>, <span class="ident">ColorSchemeChoice</span>::<span class="ident">MapboxLight</span>),
@@ -823,8 +823,8 @@
             <span class="ident">ColorSchemeChoice</span>::<span class="ident">Pregame</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ColorScheme</span>::<span class="ident">pregame</span>(),
             <span class="ident">ColorSchemeChoice</span>::<span class="ident">SAMGreenDay</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ColorScheme</span>::<span class="ident">sam_green_day</span>(),
             <span class="ident">ColorSchemeChoice</span>::<span class="ident">SAMDesertDay</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ColorScheme</span>::<span class="ident">sam_desert_day</span>(),
-            <span class="ident">ColorSchemeChoice</span>::<span class="ident">BAP</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ColorScheme</span>::<span class="ident">bap</span>(),
-            <span class="ident">ColorSchemeChoice</span>::<span class="ident">OSM</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ColorScheme</span>::<span class="ident">osm</span>(),
+            <span class="ident">ColorSchemeChoice</span>::<span class="ident">Brian</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ColorScheme</span>::<span class="ident">brian</span>(),
+            <span class="ident">ColorSchemeChoice</span>::<span class="ident">Osm</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ColorScheme</span>::<span class="ident">osm</span>(),
             <span class="ident">ColorSchemeChoice</span>::<span class="ident">Starcat</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ColorScheme</span>::<span class="ident">starcat</span>(),
             <span class="ident">ColorSchemeChoice</span>::<span class="ident">Textured</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ColorScheme</span>::<span class="ident">textured</span>(),
             <span class="ident">ColorSchemeChoice</span>::<span class="ident">MapboxLight</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ColorScheme</span>::<span class="ident">mapbox_light</span>(),
@@ -1171,7 +1171,7 @@
         <span class="ident">cs</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">bap</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ColorScheme</span> {
+    <span class="kw">fn</span> <span class="ident">brian</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ColorScheme</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cs</span> <span class="op">=</span> <span class="ident">ColorScheme</span>::<span class="ident">day_mode</span>();
         <span class="ident">cs</span>.<span class="ident">agent_colors</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
             <span class="comment">/*hex(&quot;#DD5444&quot;),

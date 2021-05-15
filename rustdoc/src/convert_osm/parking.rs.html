@@ -266,7 +266,7 @@
     }
     <span class="kw">match</span> <span class="ident">opts</span>.<span class="ident">public_offstreet_parking</span> {
         <span class="ident">PublicOffstreetParking</span>::<span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {}
-        <span class="ident">PublicOffstreetParking</span>::<span class="ident">GIS</span>(<span class="kw-2">ref</span> <span class="ident">path</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="ident">PublicOffstreetParking</span>::<span class="ident">Gis</span>(<span class="kw-2">ref</span> <span class="ident">path</span>) <span class="op">=</span><span class="op">&gt;</span> {
             <span class="ident">use_offstreet_parking</span>(<span class="ident">map</span>, <span class="ident">path</span>.<span class="ident">clone</span>(), <span class="ident">timer</span>);
         }
     }

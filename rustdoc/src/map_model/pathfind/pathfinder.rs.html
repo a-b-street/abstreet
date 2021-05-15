@@ -81,6 +81,7 @@
 <span id="78">78</span>
 <span id="79">79</span>
 <span id="80">80</span>
+<span id="81">81</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 
@@ -96,6 +97,7 @@
 <span class="doccomment">/// Most of the time, prefer using the faster contraction hierarchies. But sometimes, callers can</span>
 <span class="doccomment">/// explicitly opt into a slower (but preparation-free) pathfinder that just uses Dijkstra&#39;s</span>
 <span class="doccomment">/// maneuever.</span>
+<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">large_enum_variant</span>)]</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Pathfinder</span> {
     <span class="ident">Dijkstra</span>,

@@ -305,7 +305,7 @@
     <span class="kw">let</span> <span class="ident">signal</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">map</span>().<span class="ident">get_traffic_signal</span>(<span class="ident">i</span>);
 
     <span class="kw">match</span> <span class="ident">signal_style</span> {
-        <span class="ident">TrafficSignalStyle</span>::<span class="ident">BAP</span> <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="ident">TrafficSignalStyle</span>::<span class="ident">Brian</span> <span class="op">=</span><span class="op">&gt;</span> {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">dont_walk</span> <span class="op">=</span> <span class="ident">BTreeSet</span>::<span class="ident">new</span>();
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">crossed_roads</span> <span class="op">=</span> <span class="ident">BTreeSet</span>::<span class="ident">new</span>();
             <span class="kw">for</span> <span class="ident">m</span> <span class="kw">in</span> <span class="ident">signal</span>.<span class="ident">movements</span>.<span class="ident">keys</span>() {
