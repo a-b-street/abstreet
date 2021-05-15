@@ -24,6 +24,12 @@ pub struct TravelTimes {
 
 impl TravelTimes {
     pub fn new_state(ctx: &mut EventCtx, app: &App, filter: Filter) -> Box<dyn State<App>> {
+        Box::new(TravelTimes {
+            panel: TravelTimes::make_panel(ctx, app, filter),
+        })
+    }
+
+    fn make_panel(ctx: &mut EventCtx, app: &App, filter: Filter) -> Panel {
         let mut filters = vec!["Filters".text_widget(ctx)];
         for mode in TripMode::all() {
             filters.push(Toggle::colored_checkbox(
@@ -42,65 +48,63 @@ impl TravelTimes {
                 .align_bottom(),
         );
 
-        Box::new(TravelTimes {
-            panel: Panel::new_builder(Widget::col(vec![
-                DashTab::TravelTimes.picker(ctx, app),
-                Widget::row(vec![
-                    Widget::col(filters).section(ctx),
+        Panel::new_builder(Widget::col(vec![
+            DashTab::TravelTimes.picker(ctx, app),
+            Widget::row(vec![
+                Widget::col(filters).section(ctx),
+                Widget::col(vec![
+                    summary_boxes(ctx, app, &filter),
                     Widget::col(vec![
-                        summary_boxes(ctx, app, &filter),
-                        Widget::col(vec![
-                            Text::from(Line("Travel Times").small_heading()).into_widget(ctx),
-                            Widget::row(vec![
-                                "filter:".text_widget(ctx).centered_vert(),
-                                Widget::dropdown(
-                                    ctx,
-                                    "filter",
-                                    filter.changes_pct,
-                                    vec![
-                                        Choice::new("any change", None),
-                                        Choice::new("at least 1% change", Some(0.01)),
-                                        Choice::new("at least 10% change", Some(0.1)),
-                                        Choice::new("at least 50% change", Some(0.5)),
-                                    ],
-                                ),
-                            ])
-                            .margin_above(8),
-                            Widget::horiz_separator(ctx, 1.0),
-                            Widget::row(vec![
-                                contingency_table(ctx, app, &filter).bg(ctx.style().section_bg),
-                                scatter_plot(ctx, app, &filter)
-                                    .bg(ctx.style().section_bg)
-                                    .margin_left(32),
-                            ]),
-                        ])
-                        .section(ctx)
-                        .evenly_spaced(),
+                        Text::from(Line("Travel Times").small_heading()).into_widget(ctx),
                         Widget::row(vec![
-                            Widget::col(vec![
-                                Text::from(Line("Intersection Delays").small_heading())
-                                    .into_widget(ctx),
-                                Toggle::checkbox(
-                                    ctx,
-                                    "include trips without any changes",
-                                    None,
-                                    filter.include_no_changes(),
-                                ),
-                            ]),
-                            problem_matrix(
+                            "filter:".text_widget(ctx).centered_vert(),
+                            Widget::dropdown(
                                 ctx,
-                                app,
-                                &filter.trip_problems(app, ProblemType::IntersectionDelay),
-                            )
-                            .margin_left(32),
+                                "filter",
+                                filter.changes_pct,
+                                vec![
+                                    Choice::new("any change", None),
+                                    Choice::new("at least 1% change", Some(0.01)),
+                                    Choice::new("at least 10% change", Some(0.1)),
+                                    Choice::new("at least 50% change", Some(0.5)),
+                                ],
+                            ),
                         ])
-                        .section(ctx),
-                    ]),
+                        .margin_above(8),
+                        Widget::horiz_separator(ctx, 1.0),
+                        Widget::row(vec![
+                            contingency_table(ctx, app, &filter).bg(ctx.style().section_bg),
+                            scatter_plot(ctx, app, &filter)
+                                .bg(ctx.style().section_bg)
+                                .margin_left(32),
+                        ]),
+                    ])
+                    .section(ctx)
+                    .evenly_spaced(),
+                    Widget::row(vec![
+                        Widget::col(vec![
+                            Text::from(Line("Intersection Delays").small_heading())
+                                .into_widget(ctx),
+                            Toggle::checkbox(
+                                ctx,
+                                "include trips without any changes",
+                                None,
+                                filter.include_no_changes(),
+                            ),
+                        ]),
+                        problem_matrix(
+                            ctx,
+                            app,
+                            &filter.trip_problems(app, ProblemType::IntersectionDelay),
+                        )
+                        .margin_left(32),
+                    ])
+                    .section(ctx),
                 ]),
-            ]))
-            .exact_size_percent(90, 90)
-            .build(ctx),
-        })
+            ]),
+        ]))
+        .exact_size_percent(90, 90)
+        .build(ctx)
     }
 }
 
@@ -138,7 +142,10 @@ impl State<App> for TravelTimes {
                         filter.modes.insert(m);
                     }
                 }
-                Transition::Replace(TravelTimes::new_state(ctx, app, filter))
+                let mut new_panel = TravelTimes::make_panel(ctx, app, filter);
+                new_panel.restore(ctx, &self.panel);
+                self.panel = new_panel;
+                Transition::Keep
             }
             _ => Transition::Keep,
         }
