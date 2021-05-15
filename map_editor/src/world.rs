@@ -46,7 +46,7 @@ impl<ID: ObjectID> World<ID> {
             // synthetic maps, the bounds change, but updating the quadtree is nontrivial. But they
             // have to be non-negative.
             quadtree: QuadTree::default(
-                Bounds::from(&vec![
+                Bounds::from(&[
                     Pt2D::new(0.0, 0.0),
                     Pt2D::new(std::f64::MAX, std::f64::MAX),
                 ])

@@ -301,7 +301,7 @@ impl ColorScheme {
 
     pub fn rotating_color_plot(&self, idx: usize) -> Color {
         modulo_color(
-            &vec![
+            &[
                 Color::RED,
                 Color::BLUE,
                 Color::GREEN,
@@ -445,7 +445,7 @@ impl ColorScheme {
     }
 }
 
-fn modulo_color(colors: &Vec<Color>, idx: usize) -> Color {
+fn modulo_color(colors: &[Color], idx: usize) -> Color {
     colors[idx % colors.len()]
 }
 

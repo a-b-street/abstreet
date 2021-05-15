@@ -73,7 +73,7 @@ impl Polygon {
         Polygon::with_holes(outer, rings)
     }
 
-    pub fn from_geojson(raw: &Vec<Vec<Vec<f64>>>) -> Result<Polygon> {
+    pub fn from_geojson(raw: &[Vec<Vec<f64>>]) -> Result<Polygon> {
         let mut rings = Vec::new();
         for pts in raw {
             let transformed: Vec<Pt2D> =
@@ -196,7 +196,8 @@ impl Polygon {
         let mut pts: Vec<HashablePt2D> = self.points.iter().map(|pt| pt.to_hashable()).collect();
         pts.sort();
         pts.dedup();
-        Pt2D::center(&pts.iter().map(|pt| pt.to_pt2d()).collect())
+        let new: Vec<_> = pts.iter().map(|pt| pt.to_pt2d()).collect();
+        Pt2D::center(&new)
     }
 
     /// Top-left at the origin. Doesn't take Distance, because this is usually pixels, actually.
@@ -534,7 +535,7 @@ impl Triangle {
     }
 }
 
-fn to_geo(pts: &Vec<Pt2D>) -> geo::Polygon<f64> {
+fn to_geo(pts: &[Pt2D]) -> geo::Polygon<f64> {
     geo::Polygon::new(
         geo::LineString::from(
             pts.iter()

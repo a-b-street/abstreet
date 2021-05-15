@@ -9,8 +9,6 @@
 // > curl http://localhost:1234/data/get-road-thruput
 // ... huge JSON blob
 
-#![allow(clippy::ptr_arg)]
-
 #[macro_use]
 extern crate anyhow;
 #[macro_use]
@@ -118,7 +116,7 @@ async fn serve_req(req: Request<Body>) -> Result<Response<Body>, hyper::Error> {
 fn handle_command(
     path: &str,
     params: &HashMap<String, String>,
-    body: &Vec<u8>,
+    body: &[u8],
     sim: &mut Sim,
     map: &mut Map,
     load: &mut LoadSim,

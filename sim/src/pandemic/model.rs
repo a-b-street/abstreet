@@ -59,7 +59,7 @@ impl PandemicModel {
 
     // Sorry, initialization order of simulations is still a bit messy. This'll be called at
     // Time::START_OF_DAY after all of the people have been created from a Scenario.
-    pub(crate) fn initialize(&mut self, population: &Vec<Person>, _scheduler: &mut Scheduler) {
+    pub(crate) fn initialize(&mut self, population: &[Person], _scheduler: &mut Scheduler) {
         assert!(!self.initialized);
         self.initialized = true;
 

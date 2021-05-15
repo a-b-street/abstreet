@@ -97,7 +97,7 @@ impl<X: Axis<X>, Y: Axis<Y>> LinePlot<X, Y> {
             }
         }
 
-        let mut closest = FindClosest::new(&Bounds::from(&vec![
+        let mut closest = FindClosest::new(&Bounds::from(&[
             Pt2D::new(0.0, 0.0),
             Pt2D::new(width, height),
         ]));

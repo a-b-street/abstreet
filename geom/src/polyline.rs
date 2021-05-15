@@ -866,7 +866,7 @@ fn to_set(pts: &[Pt2D]) -> (HashSet<HashablePt2D>, HashSet<HashablePt2D>) {
     (deduped, dupes)
 }
 
-fn pts_to_line_string(raw_pts: &Vec<Pt2D>) -> geo::LineString<f64> {
+fn pts_to_line_string(raw_pts: &[Pt2D]) -> geo::LineString<f64> {
     let pts: Vec<geo::Point<f64>> = raw_pts
         .iter()
         .map(|pt| geo::Point::new(pt.x(), pt.y()))

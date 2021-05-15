@@ -470,7 +470,7 @@ impl DrivingSimState {
     fn update_car_with_distances(
         &mut self,
         car: &mut Car,
-        dists: &Vec<(CarID, Distance)>,
+        dists: &[(CarID, Distance)],
         idx: usize,
         now: Time,
         ctx: &mut Ctx,

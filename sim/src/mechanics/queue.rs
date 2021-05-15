@@ -312,7 +312,7 @@ impl Queue {
 }
 
 fn validate_positions(
-    dists: &Vec<(CarID, Distance)>,
+    dists: &[(CarID, Distance)],
     cars: &FixedMap<CarID, Car>,
     now: Time,
     id: Traversable,
@@ -329,7 +329,7 @@ fn validate_positions(
 }
 
 fn dump_cars(
-    dists: &Vec<(CarID, Distance)>,
+    dists: &[(CarID, Distance)],
     cars: &FixedMap<CarID, Car>,
     id: Traversable,
     now: Time,

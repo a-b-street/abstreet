@@ -231,7 +231,7 @@ fn add_stage(ts: &mut ControlTrafficSignal, stage: Stage) {
     }
 }
 
-fn turns(from: &RoadID, turns: &Vec<MovementID>) -> Vec<MovementID> {
+fn turns(from: &RoadID, turns: &[MovementID]) -> Vec<MovementID> {
     turns
         .iter()
         .filter_map(|turn| {
@@ -367,7 +367,7 @@ fn movements(
     (right, left, straight, set)
 }
 
-fn straight_types(movements: &Vec<MovementID>) -> (Vec<MovementID>, Vec<(MovementID, MovementID)>) {
+fn straight_types(movements: &[MovementID]) -> (Vec<MovementID>, Vec<(MovementID, MovementID)>) {
     let mut one_way: Vec<MovementID> = Vec::new();
     let mut two_way: Vec<(MovementID, MovementID)> = Vec::new();
     for m in movements {

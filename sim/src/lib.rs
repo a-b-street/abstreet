@@ -10,7 +10,6 @@
 //!   are not currently modelled)
 
 // Disable some noisy clippy warnings
-#![allow(clippy::ptr_arg)]
 #![allow(clippy::type_complexity, clippy::too_many_arguments)]
 
 #[macro_use]

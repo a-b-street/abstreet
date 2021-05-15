@@ -453,10 +453,10 @@ impl State<App> for AllRoutesExplorer {
     }
 }
 
-fn calculate_demand(app: &App, requests: &Vec<PathRequest>, timer: &mut Timer) -> Counter<RoadID> {
+fn calculate_demand(app: &App, requests: &[PathRequest], timer: &mut Timer) -> Counter<RoadID> {
     let map = &app.primary.map;
     let paths = timer
-        .parallelize("pathfind", Parallelism::Fastest, requests.clone(), |req| {
+        .parallelize("pathfind", Parallelism::Fastest, requests.to_vec(), |req| {
             map.pathfind(req)
         })
         .into_iter()

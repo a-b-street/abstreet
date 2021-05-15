@@ -550,7 +550,7 @@ fn make_timeline(
     ctx: &mut EventCtx,
     app: &App,
     trip_id: TripID,
-    phases: &Vec<TripPhase>,
+    phases: &[TripPhase],
     progress_along_path: Option<f64>,
 ) -> Widget {
     let map = &app.primary.map;

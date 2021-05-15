@@ -19,7 +19,7 @@ pub fn to_json_terse<T: Serialize>(obj: &T) -> String {
 }
 
 /// Deserializes an object from a JSON string.
-pub fn from_json<T: DeserializeOwned>(raw: &Vec<u8>) -> Result<T> {
+pub fn from_json<T: DeserializeOwned>(raw: &[u8]) -> Result<T> {
     serde_json::from_slice(raw).map_err(|err| err.into())
 }
 
@@ -29,7 +29,7 @@ pub fn from_json_reader<R: std::io::Read, T: DeserializeOwned>(reader: R) -> Res
 }
 
 /// Deserializes an object from the bincode format.
-pub fn from_binary<T: DeserializeOwned>(raw: &Vec<u8>) -> Result<T> {
+pub fn from_binary<T: DeserializeOwned>(raw: &[u8]) -> Result<T> {
     bincode::deserialize(raw).map_err(|err| err.into())
 }
 

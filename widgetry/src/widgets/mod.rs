@@ -61,7 +61,7 @@ pub trait WidgetImpl: downcast_rs::Downcast {
     }
     /// Restore state from the previous version of this widget, with the same ID. Implementors must
     /// downcast.
-    fn restore(&mut self, _: &mut EventCtx, _prev: &Box<dyn WidgetImpl>) {
+    fn restore(&mut self, _: &mut EventCtx, _prev: &dyn WidgetImpl) {
         unreachable!()
     }
 }
@@ -696,7 +696,7 @@ impl Widget {
             }
         } else if self.widget.can_restore() {
             if let Some(ref other) = prev.maybe_find(self.id.as_ref().unwrap()) {
-                self.widget.restore(ctx, &other.widget);
+                self.widget.restore(ctx, other.widget.as_ref());
             }
         }
     }

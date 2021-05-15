@@ -162,7 +162,7 @@ impl<T: 'static + Clone> WidgetImpl for Dropdown<T> {
     fn can_restore(&self) -> bool {
         true
     }
-    fn restore(&mut self, ctx: &mut EventCtx, prev: &Box<dyn WidgetImpl>) {
+    fn restore(&mut self, ctx: &mut EventCtx, prev: &dyn WidgetImpl) {
         let prev = prev.downcast_ref::<Dropdown<T>>().unwrap();
         if prev.menu.is_some() {
             self.open_menu(ctx);

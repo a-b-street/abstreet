@@ -2,7 +2,6 @@
 
 // Disable some noisy clippy warnings
 #![allow(clippy::too_many_arguments, clippy::type_complexity)]
-#![allow(clippy::ptr_arg)]
 #![allow(clippy::new_without_default)]
 
 #[macro_use]

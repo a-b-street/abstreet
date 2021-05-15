@@ -117,7 +117,7 @@ impl Ring {
     }
 
     /// Extract all PolyLines and Rings. Doesn't handle crazy double loops and stuff.
-    pub fn split_points(pts: &Vec<Pt2D>) -> Result<(Vec<PolyLine>, Vec<Ring>)> {
+    pub fn split_points(pts: &[Pt2D]) -> Result<(Vec<PolyLine>, Vec<Ring>)> {
         let mut seen = HashSet::new();
         let mut intersections = HashSet::new();
         for pt in pts {

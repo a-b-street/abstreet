@@ -140,8 +140,8 @@ impl State<App> for CutscenePlayer {
 fn make_panel(
     ctx: &mut EventCtx,
     name: &str,
-    scenes: &Vec<Scene>,
-    make_task: &Box<dyn Fn(&mut EventCtx) -> Widget>,
+    scenes: &[Scene],
+    make_task: &dyn Fn(&mut EventCtx) -> Widget,
     idx: usize,
 ) -> Panel {
     let prev_builder = ButtonStyle::plain_dark_fg()

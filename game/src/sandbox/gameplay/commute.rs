@@ -218,7 +218,7 @@ impl GameplayState for OptimizeCommute {
 }
 
 // Returns (before, after, number of trips done)
-fn get_score(app: &App, trips: &Vec<TripID>) -> (Duration, Duration, usize) {
+fn get_score(app: &App, trips: &[TripID]) -> (Duration, Duration, usize) {
     let mut done = 0;
     let mut before = Duration::ZERO;
     let mut after = Duration::ZERO;

@@ -96,7 +96,7 @@ pub fn intersection_polygon(
 fn generalized_trim_back(
     roads: &mut BTreeMap<OriginalRoad, Road>,
     i: osm::NodeID,
-    lines: &Vec<(OriginalRoad, Pt2D, PolyLine, PolyLine)>,
+    lines: &[(OriginalRoad, Pt2D, PolyLine, PolyLine)],
 ) -> Result<(Polygon, Vec<(String, Polygon)>)> {
     let mut debug = Vec::new();
 
@@ -306,7 +306,7 @@ fn generalized_trim_back(
 fn deadend(
     roads: &mut BTreeMap<OriginalRoad, Road>,
     i: osm::NodeID,
-    lines: &Vec<(OriginalRoad, Pt2D, PolyLine, PolyLine)>,
+    lines: &[(OriginalRoad, Pt2D, PolyLine, PolyLine)],
 ) -> Result<(Polygon, Vec<(String, Polygon)>)> {
     let len = DEGENERATE_INTERSECTION_HALF_LENGTH * 4.0;
 

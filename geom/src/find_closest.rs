@@ -29,7 +29,7 @@ where
     }
 
     /// Add an object to the quadtree, remembering some key associated with the points.
-    pub fn add(&mut self, key: K, pts: &Vec<Pt2D>) {
+    pub fn add(&mut self, key: K, pts: &[Pt2D]) {
         self.geometries.insert(key.clone(), pts_to_line_string(pts));
         self.quadtree
             .insert_with_box(key, Bounds::from(pts).as_bbox());
@@ -86,7 +86,7 @@ where
     }
 }
 
-fn pts_to_line_string(raw_pts: &Vec<Pt2D>) -> geo::LineString<f64> {
+fn pts_to_line_string(raw_pts: &[Pt2D]) -> geo::LineString<f64> {
     let pts: Vec<geo::Point<f64>> = raw_pts
         .iter()
         .map(|pt| geo::Point::new(pt.x(), pt.y()))

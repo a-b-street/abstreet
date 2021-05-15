@@ -332,7 +332,7 @@ fn make_object(
     }
 }
 
-fn make_query(app: &App, objects: &Vec<Object>, query: &str) -> (GeomBatch, usize) {
+fn make_query(app: &App, objects: &[Object], query: &str) -> (GeomBatch, usize) {
     let mut batch = GeomBatch::new();
     let mut cnt = 0;
     let color = Color::BLUE.alpha(0.8);

@@ -96,7 +96,7 @@ impl Pt2D {
         Pt2D::new(self.x() + dx, self.y() + dy)
     }
 
-    pub fn center(pts: &Vec<Pt2D>) -> Pt2D {
+    pub fn center(pts: &[Pt2D]) -> Pt2D {
         if pts.is_empty() {
             panic!("Can't find center of 0 points");
         }
@@ -125,7 +125,7 @@ impl Pt2D {
 
     // TODO Try to deprecate in favor of Ring::get_shorter_slice_btwn
     pub fn find_pts_between(
-        pts: &Vec<Pt2D>,
+        pts: &[Pt2D],
         start: Pt2D,
         end: Pt2D,
         threshold: Distance,

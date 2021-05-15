@@ -835,7 +835,7 @@ fn draw_multiple_signals(
     app: &App,
     members: &BTreeSet<IntersectionID>,
     idx: usize,
-    translations: &Vec<(f64, f64)>,
+    translations: &[(f64, f64)],
 ) -> Widget {
     let mut batch = GeomBatch::new();
     for (i, (dx, dy)) in members.iter().zip(translations) {
@@ -903,7 +903,8 @@ fn squish_polygons_together(mut polygons: Vec<Polygon>) -> Vec<(f64, f64)> {
     let mut attempts = 0;
     while !indices.is_empty() {
         let idx = indices.pop_front().unwrap();
-        let center = Pt2D::center(&polygons.iter().map(|p| p.center()).collect());
+        let v: Vec<_> = polygons.iter().map(|p| p.center()).collect();
+        let center = Pt2D::center(&v);
         let angle = Line::must_new(polygons[idx].center(), center).angle();
         let pt = Pt2D::new(0.0, 0.0).project_away(Distance::meters(step_size), angle);
 

@@ -182,7 +182,7 @@ impl PathV2 {
 }
 
 fn find_uber_turns(
-    steps: &Vec<PathStep>,
+    steps: &[PathStep],
     map: &Map,
     mut uber_turns_v2: Vec<UberTurnV2>,
 ) -> Vec<UberTurn> {

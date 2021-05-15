@@ -92,7 +92,7 @@ fn other_border(
     huge_map: &Map,
     huge_osm_id_to_bldg: &HashMap<osm::OsmID, BuildingID>,
     map: &Map,
-    usable_borders: &Vec<(IntersectionID, LonLat)>,
+    usable_borders: &[(IntersectionID, LonLat)],
 ) -> Option<IntersectionID> {
     let b1 = *from
         .osm_building

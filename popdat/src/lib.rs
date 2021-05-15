@@ -16,7 +16,6 @@
 //! 3) For each CensusPerson, classify them into a PersonType, then generate a Schedule of
 //!    different Activities throughout the day.
 //! 4) Pick specific buildings to visit to satisfy the Schedule.
-#![allow(clippy::ptr_arg)]
 
 #[macro_use]
 extern crate anyhow;

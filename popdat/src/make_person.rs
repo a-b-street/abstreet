@@ -176,7 +176,7 @@ impl PersonFactory {
         &self,
         person: CensusPerson,
         map: &Map,
-        commuter_borders: &Vec<IntersectionID>,
+        commuter_borders: &[IntersectionID],
         rng: &mut XorShiftRng,
         config: &Config,
     ) -> PersonSpec {

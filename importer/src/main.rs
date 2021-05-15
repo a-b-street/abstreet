@@ -2,7 +2,7 @@
 //! `./data/` and `./importer/config` must exist.
 
 // Disable some noisy clippy lints
-#![allow(clippy::type_complexity, clippy::ptr_arg)]
+#![allow(clippy::type_complexity)]
 
 #[macro_use]
 extern crate anyhow;
