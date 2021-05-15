@@ -415,6 +415,7 @@ impl ContextualActions for Actions {
 // Ideally there'd be a much simpler way to express this using Rust's async, to let the compiler
 // express this state machine for us.
 
+#[allow(clippy::large_enum_variant)]
 enum LoadStage {
     LoadingMap,
     LoadingScenario,

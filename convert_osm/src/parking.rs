@@ -39,7 +39,7 @@ pub fn apply_parking(map: &mut RawMap, opts: &Options, timer: &mut Timer) {
     }
     match opts.public_offstreet_parking {
         PublicOffstreetParking::None => {}
-        PublicOffstreetParking::GIS(ref path) => {
+        PublicOffstreetParking::Gis(ref path) => {
             use_offstreet_parking(map, path.clone(), timer);
         }
     }

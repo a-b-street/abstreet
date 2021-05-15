@@ -258,13 +258,13 @@ fn make_panel(
         .build_custom(ctx)
 }
 
-pub struct FYI {
+pub struct ShowMessage {
     panel: Panel,
 }
 
-impl FYI {
+impl ShowMessage {
     pub fn new_state(ctx: &mut EventCtx, contents: Widget, bg: Color) -> Box<dyn State<App>> {
-        Box::new(FYI {
+        Box::new(ShowMessage {
             panel: Panel::new_builder(
                 Widget::custom_col(vec![
                     contents,
@@ -285,7 +285,7 @@ impl FYI {
     }
 }
 
-impl State<App> for FYI {
+impl State<App> for ShowMessage {
     fn event(&mut self, ctx: &mut EventCtx, _: &mut App) -> Transition {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {

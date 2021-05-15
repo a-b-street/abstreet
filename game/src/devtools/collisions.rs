@@ -44,7 +44,7 @@ impl CollisionsViewer {
                 format!("{} collisions", prettyprint_usize(count))
                     .text_widget(ctx)
                     .named("count"),
-                Filters::to_controls(ctx).named("controls"),
+                Filters::make_controls(ctx).named("controls"),
             ]))
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
             .build(ctx),
@@ -86,7 +86,7 @@ impl Filters {
         indices
     }
 
-    fn to_controls(ctx: &mut EventCtx) -> Widget {
+    fn make_controls(ctx: &mut EventCtx) -> Widget {
         Widget::col(vec![
             Toggle::choice(
                 ctx,

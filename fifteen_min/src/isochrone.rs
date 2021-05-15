@@ -125,17 +125,13 @@ impl Isochrone {
             Options::Biking => PathConstraints::Bike,
         };
 
-        let all_paths: Vec<Path> = self
-            .start
-            .iter()
-            .map(|b_id| {
-                map.pathfind(PathRequest::between_buildings(map, *b_id, to, constraints).unwrap())
-                    .ok()
-                    .unwrap()
-            })
-            .collect();
+        let all_paths = self.start.iter().map(|b_id| {
+            map.pathfind(PathRequest::between_buildings(map, *b_id, to, constraints).unwrap())
+                .ok()
+                .unwrap()
+        });
 
-        all_paths.into_iter().min_by_key(|path| path.total_length())
+        all_paths.min_by_key(|path| path.total_length())
     }
 
     pub fn draw_isochrone(&self, app: &App) -> GeomBatch {

@@ -8,7 +8,7 @@ use widgetry::{
 
 use crate::app::Transition;
 use crate::app::{App, FindDelayedIntersections};
-use crate::challenges::cutscene::{CutsceneBuilder, FYI};
+use crate::challenges::cutscene::{CutsceneBuilder, ShowMessage};
 use crate::challenges::HighScore;
 use crate::common::Warping;
 use crate::edit::EditMode;
@@ -165,7 +165,7 @@ impl GameplayState for FixTrafficSignals {
                 }
                 "instructions" => {
                     let contents = cutscene_pt1_task(ctx);
-                    return Some(Transition::Push(FYI::new_state(
+                    return Some(Transition::Push(ShowMessage::new_state(
                         ctx,
                         contents,
                         Color::WHITE,
@@ -185,7 +185,7 @@ impl GameplayState for FixTrafficSignals {
                         Line("ams"),
                     ]);
                     let contents = txt.into_widget(ctx);
-                    return Some(Transition::Push(FYI::new_state(
+                    return Some(Transition::Push(ShowMessage::new_state(
                         ctx,
                         contents,
                         app.cs.panel_bg,
@@ -217,7 +217,7 @@ impl GameplayState for FixTrafficSignals {
                 }
                 "explain score" => {
                     // TODO Adjust wording
-                    return Some(Transition::Push(FYI::new_state(
+                    return Some(Transition::Push(ShowMessage::new_state(
                         ctx,
                         Text::from_multiline(vec![
                             Line("You changed some traffic signals in the middle of the day."),

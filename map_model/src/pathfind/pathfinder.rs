@@ -12,6 +12,7 @@ use crate::{BusRouteID, BusStopID, Map, PathRequest, PathV2, Position, RoadID, R
 /// Most of the time, prefer using the faster contraction hierarchies. But sometimes, callers can
 /// explicitly opt into a slower (but preparation-free) pathfinder that just uses Dijkstra's
 /// maneuever.
+#[allow(clippy::large_enum_variant)]
 #[derive(Serialize, Deserialize)]
 pub enum Pathfinder {
     Dijkstra,

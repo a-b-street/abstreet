@@ -194,7 +194,7 @@ impl State<App> for PickLayer {
                         app,
                         pandemic::Options {
                             heatmap: Some(HeatmapOptions::new()),
-                            state: pandemic::SEIR::Infected,
+                            state: pandemic::Seir::Infected,
                         },
                     )));
                 }

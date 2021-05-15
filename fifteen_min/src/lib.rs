@@ -1,3 +1,5 @@
+#![allow(clippy::type_complexity)]
+
 use widgetry::Settings;
 
 #[macro_use]

@@ -9,7 +9,7 @@ use widgetry::{
 
 use crate::app::App;
 use crate::app::Transition;
-use crate::challenges::cutscene::{CutsceneBuilder, FYI};
+use crate::challenges::cutscene::{CutsceneBuilder, ShowMessage};
 use crate::challenges::{Challenge, HighScore};
 use crate::common::cmp_duration_shorter;
 use crate::edit::EditMode;
@@ -145,7 +145,7 @@ impl GameplayState for OptimizeCommute {
                 }
                 "instructions" => {
                     let contents = (cutscene_task(&self.mode))(ctx);
-                    return Some(Transition::Push(FYI::new_state(
+                    return Some(Transition::Push(ShowMessage::new_state(
                         ctx,
                         contents,
                         Color::WHITE,
@@ -159,7 +159,7 @@ impl GameplayState for OptimizeCommute {
                     txt.add_line("You can wait for one of their trips to begin or end.");
                     txt.add_line("Focus on trips spent mostly waiting");
                     let contents = txt.into_widget(ctx);
-                    return Some(Transition::Push(FYI::new_state(
+                    return Some(Transition::Push(ShowMessage::new_state(
                         ctx,
                         contents,
                         app.cs.panel_bg,

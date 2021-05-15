@@ -30,8 +30,8 @@ pub enum ColorSchemeChoice {
     Pregame,
     SAMGreenDay,
     SAMDesertDay,
-    BAP,
-    OSM,
+    Brian,
+    Osm,
     Starcat,
     Textured,
     MapboxLight,
@@ -48,8 +48,8 @@ impl ColorSchemeChoice {
             Choice::new("pregame", ColorSchemeChoice::Pregame),
             Choice::new("sam green day", ColorSchemeChoice::SAMGreenDay),
             Choice::new("sam desert day", ColorSchemeChoice::SAMDesertDay),
-            Choice::new("bap", ColorSchemeChoice::BAP),
-            Choice::new("osm", ColorSchemeChoice::OSM),
+            Choice::new("Brian's style", ColorSchemeChoice::Brian),
+            Choice::new("osm", ColorSchemeChoice::Osm),
             Choice::new("starcat", ColorSchemeChoice::Starcat),
             Choice::new("textured", ColorSchemeChoice::Textured),
             Choice::new("mapbox light", ColorSchemeChoice::MapboxLight),
@@ -166,8 +166,8 @@ impl ColorScheme {
             ColorSchemeChoice::Pregame => ColorScheme::pregame(),
             ColorSchemeChoice::SAMGreenDay => ColorScheme::sam_green_day(),
             ColorSchemeChoice::SAMDesertDay => ColorScheme::sam_desert_day(),
-            ColorSchemeChoice::BAP => ColorScheme::bap(),
-            ColorSchemeChoice::OSM => ColorScheme::osm(),
+            ColorSchemeChoice::Brian => ColorScheme::brian(),
+            ColorSchemeChoice::Osm => ColorScheme::osm(),
             ColorSchemeChoice::Starcat => ColorScheme::starcat(),
             ColorSchemeChoice::Textured => ColorScheme::textured(),
             ColorSchemeChoice::MapboxLight => ColorScheme::mapbox_light(),
@@ -514,7 +514,7 @@ impl ColorScheme {
         cs
     }
 
-    fn bap() -> ColorScheme {
+    fn brian() -> ColorScheme {
         let mut cs = ColorScheme::day_mode();
         cs.agent_colors = vec![
             /*hex("#DD5444"),

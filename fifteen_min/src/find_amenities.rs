@@ -14,7 +14,7 @@ use crate::App;
 pub struct FindAmenity;
 
 impl FindAmenity {
-    pub fn new(ctx: &mut EventCtx, options: Options) -> Box<dyn State<App>> {
+    pub fn new_state(ctx: &mut EventCtx, options: Options) -> Box<dyn State<App>> {
         ChooseSomething::new_state(
             ctx,
             "Choose an amenity",
@@ -24,7 +24,7 @@ impl FindAmenity {
                 .collect(),
             Box::new(move |at, ctx, app| {
                 let multi_isochrone = create_multi_isochrone(ctx, app, at, options.clone());
-                return Transition::Replace(Results::new(ctx, app, multi_isochrone, at));
+                return Transition::Replace(Results::new_state(ctx, app, multi_isochrone, at));
             }),
         )
     }
@@ -55,7 +55,7 @@ struct Results {
 }
 
 impl Results {
-    fn new(
+    fn new_state(
         ctx: &mut EventCtx,
         app: &App,
         isochrone: Isochrone,
@@ -90,7 +90,7 @@ impl Results {
             panel,
             Box::new(Results {
                 draw: ctx.upload(batch),
-                isochrone: isochrone,
+                isochrone,
                 hovering_on_bldg: Cached::new(),
             }),
         )
