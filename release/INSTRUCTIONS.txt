@@ -46,3 +46,4 @@ Other binary data bundled in:
   [various sources](https://github.com/a-b-street/abstreet/tree/master/data/system/assets/music/sources.md)
   with Creative Commons licenses
 - Country flags (<https://github.com/hampusborgos/country-flags>, public domain)
+- Fire SVG (<https://commons.wikimedia.org/wiki/File:Hikaru_fire.svg>, CC3)

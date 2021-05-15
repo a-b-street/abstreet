@@ -410,8 +410,19 @@ impl GameplayState for Tutorial {
 
         // Special things
         if tut.interaction() == Task::Camera {
+            let fire = GeomBatch::load_svg(g, "system/assets/tools/fire.svg")
+                .scale(if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
+                    0.2
+                } else {
+                    0.1
+                })
+                .autocrop()
+                .centered_on(app.primary.map.get_b(tut.fire_station).polygon.polylabel());
+            let offset = -fire.get_dims().height / 2.0;
+            fire.translate(0.0, offset).draw(g);
+
             g.draw_polygon(
-                Color::hex("#e25822"),
+                Color::hex("#FEDE17"),
                 app.primary.map.get_b(tut.fire_station).polygon.clone(),
             );
         } else if tut.interaction() == Task::Escort {
