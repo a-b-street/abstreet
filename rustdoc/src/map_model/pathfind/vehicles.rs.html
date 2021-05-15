@@ -445,7 +445,7 @@
 <span class="kw">fn</span> <span class="ident">make_input_graph</span>(
     <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
     <span class="ident">nodes</span>: <span class="kw-2">&amp;</span><span class="ident">NodeMap</span><span class="op">&lt;</span><span class="ident">Node</span><span class="op">&gt;</span>,
-    <span class="ident">uber_turns</span>: <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">UberTurnV2</span><span class="op">&gt;</span>,
+    <span class="ident">uber_turns</span>: <span class="kw-2">&amp;</span>[<span class="ident">UberTurnV2</span>],
     <span class="ident">constraints</span>: <span class="ident">PathConstraints</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">InputGraph</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">input_graph</span> <span class="op">=</span> <span class="ident">InputGraph</span>::<span class="ident">new</span>();

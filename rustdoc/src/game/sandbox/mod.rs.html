@@ -1316,7 +1316,7 @@
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">gameplay</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">mode</span>.<span class="ident">initialize</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
                     <span class="ident">gameplay</span>.<span class="ident">recreate_panels</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
                     <span class="kw">let</span> <span class="ident">sandbox</span> <span class="op">=</span> <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">SandboxMode</span> {
-                        <span class="ident">controls</span>: <span class="ident">SandboxControls</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="ident">gameplay</span>),
+                        <span class="ident">controls</span>: <span class="ident">SandboxControls</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">gameplay</span>.<span class="ident">as_ref</span>()),
                         <span class="ident">gameplay</span>,
                         <span class="ident">gameplay_mode</span>: <span class="self">self</span>.<span class="ident">mode</span>.<span class="ident">clone</span>(),
                         <span class="ident">recalc_unzoomed_agent</span>: <span class="prelude-val">None</span>,
@@ -1373,7 +1373,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(
         <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
         <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
-        <span class="ident">gameplay</span>: <span class="kw-2">&amp;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">gameplay</span>::<span class="ident">GameplayState</span><span class="op">&gt;</span>,
+        <span class="ident">gameplay</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">gameplay</span>::<span class="ident">GameplayState</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">SandboxControls</span> {
         <span class="ident">SandboxControls</span> {
             <span class="ident">common</span>: <span class="kw">if</span> <span class="ident">gameplay</span>.<span class="ident">has_common</span>() {

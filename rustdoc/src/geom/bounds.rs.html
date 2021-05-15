@@ -243,7 +243,7 @@
     }
 
     <span class="doccomment">/// Create a boundary covering some points.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">pts</span>: <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Bounds</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">pts</span>: <span class="kw-2">&amp;</span>[<span class="ident">Pt2D</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Bounds</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">Bounds</span>::<span class="ident">new</span>();
         <span class="kw">for</span> <span class="ident">pt</span> <span class="kw">in</span> <span class="ident">pts</span> {
             <span class="ident">b</span>.<span class="ident">update</span>(<span class="kw-2">*</span><span class="ident">pt</span>);
@@ -390,7 +390,7 @@
     }
 
     <span class="doccomment">/// Convert all points to map-space, failing if any points are outside this boundary.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_convert</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pts</span>: <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LonLat</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_convert</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pts</span>: <span class="kw-2">&amp;</span>[<span class="ident">LonLat</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
         <span class="kw">for</span> <span class="ident">gps</span> <span class="kw">in</span> <span class="ident">pts</span> {
             <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">contains</span>(<span class="kw-2">*</span><span class="ident">gps</span>) {
@@ -402,13 +402,13 @@
     }
 
     <span class="doccomment">/// Convert all points to map-space. The points may be outside this boundary.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">convert</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pts</span>: <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LonLat</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">convert</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pts</span>: <span class="kw-2">&amp;</span>[<span class="ident">LonLat</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span> {
         <span class="ident">pts</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">gps</span><span class="op">|</span> <span class="ident">gps</span>.<span class="ident">to_pt</span>(<span class="self">self</span>)).<span class="ident">collect</span>()
     }
 
     <span class="doccomment">/// Convert map-space points back to `LonLat`s. This is only valid if the `GPSBounds` used</span>
     <span class="doccomment">/// is the same as the one used to originally produce the `Pt2D`s.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">convert_back</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pts</span>: <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LonLat</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">convert_back</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pts</span>: <span class="kw-2">&amp;</span>[<span class="ident">Pt2D</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LonLat</span><span class="op">&gt;</span> {
         <span class="ident">pts</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">pt</span><span class="op">|</span> <span class="ident">pt</span>.<span class="ident">to_gps</span>(<span class="self">self</span>)).<span class="ident">collect</span>()
     }
 }

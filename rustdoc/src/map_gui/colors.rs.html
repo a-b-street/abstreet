@@ -958,7 +958,7 @@
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rotating_color_plot</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">idx</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Color</span> {
         <span class="ident">modulo_color</span>(
-            <span class="kw-2">&amp;</span><span class="macro">vec</span><span class="macro">!</span>[
+            <span class="kw-2">&amp;</span>[
                 <span class="ident">Color</span>::<span class="ident">RED</span>,
                 <span class="ident">Color</span>::<span class="ident">BLUE</span>,
                 <span class="ident">Color</span>::<span class="ident">GREEN</span>,
@@ -1102,7 +1102,7 @@
     }
 }
 
-<span class="kw">fn</span> <span class="ident">modulo_color</span>(<span class="ident">colors</span>: <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Color</span><span class="op">&gt;</span>, <span class="ident">idx</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Color</span> {
+<span class="kw">fn</span> <span class="ident">modulo_color</span>(<span class="ident">colors</span>: <span class="kw-2">&amp;</span>[<span class="ident">Color</span>], <span class="ident">idx</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Color</span> {
     <span class="ident">colors</span>[<span class="ident">idx</span> <span class="op">%</span> <span class="ident">colors</span>.<span class="ident">len</span>()]
 }
 

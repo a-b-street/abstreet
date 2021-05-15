@@ -712,7 +712,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">ProblemType</span> {
-    <span class="kw">fn</span> <span class="ident">count</span>(<span class="self">self</span>, <span class="ident">problems</span>: <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Time</span>, <span class="ident">Problem</span>)<span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+    <span class="kw">fn</span> <span class="ident">count</span>(<span class="self">self</span>, <span class="ident">problems</span>: <span class="kw-2">&amp;</span>[(<span class="ident">Time</span>, <span class="ident">Problem</span>)]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cnt</span> <span class="op">=</span> <span class="number">0</span>;
         <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">problem</span>) <span class="kw">in</span> <span class="ident">problems</span> {
             <span class="kw">if</span> <span class="kw">match</span> <span class="ident">problem</span> {
@@ -916,7 +916,7 @@
     <span class="ident">tooltip_for_bucket</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>((<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">X</span><span class="op">&gt;</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">X</span><span class="op">&gt;</span>), (<span class="ident">Y</span>, <span class="ident">Y</span>), <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Text</span><span class="op">&gt;</span>,
 }
 
-<span class="kw">fn</span> <span class="ident">bucketize_isizes</span>(<span class="ident">max_buckets</span>: <span class="ident">usize</span>, <span class="ident">pts</span>: <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Duration</span>, <span class="ident">isize</span>)<span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">isize</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">bucketize_isizes</span>(<span class="ident">max_buckets</span>: <span class="ident">usize</span>, <span class="ident">pts</span>: <span class="kw-2">&amp;</span>[(<span class="ident">Duration</span>, <span class="ident">isize</span>)]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">isize</span><span class="op">&gt;</span> {
     <span class="macro">debug_assert</span><span class="macro">!</span>(
         <span class="ident">max_buckets</span> <span class="op">%</span> <span class="number">2</span> <span class="op">=</span><span class="op">=</span> <span class="number">1</span>,
         <span class="string">&quot;num_buckets must be odd to have a symmetrical number of buckets around axis&quot;</span>
@@ -960,7 +960,7 @@
     <span class="kw">fn</span> <span class="ident">test_bucketize_isizes</span>() {
         <span class="kw">let</span> <span class="ident">buckets</span> <span class="op">=</span> <span class="ident">bucketize_isizes</span>(
             <span class="number">7</span>,
-            <span class="kw-2">&amp;</span><span class="macro">vec</span><span class="macro">!</span>[
+            <span class="kw-2">&amp;</span>[
                 (<span class="ident">Duration</span>::<span class="ident">minutes</span>(<span class="number">3</span>), <span class="op">-</span><span class="number">3</span>),
                 (<span class="ident">Duration</span>::<span class="ident">minutes</span>(<span class="number">3</span>), <span class="op">-</span><span class="number">3</span>),
                 (<span class="ident">Duration</span>::<span class="ident">minutes</span>(<span class="number">3</span>), <span class="op">-</span><span class="number">1</span>),
@@ -979,7 +979,7 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_bucketize_empty_isizes</span>() {
-        <span class="kw">let</span> <span class="ident">buckets</span> <span class="op">=</span> <span class="ident">bucketize_isizes</span>(<span class="number">7</span>, <span class="kw-2">&amp;</span><span class="macro">vec</span><span class="macro">!</span>[]);
+        <span class="kw">let</span> <span class="ident">buckets</span> <span class="op">=</span> <span class="ident">bucketize_isizes</span>(<span class="number">7</span>, <span class="kw-2">&amp;</span>[]);
         <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">buckets</span>, <span class="macro">vec</span><span class="macro">!</span>[<span class="op">-</span><span class="number">2</span>, <span class="op">-</span><span class="number">1</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>])
     }
 
@@ -987,7 +987,7 @@
     <span class="kw">fn</span> <span class="ident">test_bucketize_small_isizes</span>() {
         <span class="kw">let</span> <span class="ident">buckets</span> <span class="op">=</span> <span class="ident">bucketize_isizes</span>(
             <span class="number">7</span>,
-            <span class="kw-2">&amp;</span><span class="macro">vec</span><span class="macro">!</span>[
+            <span class="kw-2">&amp;</span>[
                 (<span class="ident">Duration</span>::<span class="ident">minutes</span>(<span class="number">3</span>), <span class="op">-</span><span class="number">1</span>),
                 (<span class="ident">Duration</span>::<span class="ident">minutes</span>(<span class="number">3</span>), <span class="op">-</span><span class="number">1</span>),
                 (<span class="ident">Duration</span>::<span class="ident">minutes</span>(<span class="number">3</span>), <span class="number">0</span>),

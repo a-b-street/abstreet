@@ -1700,7 +1700,7 @@
                 <span class="kw">let</span> <span class="ident">center</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">pts</span>[<span class="number">0</span>] <span class="op">=</span><span class="op">=</span> <span class="kw-2">*</span><span class="ident">pts</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>() {
                     <span class="comment">// TODO The center looks really wrong for Volunteer Park and others, but I</span>
                     <span class="comment">// think it&#39;s because they have many points along some edges.</span>
-                    <span class="ident">Pt2D</span>::<span class="ident">center</span>(<span class="kw-2">&amp;</span><span class="ident">pts</span>.<span class="ident">iter</span>().<span class="ident">skip</span>(<span class="number">1</span>).<span class="ident">cloned</span>().<span class="ident">collect</span>())
+                    <span class="ident">Pt2D</span>::<span class="ident">center</span>(<span class="kw-2">&amp;</span><span class="ident">pts</span>.<span class="ident">iter</span>().<span class="ident">skip</span>(<span class="number">1</span>).<span class="ident">cloned</span>().<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>())
                 } <span class="kw">else</span> {
                     <span class="ident">Pt2D</span>::<span class="ident">center</span>(<span class="ident">pts</span>)
                 };

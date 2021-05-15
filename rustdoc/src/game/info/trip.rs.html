@@ -1441,7 +1441,7 @@
     <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
     <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
     <span class="ident">trip_id</span>: <span class="ident">TripID</span>,
-    <span class="ident">phases</span>: <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TripPhase</span><span class="op">&gt;</span>,
+    <span class="ident">phases</span>: <span class="kw-2">&amp;</span>[<span class="ident">TripPhase</span>],
     <span class="ident">progress_along_path</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
     <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>;

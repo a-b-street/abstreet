@@ -566,7 +566,7 @@
 }
 
 <span class="comment">// Returns (before, after, number of trips done)</span>
-<span class="kw">fn</span> <span class="ident">get_score</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">trips</span>: <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TripID</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">Duration</span>, <span class="ident">Duration</span>, <span class="ident">usize</span>) {
+<span class="kw">fn</span> <span class="ident">get_score</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">trips</span>: <span class="kw-2">&amp;</span>[<span class="ident">TripID</span>]) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">Duration</span>, <span class="ident">Duration</span>, <span class="ident">usize</span>) {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">done</span> <span class="op">=</span> <span class="number">0</span>;
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">before</span> <span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">ZERO</span>;
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">after</span> <span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">ZERO</span>;

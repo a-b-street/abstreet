@@ -281,8 +281,8 @@
 <span class="doccomment">/// sidewalk + driving lane, then automatically generate individual parking spots perpendicular to</span>
 <span class="doccomment">/// the aisles.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">make_all_parking_lots</span>(
-    <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">RawParkingLot</span><span class="op">&gt;</span>,
-    <span class="ident">aisles</span>: <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">osm</span>::<span class="ident">WayID</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>)<span class="op">&gt;</span>,
+    <span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">RawParkingLot</span>],
+    <span class="ident">aisles</span>: <span class="kw-2">&amp;</span>[(<span class="ident">osm</span>::<span class="ident">WayID</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>)],
     <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
     <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParkingLot</span><span class="op">&gt;</span> {
@@ -448,7 +448,7 @@
     <span class="prelude-val">Ok</span>((<span class="ident">driveway_line</span>, <span class="ident">driving_pos</span>, <span class="ident">sidewalk_line</span>, <span class="kw-2">*</span><span class="ident">sidewalk_pos</span>))
 }
 
-<span class="kw">fn</span> <span class="ident">infer_spots</span>(<span class="ident">lot_polygon</span>: <span class="kw-2">&amp;</span><span class="ident">Polygon</span>, <span class="ident">aisles</span>: <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Pt2D</span>, <span class="ident">Angle</span>)<span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">infer_spots</span>(<span class="ident">lot_polygon</span>: <span class="kw-2">&amp;</span><span class="ident">Polygon</span>, <span class="ident">aisles</span>: <span class="kw-2">&amp;</span>[<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Pt2D</span>, <span class="ident">Angle</span>)<span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">spots</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">finalized_lines</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
 
@@ -498,9 +498,9 @@
 
 <span class="kw">fn</span> <span class="ident">line_valid</span>(
     <span class="ident">lot_polygon</span>: <span class="kw-2">&amp;</span><span class="ident">Polygon</span>,
-    <span class="ident">aisles</span>: <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="ident">aisles</span>: <span class="kw-2">&amp;</span>[<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>],
     <span class="ident">line</span>: <span class="kw-2">&amp;</span><span class="ident">Line</span>,
-    <span class="ident">finalized_lines</span>: <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Line</span><span class="op">&gt;</span>,
+    <span class="ident">finalized_lines</span>: <span class="kw-2">&amp;</span>[<span class="ident">Line</span>],
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
     <span class="comment">// Don&#39;t leak out of the parking lot</span>
     <span class="comment">// TODO Entire line</span>

@@ -134,7 +134,6 @@
 <span id="131">131</span>
 <span id="132">132</span>
 <span id="133">133</span>
-<span id="134">134</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! popdat (&quot;population data&quot;) generates `Scenarios` given a map and some external census data.</span>
 <span class="doccomment">//! Some of this functionality should maybe be reorganized or incorporated into the importer crate,</span>
@@ -154,7 +153,6 @@
 <span class="doccomment">//! 3) For each CensusPerson, classify them into a PersonType, then generate a Schedule of</span>
 <span class="doccomment">//!    different Activities throughout the day.</span>
 <span class="doccomment">//! 4) Pick specific buildings to visit to satisfy the Schedule.</span>
-<span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">ptr_arg</span>)]</span>
 
 <span class="attribute">#[<span class="ident">macro_use</span>]</span>
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">anyhow</span>;

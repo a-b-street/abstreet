@@ -1744,7 +1744,7 @@
     <span class="kw">fn</span> <span class="ident">update_car_with_distances</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
         <span class="ident">car</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Car</span>,
-        <span class="ident">dists</span>: <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">CarID</span>, <span class="ident">Distance</span>)<span class="op">&gt;</span>,
+        <span class="ident">dists</span>: <span class="kw-2">&amp;</span>[(<span class="ident">CarID</span>, <span class="ident">Distance</span>)],
         <span class="ident">idx</span>: <span class="ident">usize</span>,
         <span class="ident">now</span>: <span class="ident">Time</span>,
         <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Ctx</span>,
