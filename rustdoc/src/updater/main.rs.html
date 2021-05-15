@@ -441,6 +441,10 @@
 <span id="438">438</span>
 <span id="439">439</span>
 <span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
+<span id="443">443</span>
+<span id="444">444</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">File</span>;
@@ -457,6 +461,10 @@
 
 <span class="attribute">#[<span class="ident">tokio</span>::<span class="ident">main</span>]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">main</span>() {
+    <span class="kw">if</span> <span class="op">!</span><span class="ident">std</span>::<span class="ident">path</span>::<span class="ident">Path</span>::<span class="ident">new</span>(<span class="string">&quot;data&quot;</span>).<span class="ident">exists</span>() {
+        <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Your current directory doesn&#39;t have the data/ directory. Run from the git root: cd ../; cargo run --bin updater -- args&quot;</span>);
+    }
+
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">args</span> <span class="op">=</span> <span class="ident">CmdArgs</span>::<span class="ident">new</span>();
     <span class="kw">let</span> <span class="ident">version</span> <span class="op">=</span> <span class="ident">args</span>
         .<span class="ident">optional</span>(<span class="string">&quot;--version&quot;</span>)
