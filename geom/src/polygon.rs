@@ -201,8 +201,7 @@ impl Polygon {
         let mut pts: Vec<HashablePt2D> = self.points.iter().map(|pt| pt.to_hashable()).collect();
         pts.sort();
         pts.dedup();
-        let new: Vec<_> = pts.iter().map(|pt| pt.to_pt2d()).collect();
-        Pt2D::center(&new)
+        Pt2D::center(&pts.iter().map(|pt| pt.to_pt2d()).collect::<Vec<_>>())
     }
 
     /// Top-left at the origin. Doesn't take Distance, because this is usually pixels, actually.
