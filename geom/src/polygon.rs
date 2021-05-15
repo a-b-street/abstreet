@@ -480,15 +480,15 @@ impl Polygon {
     }
 
     /// Extracts all polygons from a GeoJSON file, along with the string key/value properties. Only
-    /// the first polygon from multipolygons is returned. If `force_convert` is not set, then the
+    /// the first polygon from multipolygons is returned. If `require_in_bounds` is set, then the
     /// polygon must completely fit within the `gps_bounds`.
     pub fn from_geojson_file<P: AsRef<Path>>(
         path: P,
         gps_bounds: &GPSBounds,
-        force_convert: bool,
+        require_in_bounds: bool,
     ) -> Result<Vec<(Polygon, Tags)>> {
         let path = path.as_ref();
-        from_geojson_file_inner(path, gps_bounds, force_convert)
+        from_geojson_file_inner(path, gps_bounds, require_in_bounds)
             .with_context(|| format!("polygons from {}", path.display()))
     }
 }
@@ -625,7 +625,7 @@ fn downsize(input: Vec<usize>) -> Vec<u16> {
 fn from_geojson_file_inner(
     path: &Path,
     gps_bounds: &GPSBounds,
-    force_convert: bool,
+    require_in_bounds: bool,
 ) -> Result<Vec<(Polygon, Tags)>> {
     let raw_string = std::fs::read_to_string(path)?;
     let geojson = raw_string.parse::<geojson::GeoJson>()?;
@@ -651,7 +651,7 @@ fn from_geojson_file_inner(
                 .iter()
                 .map(|pt| LonLat::new(pt[0], pt[1]))
                 .collect();
-            let pts = if force_convert {
+            let pts = if !require_in_bounds {
                 gps_bounds.convert(&gps_pts)
             } else if let Some(pts) = gps_bounds.try_convert(&gps_pts) {
                 pts

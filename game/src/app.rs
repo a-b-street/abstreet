@@ -880,11 +880,11 @@ impl SharedAppState for App {
 
 /// Load an extra GeoJSON file, and add the area to the map dynamically.
 fn add_study_area(map: &mut Map, name: &str) -> Result<()> {
-    let force_convert = false;
+    let require_in_bounds = true;
     for (polygon, tags) in Polygon::from_geojson_file(
         abstio::path(format!("system/study_areas/{}.geojson", name)),
         map.get_gps_bounds(),
-        force_convert,
+        require_in_bounds,
     )? {
         map.hack_add_area(AreaType::StudyArea, polygon, tags);
     }
