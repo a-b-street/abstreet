@@ -27,6 +27,9 @@
 <span id="24">24</span>
 <span id="25">25</span>
 <span id="26">26</span>
+<span id="27">27</span>
+<span id="28">28</span>
+<span id="29">29</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! The contents of this crate need to be organized better:</span>
 <span class="doccomment">//!</span>
@@ -35,6 +38,9 @@
 
 <span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">ptr_arg</span>)]</span> <span class="comment">// very noisy</span>
 <span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">new_without_default</span>)]</span>
+
+<span class="attribute">#[<span class="ident">macro_use</span>]</span>
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">anyhow</span>;
 
 <span class="comment">// I&#39;m not generally a fan of wildcard exports, but they&#39;re more maintable here.</span>
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">serde</span>::<span class="kw-2">*</span>;

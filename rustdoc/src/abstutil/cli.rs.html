@@ -166,8 +166,6 @@
 <span id="163">163</span>
 <span id="164">164</span>
 <span id="165">165</span>
-<span id="166">166</span>
-<span id="167">167</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
@@ -312,8 +310,6 @@
 <span class="doccomment">/// between arguments. So for instance &quot;?--dev&amp;--color_scheme=night%20mode&quot; becomes vec![&quot;--dev&quot;,</span>
 <span class="doccomment">/// &quot;--color_scheme=night mode&quot;].</span>
 <span class="kw">fn</span> <span class="ident">parse_args</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">use</span> <span class="ident">anyhow</span>::{<span class="ident">anyhow</span>, <span class="ident">bail</span>};
-
     <span class="kw">let</span> <span class="ident">window</span> <span class="op">=</span> <span class="ident">web_sys</span>::<span class="ident">window</span>().<span class="ident">ok_or</span>(<span class="macro">anyhow</span><span class="macro">!</span>(<span class="string">&quot;no window?&quot;</span>))<span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="ident">window</span>.<span class="ident">location</span>().<span class="ident">href</span>().<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> {
         <span class="macro">anyhow</span><span class="macro">!</span>(<span class="ident">err</span>

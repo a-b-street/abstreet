@@ -1207,8 +1207,8 @@
         };
         <span class="kw">match</span> <span class="ident">panel</span>.<span class="ident">dims</span> {
             <span class="ident">Dims</span>::<span class="ident">ExactPercent</span>(<span class="ident">w</span>, <span class="ident">h</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="comment">// Don&#39;t set size, because then scrolling breaks -- the actual size has to be based on</span>
-                <span class="comment">// the contents.</span>
+                <span class="comment">// Don&#39;t set size, because then scrolling breaks -- the actual size has to be based</span>
+                <span class="comment">// on the contents.</span>
                 <span class="ident">panel</span>.<span class="ident">top_level</span>.<span class="ident">layout</span>.<span class="ident">style</span>.<span class="ident">min_size</span> <span class="op">=</span> <span class="ident">Size</span> {
                     <span class="ident">width</span>: <span class="ident">Dimension</span>::<span class="ident">Points</span>((<span class="ident">w</span> <span class="op">*</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_width</span>) <span class="kw">as</span> <span class="ident">f32</span>),
                     <span class="ident">height</span>: <span class="ident">Dimension</span>::<span class="ident">Points</span>((<span class="ident">h</span> <span class="op">*</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_height</span>) <span class="kw">as</span> <span class="ident">f32</span>),
