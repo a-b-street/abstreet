@@ -46,7 +46,6 @@ pub fn split_up_roads(
             let count = counts_per_pt.inc(pt);
 
             // All start and endpoints of ways are also intersections.
-            #[allow(clippy::collapsible_if)]
             if count == 2 || idx == 0 || idx == r.center_points.len() - 1 {
                 if let Entry::Vacant(e) = pt_to_intersection.entry(pt) {
                     let id = input.osm_node_ids[&pt];
