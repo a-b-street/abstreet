@@ -299,8 +299,7 @@
                 <span class="kw">continue</span>;
             }
         };
-        <span class="comment">// Through movements (EBT = eastbound through, for example) are implicitly protected</span>
-        <span class="kw">if</span> <span class="ident">rec</span>.<span class="ident">protection</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;protected&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">rec</span>.<span class="ident">movement_str</span>.<span class="ident">ends_with</span>(<span class="string">&#39;T&#39;</span>) {
+        <span class="kw">if</span> <span class="ident">rec</span>.<span class="ident">protection</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;protected&quot;</span> {
             <span class="ident">stage</span>.<span class="ident">protected_movements</span>.<span class="ident">insert</span>(<span class="ident">mvmnt</span>);
         } <span class="kw">else</span> {
             <span class="ident">stage</span>.<span class="ident">yield_movements</span>.<span class="ident">insert</span>(<span class="ident">mvmnt</span>);
@@ -312,16 +311,17 @@
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">struct</span> <span class="ident">Record</span> {
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">deserialize_with</span> <span class="op">=</span> <span class="string">&quot;parse_osm_ids&quot;</span>, <span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;oms_node_id&quot;</span>)]</span>
+    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">deserialize_with</span> <span class="op">=</span> <span class="string">&quot;parse_osm_ids&quot;</span>, <span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;osm_node_id&quot;</span>)]</span>
     <span class="ident">osm_ids</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">osm</span>::<span class="ident">NodeID</span><span class="op">&gt;</span>,
     <span class="ident">timing_plan_id</span>: <span class="ident">String</span>,
     <span class="ident">green_time</span>: <span class="ident">usize</span>,
     <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;stage_no&quot;</span>)]</span>
     <span class="ident">stage</span>: <span class="ident">usize</span>,
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">deserialize_with</span> <span class="op">=</span> <span class="string">&quot;parse_linestring&quot;</span>, <span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;geometory&quot;</span>)]</span>
+    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">deserialize_with</span> <span class="op">=</span> <span class="string">&quot;parse_linestring&quot;</span>)]</span>
     <span class="ident">geometry</span>: (<span class="ident">LonLat</span>, <span class="ident">LonLat</span>),
     <span class="ident">protection</span>: <span class="ident">String</span>,
-    <span class="ident">movement_str</span>: <span class="ident">String</span>,
+    <span class="comment">// Something like EBL or NBT -- eastbound left, northbound through.</span>
+    <span class="ident">mvmt_txt_id</span>: <span class="ident">String</span>,
 }
 
 <span class="kw">fn</span> <span class="ident">parse_linestring</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span>, <span class="ident">D</span>: <span class="ident">Deserializer</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">d</span>: <span class="ident">D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">LonLat</span>, <span class="ident">LonLat</span>), <span class="ident">D</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
