@@ -1,5 +1,5 @@
 use geom::Duration;
-use map_gui::tools::{ChooseSomething, PopupMsg};
+use map_gui::tools::{ChooseSomething, FilePicker, PopupMsg};
 use map_model::{
     ControlStopSign, ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, StageType,
 };
@@ -188,21 +188,27 @@ pub fn edit_entire_signal(
     let stop_sign = "convert to stop signs";
     let close = "close intersection for construction";
     let reset = "reset to default";
-    let gmns = "import from GMNS timing.csv";
+    let gmns_picker = "import from a new GMNS timing.csv";
+    let gmns_existing = app
+        .session
+        .last_gmns_timing_csv
+        .as_ref()
+        .map(|x| format!("import from GMNS {}", x));
 
-    let mut choices = vec![use_template];
+    let mut choices = vec![use_template.to_string()];
     if has_sidewalks {
-        choices.push(all_walk);
+        choices.push(all_walk.to_string());
     }
-    choices.push(major_minor_timing);
+    choices.push(major_minor_timing.to_string());
     // TODO Conflating stop signs and construction here
     if mode.can_edit_stop_signs() {
-        choices.push(stop_sign);
-        choices.push(close);
+        choices.push(stop_sign.to_string());
+        choices.push(close.to_string());
     }
-    choices.push(reset);
-    if app.opts.dev {
-        choices.push(gmns);
+    choices.push(reset.to_string());
+    choices.push(gmns_picker.to_string());
+    if let Some(x) = gmns_existing.clone() {
+        choices.push(x);
     }
 
     ChooseSomething::new_state(
@@ -321,25 +327,57 @@ pub fn edit_entire_signal(
                     });
                 })),
             ]),
-            x if x == gmns => Transition::Multi(vec![
-                Transition::Pop,
-                // TODO File picker
+            x if x == gmns_picker => Transition::Replace(FilePicker::new_state(
+                ctx,
+                None,
+                Box::new(move |ctx, app, maybe_path| {
+                    if let Ok(Some(path)) = maybe_path {
+                        app.session.last_gmns_timing_csv = Some(path.clone());
+                        match crate::edit::traffic_signals::gmns::import(&app.primary.map, i, &path)
+                        {
+                            Ok(new_signal) => Transition::Multi(vec![
+                                Transition::Pop,
+                                Transition::ModifyState(Box::new(move |state, ctx, app| {
+                                    let editor =
+                                        state.downcast_mut::<TrafficSignalEditor>().unwrap();
+                                    editor.add_new_edit(ctx, app, 0, |ts| {
+                                        *ts = new_signal.clone();
+                                    });
+                                })),
+                            ]),
+                            Err(err) => Transition::Replace(PopupMsg::new_state(
+                                ctx,
+                                "Error",
+                                vec![err.to_string()],
+                            )),
+                        }
+                    } else {
+                        Transition::Pop
+                    }
+                }),
+            )),
+            x if Some(x.to_string()) == gmns_existing => {
                 match crate::edit::traffic_signals::gmns::import(
                     &app.primary.map,
                     i,
-                    "/home/dabreegster/timing.csv",
+                    app.session.last_gmns_timing_csv.as_ref().unwrap(),
                 ) {
-                    Ok(new_signal) => Transition::ModifyState(Box::new(move |state, ctx, app| {
-                        let editor = state.downcast_mut::<TrafficSignalEditor>().unwrap();
-                        editor.add_new_edit(ctx, app, 0, |ts| {
-                            *ts = new_signal.clone();
-                        });
-                    })),
-                    Err(err) => {
-                        Transition::Push(PopupMsg::new_state(ctx, "Error", vec![err.to_string()]))
-                    }
-                },
-            ]),
+                    Ok(new_signal) => Transition::Multi(vec![
+                        Transition::Pop,
+                        Transition::ModifyState(Box::new(move |state, ctx, app| {
+                            let editor = state.downcast_mut::<TrafficSignalEditor>().unwrap();
+                            editor.add_new_edit(ctx, app, 0, |ts| {
+                                *ts = new_signal.clone();
+                            });
+                        })),
+                    ]),
+                    Err(err) => Transition::Replace(PopupMsg::new_state(
+                        ctx,
+                        "Error",
+                        vec![err.to_string()],
+                    )),
+                }
+            }
             _ => unreachable!(),
         }),
     )
