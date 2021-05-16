@@ -27,6 +27,7 @@ instant = "0.1.7"
 js-sys = { version = "0.3.47", optional = true }
 log = "0.4.14"
 map_model = { path = "../map_model" }
+rfd = "0.2.2"
 serde = "1.0.123"
 sim = { path = "../sim" }
 subprocess = { git = "https://github.com/hniksic/rust-subprocess", optional = true }

@@ -764,6 +764,7 @@ pub struct SessionState {
     pub tutorial: Option<TutorialState>,
     pub high_scores: BTreeMap<GameplayMode, Vec<HighScore>>,
     pub info_panel_tab: BTreeMap<&'static str, &'static str>,
+    pub last_gmns_timing_csv: Option<String>,
 }
 
 impl SessionState {
@@ -778,6 +779,7 @@ impl SessionState {
                 "person" => "trips",
                 "bus" => "status",
             },
+            last_gmns_timing_csv: None,
         }
     }
 }

@@ -1,30 +1,16 @@
 // TODO This doesn't really belong in gameplay/freeform
 
-use map_gui::load::FutureLoader;
-use map_gui::tools::{find_exe, RunCommand};
+use map_gui::tools::{find_exe, FilePicker, RunCommand};
 use widgetry::EventCtx;
 
-use crate::app::{App, Transition};
+use crate::app::Transition;
 use crate::sandbox::gameplay::GameplayMode;
 use crate::sandbox::SandboxMode;
 
 pub fn import(ctx: &mut EventCtx) -> Transition {
-    let (_, outer_progress_rx) = futures_channel::mpsc::channel(1);
-    let (_, inner_progress_rx) = futures_channel::mpsc::channel(1);
-    Transition::Push(FutureLoader::<App, Option<String>>::new_state(
+    Transition::Push(FilePicker::new_state(
         ctx,
-        Box::pin(async {
-            let result = rfd::AsyncFileDialog::new()
-                .pick_file()
-                .await
-                .map(|x| x.path().display().to_string());
-            let wrap: Box<dyn Send + FnOnce(&App) -> Option<String>> =
-                Box::new(move |_: &App| result);
-            Ok(wrap)
-        }),
-        outer_progress_rx,
-        inner_progress_rx,
-        "Waiting for a file to be chosen",
+        None,
         Box::new(|ctx, app, maybe_path| {
             if let Ok(Some(path)) = maybe_path {
                 Transition::Replace(RunCommand::new_state(

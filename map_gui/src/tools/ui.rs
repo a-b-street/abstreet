@@ -1,10 +1,13 @@
 //! Generic UI tools. Some of this should perhaps be lifted to widgetry.
 
+use anyhow::Result;
+
 use widgetry::{
     hotkeys, Choice, DrawBaselayer, Drawable, EventCtx, GfxCtx, Key, Line, Menu, Outcome, Panel,
     State, Text, TextBox, Transition, Widget,
 };
 
+use crate::load::FutureLoader;
 use crate::tools::grey_out_map;
 use crate::AppLike;
 
@@ -207,5 +210,38 @@ impl<A: AppLike> State<A> for PopupMsg {
         } else {
             g.redraw(&self.zoomed);
         }
+    }
+}
+
+pub struct FilePicker;
+
+impl FilePicker {
+    pub fn new_state<A: 'static + AppLike>(
+        ctx: &mut EventCtx,
+        start_dir: Option<String>,
+        on_load: Box<dyn FnOnce(&mut EventCtx, &mut A, Result<Option<String>>) -> Transition<A>>,
+    ) -> Box<dyn State<A>> {
+        let (_, outer_progress_rx) = futures_channel::mpsc::channel(1);
+        let (_, inner_progress_rx) = futures_channel::mpsc::channel(1);
+        FutureLoader::<A, Option<String>>::new_state(
+            ctx,
+            Box::pin(async move {
+                let mut builder = rfd::AsyncFileDialog::new();
+                if let Some(dir) = start_dir {
+                    builder = builder.set_directory(&dir);
+                }
+                let result = builder
+                    .pick_file()
+                    .await
+                    .map(|x| x.path().display().to_string());
+                let wrap: Box<dyn Send + FnOnce(&A) -> Option<String>> =
+                    Box::new(move |_: &A| result);
+                Ok(wrap)
+            }),
+            outer_progress_rx,
+            inner_progress_rx,
+            "Waiting for a file to be chosen",
+            on_load,
+        )
     }
 }
