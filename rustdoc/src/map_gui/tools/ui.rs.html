@@ -209,21 +209,64 @@
 <span id="206">206</span>
 <span id="207">207</span>
 <span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
+<span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
+<span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
+<span id="244">244</span>
+<span id="245">245</span>
+<span id="246">246</span>
+<span id="247">247</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Generic UI tools. Some of this should perhaps be lifted to widgetry.</span>
+
+<span class="kw">use</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span>;
 
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">hotkeys</span>, <span class="ident">Choice</span>, <span class="ident">DrawBaselayer</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Menu</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>,
     <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextBox</span>, <span class="ident">Transition</span>, <span class="ident">Widget</span>,
 };
 
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">load</span>::<span class="ident">FutureLoader</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">tools</span>::<span class="ident">grey_out_map</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">AppLike</span>;
 
 <span class="doccomment">/// Choose something from a menu, then feed the answer to a callback.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ChooseSomething</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">AppLike</span>, <span class="ident">T</span><span class="op">&gt;</span> {
     <span class="ident">panel</span>: <span class="ident">Panel</span>,
-    <span class="ident">cb</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="ident">T</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="comment">// Wrapped in an Option so that we can consume it once</span>
+    <span class="ident">cb</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">FnOnce</span>(<span class="ident">T</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">AppLike</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>, <span class="ident">T</span>: <span class="lifetime">&#39;static</span><span class="op">&gt;</span> <span class="ident">ChooseSomething</span><span class="op">&lt;</span><span class="ident">A</span>, <span class="ident">T</span><span class="op">&gt;</span> {
@@ -231,7 +274,7 @@
         <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
         <span class="ident">query</span>: <span class="ident">I</span>,
         <span class="ident">choices</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Choice</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-        <span class="ident">cb</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="ident">T</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+        <span class="ident">cb</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">FnOnce</span>(<span class="ident">T</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">ChooseSomething</span> {
             <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new_builder</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
@@ -242,7 +285,7 @@
                 <span class="ident">Menu</span>::<span class="ident">widget</span>(<span class="ident">ctx</span>, <span class="ident">choices</span>).<span class="ident">named</span>(<span class="string">&quot;menu&quot;</span>),
             ]))
             .<span class="ident">build</span>(<span class="ident">ctx</span>),
-            <span class="ident">cb</span>,
+            <span class="ident">cb</span>: <span class="prelude-val">Some</span>(<span class="ident">cb</span>),
         })
     }
 }
@@ -254,7 +297,9 @@
                 <span class="string">&quot;close&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition</span>::<span class="ident">Pop</span>,
                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">take_menu_choice</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="string">&quot;menu&quot;</span>);
-                    (<span class="self">self</span>.<span class="ident">cb</span>)(<span class="ident">data</span>, <span class="ident">ctx</span>, <span class="ident">app</span>)
+                    <span class="comment">// If the callback doesn&#39;t replace or pop this ChooseSomething state, then</span>
+                    <span class="comment">// it&#39;ll break when the user tries to interact with the menu again.</span>
+                    (<span class="self">self</span>.<span class="ident">cb</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>())(<span class="ident">data</span>, <span class="ident">ctx</span>, <span class="ident">app</span>)
                 }
             },
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
@@ -279,7 +324,7 @@
 <span class="doccomment">/// Prompt for arbitrary text input, then feed the answer to a callback.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PromptInput</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">AppLike</span><span class="op">&gt;</span> {
     <span class="ident">panel</span>: <span class="ident">Panel</span>,
-    <span class="ident">cb</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="ident">String</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="ident">cb</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">FnOnce</span>(<span class="ident">String</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">AppLike</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span> <span class="ident">PromptInput</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> {
@@ -287,7 +332,7 @@
         <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
         <span class="ident">query</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
         <span class="ident">initial</span>: <span class="ident">String</span>,
-        <span class="ident">cb</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="ident">String</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+        <span class="ident">cb</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">FnOnce</span>(<span class="ident">String</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">PromptInput</span> {
             <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new_builder</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
@@ -303,7 +348,7 @@
                     .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
             ]))
             .<span class="ident">build</span>(<span class="ident">ctx</span>),
-            <span class="ident">cb</span>,
+            <span class="ident">cb</span>: <span class="prelude-val">Some</span>(<span class="ident">cb</span>),
         })
     }
 }
@@ -315,7 +360,7 @@
                 <span class="string">&quot;close&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition</span>::<span class="ident">Pop</span>,
                 <span class="string">&quot;confirm&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">text_box</span>(<span class="string">&quot;input&quot;</span>);
-                    (<span class="self">self</span>.<span class="ident">cb</span>)(<span class="ident">data</span>, <span class="ident">ctx</span>, <span class="ident">app</span>)
+                    (<span class="self">self</span>.<span class="ident">cb</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>())(<span class="ident">data</span>, <span class="ident">ctx</span>, <span class="ident">app</span>)
                 }
                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
             },
@@ -416,6 +461,39 @@
         } <span class="kw">else</span> {
             <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">zoomed</span>);
         }
+    }
+}
+
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">FilePicker</span>;
+
+<span class="kw">impl</span> <span class="ident">FilePicker</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">AppLike</span><span class="op">&gt;</span>(
+        <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
+        <span class="ident">start_dir</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+        <span class="ident">on_load</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">outer_progress_rx</span>) <span class="op">=</span> <span class="ident">futures_channel</span>::<span class="ident">mpsc</span>::<span class="ident">channel</span>(<span class="number">1</span>);
+        <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">inner_progress_rx</span>) <span class="op">=</span> <span class="ident">futures_channel</span>::<span class="ident">mpsc</span>::<span class="ident">channel</span>(<span class="number">1</span>);
+        <span class="ident">FutureLoader</span>::<span class="op">&lt;</span><span class="ident">A</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>::<span class="ident">new_state</span>(
+            <span class="ident">ctx</span>,
+            <span class="ident">Box</span>::<span class="ident">pin</span>(<span class="kw">async</span> <span class="kw">move</span> {
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">builder</span> <span class="op">=</span> <span class="ident">rfd</span>::<span class="ident">AsyncFileDialog</span>::<span class="ident">new</span>();
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">dir</span>) <span class="op">=</span> <span class="ident">start_dir</span> {
+                    <span class="ident">builder</span> <span class="op">=</span> <span class="ident">builder</span>.<span class="ident">set_directory</span>(<span class="kw-2">&amp;</span><span class="ident">dir</span>);
+                }
+                <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">builder</span>
+                    .<span class="ident">pick_file</span>()
+                    .<span class="kw">await</span>
+                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">path</span>().<span class="ident">display</span>().<span class="ident">to_string</span>());
+                <span class="kw">let</span> <span class="ident">wrap</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="ident">A</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span>
+                    <span class="ident">Box</span>::<span class="ident">new</span>(<span class="kw">move</span> <span class="op">|</span><span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">A</span><span class="op">|</span> <span class="ident">result</span>);
+                <span class="prelude-val">Ok</span>(<span class="ident">wrap</span>)
+            }),
+            <span class="ident">outer_progress_rx</span>,
+            <span class="ident">inner_progress_rx</span>,
+            <span class="string">&quot;Waiting for a file to be chosen&quot;</span>,
+            <span class="ident">on_load</span>,
+        )
     }
 }
 </pre></div>

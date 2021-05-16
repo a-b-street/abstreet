@@ -160,7 +160,7 @@
                 .<span class="ident">map</span>(<span class="op">|</span><span class="ident">at</span><span class="op">|</span> <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="ident">at</span>.<span class="ident">to_string</span>(), <span class="ident">at</span>))
                 .<span class="ident">collect</span>(),
             <span class="ident">Box</span>::<span class="ident">new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">at</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
-                <span class="kw">let</span> <span class="ident">multi_isochrone</span> <span class="op">=</span> <span class="ident">create_multi_isochrone</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">at</span>, <span class="ident">options</span>.<span class="ident">clone</span>());
+                <span class="kw">let</span> <span class="ident">multi_isochrone</span> <span class="op">=</span> <span class="ident">create_multi_isochrone</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">at</span>, <span class="ident">options</span>);
                 <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">Results</span>::<span class="ident">new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">multi_isochrone</span>, <span class="ident">at</span>));
             }),
         )

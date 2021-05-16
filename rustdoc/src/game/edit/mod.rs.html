@@ -931,14 +931,6 @@
 <span id="928">928</span>
 <span id="929">929</span>
 <span id="930">930</span>
-<span id="931">931</span>
-<span id="932">932</span>
-<span id="933">933</span>
-<span id="934">934</span>
-<span id="935">935</span>
-<span id="936">936</span>
-<span id="937">937</span>
-<span id="938">938</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">maplit</span>::<span class="ident">btreeset</span>;
 
@@ -1162,11 +1154,7 @@
                             <span class="string">&quot;open a saved proposal&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                                 <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">unsaved_edits</span>() {
                                     <span class="ident">Transition</span>::<span class="ident">Multi</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                                        <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">LoadEdits</span>::<span class="ident">new_state</span>(
-                                            <span class="ident">ctx</span>,
-                                            <span class="ident">app</span>,
-                                            <span class="ident">mode</span>.<span class="ident">clone</span>(),
-                                        )),
+                                        <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">LoadEdits</span>::<span class="ident">new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">mode</span>)),
                                         <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">SaveEdits</span>::<span class="ident">new_state</span>(
                                             <span class="ident">ctx</span>,
                                             <span class="ident">app</span>,
@@ -1180,11 +1168,7 @@
                                         )),
                                     ])
                                 } <span class="kw">else</span> {
-                                    <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">LoadEdits</span>::<span class="ident">new_state</span>(
-                                        <span class="ident">ctx</span>,
-                                        <span class="ident">app</span>,
-                                        <span class="ident">mode</span>.<span class="ident">clone</span>(),
-                                    ))
+                                    <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">LoadEdits</span>::<span class="ident">new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">mode</span>))
                                 }
                             }
                             <span class="string">&quot;create a blank proposal&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {

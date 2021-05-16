@@ -212,10 +212,10 @@
         <span class="ident">Choice</span>::<span class="ident">strings</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">random</span>, <span class="ident">right_now</span>]),
         <span class="ident">Box</span>::<span class="ident">new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">x</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
             <span class="kw">if</span> <span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;random agents around these intersections&quot;</span> {
-                <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">i</span>) <span class="kw">in</span> <span class="ident">members</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
+                <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">i</span>) <span class="kw">in</span> <span class="ident">members</span>.<span class="ident">into_iter</span>().<span class="ident">enumerate</span>() {
                     <span class="kw">if</span> <span class="ident">idx</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
                         <span class="comment">// Start at the current stage</span>
-                        <span class="kw">let</span> <span class="ident">signal</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_traffic_signal</span>(<span class="kw-2">*</span><span class="ident">i</span>);
+                        <span class="kw">let</span> <span class="ident">signal</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_traffic_signal</span>(<span class="ident">i</span>);
                         <span class="comment">// TODO Use the offset correctly</span>
                         <span class="comment">// TODO If there are variable stages, this could land anywhere</span>
                         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">step</span> <span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">ZERO</span>;
@@ -230,7 +230,7 @@
                         );
                     }
 
-                    <span class="ident">spawn_agents_around</span>(<span class="kw-2">*</span><span class="ident">i</span>, <span class="ident">app</span>);
+                    <span class="ident">spawn_agents_around</span>(<span class="ident">i</span>, <span class="ident">app</span>);
                 }
             } <span class="kw">else</span> {
                 <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">suspended_sim</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>().<span class="ident">clone</span>();
