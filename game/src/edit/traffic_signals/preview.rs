@@ -88,10 +88,10 @@ pub fn make_previewer(
         Choice::strings(vec![random, right_now]),
         Box::new(move |x, ctx, app| {
             if x == "random agents around these intersections" {
-                for (idx, i) in members.iter().enumerate() {
+                for (idx, i) in members.into_iter().enumerate() {
                     if idx == 0 {
                         // Start at the current stage
-                        let signal = app.primary.map.get_traffic_signal(*i);
+                        let signal = app.primary.map.get_traffic_signal(i);
                         // TODO Use the offset correctly
                         // TODO If there are variable stages, this could land anywhere
                         let mut step = Duration::ZERO;
@@ -106,7 +106,7 @@ pub fn make_previewer(
                         );
                     }
 
-                    spawn_agents_around(*i, app);
+                    spawn_agents_around(i, app);
                 }
             } else {
                 app.primary.sim = app.primary.suspended_sim.as_ref().unwrap().clone();

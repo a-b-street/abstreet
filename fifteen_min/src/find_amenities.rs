@@ -23,7 +23,7 @@ impl FindAmenity {
                 .map(|at| Choice::new(at.to_string(), at))
                 .collect(),
             Box::new(move |at, ctx, app| {
-                let multi_isochrone = create_multi_isochrone(ctx, app, at, options.clone());
+                let multi_isochrone = create_multi_isochrone(ctx, app, at, options);
                 return Transition::Replace(Results::new_state(ctx, app, multi_isochrone, at));
             }),
         )

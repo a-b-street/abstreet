@@ -11,7 +11,8 @@ use crate::AppLike;
 /// Choose something from a menu, then feed the answer to a callback.
 pub struct ChooseSomething<A: AppLike, T> {
     panel: Panel,
-    cb: Box<dyn Fn(T, &mut EventCtx, &mut A) -> Transition<A>>,
+    // Wrapped in an Option so that we can consume it once
+    cb: Option<Box<dyn FnOnce(T, &mut EventCtx, &mut A) -> Transition<A>>>,
 }
 
 impl<A: AppLike + 'static, T: 'static> ChooseSomething<A, T> {
@@ -19,7 +20,7 @@ impl<A: AppLike + 'static, T: 'static> ChooseSomething<A, T> {
         ctx: &mut EventCtx,
         query: I,
         choices: Vec<Choice<T>>,
-        cb: Box<dyn Fn(T, &mut EventCtx, &mut A) -> Transition<A>>,
+        cb: Box<dyn FnOnce(T, &mut EventCtx, &mut A) -> Transition<A>>,
     ) -> Box<dyn State<A>> {
         Box::new(ChooseSomething {
             panel: Panel::new_builder(Widget::col(vec![
@@ -30,7 +31,7 @@ impl<A: AppLike + 'static, T: 'static> ChooseSomething<A, T> {
                 Menu::widget(ctx, choices).named("menu"),
             ]))
             .build(ctx),
-            cb,
+            cb: Some(cb),
         })
     }
 }
@@ -42,7 +43,9 @@ impl<A: AppLike + 'static, T: 'static> State<A> for ChooseSomething<A, T> {
                 "close" => Transition::Pop,
                 _ => {
                     let data = self.panel.take_menu_choice::<T>("menu");
-                    (self.cb)(data, ctx, app)
+                    // If the callback doesn't replace or pop this ChooseSomething state, then
+                    // it'll break when the user tries to interact with the menu again.
+                    (self.cb.take().unwrap())(data, ctx, app)
                 }
             },
             _ => {

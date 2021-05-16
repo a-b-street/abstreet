@@ -287,7 +287,7 @@ pub fn edit_entire_signal(
                 apply_map_edits(ctx, app, edits);
                 Transition::Multi(vec![
                     Transition::Pop,
-                    Transition::Replace(StopSignEditor::new_state(ctx, app, i, mode.clone())),
+                    Transition::Replace(StopSignEditor::new_state(ctx, app, i, mode)),
                 ])
             }
             x if x == close => {

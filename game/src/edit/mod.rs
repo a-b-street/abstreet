@@ -220,11 +220,7 @@ impl State<App> for EditMode {
                             "open a saved proposal" => {
                                 if app.primary.map.unsaved_edits() {
                                     Transition::Multi(vec![
-                                        Transition::Replace(LoadEdits::new_state(
-                                            ctx,
-                                            app,
-                                            mode.clone(),
-                                        )),
+                                        Transition::Replace(LoadEdits::new_state(ctx, app, mode)),
                                         Transition::Push(SaveEdits::new_state(
                                             ctx,
                                             app,
@@ -238,11 +234,7 @@ impl State<App> for EditMode {
                                         )),
                                     ])
                                 } else {
-                                    Transition::Replace(LoadEdits::new_state(
-                                        ctx,
-                                        app,
-                                        mode.clone(),
-                                    ))
+                                    Transition::Replace(LoadEdits::new_state(ctx, app, mode))
                                 }
                             }
                             "create a blank proposal" => {
