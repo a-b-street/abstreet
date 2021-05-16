@@ -70,7 +70,7 @@ impl<A: AppLike + 'static, T: 'static> State<A> for ChooseSomething<A, T> {
 /// Prompt for arbitrary text input, then feed the answer to a callback.
 pub struct PromptInput<A: AppLike> {
     panel: Panel,
-    cb: Box<dyn Fn(String, &mut EventCtx, &mut A) -> Transition<A>>,
+    cb: Option<Box<dyn FnOnce(String, &mut EventCtx, &mut A) -> Transition<A>>>,
 }
 
 impl<A: AppLike + 'static> PromptInput<A> {
@@ -78,7 +78,7 @@ impl<A: AppLike + 'static> PromptInput<A> {
         ctx: &mut EventCtx,
         query: &str,
         initial: String,
-        cb: Box<dyn Fn(String, &mut EventCtx, &mut A) -> Transition<A>>,
+        cb: Box<dyn FnOnce(String, &mut EventCtx, &mut A) -> Transition<A>>,
     ) -> Box<dyn State<A>> {
         Box::new(PromptInput {
             panel: Panel::new_builder(Widget::col(vec![
@@ -94,7 +94,7 @@ impl<A: AppLike + 'static> PromptInput<A> {
                     .build_def(ctx),
             ]))
             .build(ctx),
-            cb,
+            cb: Some(cb),
         })
     }
 }
@@ -106,7 +106,7 @@ impl<A: AppLike + 'static> State<A> for PromptInput<A> {
                 "close" => Transition::Pop,
                 "confirm" => {
                     let data = self.panel.text_box("input");
-                    (self.cb)(data, ctx, app)
+                    (self.cb.take().unwrap())(data, ctx, app)
                 }
                 _ => unreachable!(),
             },
