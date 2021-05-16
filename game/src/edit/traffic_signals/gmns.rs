@@ -79,8 +79,7 @@ pub fn import(map: &Map, i: IntersectionID, path: &str) -> Result<ControlTraffic
                 continue;
             }
         };
-        // Through movements (EBT = eastbound through, for example) are implicitly protected
-        if rec.protection == "protected" || rec.movement_str.ends_with('T') {
+        if rec.protection == "protected" {
             stage.protected_movements.insert(mvmnt);
         } else {
             stage.yield_movements.insert(mvmnt);
@@ -92,16 +91,17 @@ pub fn import(map: &Map, i: IntersectionID, path: &str) -> Result<ControlTraffic
 
 #[derive(Debug, Deserialize)]
 struct Record {
-    #[serde(deserialize_with = "parse_osm_ids", rename = "oms_node_id")]
+    #[serde(deserialize_with = "parse_osm_ids", rename = "osm_node_id")]
     osm_ids: Vec<osm::NodeID>,
     timing_plan_id: String,
     green_time: usize,
     #[serde(rename = "stage_no")]
     stage: usize,
-    #[serde(deserialize_with = "parse_linestring", rename = "geometory")]
+    #[serde(deserialize_with = "parse_linestring")]
     geometry: (LonLat, LonLat),
     protection: String,
-    movement_str: String,
+    // Something like EBL or NBT -- eastbound left, northbound through.
+    mvmt_txt_id: String,
 }
 
 fn parse_linestring<'de, D: Deserializer<'de>>(d: D) -> Result<(LonLat, LonLat), D::Error> {

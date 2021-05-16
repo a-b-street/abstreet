@@ -394,8 +394,8 @@ mod built_info {
         let t = built::util::strptime(BUILT_TIME_UTC);
 
         let mut txt = Text::from(format!("This version built on {}", t.date().naive_local()));
-        // Releases every Sunday
-        if (chrono::Utc::now() - t).num_days() > 8 {
+        // Releases every Sunday... but sometimes we miss a week
+        if (chrono::Utc::now() - t).num_days() > 15 {
             txt.append(Line(" (get the new release from abstreet.org)".to_string()).fg(Color::RED));
         }
         txt
