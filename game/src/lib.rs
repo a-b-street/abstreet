@@ -12,7 +12,7 @@ use geom::Duration;
 use map_gui::options::Options;
 use map_gui::tools::URLManager;
 use map_model::Map;
-use sim::{Analytics, Sim, SimFlags};
+use sim::{Sim, SimFlags};
 use widgetry::{EventCtx, Settings, State, Transition};
 
 use crate::app::{App, Flags};
@@ -242,18 +242,6 @@ fn setup_app(
             session: crate::app::SessionState::empty(),
         };
 
-        let scenario_name = app.primary.sim.get_run_name().to_string();
-        if let Ok(prebaked) = abstio::maybe_read_binary::<Analytics>(
-            abstio::path_prebaked_results(app.primary.map.get_name(), &scenario_name),
-            &mut Timer::throwaway(),
-        ) {
-            app.set_prebaked(Some((
-                app.primary.map.get_name().clone(),
-                scenario_name,
-                prebaked,
-            )));
-        }
-
         let states = finish_app_setup(
             ctx,
             &mut app,
@@ -325,6 +313,9 @@ fn finish_app_setup(
 
     let states: Vec<Box<dyn State<App>>> = if title {
         vec![Box::new(TitleScreen::new(ctx, app))]
+    } else if let Some(ss) = savestate {
+        app.primary.sim = ss;
+        vec![SandboxMode::start_from_savestate(app)]
     } else if let Some(mode) = maybe_mode {
         if let GameplayMode::Actdev(_, _, _) = mode {
             vec![SandboxMode::async_new(
@@ -350,11 +341,6 @@ fn finish_app_setup(
             jump_to_time_upon_startup(Duration::hours(6)),
         )]
     };
-    if let Some(ss) = savestate {
-        // TODO This is weird, we're left in Freeform mode with the wrong UI. Can't instantiate
-        // PlayScenario without clobbering.
-        app.primary.sim = ss;
-    }
 
     states
 }

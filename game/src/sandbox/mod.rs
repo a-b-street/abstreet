@@ -75,6 +75,21 @@ impl SandboxMode {
         })
     }
 
+    /// Assumes that the map and simulation have already been set up, and starts by loading
+    /// prebaked data.
+    pub fn start_from_savestate(app: &App) -> Box<dyn State<App>> {
+        let scenario_name = app.primary.sim.get_run_name().to_string();
+        Box::new(SandboxLoader {
+            stage: Some(LoadStage::LoadingPrebaked(scenario_name.clone())),
+            mode: GameplayMode::PlayScenario(
+                app.primary.map.get_name().clone(),
+                scenario_name,
+                Vec::new(),
+            ),
+            finalize: Some(Box::new(|_, _| Vec::new())),
+        })
+    }
+
     // Just for Warping
     pub fn contextual_actions(&self) -> Actions {
         Actions {
