@@ -46,28 +46,45 @@ impl DrawMovement {
                 }
             } else if stage.yield_movements.contains(&movement.id) {
                 let pl = &movement.geom;
-                batch.extend(
-                    Color::BLACK,
-                    pl.exact_slice(
-                        SIDEWALK_THICKNESS - Distance::meters(0.1),
-                        pl.length() - SIDEWALK_THICKNESS + Distance::meters(0.1),
-                    )
-                    .dashed_arrow(
-                        BIG_ARROW_THICKNESS,
-                        Distance::meters(1.2),
-                        Distance::meters(0.3),
-                        ArrowCap::Triangle,
-                    ),
-                );
-                let arrow = pl
-                    .exact_slice(SIDEWALK_THICKNESS, pl.length() - SIDEWALK_THICKNESS)
-                    .dashed_arrow(
-                        BIG_ARROW_THICKNESS / 2.0,
-                        Distance::meters(1.0),
-                        Distance::meters(0.5),
-                        ArrowCap::Triangle,
+                // We currently always assume the turn intersects a crosswalk at the beginning and
+                // end, so draw without overlaps if the polyline is long enough.
+                if pl.length() >= 2.0 * SIDEWALK_THICKNESS {
+                    batch.extend(
+                        Color::BLACK,
+                        pl.exact_slice(
+                            SIDEWALK_THICKNESS - Distance::meters(0.1),
+                            pl.length() - SIDEWALK_THICKNESS + Distance::meters(0.1),
+                        )
+                        .dashed_arrow(
+                            BIG_ARROW_THICKNESS,
+                            Distance::meters(1.2),
+                            Distance::meters(0.3),
+                            ArrowCap::Triangle,
+                        ),
                     );
-                batch.extend(cs.signal_protected_turn, arrow.clone());
+                    let arrow = pl
+                        .exact_slice(SIDEWALK_THICKNESS, pl.length() - SIDEWALK_THICKNESS)
+                        .dashed_arrow(
+                            BIG_ARROW_THICKNESS / 2.0,
+                            Distance::meters(1.0),
+                            Distance::meters(0.5),
+                            ArrowCap::Triangle,
+                        );
+                    batch.extend(cs.signal_protected_turn, arrow.clone());
+                } else {
+                    // TODO These turns are often too small to even dash the arrow. So they'll just
+                    // look like solid protected turns...
+                    warn!("{:?} is too short to render as a yield movement", movement.id);
+                    batch.extend(
+                        cs.signal_protected_turn,
+                        pl.dashed_arrow(
+                            BIG_ARROW_THICKNESS / 2.0,
+                            Distance::meters(1.0),
+                            Distance::meters(0.5),
+                            ArrowCap::Triangle,
+                        ),
+                    );
+                }
                 // Bit weird, but don't use the dashed arrow as the hitbox. The gaps in between
                 // should still be clickable.
                 movement
