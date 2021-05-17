@@ -418,7 +418,7 @@
         <span class="ident">live_map_edits</span>: <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--live_map_edits&quot;</span>),
         <span class="ident">study_area</span>: <span class="ident">args</span>.<span class="ident">optional</span>(<span class="string">&quot;--study_area&quot;</span>),
     };
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">opts</span> <span class="op">=</span> <span class="ident">Options</span>::<span class="ident">default</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">opts</span> <span class="op">=</span> <span class="ident">Options</span>::<span class="ident">load_or_default</span>();
     <span class="ident">opts</span>.<span class="ident">toggle_day_night_colors</span> <span class="op">=</span> <span class="bool-val">true</span>;
     <span class="ident">opts</span>.<span class="ident">update_from_args</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">args</span>);
 

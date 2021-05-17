@@ -28,7 +28,7 @@
     <span class="ident">widgetry</span>::<span class="ident">run</span>(
         <span class="ident">widgetry</span>::<span class="ident">Settings</span>::<span class="ident">new</span>(<span class="string">&quot;OSM parking mapper&quot;</span>).<span class="ident">read_svg</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">abstio</span>::<span class="ident">slurp_bytes</span>)),
         <span class="op">|</span><span class="ident">ctx</span><span class="op">|</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">opts</span> <span class="op">=</span> <span class="ident">map_gui</span>::<span class="ident">options</span>::<span class="ident">Options</span>::<span class="ident">default</span>();
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">opts</span> <span class="op">=</span> <span class="ident">map_gui</span>::<span class="ident">options</span>::<span class="ident">Options</span>::<span class="ident">load_or_default</span>();
             <span class="ident">opts</span>.<span class="ident">min_zoom_for_detail</span> <span class="op">=</span> <span class="number">2.0</span>;
             <span class="ident">map_gui</span>::<span class="ident">SimpleApp</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">opts</span>, (), <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
                 <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">mapper</span>::<span class="ident">ParkingMapper</span>::<span class="ident">new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)]

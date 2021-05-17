@@ -401,8 +401,27 @@
 <span id="398">398</span>
 <span id="399">399</span>
 <span id="400">400</span>
+<span id="401">401</span>
+<span id="402">402</span>
+<span id="403">403</span>
+<span id="404">404</span>
+<span id="405">405</span>
+<span id="406">406</span>
+<span id="407">407</span>
+<span id="408">408</span>
+<span id="409">409</span>
+<span id="410">410</span>
+<span id="411">411</span>
+<span id="412">412</span>
+<span id="413">413</span>
+<span id="414">414</span>
+<span id="415">415</span>
+<span id="416">416</span>
+<span id="417">417</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">CmdArgs</span>;
+<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+
+<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">CmdArgs</span>, <span class="ident">Timer</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">UnitFmt</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">Choice</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">Spinner</span>, <span class="ident">State</span>, <span class="ident">TextExt</span>,
@@ -417,7 +436,7 @@
 <span class="doccomment">/// Options controlling the UI. Some of the options are common to all map-based apps, and some are</span>
 <span class="doccomment">/// specific to A/B Street.</span>
 <span class="comment">// TODO SimOptions stuff too</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Options</span> {
     <span class="doccomment">/// Dev mode exposes experimental tools useful for debugging, but that&#39;d likely confuse most</span>
     <span class="doccomment">/// players.</span>
@@ -456,7 +475,21 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Options</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Options</span> {
+    <span class="doccomment">/// Restore previous options. If the file is missing or the format has changed, fall back to</span>
+    <span class="doccomment">/// built-in defaults.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">load_or_default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Options</span> {
+        <span class="kw">match</span> <span class="ident">abstio</span>::<span class="ident">maybe_read_json</span>::<span class="op">&lt;</span><span class="ident">Options</span><span class="op">&gt;</span>(
+            <span class="ident">abstio</span>::<span class="ident">path_player</span>(<span class="string">&quot;settings.json&quot;</span>),
+            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>::<span class="ident">throwaway</span>(),
+        ) {
+            <span class="prelude-val">Ok</span>(<span class="ident">opts</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">return</span> <span class="ident">opts</span>;
+            }
+            <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="macro">warn</span><span class="macro">!</span>(<span class="string">&quot;Couldn&#39;t restore settings, so using defaults. {}&quot;</span>, <span class="ident">err</span>);
+            }
+        }
+
         <span class="ident">Options</span> {
             <span class="ident">dev</span>: <span class="bool-val">false</span>,
             <span class="ident">debug_all_agents</span>: <span class="bool-val">false</span>,
@@ -511,14 +544,14 @@
 }
 
 <span class="doccomment">/// Different ways of drawing traffic signals. The names of these aren&#39;t super meaningful...</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Debug</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">TrafficSignalStyle</span> {
     <span class="ident">Brian</span>,
     <span class="ident">Yuwen</span>,
     <span class="ident">IndividualTurnArrows</span>,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Debug</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">CameraAngle</span> {
     <span class="ident">TopDown</span>,
     <span class="ident">IsometricNE</span>,
@@ -786,6 +819,7 @@
                         }
                     }
 
+                    <span class="ident">abstio</span>::<span class="ident">write_json</span>(<span class="ident">abstio</span>::<span class="ident">path_player</span>(<span class="string">&quot;settings.json&quot;</span>), <span class="kw-2">&amp;</span><span class="ident">opts</span>);
                     <span class="kw-2">*</span><span class="ident">app</span>.<span class="ident">mut_opts</span>() <span class="op">=</span> <span class="ident">opts</span>;
 
                     <span class="kw">return</span> <span class="ident">widgetry</span>::<span class="ident">Transition</span>::<span class="ident">Pop</span>;
