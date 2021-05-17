@@ -1,8 +1,10 @@
 use geom::{CornerRadii, Distance};
 use map_gui::render::{Renderable, OUTLINE_THICKNESS};
+use map_gui::tools::PopupMsg;
 use map_gui::ID;
 use map_model::{
-    Direction, EditCmd, EditRoad, LaneID, LaneSpec, LaneType, Road, RoadID, NORMAL_LANE_THICKNESS,
+    Direction, EditCmd, EditRoad, LaneID, LaneSpec, LaneType, MapEdits, Road, RoadID,
+    NORMAL_LANE_THICKNESS,
 };
 use widgetry::{
     lctrl, Choice, Color, ControlState, Drawable, EventCtx, GeomBatch, GeomBatchStack, GfxCtx,
@@ -23,6 +25,7 @@ pub struct RoadEditor {
     // Undo/redo management
     num_edit_cmds_originally: usize,
     redo_stack: Vec<EditCmd>,
+    orig_road_state: EditRoad,
 }
 
 impl RoadEditor {
@@ -38,6 +41,7 @@ impl RoadEditor {
 
             num_edit_cmds_originally: app.primary.map.get_edits().commands.len(),
             redo_stack: Vec::new(),
+            orig_road_state: app.primary.map.get_r_edit(r),
         };
         editor.recalc_all_panels(ctx, app);
         Box::new(editor)
@@ -83,6 +87,26 @@ impl RoadEditor {
             self.redo_stack.is_empty(),
         );
     }
+
+    fn compress_edits(&self, app: &App) -> Option<MapEdits> {
+        // Compress all of the edits, unless there were 0 or 1 changes
+        if app.primary.map.get_edits().commands.len() > self.num_edit_cmds_originally + 2 {
+            let mut edits = app.primary.map.get_edits().clone();
+            let last_edit = match edits.commands.pop().unwrap() {
+                EditCmd::ChangeRoad { new, .. } => new,
+                _ => unreachable!(),
+            };
+            edits.commands.truncate(self.num_edit_cmds_originally + 1);
+            match edits.commands.last_mut().unwrap() {
+                EditCmd::ChangeRoad { ref mut new, .. } => {
+                    *new = last_edit;
+                }
+                _ => unreachable!(),
+            }
+            return Some(edits);
+        }
+        None
+    }
 }
 
 impl State<App> for RoadEditor {
@@ -92,23 +116,9 @@ impl State<App> for RoadEditor {
         if let Outcome::Clicked(x) = self.top_panel.event(ctx) {
             match x.as_ref() {
                 "Finish" => {
-                    // Compress all of the edits, unless there were 0 or 1 changes
-                    let mut edits = app.primary.map.get_edits().clone();
-                    if edits.commands.len() > self.num_edit_cmds_originally + 2 {
-                        let last_edit = match edits.commands.pop().unwrap() {
-                            EditCmd::ChangeRoad { new, .. } => new,
-                            _ => unreachable!(),
-                        };
-                        edits.commands.truncate(self.num_edit_cmds_originally + 1);
-                        match edits.commands.last_mut().unwrap() {
-                            EditCmd::ChangeRoad { ref mut new, .. } => {
-                                *new = last_edit;
-                            }
-                            _ => unreachable!(),
-                        }
+                    if let Some(edits) = self.compress_edits(app) {
                         apply_map_edits(ctx, app, edits);
                     }
-
                     return Transition::Pop;
                 }
                 "Cancel" => {
@@ -134,6 +144,23 @@ impl State<App> for RoadEditor {
 
                     self.current_lane = None;
                     self.recalc_all_panels(ctx, app);
+                }
+                "Edit multiple roads" => {
+                    let current_state = app.primary.map.get_r_edit(self.r);
+                    if current_state == self.orig_road_state {
+                        return Transition::Push(PopupMsg::new_state(ctx, "Error", vec!["Change this road first, then you can apply the edits to more segments"]));
+                    }
+                    return Transition::Push(
+                        crate::edit::multiple_roads::SelectSegments::new_state(
+                            ctx,
+                            app,
+                            self.r,
+                            self.orig_road_state.clone(),
+                            current_state,
+                            self.compress_edits(app)
+                                .unwrap_or_else(|| app.primary.map.get_edits().clone()),
+                        ),
+                    );
                 }
                 _ => unreachable!(),
             }
@@ -264,30 +291,41 @@ fn make_top_panel(
     num_edit_cmds_originally: usize,
     no_redo_cmds: bool,
 ) -> Panel {
-    Panel::new_builder(Widget::row(vec![
-        ctx.style()
-            .btn_solid_primary
-            .text("Finish")
-            .hotkey(Key::Enter)
-            .build_def(ctx),
-        ctx.style()
-            .btn_plain
-            .icon("system/assets/tools/undo.svg")
-            .disabled(app.primary.map.get_edits().commands.len() == num_edit_cmds_originally)
-            .hotkey(lctrl(Key::Z))
-            .build_widget(ctx, "undo"),
-        ctx.style()
-            .btn_plain
-            .icon("system/assets/tools/redo.svg")
-            .disabled(no_redo_cmds)
-            // TODO ctrl+shift+Z!
-            .hotkey(lctrl(Key::Y))
-            .build_widget(ctx, "redo"),
-        ctx.style()
-            .btn_plain
-            .text("Cancel")
-            .hotkey(Key::Escape)
-            .build_def(ctx),
+    Panel::new_builder(Widget::col(vec![
+        Widget::row(vec![
+            Line("Editing road").small_heading().into_widget(ctx),
+            ctx.style()
+                .btn_plain
+                .text("+ Edit multiple")
+                .label_color(Color::hex("#4CA7E9"), ControlState::Default)
+                .hotkey(Key::M)
+                .build_widget(ctx, "Edit multiple roads"),
+        ]),
+        Widget::row(vec![
+            ctx.style()
+                .btn_solid_primary
+                .text("Finish")
+                .hotkey(Key::Enter)
+                .build_def(ctx),
+            ctx.style()
+                .btn_plain
+                .icon("system/assets/tools/undo.svg")
+                .disabled(app.primary.map.get_edits().commands.len() == num_edit_cmds_originally)
+                .hotkey(lctrl(Key::Z))
+                .build_widget(ctx, "undo"),
+            ctx.style()
+                .btn_plain
+                .icon("system/assets/tools/redo.svg")
+                .disabled(no_redo_cmds)
+                // TODO ctrl+shift+Z!
+                .hotkey(lctrl(Key::Y))
+                .build_widget(ctx, "redo"),
+            ctx.style()
+                .btn_plain
+                .text("Cancel")
+                .hotkey(Key::Escape)
+                .build_def(ctx),
+        ]),
     ]))
     .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
     .build(ctx)
