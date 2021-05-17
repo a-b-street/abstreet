@@ -218,6 +218,9 @@
 <span id="215">215</span>
 <span id="216">216</span>
 <span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
@@ -295,7 +298,10 @@
                 } <span class="kw">else</span> {
                     <span class="comment">// TODO These turns are often too small to even dash the arrow. So they&#39;ll just</span>
                     <span class="comment">// look like solid protected turns...</span>
-                    <span class="macro">warn</span><span class="macro">!</span>(<span class="string">&quot;{:?} is too short to render as a yield movement&quot;</span>, <span class="ident">movement</span>.<span class="ident">id</span>);
+                    <span class="macro">warn</span><span class="macro">!</span>(
+                        <span class="string">&quot;{:?} is too short to render as a yield movement&quot;</span>,
+                        <span class="ident">movement</span>.<span class="ident">id</span>
+                    );
                     <span class="ident">batch</span>.<span class="ident">extend</span>(
                         <span class="ident">cs</span>.<span class="ident">signal_protected_turn</span>,
                         <span class="ident">pl</span>.<span class="ident">dashed_arrow</span>(

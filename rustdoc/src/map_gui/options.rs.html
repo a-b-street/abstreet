@@ -390,6 +390,17 @@
 <span id="387">387</span>
 <span id="388">388</span>
 <span id="389">389</span>
+<span id="390">390</span>
+<span id="391">391</span>
+<span id="392">392</span>
+<span id="393">393</span>
+<span id="394">394</span>
+<span id="395">395</span>
+<span id="396">396</span>
+<span id="397">397</span>
+<span id="398">398</span>
+<span id="399">399</span>
+<span id="400">400</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">CmdArgs</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">UnitFmt</span>};
@@ -566,6 +577,16 @@
                             <span class="number">1</span>,
                         ),
                     ]),
+                    <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                        <span class="string">&quot;Zoom speed for the map&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
+                        <span class="ident">Spinner</span>::<span class="ident">widget</span>(
+                            <span class="ident">ctx</span>,
+                            <span class="string">&quot;canvas_scroll_speed&quot;</span>,
+                            (<span class="number">1</span>, <span class="number">30</span>),
+                            <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">canvas_scroll_speed</span>,
+                            <span class="number">1</span>,
+                        ),
+                    ]),
                 ])
                 .<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">inner_panel_bg</span>)
                 .<span class="ident">padding</span>(<span class="number">8</span>),
@@ -698,6 +719,7 @@
                         .<span class="ident">is_checked</span>(<span class="string">&quot;Use arrow keys to pan and Q/W to zoom&quot;</span>);
                     <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">edge_auto_panning</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;autopan&quot;</span>);
                     <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">gui_scroll_speed</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">spinner</span>(<span class="string">&quot;gui_scroll_speed&quot;</span>);
+                    <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">canvas_scroll_speed</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">spinner</span>(<span class="string">&quot;canvas_scroll_speed&quot;</span>);
 
                     <span class="kw">let</span> <span class="ident">style</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">dropdown_value</span>(<span class="string">&quot;Traffic signal rendering&quot;</span>);
                     <span class="kw">if</span> <span class="ident">opts</span>.<span class="ident">traffic_signal_style</span> <span class="op">!</span><span class="op">=</span> <span class="ident">style</span> {

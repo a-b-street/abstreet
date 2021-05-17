@@ -344,6 +344,10 @@
 <span id="341">341</span>
 <span id="342">342</span>
 <span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
+<span id="347">347</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cell</span>::<span class="ident">RefCell</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
@@ -385,6 +389,9 @@
     <span class="kw">pub</span> <span class="ident">edge_auto_panning</span>: <span class="ident">bool</span>,
     <span class="kw">pub</span> <span class="ident">keys_to_pan</span>: <span class="ident">bool</span>,
     <span class="kw">pub</span> <span class="ident">gui_scroll_speed</span>: <span class="ident">usize</span>,
+    <span class="comment">// TODO Ideally this would be an f64, but elsewhere we use it in a Spinner. Until we override</span>
+    <span class="comment">// the Display trait to do some rounding, floating point increments render pretty horribly.</span>
+    <span class="kw">pub</span> <span class="ident">canvas_scroll_speed</span>: <span class="ident">usize</span>,
 
     <span class="comment">// TODO Bit weird and hacky to mutate inside of draw() calls.</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">covered_areas</span>: <span class="ident">RefCell</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ScreenRectangle</span><span class="op">&gt;</span><span class="op">&gt;</span>,
@@ -415,6 +422,7 @@
             <span class="ident">edge_auto_panning</span>: <span class="bool-val">false</span>,
             <span class="ident">keys_to_pan</span>: <span class="bool-val">false</span>,
             <span class="ident">gui_scroll_speed</span>: <span class="number">5</span>,
+            <span class="ident">canvas_scroll_speed</span>: <span class="number">10</span>,
 
             <span class="ident">covered_areas</span>: <span class="ident">RefCell</span>::<span class="ident">new</span>(<span class="ident">Vec</span>::<span class="ident">new</span>()),
 
@@ -525,7 +533,7 @@
         <span class="kw">let</span> <span class="ident">old_zoom</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">cam_zoom</span>;
         <span class="comment">// By popular request, some limits ;)</span>
         <span class="self">self</span>.<span class="ident">cam_zoom</span> <span class="op">=</span> <span class="number">1.1_f64</span>
-            .<span class="ident">powf</span>(<span class="ident">old_zoom</span>.<span class="ident">log</span>(<span class="number">1.1</span>) <span class="op">+</span> <span class="ident">delta</span>)
+            .<span class="ident">powf</span>(<span class="ident">old_zoom</span>.<span class="ident">log</span>(<span class="number">1.1</span>) <span class="op">+</span> <span class="ident">delta</span> <span class="op">*</span> (<span class="self">self</span>.<span class="ident">canvas_scroll_speed</span> <span class="kw">as</span> <span class="ident">f64</span> <span class="op">/</span> <span class="number">10.0</span>))
             .<span class="ident">max</span>(<span class="self">self</span>.<span class="ident">min_zoom</span>())
             .<span class="ident">min</span>(<span class="number">150.0</span>);
 
