@@ -201,6 +201,23 @@
 <span id="198">198</span>
 <span id="199">199</span>
 <span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
@@ -250,28 +267,45 @@
                 }
             } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">stage</span>.<span class="ident">yield_movements</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">movement</span>.<span class="ident">id</span>) {
                 <span class="kw">let</span> <span class="ident">pl</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">movement</span>.<span class="ident">geom</span>;
-                <span class="ident">batch</span>.<span class="ident">extend</span>(
-                    <span class="ident">Color</span>::<span class="ident">BLACK</span>,
-                    <span class="ident">pl</span>.<span class="ident">exact_slice</span>(
-                        <span class="ident">SIDEWALK_THICKNESS</span> <span class="op">-</span> <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">0.1</span>),
-                        <span class="ident">pl</span>.<span class="ident">length</span>() <span class="op">-</span> <span class="ident">SIDEWALK_THICKNESS</span> <span class="op">+</span> <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">0.1</span>),
-                    )
-                    .<span class="ident">dashed_arrow</span>(
-                        <span class="ident">BIG_ARROW_THICKNESS</span>,
-                        <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">1.2</span>),
-                        <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">0.3</span>),
-                        <span class="ident">ArrowCap</span>::<span class="ident">Triangle</span>,
-                    ),
-                );
-                <span class="kw">let</span> <span class="ident">arrow</span> <span class="op">=</span> <span class="ident">pl</span>
-                    .<span class="ident">exact_slice</span>(<span class="ident">SIDEWALK_THICKNESS</span>, <span class="ident">pl</span>.<span class="ident">length</span>() <span class="op">-</span> <span class="ident">SIDEWALK_THICKNESS</span>)
-                    .<span class="ident">dashed_arrow</span>(
-                        <span class="ident">BIG_ARROW_THICKNESS</span> <span class="op">/</span> <span class="number">2.0</span>,
-                        <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">1.0</span>),
-                        <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">0.5</span>),
-                        <span class="ident">ArrowCap</span>::<span class="ident">Triangle</span>,
+                <span class="comment">// We currently always assume the turn intersects a crosswalk at the beginning and</span>
+                <span class="comment">// end, so draw without overlaps if the polyline is long enough.</span>
+                <span class="kw">if</span> <span class="ident">pl</span>.<span class="ident">length</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="number">2.0</span> <span class="op">*</span> <span class="ident">SIDEWALK_THICKNESS</span> {
+                    <span class="ident">batch</span>.<span class="ident">extend</span>(
+                        <span class="ident">Color</span>::<span class="ident">BLACK</span>,
+                        <span class="ident">pl</span>.<span class="ident">exact_slice</span>(
+                            <span class="ident">SIDEWALK_THICKNESS</span> <span class="op">-</span> <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">0.1</span>),
+                            <span class="ident">pl</span>.<span class="ident">length</span>() <span class="op">-</span> <span class="ident">SIDEWALK_THICKNESS</span> <span class="op">+</span> <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">0.1</span>),
+                        )
+                        .<span class="ident">dashed_arrow</span>(
+                            <span class="ident">BIG_ARROW_THICKNESS</span>,
+                            <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">1.2</span>),
+                            <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">0.3</span>),
+                            <span class="ident">ArrowCap</span>::<span class="ident">Triangle</span>,
+                        ),
                     );
-                <span class="ident">batch</span>.<span class="ident">extend</span>(<span class="ident">cs</span>.<span class="ident">signal_protected_turn</span>, <span class="ident">arrow</span>.<span class="ident">clone</span>());
+                    <span class="kw">let</span> <span class="ident">arrow</span> <span class="op">=</span> <span class="ident">pl</span>
+                        .<span class="ident">exact_slice</span>(<span class="ident">SIDEWALK_THICKNESS</span>, <span class="ident">pl</span>.<span class="ident">length</span>() <span class="op">-</span> <span class="ident">SIDEWALK_THICKNESS</span>)
+                        .<span class="ident">dashed_arrow</span>(
+                            <span class="ident">BIG_ARROW_THICKNESS</span> <span class="op">/</span> <span class="number">2.0</span>,
+                            <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">1.0</span>),
+                            <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">0.5</span>),
+                            <span class="ident">ArrowCap</span>::<span class="ident">Triangle</span>,
+                        );
+                    <span class="ident">batch</span>.<span class="ident">extend</span>(<span class="ident">cs</span>.<span class="ident">signal_protected_turn</span>, <span class="ident">arrow</span>.<span class="ident">clone</span>());
+                } <span class="kw">else</span> {
+                    <span class="comment">// TODO These turns are often too small to even dash the arrow. So they&#39;ll just</span>
+                    <span class="comment">// look like solid protected turns...</span>
+                    <span class="macro">warn</span><span class="macro">!</span>(<span class="string">&quot;{:?} is too short to render as a yield movement&quot;</span>, <span class="ident">movement</span>.<span class="ident">id</span>);
+                    <span class="ident">batch</span>.<span class="ident">extend</span>(
+                        <span class="ident">cs</span>.<span class="ident">signal_protected_turn</span>,
+                        <span class="ident">pl</span>.<span class="ident">dashed_arrow</span>(
+                            <span class="ident">BIG_ARROW_THICKNESS</span> <span class="op">/</span> <span class="number">2.0</span>,
+                            <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">1.0</span>),
+                            <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">0.5</span>),
+                            <span class="ident">ArrowCap</span>::<span class="ident">Triangle</span>,
+                        ),
+                    );
+                }
                 <span class="comment">// Bit weird, but don&#39;t use the dashed arrow as the hitbox. The gaps in between</span>
                 <span class="comment">// should still be clickable.</span>
                 <span class="ident">movement</span>
