@@ -337,15 +337,15 @@ fn make_main_panel(
 
     let current_lts: Vec<LaneType> = road.lanes_ltr().into_iter().map(|(_, _, lt)| lt).collect();
     let mut available_lane_types_row = vec![
-        LaneType::Driving,
-        LaneType::Biking,
-        LaneType::Bus,
-        LaneType::Parking,
-        LaneType::Construction,
-        LaneType::Sidewalk,
+        (LaneType::Driving, Key::D),
+        (LaneType::Biking, Key::B),
+        (LaneType::Bus, Key::T),
+        (LaneType::Parking, Key::P),
+        (LaneType::Construction, Key::C),
+        (LaneType::Sidewalk, Key::S),
     ]
     .into_iter()
-    .map(|lt| {
+    .map(|(lt, key)| {
         let disabled = if let Some(current) = current_lt {
             lt == current
         } else {
@@ -364,6 +364,11 @@ fn make_main_panel(
             .btn_plain
             .icon(lane_type_to_icon(lt).unwrap())
             .disabled(disabled)
+            .hotkey(if current_lane.is_some() {
+                Some(key.into())
+            } else {
+                None
+            })
             .build_widget(
                 ctx,
                 format!(
