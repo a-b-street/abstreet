@@ -74,7 +74,10 @@ impl DrawMovement {
                 } else {
                     // TODO These turns are often too small to even dash the arrow. So they'll just
                     // look like solid protected turns...
-                    warn!("{:?} is too short to render as a yield movement", movement.id);
+                    warn!(
+                        "{:?} is too short to render as a yield movement",
+                        movement.id
+                    );
                     batch.extend(
                         cs.signal_protected_turn,
                         pl.dashed_arrow(

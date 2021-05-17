@@ -38,6 +38,9 @@ pub struct Canvas {
     pub edge_auto_panning: bool,
     pub keys_to_pan: bool,
     pub gui_scroll_speed: usize,
+    // TODO Ideally this would be an f64, but elsewhere we use it in a Spinner. Until we override
+    // the Display trait to do some rounding, floating point increments render pretty horribly.
+    pub canvas_scroll_speed: usize,
 
     // TODO Bit weird and hacky to mutate inside of draw() calls.
     pub(crate) covered_areas: RefCell<Vec<ScreenRectangle>>,
@@ -68,6 +71,7 @@ impl Canvas {
             edge_auto_panning: false,
             keys_to_pan: false,
             gui_scroll_speed: 5,
+            canvas_scroll_speed: 10,
 
             covered_areas: RefCell::new(Vec::new()),
 
@@ -178,7 +182,7 @@ impl Canvas {
         let old_zoom = self.cam_zoom;
         // By popular request, some limits ;)
         self.cam_zoom = 1.1_f64
-            .powf(old_zoom.log(1.1) + delta)
+            .powf(old_zoom.log(1.1) + delta * (self.canvas_scroll_speed as f64 / 10.0))
             .max(self.min_zoom())
             .min(150.0);
 

@@ -173,6 +173,16 @@ impl OptionsPanel {
                             1,
                         ),
                     ]),
+                    Widget::row(vec![
+                        "Zoom speed for the map".text_widget(ctx).centered_vert(),
+                        Spinner::widget(
+                            ctx,
+                            "canvas_scroll_speed",
+                            (1, 30),
+                            ctx.canvas.canvas_scroll_speed,
+                            1,
+                        ),
+                    ]),
                 ])
                 .bg(app.cs().inner_panel_bg)
                 .padding(8),
@@ -305,6 +315,7 @@ impl<A: AppLike> State<A> for OptionsPanel {
                         .is_checked("Use arrow keys to pan and Q/W to zoom");
                     ctx.canvas.edge_auto_panning = self.panel.is_checked("autopan");
                     ctx.canvas.gui_scroll_speed = self.panel.spinner("gui_scroll_speed");
+                    ctx.canvas.canvas_scroll_speed = self.panel.spinner("canvas_scroll_speed");
 
                     let style = self.panel.dropdown_value("Traffic signal rendering");
                     if opts.traffic_signal_style != style {
