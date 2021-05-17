@@ -204,7 +204,7 @@ mod wasm_loader {
     }
 
     impl<A: AppLike + 'static, T: 'static + DeserializeOwned> FileLoader<A, T> {
-        pub fn new(
+        pub fn new_state(
             ctx: &mut EventCtx,
             path: String,
             on_load: Box<dyn FnOnce(&mut EventCtx, &mut A, &mut Timer, Result<T>) -> Transition<A>>,
@@ -321,7 +321,7 @@ mod wasm_loader {
     }
 
     impl<A: AppLike + 'static> RawFileLoader<A> {
-        pub fn new(
+        pub fn new_state(
             ctx: &mut EventCtx,
             path: String,
             on_load: Box<dyn FnOnce(&mut EventCtx, &mut A, Result<Vec<u8>>) -> Transition<A>>,
@@ -449,7 +449,7 @@ where
     T: 'static,
 {
     #[cfg(target_arch = "wasm32")]
-    pub fn new(
+    pub fn new_state(
         ctx: &mut EventCtx,
         future: Pin<Box<dyn Future<Output = Result<Box<dyn Send + FnOnce(&A) -> T>>>>>,
         outer_progress_receiver: mpsc::Receiver<String>,

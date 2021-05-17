@@ -230,10 +230,16 @@ impl FilePicker {
                 if let Some(dir) = start_dir {
                     builder = builder.set_directory(&dir);
                 }
-                let result = builder
-                    .pick_file()
-                    .await
-                    .map(|x| x.path().display().to_string());
+                let result = builder.pick_file().await.map(|x| {
+                    #[cfg(not(target_arch = "wasm32"))]
+                    {
+                        x.path().display().to_string()
+                    }
+                    #[cfg(target_arch = "wasm32")]
+                    {
+                        format!("TODO rfd on wasm: {:?}", x)
+                    }
+                });
                 let wrap: Box<dyn Send + FnOnce(&A) -> Option<String>> =
                     Box::new(move |_: &A| result);
                 Ok(wrap)
