@@ -3,6 +3,8 @@
 #[macro_use]
 extern crate anyhow;
 
+use serde::{Deserialize, Serialize};
+
 pub use crate::angle::Angle;
 pub use crate::bounds::{Bounds, GPSBounds};
 pub use crate::circle::Circle;
@@ -48,7 +50,7 @@ pub fn trim_f64(x: f64) -> f64 {
 }
 
 /// Specifies how to stringify different geom objects.
-#[derive(Clone)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct UnitFmt {
     /// Round `Duration`s to a whole number of seconds.
     pub round_durations: bool,

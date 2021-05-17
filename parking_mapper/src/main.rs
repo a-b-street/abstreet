@@ -7,7 +7,7 @@ fn main() {
     widgetry::run(
         widgetry::Settings::new("OSM parking mapper").read_svg(Box::new(abstio::slurp_bytes)),
         |ctx| {
-            let mut opts = map_gui::options::Options::default();
+            let mut opts = map_gui::options::Options::load_or_default();
             opts.min_zoom_for_detail = 2.0;
             map_gui::SimpleApp::new(ctx, opts, (), |ctx, app| {
                 vec![mapper::ParkingMapper::new_state(ctx, app)]

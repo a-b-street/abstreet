@@ -5,6 +5,7 @@ use std::fs::File;
 use std::io::Write;
 
 use anyhow::Result;
+use serde::{Deserialize, Serialize};
 
 use map_model::osm::RoadRank;
 use map_model::LaneType;
@@ -23,7 +24,7 @@ use crate::tools::{loading_tips, ColorScale};
 //
 // TODO There are plenty of colors left that aren't captured here. :(
 
-#[derive(Clone, Copy, PartialEq, Debug)]
+#[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize)]
 pub enum ColorSchemeChoice {
     DayMode,
     NightMode,

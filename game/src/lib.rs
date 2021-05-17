@@ -54,7 +54,7 @@ fn run(mut settings: Settings) {
         live_map_edits: args.enabled("--live_map_edits"),
         study_area: args.optional("--study_area"),
     };
-    let mut opts = Options::default();
+    let mut opts = Options::load_or_default();
     opts.toggle_day_night_colors = true;
     opts.update_from_args(&mut args);
 

@@ -20,9 +20,12 @@ pub fn main() {
 fn run(mut settings: Settings) {
     settings = settings.read_svg(Box::new(abstio::slurp_bytes));
     widgetry::run(settings, |ctx| {
-        map_gui::SimpleApp::new(ctx, map_gui::options::Options::default(), (), |ctx, app| {
-            vec![viewer::Viewer::random_start(ctx, app)]
-        })
+        map_gui::SimpleApp::new(
+            ctx,
+            map_gui::options::Options::load_or_default(),
+            (),
+            |ctx, app| vec![viewer::Viewer::random_start(ctx, app)],
+        )
     });
 }
 

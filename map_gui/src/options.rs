@@ -1,4 +1,6 @@
-use abstutil::CmdArgs;
+use serde::{Deserialize, Serialize};
+
+use abstutil::{CmdArgs, Timer};
 use geom::{Duration, UnitFmt};
 use widgetry::{
     Choice, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, Spinner, State, TextExt,
@@ -13,7 +15,7 @@ use crate::AppLike;
 /// Options controlling the UI. Some of the options are common to all map-based apps, and some are
 /// specific to A/B Street.
 // TODO SimOptions stuff too
-#[derive(Clone)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct Options {
     /// Dev mode exposes experimental tools useful for debugging, but that'd likely confuse most
     /// players.
@@ -52,7 +54,21 @@ pub struct Options {
 }
 
 impl Options {
-    pub fn default() -> Options {
+    /// Restore previous options. If the file is missing or the format has changed, fall back to
+    /// built-in defaults.
+    pub fn load_or_default() -> Options {
+        match abstio::maybe_read_json::<Options>(
+            abstio::path_player("settings.json"),
+            &mut Timer::throwaway(),
+        ) {
+            Ok(opts) => {
+                return opts;
+            }
+            Err(err) => {
+                warn!("Couldn't restore settings, so using defaults. {}", err);
+            }
+        }
+
         Options {
             dev: false,
             debug_all_agents: false,
@@ -107,14 +123,14 @@ impl Options {
 }
 
 /// Different ways of drawing traffic signals. The names of these aren't super meaningful...
-#[derive(Clone, PartialEq, Debug)]
+#[derive(Clone, PartialEq, Debug, Serialize, Deserialize)]
 pub enum TrafficSignalStyle {
     Brian,
     Yuwen,
     IndividualTurnArrows,
 }
 
-#[derive(Clone, PartialEq, Debug)]
+#[derive(Clone, PartialEq, Debug, Serialize, Deserialize)]
 pub enum CameraAngle {
     TopDown,
     IsometricNE,
@@ -382,6 +398,7 @@ impl<A: AppLike> State<A> for OptionsPanel {
                         }
                     }
 
+                    abstio::write_json(abstio::path_player("settings.json"), &opts);
                     *app.mut_opts() = opts;
 
                     return widgetry::Transition::Pop;
