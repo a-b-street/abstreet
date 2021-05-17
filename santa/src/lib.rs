@@ -28,10 +28,12 @@ pub fn main() {
 }
 
 fn run(mut settings: Settings) {
-    settings = settings.read_svg(Box::new(abstio::slurp_bytes));
+    let mut opts = map_gui::options::Options::load_or_default();
+    opts.color_scheme = map_gui::colors::ColorSchemeChoice::NightMode;
+    settings = settings
+        .read_svg(Box::new(abstio::slurp_bytes))
+        .canvas_settings(opts.canvas_settings.clone());
     widgetry::run(settings, |ctx| {
-        let mut opts = map_gui::options::Options::load_or_default();
-        opts.color_scheme = map_gui::colors::ColorSchemeChoice::NightMode;
         let session = session::Session::load();
         session.save();
 

@@ -1,6 +1,8 @@
 use std::cell::RefCell;
 use std::collections::HashSet;
 
+use serde::{Deserialize, Serialize};
+
 use geom::{Bounds, Pt2D};
 
 use crate::{Key, ScreenDims, ScreenPt, ScreenRectangle, UpdateType, UserInput};
@@ -33,14 +35,7 @@ pub struct Canvas {
 
     // TODO Proper API for setting these
     pub map_dims: (f64, f64),
-    pub invert_scroll: bool,
-    pub touchpad_to_move: bool,
-    pub edge_auto_panning: bool,
-    pub keys_to_pan: bool,
-    pub gui_scroll_speed: usize,
-    // TODO Ideally this would be an f64, but elsewhere we use it in a Spinner. Until we override
-    // the Display trait to do some rounding, floating point increments render pretty horribly.
-    pub canvas_scroll_speed: usize,
+    pub settings: CanvasSettings,
 
     // TODO Bit weird and hacky to mutate inside of draw() calls.
     pub(crate) covered_areas: RefCell<Vec<ScreenRectangle>>,
@@ -49,8 +44,33 @@ pub struct Canvas {
     pub(crate) keys_held: HashSet<Key>,
 }
 
+#[derive(Clone, Serialize, Deserialize)]
+pub struct CanvasSettings {
+    pub invert_scroll: bool,
+    pub touchpad_to_move: bool,
+    pub edge_auto_panning: bool,
+    pub keys_to_pan: bool,
+    pub gui_scroll_speed: usize,
+    // TODO Ideally this would be an f64, but elsewhere we use it in a Spinner. Until we override
+    // the Display trait to do some rounding, floating point increments render pretty horribly.
+    pub canvas_scroll_speed: usize,
+}
+
+impl CanvasSettings {
+    pub fn new() -> CanvasSettings {
+        CanvasSettings {
+            invert_scroll: false,
+            touchpad_to_move: false,
+            edge_auto_panning: false,
+            keys_to_pan: false,
+            gui_scroll_speed: 5,
+            canvas_scroll_speed: 10,
+        }
+    }
+}
+
 impl Canvas {
-    pub(crate) fn new(initial_dims: ScreenDims) -> Canvas {
+    pub(crate) fn new(initial_dims: ScreenDims, settings: CanvasSettings) -> Canvas {
         Canvas {
             cam_x: 0.0,
             cam_y: 0.0,
@@ -66,12 +86,7 @@ impl Canvas {
             window_height: initial_dims.height,
 
             map_dims: (0.0, 0.0),
-            invert_scroll: false,
-            touchpad_to_move: false,
-            edge_auto_panning: false,
-            keys_to_pan: false,
-            gui_scroll_speed: 5,
-            canvas_scroll_speed: 10,
+            settings,
 
             covered_areas: RefCell::new(Vec::new()),
 
@@ -88,7 +103,7 @@ impl Canvas {
     pub(crate) fn handle_event(&mut self, input: &mut UserInput) -> Option<UpdateType> {
         // Can't start dragging or zooming on top of covered area
         if self.get_cursor_in_map_space().is_some() {
-            if self.touchpad_to_move {
+            if self.settings.touchpad_to_move {
                 if let Some((scroll_x, scroll_y)) = input.get_mouse_scroll() {
                     if self.keys_held.contains(&Key::LeftControl) {
                         self.zoom(scroll_y, self.cursor);
@@ -108,7 +123,7 @@ impl Canvas {
                 }
             }
 
-            if self.keys_to_pan {
+            if self.settings.keys_to_pan {
                 if input.pressed(Key::LeftArrow) {
                     self.cam_x -= PAN_SPEED;
                 }
@@ -157,7 +172,7 @@ impl Canvas {
             let cursor_map_pt = self.screen_to_map(self.get_cursor());
             let inner_bounds = self.get_inner_bounds();
             let map_bounds = self.get_map_bounds();
-            if self.edge_auto_panning
+            if self.settings.edge_auto_panning
                 && !inner_bounds.contains(cursor_screen_pt)
                 && map_bounds.contains(cursor_map_pt)
                 && input.nonblocking_is_update_event().is_some()
@@ -182,7 +197,7 @@ impl Canvas {
         let old_zoom = self.cam_zoom;
         // By popular request, some limits ;)
         self.cam_zoom = 1.1_f64
-            .powf(old_zoom.log(1.1) + delta * (self.canvas_scroll_speed as f64 / 10.0))
+            .powf(old_zoom.log(1.1) + delta * (self.settings.canvas_scroll_speed as f64 / 10.0))
             .max(self.min_zoom())
             .min(150.0);
 

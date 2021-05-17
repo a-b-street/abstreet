@@ -55,6 +55,7 @@ fn run(mut settings: Settings) {
         study_area: args.optional("--study_area"),
     };
     let mut opts = Options::load_or_default();
+    settings = settings.canvas_settings(opts.canvas_settings.clone());
     opts.toggle_day_night_colors = true;
     opts.update_from_args(&mut args);
 

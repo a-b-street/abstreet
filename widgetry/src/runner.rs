@@ -12,7 +12,8 @@ use crate::app_state::App;
 use crate::assets::Assets;
 use crate::tools::screenshot::screenshot_everything;
 use crate::{
-    Canvas, Event, EventCtx, GfxCtx, Prerender, SharedAppState, Style, Text, UpdateType, UserInput,
+    Canvas, CanvasSettings, Event, EventCtx, GfxCtx, Prerender, SharedAppState, Style, Text,
+    UpdateType, UserInput,
 };
 
 const UPDATE_FREQUENCY: std::time::Duration = std::time::Duration::from_millis(1000 / 30);
@@ -30,7 +31,7 @@ impl<A: SharedAppState> State<A> {
     // The bool indicates if the input was actually used.
     fn event(&mut self, mut ev: Event, prerender: &Prerender) -> (Vec<UpdateType>, bool) {
         if let Event::MouseWheelScroll(dx, dy) = ev {
-            if self.canvas.invert_scroll {
+            if self.canvas.settings.invert_scroll {
                 ev = Event::MouseWheelScroll(-dx, -dy);
             }
         }
@@ -159,7 +160,7 @@ impl<A: SharedAppState> State<A> {
     }
 }
 
-/// Customize how widgetry works. These settings can't be changed after starting.
+/// Customize how widgetry works. Most of these settings can't be changed after starting.
 pub struct Settings {
     pub(crate) window_title: String,
     #[cfg(target_arch = "wasm32")]
@@ -172,6 +173,7 @@ pub struct Settings {
     window_icon: Option<String>,
     loading_tips: Option<Text>,
     read_svg: Box<dyn Fn(&str) -> Vec<u8>>,
+    canvas_settings: CanvasSettings,
 }
 
 impl Settings {
@@ -198,6 +200,7 @@ impl Settings {
                     .unwrap_or_else(|_| panic!("Couldn't read all of {}", path));
                 buffer
             }),
+            canvas_settings: CanvasSettings::new(),
         }
     }
 
@@ -263,6 +266,11 @@ impl Settings {
         self.assets_are_gzipped = value;
         self
     }
+
+    pub fn canvas_settings(mut self, settings: CanvasSettings) -> Self {
+        self.canvas_settings = settings;
+        self
+    }
 }
 
 pub fn run<
@@ -316,7 +324,7 @@ pub fn run<
     }
 
     let initial_size = prerender.window_size();
-    let mut canvas = Canvas::new(initial_size);
+    let mut canvas = Canvas::new(initial_size, settings.canvas_settings);
     prerender.window_resized(initial_size);
 
     timer.start("setup app");

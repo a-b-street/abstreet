@@ -34,7 +34,7 @@ extern crate log;
 
 pub use crate::app_state::{DrawBaselayer, SharedAppState, SimpleState, State, Transition};
 pub use crate::backend::Drawable;
-pub use crate::canvas::{Canvas, HorizontalAlignment, VerticalAlignment};
+pub use crate::canvas::{Canvas, CanvasSettings, HorizontalAlignment, VerticalAlignment};
 pub use crate::color::{Color, Fill, LinearGradient, Texture};
 pub use crate::drawing::{GfxCtx, Prerender};
 pub use crate::event::{hotkeys, lctrl, Event, Key, MultiKey};

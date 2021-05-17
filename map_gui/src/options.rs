@@ -3,8 +3,8 @@ use serde::{Deserialize, Serialize};
 use abstutil::{CmdArgs, Timer};
 use geom::{Duration, UnitFmt};
 use widgetry::{
-    Choice, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, Spinner, State, TextExt,
-    Toggle, Widget,
+    CanvasSettings, Choice, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, Spinner, State,
+    TextExt, Toggle, Widget,
 };
 
 use crate::colors::ColorSchemeChoice;
@@ -38,6 +38,8 @@ pub struct Options {
 
     /// When making a screen recording, enable this option to hide some UI elements
     pub minimal_controls: bool,
+    /// widgetry options
+    pub canvas_settings: CanvasSettings,
 
     /// How much to advance the sim with one of the speed controls
     pub time_increment: Duration,
@@ -84,6 +86,7 @@ impl Options {
             jump_to_delay: Duration::minutes(5),
 
             minimal_controls: false,
+            canvas_settings: CanvasSettings::new(),
             language: None,
             units: UnitFmt {
                 round_durations: true,
@@ -158,26 +161,26 @@ impl OptionsPanel {
                         ctx,
                         "Invert direction of vertical scrolling",
                         None,
-                        ctx.canvas.invert_scroll,
+                        ctx.canvas.settings.invert_scroll,
                     ),
                     Toggle::checkbox(
                         ctx,
                         "Pan map when cursor is at edge of screen",
                         None,
-                        ctx.canvas.edge_auto_panning,
+                        ctx.canvas.settings.edge_auto_panning,
                     )
                     .named("autopan"),
                     Toggle::checkbox(
                         ctx,
                         "Use touchpad to pan and hold Control to zoom",
                         None,
-                        ctx.canvas.touchpad_to_move,
+                        ctx.canvas.settings.touchpad_to_move,
                     ),
                     Toggle::checkbox(
                         ctx,
                         "Use arrow keys to pan and Q/W to zoom",
                         None,
-                        ctx.canvas.keys_to_pan,
+                        ctx.canvas.settings.keys_to_pan,
                     ),
                     Widget::row(vec![
                         "Scroll speed for menus".text_widget(ctx).centered_vert(),
@@ -185,7 +188,7 @@ impl OptionsPanel {
                             ctx,
                             "gui_scroll_speed",
                             (1, 50),
-                            ctx.canvas.gui_scroll_speed,
+                            ctx.canvas.settings.gui_scroll_speed,
                             1,
                         ),
                     ]),
@@ -195,7 +198,7 @@ impl OptionsPanel {
                             ctx,
                             "canvas_scroll_speed",
                             (1, 30),
-                            ctx.canvas.canvas_scroll_speed,
+                            ctx.canvas.settings.canvas_scroll_speed,
                             1,
                         ),
                     ]),
@@ -320,18 +323,21 @@ impl<A: AppLike> State<A> for OptionsPanel {
                         .panel
                         .is_checked("Draw all agents to debug geometry (Slow!)");
 
-                    ctx.canvas.invert_scroll = self
+                    ctx.canvas.settings.invert_scroll = self
                         .panel
                         .is_checked("Invert direction of vertical scrolling");
-                    ctx.canvas.touchpad_to_move = self
+                    ctx.canvas.settings.touchpad_to_move = self
                         .panel
                         .is_checked("Use touchpad to pan and hold Control to zoom");
-                    ctx.canvas.keys_to_pan = self
+                    ctx.canvas.settings.keys_to_pan = self
                         .panel
                         .is_checked("Use arrow keys to pan and Q/W to zoom");
-                    ctx.canvas.edge_auto_panning = self.panel.is_checked("autopan");
-                    ctx.canvas.gui_scroll_speed = self.panel.spinner("gui_scroll_speed");
-                    ctx.canvas.canvas_scroll_speed = self.panel.spinner("canvas_scroll_speed");
+                    ctx.canvas.settings.edge_auto_panning = self.panel.is_checked("autopan");
+                    ctx.canvas.settings.gui_scroll_speed = self.panel.spinner("gui_scroll_speed");
+                    ctx.canvas.settings.canvas_scroll_speed =
+                        self.panel.spinner("canvas_scroll_speed");
+                    // Copy the settings into the Options struct, so they're saved.
+                    opts.canvas_settings = ctx.canvas.settings.clone();
 
                     let style = self.panel.dropdown_value("Traffic signal rendering");
                     if opts.traffic_signal_style != style {

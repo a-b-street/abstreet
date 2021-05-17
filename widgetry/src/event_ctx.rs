@@ -6,8 +6,9 @@ use abstutil::{elapsed_seconds, Timer, TimerSink};
 use geom::{Percent, Polygon};
 
 use crate::{
-    svg, text, Canvas, Color, Drawable, Event, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
-    Panel, Prerender, ScreenDims, Style, Text, UserInput, VerticalAlignment, Widget,
+    svg, text, Canvas, CanvasSettings, Color, Drawable, Event, GeomBatch, GfxCtx,
+    HorizontalAlignment, Key, Line, Panel, Prerender, ScreenDims, Style, Text, UserInput,
+    VerticalAlignment, Widget,
 };
 
 #[derive(Clone, PartialEq, Debug)]
@@ -221,7 +222,7 @@ impl<'a> LoadingScreen<'a> {
         initial_size: ScreenDims,
         title: String,
     ) -> LoadingScreen<'a> {
-        let canvas = Canvas::new(initial_size);
+        let canvas = Canvas::new(initial_size, CanvasSettings::new());
         let max_capacity =
             (0.8 * initial_size.height / *prerender.assets.default_line_height.borrow()) as usize;
         LoadingScreen {
