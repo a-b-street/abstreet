@@ -66,14 +66,14 @@
 }
 
 <span class="kw">fn</span> <span class="ident">run</span>(<span class="kw-2">mut</span> <span class="ident">settings</span>: <span class="ident">Settings</span>) {
-    <span class="ident">settings</span> <span class="op">=</span> <span class="ident">settings</span>.<span class="ident">read_svg</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">abstio</span>::<span class="ident">slurp_bytes</span>));
+    <span class="kw">let</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">map_gui</span>::<span class="ident">options</span>::<span class="ident">Options</span>::<span class="ident">load_or_default</span>();
+    <span class="ident">settings</span> <span class="op">=</span> <span class="ident">settings</span>
+        .<span class="ident">read_svg</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">abstio</span>::<span class="ident">slurp_bytes</span>))
+        .<span class="ident">canvas_settings</span>(<span class="ident">options</span>.<span class="ident">canvas_settings</span>.<span class="ident">clone</span>());
     <span class="ident">widgetry</span>::<span class="ident">run</span>(<span class="ident">settings</span>, <span class="op">|</span><span class="ident">ctx</span><span class="op">|</span> {
-        <span class="ident">map_gui</span>::<span class="ident">SimpleApp</span>::<span class="ident">new</span>(
-            <span class="ident">ctx</span>,
-            <span class="ident">map_gui</span>::<span class="ident">options</span>::<span class="ident">Options</span>::<span class="ident">load_or_default</span>(),
-            (),
-            <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">viewer</span>::<span class="ident">Viewer</span>::<span class="ident">random_start</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)],
-        )
+        <span class="ident">map_gui</span>::<span class="ident">SimpleApp</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">options</span>, (), <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
+            <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">viewer</span>::<span class="ident">Viewer</span>::<span class="ident">random_start</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)]
+        })
     });
 }
 

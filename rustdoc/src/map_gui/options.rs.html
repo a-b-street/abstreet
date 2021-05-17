@@ -418,14 +418,20 @@
 <span id="415">415</span>
 <span id="416">416</span>
 <span id="417">417</span>
+<span id="418">418</span>
+<span id="419">419</span>
+<span id="420">420</span>
+<span id="421">421</span>
+<span id="422">422</span>
+<span id="423">423</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">CmdArgs</span>, <span class="ident">Timer</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">UnitFmt</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Choice</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">Spinner</span>, <span class="ident">State</span>, <span class="ident">TextExt</span>,
-    <span class="ident">Toggle</span>, <span class="ident">Widget</span>,
+    <span class="ident">CanvasSettings</span>, <span class="ident">Choice</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">Spinner</span>, <span class="ident">State</span>,
+    <span class="ident">TextExt</span>, <span class="ident">Toggle</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">colors</span>::<span class="ident">ColorSchemeChoice</span>;
@@ -459,6 +465,8 @@
 
     <span class="doccomment">/// When making a screen recording, enable this option to hide some UI elements</span>
     <span class="kw">pub</span> <span class="ident">minimal_controls</span>: <span class="ident">bool</span>,
+    <span class="doccomment">/// widgetry options</span>
+    <span class="kw">pub</span> <span class="ident">canvas_settings</span>: <span class="ident">CanvasSettings</span>,
 
     <span class="doccomment">/// How much to advance the sim with one of the speed controls</span>
     <span class="kw">pub</span> <span class="ident">time_increment</span>: <span class="ident">Duration</span>,
@@ -505,6 +513,7 @@
             <span class="ident">jump_to_delay</span>: <span class="ident">Duration</span>::<span class="ident">minutes</span>(<span class="number">5</span>),
 
             <span class="ident">minimal_controls</span>: <span class="bool-val">false</span>,
+            <span class="ident">canvas_settings</span>: <span class="ident">CanvasSettings</span>::<span class="ident">new</span>(),
             <span class="ident">language</span>: <span class="prelude-val">None</span>,
             <span class="ident">units</span>: <span class="ident">UnitFmt</span> {
                 <span class="ident">round_durations</span>: <span class="bool-val">true</span>,
@@ -579,26 +588,26 @@
                         <span class="ident">ctx</span>,
                         <span class="string">&quot;Invert direction of vertical scrolling&quot;</span>,
                         <span class="prelude-val">None</span>,
-                        <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">invert_scroll</span>,
+                        <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">settings</span>.<span class="ident">invert_scroll</span>,
                     ),
                     <span class="ident">Toggle</span>::<span class="ident">checkbox</span>(
                         <span class="ident">ctx</span>,
                         <span class="string">&quot;Pan map when cursor is at edge of screen&quot;</span>,
                         <span class="prelude-val">None</span>,
-                        <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">edge_auto_panning</span>,
+                        <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">settings</span>.<span class="ident">edge_auto_panning</span>,
                     )
                     .<span class="ident">named</span>(<span class="string">&quot;autopan&quot;</span>),
                     <span class="ident">Toggle</span>::<span class="ident">checkbox</span>(
                         <span class="ident">ctx</span>,
                         <span class="string">&quot;Use touchpad to pan and hold Control to zoom&quot;</span>,
                         <span class="prelude-val">None</span>,
-                        <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">touchpad_to_move</span>,
+                        <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">settings</span>.<span class="ident">touchpad_to_move</span>,
                     ),
                     <span class="ident">Toggle</span>::<span class="ident">checkbox</span>(
                         <span class="ident">ctx</span>,
                         <span class="string">&quot;Use arrow keys to pan and Q/W to zoom&quot;</span>,
                         <span class="prelude-val">None</span>,
-                        <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">keys_to_pan</span>,
+                        <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">settings</span>.<span class="ident">keys_to_pan</span>,
                     ),
                     <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                         <span class="string">&quot;Scroll speed for menus&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
@@ -606,7 +615,7 @@
                             <span class="ident">ctx</span>,
                             <span class="string">&quot;gui_scroll_speed&quot;</span>,
                             (<span class="number">1</span>, <span class="number">50</span>),
-                            <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">gui_scroll_speed</span>,
+                            <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">settings</span>.<span class="ident">gui_scroll_speed</span>,
                             <span class="number">1</span>,
                         ),
                     ]),
@@ -616,7 +625,7 @@
                             <span class="ident">ctx</span>,
                             <span class="string">&quot;canvas_scroll_speed&quot;</span>,
                             (<span class="number">1</span>, <span class="number">30</span>),
-                            <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">canvas_scroll_speed</span>,
+                            <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">settings</span>.<span class="ident">canvas_scroll_speed</span>,
                             <span class="number">1</span>,
                         ),
                     ]),
@@ -741,18 +750,21 @@
                         .<span class="ident">panel</span>
                         .<span class="ident">is_checked</span>(<span class="string">&quot;Draw all agents to debug geometry (Slow!)&quot;</span>);
 
-                    <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">invert_scroll</span> <span class="op">=</span> <span class="self">self</span>
+                    <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">settings</span>.<span class="ident">invert_scroll</span> <span class="op">=</span> <span class="self">self</span>
                         .<span class="ident">panel</span>
                         .<span class="ident">is_checked</span>(<span class="string">&quot;Invert direction of vertical scrolling&quot;</span>);
-                    <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">touchpad_to_move</span> <span class="op">=</span> <span class="self">self</span>
+                    <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">settings</span>.<span class="ident">touchpad_to_move</span> <span class="op">=</span> <span class="self">self</span>
                         .<span class="ident">panel</span>
                         .<span class="ident">is_checked</span>(<span class="string">&quot;Use touchpad to pan and hold Control to zoom&quot;</span>);
-                    <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">keys_to_pan</span> <span class="op">=</span> <span class="self">self</span>
+                    <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">settings</span>.<span class="ident">keys_to_pan</span> <span class="op">=</span> <span class="self">self</span>
                         .<span class="ident">panel</span>
                         .<span class="ident">is_checked</span>(<span class="string">&quot;Use arrow keys to pan and Q/W to zoom&quot;</span>);
-                    <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">edge_auto_panning</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;autopan&quot;</span>);
-                    <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">gui_scroll_speed</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">spinner</span>(<span class="string">&quot;gui_scroll_speed&quot;</span>);
-                    <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">canvas_scroll_speed</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">spinner</span>(<span class="string">&quot;canvas_scroll_speed&quot;</span>);
+                    <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">settings</span>.<span class="ident">edge_auto_panning</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;autopan&quot;</span>);
+                    <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">settings</span>.<span class="ident">gui_scroll_speed</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">spinner</span>(<span class="string">&quot;gui_scroll_speed&quot;</span>);
+                    <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">settings</span>.<span class="ident">canvas_scroll_speed</span> <span class="op">=</span>
+                        <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">spinner</span>(<span class="string">&quot;canvas_scroll_speed&quot;</span>);
+                    <span class="comment">// Copy the settings into the Options struct, so they&#39;re saved.</span>
+                    <span class="ident">opts</span>.<span class="ident">canvas_settings</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">settings</span>.<span class="ident">clone</span>();
 
                     <span class="kw">let</span> <span class="ident">style</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">dropdown_value</span>(<span class="string">&quot;Traffic signal rendering&quot;</span>);
                     <span class="kw">if</span> <span class="ident">opts</span>.<span class="ident">traffic_signal_style</span> <span class="op">!</span><span class="op">=</span> <span class="ident">style</span> {

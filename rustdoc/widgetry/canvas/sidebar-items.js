@@ -1,1 +1,1 @@
-initSidebarItems({"constant":[["DRAG_THRESHOLD",""],["INSET",""],["PANNING_THRESHOLD",""],["PAN_SPEED",""]],"enum":[["HorizontalAlignment",""],["VerticalAlignment",""]],"struct":[["Canvas",""]]});
+initSidebarItems({"constant":[["DRAG_THRESHOLD",""],["INSET",""],["PANNING_THRESHOLD",""],["PAN_SPEED",""]],"enum":[["HorizontalAlignment",""],["VerticalAlignment",""]],"struct":[["Canvas",""],["CanvasSettings",""]]});

@@ -348,9 +348,26 @@
 <span id="345">345</span>
 <span id="346">346</span>
 <span id="347">347</span>
+<span id="348">348</span>
+<span id="349">349</span>
+<span id="350">350</span>
+<span id="351">351</span>
+<span id="352">352</span>
+<span id="353">353</span>
+<span id="354">354</span>
+<span id="355">355</span>
+<span id="356">356</span>
+<span id="357">357</span>
+<span id="358">358</span>
+<span id="359">359</span>
+<span id="360">360</span>
+<span id="361">361</span>
+<span id="362">362</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cell</span>::<span class="ident">RefCell</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
+
+<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Bounds</span>, <span class="ident">Pt2D</span>};
 
@@ -384,14 +401,7 @@
 
     <span class="comment">// TODO Proper API for setting these</span>
     <span class="kw">pub</span> <span class="ident">map_dims</span>: (<span class="ident">f64</span>, <span class="ident">f64</span>),
-    <span class="kw">pub</span> <span class="ident">invert_scroll</span>: <span class="ident">bool</span>,
-    <span class="kw">pub</span> <span class="ident">touchpad_to_move</span>: <span class="ident">bool</span>,
-    <span class="kw">pub</span> <span class="ident">edge_auto_panning</span>: <span class="ident">bool</span>,
-    <span class="kw">pub</span> <span class="ident">keys_to_pan</span>: <span class="ident">bool</span>,
-    <span class="kw">pub</span> <span class="ident">gui_scroll_speed</span>: <span class="ident">usize</span>,
-    <span class="comment">// TODO Ideally this would be an f64, but elsewhere we use it in a Spinner. Until we override</span>
-    <span class="comment">// the Display trait to do some rounding, floating point increments render pretty horribly.</span>
-    <span class="kw">pub</span> <span class="ident">canvas_scroll_speed</span>: <span class="ident">usize</span>,
+    <span class="kw">pub</span> <span class="ident">settings</span>: <span class="ident">CanvasSettings</span>,
 
     <span class="comment">// TODO Bit weird and hacky to mutate inside of draw() calls.</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">covered_areas</span>: <span class="ident">RefCell</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ScreenRectangle</span><span class="op">&gt;</span><span class="op">&gt;</span>,
@@ -400,8 +410,33 @@
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">keys_held</span>: <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">Key</span><span class="op">&gt;</span>,
 }
 
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CanvasSettings</span> {
+    <span class="kw">pub</span> <span class="ident">invert_scroll</span>: <span class="ident">bool</span>,
+    <span class="kw">pub</span> <span class="ident">touchpad_to_move</span>: <span class="ident">bool</span>,
+    <span class="kw">pub</span> <span class="ident">edge_auto_panning</span>: <span class="ident">bool</span>,
+    <span class="kw">pub</span> <span class="ident">keys_to_pan</span>: <span class="ident">bool</span>,
+    <span class="kw">pub</span> <span class="ident">gui_scroll_speed</span>: <span class="ident">usize</span>,
+    <span class="comment">// TODO Ideally this would be an f64, but elsewhere we use it in a Spinner. Until we override</span>
+    <span class="comment">// the Display trait to do some rounding, floating point increments render pretty horribly.</span>
+    <span class="kw">pub</span> <span class="ident">canvas_scroll_speed</span>: <span class="ident">usize</span>,
+}
+
+<span class="kw">impl</span> <span class="ident">CanvasSettings</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">CanvasSettings</span> {
+        <span class="ident">CanvasSettings</span> {
+            <span class="ident">invert_scroll</span>: <span class="bool-val">false</span>,
+            <span class="ident">touchpad_to_move</span>: <span class="bool-val">false</span>,
+            <span class="ident">edge_auto_panning</span>: <span class="bool-val">false</span>,
+            <span class="ident">keys_to_pan</span>: <span class="bool-val">false</span>,
+            <span class="ident">gui_scroll_speed</span>: <span class="number">5</span>,
+            <span class="ident">canvas_scroll_speed</span>: <span class="number">10</span>,
+        }
+    }
+}
+
 <span class="kw">impl</span> <span class="ident">Canvas</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">initial_dims</span>: <span class="ident">ScreenDims</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Canvas</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">initial_dims</span>: <span class="ident">ScreenDims</span>, <span class="ident">settings</span>: <span class="ident">CanvasSettings</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Canvas</span> {
         <span class="ident">Canvas</span> {
             <span class="ident">cam_x</span>: <span class="number">0.0</span>,
             <span class="ident">cam_y</span>: <span class="number">0.0</span>,
@@ -417,12 +452,7 @@
             <span class="ident">window_height</span>: <span class="ident">initial_dims</span>.<span class="ident">height</span>,
 
             <span class="ident">map_dims</span>: (<span class="number">0.0</span>, <span class="number">0.0</span>),
-            <span class="ident">invert_scroll</span>: <span class="bool-val">false</span>,
-            <span class="ident">touchpad_to_move</span>: <span class="bool-val">false</span>,
-            <span class="ident">edge_auto_panning</span>: <span class="bool-val">false</span>,
-            <span class="ident">keys_to_pan</span>: <span class="bool-val">false</span>,
-            <span class="ident">gui_scroll_speed</span>: <span class="number">5</span>,
-            <span class="ident">canvas_scroll_speed</span>: <span class="number">10</span>,
+            <span class="ident">settings</span>,
 
             <span class="ident">covered_areas</span>: <span class="ident">RefCell</span>::<span class="ident">new</span>(<span class="ident">Vec</span>::<span class="ident">new</span>()),
 
@@ -439,7 +469,7 @@
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">handle_event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">UserInput</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">UpdateType</span><span class="op">&gt;</span> {
         <span class="comment">// Can&#39;t start dragging or zooming on top of covered area</span>
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">get_cursor_in_map_space</span>().<span class="ident">is_some</span>() {
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">touchpad_to_move</span> {
+            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">settings</span>.<span class="ident">touchpad_to_move</span> {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">scroll_x</span>, <span class="ident">scroll_y</span>)) <span class="op">=</span> <span class="ident">input</span>.<span class="ident">get_mouse_scroll</span>() {
                     <span class="kw">if</span> <span class="self">self</span>.<span class="ident">keys_held</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">Key</span>::<span class="ident">LeftControl</span>) {
                         <span class="self">self</span>.<span class="ident">zoom</span>(<span class="ident">scroll_y</span>, <span class="self">self</span>.<span class="ident">cursor</span>);
@@ -459,7 +489,7 @@
                 }
             }
 
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">keys_to_pan</span> {
+            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">settings</span>.<span class="ident">keys_to_pan</span> {
                 <span class="kw">if</span> <span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key</span>::<span class="ident">LeftArrow</span>) {
                     <span class="self">self</span>.<span class="ident">cam_x</span> <span class="op">-</span><span class="op">=</span> <span class="ident">PAN_SPEED</span>;
                 }
@@ -508,7 +538,7 @@
             <span class="kw">let</span> <span class="ident">cursor_map_pt</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">screen_to_map</span>(<span class="self">self</span>.<span class="ident">get_cursor</span>());
             <span class="kw">let</span> <span class="ident">inner_bounds</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_inner_bounds</span>();
             <span class="kw">let</span> <span class="ident">map_bounds</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_map_bounds</span>();
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">edge_auto_panning</span>
+            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">settings</span>.<span class="ident">edge_auto_panning</span>
                 <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">inner_bounds</span>.<span class="ident">contains</span>(<span class="ident">cursor_screen_pt</span>)
                 <span class="op">&amp;&amp;</span> <span class="ident">map_bounds</span>.<span class="ident">contains</span>(<span class="ident">cursor_map_pt</span>)
                 <span class="op">&amp;&amp;</span> <span class="ident">input</span>.<span class="ident">nonblocking_is_update_event</span>().<span class="ident">is_some</span>()
@@ -533,7 +563,7 @@
         <span class="kw">let</span> <span class="ident">old_zoom</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">cam_zoom</span>;
         <span class="comment">// By popular request, some limits ;)</span>
         <span class="self">self</span>.<span class="ident">cam_zoom</span> <span class="op">=</span> <span class="number">1.1_f64</span>
-            .<span class="ident">powf</span>(<span class="ident">old_zoom</span>.<span class="ident">log</span>(<span class="number">1.1</span>) <span class="op">+</span> <span class="ident">delta</span> <span class="op">*</span> (<span class="self">self</span>.<span class="ident">canvas_scroll_speed</span> <span class="kw">as</span> <span class="ident">f64</span> <span class="op">/</span> <span class="number">10.0</span>))
+            .<span class="ident">powf</span>(<span class="ident">old_zoom</span>.<span class="ident">log</span>(<span class="number">1.1</span>) <span class="op">+</span> <span class="ident">delta</span> <span class="op">*</span> (<span class="self">self</span>.<span class="ident">settings</span>.<span class="ident">canvas_scroll_speed</span> <span class="kw">as</span> <span class="ident">f64</span> <span class="op">/</span> <span class="number">10.0</span>))
             .<span class="ident">max</span>(<span class="self">self</span>.<span class="ident">min_zoom</span>())
             .<span class="ident">min</span>(<span class="number">150.0</span>);
 

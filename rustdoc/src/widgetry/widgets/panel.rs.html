@@ -904,12 +904,12 @@
         {
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">dx</span>, <span class="ident">dy</span>)) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">get_mouse_scroll</span>() {
                 <span class="kw">let</span> <span class="ident">x_offset</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">scrollable_x</span> {
-                    <span class="self">self</span>.<span class="ident">scroll_offset</span>().<span class="number">0</span> <span class="op">+</span> <span class="ident">dx</span> <span class="op">*</span> (<span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">gui_scroll_speed</span> <span class="kw">as</span> <span class="ident">f64</span>)
+                    <span class="self">self</span>.<span class="ident">scroll_offset</span>().<span class="number">0</span> <span class="op">+</span> <span class="ident">dx</span> <span class="op">*</span> (<span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">settings</span>.<span class="ident">gui_scroll_speed</span> <span class="kw">as</span> <span class="ident">f64</span>)
                 } <span class="kw">else</span> {
                     <span class="number">0.0</span>
                 };
                 <span class="kw">let</span> <span class="ident">y_offset</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">scrollable_y</span> {
-                    <span class="self">self</span>.<span class="ident">scroll_offset</span>().<span class="number">1</span> <span class="op">-</span> <span class="ident">dy</span> <span class="op">*</span> (<span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">gui_scroll_speed</span> <span class="kw">as</span> <span class="ident">f64</span>)
+                    <span class="self">self</span>.<span class="ident">scroll_offset</span>().<span class="number">1</span> <span class="op">-</span> <span class="ident">dy</span> <span class="op">*</span> (<span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">settings</span>.<span class="ident">gui_scroll_speed</span> <span class="kw">as</span> <span class="ident">f64</span>)
                 } <span class="kw">else</span> {
                     <span class="number">0.0</span>
                 };
