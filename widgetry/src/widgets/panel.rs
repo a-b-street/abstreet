@@ -3,7 +3,7 @@ use std::collections::HashSet;
 use std::rc::Rc;
 
 use stretch::geometry::Size;
-use stretch::node::Stretch;
+use stretch::node::{Node, Stretch};
 use stretch::number::Number;
 use stretch::style::{Dimension, Style};
 
@@ -20,6 +20,8 @@ use crate::{
 
 pub struct Panel {
     top_level: Widget,
+    // (layout, root_dims)
+    cached_flexbox: Option<(Stretch, Vec<Node>, ScreenDims)>,
     horiz: HorizontalAlignment,
     vert: VerticalAlignment,
     dims: Dims,
@@ -157,7 +159,16 @@ impl Panel {
     // optimization, we could replace all the current call sites with a "dirty" flag, e.g.
     // `set_needs_layout()` and then call `layout_if_needed()` once at the last possible moment
     fn recompute_layout(&mut self, ctx: &EventCtx, recompute_bg: bool) {
-        self.recompute_scrollbar_layout(ctx);
+        self.invalidate_flexbox();
+        self.recompute_layout_if_needed(ctx, recompute_bg)
+    }
+
+    fn invalidate_flexbox(&mut self) {
+        debug!("invalidating flexbox");
+        self.cached_flexbox = None;
+    }
+
+    fn compute_flexbox(&self) -> (Stretch, Vec<Node>, ScreenDims) {
         let mut stretch = Stretch::new();
         let root = stretch
             .new_node(
@@ -186,21 +197,36 @@ impl Panel {
             let result = stretch.layout(root).unwrap();
             ScreenDims::new(result.size.width.into(), result.size.height.into())
         };
-        let top_left = ctx
-            .canvas
-            .align_window(effective_dims, self.horiz, self.vert);
-        let offset = self.scroll_offset();
-        self.top_level.apply_flexbox(
-            &stretch,
-            &mut nodes,
-            top_left.x,
-            top_left.y,
-            offset,
-            ctx,
-            recompute_bg,
-            false,
-        );
-        assert!(nodes.is_empty());
+
+        (stretch, nodes, effective_dims)
+    }
+
+    fn recompute_layout_if_needed(&mut self, ctx: &EventCtx, recompute_bg: bool) {
+        self.recompute_scrollbar_layout(ctx);
+        let (stretch, nodes, effective_dims) = self
+            .cached_flexbox
+            .take()
+            .unwrap_or_else(|| self.compute_flexbox());
+
+        {
+            let top_left = ctx
+                .canvas
+                .align_window(effective_dims, self.horiz, self.vert);
+            let offset = self.scroll_offset();
+            let mut nodes = nodes.clone();
+            self.top_level.apply_flexbox(
+                &stretch,
+                &mut nodes,
+                top_left.x,
+                top_left.y,
+                offset,
+                ctx,
+                recompute_bg,
+                false,
+            );
+            assert!(nodes.is_empty());
+        }
+        self.cached_flexbox = Some((stretch, nodes, effective_dims));
     }
 
     fn scroll_offset(&self) -> (f64, f64) {
@@ -246,7 +272,7 @@ impl Panel {
 
     fn set_scroll_offset(&mut self, ctx: &EventCtx, offset: (f64, f64)) {
         if self.update_scroll_sliders(ctx, offset) {
-            self.recompute_layout(ctx, false);
+            self.recompute_layout_if_needed(ctx, false);
         }
     }
 
@@ -281,8 +307,11 @@ impl Panel {
         let before = self.scroll_offset();
         let mut output = WidgetOutput::new();
         self.top_level.widget.event(ctx, &mut output);
-        if self.scroll_offset() != before || output.redo_layout {
+
+        if output.redo_layout {
             self.recompute_layout(ctx, true);
+        } else if self.scroll_offset() != before {
+            self.recompute_layout_if_needed(ctx, true);
         }
 
         output.outcome
@@ -560,6 +589,7 @@ impl PanelBuilder {
             contents_dims: ScreenDims::new(0.0, 0.0),
             container_dims: ScreenDims::new(0.0, 0.0),
             clip_rect: None,
+            cached_flexbox: None,
         };
         match panel.dims {
             Dims::ExactPercent(w, h) => {
