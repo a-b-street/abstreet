@@ -37,13 +37,11 @@ echo \
 	  "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \
 	    $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 sudo apt-get update
-sudo apt-get install -y docker-ce docker-ce-cli containerd.io
+# Also sneak GDAL in there
+sudo apt-get install -y docker-ce docker-ce-cli containerd.io libgdal-dev
 
 # Now do the big import!
-# TODO Should we rm -fv data/input/us/seattle/raw_maps/huge_seattle.bin
-# data/input/us/seattle/raw_maps/huge_seattle.bin
-# data/input/us/seattle/popdat.bin and regenerate? I think that'll require
-# GDAL.
+rm -fv data/input/us/seattle/raw_maps/huge_seattle.bin data/input/us/seattle/popdat.bin
 # Run this as root so Docker works. We could add the current user to the group,
 # but then we have to fiddle with the shell a weird way to pick up the change
 # immediately.
@@ -55,4 +53,4 @@ sudo ./target/release/importer --regen_all --shard_num=$WORKER_NUM --num_shards=
 # Indicate this VM is done by deleting ourselves. We can't use suspend or stop
 # with a local SSD, so just nuke ourselves instead.
 ZONE=$(curl -H Metadata-Flavor:Google http://metadata.google.internal/computeMetadata/v1/instance/zone -s | cut -d/ -f4)
-gcloud compute instances --zone=$ZONE delete $HOSTNAME
+echo y | gcloud compute instances delete $HOSTNAME --zone=$ZONE

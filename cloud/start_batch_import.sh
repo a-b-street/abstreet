@@ -30,14 +30,12 @@ PROJECT=aorta-routes
 
 function build_payload {
 	# It's a faster workflow to copy the local binaries into the VMs, rather than
-	# build them there. But it does require us to build the importer without the
-	# GDAL bindings, since the dynamic linking won't transfer over to the VM due to
-	# the GDAL version being different.
-	#
-	# GDAL bindings are only used when initially building popdat.bin for Seatle;
-	# there's almost never a need to regenerate this, and it can be done locally
-	# when required.
-	cargo build --release --bin importer --bin updater
+	# build them there.
+	cargo build --release --bin updater
+	# This is needed to regenerate popdat.bin for Seattle. It requires the
+	# VMs to have a matching GDAL version. Since the VM runs the same
+	# version of Ubuntu as I do locally, this works out fine.
+	cargo build --release --manifest-path importer/Cargo.toml --features scenarios
 
 	# Build our payload for the VMs
 	# This mkdir deliberately fails if the directory is already there; it probably
