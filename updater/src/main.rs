@@ -1,4 +1,4 @@
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::BTreeMap;
 use std::fs::File;
 use std::io::{BufReader, Read};
 use std::process::Command;
@@ -50,7 +50,12 @@ async fn main() {
         }
     } else if args.enabled("--opt-into-all") {
         args.done();
-        opt_into_all();
+        println!("{}", abstutil::to_json(&DataPacks::all_data_packs()));
+    } else if args.enabled("--opt-into-all-input") {
+        args.done();
+        let mut data_packs = DataPacks::all_data_packs();
+        data_packs.runtime.clear();
+        println!("{}", abstutil::to_json(&data_packs));
     } else {
         let minimal = args.enabled("--minimal");
         // If true, only update files from the manifest. Leave extra files alone.
@@ -260,29 +265,6 @@ fn incremental_upload(version: String) {
 
     // Nuke the temporary workspace
     must_run_cmd(Command::new("rm").arg("-rfv").arg(remote_base));
-}
-
-fn opt_into_all() {
-    let mut data_packs = DataPacks {
-        runtime: BTreeSet::new(),
-        input: BTreeSet::new(),
-    };
-    for path in Manifest::load().entries.keys() {
-        if path.starts_with("data/system/extra_fonts") || path.starts_with("data/input/shared") {
-            continue;
-        }
-        let parts = path.split('/').collect::<Vec<_>>();
-        let mut city = format!("{}/{}", parts[2], parts[3]);
-        if Manifest::is_file_part_of_huge_seattle(path) {
-            city = "us/huge_seattle".to_string();
-        }
-        if parts[1] == "input" {
-            data_packs.input.insert(city);
-        } else if parts[1] == "system" {
-            data_packs.runtime.insert(city);
-        }
-    }
-    println!("{}", abstutil::to_json(&data_packs));
 }
 
 fn generate_manifest(truth: &Manifest) -> Manifest {

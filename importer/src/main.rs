@@ -49,7 +49,13 @@ async fn main() {
     if args.enabled("--regen_all") {
         assert!(opts.build_ch);
         assert!(!opts.keep_bldg_tags);
-        regenerate_everything(config).await;
+        let shard_num = args
+            .optional_parse("--shard_num", |s| s.parse::<usize>())
+            .unwrap_or(0);
+        let num_shards = args
+            .optional_parse("--num_shards", |s| s.parse::<usize>())
+            .unwrap_or(1);
+        regenerate_everything(config, shard_num, num_shards).await;
         return;
     }
 
@@ -87,7 +93,7 @@ async fn main() {
     job.run(&config, opts, &mut timer).await;
 }
 
-async fn regenerate_everything(config: ImporterConfiguration) {
+async fn regenerate_everything(config: ImporterConfiguration, shard_num: usize, num_shards: usize) {
     // Discover all cities by looking at config. But always operate on Seattle first. Special
     // treatment ;)
     let mut all_cities = CityName::list_all_cities_from_importer_config();
@@ -95,6 +101,7 @@ async fn regenerate_everything(config: ImporterConfiguration) {
     all_cities.insert(0, CityName::seattle());
 
     let mut timer = Timer::new("regenerate all maps");
+    let mut cnt = 0;
     for city in all_cities {
         let mut job = Job {
             city: city.clone(),
@@ -118,8 +125,11 @@ async fn regenerate_everything(config: ImporterConfiguration) {
             job.city_overview = true;
         }
 
-        job.run(&config, RawToMapOptions::default(), &mut timer)
-            .await;
+        if cnt % num_shards == shard_num {
+            job.run(&config, RawToMapOptions::default(), &mut timer)
+                .await;
+        }
+        cnt += 1;
     }
 }
 

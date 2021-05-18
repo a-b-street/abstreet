@@ -174,4 +174,29 @@ impl DataPacks {
     pub fn save(&self) {
         crate::write_json(crate::path_player("data.json"), self);
     }
+
+    /// Fill out all data packs based on the local manifest.
+    pub fn all_data_packs() -> DataPacks {
+        let mut data_packs = DataPacks {
+            runtime: BTreeSet::new(),
+            input: BTreeSet::new(),
+        };
+        for path in Manifest::load().entries.keys() {
+            if path.starts_with("data/system/extra_fonts") || path.starts_with("data/input/shared")
+            {
+                continue;
+            }
+            let parts = path.split('/').collect::<Vec<_>>();
+            let mut city = format!("{}/{}", parts[2], parts[3]);
+            if Manifest::is_file_part_of_huge_seattle(path) {
+                city = "us/huge_seattle".to_string();
+            }
+            if parts[1] == "input" {
+                data_packs.input.insert(city);
+            } else if parts[1] == "system" {
+                data_packs.runtime.insert(city);
+            }
+        }
+        data_packs
+    }
 }

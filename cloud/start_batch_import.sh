@@ -1,10 +1,11 @@
 #!/bin/bash
 # This script packages up the importer as it exists in the current git repo,
-# deploys it to AWS Batch, and regenerates maps and scenarios for all cities.
+# creates a bunch of GCE VMs, and runs the importer there on all cities, using
+# static sharding.
 #
-# This process is only runnable by Dustin, due to current S3/EC2 permissions.
+# This process is only runnable by Dustin, due to current GCE/EC2 permissions.
 #
-# Run from the repo's root dir: cloud/workflow.sh
+# Run from the repo's root dir: cloud/start_batch_import.sh
 
 set -e
 set -x
@@ -15,18 +16,68 @@ if [ "$EXPERIMENT_TAG" == "" ]; then
 	exit 1;
 fi
 
-# It's a faster workflow to copy the local binaries into Docker, rather than
-# build them inside the container. But it does require us to build the importer
-# without the GDAL bindings, since the dynamic linking won't transfer over to
-# the Docker image.
+NUM_WORKERS=1
+ZONE=us-east1-b
+# See other options: https://cloud.google.com/compute/docs/machine-types
+# Particularly... e2-standard-2, n2-standard-2, c2-standard-4
+MACHINE_TYPE=e2-standard-2
+# All of data/ is currently around 30GB
+DISK_SIZE=40GB
+# Haha, using a project from college, my last traffic sim...
+PROJECT=aorta-routes
+
+# It's a faster workflow to copy the local binaries into the VMs, rather than
+# build them there. But it does require us to build the importer without the
+# GDAL bindings, since the dynamic linking won't transfer over to the VM due to
+# the GDAL version being different.
 #
 # GDAL bindings are only used when initially building popdat.bin for Seatle;
 # there's almost never a need to regenerate this, and it can be done locally
 # when required.
 cargo build --release --bin importer --bin updater
 
-docker build -f cloud/Dockerfile -t importer .
-# To manually play around with the container: docker run -it importer /bin/bash
+# Build our payload for the VMs
+# This mkdir deliberately fails if the directory is already there; it probably
+# means the last run broke somehow
+mkdir worker_payload
+mkdir -p worker_payload/target/release
+cp target/release/importer worker_payload/target/release/
+cp target/release/updater worker_payload/target/release/
+mkdir worker_payload/data
+cp data/MANIFEST.json worker_payload/data
+mkdir worker_payload/importer
+cp -Rv importer/config worker_payload/importer
+cp cloud/worker_script.sh worker_payload/
+# Copy in AWS credentials! Obviously don't go making worker_payload/ public or
+# letting anybody into the VMs.
+#
+# Alternatively, I could just scp the files from the VMs back to my local
+# computer. But more than likely, GCE's upstream speed to S3 (even
+# cross-region) is better than Comcast. :)
+cp -Rv ~/.aws worker_payload/
+zip -r worker_payload worker_payload
 
-# TODO Upload the image to Docker Hub with a user-specified experiment tag
-# TODO Kick off an AWS batch job
+# Create the VMs, copy in the payload, and get them started
+for ((i = 0; i < $NUM_WORKERS; i++)); do
+	gcloud compute \
+		--project=$PROJECT \
+		instances create worker-$i \
+		--zone=$ZONE \
+		--machine-type=$MACHINE_TYPE \
+		--boot-disk-size=$DISK_SIZE \
+		--image-family=ubuntu-2004-lts \
+		--image-project=ubuntu-os-cloud
+	# There's a funny history behind the whole "how do I wait for my VM to
+	# be SSHable?" question...
+	sleep 10s;
+	gcloud compute scp \
+		--project=$PROJECT \
+		--zone=$ZONE \
+		worker_payload.zip \
+		worker-$i:~/worker_payload.zip
+	gcloud compute ssh \
+		--project=$PROJECT \
+		--zone=$ZONE \
+		worker-$i \
+		--command="sudo apt-get install -y unzip; unzip worker_payload.zip; ./worker_payload/worker_script.sh $EXPERIMENT_TAG $i $NUM_WORKERS 1> logs 2>&1 &"
+done
