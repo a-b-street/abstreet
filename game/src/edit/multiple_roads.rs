@@ -1,6 +1,7 @@
 use std::collections::HashSet;
 
-use map_gui::tools::{ColorLegend, PopupMsg};
+use geom::Distance;
+use map_gui::tools::PopupMsg;
 use map_gui::ID;
 use map_model::{EditRoad, MapEdits, RoadID};
 use widgetry::{
@@ -32,20 +33,16 @@ impl SelectSegments {
         new_state: EditRoad,
         base_edits: MapEdits,
     ) -> Box<dyn State<App>> {
-        // Find all roads matching the original state. base_road has already changed to new_state,
+        // Find all road segments matching the original state and name. base_road has already changed to new_state,
         // so no need to exclude it.
-        // Start out only applying the change to segments with the same name -- a reasonable proxy
-        // for "the same road".
         let map = &app.primary.map;
         let base_name = map.get_r(base_road).get_name(None);
         let mut candidates = HashSet::new();
         let mut current = HashSet::new();
         for r in map.all_roads() {
-            if map.get_r_edit(r.id) == orig_state {
+            if map.get_r_edit(r.id) == orig_state && r.get_name(None) == base_name {
                 candidates.insert(r.id);
-                if r.get_name(None) == base_name {
-                    current.insert(r.id);
-                }
+                current.insert(r.id);
             }
         }
 
@@ -58,17 +55,14 @@ impl SelectSegments {
         }
 
         let panel = Panel::new_builder(Widget::col(vec![
-            Line("Apply changes to multiple roads")
+            Line("Apply changes to multiple road segments")
                 .small_heading()
                 .into_widget(ctx),
             Text::from_multiline(vec![
-                Line("All roads with the same number of lanes have been selected."),
-                Line("Click a road segment to select/deselect it."),
+                Line("All road segments with the same original lane configuration have been selected."),
+                Line("Click a segment to select/deselect it."),
             ])
             .into_widget(ctx),
-            ColorLegend::row(ctx, Color::RED, "road you've changed"),
-            ColorLegend::row(ctx, Color::PURPLE, "also apply changes to this road"),
-            ColorLegend::row(ctx, Color::PINK, "candidate road"),
             Widget::row(vec![
                 ctx.style()
                     .btn_solid_primary
@@ -101,14 +95,21 @@ impl SelectSegments {
     fn recalc_draw(&mut self, ctx: &mut EventCtx, app: &App) {
         let mut batch = GeomBatch::new();
         let map = &app.primary.map;
-        batch.push(Color::RED, map.get_r(self.base_road).get_thick_polygon(map));
+        let color = Color::hex("#204AA1");
+        // Some alpha is always useful, in case the player wants to peek at the lanes beneath
+        batch.push(
+            color.alpha(0.8),
+            map.get_r(self.base_road).get_thick_polygon(map),
+        );
         for r in &self.candidates {
-            let color = if self.current.contains(r) {
-                Color::PURPLE
-            } else {
-                Color::PINK
-            };
-            batch.push(color.alpha(0.8), map.get_r(*r).get_thick_polygon(map));
+            let polygon = map.get_r(*r).get_thick_polygon(map);
+            if self.current.contains(r) {
+                batch.push(color.alpha(0.5), polygon);
+            } else if let Ok(poly) = polygon.to_outline(Distance::meters(3.0)) {
+                batch.push(color.alpha(0.5), poly);
+            }
+            // If the road shape is for some reason too weird to produce the outline, just don't
+            // draw anything.
         }
         self.draw = ctx.upload(batch);
     }
