@@ -62,19 +62,21 @@ function build_payload {
 }
 
 function create_vms {
-	# Create all of the VMs at once
-	gcloud compute \
-		--project=$PROJECT \
-		instances bulk create \
-		--name-pattern='worker-#' \
-		--zone=$ZONE \
-		--count=$NUM_WORKERS \
-		--machine-type=$MACHINE_TYPE \
-		--boot-disk-size=$DISK_SIZE \
-		--boot-disk-type=$DISK_TYPE \
-		--image-family=ubuntu-2004-lts \
-		--image-project=ubuntu-os-cloud \
-		--scopes=compute-rw
+	# Ideally we'd use the bulk API, but someone's not on top of those
+	# gcloud integration tests...
+	# https://issuetracker.google.com/issues/188462253
+	for ((i = 0; i < $NUM_WORKERS; i++)); do
+		gcloud compute \
+			--project=$PROJECT \
+			instances create "worker-$i" \
+			--zone=$ZONE \
+			--machine-type=$MACHINE_TYPE \
+			--boot-disk-size=$DISK_SIZE \
+			--boot-disk-type=$DISK_TYPE \
+			--image-family=ubuntu-2004-lts \
+			--image-project=ubuntu-os-cloud \
+			--scopes=compute-rw
+	done
 
 	# There's a funny history behind the whole "how do I wait for my VM to be
 	# SSHable?" question...
