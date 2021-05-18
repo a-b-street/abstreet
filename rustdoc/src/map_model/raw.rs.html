@@ -593,6 +593,49 @@
 <span id="590">590</span>
 <span id="591">591</span>
 <span id="592">592</span>
+<span id="593">593</span>
+<span id="594">594</span>
+<span id="595">595</span>
+<span id="596">596</span>
+<span id="597">597</span>
+<span id="598">598</span>
+<span id="599">599</span>
+<span id="600">600</span>
+<span id="601">601</span>
+<span id="602">602</span>
+<span id="603">603</span>
+<span id="604">604</span>
+<span id="605">605</span>
+<span id="606">606</span>
+<span id="607">607</span>
+<span id="608">608</span>
+<span id="609">609</span>
+<span id="610">610</span>
+<span id="611">611</span>
+<span id="612">612</span>
+<span id="613">613</span>
+<span id="614">614</span>
+<span id="615">615</span>
+<span id="616">616</span>
+<span id="617">617</span>
+<span id="618">618</span>
+<span id="619">619</span>
+<span id="620">620</span>
+<span id="621">621</span>
+<span id="622">622</span>
+<span id="623">623</span>
+<span id="624">624</span>
+<span id="625">625</span>
+<span id="626">626</span>
+<span id="627">627</span>
+<span id="628">628</span>
+<span id="629">629</span>
+<span id="630">630</span>
+<span id="631">631</span>
+<span id="632">632</span>
+<span id="633">633</span>
+<span id="634">634</span>
+<span id="635">635</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! The convert_osm crate produces a RawMap from OSM and other data. Storing this intermediate</span>
 <span class="doccomment">//! structure is useful to iterate quickly on parts of the map importing pipeline without having to</span>
@@ -941,6 +984,26 @@
             }
         }
 
+        <span class="comment">// When we delete the short road, we modify the polyline of all of the connected surviving</span>
+        <span class="comment">// roads. There are a bunch of ways we could modify them, and also decide which ones to</span>
+        <span class="comment">// even modify. These combinations are captured here.</span>
+        <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
+        <span class="kw">enum</span> <span class="ident">ModifyGeom</span> {
+            <span class="ident">AddOnePoint</span>,
+            <span class="comment">// Destructive -- this often dramatically warps the angle of connecting roads</span>
+            <span class="ident">ChangeEndpoint</span>,
+            <span class="ident">AddAllPoints</span>,
+        }
+        <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
+        <span class="kw">enum</span> <span class="ident">ModifyWhichRoads</span> {
+            <span class="prelude-val">None</span>,
+            <span class="ident">All</span>,
+            <span class="ident">ArbitrarilyOne</span>,
+            <span class="ident">OnlyNormalRoads</span>,
+        }
+        <span class="kw">let</span> <span class="ident">modify_geom</span> <span class="op">=</span> <span class="ident">ModifyGeom</span>::<span class="ident">AddOnePoint</span>;
+        <span class="kw">let</span> <span class="ident">modify_which</span> <span class="op">=</span> <span class="ident">ModifyWhichRoads</span>::<span class="ident">All</span>;
+
         <span class="comment">// Fix up all roads connected to i2. Delete them and create a new copy; the ID changes,</span>
         <span class="comment">// since one intersection changes.</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">deleted</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">short</span>];
@@ -954,22 +1017,45 @@
             <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">i1</span> <span class="op">=</span><span class="op">=</span> <span class="ident">i2</span> {
                 <span class="ident">new_id</span>.<span class="ident">i1</span> <span class="op">=</span> <span class="ident">i1</span>;
 
-                <span class="kw">if</span> <span class="bool-val">false</span> {
-                    <span class="comment">// Destructive -- this often dramatically warps the angle of connecting roads</span>
-                    <span class="ident">road</span>.<span class="ident">center_points</span>[<span class="number">0</span>] <span class="op">=</span> <span class="ident">i1_pt</span>;
-                } <span class="kw">else</span> {
-                    <span class="comment">// TODO More extreme: All of the points of the short road. Except there usually</span>
-                    <span class="comment">// aren&#39;t many, since they&#39;re short.</span>
-                    <span class="ident">road</span>.<span class="ident">center_points</span>.<span class="ident">insert</span>(<span class="number">0</span>, <span class="ident">i1_pt</span>);
+                <span class="kw">if</span> <span class="kw">match</span> <span class="ident">modify_which</span> {
+                    <span class="ident">ModifyWhichRoads</span>::<span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+                    <span class="ident">ModifyWhichRoads</span>::<span class="ident">All</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
+                    <span class="ident">ModifyWhichRoads</span>::<span class="ident">ArbitrarilyOne</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">created</span>.<span class="ident">is_empty</span>(),
+                    <span class="ident">ModifyWhichRoads</span>::<span class="ident">OnlyNormalRoads</span> <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="op">!</span><span class="ident">road</span>.<span class="ident">osm_tags</span>.<span class="ident">is</span>(<span class="string">&quot;junction&quot;</span>, <span class="string">&quot;intersection&quot;</span>)
+                    }
+                } {
+                    <span class="kw">match</span> <span class="ident">modify_geom</span> {
+                        <span class="ident">ModifyGeom</span>::<span class="ident">AddOnePoint</span> <span class="op">=</span><span class="op">&gt;</span> {
+                            <span class="ident">road</span>.<span class="ident">center_points</span>.<span class="ident">insert</span>(<span class="number">0</span>, <span class="ident">i1_pt</span>);
+                        }
+                        <span class="ident">ModifyGeom</span>::<span class="ident">ChangeEndpoint</span> <span class="op">=</span><span class="op">&gt;</span> {
+                            <span class="ident">road</span>.<span class="ident">center_points</span>[<span class="number">0</span>] <span class="op">=</span> <span class="ident">i1_pt</span>;
+                        }
+                        <span class="ident">ModifyGeom</span>::<span class="ident">AddAllPoints</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">todo</span><span class="macro">!</span>(),
+                    }
                 }
             } <span class="kw">else</span> {
                 <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">r</span>.<span class="ident">i2</span>, <span class="ident">i2</span>);
                 <span class="ident">new_id</span>.<span class="ident">i2</span> <span class="op">=</span> <span class="ident">i1</span>;
 
-                <span class="kw">if</span> <span class="bool-val">false</span> {
-                    <span class="kw-2">*</span><span class="ident">road</span>.<span class="ident">center_points</span>.<span class="ident">last_mut</span>().<span class="ident">unwrap</span>() <span class="op">=</span> <span class="ident">i1_pt</span>;
-                } <span class="kw">else</span> {
-                    <span class="ident">road</span>.<span class="ident">center_points</span>.<span class="ident">push</span>(<span class="ident">i1_pt</span>);
+                <span class="kw">if</span> <span class="kw">match</span> <span class="ident">modify_which</span> {
+                    <span class="ident">ModifyWhichRoads</span>::<span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+                    <span class="ident">ModifyWhichRoads</span>::<span class="ident">All</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
+                    <span class="ident">ModifyWhichRoads</span>::<span class="ident">ArbitrarilyOne</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">created</span>.<span class="ident">is_empty</span>(),
+                    <span class="ident">ModifyWhichRoads</span>::<span class="ident">OnlyNormalRoads</span> <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="op">!</span><span class="ident">road</span>.<span class="ident">osm_tags</span>.<span class="ident">is</span>(<span class="string">&quot;junction&quot;</span>, <span class="string">&quot;intersection&quot;</span>)
+                    }
+                } {
+                    <span class="kw">match</span> <span class="ident">modify_geom</span> {
+                        <span class="ident">ModifyGeom</span>::<span class="ident">AddOnePoint</span> <span class="op">=</span><span class="op">&gt;</span> {
+                            <span class="ident">road</span>.<span class="ident">center_points</span>.<span class="ident">push</span>(<span class="ident">i1_pt</span>);
+                        }
+                        <span class="ident">ModifyGeom</span>::<span class="ident">ChangeEndpoint</span> <span class="op">=</span><span class="op">&gt;</span> {
+                            <span class="kw-2">*</span><span class="ident">road</span>.<span class="ident">center_points</span>.<span class="ident">last_mut</span>().<span class="ident">unwrap</span>() <span class="op">=</span> <span class="ident">i1_pt</span>;
+                        }
+                        <span class="ident">ModifyGeom</span>::<span class="ident">AddAllPoints</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">todo</span><span class="macro">!</span>(),
+                    }
                 }
             }
             <span class="ident">old_to_new</span>.<span class="ident">insert</span>(<span class="ident">r</span>, <span class="ident">new_id</span>);
