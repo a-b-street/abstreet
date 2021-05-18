@@ -311,12 +311,15 @@ impl Model {
     }
 
     fn road_object(&self, id: OriginalRoad) -> Object<ID> {
-        let (center, total_width) = self.map.roads[&id]
-            .get_geometry(id, &self.map.config)
-            .unwrap();
+        let road = &self.map.roads[&id];
+        let (center, total_width) = road.get_geometry(id, &self.map.config).unwrap();
         Object::new(
             ID::Road(id),
-            Color::grey(0.8),
+            if road.osm_tags.is("junction", "intersection") {
+                Color::PINK
+            } else {
+                Color::grey(0.8)
+            },
             center.make_polygons(total_width),
         )
     }
@@ -466,6 +469,19 @@ impl Model {
         }
 
         info!("Merged {}", id.as_string_code());
+    }
+
+    pub fn toggle_junction(&mut self, ctx: &EventCtx, id: OriginalRoad) {
+        self.road_deleted(id);
+
+        let road = self.map.roads.get_mut(&id).unwrap();
+        if road.osm_tags.is("junction", "intersection") {
+            road.osm_tags.remove("junction");
+        } else {
+            road.osm_tags.insert("junction", "intersection");
+        }
+
+        self.road_added(ctx, id);
     }
 }
 

@@ -244,6 +244,8 @@ impl State<App> for MainState {
                         } else if ctx.input.pressed(Key::M) {
                             app.model.merge_r(ctx, r);
                             app.model.world.handle_mouseover(ctx);
+                        } else if ctx.input.pressed(Key::J) {
+                            app.model.toggle_junction(ctx, r);
                         } else if ctx.normal_left_click() {
                             return Transition::Push(edit::EditRoad::new_state(ctx, app, r));
                         }
@@ -272,6 +274,11 @@ impl State<App> for MainState {
                             Line("- Press "),
                             Key::M.txt(ctx),
                             Line(" to merge"),
+                        ]);
+                        txt.add_appended(vec![
+                            Line("- Press "),
+                            Key::J.txt(ctx),
+                            Line(" to mark/unmark as a junction"),
                         ]);
                         let instructions = txt.into_widget(ctx);
                         self.panel.replace(ctx, "instructions", instructions);
