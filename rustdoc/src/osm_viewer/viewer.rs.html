@@ -575,9 +575,9 @@
                     .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;search&quot;</span>),
                 <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_plain</span>.<span class="ident">text</span>(<span class="string">&quot;About&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>),
             ]),
-            <span class="ident">Widget</span>::<span class="ident">horiz_separator</span>(<span class="ident">ctx</span>, <span class="number">0.3</span>),
+            <span class="ident">Widget</span>::<span class="ident">horiz_separator</span>(<span class="ident">ctx</span>, <span class="number">1.0</span>),
             <span class="self">self</span>.<span class="ident">calculate_tags</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
-            <span class="ident">Widget</span>::<span class="ident">horiz_separator</span>(<span class="ident">ctx</span>, <span class="number">0.3</span>),
+            <span class="ident">Widget</span>::<span class="ident">horiz_separator</span>(<span class="ident">ctx</span>, <span class="number">1.0</span>),
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">b</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">businesses</span> {
                 <span class="ident">biz_search_panel</span>.<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">b</span>.<span class="ident">render</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;Search for businesses&quot;</span>))
             } <span class="kw">else</span> {

@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["ProblemType",""]],"fn":[["bucketize_isizes",""],["problem_matrix",""]],"struct":[["CLEAR_COLOR_SCALE",""],["Matrix","Aka a 2D histogram. Counts the number of matching points in each cell."],["MatrixOptions",""]],"trait":[["TripProblemFilter",""]]});

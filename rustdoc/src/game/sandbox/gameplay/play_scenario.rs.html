@@ -785,7 +785,7 @@
                 .<span class="ident">text</span>(<span class="string">&quot;Repeat schedule multiple days&quot;</span>)
                 .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
         ]));
-        <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">horiz_separator</span>(<span class="ident">ctx</span>, <span class="number">0.5</span>));
+        <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">horiz_separator</span>(<span class="ident">ctx</span>, <span class="number">1.0</span>));
         <span class="ident">rows</span>.<span class="ident">push</span>(
             <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
@@ -939,7 +939,7 @@
                     <span class="string">&quot;Departing until:&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
                     <span class="ident">Slider</span>::<span class="ident">area</span>(<span class="ident">ctx</span>, <span class="number">0.25</span> <span class="op">*</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_width</span>, <span class="number">0.3</span>).<span class="ident">named</span>(<span class="string">&quot;depart to&quot;</span>),
                 ]),
-                <span class="ident">Widget</span>::<span class="ident">horiz_separator</span>(<span class="ident">ctx</span>, <span class="number">0.5</span>),
+                <span class="ident">Widget</span>::<span class="ident">horiz_separator</span>(<span class="ident">ctx</span>, <span class="number">1.0</span>),
                 <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                     <span class="string">&quot;Change to trip type:&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
                     <span class="ident">Widget</span>::<span class="ident">dropdown</span>(<span class="ident">ctx</span>, <span class="string">&quot;to_mode&quot;</span>, <span class="prelude-val">Some</span>(<span class="ident">TripMode</span>::<span class="ident">Bike</span>), {
