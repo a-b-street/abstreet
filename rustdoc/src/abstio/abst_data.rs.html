@@ -178,6 +178,31 @@
 <span id="175">175</span>
 <span id="176">176</span>
 <span id="177">177</span>
+<span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 
@@ -354,6 +379,31 @@
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>))]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">save</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {
         <span class="kw">crate</span>::<span class="ident">write_json</span>(<span class="kw">crate</span>::<span class="ident">path_player</span>(<span class="string">&quot;data.json&quot;</span>), <span class="self">self</span>);
+    }
+
+    <span class="doccomment">/// Fill out all data packs based on the local manifest.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">all_data_packs</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DataPacks</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">data_packs</span> <span class="op">=</span> <span class="ident">DataPacks</span> {
+            <span class="ident">runtime</span>: <span class="ident">BTreeSet</span>::<span class="ident">new</span>(),
+            <span class="ident">input</span>: <span class="ident">BTreeSet</span>::<span class="ident">new</span>(),
+        };
+        <span class="kw">for</span> <span class="ident">path</span> <span class="kw">in</span> <span class="ident">Manifest</span>::<span class="ident">load</span>().<span class="ident">entries</span>.<span class="ident">keys</span>() {
+            <span class="kw">if</span> <span class="ident">path</span>.<span class="ident">starts_with</span>(<span class="string">&quot;data/system/extra_fonts&quot;</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">path</span>.<span class="ident">starts_with</span>(<span class="string">&quot;data/input/shared&quot;</span>)
+            {
+                <span class="kw">continue</span>;
+            }
+            <span class="kw">let</span> <span class="ident">parts</span> <span class="op">=</span> <span class="ident">path</span>.<span class="ident">split</span>(<span class="string">&#39;/&#39;</span>).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">city</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}/{}&quot;</span>, <span class="ident">parts</span>[<span class="number">2</span>], <span class="ident">parts</span>[<span class="number">3</span>]);
+            <span class="kw">if</span> <span class="ident">Manifest</span>::<span class="ident">is_file_part_of_huge_seattle</span>(<span class="ident">path</span>) {
+                <span class="ident">city</span> <span class="op">=</span> <span class="string">&quot;us/huge_seattle&quot;</span>.<span class="ident">to_string</span>();
+            }
+            <span class="kw">if</span> <span class="ident">parts</span>[<span class="number">1</span>] <span class="op">=</span><span class="op">=</span> <span class="string">&quot;input&quot;</span> {
+                <span class="ident">data_packs</span>.<span class="ident">input</span>.<span class="ident">insert</span>(<span class="ident">city</span>);
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">parts</span>[<span class="number">1</span>] <span class="op">=</span><span class="op">=</span> <span class="string">&quot;system&quot;</span> {
+                <span class="ident">data_packs</span>.<span class="ident">runtime</span>.<span class="ident">insert</span>(<span class="ident">city</span>);
+            }
+        }
+        <span class="ident">data_packs</span>
     }
 }
 </pre></div>
