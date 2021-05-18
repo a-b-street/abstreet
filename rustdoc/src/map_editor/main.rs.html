@@ -480,6 +480,13 @@
 <span id="477">477</span>
 <span id="478">478</span>
 <span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
+<span id="482">482</span>
+<span id="483">483</span>
+<span id="484">484</span>
+<span id="485">485</span>
+<span id="486">486</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! The map_editor renders and lets you edit RawMaps, which are a format in between OSM and the</span>
 <span class="doccomment">//! full Map. It&#39;s useful for debugging maps imported from OSM, and for drawing synthetic maps for</span>
@@ -727,6 +734,8 @@
                         } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key</span>::<span class="ident">M</span>) {
                             <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">merge_r</span>(<span class="ident">ctx</span>, <span class="ident">r</span>);
                             <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">world</span>.<span class="ident">handle_mouseover</span>(<span class="ident">ctx</span>);
+                        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key</span>::<span class="ident">J</span>) {
+                            <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">toggle_junction</span>(<span class="ident">ctx</span>, <span class="ident">r</span>);
                         } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">normal_left_click</span>() {
                             <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">edit</span>::<span class="ident">EditRoad</span>::<span class="ident">new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">r</span>));
                         }
@@ -755,6 +764,11 @@
                             <span class="ident">Line</span>(<span class="string">&quot;- Press &quot;</span>),
                             <span class="ident">Key</span>::<span class="ident">M</span>.<span class="ident">txt</span>(<span class="ident">ctx</span>),
                             <span class="ident">Line</span>(<span class="string">&quot; to merge&quot;</span>),
+                        ]);
+                        <span class="ident">txt</span>.<span class="ident">add_appended</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                            <span class="ident">Line</span>(<span class="string">&quot;- Press &quot;</span>),
+                            <span class="ident">Key</span>::<span class="ident">J</span>.<span class="ident">txt</span>(<span class="ident">ctx</span>),
+                            <span class="ident">Line</span>(<span class="string">&quot; to mark/unmark as a junction&quot;</span>),
                         ]);
                         <span class="kw">let</span> <span class="ident">instructions</span> <span class="op">=</span> <span class="ident">txt</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>);
                         <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;instructions&quot;</span>, <span class="ident">instructions</span>);
