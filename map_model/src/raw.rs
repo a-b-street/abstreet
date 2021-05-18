@@ -345,6 +345,26 @@ impl RawMap {
             }
         }
 
+        // When we delete the short road, we modify the polyline of all of the connected surviving
+        // roads. There are a bunch of ways we could modify them, and also decide which ones to
+        // even modify. These combinations are captured here.
+        #[allow(dead_code)]
+        enum ModifyGeom {
+            AddOnePoint,
+            // Destructive -- this often dramatically warps the angle of connecting roads
+            ChangeEndpoint,
+            AddAllPoints,
+        }
+        #[allow(dead_code)]
+        enum ModifyWhichRoads {
+            None,
+            All,
+            ArbitrarilyOne,
+            OnlyNormalRoads,
+        }
+        let modify_geom = ModifyGeom::AddOnePoint;
+        let modify_which = ModifyWhichRoads::All;
+
         // Fix up all roads connected to i2. Delete them and create a new copy; the ID changes,
         // since one intersection changes.
         let mut deleted = vec![short];
@@ -358,22 +378,45 @@ impl RawMap {
             if r.i1 == i2 {
                 new_id.i1 = i1;
 
-                if false {
-                    // Destructive -- this often dramatically warps the angle of connecting roads
-                    road.center_points[0] = i1_pt;
-                } else {
-                    // TODO More extreme: All of the points of the short road. Except there usually
-                    // aren't many, since they're short.
-                    road.center_points.insert(0, i1_pt);
+                if match modify_which {
+                    ModifyWhichRoads::None => false,
+                    ModifyWhichRoads::All => true,
+                    ModifyWhichRoads::ArbitrarilyOne => created.is_empty(),
+                    ModifyWhichRoads::OnlyNormalRoads => {
+                        !road.osm_tags.is("junction", "intersection")
+                    }
+                } {
+                    match modify_geom {
+                        ModifyGeom::AddOnePoint => {
+                            road.center_points.insert(0, i1_pt);
+                        }
+                        ModifyGeom::ChangeEndpoint => {
+                            road.center_points[0] = i1_pt;
+                        }
+                        ModifyGeom::AddAllPoints => todo!(),
+                    }
                 }
             } else {
                 assert_eq!(r.i2, i2);
                 new_id.i2 = i1;
 
-                if false {
-                    *road.center_points.last_mut().unwrap() = i1_pt;
-                } else {
-                    road.center_points.push(i1_pt);
+                if match modify_which {
+                    ModifyWhichRoads::None => false,
+                    ModifyWhichRoads::All => true,
+                    ModifyWhichRoads::ArbitrarilyOne => created.is_empty(),
+                    ModifyWhichRoads::OnlyNormalRoads => {
+                        !road.osm_tags.is("junction", "intersection")
+                    }
+                } {
+                    match modify_geom {
+                        ModifyGeom::AddOnePoint => {
+                            road.center_points.push(i1_pt);
+                        }
+                        ModifyGeom::ChangeEndpoint => {
+                            *road.center_points.last_mut().unwrap() = i1_pt;
+                        }
+                        ModifyGeom::AddAllPoints => todo!(),
+                    }
                 }
             }
             old_to_new.insert(r, new_id);
