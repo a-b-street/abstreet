@@ -5,8 +5,8 @@ use map_gui::tools::PopupMsg;
 use map_gui::ID;
 use map_model::{EditRoad, MapEdits, RoadID};
 use widgetry::{
-    Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Panel,
-    SimpleState, State, Text, VerticalAlignment, Widget,
+    Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
+    State, Text, VerticalAlignment, Widget,
 };
 
 use crate::app::App;
@@ -22,6 +22,7 @@ pub struct SelectSegments {
 
     current: HashSet<RoadID>,
     draw: Drawable,
+    panel: Panel,
 }
 
 impl SelectSegments {
@@ -38,11 +39,9 @@ impl SelectSegments {
         let map = &app.primary.map;
         let base_name = map.get_r(base_road).get_name(None);
         let mut candidates = HashSet::new();
-        let mut current = HashSet::new();
         for r in map.all_roads() {
             if map.get_r_edit(r.id) == orig_state && r.get_name(None) == base_name {
                 candidates.insert(r.id);
-                current.insert(r.id);
             }
         }
 
@@ -54,45 +53,22 @@ impl SelectSegments {
             );
         }
 
-        let panel = Panel::new_builder(Widget::col(vec![
-            Line("Apply changes to multiple road segments")
-                .small_heading()
-                .into_widget(ctx),
-            Text::from_multiline(vec![
-                Line("All road segments with the same original lane configuration have been selected."),
-                Line("Click a segment to select/deselect it."),
-            ])
-            .into_widget(ctx),
-            Widget::row(vec![
-                ctx.style()
-                    .btn_solid_primary
-                    .text("Apply")
-                    .hotkey(Key::Enter)
-                    .build_def(ctx),
-                ctx.style()
-                    .btn_plain
-                    .text("Cancel")
-                    .hotkey(Key::Escape)
-                    .build_def(ctx),
-            ]),
-        ]))
-        .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
-        .build(ctx);
-
         let mut state = SelectSegments {
             new_state,
             candidates,
             base_road,
             base_edits,
 
-            current,
+            current: HashSet::new(),
             draw: Drawable::empty(ctx),
+            panel: Panel::empty(ctx),
         };
-        state.recalc_draw(ctx, app);
-        <dyn SimpleState<_>>::new_state(panel, Box::new(state))
+        state.recalculate(ctx, app);
+        Box::new(state)
     }
 
-    fn recalc_draw(&mut self, ctx: &mut EventCtx, app: &App) {
+    fn recalculate(&mut self, ctx: &mut EventCtx, app: &App) {
+        // Update the drawn view
         let mut batch = GeomBatch::new();
         let map = &app.primary.map;
         let color = Color::hex("#204AA1");
@@ -112,68 +88,119 @@ impl SelectSegments {
             // draw anything.
         }
         self.draw = ctx.upload(batch);
+
+        // Update the panel
+        self.panel = Panel::new_builder(Widget::col(vec![
+            Line("Apply changes to multiple road segments")
+                .small_heading()
+                .into_widget(ctx),
+            Text::from_multiline(vec![
+                Line(format!(
+                    "{} / {} segments selected",
+                    self.current.len(),
+                    self.candidates.len()
+                )),
+                Line("Click a segment to select/deselect it."),
+                Line("Only road segments with similar lane configuration are shown.").secondary(),
+            ])
+            .into_widget(ctx),
+            Widget::row(vec![
+                ctx.style()
+                    .btn_outline
+                    .text("Select all")
+                    .disabled(self.current.len() == self.candidates.len())
+                    .build_def(ctx),
+                ctx.style()
+                    .btn_outline
+                    .text("Deselect all")
+                    .disabled(self.current.is_empty())
+                    .build_def(ctx),
+            ]),
+            Widget::row(vec![
+                ctx.style()
+                    .btn_solid_primary
+                    .text("Apply")
+                    .hotkey(Key::Enter)
+                    .build_def(ctx),
+                ctx.style()
+                    .btn_plain
+                    .text("Cancel")
+                    .hotkey(Key::Escape)
+                    .build_def(ctx),
+            ]),
+        ]))
+        .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
+        .build(ctx);
     }
 }
 
-impl SimpleState<App> for SelectSegments {
-    fn on_click(&mut self, ctx: &mut EventCtx, app: &mut App, x: &str, _: &Panel) -> Transition {
-        match x {
-            "Apply" => {
-                app.primary.current_selection = None;
-                let mut edits = std::mem::take(&mut self.base_edits);
-                for r in &self.current {
-                    edits
-                        .commands
-                        .push(app.primary.map.edit_road_cmd(*r, |new| {
-                            *new = self.new_state.clone();
-                        }));
+impl State<App> for SelectSegments {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+        if let Outcome::Clicked(x) = self.panel.event(ctx) {
+            match x.as_ref() {
+                "Apply" => {
+                    app.primary.current_selection = None;
+                    let mut edits = std::mem::take(&mut self.base_edits);
+                    for r in &self.current {
+                        edits
+                            .commands
+                            .push(app.primary.map.edit_road_cmd(*r, |new| {
+                                *new = self.new_state.clone();
+                            }));
+                    }
+                    apply_map_edits(ctx, app, edits);
+                    return Transition::Multi(vec![
+                        Transition::Pop,
+                        Transition::Replace(PopupMsg::new_state(
+                            ctx,
+                            "Success",
+                            vec![format!(
+                                "Changed {} other road segments to match",
+                                self.current.len()
+                            )],
+                        )),
+                    ]);
                 }
-                apply_map_edits(ctx, app, edits);
-                Transition::Multi(vec![
-                    Transition::Pop,
-                    Transition::Replace(PopupMsg::new_state(
-                        ctx,
-                        "Success",
-                        vec![format!(
-                            "Changed {} other road segments to match",
-                            self.current.len()
-                        )],
-                    )),
-                ])
-            }
-            "Cancel" => {
-                app.primary.current_selection = None;
-                Transition::Pop
-            }
-            _ => unreachable!(),
-        }
-    }
-
-    fn on_mouseover(&mut self, ctx: &mut EventCtx, app: &mut App) {
-        app.primary.current_selection = None;
-        if let Some(r) = match app.mouseover_unzoomed_roads_and_intersections(ctx) {
-            Some(ID::Road(r)) => Some(r),
-            Some(ID::Lane(l)) => Some(app.primary.map.get_l(l).parent),
-            _ => None,
-        } {
-            if self.candidates.contains(&r) {
-                app.primary.current_selection = Some(ID::Road(r));
+                "Select all" => {
+                    self.current = self.candidates.clone();
+                    self.recalculate(ctx, app);
+                }
+                "Deselect all" => {
+                    self.current.clear();
+                    self.recalculate(ctx, app);
+                }
+                "Cancel" => {
+                    app.primary.current_selection = None;
+                    return Transition::Pop;
+                }
+                _ => unreachable!(),
             }
         }
-    }
 
-    fn other_event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+        if ctx.redo_mouseover() {
+            app.primary.current_selection = None;
+            if let Some(r) = match app.mouseover_unzoomed_roads_and_intersections(ctx) {
+                Some(ID::Road(r)) => Some(r),
+                Some(ID::Lane(l)) => Some(app.primary.map.get_l(l).parent),
+                _ => None,
+            } {
+                if self.candidates.contains(&r) {
+                    app.primary.current_selection = Some(ID::Road(r));
+                }
+            }
+        }
+
         ctx.canvas_movement();
 
         if let Some(ID::Road(r)) = app.primary.current_selection {
             if self.current.contains(&r) && app.per_obj.left_click(ctx, "exclude road segment") {
                 self.current.remove(&r);
-                self.recalc_draw(ctx, app);
+                self.recalculate(ctx, app);
             } else if !self.current.contains(&r)
                 && app.per_obj.left_click(ctx, "include road segment")
             {
                 self.current.insert(r);
-                self.recalc_draw(ctx, app);
+                self.recalculate(ctx, app);
             }
         }
 
@@ -182,6 +209,7 @@ impl SimpleState<App> for SelectSegments {
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         g.redraw(&self.draw);
+        self.panel.draw(g);
         CommonState::draw_osd(g, app);
     }
 }
