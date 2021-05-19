@@ -470,6 +470,26 @@
       "uncompressed_size_bytes": 7146780,
       "compressed_size_bytes": 1901090
     },
+    "data/input/gb/cricklewood/osm/center.osm": {
+      "checksum": "0e673db5e8c17b9979c08b4d85f58422",
+      "uncompressed_size_bytes": 17412308,
+      "compressed_size_bytes": 1733271
+    },
+    "data/input/gb/cricklewood/osm/greater-london-latest.osm.pbf": {
+      "checksum": "d11f04c2dd65f8a092e20067dd541768",
+      "uncompressed_size_bytes": 71343616,
+      "compressed_size_bytes": 71289638
+    },
+    "data/input/gb/cricklewood/procgen_houses.json": {
+      "checksum": "2c10c354ec54dc6002670fe6cf8e260e",
+      "uncompressed_size_bytes": 5470169,
+      "compressed_size_bytes": 638798
+    },
+    "data/input/gb/cricklewood/raw_maps/center.bin": {
+      "checksum": "0d8e6cac6f9db2047371f0eb6cd32a38",
+      "uncompressed_size_bytes": 6503913,
+      "compressed_size_bytes": 1667673
+    },
     "data/input/gb/culm/osm/center.osm": {
       "checksum": "744d5f43fb357316a039bd49adc93f96",
       "uncompressed_size_bytes": 98756676,
@@ -2454,6 +2474,31 @@
       "checksum": "290325ba4a4ed4941c6aecee445d4bf7",
       "uncompressed_size_bytes": 1459634,
       "compressed_size_bytes": 426144
+    },
+    "data/system/gb/cricklewood/maps/center.bin": {
+      "checksum": "146184e7600f898735b9015f7a4d0bbf",
+      "uncompressed_size_bytes": 20708796,
+      "compressed_size_bytes": 7116572
+    },
+    "data/system/gb/cricklewood/scenarios/center/base.bin": {
+      "checksum": "ae50d16bafbe8f5612fc346cf3933f86",
+      "uncompressed_size_bytes": 46820,
+      "compressed_size_bytes": 12948
+    },
+    "data/system/gb/cricklewood/scenarios/center/base_with_bg.bin": {
+      "checksum": "3e90cd3ee17b40b0e22f41b4bcf143ba",
+      "uncompressed_size_bytes": 887317,
+      "compressed_size_bytes": 260707
+    },
+    "data/system/gb/cricklewood/scenarios/center/go_active.bin": {
+      "checksum": "cffe8069251b9e54eb5b40f88b0465e1",
+      "uncompressed_size_bytes": 46721,
+      "compressed_size_bytes": 13108
+    },
+    "data/system/gb/cricklewood/scenarios/center/go_active_with_bg.bin": {
+      "checksum": "93a19ef466e1801702f18c57ee656da5",
+      "uncompressed_size_bytes": 887218,
+      "compressed_size_bytes": 260911
     },
     "data/system/gb/culm/maps/center.bin": {
       "checksum": "d2d4989b24c2e9ee522d3f1eed975a76",
