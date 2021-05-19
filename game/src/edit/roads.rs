@@ -1,6 +1,5 @@
 use geom::{CornerRadii, Distance};
 use map_gui::render::{Renderable, OUTLINE_THICKNESS};
-use map_gui::tools::PopupMsg;
 use map_gui::ID;
 use map_model::{
     Direction, EditCmd, EditRoad, LaneID, LaneSpec, LaneType, MapEdits, Road, RoadID,
@@ -85,6 +84,8 @@ impl RoadEditor {
             app,
             self.num_edit_cmds_originally,
             self.redo_stack.is_empty(),
+            self.r,
+            self.orig_road_state.clone(),
         );
     }
 
@@ -146,17 +147,13 @@ impl State<App> for RoadEditor {
                     self.recalc_all_panels(ctx, app);
                 }
                 "Edit multiple roads" => {
-                    let current_state = app.primary.map.get_r_edit(self.r);
-                    if current_state == self.orig_road_state {
-                        return Transition::Push(PopupMsg::new_state(ctx, "Error", vec!["Change this road first, then you can apply the edits to more segments"]));
-                    }
                     return Transition::Push(
                         crate::edit::multiple_roads::SelectSegments::new_state(
                             ctx,
                             app,
                             self.r,
                             self.orig_road_state.clone(),
-                            current_state,
+                            app.primary.map.get_r_edit(self.r),
                             self.compress_edits(app)
                                 .unwrap_or_else(|| app.primary.map.get_edits().clone()),
                         ),
@@ -290,6 +287,8 @@ fn make_top_panel(
     app: &App,
     num_edit_cmds_originally: usize,
     no_redo_cmds: bool,
+    r: RoadID,
+    orig_road_state: EditRoad,
 ) -> Panel {
     Panel::new_builder(Widget::col(vec![
         Widget::row(vec![
@@ -299,6 +298,7 @@ fn make_top_panel(
                 .text("+ Edit multiple")
                 .label_color(Color::hex("#4CA7E9"), ControlState::Default)
                 .hotkey(Key::M)
+                .disabled(app.primary.map.get_r_edit(r) == orig_road_state)
                 .build_widget(ctx, "Edit multiple roads"),
         ]),
         Widget::row(vec![
