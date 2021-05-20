@@ -101,8 +101,7 @@ async fn regenerate_everything(config: ImporterConfiguration, shard_num: usize, 
     all_cities.insert(0, CityName::seattle());
 
     let mut timer = Timer::new("regenerate all maps");
-    let mut cnt = 0;
-    for city in all_cities {
+    for (cnt, city) in all_cities.into_iter().enumerate() {
         let mut job = Job {
             city: city.clone(),
             osm_to_raw: true,
@@ -129,7 +128,6 @@ async fn regenerate_everything(config: ImporterConfiguration, shard_num: usize, 
             job.run(&config, RawToMapOptions::default(), &mut timer)
                 .await;
         }
-        cnt += 1;
     }
 }
 

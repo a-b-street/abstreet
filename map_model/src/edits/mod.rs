@@ -603,14 +603,12 @@ fn recalculate_intersection_polygon(
             {
                 trimmed_center_pts = pl;
             }
-        } else {
-            if let Some(pl) = r
-                .untrimmed_center_pts
-                .get_slice_starting_at(trimmed_center_pts.last_pt())
-                .and_then(|pl| trimmed_center_pts.clone().extend(pl).ok())
-            {
-                trimmed_center_pts = pl;
-            }
+        } else if let Some(pl) = r
+            .untrimmed_center_pts
+            .get_slice_starting_at(trimmed_center_pts.last_pt())
+            .and_then(|pl| trimmed_center_pts.clone().extend(pl).ok())
+        {
+            trimmed_center_pts = pl;
         }
 
         roads.insert(

@@ -147,7 +147,11 @@ fn use_amenities(map: &mut RawMap, amenities: Vec<(Pt2D, Amenity)>, timer: &mut 
 fn add_extra_buildings(map: &mut RawMap, path: &str) -> Result<()> {
     let require_in_bounds = true;
     let mut id = -1;
-    for (polygon, _) in Polygon::from_geojson_file(path, &map.gps_bounds, require_in_bounds)? {
+    for (polygon, _) in Polygon::from_geojson_bytes(
+        &abstio::slurp_file(path)?,
+        &map.gps_bounds,
+        require_in_bounds,
+    )? {
         // Add these as new buildings, generating a new dummy OSM ID.
         map.buildings.insert(
             osm::OsmID::Way(osm::WayID(id)),

@@ -128,7 +128,8 @@ fn convert(orig_path: &str, network: Network) -> Result<Map> {
 
                 lanes_ltr,
 
-                center_pts: edge.center_line,
+                center_pts: edge.center_line.clone(),
+                untrimmed_center_pts: edge.center_line,
 
                 src_i,
                 dst_i,

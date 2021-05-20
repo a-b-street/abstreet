@@ -156,7 +156,7 @@ pub struct Road {
     pub center_pts: PolyLine,
     /// Like center_pts, but before any trimming for intersection geometry. This is preserved so
     /// that when modifying road width, intersection polygons can be calculated correctly.
-    pub(crate) untrimmed_center_pts: PolyLine,
+    pub untrimmed_center_pts: PolyLine,
     pub src_i: IntersectionID,
     pub dst_i: IntersectionID,
 }

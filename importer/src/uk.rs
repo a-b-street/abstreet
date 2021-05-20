@@ -186,7 +186,9 @@ struct Record {
 fn parse_zones(gps_bounds: &GPSBounds, path: String) -> Result<HashMap<String, Polygon>> {
     let mut zones = HashMap::new();
     let require_in_bounds = false;
-    for (polygon, tags) in Polygon::from_geojson_file(path, gps_bounds, require_in_bounds)? {
+    for (polygon, tags) in
+        Polygon::from_geojson_bytes(&abstio::slurp_file(path)?, gps_bounds, require_in_bounds)?
+    {
         zones.insert(tags.get_result("geo_code")?.to_string(), polygon);
     }
     Ok(zones)
@@ -194,11 +196,11 @@ fn parse_zones(gps_bounds: &GPSBounds, path: String) -> Result<HashMap<String, P
 
 fn load_study_area(map: &Map) -> Result<Polygon> {
     let require_in_bounds = true;
-    let mut list = Polygon::from_geojson_file(
-        abstio::path(format!(
+    let mut list = Polygon::from_geojson_bytes(
+        &abstio::slurp_file(abstio::path(format!(
             "system/study_areas/{}.geojson",
             map.get_name().city.city.replace("_", "-")
-        )),
+        )))?,
         map.get_gps_bounds(),
         require_in_bounds,
     )?;

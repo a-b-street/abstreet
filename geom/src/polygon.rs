@@ -1,8 +1,7 @@
 use std::convert::TryFrom;
 use std::fmt;
-use std::path::Path;
 
-use anyhow::{Context, Result};
+use anyhow::Result;
 use geo::algorithm::area::Area;
 use geo::algorithm::concave_hull::ConcaveHull;
 use geo::algorithm::convex_hull::ConvexHull;
@@ -479,17 +478,57 @@ impl Polygon {
         geojson::Geometry::new(geojson::Value::MultiPolygon(polygons))
     }
 
-    /// Extracts all polygons from a GeoJSON file, along with the string key/value properties. Only
-    /// the first polygon from multipolygons is returned. If `require_in_bounds` is set, then the
-    /// polygon must completely fit within the `gps_bounds`.
-    pub fn from_geojson_file<P: AsRef<Path>>(
-        path: P,
+    /// Extracts all polygons from raw bytes representing a GeoJSON file, along with the string
+    /// key/value properties. Only the first polygon from multipolygons is returned. If
+    /// `require_in_bounds` is set, then the polygon must completely fit within the `gps_bounds`.
+    pub fn from_geojson_bytes(
+        raw_bytes: &[u8],
         gps_bounds: &GPSBounds,
         require_in_bounds: bool,
     ) -> Result<Vec<(Polygon, Tags)>> {
-        let path = path.as_ref();
-        from_geojson_file_inner(path, gps_bounds, require_in_bounds)
-            .with_context(|| format!("polygons from {}", path.display()))
+        let raw_string = std::str::from_utf8(raw_bytes)?;
+        let geojson = raw_string.parse::<geojson::GeoJson>()?;
+        let features = match geojson {
+            geojson::GeoJson::Feature(feature) => vec![feature],
+            geojson::GeoJson::FeatureCollection(collection) => collection.features,
+            _ => anyhow::bail!("Unexpected geojson: {:?}", geojson),
+        };
+
+        let mut results = Vec::new();
+        for feature in features {
+            if let Some(geom) = &feature.geometry {
+                let raw_pts = match &geom.value {
+                    geojson::Value::Polygon(pts) => pts,
+                    // If there are multiple, just use the first
+                    geojson::Value::MultiPolygon(polygons) => &polygons[0],
+                    _ => {
+                        continue;
+                    }
+                };
+                // TODO Handle holes
+                let gps_pts: Vec<LonLat> = raw_pts[0]
+                    .iter()
+                    .map(|pt| LonLat::new(pt[0], pt[1]))
+                    .collect();
+                let pts = if !require_in_bounds {
+                    gps_bounds.convert(&gps_pts)
+                } else if let Some(pts) = gps_bounds.try_convert(&gps_pts) {
+                    pts
+                } else {
+                    continue;
+                };
+                if let Ok(ring) = Ring::new(pts) {
+                    let mut tags = Tags::empty();
+                    for (key, value) in feature.properties_iter() {
+                        if let Some(value) = value.as_str() {
+                            tags.insert(key, value);
+                        }
+                    }
+                    results.push((ring.into_polygon(), tags));
+                }
+            }
+        }
+        Ok(results)
     }
 }
 
@@ -620,54 +659,4 @@ fn downsize(input: Vec<usize>) -> Vec<u16> {
         }
     }
     output
-}
-
-fn from_geojson_file_inner(
-    path: &Path,
-    gps_bounds: &GPSBounds,
-    require_in_bounds: bool,
-) -> Result<Vec<(Polygon, Tags)>> {
-    let raw_string = std::fs::read_to_string(path)?;
-    let geojson = raw_string.parse::<geojson::GeoJson>()?;
-    let features = match geojson {
-        geojson::GeoJson::Feature(feature) => vec![feature],
-        geojson::GeoJson::FeatureCollection(collection) => collection.features,
-        _ => anyhow::bail!("Unexpected geojson: {:?}", geojson),
-    };
-
-    let mut results = Vec::new();
-    for feature in features {
-        if let Some(geom) = &feature.geometry {
-            let raw_pts = match &geom.value {
-                geojson::Value::Polygon(pts) => pts,
-                // If there are multiple, just use the first
-                geojson::Value::MultiPolygon(polygons) => &polygons[0],
-                _ => {
-                    continue;
-                }
-            };
-            // TODO Handle holes
-            let gps_pts: Vec<LonLat> = raw_pts[0]
-                .iter()
-                .map(|pt| LonLat::new(pt[0], pt[1]))
-                .collect();
-            let pts = if !require_in_bounds {
-                gps_bounds.convert(&gps_pts)
-            } else if let Some(pts) = gps_bounds.try_convert(&gps_pts) {
-                pts
-            } else {
-                continue;
-            };
-            if let Ok(ring) = Ring::new(pts) {
-                let mut tags = Tags::empty();
-                for (key, value) in feature.properties_iter() {
-                    if let Some(value) = value.as_str() {
-                        tags.insert(key, value);
-                    }
-                }
-                results.push((ring.into_polygon(), tags));
-            }
-        }
-    }
-    Ok(results)
 }
