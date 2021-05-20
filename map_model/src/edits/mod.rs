@@ -590,14 +590,36 @@ fn recalculate_intersection_polygon(
         } else {
             r.get_half_width(map)
         };
+
+        let mut trimmed_center_pts = r.center_pts.clone();
+        // intersection_polygon assumes the end of the center points extends all of the way into
+        // the intersection itself. So untrim in the direction we're about to modify. If for some
+        // reason this fails, the size of the intersection might unrealisticalluy grow.
+        if r.src_i == i {
+            if let Some(pl) = r
+                .untrimmed_center_pts
+                .get_slice_ending_at(trimmed_center_pts.first_pt())
+                .and_then(|pl| pl.extend(trimmed_center_pts.clone()).ok())
+            {
+                trimmed_center_pts = pl;
+            }
+        } else {
+            if let Some(pl) = r
+                .untrimmed_center_pts
+                .get_slice_starting_at(trimmed_center_pts.last_pt())
+                .and_then(|pl| trimmed_center_pts.clone().extend(pl).ok())
+            {
+                trimmed_center_pts = pl;
+            }
+        }
+
         roads.insert(
             r.orig_id,
             initial::Road {
                 id: r.orig_id,
                 src_i: r.orig_id.i1,
                 dst_i: r.orig_id.i2,
-                // TODO Untrim?
-                trimmed_center_pts: r.center_pts.clone(),
+                trimmed_center_pts,
                 half_width,
                 // Unused
                 lane_specs_ltr: Vec::new(),

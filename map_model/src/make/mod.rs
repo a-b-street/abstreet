@@ -159,6 +159,7 @@ impl Map {
                 orig_id: r.id,
                 lanes_ltr: Vec::new(),
                 center_pts: r.trimmed_center_pts,
+                untrimmed_center_pts: raw_road.get_geometry(r.id, map.get_config()).unwrap().0,
                 src_i: i1,
                 dst_i: i2,
                 speed_limit: Speed::ZERO,
