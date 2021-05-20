@@ -11,21 +11,27 @@ use crate::{App, EventCtx};
 #[derive(Clone, Copy, PartialEq)]
 pub enum ProblemType {
     IntersectionDelay,
-    LargeIntersectionCrossing,
+    ComplexIntersectionCrossing,
     OvertakeDesired,
+    ArterialIntersectionCrossing,
+}
+
+impl From<&Problem> for ProblemType {
+    fn from(problem: &Problem) -> Self {
+        match problem {
+            Problem::IntersectionDelay(_, _) => Self::IntersectionDelay,
+            Problem::ComplexIntersectionCrossing(_) => Self::ComplexIntersectionCrossing,
+            Problem::OvertakeDesired(_) => Self::OvertakeDesired,
+            Problem::ArterialIntersectionCrossing(_) => Self::ArterialIntersectionCrossing,
+        }
+    }
 }
 
 impl ProblemType {
     pub fn count(self, problems: &[(Time, Problem)]) -> usize {
         let mut cnt = 0;
         for (_, problem) in problems {
-            if match problem {
-                Problem::IntersectionDelay(_, _) => self == ProblemType::IntersectionDelay,
-                Problem::LargeIntersectionCrossing(_) => {
-                    self == ProblemType::LargeIntersectionCrossing
-                }
-                Problem::OvertakeDesired(_) => self == ProblemType::OvertakeDesired,
-            } {
+            if self == ProblemType::from(problem) {
                 cnt += 1;
             }
         }

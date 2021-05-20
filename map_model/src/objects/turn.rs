@@ -164,6 +164,21 @@ impl Turn {
 
         (lt_cost, lc_cost, slow_lane)
     }
+
+    pub fn is_crossing_arterial_intersection(&self, map: &Map) -> bool {
+        use crate::osm::RoadRank;
+        if self.turn_type != TurnType::Crosswalk {
+            return false;
+        }
+        // Distance-only metric has many false positives and negatives
+        // return turn.geom.length() > Distance::feet(41.0);
+
+        let intersection = map.get_i(self.id.parent);
+        intersection.roads.iter().any(|r| {
+            let rank = map.get_r(*r).get_rank();
+            rank == RoadRank::Arterial || rank == RoadRank::Highway
+        })
+    }
 }
 
 /// A movement is like a turn, but with less detail -- it identifies a movement from one directed

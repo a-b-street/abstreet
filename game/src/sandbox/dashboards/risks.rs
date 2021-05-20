@@ -22,6 +22,11 @@ impl RiskSummaries {
             include_no_changes,
         };
 
+        let ped_filter = Filter {
+            modes: maplit::btreeset! { TripMode::Walk },
+            include_no_changes,
+        };
+
         Box::new(RiskSummaries {
             panel: Panel::new_builder(Widget::col(vec![
                 DashTab::RiskSummaries.picker(ctx, app),
@@ -35,6 +40,37 @@ impl RiskSummaries {
                     ),
                 ])
                 .section(ctx),
+                Widget::row(vec![
+                    Image::from_path("system/assets/meters/pedestrian.svg")
+                        .dims(36.0)
+                        .into_widget(ctx)
+                        .centered_vert(),
+                    Line(format!(
+                        "Pedestrian Risks - {} Finished Trips",
+                        ped_filter.finished_trip_count(app)
+                    ))
+                    .big_heading_plain()
+                    .into_widget(ctx)
+                    .centered_vert(),
+                ])
+                .margin_above(30),
+                Widget::evenly_spaced_row(
+                    32,
+                    vec![Widget::col(vec![
+                        Line("Arterial intersection crossings")
+                            .small_heading()
+                            .into_widget(ctx)
+                            .centered_horiz(),
+                        problem_matrix(
+                            ctx,
+                            app,
+                            &ped_filter
+                                .trip_problems(app, ProblemType::ArterialIntersectionCrossing),
+                        ),
+                    ])
+                    .section(ctx)],
+                )
+                .margin_above(30),
                 Widget::row(vec![
                     Image::from_path("system/assets/meters/bike.svg")
                         .dims(36.0)
@@ -53,7 +89,7 @@ impl RiskSummaries {
                     32,
                     vec![
                         Widget::col(vec![
-                            Line("Large intersection crossings")
+                            Line("Complex intersection crossings")
                                 .small_heading()
                                 .into_widget(ctx)
                                 .centered_horiz(),
@@ -61,7 +97,7 @@ impl RiskSummaries {
                                 ctx,
                                 app,
                                 &bike_filter
-                                    .trip_problems(app, ProblemType::LargeIntersectionCrossing),
+                                    .trip_problems(app, ProblemType::ComplexIntersectionCrossing),
                             ),
                         ])
                         .section(ctx),

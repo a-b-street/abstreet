@@ -405,65 +405,94 @@ fn describe_problems(
     trip: &TripInfo,
     col_width: Percent,
 ) -> Widget {
-    if trip.mode == TripMode::Bike {
-        let mut count_large_intersections = 0;
-        let mut count_overtakes = 0;
-        let empty = Vec::new();
-        for (_, problem) in analytics.problems_per_trip.get(&id).unwrap_or(&empty) {
-            match problem {
-                Problem::LargeIntersectionCrossing(_) => {
-                    count_large_intersections += 1;
+    match trip.mode {
+        TripMode::Walk => {
+            let mut arterial_intersection_crossings = 0;
+            let empty = Vec::new();
+            for (_, problem) in analytics.problems_per_trip.get(&id).unwrap_or(&empty) {
+                if matches!(problem, Problem::ArterialIntersectionCrossing(_)) {
+                    arterial_intersection_crossings += 1;
                 }
-                Problem::OvertakeDesired(_) => {
-                    count_overtakes += 1;
+            }
+            let mut txt = Text::new();
+            txt.add_appended(vec![
+                Line(arterial_intersection_crossings.to_string()),
+                if arterial_intersection_crossings == 1 {
+                    Line(" crossing at wide intersections")
+                } else {
+                    Line(" crossings at wide intersections")
                 }
-                Problem::IntersectionDelay(_, _) => {}
-            }
-        }
-        let mut txt = Text::new();
-        txt.add_appended(vec![
-            Line(count_large_intersections.to_string()),
-            if count_large_intersections == 1 {
-                Line(" crossing at large intersections")
-            } else {
-                Line(" crossings at large intersections")
-            }
-            .secondary(),
-        ]);
-        txt.add_appended(vec![
-            Line(count_overtakes.to_string()),
-            if count_overtakes == 1 {
-                Line(" vehicle wanted to over-take")
-            } else {
-                Line(" vehicles wanted to over-take")
-            }
-            .secondary(),
-        ]);
+                .secondary(),
+            ]);
 
-        Widget::custom_row(vec![
-            Line("Risk Exposure")
-                .secondary()
-                .into_widget(ctx)
-                .container()
-                .force_width_window_pct(ctx, col_width),
-            txt.into_widget(ctx),
-        ])
-    } else {
-        Widget::nothing()
+            Widget::custom_row(vec![
+                Line("Risk Exposure")
+                    .secondary()
+                    .into_widget(ctx)
+                    .container()
+                    .force_width_window_pct(ctx, col_width),
+                txt.into_widget(ctx),
+            ])
+        }
+        TripMode::Bike => {
+            let mut count_complex_intersections = 0;
+            let mut count_overtakes = 0;
+            let empty = Vec::new();
+            for (_, problem) in analytics.problems_per_trip.get(&id).unwrap_or(&empty) {
+                match problem {
+                    Problem::ComplexIntersectionCrossing(_) => {
+                        count_complex_intersections += 1;
+                    }
+                    Problem::OvertakeDesired(_) => {
+                        count_overtakes += 1;
+                    }
+                    Problem::ArterialIntersectionCrossing(_) => {}
+                    Problem::IntersectionDelay(_, _) => {}
+                }
+            }
+            let mut txt = Text::new();
+            txt.add_appended(vec![
+                Line(count_complex_intersections.to_string()),
+                if count_complex_intersections == 1 {
+                    Line(" crossing at complex intersections")
+                } else {
+                    Line(" crossings at complex intersections")
+                }
+                .secondary(),
+            ]);
+            txt.add_appended(vec![
+                Line(count_overtakes.to_string()),
+                if count_overtakes == 1 {
+                    Line(" vehicle wanted to over-take")
+                } else {
+                    Line(" vehicles wanted to over-take")
+                }
+                .secondary(),
+            ]);
+
+            Widget::custom_row(vec![
+                Line("Risk Exposure")
+                    .secondary()
+                    .into_widget(ctx)
+                    .container()
+                    .force_width_window_pct(ctx, col_width),
+                txt.into_widget(ctx),
+            ])
+        }
+        _ => Widget::nothing(),
     }
 }
 
-fn draw_problems(ctx: &EventCtx, app: &App, details: &mut Details, id: TripID) {
+fn draw_problems(
+    ctx: &EventCtx,
+    app: &App,
+    analytics: &Analytics,
+    details: &mut Details,
+    id: TripID,
+) {
     let map = &app.primary.map;
     let empty = Vec::new();
-    for (_, problem) in app
-        .primary
-        .sim
-        .get_analytics()
-        .problems_per_trip
-        .get(&id)
-        .unwrap_or(&empty)
-    {
+    for (_, problem) in analytics.problems_per_trip.get(&id).unwrap_or(&empty) {
         match problem {
             Problem::IntersectionDelay(i, delay) => {
                 let i = map.get_i(*i);
@@ -498,7 +527,7 @@ fn draw_problems(ctx: &EventCtx, app: &App, details: &mut Details, id: TripID) {
                     Text::from(Line(format!("{} delay here", delay))),
                 ));
             }
-            Problem::LargeIntersectionCrossing(i) => {
+            Problem::ComplexIntersectionCrossing(i) => {
                 let i = map.get_i(*i);
                 details.unzoomed.append(
                     GeomBatch::load_svg(ctx, "system/assets/tools/alert.svg")
@@ -539,6 +568,29 @@ fn draw_problems(ctx: &EventCtx, app: &App, details: &mut Details, id: TripID) {
                         Traversable::Turn(t) => map.get_i(t.parent).polygon.clone(),
                     },
                     Text::from("A vehicle wanted to over-take this cyclist near here."),
+                ));
+            }
+            Problem::ArterialIntersectionCrossing(t) => {
+                let t = map.get_t(*t);
+
+                let geom = t.geom.make_polygons(Distance::meters(10.0));
+                details.unzoomed.append(
+                    GeomBatch::load_svg(ctx, "system/assets/tools/alert.svg")
+                        .centered_on(geom.center())
+                        .color(RewriteColor::ChangeAlpha(0.8)),
+                );
+                details.zoomed.append(
+                    GeomBatch::load_svg(ctx, "system/assets/tools/alert.svg")
+                        .scale(0.5)
+                        .color(RewriteColor::ChangeAlpha(0.5))
+                        .centered_on(geom.center()),
+                );
+                details.tooltips.push((
+                    geom,
+                    Text::from_multiline(vec![
+                        Line("Arterial intersections have an increased risk of crash or injury for pedestrians"),
+                        Line("Source: 2020 Seattle DOT Safety Analysis"),
+                    ]),
                 ));
             }
         }

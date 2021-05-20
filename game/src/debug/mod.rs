@@ -144,6 +144,11 @@ impl DebugMode {
                         .build_def(ctx),
                     ctx.style()
                         .btn_outline
+                        .text("draw arterial crosswalks")
+                        .hotkey(Key::W)
+                        .build_def(ctx),
+                    ctx.style()
+                        .btn_outline
                         .text("export color-scheme")
                         .build_def(ctx),
                     ctx.style()
@@ -359,6 +364,14 @@ impl State<App> for DebugMode {
                         query: "banned turns".to_string(),
                         num_matches: 0,
                         draw: draw_banned_turns(ctx, app),
+                    });
+                    self.reset_info(ctx);
+                }
+                "draw arterial crosswalks" => {
+                    self.search_results = Some(SearchResults {
+                        query: "wide crosswalks".to_string(),
+                        num_matches: 0,
+                        draw: draw_arterial_crosswalks(ctx, app),
                     });
                     self.reset_info(ctx);
                 }
@@ -967,6 +980,21 @@ fn draw_banned_turns(ctx: &mut EventCtx, app: &App) -> Drawable {
                     pl.make_arrow(Distance::meters(1.0), ArrowCap::Triangle),
                 );
             }
+        }
+    }
+    ctx.upload(batch)
+}
+
+fn draw_arterial_crosswalks(ctx: &mut EventCtx, app: &App) -> Drawable {
+    let mut batch = GeomBatch::new();
+    let map = &app.primary.map;
+    for (_t, turn) in map.all_turns() {
+        if turn.is_crossing_arterial_intersection(map) {
+            batch.push(
+                Color::RED,
+                turn.geom
+                    .make_arrow(Distance::meters(2.0), ArrowCap::Triangle),
+            );
         }
     }
     ctx.upload(batch)

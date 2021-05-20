@@ -6,7 +6,7 @@ use abstutil::Counter;
 use geom::{Duration, Time};
 use map_model::{
     BusRouteID, BusStopID, CompressedMovementID, IntersectionID, LaneID, Map, MovementID,
-    ParkingLotID, Path, PathRequest, RoadID, Traversable, TurnType,
+    ParkingLotID, Path, PathRequest, RoadID, Traversable, TurnID, TurnType,
 };
 
 use crate::{
@@ -69,7 +69,9 @@ pub enum Problem {
     /// A vehicle waited >30s, or a pedestrian waited >15s.
     IntersectionDelay(IntersectionID, Duration),
     /// A cyclist crossed an intersection with >4 connecting roads.
-    LargeIntersectionCrossing(IntersectionID),
+    ComplexIntersectionCrossing(IntersectionID),
+    /// A pedestrian crossed an intersection with an Arterial street
+    ArterialIntersectionCrossing(TurnID),
     /// Another vehicle wanted to over-take this cyclist somewhere on this lane or turn.
     OvertakeDesired(Traversable),
 }
@@ -256,7 +258,17 @@ impl Analytics {
                 self.problems_per_trip
                     .entry(trip)
                     .or_insert_with(Vec::new)
-                    .push((time, Problem::LargeIntersectionCrossing(t.parent)));
+                    .push((time, Problem::ComplexIntersectionCrossing(t.parent)));
+            }
+        }
+
+        if let Event::AgentEntersTraversable(a, Some(trip), Traversable::Turn(t), _) = ev {
+            let turn = map.get_t(t);
+            if a.to_type() == AgentType::Pedestrian && turn.is_crossing_arterial_intersection(map) {
+                self.problems_per_trip
+                    .entry(trip)
+                    .or_insert_with(Vec::new)
+                    .push((time, Problem::ArterialIntersectionCrossing(turn.id)));
             }
         }
 

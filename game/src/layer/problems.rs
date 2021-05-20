@@ -66,10 +66,13 @@ impl ProblemMap {
                 if opts.show(app.primary.sim.trip_info(*trip), *time, problem) {
                     pts.push(match problem {
                         Problem::IntersectionDelay(i, _)
-                        | Problem::LargeIntersectionCrossing(i) => {
+                        | Problem::ComplexIntersectionCrossing(i) => {
                             app.primary.map.get_i(*i).polygon.center()
                         }
                         Problem::OvertakeDesired(on) => on.get_polyline(&app.primary.map).middle(),
+                        Problem::ArterialIntersectionCrossing(t) => {
+                            app.primary.map.get_t(*t).geom.middle()
+                        }
                     });
                 }
             }
@@ -121,12 +124,15 @@ impl ProblemMap {
             time1: end_of_day.percent_of(self.panel.slider("time1").get_percent()),
             time2: end_of_day.percent_of(self.panel.slider("time2").get_percent()),
             show_delays: self.panel.is_checked("show delays"),
-            show_large_crossings: self
+            show_complex_crossings: self
                 .panel
-                .is_checked("show crossings over large intersections"),
+                .is_checked("show where cyclists cross complex intersections"),
             show_overtakes: self
                 .panel
                 .is_checked("show where cars want to overtake cyclists"),
+            show_arterial_crossings: self
+                .panel
+                .is_checked("show where pedestrians cross arterial intersections"),
         }
     }
 }
@@ -139,8 +145,9 @@ pub struct Options {
     time1: Time,
     time2: Time,
     show_delays: bool,
-    show_large_crossings: bool,
+    show_complex_crossings: bool,
     show_overtakes: bool,
+    show_arterial_crossings: bool,
     // TODO Time range
 }
 
@@ -152,8 +159,9 @@ impl Options {
             time1: Time::START_OF_DAY,
             time2: app.primary.sim.get_end_of_day(),
             show_delays: true,
-            show_large_crossings: true,
+            show_complex_crossings: true,
             show_overtakes: true,
+            show_arterial_crossings: true,
         }
     }
 
@@ -163,8 +171,9 @@ impl Options {
         }
         match problem {
             Problem::IntersectionDelay(_, _) => self.show_delays,
-            Problem::LargeIntersectionCrossing(_) => self.show_large_crossings,
+            Problem::ComplexIntersectionCrossing(_) => self.show_complex_crossings,
             Problem::OvertakeDesired(_) => self.show_overtakes,
+            Problem::ArterialIntersectionCrossing(_) => self.show_arterial_crossings,
         }
     }
 }
@@ -195,6 +204,7 @@ fn make_controls(
             0.15 * ctx.canvas.window_width,
             opts.time1.to_percent(end_of_day),
         )
+        .align_right()
         .named("time1"),
     ]));
     col.push(Widget::row(vec![
@@ -204,15 +214,16 @@ fn make_controls(
             0.15 * ctx.canvas.window_width,
             opts.time2.to_percent(end_of_day),
         )
+        .align_right()
         .named("time2"),
     ]));
     col.push(checkbox_per_mode(ctx, app, &opts.modes));
     col.push(Toggle::checkbox(ctx, "show delays", None, opts.show_delays));
     col.push(Toggle::checkbox(
         ctx,
-        "show crossings over large intersections",
+        "show where cyclists cross complex intersections",
         None,
-        opts.show_large_crossings,
+        opts.show_complex_crossings,
     ));
     col.push(Toggle::checkbox(
         ctx,
@@ -220,14 +231,23 @@ fn make_controls(
         None,
         opts.show_overtakes,
     ));
+    col.push(Toggle::checkbox(
+        ctx,
+        "show where pedestrians cross wide intersections",
+        None,
+        opts.show_arterial_crossings,
+    ));
 
-    col.push(Toggle::switch(
+    col.push(Toggle::choice(
         ctx,
         "Show heatmap",
+        "Heatmap",
+        "Points",
         None,
         opts.heatmap.is_some(),
     ));
     if let Some(ref o) = opts.heatmap {
+        col.push(Line("Heatmap Options").small_heading().into_widget(ctx));
         col.extend(o.to_controls(ctx, legend.unwrap()));
     }
 
