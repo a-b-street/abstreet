@@ -935,8 +935,6 @@
 <span id="932">932</span>
 <span id="933">933</span>
 <span id="934">934</span>
-<span id="935">935</span>
-<span id="936">936</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Once a Map exists, the player can edit it in the UI (producing `MapEdits` in-memory), then save</span>
 <span class="doccomment">//! the changes to a file (as `PermanentMapEdits`). See</span>
@@ -1543,14 +1541,12 @@
             {
                 <span class="ident">trimmed_center_pts</span> <span class="op">=</span> <span class="ident">pl</span>;
             }
-        } <span class="kw">else</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pl</span>) <span class="op">=</span> <span class="ident">r</span>
-                .<span class="ident">untrimmed_center_pts</span>
-                .<span class="ident">get_slice_starting_at</span>(<span class="ident">trimmed_center_pts</span>.<span class="ident">last_pt</span>())
-                .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">pl</span><span class="op">|</span> <span class="ident">trimmed_center_pts</span>.<span class="ident">clone</span>().<span class="ident">extend</span>(<span class="ident">pl</span>).<span class="ident">ok</span>())
-            {
-                <span class="ident">trimmed_center_pts</span> <span class="op">=</span> <span class="ident">pl</span>;
-            }
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pl</span>) <span class="op">=</span> <span class="ident">r</span>
+            .<span class="ident">untrimmed_center_pts</span>
+            .<span class="ident">get_slice_starting_at</span>(<span class="ident">trimmed_center_pts</span>.<span class="ident">last_pt</span>())
+            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">pl</span><span class="op">|</span> <span class="ident">trimmed_center_pts</span>.<span class="ident">clone</span>().<span class="ident">extend</span>(<span class="ident">pl</span>).<span class="ident">ok</span>())
+        {
+            <span class="ident">trimmed_center_pts</span> <span class="op">=</span> <span class="ident">pl</span>;
         }
 
         <span class="ident">roads</span>.<span class="ident">insert</span>(

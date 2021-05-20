@@ -210,6 +210,8 @@
 <span id="207">207</span>
 <span id="208">208</span>
 <span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashMap</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">File</span>;
@@ -399,7 +401,9 @@
 <span class="kw">fn</span> <span class="ident">parse_zones</span>(<span class="ident">gps_bounds</span>: <span class="kw-2">&amp;</span><span class="ident">GPSBounds</span>, <span class="ident">path</span>: <span class="ident">String</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">Polygon</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">zones</span> <span class="op">=</span> <span class="ident">HashMap</span>::<span class="ident">new</span>();
     <span class="kw">let</span> <span class="ident">require_in_bounds</span> <span class="op">=</span> <span class="bool-val">false</span>;
-    <span class="kw">for</span> (<span class="ident">polygon</span>, <span class="ident">tags</span>) <span class="kw">in</span> <span class="ident">Polygon</span>::<span class="ident">from_geojson_file</span>(<span class="ident">path</span>, <span class="ident">gps_bounds</span>, <span class="ident">require_in_bounds</span>)<span class="question-mark">?</span> {
+    <span class="kw">for</span> (<span class="ident">polygon</span>, <span class="ident">tags</span>) <span class="kw">in</span>
+        <span class="ident">Polygon</span>::<span class="ident">from_geojson_bytes</span>(<span class="kw-2">&amp;</span><span class="ident">abstio</span>::<span class="ident">slurp_file</span>(<span class="ident">path</span>)<span class="question-mark">?</span>, <span class="ident">gps_bounds</span>, <span class="ident">require_in_bounds</span>)<span class="question-mark">?</span>
+    {
         <span class="ident">zones</span>.<span class="ident">insert</span>(<span class="ident">tags</span>.<span class="ident">get_result</span>(<span class="string">&quot;geo_code&quot;</span>)<span class="question-mark">?</span>.<span class="ident">to_string</span>(), <span class="ident">polygon</span>);
     }
     <span class="prelude-val">Ok</span>(<span class="ident">zones</span>)
@@ -407,11 +411,11 @@
 
 <span class="kw">fn</span> <span class="ident">load_study_area</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">require_in_bounds</span> <span class="op">=</span> <span class="bool-val">true</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">Polygon</span>::<span class="ident">from_geojson_file</span>(
-        <span class="ident">abstio</span>::<span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">Polygon</span>::<span class="ident">from_geojson_bytes</span>(
+        <span class="kw-2">&amp;</span><span class="ident">abstio</span>::<span class="ident">slurp_file</span>(<span class="ident">abstio</span>::<span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(
             <span class="string">&quot;system/study_areas/{}.geojson&quot;</span>,
             <span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">city</span>.<span class="ident">city</span>.<span class="ident">replace</span>(<span class="string">&quot;_&quot;</span>, <span class="string">&quot;-&quot;</span>)
-        )),
+        )))<span class="question-mark">?</span>,
         <span class="ident">map</span>.<span class="ident">get_gps_bounds</span>(),
         <span class="ident">require_in_bounds</span>,
     )<span class="question-mark">?</span>;
