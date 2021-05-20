@@ -915,6 +915,28 @@
 <span id="912">912</span>
 <span id="913">913</span>
 <span id="914">914</span>
+<span id="915">915</span>
+<span id="916">916</span>
+<span id="917">917</span>
+<span id="918">918</span>
+<span id="919">919</span>
+<span id="920">920</span>
+<span id="921">921</span>
+<span id="922">922</span>
+<span id="923">923</span>
+<span id="924">924</span>
+<span id="925">925</span>
+<span id="926">926</span>
+<span id="927">927</span>
+<span id="928">928</span>
+<span id="929">929</span>
+<span id="930">930</span>
+<span id="931">931</span>
+<span id="932">932</span>
+<span id="933">933</span>
+<span id="934">934</span>
+<span id="935">935</span>
+<span id="936">936</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Once a Map exists, the player can edit it in the UI (producing `MapEdits` in-memory), then save</span>
 <span class="doccomment">//! the changes to a file (as `PermanentMapEdits`). See</span>
@@ -1508,14 +1530,36 @@
         } <span class="kw">else</span> {
             <span class="ident">r</span>.<span class="ident">get_half_width</span>(<span class="ident">map</span>)
         };
+
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">trimmed_center_pts</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">center_pts</span>.<span class="ident">clone</span>();
+        <span class="comment">// intersection_polygon assumes the end of the center points extends all of the way into</span>
+        <span class="comment">// the intersection itself. So untrim in the direction we&#39;re about to modify. If for some</span>
+        <span class="comment">// reason this fails, the size of the intersection might unrealisticalluy grow.</span>
+        <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">src_i</span> <span class="op">=</span><span class="op">=</span> <span class="ident">i</span> {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pl</span>) <span class="op">=</span> <span class="ident">r</span>
+                .<span class="ident">untrimmed_center_pts</span>
+                .<span class="ident">get_slice_ending_at</span>(<span class="ident">trimmed_center_pts</span>.<span class="ident">first_pt</span>())
+                .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">pl</span><span class="op">|</span> <span class="ident">pl</span>.<span class="ident">extend</span>(<span class="ident">trimmed_center_pts</span>.<span class="ident">clone</span>()).<span class="ident">ok</span>())
+            {
+                <span class="ident">trimmed_center_pts</span> <span class="op">=</span> <span class="ident">pl</span>;
+            }
+        } <span class="kw">else</span> {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pl</span>) <span class="op">=</span> <span class="ident">r</span>
+                .<span class="ident">untrimmed_center_pts</span>
+                .<span class="ident">get_slice_starting_at</span>(<span class="ident">trimmed_center_pts</span>.<span class="ident">last_pt</span>())
+                .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">pl</span><span class="op">|</span> <span class="ident">trimmed_center_pts</span>.<span class="ident">clone</span>().<span class="ident">extend</span>(<span class="ident">pl</span>).<span class="ident">ok</span>())
+            {
+                <span class="ident">trimmed_center_pts</span> <span class="op">=</span> <span class="ident">pl</span>;
+            }
+        }
+
         <span class="ident">roads</span>.<span class="ident">insert</span>(
             <span class="ident">r</span>.<span class="ident">orig_id</span>,
             <span class="ident">initial</span>::<span class="ident">Road</span> {
                 <span class="ident">id</span>: <span class="ident">r</span>.<span class="ident">orig_id</span>,
                 <span class="ident">src_i</span>: <span class="ident">r</span>.<span class="ident">orig_id</span>.<span class="ident">i1</span>,
                 <span class="ident">dst_i</span>: <span class="ident">r</span>.<span class="ident">orig_id</span>.<span class="ident">i2</span>,
-                <span class="comment">// TODO Untrim?</span>
-                <span class="ident">trimmed_center_pts</span>: <span class="ident">r</span>.<span class="ident">center_pts</span>.<span class="ident">clone</span>(),
+                <span class="ident">trimmed_center_pts</span>,
                 <span class="ident">half_width</span>,
                 <span class="comment">// Unused</span>
                 <span class="ident">lane_specs_ltr</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),

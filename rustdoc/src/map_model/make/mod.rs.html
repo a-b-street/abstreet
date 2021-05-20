@@ -446,6 +446,7 @@
 <span id="443">443</span>
 <span id="444">444</span>
 <span id="445">445</span>
+<span id="446">446</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! See &lt;https://a-b-street.github.io/docs/map/importing/index.html&gt; for an overview. This module</span>
 <span class="doccomment">//! covers the RawMap-&gt;Map stage.</span>
@@ -608,6 +609,7 @@
                 <span class="ident">orig_id</span>: <span class="ident">r</span>.<span class="ident">id</span>,
                 <span class="ident">lanes_ltr</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
                 <span class="ident">center_pts</span>: <span class="ident">r</span>.<span class="ident">trimmed_center_pts</span>,
+                <span class="ident">untrimmed_center_pts</span>: <span class="ident">raw_road</span>.<span class="ident">get_geometry</span>(<span class="ident">r</span>.<span class="ident">id</span>, <span class="ident">map</span>.<span class="ident">get_config</span>()).<span class="ident">unwrap</span>().<span class="number">0</span>,
                 <span class="ident">src_i</span>: <span class="ident">i1</span>,
                 <span class="ident">dst_i</span>: <span class="ident">i2</span>,
                 <span class="ident">speed_limit</span>: <span class="ident">Speed</span>::<span class="ident">ZERO</span>,
