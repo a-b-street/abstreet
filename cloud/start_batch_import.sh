@@ -3,7 +3,7 @@
 # creates a bunch of GCE VMs, and runs the importer there on all cities, using
 # static sharding.
 #
-# This process is only runnable by Dustin, due to current GCE/EC2 permissions.
+# This process is only runnable by Dustin, due to current GCE/S3 permissions.
 #
 # Run from the repo's root dir: cloud/start_batch_import.sh
 
@@ -20,10 +20,12 @@ NUM_WORKERS=10
 ZONE=us-east1-b
 # See other options: https://cloud.google.com/compute/docs/machine-types
 # Particularly... e2-standard-2, n2-standard-2, c2-standard-4
-MACHINE_TYPE=e2-standard-2
+SMALL_MACHINE_TYPE=e2-standard-2
+LARGE_MACHINE_TYPE=c2-standard-4
 # All of data/ is currently around 30GB
 DISK_SIZE=40GB
 # Compressing and checksumming gigantic files needs more IOPS
+# TODO But wait, e2-standard-2 doesn't support local PD?!
 DISK_TYPE=pd-ssd
 # Haha, using a project from college, my last traffic sim...
 PROJECT=aorta-routes
@@ -64,11 +66,19 @@ function create_vms {
 	# gcloud integration tests...
 	# https://issuetracker.google.com/issues/188462253
 	for ((i = 0; i < $NUM_WORKERS; i++)); do
+		# The first shard always handles Seattle, which needs more than
+		# 8GB of memory. Just give it really hefty hardware.
+		if [ $i == 0 ]; then
+			machine_type=$LARGE_MACHINE_TYPE;
+		else
+			machine_type=$SMALL_MACHINE_TYPE;
+		fi
+
 		gcloud compute \
 			--project=$PROJECT \
 			instances create "worker-$i" \
 			--zone=$ZONE \
-			--machine-type=$MACHINE_TYPE \
+			--machine-type=$machine_type \
 			--boot-disk-size=$DISK_SIZE \
 			--boot-disk-type=$DISK_TYPE \
 			--image-family=ubuntu-2004-lts \
