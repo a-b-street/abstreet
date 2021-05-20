@@ -151,10 +151,12 @@ pub struct Road {
     // TODO Only public for Map::import_minimal. Can we avoid this?
     pub lanes_ltr: Vec<(LaneID, Direction, LaneType)>,
 
-    /// The physical center of the road, including sidewalks, after trimming. The order implies
-    /// road orientation. No edits ever change this.
-    // TODO Maybe deprecated in favor of get_left_side?
+    /// The physical center of the road, including sidewalks, after trimming to account for the
+    /// intersection geometry. The order implies road orientation.
     pub center_pts: PolyLine,
+    /// Like center_pts, but before any trimming for intersection geometry. This is preserved so
+    /// that when modifying road width, intersection polygons can be calculated correctly.
+    pub(crate) untrimmed_center_pts: PolyLine,
     pub src_i: IntersectionID,
     pub dst_i: IntersectionID,
 }
