@@ -15,7 +15,7 @@ use map_gui::render::{unzoomed_agent_radius, AgentCache, DrawMap, DrawOptions, R
 use map_gui::tools::CameraState;
 use map_gui::ID;
 use map_model::AreaType;
-use map_model::{IntersectionID, LaneID, Map, Traversable};
+use map_model::{IntersectionID, Map, Traversable};
 use sim::{AgentID, Analytics, Scenario, Sim, SimCallback, SimFlags, VehicleType};
 use widgetry::{Canvas, EventCtx, GfxCtx, Prerender, SharedAppState, State};
 
@@ -459,20 +459,6 @@ impl App {
         if let Some(ID::Intersection(i)) = self.primary.current_selection {
             if self.per_obj.left_click(ctx, label) {
                 return Some(i);
-            }
-        }
-        None
-    }
-
-    /// If a lane was clicked, return its ID.
-    pub fn click_on_lane<S: Into<String>>(
-        &mut self,
-        ctx: &mut EventCtx,
-        label: S,
-    ) -> Option<LaneID> {
-        if let Some(ID::Lane(l)) = self.primary.current_selection {
-            if self.per_obj.left_click(ctx, label) {
-                return Some(l);
             }
         }
         None

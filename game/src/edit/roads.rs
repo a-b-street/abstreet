@@ -30,12 +30,14 @@ pub struct RoadEditor {
 }
 
 impl RoadEditor {
-    pub fn new_state(ctx: &mut EventCtx, app: &mut App, r: RoadID) -> Box<dyn State<App>> {
+    /// Always starts focused on a certain lane.
+    pub fn new_state(ctx: &mut EventCtx, app: &mut App, l: LaneID) -> Box<dyn State<App>> {
         app.primary.current_selection = None;
 
+        let r = app.primary.map.get_l(l).parent;
         let mut editor = RoadEditor {
             r,
-            current_lane: None,
+            current_lane: Some(l),
             top_panel: Panel::empty(ctx),
             main_panel: Panel::empty(ctx),
             highlight_selection: (None, Drawable::empty(ctx)),
