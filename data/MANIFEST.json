@@ -1725,10 +1725,20 @@
       "uncompressed_size_bytes": 214813365,
       "compressed_size_bytes": 214644603
     },
+    "data/input/us/phoenix/osm/gilbert.osm": {
+      "checksum": "d3e5dc9911ebabef408d07bd4ad6b138",
+      "uncompressed_size_bytes": 2100159,
+      "compressed_size_bytes": 207535
+    },
     "data/input/us/phoenix/osm/tempe.osm": {
       "checksum": "f7c3bc2d0b79272836e194951c3321ec",
       "uncompressed_size_bytes": 7362697,
       "compressed_size_bytes": 728723
+    },
+    "data/input/us/phoenix/raw_maps/gilbert.bin": {
+      "checksum": "81efad85790862387c9db205a10877df",
+      "uncompressed_size_bytes": 714790,
+      "compressed_size_bytes": 146801
     },
     "data/input/us/phoenix/raw_maps/tempe.bin": {
       "checksum": "550ee53469962b0db6af203a7f9bd26e",
@@ -3704,6 +3714,11 @@
       "checksum": "3799e8f8daadbcab0ccd4a068528c594",
       "uncompressed_size_bytes": 18391949,
       "compressed_size_bytes": 6019054
+    },
+    "data/system/us/phoenix/maps/gilbert.bin": {
+      "checksum": "813a8efff28654d1d215928278e3b031",
+      "uncompressed_size_bytes": 4143779,
+      "compressed_size_bytes": 1342609
     },
     "data/system/us/phoenix/maps/tempe.bin": {
       "checksum": "d668a914fd5f4afaca9fb8b2bfb63359",
