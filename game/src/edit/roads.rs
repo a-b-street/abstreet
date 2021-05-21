@@ -56,17 +56,36 @@ impl RoadEditor {
         app: &mut App,
         select_new_lane_offset: Option<isize>,
         f: F,
-    ) {
+    ) -> Transition {
         let idx = app
             .primary
             .map
             .get_r(self.r)
             .offset(self.current_lane.unwrap());
+        let cmd = app.primary.map.edit_road_cmd(self.r, |new| (f)(new, idx));
+
+        // Special check here -- this invalid state can be reached in many ways.
+        if let EditCmd::ChangeRoad { ref new, .. } = cmd {
+            let mut parking = 0;
+            let mut driving = 0;
+            for spec in &new.lanes_ltr {
+                if spec.lt == LaneType::Parking {
+                    parking += 1;
+                } else if spec.lt == LaneType::Driving {
+                    driving += 1;
+                }
+            }
+            if parking > 0 && driving == 0 {
+                return Transition::Push(PopupMsg::new_state(
+                    ctx,
+                    "Error",
+                    vec!["Parking can't exist without a driving lane to access it."],
+                ));
+            }
+        }
 
         let mut edits = app.primary.map.get_edits().clone();
-        edits
-            .commands
-            .push(app.primary.map.edit_road_cmd(self.r, |new| (f)(new, idx)));
+        edits.commands.push(cmd);
         apply_map_edits(ctx, app, edits);
         self.redo_stack.clear();
 
@@ -77,6 +96,8 @@ impl RoadEditor {
         };
 
         self.recalc_all_panels(ctx, app);
+
+        Transition::Keep
     }
 
     fn recalc_all_panels(&mut self, ctx: &mut EventCtx, app: &App) {
@@ -173,28 +194,41 @@ impl State<App> for RoadEditor {
                     self.current_lane = Some(LaneID(idx.parse().unwrap()));
                     self.recalc_all_panels(ctx, app);
                 } else if x == "delete lane" {
-                    self.modify_current_lane(ctx, app, None, |new, idx| {
+                    return self.modify_current_lane(ctx, app, None, |new, idx| {
                         new.lanes_ltr.remove(idx);
                     });
                 } else if x == "flip direction" {
-                    self.modify_current_lane(ctx, app, Some(0), |new, idx| {
+                    return self.modify_current_lane(ctx, app, Some(0), |new, idx| {
                         new.lanes_ltr[idx].dir = new.lanes_ltr[idx].dir.opposite();
                     });
                 } else if x == "move lane left" {
-                    self.modify_current_lane(ctx, app, Some(-1), |new, idx| {
+                    return self.modify_current_lane(ctx, app, Some(-1), |new, idx| {
                         new.lanes_ltr.swap(idx, idx - 1);
                     });
                 } else if x == "move lane right" {
-                    self.modify_current_lane(ctx, app, Some(1), |new, idx| {
+                    return self.modify_current_lane(ctx, app, Some(1), |new, idx| {
                         new.lanes_ltr.swap(idx, idx + 1);
                     });
                 } else if let Some(lt) = x.strip_prefix("change to ") {
                     let lt = LaneType::from_short_name(lt).unwrap();
-                    self.modify_current_lane(ctx, app, Some(0), |new, idx| {
+                    return self.modify_current_lane(ctx, app, Some(0), |new, idx| {
                         new.lanes_ltr[idx].lt = lt;
                     });
                 } else if let Some(lt) = x.strip_prefix("add ") {
                     let lt = LaneType::from_short_name(lt).unwrap();
+
+                    // Special check here
+                    if lt == LaneType::Parking
+                        && app
+                            .primary
+                            .map
+                            .get_r(self.r)
+                            .lanes_ltr()
+                            .into_iter()
+                            .all(|(_, _, lt)| lt != LaneType::Driving)
+                    {
+                        return Transition::Push(PopupMsg::new_state(ctx, "Error", vec!["Add a driving lane first. Parking can't exist without a way to access it."]));
+                    }
 
                     let mut edits = app.primary.map.get_edits().clone();
                     let old = app.primary.map.get_r_edit(self.r);
@@ -266,7 +300,7 @@ impl State<App> for RoadEditor {
                 }
                 "width" => {
                     let width = self.main_panel.dropdown_value("width");
-                    self.modify_current_lane(ctx, app, Some(0), |new, idx| {
+                    return self.modify_current_lane(ctx, app, Some(0), |new, idx| {
                         new.lanes_ltr[idx].width = width;
                     });
                 }
@@ -386,6 +420,7 @@ fn make_main_panel(
                 .btn_solid_destructive
                 .icon("system/assets/tools/trash.svg")
                 .disabled(road.lanes_ltr().len() == 1)
+                .hotkey(Key::Backspace)
                 .build_widget(ctx, "delete lane"),
             ctx.style()
                 .btn_plain
