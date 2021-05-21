@@ -32,6 +32,7 @@ mod objects;
 pub mod path_counter;
 mod polygons;
 mod routes;
+mod select_roads;
 pub mod shared_row;
 pub mod streetmix;
 mod uber_turns;
@@ -569,6 +570,7 @@ impl ContextualActions for Actions {
                     Key::B,
                     "trace the block to the left of this road".to_string(),
                 ));
+                actions.push((Key::C, "export roads".to_string()));
             }
             ID::Intersection(i) => {
                 actions.push((Key::H, "hide this".to_string()));
@@ -725,6 +727,11 @@ impl ContextualActions for Actions {
                     mode.reset_info(ctx);
                 }))
             }
+            (ID::Lane(l), "export roads") => Transition::Push(select_roads::BulkSelect::new_state(
+                ctx,
+                app,
+                app.primary.map.get_l(l).parent,
+            )),
             (ID::Area(a), "debug area geometry") => {
                 let pts = &app.primary.map.get_a(a).polygon.points();
                 let center = if pts[0] == *pts.last().unwrap() {

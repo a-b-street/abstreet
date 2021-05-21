@@ -12,9 +12,9 @@ use widgetry::{
 };
 
 use crate::app::{App, Transition};
+use crate::common::RoadSelector;
 use crate::common::{checkbox_per_mode, intersections_from_roads, CommonState};
 use crate::edit::apply_map_edits;
-use crate::edit::select::RoadSelector;
 
 pub struct ZoneEditor {
     panel: Panel,

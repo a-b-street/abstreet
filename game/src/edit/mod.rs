@@ -22,12 +22,10 @@ use crate::common::{tool_panel, CommonState, Warping};
 use crate::debug::DebugMode;
 use crate::sandbox::{GameplayMode, SandboxMode, TimeWarpScreen};
 
-mod bulk;
 mod lanes;
 mod multiple_roads;
 mod roads;
 mod routes;
-mod select;
 mod stop_signs;
 mod traffic_signals;
 mod validate;
