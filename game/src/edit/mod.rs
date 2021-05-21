@@ -12,17 +12,16 @@ use widgetry::{
     Key, Line, Menu, Outcome, Panel, State, Text, TextBox, TextExt, VerticalAlignment, Widget,
 };
 
-pub use self::lanes::LaneEditor;
+pub use self::roads::RoadEditor;
 pub use self::routes::RouteEditor;
 pub use self::stop_signs::StopSignEditor;
 pub use self::traffic_signals::TrafficSignalEditor;
-pub use self::validate::{check_blackholes, check_sidewalk_connectivity, try_change_lt};
+pub use self::validate::{check_blackholes, check_sidewalk_connectivity};
 use crate::app::{App, Transition};
 use crate::common::{tool_panel, CommonState, Warping};
 use crate::debug::DebugMode;
 use crate::sandbox::{GameplayMode, SandboxMode, TimeWarpScreen};
 
-mod lanes;
 mod multiple_roads;
 mod roads;
 mod routes;
@@ -347,7 +346,7 @@ impl State<App> for EditMode {
             }
             if let Some(ID::Lane(l)) = app.primary.current_selection {
                 if app.per_obj.left_click(ctx, "edit lane") {
-                    return Transition::Push(LaneEditor::new_state(ctx, app, l, self.mode.clone()));
+                    return Transition::Push(RoadEditor::new_state(ctx, app, l));
                 }
             }
         }

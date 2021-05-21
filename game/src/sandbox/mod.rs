@@ -20,7 +20,7 @@ use crate::app::{App, Transition};
 use crate::common::{tool_panel, CommonState};
 use crate::debug::DebugMode;
 use crate::edit::{
-    can_edit_lane, EditMode, LaneEditor, SaveEdits, StopSignEditor, TrafficSignalEditor,
+    can_edit_lane, EditMode, RoadEditor, SaveEdits, StopSignEditor, TrafficSignalEditor,
 };
 use crate::info::ContextualActions;
 use crate::layer::favorites::{Favorites, ShowFavorites};
@@ -379,7 +379,7 @@ impl ContextualActions for Actions {
             }
             (ID::Lane(l), "edit lane") => Transition::Multi(vec![
                 Transition::Push(EditMode::new_state(ctx, app, self.gameplay.clone())),
-                Transition::Push(LaneEditor::new_state(ctx, app, l, self.gameplay.clone())),
+                Transition::Push(RoadEditor::new_state(ctx, app, l)),
             ]),
             (ID::Building(b), "add this building to favorites") => {
                 Favorites::add(app, b);
