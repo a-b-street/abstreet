@@ -449,39 +449,10 @@ fn recalculate_turns(id: IntersectionID, map: &mut Map, effects: &mut EditEffect
 }
 
 fn modify_lanes(map: &mut Map, r: RoadID, lanes_ltr: Vec<LaneSpec>, effects: &mut EditEffects) {
-    let new_widths = lanes_ltr.iter().map(|x| x.width).collect::<Vec<_>>();
-    let old_widths = map
-        .get_r(r)
-        .lane_specs(map)
-        .into_iter()
-        .map(|x| x.width)
-        .collect::<Vec<_>>();
-
-    let road = &mut map.roads[r.0];
-
-    // TODO Widening roads is still experimental. If we're just modifying lane types, preserve
-    // LaneIDs. If the number of lanes has changed or the order of widths, then use the new
-    // code-path.
-    if old_widths == new_widths {
-        for (idx, spec) in lanes_ltr.into_iter().enumerate() {
-            let lane = map.lanes.get_mut(&road.lanes_ltr[idx].0).unwrap();
-            road.lanes_ltr[idx].2 = spec.lt;
-            lane.lane_type = spec.lt;
-
-            // Direction change?
-            if road.lanes_ltr[idx].1 != spec.dir {
-                road.lanes_ltr[idx].1 = spec.dir;
-                std::mem::swap(&mut lane.src_i, &mut lane.dst_i);
-                lane.lane_center_pts = lane.lane_center_pts.reversed();
-                lane.dir = spec.dir;
-            }
-        }
-        return;
-    }
-
     // First update intersection geometry and re-trim the road centers.
     let mut road_geom_changed = Vec::new();
     {
+        let road = map.get_r(r);
         let (src_i, dst_i) = (road.src_i, road.dst_i);
         let changed_road_width = lanes_ltr.iter().map(|spec| spec.width).sum();
         road_geom_changed.extend(recalculate_intersection_polygon(
