@@ -1,6 +1,6 @@
 use geom::{CornerRadii, Distance};
 use map_gui::render::{Renderable, OUTLINE_THICKNESS};
-use map_gui::tools::ChooseSomething;
+use map_gui::tools::{ChooseSomething, PopupMsg};
 use map_gui::ID;
 use map_model::{
     Direction, EditCmd, EditRoad, LaneID, LaneSpec, LaneType, MapEdits, Road, RoadID,
@@ -422,19 +422,25 @@ fn make_main_panel(
     ]
     .into_iter()
     .map(|(lt, key)| {
-        let disabled = if let Some(current) = current_lt {
-            lt == current
-        } else {
-            // Only 2 parking lanes or walkable lanes total make sense
-            (lt == LaneType::Parking
+        // If the selected lane is already this type, we can't change it.
+        let disabled = Some(lt) == current_lt
+            // Max 2 parking lanes per road.
+            //
+            // (I've seen cases in Ballard with angled parking in a median and also parking on both
+            // shoulders. If this happens to be mapped as two adjacent one-way roads, it could
+            // work. But the simulation layer doesn't understand 3 lanes on one road.)
+            || (lt == LaneType::Parking
                 && current_lts
                     .iter()
                     .filter(|x| **x == LaneType::Parking)
                     .count()
                     == 2)
-                || (lt == LaneType::Sidewalk
-                    && current_lts.iter().filter(|x| x.is_walkable()).count() == 2)
-        };
+            // Max 2 sidewalks or shoulders per road.
+            //
+            // (You could imagine some exceptions in reality, but this assumption of max 2 is
+            // deeply baked into the map model and everything on top of it.)
+            || (lt == LaneType::Sidewalk
+                && current_lts.iter().filter(|x| x.is_walkable()).count() == 2);
 
         ctx.style()
             .btn_plain
