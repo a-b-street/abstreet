@@ -2,8 +2,8 @@ use map_gui::render::Renderable;
 use map_gui::ID;
 use map_model::{EditCmd, LaneID, LaneType, Map};
 use widgetry::{
-    Color, ControlState, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Panel, SimpleState,
-    State, TextExt, VerticalAlignment, Widget,
+    EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Panel, SimpleState, State, TextExt,
+    VerticalAlignment, Widget,
 };
 
 use crate::app::App;
@@ -68,17 +68,9 @@ impl LaneEditor {
 
         let parent = app.primary.map.get_parent(l);
         let col = vec![
-            Widget::row(vec![
-                Line(format!("Editing {}", l))
-                    .small_heading()
-                    .into_widget(ctx),
-                ctx.style()
-                    .btn_plain
-                    .text("+ Edit multiple")
-                    .label_color(Color::hex("#4CA7E9"), ControlState::Default)
-                    .hotkey(Key::M)
-                    .build_widget(ctx, "Edit multiple lanes"),
-            ]),
+            Line(format!("Editing {}", l))
+                .small_heading()
+                .into_widget(ctx),
             "Type of lane".text_widget(ctx),
             Widget::custom_row(row).centered(),
             ctx.style()
@@ -122,11 +114,6 @@ impl LaneEditor {
 impl SimpleState<App> for LaneEditor {
     fn on_click(&mut self, ctx: &mut EventCtx, app: &mut App, x: &str, _: &Panel) -> Transition {
         match x {
-            "Edit multiple lanes" => Transition::Replace(crate::edit::bulk::BulkSelect::new_state(
-                ctx,
-                app,
-                app.primary.map.get_l(self.l).parent,
-            )),
             "Change access restrictions" => Transition::Push(ZoneEditor::new_state(
                 ctx,
                 app,

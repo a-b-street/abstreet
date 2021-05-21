@@ -9,12 +9,14 @@ use widgetry::{
     ScreenPt, ScreenRectangle, Text, TextSpan, Toggle, VerticalAlignment, Widget,
 };
 
+pub use self::select::RoadSelector;
 pub use self::warp::{warp_to_id, Warping};
 use crate::app::App;
 use crate::app::Transition;
 use crate::info::{ContextualActions, InfoPanel, Tab};
 use crate::sandbox::TimeWarpScreen;
 
+mod select;
 mod warp;
 
 // TODO This is now just used in two modes...
