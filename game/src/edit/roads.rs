@@ -1,5 +1,6 @@
 use geom::{CornerRadii, Distance};
 use map_gui::render::{Renderable, OUTLINE_THICKNESS};
+use map_gui::tools::ChooseSomething;
 use map_gui::ID;
 use map_model::{
     Direction, EditCmd, EditRoad, LaneID, LaneSpec, LaneType, MapEdits, Road, RoadID,
@@ -12,6 +13,7 @@ use widgetry::{
 };
 
 use crate::app::{App, Transition};
+use crate::edit::zones::ZoneEditor;
 use crate::edit::{apply_map_edits, speed_limit_choices};
 
 pub struct RoadEditor {
@@ -207,6 +209,40 @@ impl State<App> for RoadEditor {
                     assert!(self.current_lane.is_none());
                     self.current_lane = Some(app.primary.map.get_r(self.r).lanes_ltr()[idx].0);
                     self.recalc_all_panels(ctx, app);
+                } else if x == "Access restrictions" {
+                    // The RoadEditor maintains an undo/redo stack for a single road, but the
+                    // ZoneEditor usually operates on multiple roads. So before we switch over to
+                    // it, we have to explicitly ask the user if they want to save their edits (and
+                    // compress them) or abandon.
+                    if app.primary.map.get_edits().commands.len() == self.num_edit_cmds_originally {
+                        return Transition::Replace(ZoneEditor::new_state(ctx, app, self.r));
+                    }
+
+                    let r = self.r;
+                    let maybe_save_edits = self.compress_edits(app);
+                    let num_edit_cmds_originally = self.num_edit_cmds_originally;
+                    return Transition::Push(ChooseSomething::new_state(
+                        ctx,
+                        "Save these changes to this road before editing access restrictions?",
+                        Choice::strings(vec!["Save", "Revert"]),
+                        Box::new(move |choice, ctx, app| {
+                            if choice == "Save" {
+                                if let Some(edits) = maybe_save_edits {
+                                    apply_map_edits(ctx, app, edits);
+                                }
+                            } else {
+                                let mut edits = app.primary.map.get_edits().clone();
+                                edits.commands.truncate(num_edit_cmds_originally);
+                                apply_map_edits(ctx, app, edits);
+                            }
+                            // After leaving ZoneEditor, just return to edit mode. Re-initializing
+                            // RoadEditor with the correct num_edit_cmds_originally is hard.
+                            Transition::Multi(vec![
+                                Transition::Pop,
+                                Transition::Replace(ZoneEditor::new_state(ctx, app, r)),
+                            ])
+                        }),
+                    ));
                 } else {
                     unreachable!()
                 }
@@ -489,8 +525,11 @@ fn make_main_panel(
         );
     }
 
-    let current_lanes_ltr =
-        Widget::evenly_spaced_row(2, current_lanes_ltr).bg(Color::hex("#979797"));
+    // Wrap this row in an extra container, so that the background color doesn't stretch over and
+    // fill any extra space on the right side.
+    let current_lanes_ltr = Widget::evenly_spaced_row(2, current_lanes_ltr)
+        .bg(Color::hex("#979797"))
+        .container();
 
     let road_settings = Widget::row(vec![
         Text::from_all(vec![
@@ -509,6 +548,10 @@ fn make_main_panel(
             road.speed_limit,
             speed_limit_choices(app, Some(road.speed_limit)),
         ),
+        ctx.style()
+            .btn_outline
+            .text("Access restrictions")
+            .build_def(ctx),
     ]);
 
     Panel::new_builder(Widget::col(vec![
