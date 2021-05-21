@@ -638,8 +638,7 @@ fn lane_type_to_icon(lt: LaneType) -> Option<&'static str> {
         LaneType::Sidewalk | LaneType::Shoulder => Some("system/assets/edit/sidewalk.svg"),
         LaneType::Biking => Some("system/assets/edit/bike.svg"),
         LaneType::Bus => Some("system/assets/edit/bus.svg"),
-        // TODO Add an icon for this
-        LaneType::SharedLeftTurn => None,
+        LaneType::SharedLeftTurn => Some("system/assets/map/shared_left_turn.svg"),
         LaneType::Construction => Some("system/assets/edit/construction.svg"),
         // Don't allow creating these yet
         LaneType::LightRail => None,
