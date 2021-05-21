@@ -746,7 +746,7 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">common</span>::{<span class="ident">tool_panel</span>, <span class="ident">CommonState</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">debug</span>::<span class="ident">DebugMode</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">edit</span>::{
-    <span class="ident">can_edit_lane</span>, <span class="ident">EditMode</span>, <span class="ident">LaneEditor</span>, <span class="ident">SaveEdits</span>, <span class="ident">StopSignEditor</span>, <span class="ident">TrafficSignalEditor</span>,
+    <span class="ident">can_edit_lane</span>, <span class="ident">EditMode</span>, <span class="ident">RoadEditor</span>, <span class="ident">SaveEdits</span>, <span class="ident">StopSignEditor</span>, <span class="ident">TrafficSignalEditor</span>,
 };
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">info</span>::<span class="ident">ContextualActions</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">layer</span>::<span class="ident">favorites</span>::{<span class="ident">Favorites</span>, <span class="ident">ShowFavorites</span>};
@@ -1105,7 +1105,7 @@
             }
             (<span class="ident">ID</span>::<span class="ident">Lane</span>(<span class="ident">l</span>), <span class="string">&quot;edit lane&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition</span>::<span class="ident">Multi</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">EditMode</span>::<span class="ident">new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">gameplay</span>.<span class="ident">clone</span>())),
-                <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">LaneEditor</span>::<span class="ident">new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">l</span>, <span class="self">self</span>.<span class="ident">gameplay</span>.<span class="ident">clone</span>())),
+                <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">RoadEditor</span>::<span class="ident">new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">l</span>)),
             ]),
             (<span class="ident">ID</span>::<span class="ident">Building</span>(<span class="ident">b</span>), <span class="string">&quot;add this building to favorites&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="ident">Favorites</span>::<span class="ident">add</span>(<span class="ident">app</span>, <span class="ident">b</span>);

@@ -929,9 +929,6 @@
 <span id="926">926</span>
 <span id="927">927</span>
 <span id="928">928</span>
-<span id="929">929</span>
-<span id="930">930</span>
-<span id="931">931</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">maplit</span>::<span class="ident">btreeset</span>;
 
@@ -947,22 +944,19 @@
     <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Menu</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextBox</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">lanes</span>::<span class="ident">LaneEditor</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">roads</span>::<span class="ident">RoadEditor</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">routes</span>::<span class="ident">RouteEditor</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">stop_signs</span>::<span class="ident">StopSignEditor</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">traffic_signals</span>::<span class="ident">TrafficSignalEditor</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">validate</span>::{<span class="ident">check_blackholes</span>, <span class="ident">check_sidewalk_connectivity</span>, <span class="ident">try_change_lt</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">validate</span>::{<span class="ident">check_blackholes</span>, <span class="ident">check_sidewalk_connectivity</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">common</span>::{<span class="ident">tool_panel</span>, <span class="ident">CommonState</span>, <span class="ident">Warping</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">debug</span>::<span class="ident">DebugMode</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sandbox</span>::{<span class="ident">GameplayMode</span>, <span class="ident">SandboxMode</span>, <span class="ident">TimeWarpScreen</span>};
 
-<span class="kw">mod</span> <span class="ident">bulk</span>;
-<span class="kw">mod</span> <span class="ident">lanes</span>;
 <span class="kw">mod</span> <span class="ident">multiple_roads</span>;
 <span class="kw">mod</span> <span class="ident">roads</span>;
 <span class="kw">mod</span> <span class="ident">routes</span>;
-<span class="kw">mod</span> <span class="ident">select</span>;
 <span class="kw">mod</span> <span class="ident">stop_signs</span>;
 <span class="kw">mod</span> <span class="ident">traffic_signals</span>;
 <span class="kw">mod</span> <span class="ident">validate</span>;
@@ -1284,7 +1278,7 @@
             }
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">Lane</span>(<span class="ident">l</span>)) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> {
                 <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">per_obj</span>.<span class="ident">left_click</span>(<span class="ident">ctx</span>, <span class="string">&quot;edit lane&quot;</span>) {
-                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">LaneEditor</span>::<span class="ident">new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">l</span>, <span class="self">self</span>.<span class="ident">mode</span>.<span class="ident">clone</span>()));
+                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">RoadEditor</span>::<span class="ident">new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">l</span>));
                 }
             }
         }
