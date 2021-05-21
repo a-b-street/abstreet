@@ -879,7 +879,13 @@ fn make_trip_details(
         col.push("Map edits have disconnected the path taken before".text_widget(ctx));
     }
     col.extend(elevation);
-    draw_problems(ctx, app, details, trip_id);
+
+    let analytics = if app.has_prebaked().is_none() || open_trip.show_after {
+        app.primary.sim.get_analytics()
+    } else {
+        app.prebaked()
+    };
+    draw_problems(ctx, app, analytics, details, trip_id);
     Widget::col(col)
 }
 
