@@ -320,11 +320,13 @@ dependencies = [
 
 [[package]]
 name = "cbindgen"
-version = "0.9.1"
+version = "0.19.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9daec6140ab4dcd38c3dd57e580b59a621172a526ac79f1527af760a55afeafd"
+checksum = "38728c31b994e4b849cf59feefb4a8bf26acd299ee0b92c9fb35bd14ad4b8dfa"
 dependencies = [
  "clap",
+ "heck",
+ "indexmap",
  "log",
  "proc-macro2",
  "quote",
@@ -1331,19 +1333,6 @@ dependencies = [
 
 [[package]]
 name = "geo"
-version = "0.17.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bb5120badf60b67440af049f8c1a265aa44bdccc34027a5bb39eb3b081c56526"
-dependencies = [
- "geo-types",
- "geographiclib-rs",
- "num-traits 0.2.14",
- "robust",
- "rstar",
-]
-
-[[package]]
-name = "geo"
 version = "0.18.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "02bf7fb342abefefb0abbb8d033f37233e6f857a1a970805d15f96560834d699"
@@ -1407,7 +1396,7 @@ dependencies = [
  "abstutil",
  "anyhow",
  "earcutr",
- "geo 0.18.0",
+ "geo",
  "geo-booleanop",
  "geojson",
  "histogram",
@@ -1818,7 +1807,7 @@ dependencies = [
  "convert_osm",
  "csv",
  "gdal",
- "geo 0.18.0",
+ "geo",
  "geojson",
  "geom",
  "kml",
@@ -2917,11 +2906,10 @@ dependencies = [
 [[package]]
 name = "polylabel"
 version = "2.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7c4b37986714209d5198eee1c296faf9dd1122abd43b374636a80d7dbe0c8dfb"
+source = "git+https://github.com/urschrei/polylabel-rs#d86089e93af18517651e866a53a79461bda331b7"
 dependencies = [
  "cbindgen",
- "geo 0.17.1",
+ "geo",
  "libc",
  "num-traits 0.2.14",
  "thiserror",
@@ -2935,7 +2923,7 @@ dependencies = [
  "anyhow",
  "flatgeobuf",
  "futures",
- "geo 0.18.0",
+ "geo",
  "geo-booleanop",
  "geojson",
  "geom",
