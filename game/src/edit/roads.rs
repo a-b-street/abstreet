@@ -1,6 +1,6 @@
 use geom::{CornerRadii, Distance};
 use map_gui::render::{Renderable, OUTLINE_THICKNESS};
-use map_gui::tools::{ChooseSomething, PopupMsg};
+use map_gui::tools::PopupMsg;
 use map_gui::ID;
 use map_model::{
     Direction, EditCmd, EditRoad, LaneID, LaneSpec, LaneType, MapEdits, Road, RoadID,
@@ -248,37 +248,11 @@ impl State<App> for RoadEditor {
                 } else if x == "Access restrictions" {
                     // The RoadEditor maintains an undo/redo stack for a single road, but the
                     // ZoneEditor usually operates on multiple roads. So before we switch over to
-                    // it, we have to explicitly ask the user if they want to save their edits (and
-                    // compress them) or abandon.
-                    if app.primary.map.get_edits().commands.len() == self.num_edit_cmds_originally {
-                        return Transition::Replace(ZoneEditor::new_state(ctx, app, self.r));
+                    // it, compress and save the current edits.
+                    if let Some(edits) = self.compress_edits(app) {
+                        apply_map_edits(ctx, app, edits);
                     }
-
-                    let r = self.r;
-                    let maybe_save_edits = self.compress_edits(app);
-                    let num_edit_cmds_originally = self.num_edit_cmds_originally;
-                    return Transition::Push(ChooseSomething::new_state(
-                        ctx,
-                        "Save these changes to this road before editing access restrictions?",
-                        Choice::strings(vec!["Save", "Revert"]),
-                        Box::new(move |choice, ctx, app| {
-                            if choice == "Save" {
-                                if let Some(edits) = maybe_save_edits {
-                                    apply_map_edits(ctx, app, edits);
-                                }
-                            } else {
-                                let mut edits = app.primary.map.get_edits().clone();
-                                edits.commands.truncate(num_edit_cmds_originally);
-                                apply_map_edits(ctx, app, edits);
-                            }
-                            // After leaving ZoneEditor, just return to edit mode. Re-initializing
-                            // RoadEditor with the correct num_edit_cmds_originally is hard.
-                            Transition::Multi(vec![
-                                Transition::Pop,
-                                Transition::Replace(ZoneEditor::new_state(ctx, app, r)),
-                            ])
-                        }),
-                    ));
+                    return Transition::Replace(ZoneEditor::new_state(ctx, app, self.r));
                 } else {
                     unreachable!()
                 }
@@ -312,11 +286,7 @@ impl State<App> for RoadEditor {
         if ctx.canvas.get_cursor_in_map_space().is_some() {
             if ctx.redo_mouseover() {
                 app.recalculate_current_selection(ctx);
-                if let Some(ID::Lane(l)) = app.primary.current_selection {
-                    if app.primary.map.get_l(l).parent != self.r {
-                        app.primary.current_selection = None;
-                    }
-                } else {
+                if !matches!(app.primary.current_selection, Some(ID::Lane(_))) {
                     app.primary.current_selection = None;
                 }
             }
@@ -324,8 +294,17 @@ impl State<App> for RoadEditor {
             if let Some(ID::Lane(l)) = app.primary.current_selection {
                 // TODO Update the main panel to show which lane icon we're hovering on
                 if ctx.normal_left_click() {
-                    self.current_lane = Some(l);
-                    self.recalc_all_panels(ctx, app);
+                    if app.primary.map.get_l(l).parent == self.r {
+                        self.current_lane = Some(l);
+                        self.recalc_all_panels(ctx, app);
+                    } else {
+                        // Switch to editing another road, first compressing the edits here if
+                        // needed.
+                        if let Some(edits) = self.compress_edits(app) {
+                            apply_map_edits(ctx, app, edits);
+                        }
+                        return Transition::Replace(RoadEditor::new_state(ctx, app, l));
+                    }
                 }
             } else if self.current_lane.is_some() && ctx.normal_left_click() {
                 // Deselect the current lane
