@@ -15,19 +15,20 @@ anyhow = "1.0.38"
 downcast-rs = "1.2.0"
 geojson = "0.22"
 geom = { path = "../geom" }
-glow = "0.8.1"
+glow = "0.9.0"
 glutin = { version = "0.26.0", optional = true }
 htmlescape = "0.3.1"
 image = { version = "0.23.12", default-features = false, features=["png"] }
 instant = "0.1.7"
 log = "0.4.14"
 lru = "0.6.4"
+# Don't upgrade until a crash with opening lane info panels is fixed
 lyon = "0.16.2"
 serde = "1.0.123"
 serde_json = "1.0.61"
 stretch = "0.3.2"
-ttf-parser = "0.10.1"
-usvg = { version = "0.13.1", default-features=false, features=["text"] }
+ttf-parser = "0.12.0"
+usvg = { version = "0.14.0", default-features=false, features=["text"] }
 wasm-bindgen = { version = "0.2.70", optional = true }
 web-sys = { version = "0.3.47", optional = true }
 winit = "0.24.0"

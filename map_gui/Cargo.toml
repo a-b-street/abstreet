@@ -17,7 +17,7 @@ abstutil = { path = "../abstutil" }
 anyhow = "1.0.38"
 clipboard = { version = "0.5.0", optional = true }
 colorous = "1.0.3"
-contour = "0.3.0"
+contour = "0.4.0"
 flate2 = "1.0.20"
 futures = { version = "0.3.12" }
 futures-channel = { version = "0.3.12"}
@@ -27,7 +27,7 @@ instant = "0.1.7"
 js-sys = { version = "0.3.47", optional = true }
 log = "0.4.14"
 map_model = { path = "../map_model" }
-rfd = "0.2.2"
+rfd = "0.3"
 serde = "1.0.123"
 sim = { path = "../sim" }
 subprocess = { git = "https://github.com/hniksic/rust-subprocess", optional = true }

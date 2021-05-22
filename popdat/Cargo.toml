@@ -7,11 +7,12 @@ edition = "2018"
 [dependencies]
 abstutil = { path = "../abstutil" }
 anyhow = "1.0.38"
-flatgeobuf = { version = "0.4" }
+flatgeobuf = { version = "0.5" }
 futures = "0.3.12"
-geo = "0.17.0"
+geo = "0.18.0"
+geojson = { version = "0.22.0", features = ["geo-types"] }
 geom = { path = "../geom" }
-geozero-core = { version = "0.6" }
+geozero = "0.7"
 log = "0.4.14"
 map_model = { path = "../map_model" }
 rand = "0.8.3"
