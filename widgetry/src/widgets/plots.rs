@@ -201,7 +201,7 @@ pub fn thick_lineseries(pts: Vec<Pt2D>, width: Distance) -> Polygon {
     for (idx, pt) in pts.into_iter().enumerate() {
         let pt = point(pt.x() as f32, pt.y() as f32);
         if idx == 0 {
-            builder.begin(pt);
+            builder.move_to(pt);
         } else {
             builder.line_to(pt);
         }

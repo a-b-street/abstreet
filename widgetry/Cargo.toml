@@ -22,7 +22,8 @@ image = { version = "0.23.12", default-features = false, features=["png"] }
 instant = "0.1.7"
 log = "0.4.14"
 lru = "0.6.4"
-lyon = "0.17.0"
+# Don't upgrade until a crash with opening lane info panels is fixed
+lyon = "0.16.2"
 serde = "1.0.123"
 serde_json = "1.0.61"
 stretch = "0.3.2"
