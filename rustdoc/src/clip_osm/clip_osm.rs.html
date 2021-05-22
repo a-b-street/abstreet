@@ -122,7 +122,7 @@
 <span class="kw">use</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span>;
 <span class="kw">use</span> <span class="ident">geo</span>::<span class="ident">prelude</span>::<span class="ident">Contains</span>;
 <span class="kw">use</span> <span class="ident">geo</span>::{<span class="ident">LineString</span>, <span class="ident">Point</span>, <span class="ident">Polygon</span>};
-<span class="kw">use</span> <span class="ident">osmio</span>::<span class="ident">obj_types</span>::<span class="ident">RcOSMObj</span>;
+<span class="kw">use</span> <span class="ident">osmio</span>::<span class="ident">obj_types</span>::<span class="ident">ArcOSMObj</span>;
 <span class="kw">use</span> <span class="ident">osmio</span>::{<span class="ident">Node</span>, <span class="ident">OSMObj</span>, <span class="ident">OSMObjBase</span>, <span class="ident">OSMObjectType</span>, <span class="ident">OSMReader</span>, <span class="ident">OSMWriter</span>, <span class="ident">Relation</span>, <span class="ident">Way</span>};
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">CmdArgs</span>;
@@ -200,17 +200,17 @@
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">reader</span> <span class="op">=</span> <span class="ident">osmio</span>::<span class="ident">pbf</span>::<span class="ident">PBFReader</span>::<span class="ident">new</span>(<span class="ident">BufReader</span>::<span class="ident">new</span>(<span class="ident">File</span>::<span class="ident">open</span>(<span class="ident">pbf_path</span>)<span class="question-mark">?</span>));
     <span class="kw">for</span> <span class="ident">obj</span> <span class="kw">in</span> <span class="ident">reader</span>.<span class="ident">objects</span>() {
         <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">obj</span> {
-            <span class="ident">RcOSMObj</span>::<span class="ident">Node</span>(<span class="ident">node</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">ArcOSMObj</span>::<span class="ident">Node</span>(<span class="ident">node</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">if</span> <span class="ident">way_node_ids</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">node</span>.<span class="ident">id</span>()) {
                     <span class="ident">writer</span>.<span class="ident">write_obj</span>(<span class="kw-2">&amp;</span><span class="ident">obj</span>)<span class="question-mark">?</span>;
                 }
             }
-            <span class="ident">RcOSMObj</span>::<span class="ident">Way</span>(<span class="ident">way</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">ArcOSMObj</span>::<span class="ident">Way</span>(<span class="ident">way</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">if</span> <span class="ident">way_ids</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">way</span>.<span class="ident">id</span>()) {
                     <span class="ident">writer</span>.<span class="ident">write_obj</span>(<span class="kw-2">&amp;</span><span class="ident">obj</span>)<span class="question-mark">?</span>;
                 }
             }
-            <span class="ident">RcOSMObj</span>::<span class="ident">Relation</span>(<span class="ident">relation</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">ArcOSMObj</span>::<span class="ident">Relation</span>(<span class="ident">relation</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">if</span> <span class="ident">relation_ids</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">relation</span>.<span class="ident">id</span>()) {
                     <span class="ident">writer</span>.<span class="ident">write_obj</span>(<span class="kw-2">&amp;</span><span class="ident">obj</span>)<span class="question-mark">?</span>;
                 }
