@@ -254,9 +254,9 @@ dependencies = [
 
 [[package]]
 name = "built"
-version = "0.4.4"
+version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c8f1b029cb3929cb0c99780b0c10fe512f60be5438adf5f757e4afa1bc75a984"
+checksum = "76efeb50f902677353f8f7052c7da1cc8c4f65b46b30cc41fc1e3042249711c7"
 dependencies = [
  "cargo-lock",
  "chrono",
@@ -308,11 +308,11 @@ dependencies = [
 
 [[package]]
 name = "cargo-lock"
-version = "4.0.1"
+version = "6.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8504b63dd1249fd1745b7b4ef9b6f7b107ddeb3c95370043c7dbcc38653a2679"
+checksum = "e6f16e7adc20969298b1e137ac21ab3a7e7a9412fec71f963ff2fdc41663d70f"
 dependencies = [
- "semver 0.9.0",
+ "semver",
  "serde",
  "toml",
  "url",
@@ -1258,7 +1258,7 @@ dependencies = [
  "gdal-sys",
  "geo-types",
  "libc",
- "semver 0.11.0",
+ "semver",
  "thiserror",
 ]
 
@@ -1270,7 +1270,7 @@ checksum = "30a320e53209a395011eb98d413bd31a44c8f3b3f561eb3d49065775bd24491f"
 dependencies = [
  "libc",
  "pkg-config",
- "semver 0.11.0",
+ "semver",
 ]
 
 [[package]]
@@ -1419,9 +1419,9 @@ dependencies = [
 
 [[package]]
 name = "getrandom"
-version = "0.2.2"
+version = "0.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c9495705279e7140bf035dde1f6e750c162df8b625267cd52cc44e0b156732c8"
+checksum = "7fcd999463524c52659517fe2cea98493cfe485d10565e7b0fb07dbba7ad2753"
 dependencies = [
  "cfg-if 1.0.0",
  "js-sys",
@@ -2689,9 +2689,9 @@ checksum = "af8b08b04175473088b46763e51ee54da5f9a164bc162f615b91bc179dbf15a3"
 
 [[package]]
 name = "ordered-float"
-version = "2.2.0"
+version = "2.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b50b8919aecb97e5ee9aceef27e24f39c46b11831130f4a6b7b091ec5de0de12"
+checksum = "76d99537dd7019c4dabfcf3898a43ee685412f76e6bee1ecc48785d730c1a275"
 dependencies = [
  "num-traits 0.2.14",
  "serde",
@@ -3181,9 +3181,9 @@ dependencies = [
 
 [[package]]
 name = "rfd"
-version = "0.3.0"
+version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9d70f2f644f85e23857c7fa9b939ec6a85f3eace37ebcae9ec977a33865496f5"
+checksum = "c1084e570d9ce1890734b33edd8c1a7b7276076f9610fa23a48aa955587da141"
 dependencies = [
  "block",
  "dispatch",
@@ -3225,9 +3225,9 @@ checksum = "e5864e7ef1a6b7bcf1d6ca3f655e65e724ed3b52546a0d0a663c991522f552ea"
 
 [[package]]
 name = "rodio"
-version = "0.13.1"
+version = "0.14.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b65c2eda643191f6d1bb12ea323a9db8d9ba95374e9be3780b5a9fb5cfb8520f"
+checksum = "4d98f5e557b61525057e2bc142c8cd7f0e70d75dc32852309bec440e6e046bf9"
 dependencies = [
  "cpal",
  "lewton",
@@ -3365,28 +3365,13 @@ dependencies = [
 
 [[package]]
 name = "semver"
-version = "0.9.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1d7eb9ef2c18661902cc47e535f9bc51b78acd254da71d375c2f6720d9a40403"
-dependencies = [
- "semver-parser 0.7.0",
- "serde",
-]
-
-[[package]]
-name = "semver"
 version = "0.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f301af10236f6df4160f7c3f04eec6dbc70ace82d23326abad5edee88801c6b6"
 dependencies = [
- "semver-parser 0.10.2",
+ "semver-parser",
+ "serde",
 ]
-
-[[package]]
-name = "semver-parser"
-version = "0.7.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "388a1df253eca08550bef6c72392cfe7c30914bf41df5269b68cbd6ff8f570a3"
 
 [[package]]
 name = "semver-parser"

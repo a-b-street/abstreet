@@ -14,6 +14,6 @@ geo-booleanop = "0.3.2"
 geojson = "0.22"
 histogram = "0.6.9"
 instant = "0.1.7"
-ordered-float = { version = "2.0.0", features=["serde"] }
+ordered-float = { version = "2.4.0", features=["serde"] }
 polylabel = "2.4"
 serde = "1.0.123"

@@ -16,14 +16,14 @@ abstio = { path = "../abstio" }
 abstutil = { path = "../abstutil" }
 anyhow = "1.0.38"
 geom = { path = "../geom" }
-getrandom = { version = "0.2.2", optional = true }
+getrandom = { version = "0.2.3", optional = true }
 kml = { path = "../kml" }
 log = "0.4.14"
 map_gui = { path = "../map_gui" }
 map_model = { path = "../map_model" }
 rand = "0.8.3"
 rand_xorshift = "0.3.0"
-rodio = { version = "0.13.0", default-features = false, features = ["vorbis"] }
+rodio = { version = "0.14.0", default-features = false, features = ["vorbis"] }
 serde = "1.0.123"
 wasm-bindgen = { version = "0.2.70", optional = true }
 widgetry = { path = "../widgetry" }

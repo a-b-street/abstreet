@@ -15,7 +15,7 @@ wasm = ["getrandom/js", "wasm-bindgen", "widgetry/wasm-backend"]
 abstio = { path = "../abstio" }
 abstutil = { path = "../abstutil" }
 geom = { path = "../geom" }
-getrandom = { version = "0.2.2", optional = true }
+getrandom = { version = "0.2.3", optional = true }
 log = "0.4.14"
 rand = "0.8.3"
 rand_xorshift = "0.3.0"

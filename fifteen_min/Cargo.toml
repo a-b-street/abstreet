@@ -17,7 +17,7 @@ abstutil = { path = "../abstutil" }
 contour = "0.4.0"
 geojson = "0.22"
 geom = { path = "../geom" }
-getrandom = { version = "0.2.2", optional = true }
+getrandom = { version = "0.2.3", optional = true }
 log = "0.4"
 map_gui = { path = "../map_gui" }
 map_model = { path = "../map_model" }
