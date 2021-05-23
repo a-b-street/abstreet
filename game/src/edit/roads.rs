@@ -22,6 +22,7 @@ pub struct RoadEditor {
     top_panel: Panel,
     main_panel: Panel,
     highlight_selection: (Option<LaneID>, Drawable),
+    hovering_on_lane: Option<LaneID>,
 
     // Undo/redo management
     num_edit_cmds_originally: usize,
@@ -41,6 +42,7 @@ impl RoadEditor {
             top_panel: Panel::empty(ctx),
             main_panel: Panel::empty(ctx),
             highlight_selection: (None, Drawable::empty(ctx)),
+            hovering_on_lane: None,
 
             num_edit_cmds_originally: app.primary.map.get_edits().commands.len(),
             redo_stack: Vec::new(),
@@ -283,6 +285,7 @@ impl State<App> for RoadEditor {
             _ => {}
         }
 
+        let prev_hovering_on_lane = self.hovering_on_lane.take();
         if ctx.canvas.get_cursor_in_map_space().is_some() {
             if ctx.redo_mouseover() {
                 app.recalculate_current_selection(ctx);
@@ -292,7 +295,7 @@ impl State<App> for RoadEditor {
             }
 
             if let Some(ID::Lane(l)) = app.primary.current_selection {
-                // TODO Update the main panel to show which lane icon we're hovering on
+                self.hovering_on_lane = Some(l);
                 if ctx.normal_left_click() {
                     if app.primary.map.get_l(l).parent == self.r {
                         self.current_lane = Some(l);
@@ -321,6 +324,16 @@ impl State<App> for RoadEditor {
             if highlight != self.highlight_selection.0 {
                 self.highlight_selection = highlight_current_selection(ctx, app, self.r, highlight);
             }
+        }
+
+        // Update the main panel to show which lane icon we're hovering on, if it's
+        // changed.
+        // TODO Moving the mouse across all lanes quickly isn't responsive; rebuilding the full
+        // panel is heavyweight.
+        // TODO When we hover on the cards, we only draw one highlighted lane on the map. But not
+        // vice versa; should we match that?
+        if self.hovering_on_lane != prev_hovering_on_lane {
+            self.recalc_all_panels(ctx, app);
         }
 
         Transition::Keep
@@ -389,6 +402,10 @@ fn make_main_panel(
     current_lane: Option<LaneID>,
 ) -> Panel {
     let map = &app.primary.map;
+    let hovering_lane = match app.primary.current_selection {
+        Some(ID::Lane(l)) => Some(l),
+        _ => None,
+    };
 
     let modify_lane = if let Some(l) = current_lane {
         let lane = map.get_l(l);
@@ -535,7 +552,14 @@ fn make_main_panel(
                 .btn()
                 .image_batch(stack_batch, stack_bounds)
                 .disabled(Some(id) == current_lane)
-                .bg_color(ctx.style().section_bg, ControlState::Default)
+                .bg_color(
+                    if Some(id) == hovering_lane {
+                        app.cs.selected.alpha(0.5)
+                    } else {
+                        ctx.style().section_bg
+                    },
+                    ControlState::Default,
+                )
                 .bg_color(ctx.style().section_bg.shade(0.1), ControlState::Hovered)
                 .bg_color(ctx.style().btn_solid_primary.bg, ControlState::Disabled)
                 .image_color(ctx.style().btn_plain.fg, ControlState::Disabled)
