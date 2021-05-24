@@ -9,7 +9,7 @@ use crate::{list_dir, maybe_read_binary, slurp_file};
 
 pub fn maybe_read_json<T: DeserializeOwned>(path: String, timer: &mut Timer) -> Result<T> {
     if !path.ends_with(".json") && !path.ends_with(".geojson") {
-        panic!("read_json needs {} to end with .json or .geojson", path);
+        bail!("read_json needs {} to end with .json or .geojson", path);
     }
 
     timer.start(format!("parse {}", path));

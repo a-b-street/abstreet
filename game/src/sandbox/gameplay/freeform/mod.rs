@@ -1,5 +1,5 @@
 #[cfg(not(target_arch = "wasm32"))]
-mod grid2demand;
+mod importers;
 mod spawner;
 
 use rand::seq::SliceRandom;
@@ -245,6 +245,10 @@ impl ChangeScenario {
                 "import grid2demand".to_string(),
                 "import Grid2Demand data".to_string(),
                 "Select an input_agents.csv file from https://github.com/asu-trans-ai-lab/grid2demand"));
+            choices.push((
+                "import json".to_string(),
+                "import JSON scenario".to_string(),
+                "Select a JSON file specified by https://a-b-street.github.io/docs/dev/formats/scenarios.html"));
         }
 
         let mut col = vec![
@@ -299,7 +303,18 @@ impl SimpleState<App> for ChangeScenario {
         } else if x == "import grid2demand" {
             #[cfg(not(target_arch = "wasm32"))]
             {
-                grid2demand::import(ctx)
+                importers::import_grid2demand(ctx)
+            }
+            #[cfg(target_arch = "wasm32")]
+            {
+                // Silence compiler warnings
+                let _ = ctx;
+                unreachable!()
+            }
+        } else if x == "import json" {
+            #[cfg(not(target_arch = "wasm32"))]
+            {
+                importers::import_json(ctx)
             }
             #[cfg(target_arch = "wasm32")]
             {
