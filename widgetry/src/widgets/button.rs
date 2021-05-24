@@ -19,7 +19,7 @@ pub struct Button {
     draw_disabled: Drawable,
 
     pub(crate) hotkey: Option<MultiKey>,
-    tooltip: Text,
+    tooltip: Option<Text>,
     disabled_tooltip: Option<Text>,
     // Screenspace, top-left always at the origin. Also, probably not a box. :P
     hitbox: Polygon,
@@ -54,9 +54,13 @@ impl Button {
             draw_hovered: ctx.upload(hovered),
             draw_disabled: ctx.upload(disabled),
             tooltip: if let Some(t) = maybe_tooltip {
-                t
+                if t.is_empty() {
+                    None
+                } else {
+                    Some(t)
+                }
             } else {
-                Text::tooltip(ctx, hotkey.clone(), action)
+                Some(Text::tooltip(ctx, hotkey.clone(), action))
             },
             disabled_tooltip,
             hotkey,
@@ -127,8 +131,8 @@ impl WidgetImpl for Button {
             }
         } else if self.hovering {
             g.redraw_at(self.top_left, &self.draw_hovered);
-            if !self.tooltip.is_empty() {
-                g.draw_mouse_tooltip(self.tooltip.clone());
+            if let Some(ref txt) = self.tooltip {
+                g.draw_mouse_tooltip(txt.clone());
             }
         } else {
             g.redraw_at(self.top_left, &self.draw_normal);
