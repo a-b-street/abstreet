@@ -109,6 +109,7 @@ pub fn nice_map_name(name: &MapName) -> &str {
             ("castlemead", "center") => "Castlemead",
             ("chapelford", "center") => "Chapelford (Cheshire)",
             ("chapeltown_cohousing", "center") => "Chapeltown Cohousing",
+            ("chorlton", "center") => "Chorlton",
             ("clackers_brook", "center") => "Clackers Brook",
             ("cricklewood", "center") => "Cricklewood",
             ("culm", "center") => "Culm",

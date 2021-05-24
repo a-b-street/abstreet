@@ -450,6 +450,21 @@
       "uncompressed_size_bytes": 23309406,
       "compressed_size_bytes": 5181153
     },
+    "data/input/gb/chorlton/osm/center.osm": {
+      "checksum": "6e945ba11798cb1e5c5218612da2f3a9",
+      "uncompressed_size_bytes": 20909980,
+      "compressed_size_bytes": 1957315
+    },
+    "data/input/gb/chorlton/osm/greater-manchester-latest.osm.pbf": {
+      "checksum": "dc17001eaf90a2960983d1dcdd34ea9c",
+      "uncompressed_size_bytes": 26114713,
+      "compressed_size_bytes": 26082634
+    },
+    "data/input/gb/chorlton/raw_maps/center.bin": {
+      "checksum": "b389eb1f807df29fade2dd39d9574d8e",
+      "uncompressed_size_bytes": 6681315,
+      "compressed_size_bytes": 1503486
+    },
     "data/input/gb/clackers_brook/osm/center.osm": {
       "checksum": "0f56e17e5d83f4eb0d57ab73b5f2ff3c",
       "uncompressed_size_bytes": 17051552,
@@ -2509,6 +2524,16 @@
       "checksum": "e4e2ba684cdfe240db704c6a6e6c33a2",
       "uncompressed_size_bytes": 3776672,
       "compressed_size_bytes": 1122471
+    },
+    "data/system/gb/chorlton/maps/center.bin": {
+      "checksum": "63ea1a25faaedc490defd2d3f6d50bbe",
+      "uncompressed_size_bytes": 24247040,
+      "compressed_size_bytes": 8221032
+    },
+    "data/system/gb/chorlton/scenarios/center/background.bin": {
+      "checksum": "bb10d9a083914d2116fcfb00927c30fd",
+      "uncompressed_size_bytes": 937432,
+      "compressed_size_bytes": 266770
     },
     "data/system/gb/clackers_brook/maps/center.bin": {
       "checksum": "b63f03ab9fd22d19103893874ea66557",
