@@ -363,6 +363,7 @@ fn make_top_panel(
                 .label_color(Color::hex("#4CA7E9"), ControlState::Default)
                 .hotkey(Key::M)
                 .disabled(app.primary.map.get_r_edit(r) == orig_road_state)
+                .disabled_tooltip("You have to edit one road segment first, then you can apply the changes to more segments.")
                 .build_widget(ctx, "Edit multiple roads"),
         ]),
         Widget::row(vec![
@@ -453,47 +454,58 @@ fn make_main_panel(
     ]
     .into_iter()
     .map(|(lt, key)| {
-        // If the selected lane is already this type, we can't change it.
-        let disabled = Some(lt) == current_lt
+        let mut btn = ctx
+            .style()
+            .btn_plain
+            .icon(lane_type_to_icon(lt).unwrap())
+            .hotkey(if current_lane.is_some() {
+                Some(key.into())
+            } else {
+                None
+            });
+        if current_lt == Some(lt) {
+            // If the selected lane is already this type, we can't change it. Hopefully no need to
+            // explain this.
+            btn = btn.disabled(true);
+        } else if lt == LaneType::Parking
+            && current_lts
+                .iter()
+                .filter(|x| **x == LaneType::Parking)
+                .count()
+                == 2
+        {
             // Max 2 parking lanes per road.
             //
             // (I've seen cases in Ballard with angled parking in a median and also parking on both
             // shoulders. If this happens to be mapped as two adjacent one-way roads, it could
             // work. But the simulation layer doesn't understand 3 lanes on one road.)
-            || (lt == LaneType::Parking
-                && current_lts
-                    .iter()
-                    .filter(|x| **x == LaneType::Parking)
-                    .count()
-                    == 2)
+            btn = btn
+                .disabled(true)
+                .disabled_tooltip("This road already has two parking lanes");
+        } else if lt == LaneType::Sidewalk
+            && current_lts.iter().filter(|x| x.is_walkable()).count() == 2
+        {
             // Max 2 sidewalks or shoulders per road.
             //
             // (You could imagine some exceptions in reality, but this assumption of max 2 is
             // deeply baked into the map model and everything on top of it.)
-            || (lt == LaneType::Sidewalk
-                && current_lts.iter().filter(|x| x.is_walkable()).count() == 2);
+            btn = btn
+                .disabled(true)
+                .disabled_tooltip("This road already has two sidewalks");
+        }
 
-        ctx.style()
-            .btn_plain
-            .icon(lane_type_to_icon(lt).unwrap())
-            .disabled(disabled)
-            .hotkey(if current_lane.is_some() {
-                Some(key.into())
-            } else {
-                None
-            })
-            .build_widget(
-                ctx,
-                format!(
-                    "{} {}",
-                    if current_lane.is_some() {
-                        "change to"
-                    } else {
-                        "add"
-                    },
-                    lt.short_name()
-                ),
-            )
+        btn.build_widget(
+            ctx,
+            format!(
+                "{} {}",
+                if current_lane.is_some() {
+                    "change to"
+                } else {
+                    "add"
+                },
+                lt.short_name()
+            ),
+        )
     })
     .collect::<Vec<Widget>>();
     available_lane_types_row.insert(

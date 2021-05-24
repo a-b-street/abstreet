@@ -19,7 +19,8 @@ pub struct Button {
     draw_disabled: Drawable,
 
     pub(crate) hotkey: Option<MultiKey>,
-    tooltip: Text,
+    tooltip: Option<Text>,
+    disabled_tooltip: Option<Text>,
     // Screenspace, top-left always at the origin. Also, probably not a box. :P
     hitbox: Polygon,
 
@@ -41,6 +42,7 @@ impl Button {
         maybe_tooltip: Option<Text>,
         hitbox: Polygon,
         is_disabled: bool,
+        disabled_tooltip: Option<Text>,
     ) -> Button {
         // dims are based on the hitbox, not the two drawables!
         let bounds = hitbox.get_bounds();
@@ -52,10 +54,15 @@ impl Button {
             draw_hovered: ctx.upload(hovered),
             draw_disabled: ctx.upload(disabled),
             tooltip: if let Some(t) = maybe_tooltip {
-                t
+                if t.is_empty() {
+                    None
+                } else {
+                    Some(t)
+                }
             } else {
-                Text::tooltip(ctx, hotkey.clone(), action)
+                Some(Text::tooltip(ctx, hotkey.clone(), action))
             },
+            disabled_tooltip,
             hotkey,
             hitbox,
 
@@ -117,10 +124,15 @@ impl WidgetImpl for Button {
     fn draw(&self, g: &mut GfxCtx) {
         if self.is_disabled {
             g.redraw_at(self.top_left, &self.draw_disabled);
+            if self.hovering {
+                if let Some(ref txt) = self.disabled_tooltip {
+                    g.draw_mouse_tooltip(txt.clone());
+                }
+            }
         } else if self.hovering {
             g.redraw_at(self.top_left, &self.draw_hovered);
-            if !self.tooltip.is_empty() {
-                g.draw_mouse_tooltip(self.tooltip.clone());
+            if let Some(ref txt) = self.tooltip {
+                g.draw_mouse_tooltip(txt.clone());
             }
         } else {
             g.redraw_at(self.top_left, &self.draw_normal);
@@ -141,6 +153,7 @@ pub struct ButtonBuilder<'a, 'c> {
     default_style: ButtonStateStyle<'a, 'c>,
     hover_style: ButtonStateStyle<'a, 'c>,
     disable_style: ButtonStateStyle<'a, 'c>,
+    disabled_tooltip: Option<Text>,
 }
 
 #[derive(Clone, Debug, Default)]
@@ -433,6 +446,15 @@ impl<'b, 'a: 'b, 'c> ButtonBuilder<'a, 'c> {
         self
     }
 
+    /// Set a tooltip [`Text`] to appear when hovering over the button, when the button is
+    /// disabled.
+    ///
+    /// This tooltip is only displayed when `disabled(true)` is also called.
+    pub fn disabled_tooltip(mut self, tooltip: impl Into<Text>) -> Self {
+        self.disabled_tooltip = Some(tooltip.into());
+        self
+    }
+
     /// The button's items will be rendered in a vertical column
     ///
     /// If the button doesn't have both an image and label, this has no effect.
@@ -526,6 +548,7 @@ impl<'b, 'a: 'b, 'c> ButtonBuilder<'a, 'c> {
             self.tooltip.clone(),
             hitbox,
             self.is_disabled,
+            self.disabled_tooltip.clone(),
         )
     }
 
