@@ -767,6 +767,29 @@
 <span id="764">764</span>
 <span id="765">765</span>
 <span id="766">766</span>
+<span id="767">767</span>
+<span id="768">768</span>
+<span id="769">769</span>
+<span id="770">770</span>
+<span id="771">771</span>
+<span id="772">772</span>
+<span id="773">773</span>
+<span id="774">774</span>
+<span id="775">775</span>
+<span id="776">776</span>
+<span id="777">777</span>
+<span id="778">778</span>
+<span id="779">779</span>
+<span id="780">780</span>
+<span id="781">781</span>
+<span id="782">782</span>
+<span id="783">783</span>
+<span id="784">784</span>
+<span id="785">785</span>
+<span id="786">786</span>
+<span id="787">787</span>
+<span id="788">788</span>
+<span id="789">789</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Polygon</span>};
 
@@ -789,7 +812,8 @@
     <span class="ident">draw_disabled</span>: <span class="ident">Drawable</span>,
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">hotkey</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">MultiKey</span><span class="op">&gt;</span>,
-    <span class="ident">tooltip</span>: <span class="ident">Text</span>,
+    <span class="ident">tooltip</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Text</span><span class="op">&gt;</span>,
+    <span class="ident">disabled_tooltip</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Text</span><span class="op">&gt;</span>,
     <span class="comment">// Screenspace, top-left always at the origin. Also, probably not a box. :P</span>
     <span class="ident">hitbox</span>: <span class="ident">Polygon</span>,
 
@@ -811,6 +835,7 @@
         <span class="ident">maybe_tooltip</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Text</span><span class="op">&gt;</span>,
         <span class="ident">hitbox</span>: <span class="ident">Polygon</span>,
         <span class="ident">is_disabled</span>: <span class="ident">bool</span>,
+        <span class="ident">disabled_tooltip</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Text</span><span class="op">&gt;</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Button</span> {
         <span class="comment">// dims are based on the hitbox, not the two drawables!</span>
         <span class="kw">let</span> <span class="ident">bounds</span> <span class="op">=</span> <span class="ident">hitbox</span>.<span class="ident">get_bounds</span>();
@@ -822,10 +847,15 @@
             <span class="ident">draw_hovered</span>: <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">hovered</span>),
             <span class="ident">draw_disabled</span>: <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">disabled</span>),
             <span class="ident">tooltip</span>: <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident">maybe_tooltip</span> {
-                <span class="ident">t</span>
+                <span class="kw">if</span> <span class="ident">t</span>.<span class="ident">is_empty</span>() {
+                    <span class="prelude-val">None</span>
+                } <span class="kw">else</span> {
+                    <span class="prelude-val">Some</span>(<span class="ident">t</span>)
+                }
             } <span class="kw">else</span> {
-                <span class="ident">Text</span>::<span class="ident">tooltip</span>(<span class="ident">ctx</span>, <span class="ident">hotkey</span>.<span class="ident">clone</span>(), <span class="ident">action</span>)
+                <span class="prelude-val">Some</span>(<span class="ident">Text</span>::<span class="ident">tooltip</span>(<span class="ident">ctx</span>, <span class="ident">hotkey</span>.<span class="ident">clone</span>(), <span class="ident">action</span>))
             },
+            <span class="ident">disabled_tooltip</span>,
             <span class="ident">hotkey</span>,
             <span class="ident">hitbox</span>,
 
@@ -887,10 +917,15 @@
     <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>) {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_disabled</span> {
             <span class="ident">g</span>.<span class="ident">redraw_at</span>(<span class="self">self</span>.<span class="ident">top_left</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">draw_disabled</span>);
+            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">hovering</span> {
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">txt</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">disabled_tooltip</span> {
+                    <span class="ident">g</span>.<span class="ident">draw_mouse_tooltip</span>(<span class="ident">txt</span>.<span class="ident">clone</span>());
+                }
+            }
         } <span class="kw">else</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">hovering</span> {
             <span class="ident">g</span>.<span class="ident">redraw_at</span>(<span class="self">self</span>.<span class="ident">top_left</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">draw_hovered</span>);
-            <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">tooltip</span>.<span class="ident">is_empty</span>() {
-                <span class="ident">g</span>.<span class="ident">draw_mouse_tooltip</span>(<span class="self">self</span>.<span class="ident">tooltip</span>.<span class="ident">clone</span>());
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">txt</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">tooltip</span> {
+                <span class="ident">g</span>.<span class="ident">draw_mouse_tooltip</span>(<span class="ident">txt</span>.<span class="ident">clone</span>());
             }
         } <span class="kw">else</span> {
             <span class="ident">g</span>.<span class="ident">redraw_at</span>(<span class="self">self</span>.<span class="ident">top_left</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">draw_normal</span>);
@@ -911,6 +946,7 @@
     <span class="ident">default_style</span>: <span class="ident">ButtonStateStyle</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span><span class="op">&gt;</span>,
     <span class="ident">hover_style</span>: <span class="ident">ButtonStateStyle</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span><span class="op">&gt;</span>,
     <span class="ident">disable_style</span>: <span class="ident">ButtonStateStyle</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span><span class="op">&gt;</span>,
+    <span class="ident">disabled_tooltip</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Text</span><span class="op">&gt;</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Default</span>)]</span>
@@ -1203,6 +1239,15 @@
         <span class="self">self</span>
     }
 
+    <span class="doccomment">/// Set a tooltip [`Text`] to appear when hovering over the button, when the button is</span>
+    <span class="doccomment">/// disabled.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This tooltip is only displayed when `disabled(true)` is also called.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">disabled_tooltip</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">tooltip</span>: <span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Text</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="self">self</span>.<span class="ident">disabled_tooltip</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">tooltip</span>.<span class="ident">into</span>());
+        <span class="self">self</span>
+    }
+
     <span class="doccomment">/// The button&#39;s items will be rendered in a vertical column</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// If the button doesn&#39;t have both an image and label, this has no effect.</span>
@@ -1296,6 +1341,7 @@
             <span class="self">self</span>.<span class="ident">tooltip</span>.<span class="ident">clone</span>(),
             <span class="ident">hitbox</span>,
             <span class="self">self</span>.<span class="ident">is_disabled</span>,
+            <span class="self">self</span>.<span class="ident">disabled_tooltip</span>.<span class="ident">clone</span>(),
         )
     }
 
