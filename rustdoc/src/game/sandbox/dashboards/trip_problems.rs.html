@@ -387,6 +387,12 @@
 <span id="384">384</span>
 <span id="385">385</span>
 <span id="386">386</span>
+<span id="387">387</span>
+<span id="388">388</span>
+<span id="389">389</span>
+<span id="390">390</span>
+<span id="391">391</span>
+<span id="392">392</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>::<span class="ident">Display</span>;
 
@@ -401,21 +407,27 @@
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">ProblemType</span> {
     <span class="ident">IntersectionDelay</span>,
-    <span class="ident">LargeIntersectionCrossing</span>,
+    <span class="ident">ComplexIntersectionCrossing</span>,
     <span class="ident">OvertakeDesired</span>,
+    <span class="ident">ArterialIntersectionCrossing</span>,
+}
+
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Problem</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ProblemType</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">problem</span>: <span class="kw-2">&amp;</span><span class="ident">Problem</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="kw">match</span> <span class="ident">problem</span> {
+            <span class="ident">Problem</span>::<span class="ident">IntersectionDelay</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">IntersectionDelay</span>,
+            <span class="ident">Problem</span>::<span class="ident">ComplexIntersectionCrossing</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">ComplexIntersectionCrossing</span>,
+            <span class="ident">Problem</span>::<span class="ident">OvertakeDesired</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">OvertakeDesired</span>,
+            <span class="ident">Problem</span>::<span class="ident">ArterialIntersectionCrossing</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">ArterialIntersectionCrossing</span>,
+        }
+    }
 }
 
 <span class="kw">impl</span> <span class="ident">ProblemType</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">count</span>(<span class="self">self</span>, <span class="ident">problems</span>: <span class="kw-2">&amp;</span>[(<span class="ident">Time</span>, <span class="ident">Problem</span>)]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cnt</span> <span class="op">=</span> <span class="number">0</span>;
         <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">problem</span>) <span class="kw">in</span> <span class="ident">problems</span> {
-            <span class="kw">if</span> <span class="kw">match</span> <span class="ident">problem</span> {
-                <span class="ident">Problem</span>::<span class="ident">IntersectionDelay</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span> <span class="op">=</span><span class="op">=</span> <span class="ident">ProblemType</span>::<span class="ident">IntersectionDelay</span>,
-                <span class="ident">Problem</span>::<span class="ident">LargeIntersectionCrossing</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="self">self</span> <span class="op">=</span><span class="op">=</span> <span class="ident">ProblemType</span>::<span class="ident">LargeIntersectionCrossing</span>
-                }
-                <span class="ident">Problem</span>::<span class="ident">OvertakeDesired</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span> <span class="op">=</span><span class="op">=</span> <span class="ident">ProblemType</span>::<span class="ident">OvertakeDesired</span>,
-            } {
+            <span class="kw">if</span> <span class="self">self</span> <span class="op">=</span><span class="op">=</span> <span class="ident">ProblemType</span>::<span class="ident">from</span>(<span class="ident">problem</span>) {
                 <span class="ident">cnt</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
             }
         }

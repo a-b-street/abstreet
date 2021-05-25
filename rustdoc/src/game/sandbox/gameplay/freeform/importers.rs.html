@@ -222,7 +222,7 @@
     <span class="comment">// Always clean up people with no-op trips (going between the same buildings)</span>
     <span class="ident">s</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">remove_weird_schedules</span>();
     <span class="ident">s</span>.<span class="ident">save</span>();
-    <span class="prelude-val">Ok</span>(<span class="ident">s</span>.<span class="ident">scenario_name</span>.<span class="ident">clone</span>())
+    <span class="prelude-val">Ok</span>(<span class="ident">s</span>.<span class="ident">scenario_name</span>)
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Deserialize</span>)]</span>
