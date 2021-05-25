@@ -325,7 +325,7 @@ fn remove_merging_turns(map: &Map, input: Vec<Turn>, turn_type: TurnType) -> Vec
         }
 
         let num_src_lanes = group.iter().map(|t| t.id.src).collect::<HashSet<_>>().len();
-        let num_dst_lanes = group.iter().map(|t| t.id.src).collect::<HashSet<_>>().len();
+        let num_dst_lanes = group.iter().map(|t| t.id.dst).collect::<HashSet<_>>().len();
 
         // Allow all turns from one to many
         if num_src_lanes == 1 {

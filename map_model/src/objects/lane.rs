@@ -289,40 +289,31 @@ impl Lane {
         }
         // TODO More warnings if this fails
         let part = parts[lanes.iter().position(|l| *l == self.id)?];
+
         // TODO Probably the target lane should get marked as LaneType::Bus
-        if part == "no" || part == "none" || part == "yes" || part == "psv" || part == "bus" {
+        if part == "yes" || part == "psv" || part == "bus" {
             return None;
         }
-        // Empty means no restrictions
-        if part.is_empty() {
-            return None;
+
+        // These both mean that physically, there's no marking saying what turn is valid. In
+        // practice, this seems to imply straight is always fine, and right/left are fine unless
+        // covered by an explicit turn lane.
+        if part == "" || part == "none" {
+            let all_explicit_types: BTreeSet<TurnType> = parts
+                .iter()
+                .flat_map(|part| part.split(';').flat_map(parse_turn_type_from_osm))
+                .collect();
+            let mut implied = BTreeSet::new();
+            implied.insert(TurnType::Straight);
+            for tt in vec![TurnType::Left, TurnType::Right] {
+                if !all_explicit_types.contains(&tt) {
+                    implied.insert(tt);
+                }
+            }
+            return Some(implied);
         }
-        Some(
-            part.split(';')
-                .flat_map(|s| match s {
-                    "left" | "left\\left" => vec![TurnType::Left],
-                    "right" => vec![TurnType::Right],
-                    // TODO What is blank supposed to mean? From few observed cases, same as through
-                    "through" | "" => vec![TurnType::Straight],
-                    // TODO Check this more carefully
-                    "slight_right" | "slight right" | "merge_to_right" | "sharp_right" => {
-                        vec![TurnType::Straight, TurnType::Right]
-                    }
-                    "slight_left" | "slight left" | "merge_to_left" | "sharp_left" => {
-                        vec![TurnType::Straight, TurnType::Left]
-                    }
-                    "reverse" => {
-                        // TODO We need TurnType::UTurn. Until then, u-turns usually show up as
-                        // left turns.
-                        vec![TurnType::Left]
-                    }
-                    s => {
-                        warn!("Unknown turn restriction {}", s);
-                        vec![]
-                    }
-                })
-                .collect(),
-        )
+
+        Some(part.split(';').flat_map(parse_turn_type_from_osm).collect())
     }
 
     /// Starting from this lane, follow the lane's left edge to the intersection, continuing to
@@ -464,6 +455,27 @@ impl LaneSpec {
                 (Distance::feet(6.0), "wide"),
             ],
             LaneType::Shoulder => vec![(SHOULDER_THICKNESS, "default")],
+        }
+    }
+}
+
+// See https://wiki.openstreetmap.org/wiki/Key:turn
+fn parse_turn_type_from_osm(x: &str) -> Vec<TurnType> {
+    match x {
+        "left" => vec![TurnType::Left],
+        "right" => vec![TurnType::Right],
+        "through" => vec![TurnType::Straight],
+        "slight_right" | "slight right" | "merge_to_right" | "sharp_right" => {
+            vec![TurnType::Straight, TurnType::Right]
+        }
+        "slight_left" | "slight left" | "merge_to_left" | "sharp_left" => {
+            vec![TurnType::Straight, TurnType::Left]
+        }
+        "reverse" => vec![TurnType::UTurn],
+        "none" | "" => vec![],
+        _ => {
+            warn!("Unknown turn restriction {}", x);
+            vec![]
         }
     }
 }
