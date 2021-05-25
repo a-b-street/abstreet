@@ -104,7 +104,7 @@ fn import_json_scenario(map: &Map, input: String, timer: &mut Timer) -> Result<S
     // Always clean up people with no-op trips (going between the same buildings)
     s = s.remove_weird_schedules();
     s.save();
-    Ok(s.scenario_name.clone())
+    Ok(s.scenario_name)
 }
 
 #[derive(Deserialize)]

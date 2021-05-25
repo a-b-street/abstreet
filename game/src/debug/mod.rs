@@ -988,7 +988,7 @@ fn draw_banned_turns(ctx: &mut EventCtx, app: &App) -> Drawable {
 fn draw_arterial_crosswalks(ctx: &mut EventCtx, app: &App) -> Drawable {
     let mut batch = GeomBatch::new();
     let map = &app.primary.map;
-    for (_t, turn) in map.all_turns() {
+    for turn in map.all_turns().values() {
         if turn.is_crossing_arterial_intersection(map) {
             batch.push(
                 Color::RED,
