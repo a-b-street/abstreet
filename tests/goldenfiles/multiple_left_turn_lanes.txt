@@ -10,6 +10,9 @@ TurnID(Lane #6, Lane #19, Intersection #0) is a Left
 TurnID(Lane #7, Lane #1, Intersection #0) is a Straight
 TurnID(Lane #7, Lane #2, Intersection #0) is a Straight
 TurnID(Lane #7, Lane #3, Intersection #0) is a Straight
+TurnID(Lane #7, Lane #17, Intersection #0) is a Left
+TurnID(Lane #7, Lane #18, Intersection #0) is a Left
+TurnID(Lane #7, Lane #19, Intersection #0) is a Left
 TurnID(Lane #8, Lane #1, Intersection #0) is a Straight
 TurnID(Lane #8, Lane #2, Intersection #0) is a Straight
 TurnID(Lane #8, Lane #3, Intersection #0) is a Straight

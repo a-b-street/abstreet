@@ -6,7 +6,7 @@ use nbez::{Bez3o, BezCurve, Point2d};
 use geom::{Angle, Distance, Line, PolyLine, Pt2D};
 
 use crate::raw::RestrictionType;
-use crate::{Intersection, Lane, LaneID, Map, RoadID, Turn, TurnID, TurnType};
+use crate::{Intersection, Lane, LaneID, LaneType, Map, RoadID, Turn, TurnID, TurnType};
 
 /// Generate all driving and walking turns at an intersection, accounting for OSM turn restrictions.
 pub fn make_all_turns(map: &Map, i: &Intersection) -> Vec<Turn> {
@@ -137,8 +137,21 @@ pub fn verify_vehicle_connectivity(turns: &Vec<Turn>, i: &Intersection, map: &Ma
     }
 
     for turn in turns {
-        if map.get_l(turn.id.src).lane_type == map.get_l(turn.id.dst).lane_type {
+        let src_lt = map.get_l(turn.id.src).lane_type;
+        let dst_lt = map.get_l(turn.id.dst).lane_type;
+
+        if src_lt == dst_lt {
             incoming_missing.remove(&turn.id.src);
+            outgoing_missing.remove(&turn.id.dst);
+        }
+
+        // But actually, if some of the orphaned lanes are bus or bike lanes, as long as they're
+        // connected to something (even a different type), allow it. There's naturally places where
+        // these dedicated lanes start or end.
+        if src_lt == LaneType::Biking || src_lt == LaneType::Bus {
+            incoming_missing.remove(&turn.id.src);
+        }
+        if dst_lt == LaneType::Biking || dst_lt == LaneType::Bus {
             outgoing_missing.remove(&turn.id.dst);
         }
     }
