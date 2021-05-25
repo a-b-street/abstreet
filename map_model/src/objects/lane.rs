@@ -259,7 +259,9 @@ impl Lane {
         }
     }
 
-    pub fn get_turn_restrictions(&self, road: &Road) -> Option<BTreeSet<TurnType>> {
+    /// Returns the set of allowed turn types, based on individual turn lane restrictions. `None`
+    /// means all turn types are allowed.
+    pub fn get_lane_level_turn_restrictions(&self, road: &Road) -> Option<BTreeSet<TurnType>> {
         if !self.is_driving() {
             return None;
         }
