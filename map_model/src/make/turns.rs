@@ -181,6 +181,46 @@ fn does_turn_pass_restrictions(turn: &Turn, i: &Intersection, map: &Map) -> bool
     true
 }
 
+/// Every incoming lane must lead to at least one lane of the same type. Every outgoing lane
+/// must be reachable by at least one lane of the same type.
+///
+/// Why the same type?
+/// See https://www.openstreetmap.org/node/491979474 for a motivating example. When a dedicated
+/// bike path crosses a road with turn restrictions marked on a segment before the intersection,
+/// the turn restrictions _probably_ indicate the vehicle movements allowed further on, and
+/// _don't_ describe the turns between the road and the trail.
+pub fn verify_vehicle_connectivity(turns: &Vec<Turn>, i: &Intersection, map: &Map) -> Result<()> {
+    let mut incoming_missing: HashSet<LaneID> = HashSet::new();
+    for l in &i.incoming_lanes {
+        if map.get_l(*l).lane_type.is_for_moving_vehicles() {
+            incoming_missing.insert(*l);
+        }
+    }
+    let mut outgoing_missing: HashSet<LaneID> = HashSet::new();
+    for l in &i.outgoing_lanes {
+        if map.get_l(*l).lane_type.is_for_moving_vehicles() {
+            outgoing_missing.insert(*l);
+        }
+    }
+
+    for turn in turns {
+        if map.get_l(turn.id.src).lane_type == map.get_l(turn.id.dst).lane_type {
+            incoming_missing.remove(&turn.id.src);
+            outgoing_missing.remove(&turn.id.dst);
+        }
+    }
+
+    if !incoming_missing.is_empty() || !outgoing_missing.is_empty() {
+        bail!(
+            "Turns for {} orphan some lanes. Incoming: {:?}, outgoing: {:?}",
+            i.id,
+            incoming_missing,
+            outgoing_missing
+        );
+    }
+    Ok(())
+}
+
 fn make_vehicle_turns(i: &Intersection, map: &Map) -> Vec<Turn> {
     let mut turns = Vec::new();
 

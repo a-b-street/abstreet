@@ -217,6 +217,7 @@ impl Map {
         }
 
         let mut all_turns = Vec::new();
+        let mut connectivity_problems = 0;
         for i in &map.intersections {
             if i.is_border() || i.is_closed() {
                 continue;
@@ -226,8 +227,16 @@ impl Map {
                 continue;
             }
 
-            all_turns.extend(turns::make_all_turns(&map, i));
+            let results = turns::make_all_turns(&map, i);
+            if turns::verify_vehicle_connectivity(&results, i, &map).is_err() {
+                connectivity_problems += 1;
+            }
+            all_turns.extend(results);
         }
+        error!(
+            "{} total intersections have some connectivity problem",
+            connectivity_problems
+        );
         for t in all_turns {
             assert!(!map.turns.contains_key(&t.id));
             map.intersections[t.id.parent.0].turns.insert(t.id);
