@@ -7,7 +7,8 @@ use serde::{Deserialize, Serialize};
 use abstutil::MultiMap;
 use geom::{Angle, Distance, PolyLine, Pt2D};
 
-use crate::{DirectedRoadID, Direction, IntersectionID, LaneID, Map};
+use crate::raw::RestrictionType;
+use crate::{DirectedRoadID, Direction, Intersection, IntersectionID, LaneID, Map};
 
 /// Turns are uniquely identified by their (src, dst) lanes and their parent intersection.
 /// Intersection is needed to distinguish crosswalks that exist at two ends of a sidewalk.
@@ -178,6 +179,49 @@ impl Turn {
             let rank = map.get_r(*r).get_rank();
             rank == RoadRank::Arterial || rank == RoadRank::Highway
         })
+    }
+
+    /// Is this turn legal, according to turn lane tagging?
+    pub(crate) fn permitted_by_lane(&self, map: &Map) -> bool {
+        if let Some(types) = map
+            .get_l(self.id.src)
+            .get_lane_level_turn_restrictions(map.get_parent(self.id.src))
+        {
+            types.contains(&self.turn_type)
+        } else {
+            true
+        }
+    }
+
+    /// Is this turn legal, according to turn restrictions defined between road segments?
+    pub(crate) fn permitted_by_road(&self, i: &Intersection, map: &Map) -> bool {
+        if self.between_sidewalks() {
+            return true;
+        }
+
+        let src = map.get_parent(self.id.src);
+        let dst = map.get_l(self.id.dst).parent;
+
+        for (restriction, to) in &src.turn_restrictions {
+            // The restriction only applies to one direction of the road.
+            if !i.roads.contains(to) {
+                continue;
+            }
+            match restriction {
+                RestrictionType::BanTurns => {
+                    if dst == *to {
+                        return false;
+                    }
+                }
+                RestrictionType::OnlyAllowTurns => {
+                    if dst != *to {
+                        return false;
+                    }
+                }
+            }
+        }
+
+        true
     }
 }
 

@@ -5,7 +5,6 @@ use nbez::{Bez3o, BezCurve, Point2d};
 
 use geom::{Angle, Distance, Line, PolyLine, Pt2D};
 
-use crate::raw::RestrictionType;
 use crate::{Intersection, Lane, LaneID, LaneType, Map, RoadID, Turn, TurnID, TurnType};
 
 /// Generate all driving and walking turns at an intersection, accounting for OSM turn restrictions.
@@ -22,14 +21,14 @@ pub fn make_all_turns(map: &Map, i: &Intersection) -> Vec<Turn> {
     // usually not extremely broken.
     let all_turns: Vec<Turn> = unique_turns
         .into_iter()
-        .filter(|t| does_turn_pass_road_level_restrictions(t, i, map))
+        .filter(|t| t.permitted_by_road(i, map))
         .collect();
 
     // Try to use turn lane tags...
     let filtered_turns: Vec<Turn> = all_turns
         .clone()
         .into_iter()
-        .filter(|t| does_turn_pass_lane_level_restrictions(t, map))
+        .filter(|t| t.permitted_by_lane(map))
         .collect();
     // And remove merging left or right turns. If we wanted to remove the "lane-changing at
     // intersections" behavior, we could do this for TurnType::Straight too.
@@ -73,56 +72,17 @@ fn ensure_unique(turns: Vec<Turn>) -> Vec<Turn> {
     keep
 }
 
-fn does_turn_pass_lane_level_restrictions(turn: &Turn, map: &Map) -> bool {
-    if let Some(types) = map
-        .get_l(turn.id.src)
-        .get_lane_level_turn_restrictions(map.get_parent(turn.id.src))
-    {
-        types.contains(&turn.turn_type)
-    } else {
-        true
-    }
-}
-
-fn does_turn_pass_road_level_restrictions(turn: &Turn, i: &Intersection, map: &Map) -> bool {
-    if turn.between_sidewalks() {
-        return true;
-    }
-
-    let src = map.get_parent(turn.id.src);
-    let dst = map.get_l(turn.id.dst).parent;
-
-    for (restriction, to) in &src.turn_restrictions {
-        // The restriction only applies to one direction of the road.
-        if !i.roads.contains(to) {
-            continue;
-        }
-        match restriction {
-            RestrictionType::BanTurns => {
-                if dst == *to {
-                    return false;
-                }
-            }
-            RestrictionType::OnlyAllowTurns => {
-                if dst != *to {
-                    return false;
-                }
-            }
-        }
-    }
-
-    true
-}
-
-/// Every incoming lane must lead to at least one lane of the same type. Every outgoing lane
-/// must be reachable by at least one lane of the same type.
+/// Ideally, we want every incoming lane to lead to at least one lane of the same type, and every
+/// outgoing lane to be reachable by at least one lane of the same type. But if it's a bus or bike
+/// lane, settle for being connected to anything -- even just a driving lane. There's naturally
+/// places where these dedicated lanes start and end.
 ///
-/// Why the same type?
-/// See https://www.openstreetmap.org/node/491979474 for a motivating example. When a dedicated
-/// bike path crosses a road with turn restrictions marked on a segment before the intersection,
-/// the turn restrictions _probably_ indicate the vehicle movements allowed further on, and
-/// _don't_ describe the turns between the road and the trail.
-pub fn verify_vehicle_connectivity(turns: &Vec<Turn>, i: &Intersection, map: &Map) -> Result<()> {
+/// Why is this definition strict for driving lanes connected to other driving lanes?  See
+/// https://www.openstreetmap.org/node/491979474 for a motivating example. When a dedicated bike
+/// path crosses a road with turn restrictions marked on a segment before the intersection, the
+/// turn restrictions _probably_ indicate the vehicle movements allowed further on, and _don't_
+/// describe the turns between the road and the trail.
+pub fn verify_vehicle_connectivity(turns: &[Turn], i: &Intersection, map: &Map) -> Result<()> {
     let mut incoming_missing: HashSet<LaneID> = HashSet::new();
     for l in &i.incoming_lanes {
         if map.get_l(*l).lane_type.is_for_moving_vehicles() {
@@ -145,9 +105,6 @@ pub fn verify_vehicle_connectivity(turns: &Vec<Turn>, i: &Intersection, map: &Ma
             outgoing_missing.remove(&turn.id.dst);
         }
 
-        // But actually, if some of the orphaned lanes are bus or bike lanes, as long as they're
-        // connected to something (even a different type), allow it. There's naturally places where
-        // these dedicated lanes start or end.
         if src_lt == LaneType::Biking || src_lt == LaneType::Bus {
             incoming_missing.remove(&turn.id.src);
         }

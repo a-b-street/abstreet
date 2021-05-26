@@ -298,16 +298,20 @@ impl Lane {
         // These both mean that physically, there's no marking saying what turn is valid. In
         // practice, this seems to imply straight is always fine, and right/left are fine unless
         // covered by an explicit turn lane.
-        if part == "" || part == "none" {
+        //
+        // If a multi-lane road lacks markings, just listening to this function will mean that the
+        // rightmos lanes could turn left, which probably isn't great for people in the middle
+        // lanes going straight. Further filtering (in remove_merging_turns) will prune this out.
+        if part.is_empty() || part == "none" {
             let all_explicit_types: BTreeSet<TurnType> = parts
                 .iter()
                 .flat_map(|part| part.split(';').flat_map(parse_turn_type_from_osm))
                 .collect();
             let mut implied = BTreeSet::new();
             implied.insert(TurnType::Straight);
-            for tt in vec![TurnType::Left, TurnType::Right] {
-                if !all_explicit_types.contains(&tt) {
-                    implied.insert(tt);
+            for tt in &[TurnType::Left, TurnType::Right] {
+                if !all_explicit_types.contains(tt) {
+                    implied.insert(*tt);
                 }
             }
             return Some(implied);
