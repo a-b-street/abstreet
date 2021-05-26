@@ -1931,9 +1931,9 @@
       "compressed_size_bytes": 490829
     },
     "data/input/us/seattle/osm/rainier_valley.osm": {
-      "checksum": "db76a33cf17640790ad17c3d6859744d",
-      "uncompressed_size_bytes": 7735384,
-      "compressed_size_bytes": 648524
+      "checksum": "29c739eaf0ba8a422c6473c73add1775",
+      "uncompressed_size_bytes": 7735427,
+      "compressed_size_bytes": 648540
     },
     "data/input/us/seattle/osm/slu.osm": {
       "checksum": "9a2107a5a1f4cf9d4b662fdca2f2157c",
@@ -2031,9 +2031,9 @@
       "compressed_size_bytes": 390073
     },
     "data/input/us/seattle/raw_maps/rainier_valley.bin": {
-      "checksum": "c29399cf1e7080f424d8239933659286",
-      "uncompressed_size_bytes": 2346994,
-      "compressed_size_bytes": 533594
+      "checksum": "dba2e667ab6512d7e1a598894a8a62d6",
+      "uncompressed_size_bytes": 2347114,
+      "compressed_size_bytes": 533595
     },
     "data/input/us/seattle/raw_maps/slu.bin": {
       "checksum": "c8d8ab9fd0c0d8fa0350e35533c672ce",
@@ -3786,9 +3786,9 @@
       "compressed_size_bytes": 1251477
     },
     "data/system/us/seattle/maps/rainier_valley.bin": {
-      "checksum": "006be485f7381bd977a0aa630bd5ece7",
-      "uncompressed_size_bytes": 5762462,
-      "compressed_size_bytes": 1951138
+      "checksum": "d40372b77556a159befce7d2c64542c7",
+      "uncompressed_size_bytes": 5757236,
+      "compressed_size_bytes": 1949493
     },
     "data/system/us/seattle/maps/slu.bin": {
       "checksum": "dc99001042bff369950bd8689cddf5de",
@@ -3849,6 +3849,11 @@
       "checksum": "143906786e83d037fc059d3dc0f1fe05",
       "uncompressed_size_bytes": 11103592,
       "compressed_size_bytes": 3903778
+    },
+    "data/system/us/seattle/prebaked_results/rainier_valley/weekday.bin": {
+      "checksum": "9c9074d8e20f0ca1a6aecd8bc3296cfa",
+      "uncompressed_size_bytes": 20215945,
+      "compressed_size_bytes": 7196590
     },
     "data/system/us/seattle/prebaked_results/wallingford/weekday.bin": {
       "checksum": "20e091e2a41e11fee43db96de8149b72",
