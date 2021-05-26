@@ -196,8 +196,6 @@
 <span id="193">193</span>
 <span id="194">194</span>
 <span id="195">195</span>
-<span id="196">196</span>
-<span id="197">197</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Some users of the API (https://a-b-street.github.io/docs/dev/api.html) have their own</span>
 <span class="doccomment">//! simulation input data; import it here.</span>
@@ -212,13 +210,13 @@
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ExternalPerson</span> {
-    <span class="kw">pub</span> <span class="ident">origin</span>: <span class="ident">ExternalTripEndpoint</span>,
     <span class="kw">pub</span> <span class="ident">trips</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ExternalTrip</span><span class="op">&gt;</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ExternalTrip</span> {
     <span class="kw">pub</span> <span class="ident">departure</span>: <span class="ident">Time</span>,
+    <span class="kw">pub</span> <span class="ident">origin</span>: <span class="ident">ExternalTripEndpoint</span>,
     <span class="kw">pub</span> <span class="ident">destination</span>: <span class="ident">ExternalTripEndpoint</span>,
     <span class="kw">pub</span> <span class="ident">mode</span>: <span class="ident">TripMode</span>,
     <span class="kw">pub</span> <span class="ident">purpose</span>: <span class="ident">TripPurpose</span>,
@@ -275,25 +273,23 @@
         <span class="kw">for</span> <span class="ident">person</span> <span class="kw">in</span> <span class="ident">input</span> {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">spec</span> <span class="op">=</span> <span class="ident">PersonSpec</span> {
                 <span class="ident">orig_id</span>: <span class="prelude-val">None</span>,
-                <span class="ident">origin</span>: <span class="kw">match</span> <span class="ident">lookup_pt</span>(<span class="ident">person</span>.<span class="ident">origin</span>, <span class="bool-val">true</span>, <span class="ident">person</span>.<span class="ident">trips</span>[<span class="number">0</span>].<span class="ident">mode</span>) {
-                    <span class="prelude-val">Ok</span>(<span class="ident">endpt</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">endpt</span>,
-                    <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                        <span class="kw">if</span> <span class="ident">skip_problems</span> {
-                            <span class="macro">warn</span><span class="macro">!</span>(<span class="string">&quot;Skipping person: {}&quot;</span>, <span class="ident">err</span>);
-                            <span class="kw">continue</span>;
-                        } <span class="kw">else</span> {
-                            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>);
-                        }
-                    }
-                },
                 <span class="ident">trips</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
             };
             <span class="kw">for</span> <span class="ident">trip</span> <span class="kw">in</span> <span class="ident">person</span>.<span class="ident">trips</span> {
                 <span class="ident">spec</span>.<span class="ident">trips</span>.<span class="ident">push</span>(<span class="ident">IndividTrip</span>::<span class="ident">new</span>(
                     <span class="ident">trip</span>.<span class="ident">departure</span>,
                     <span class="ident">trip</span>.<span class="ident">purpose</span>,
-                    <span class="comment">// TODO Do we handle somebody going off-map via one one-way bridge, and</span>
-                    <span class="comment">// re-entering using the other?</span>
+                    <span class="kw">match</span> <span class="ident">lookup_pt</span>(<span class="ident">trip</span>.<span class="ident">origin</span>, <span class="bool-val">true</span>, <span class="ident">trip</span>.<span class="ident">mode</span>) {
+                        <span class="prelude-val">Ok</span>(<span class="ident">endpt</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">endpt</span>,
+                        <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                            <span class="kw">if</span> <span class="ident">skip_problems</span> {
+                                <span class="macro">warn</span><span class="macro">!</span>(<span class="string">&quot;Skipping person: {}&quot;</span>, <span class="ident">err</span>);
+                                <span class="kw">continue</span>;
+                            } <span class="kw">else</span> {
+                                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>);
+                            }
+                        }
+                    },
                     <span class="kw">match</span> <span class="ident">lookup_pt</span>(<span class="ident">trip</span>.<span class="ident">destination</span>, <span class="bool-val">false</span>, <span class="ident">trip</span>.<span class="ident">mode</span>) {
                         <span class="prelude-val">Ok</span>(<span class="ident">endpt</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">endpt</span>,
                         <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> {

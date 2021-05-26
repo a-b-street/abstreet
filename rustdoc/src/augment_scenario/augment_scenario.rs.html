@@ -158,6 +158,9 @@
 <span id="155">155</span>
 <span id="156">156</span>
 <span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! A tool to modify each person&#39;s schedule from an existing scenario in various ways.</span>
 <span class="doccomment">//!</span>
@@ -221,7 +224,8 @@
         <span class="ident">person</span>.<span class="ident">trips</span>.<span class="ident">push</span>(<span class="ident">IndividTrip</span>::<span class="ident">new</span>(
             <span class="ident">depart</span>,
             <span class="ident">TripPurpose</span>::<span class="ident">Home</span>,
-            <span class="ident">person</span>.<span class="ident">origin</span>,
+            <span class="ident">person</span>.<span class="ident">trips</span>[<span class="number">0</span>].<span class="ident">destination</span>,
+            <span class="ident">person</span>.<span class="ident">trips</span>[<span class="number">0</span>].<span class="ident">origin</span>,
             <span class="ident">person</span>.<span class="ident">trips</span>[<span class="number">0</span>].<span class="ident">mode</span>,
         ));
         <span class="ident">cnt</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
@@ -253,7 +257,7 @@
         <span class="ident">timer</span>.<span class="ident">next</span>();
         <span class="kw">let</span> <span class="ident">num_trips</span> <span class="op">=</span> <span class="ident">person</span>.<span class="ident">trips</span>.<span class="ident">len</span>();
         <span class="comment">// Only handle people with their final trip going back home.</span>
-        <span class="kw">if</span> <span class="ident">num_trips</span> <span class="op">&lt;</span><span class="op">=</span> <span class="number">1</span> <span class="op">|</span><span class="op">|</span> <span class="ident">person</span>.<span class="ident">trips</span>[<span class="ident">num_trips</span> <span class="op">-</span> <span class="number">1</span>].<span class="ident">destination</span> <span class="op">!</span><span class="op">=</span> <span class="ident">person</span>.<span class="ident">origin</span> {
+        <span class="kw">if</span> <span class="ident">num_trips</span> <span class="op">&lt;</span><span class="op">=</span> <span class="number">1</span> <span class="op">|</span><span class="op">|</span> <span class="ident">person</span>.<span class="ident">trips</span>[<span class="ident">num_trips</span> <span class="op">-</span> <span class="number">1</span>].<span class="ident">destination</span> <span class="op">!</span><span class="op">=</span> <span class="ident">person</span>.<span class="ident">trips</span>[<span class="number">0</span>].<span class="ident">origin</span> {
             <span class="kw">continue</span>;
         }
 
@@ -277,12 +281,14 @@
         <span class="ident">person</span>.<span class="ident">trips</span>.<span class="ident">push</span>(<span class="ident">IndividTrip</span>::<span class="ident">new</span>(
             <span class="ident">depart</span>,
             <span class="ident">TripPurpose</span>::<span class="ident">Meal</span>,
+            <span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="ident">work</span>),
             <span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="ident">restaurant</span>),
             <span class="ident">mode</span>,
         ));
         <span class="ident">person</span>.<span class="ident">trips</span>.<span class="ident">push</span>(<span class="ident">IndividTrip</span>::<span class="ident">new</span>(
             <span class="ident">depart</span> <span class="op">+</span> <span class="ident">Duration</span>::<span class="ident">minutes</span>(<span class="number">30</span>),
             <span class="ident">TripPurpose</span>::<span class="ident">Work</span>,
+            <span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="ident">restaurant</span>),
             <span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="ident">work</span>),
             <span class="ident">mode</span>,
         ));

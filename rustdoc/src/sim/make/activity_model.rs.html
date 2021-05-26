@@ -325,7 +325,6 @@
 <span id="322">322</span>
 <span id="323">323</span>
 <span id="324">324</span>
-<span id="325">325</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! An activity model creates &quot;people&quot; that follow a set schedule of activities through the day.</span>
 <span class="doccomment">//! Each activity (like shopping, working, sleeping) lasts some time, and requires the person to go</span>
@@ -601,10 +600,9 @@
 
     <span class="prelude-val">Ok</span>(<span class="ident">PersonSpec</span> {
         <span class="ident">orig_id</span>: <span class="prelude-val">None</span>,
-        <span class="ident">origin</span>: <span class="ident">home</span>,
         <span class="ident">trips</span>: <span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">IndividTrip</span>::<span class="ident">new</span>(<span class="ident">depart_am</span>, <span class="ident">TripPurpose</span>::<span class="ident">Work</span>, <span class="ident">work</span>, <span class="ident">mode</span>),
-            <span class="ident">IndividTrip</span>::<span class="ident">new</span>(<span class="ident">depart_pm</span>, <span class="ident">TripPurpose</span>::<span class="ident">Home</span>, <span class="ident">home</span>, <span class="ident">mode</span>),
+            <span class="ident">IndividTrip</span>::<span class="ident">new</span>(<span class="ident">depart_am</span>, <span class="ident">TripPurpose</span>::<span class="ident">Work</span>, <span class="ident">home</span>, <span class="ident">work</span>, <span class="ident">mode</span>),
+            <span class="ident">IndividTrip</span>::<span class="ident">new</span>(<span class="ident">depart_pm</span>, <span class="ident">TripPurpose</span>::<span class="ident">Home</span>, <span class="ident">work</span>, <span class="ident">home</span>, <span class="ident">mode</span>),
         ],
     })
 }

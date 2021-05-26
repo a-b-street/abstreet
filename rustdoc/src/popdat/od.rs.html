@@ -284,6 +284,12 @@
 <span id="281">281</span>
 <span id="282">282</span>
 <span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! This is an alternative pipeline for generating a Scenario, starting from origin-destination</span>
 <span class="doccomment">//! data (also called desire lines), which gives a count of commuters between two zones, breaking</span>
@@ -374,7 +380,7 @@
         <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">desire</span>.<span class="ident">number_commuters</span> {
             <span class="comment">// Pick a specific home and workplace. It might be off-map, depending on how much the</span>
             <span class="comment">// zone overlaps the map.</span>
-            <span class="kw">if</span> <span class="kw">let</span> (<span class="prelude-val">Some</span>((<span class="ident">leave_home</span>, <span class="ident">goto_home</span>)), <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="ident">goto_work</span>))) <span class="op">=</span> (
+            <span class="kw">if</span> <span class="kw">let</span> (<span class="prelude-val">Some</span>((<span class="ident">leave_home</span>, <span class="ident">goto_home</span>)), <span class="prelude-val">Some</span>((<span class="ident">leave_work</span>, <span class="ident">goto_work</span>))) <span class="op">=</span> (
                 <span class="ident">home_zone</span>.<span class="ident">pick_home</span>(<span class="ident">desire</span>.<span class="ident">mode</span>, <span class="ident">map</span>, <span class="ident">rng</span>),
                 <span class="ident">work_zone</span>.<span class="ident">pick_workplace</span>(<span class="ident">desire</span>.<span class="ident">mode</span>, <span class="ident">map</span>, <span class="ident">rng</span>),
             ) {
@@ -383,12 +389,18 @@
                 <span class="kw">let</span> <span class="ident">return_home_time</span> <span class="op">=</span> <span class="ident">goto_work_time</span> <span class="op">+</span> <span class="ident">opts</span>.<span class="ident">work_duration</span>.<span class="ident">sample</span>(<span class="ident">rng</span>);
                 <span class="ident">people</span>.<span class="ident">push</span>(<span class="ident">PersonSpec</span> {
                     <span class="ident">orig_id</span>: <span class="prelude-val">None</span>,
-                    <span class="ident">origin</span>: <span class="ident">leave_home</span>,
                     <span class="ident">trips</span>: <span class="macro">vec</span><span class="macro">!</span>[
-                        <span class="ident">IndividTrip</span>::<span class="ident">new</span>(<span class="ident">goto_work_time</span>, <span class="ident">TripPurpose</span>::<span class="ident">Work</span>, <span class="ident">goto_work</span>, <span class="ident">desire</span>.<span class="ident">mode</span>),
+                        <span class="ident">IndividTrip</span>::<span class="ident">new</span>(
+                            <span class="ident">goto_work_time</span>,
+                            <span class="ident">TripPurpose</span>::<span class="ident">Work</span>,
+                            <span class="ident">leave_home</span>,
+                            <span class="ident">goto_work</span>,
+                            <span class="ident">desire</span>.<span class="ident">mode</span>,
+                        ),
                         <span class="ident">IndividTrip</span>::<span class="ident">new</span>(
                             <span class="ident">return_home_time</span>,
                             <span class="ident">TripPurpose</span>::<span class="ident">Home</span>,
+                            <span class="ident">leave_work</span>,
                             <span class="ident">goto_home</span>,
                             <span class="ident">desire</span>.<span class="ident">mode</span>,
                         ),

@@ -520,11 +520,6 @@
 <span id="517">517</span>
 <span id="518">518</span>
 <span id="519">519</span>
-<span id="520">520</span>
-<span id="521">521</span>
-<span id="522">522</span>
-<span id="523">523</span>
-<span id="524">524</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashSet</span>, <span class="ident">VecDeque</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
@@ -561,15 +556,16 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PersonSpec</span> {
     <span class="doccomment">/// Just used for debugging</span>
     <span class="kw">pub</span> <span class="ident">orig_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">OrigPersonID</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// The first trip starts here</span>
-    <span class="kw">pub</span> <span class="ident">origin</span>: <span class="ident">TripEndpoint</span>,
-    <span class="doccomment">/// Each trip starts at the destination of the previous trip</span>
+    <span class="doccomment">/// There must be continuity between trips: each trip starts at the destination of the previous</span>
+    <span class="doccomment">/// trip. In the case of borders, the outbound and inbound border may be different. This means</span>
+    <span class="doccomment">/// that there was some sort of &quot;remote&quot; trip happening outside the map that we don&#39;t simulate.</span>
     <span class="kw">pub</span> <span class="ident">trips</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">IndividTrip</span><span class="op">&gt;</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">IndividTrip</span> {
     <span class="kw">pub</span> <span class="ident">depart</span>: <span class="ident">Time</span>,
+    <span class="kw">pub</span> <span class="ident">origin</span>: <span class="ident">TripEndpoint</span>,
     <span class="kw">pub</span> <span class="ident">destination</span>: <span class="ident">TripEndpoint</span>,
     <span class="kw">pub</span> <span class="ident">mode</span>: <span class="ident">TripMode</span>,
     <span class="kw">pub</span> <span class="ident">purpose</span>: <span class="ident">TripPurpose</span>,
@@ -582,11 +578,13 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(
         <span class="ident">depart</span>: <span class="ident">Time</span>,
         <span class="ident">purpose</span>: <span class="ident">TripPurpose</span>,
+        <span class="ident">origin</span>: <span class="ident">TripEndpoint</span>,
         <span class="ident">destination</span>: <span class="ident">TripEndpoint</span>,
         <span class="ident">mode</span>: <span class="ident">TripMode</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IndividTrip</span> {
         <span class="ident">IndividTrip</span> {
             <span class="ident">depart</span>,
+            <span class="ident">origin</span>,
             <span class="ident">destination</span>,
             <span class="ident">mode</span>,
             <span class="ident">purpose</span>,
@@ -680,23 +678,17 @@
 
             <span class="kw">let</span> (<span class="ident">vehicle_specs</span>, <span class="ident">cars_initially_parked_at</span>, <span class="ident">vehicle_foreach_trip</span>) <span class="op">=</span>
                 <span class="ident">p</span>.<span class="ident">get_vehicles</span>(<span class="ident">rng</span>);
-            <span class="kw">let</span> <span class="ident">person</span> <span class="op">=</span> <span class="ident">sim</span>.<span class="ident">new_person</span>(
-                <span class="ident">p</span>.<span class="ident">orig_id</span>,
-                <span class="ident">p</span>.<span class="ident">origin</span>,
-                <span class="ident">Scenario</span>::<span class="ident">rand_ped_speed</span>(<span class="ident">rng</span>),
-                <span class="ident">vehicle_specs</span>,
-            );
+            <span class="kw">let</span> <span class="ident">person</span> <span class="op">=</span> <span class="ident">sim</span>.<span class="ident">new_person</span>(<span class="ident">p</span>.<span class="ident">orig_id</span>, <span class="ident">Scenario</span>::<span class="ident">rand_ped_speed</span>(<span class="ident">rng</span>), <span class="ident">vehicle_specs</span>);
             <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">b</span>) <span class="kw">in</span> <span class="ident">cars_initially_parked_at</span> {
                 <span class="ident">parked_cars</span>.<span class="ident">push</span>((<span class="ident">person</span>.<span class="ident">vehicles</span>[<span class="ident">idx</span>].<span class="ident">clone</span>(), <span class="ident">b</span>));
             }
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">from</span> <span class="op">=</span> <span class="ident">p</span>.<span class="ident">origin</span>;
             <span class="kw">for</span> (<span class="ident">trip</span>, <span class="ident">maybe_idx</span>) <span class="kw">in</span> <span class="ident">p</span>.<span class="ident">trips</span>.<span class="ident">iter</span>().<span class="ident">zip</span>(<span class="ident">vehicle_foreach_trip</span>) {
                 <span class="ident">schedule_trips</span>.<span class="ident">push</span>((
                     <span class="ident">person</span>.<span class="ident">id</span>,
                     <span class="ident">TripInfo</span> {
                         <span class="ident">departure</span>: <span class="ident">trip</span>.<span class="ident">depart</span>,
                         <span class="ident">mode</span>: <span class="ident">trip</span>.<span class="ident">mode</span>,
-                        <span class="ident">start</span>: <span class="ident">from</span>,
+                        <span class="ident">start</span>: <span class="ident">trip</span>.<span class="ident">origin</span>,
                         <span class="ident">end</span>: <span class="ident">trip</span>.<span class="ident">destination</span>,
                         <span class="ident">purpose</span>: <span class="ident">trip</span>.<span class="ident">purpose</span>,
                         <span class="ident">modified</span>: <span class="ident">trip</span>.<span class="ident">modified</span>,
@@ -712,7 +704,6 @@
                         <span class="ident">use_vehicle</span>: <span class="ident">maybe_idx</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">idx</span><span class="op">|</span> <span class="ident">person</span>.<span class="ident">vehicles</span>[<span class="ident">idx</span>].<span class="ident">id</span>),
                     },
                 ));
-                <span class="ident">from</span> <span class="op">=</span> <span class="ident">trip</span>.<span class="ident">destination</span>;
             }
         }
 
@@ -944,18 +935,19 @@
                     <span class="ident">pair</span>[<span class="number">1</span>].<span class="ident">depart</span>
                 );
             }
-        }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">endpts</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="self">self</span>.<span class="ident">origin</span>];
-        <span class="kw">for</span> <span class="ident">t</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">trips</span> {
-            <span class="ident">endpts</span>.<span class="ident">push</span>(<span class="ident">t</span>.<span class="ident">destination</span>);
-        }
-        <span class="kw">for</span> <span class="ident">pair</span> <span class="kw">in</span> <span class="ident">endpts</span>.<span class="ident">windows</span>(<span class="number">2</span>) {
-            <span class="kw">if</span> <span class="ident">pair</span>[<span class="number">0</span>] <span class="op">=</span><span class="op">=</span> <span class="ident">pair</span>[<span class="number">1</span>] {
+            <span class="kw">if</span> <span class="ident">pair</span>[<span class="number">0</span>].<span class="ident">destination</span> <span class="op">!</span><span class="op">=</span> <span class="ident">pair</span>[<span class="number">1</span>].<span class="ident">origin</span> {
+                <span class="comment">// Exiting one border and re-entering another is fine</span>
+                <span class="kw">if</span> <span class="macro">matches</span><span class="macro">!</span>(<span class="ident">pair</span>[<span class="number">0</span>].<span class="ident">destination</span>, <span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="kw">_</span>))
+                    <span class="op">&amp;&amp;</span> <span class="macro">matches</span><span class="macro">!</span>(<span class="ident">pair</span>[<span class="number">1</span>].<span class="ident">origin</span>, <span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="kw">_</span>))
+                {
+                    <span class="kw">continue</span>;
+                }
                 <span class="macro">bail</span><span class="macro">!</span>(
-                    <span class="string">&quot;Person ({:?}) has two adjacent trips between the same place: {:?}&quot;</span>,
+                    <span class="string">&quot;Person ({:?}) warps from {:?} to {:?} during adjacent trips&quot;</span>,
                     <span class="self">self</span>.<span class="ident">orig_id</span>,
-                    <span class="ident">pair</span>[<span class="number">0</span>]
+                    <span class="ident">pair</span>[<span class="number">0</span>].<span class="ident">destination</span>,
+                    <span class="ident">pair</span>[<span class="number">1</span>].<span class="ident">origin</span>
                 );
             }
         }
@@ -980,7 +972,6 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">car_locations</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">usize</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BuildingID</span><span class="op">&gt;</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
 
         <span class="comment">// TODO If the trip is cancelled, this should be affected...</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">from</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">origin</span>;
         <span class="kw">for</span> <span class="ident">trip</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">trips</span> {
             <span class="kw">let</span> <span class="ident">use_for_trip</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">trip</span>.<span class="ident">mode</span> {
                 <span class="ident">TripMode</span>::<span class="ident">Walk</span> <span class="op">|</span> <span class="ident">TripMode</span>::<span class="ident">Transit</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
@@ -992,7 +983,7 @@
                     <span class="ident">bike_idx</span>
                 }
                 <span class="ident">TripMode</span>::<span class="ident">Drive</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">let</span> <span class="ident">need_parked_at</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">from</span> {
+                    <span class="kw">let</span> <span class="ident">need_parked_at</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">trip</span>.<span class="ident">origin</span> {
                         <span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="ident">b</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">b</span>),
                         <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
                     };
@@ -1028,7 +1019,6 @@
                     <span class="prelude-val">Some</span>(<span class="ident">idx</span>)
                 }
             };
-            <span class="ident">from</span> <span class="op">=</span> <span class="ident">trip</span>.<span class="ident">destination</span>;
             <span class="ident">vehicle_foreach_trip</span>.<span class="ident">push</span>(<span class="ident">use_for_trip</span>);
         }
 

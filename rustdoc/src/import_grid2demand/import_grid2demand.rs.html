@@ -155,9 +155,9 @@
         <span class="comment">// For each row in the CSV file, create a person who takes a single trip from the origin to</span>
         <span class="comment">// the destination. They do not take a later trip to return home.</span>
         <span class="ident">people</span>.<span class="ident">push</span>(<span class="ident">ExternalPerson</span> {
-            <span class="ident">origin</span>: <span class="ident">ExternalTripEndpoint</span>::<span class="ident">Position</span>(<span class="ident">origin</span>),
             <span class="ident">trips</span>: <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">ExternalTrip</span> {
                 <span class="ident">departure</span>,
+                <span class="ident">origin</span>: <span class="ident">ExternalTripEndpoint</span>::<span class="ident">Position</span>(<span class="ident">origin</span>),
                 <span class="ident">destination</span>: <span class="ident">ExternalTripEndpoint</span>::<span class="ident">Position</span>(<span class="ident">destination</span>),
                 <span class="ident">mode</span>,
                 <span class="ident">purpose</span>: <span class="ident">TripPurpose</span>::<span class="ident">Work</span>,

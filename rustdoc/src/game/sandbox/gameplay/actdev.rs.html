@@ -293,6 +293,7 @@
 <span id="290">290</span>
 <span id="291">291</span>
 <span id="292">292</span>
+<span id="293">293</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 
@@ -364,7 +365,8 @@
                     .<span class="ident">polygon</span>;
 
                 <span class="kw">for</span> <span class="ident">person</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_all_people</span>() {
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="ident">b</span>) <span class="op">=</span> <span class="ident">person</span>.<span class="ident">home</span> {
+                    <span class="kw">if</span> <span class="kw">let</span> <span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="ident">b</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">trip_info</span>(<span class="ident">person</span>.<span class="ident">trips</span>[<span class="number">0</span>]).<span class="ident">start</span>
+                    {
                         <span class="kw">if</span> <span class="ident">study_area</span>.<span class="ident">contains_pt</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">b</span>).<span class="ident">polygon</span>.<span class="ident">center</span>()) {
                             <span class="ident">highlight</span>.<span class="ident">insert</span>(<span class="ident">person</span>.<span class="ident">id</span>);
                         }

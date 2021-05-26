@@ -411,10 +411,10 @@
                     <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">spinner</span>(<span class="string">&quot;number&quot;</span>) {
                         <span class="ident">scenario</span>.<span class="ident">people</span>.<span class="ident">push</span>(<span class="ident">PersonSpec</span> {
                             <span class="ident">orig_id</span>: <span class="prelude-val">None</span>,
-                            <span class="ident">origin</span>: <span class="ident">from</span>,
                             <span class="ident">trips</span>: <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">IndividTrip</span>::<span class="ident">new</span>(
                                 <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>(),
                                 <span class="ident">TripPurpose</span>::<span class="ident">Shopping</span>,
+                                <span class="ident">from</span>,
                                 <span class="ident">to</span>,
                                 <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">dropdown_value</span>(<span class="string">&quot;mode&quot;</span>),
                             )],

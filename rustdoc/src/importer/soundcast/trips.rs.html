@@ -244,10 +244,6 @@
 <span id="241">241</span>
 <span id="242">242</span>
 <span id="243">243</span>
-<span id="244">244</span>
-<span id="245">245</span>
-<span id="246">246</span>
-<span id="247">247</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashMap</span>;
 
@@ -430,21 +426,18 @@
     <span class="ident">huge_map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
     <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Scenario</span> {
-    <span class="comment">// Include the origin with each trip</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">individ_trips</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">TripEndpoint</span>, <span class="ident">IndividTrip</span>)<span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">individ_trips</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">IndividTrip</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
     <span class="comment">// person -&gt; (trip seq, index into individ_trips)</span>
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">trips_per_person</span>: <span class="ident">MultiMap</span><span class="op">&lt;</span><span class="ident">OrigPersonID</span>, ((<span class="ident">usize</span>, <span class="ident">bool</span>, <span class="ident">usize</span>), <span class="ident">usize</span>)<span class="op">&gt;</span> <span class="op">=</span>
         <span class="ident">MultiMap</span>::<span class="ident">new</span>();
     <span class="kw">for</span> <span class="ident">trip</span> <span class="kw">in</span> <span class="ident">clip_trips</span>(<span class="ident">map</span>, <span class="ident">popdat</span>, <span class="ident">huge_map</span>, <span class="ident">timer</span>) {
         <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="ident">individ_trips</span>.<span class="ident">len</span>();
-        <span class="ident">individ_trips</span>.<span class="ident">push</span>(<span class="prelude-val">Some</span>((
+        <span class="ident">individ_trips</span>.<span class="ident">push</span>(<span class="prelude-val">Some</span>(<span class="ident">IndividTrip</span>::<span class="ident">new</span>(
+            <span class="ident">trip</span>.<span class="ident">orig</span>.<span class="ident">depart_at</span>,
+            <span class="ident">trip</span>.<span class="ident">orig</span>.<span class="ident">purpose</span>,
             <span class="ident">trip</span>.<span class="ident">from</span>,
-            <span class="ident">IndividTrip</span>::<span class="ident">new</span>(
-                <span class="ident">trip</span>.<span class="ident">orig</span>.<span class="ident">depart_at</span>,
-                <span class="ident">trip</span>.<span class="ident">orig</span>.<span class="ident">purpose</span>,
-                <span class="ident">trip</span>.<span class="ident">to</span>,
-                <span class="ident">trip</span>.<span class="ident">orig</span>.<span class="ident">mode</span>,
-            ),
+            <span class="ident">trip</span>.<span class="ident">to</span>,
+            <span class="ident">trip</span>.<span class="ident">orig</span>.<span class="ident">mode</span>,
         )));
         <span class="ident">trips_per_person</span>.<span class="ident">insert</span>(<span class="ident">trip</span>.<span class="ident">orig</span>.<span class="ident">person</span>, (<span class="ident">trip</span>.<span class="ident">orig</span>.<span class="ident">seq</span>, <span class="ident">idx</span>));
     }
@@ -456,17 +449,17 @@
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">people</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
     <span class="kw">for</span> (<span class="ident">orig_id</span>, <span class="ident">seq_trips</span>) <span class="kw">in</span> <span class="ident">trips_per_person</span>.<span class="ident">consume</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pairs</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">trips</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
         <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">idx</span>) <span class="kw">in</span> <span class="ident">seq_trips</span> {
-            <span class="ident">pairs</span>.<span class="ident">push</span>(<span class="ident">individ_trips</span>[<span class="ident">idx</span>].<span class="ident">take</span>().<span class="ident">unwrap</span>());
+            <span class="ident">trips</span>.<span class="ident">push</span>(<span class="ident">individ_trips</span>[<span class="ident">idx</span>].<span class="ident">take</span>().<span class="ident">unwrap</span>());
         }
         <span class="comment">// Actually, the sequence in the Soundcast dataset crosses midnight. Don&#39;t do that; sort by</span>
         <span class="comment">// departure time starting with midnight.</span>
-        <span class="ident">pairs</span>.<span class="ident">sort_by_key</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">t</span>)<span class="op">|</span> <span class="ident">t</span>.<span class="ident">depart</span>);
+        <span class="ident">trips</span>.<span class="ident">sort_by_key</span>(<span class="op">|</span><span class="ident">t</span><span class="op">|</span> <span class="ident">t</span>.<span class="ident">depart</span>);
         <span class="comment">// Sanity check that endpoints match up</span>
-        <span class="kw">for</span> <span class="ident">pair</span> <span class="kw">in</span> <span class="ident">pairs</span>.<span class="ident">windows</span>(<span class="number">2</span>) {
-            <span class="kw">let</span> <span class="ident">destination</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">pair</span>[<span class="number">0</span>].<span class="number">1</span>.<span class="ident">destination</span>;
-            <span class="kw">let</span> <span class="ident">origin</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">pair</span>[<span class="number">1</span>].<span class="number">0</span>;
+        <span class="kw">for</span> <span class="ident">pair</span> <span class="kw">in</span> <span class="ident">trips</span>.<span class="ident">windows</span>(<span class="number">2</span>) {
+            <span class="kw">let</span> <span class="ident">destination</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">pair</span>[<span class="number">0</span>].<span class="ident">destination</span>;
+            <span class="kw">let</span> <span class="ident">origin</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">pair</span>[<span class="number">1</span>].<span class="ident">origin</span>;
             <span class="kw">if</span> <span class="ident">destination</span> <span class="op">!</span><span class="op">=</span> <span class="ident">origin</span> {
                 <span class="macro">warn</span><span class="macro">!</span>(
                     <span class="string">&quot;Skipping {:?}, with adjacent trips that warp from {:?} to {:?}&quot;</span>,
@@ -478,8 +471,7 @@
 
         <span class="ident">people</span>.<span class="ident">push</span>(<span class="ident">PersonSpec</span> {
             <span class="ident">orig_id</span>: <span class="prelude-val">Some</span>(<span class="ident">orig_id</span>),
-            <span class="ident">origin</span>: <span class="ident">pairs</span>[<span class="number">0</span>].<span class="number">0</span>,
-            <span class="ident">trips</span>: <span class="ident">pairs</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">t</span>)<span class="op">|</span> <span class="ident">t</span>).<span class="ident">collect</span>(),
+            <span class="ident">trips</span>,
         });
     }
     <span class="kw">for</span> <span class="ident">maybe_t</span> <span class="kw">in</span> <span class="ident">individ_trips</span> {
