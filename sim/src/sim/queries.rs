@@ -322,6 +322,9 @@ impl Sim {
 
     pub fn get_end_of_day(&self) -> Time {
         // Always count at least 24 hours
+        // TODO This should be min()? Also, the end of the day will keep shifting every time we run
+        // this query, since the trips near the end of the day will schedule more events as they
+        // progress.
         self.scheduler
             .get_last_time()
             .max(Time::START_OF_DAY + Duration::hours(24))

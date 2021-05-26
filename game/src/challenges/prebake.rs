@@ -1,6 +1,6 @@
 use abstio::MapName;
 use abstutil::{prettyprint_usize, Timer};
-use geom::Time;
+use geom::{Duration, Time};
 use map_model::Map;
 use sim::{AlertHandler, Scenario, Sim, SimFlags, SimOptions};
 
@@ -71,30 +71,30 @@ fn prebake(map: &Map, scenario: Scenario, opts: Option<SimOptions>, timer: &mut 
     // Bit of an abuse of this, but just need to fix the rng seed.
     let mut rng = SimFlags::for_test("prebaked").make_rng();
     scenario.instantiate(&mut sim, &map, &mut rng, timer);
+
+    // Run until a few hours after the end of the day. Some trips start close to midnight, and we
+    // want prebaked data for them too.
     sim.timed_step(
         &map,
-        sim.get_end_of_day() - Time::START_OF_DAY,
+        sim.get_end_of_day() - Time::START_OF_DAY + Duration::hours(3),
         &mut None,
         timer,
     );
-
     abstio::write_binary(
         abstio::path_prebaked_results(&scenario.map_name, &scenario.scenario_name),
         sim.get_analytics(),
     );
-    let agents_left = sim.num_agents().sum();
-    info!("{} agents left by end of day", agents_left);
+    if !sim.is_done() {
+        panic!(
+            "It's {} and there are still {} agents left in {}. Gridlock likely...",
+            sim.time(),
+            prettyprint_usize(sim.num_agents().sum()),
+            scenario.map_name.describe()
+        );
+    }
     timer.stop(format!(
         "prebake for {} / {}",
         scenario.map_name.describe(),
         scenario.scenario_name
     ));
-
-    if agents_left > 500 {
-        panic!(
-            "{} agents left by end of day on {}; gridlock may be likely",
-            prettyprint_usize(agents_left),
-            scenario.map_name.describe()
-        );
-    }
 }
