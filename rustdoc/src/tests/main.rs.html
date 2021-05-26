@@ -467,7 +467,7 @@
     <span class="comment">// This time limit was determined by watching the scenario manually. This test prevents the</span>
     <span class="comment">// time from regressing, which would probably indicate something breaking related to lane</span>
     <span class="comment">// selection.</span>
-    <span class="kw">let</span> <span class="ident">limit</span> <span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">minutes</span>(<span class="number">8</span>) <span class="op">+</span> <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="number">10.0</span>);
+    <span class="kw">let</span> <span class="ident">limit</span> <span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">minutes</span>(<span class="number">8</span>) <span class="op">+</span> <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="number">40.0</span>);
     <span class="kw">if</span> <span class="ident">sim</span>.<span class="ident">time</span>() <span class="op">&gt;</span> <span class="ident">Time</span>::<span class="ident">START_OF_DAY</span> <span class="op">+</span> <span class="ident">limit</span> {
         <span class="macro">panic</span><span class="macro">!</span>(
             <span class="string">&quot;Lane-changing scenario took {} to complete; it should be under {}&quot;</span>,

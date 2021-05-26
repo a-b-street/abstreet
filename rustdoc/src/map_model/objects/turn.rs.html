@@ -399,6 +399,50 @@
 <span id="396">396</span>
 <span id="397">397</span>
 <span id="398">398</span>
+<span id="399">399</span>
+<span id="400">400</span>
+<span id="401">401</span>
+<span id="402">402</span>
+<span id="403">403</span>
+<span id="404">404</span>
+<span id="405">405</span>
+<span id="406">406</span>
+<span id="407">407</span>
+<span id="408">408</span>
+<span id="409">409</span>
+<span id="410">410</span>
+<span id="411">411</span>
+<span id="412">412</span>
+<span id="413">413</span>
+<span id="414">414</span>
+<span id="415">415</span>
+<span id="416">416</span>
+<span id="417">417</span>
+<span id="418">418</span>
+<span id="419">419</span>
+<span id="420">420</span>
+<span id="421">421</span>
+<span id="422">422</span>
+<span id="423">423</span>
+<span id="424">424</span>
+<span id="425">425</span>
+<span id="426">426</span>
+<span id="427">427</span>
+<span id="428">428</span>
+<span id="429">429</span>
+<span id="430">430</span>
+<span id="431">431</span>
+<span id="432">432</span>
+<span id="433">433</span>
+<span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
@@ -409,7 +453,8 @@
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">MultiMap</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">Distance</span>, <span class="ident">PolyLine</span>, <span class="ident">Pt2D</span>};
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">DirectedRoadID</span>, <span class="ident">Direction</span>, <span class="ident">IntersectionID</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">raw</span>::<span class="ident">RestrictionType</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">DirectedRoadID</span>, <span class="ident">Direction</span>, <span class="ident">Intersection</span>, <span class="ident">IntersectionID</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>};
 
 <span class="doccomment">/// Turns are uniquely identified by their (src, dst) lanes and their parent intersection.</span>
 <span class="doccomment">/// Intersection is needed to distinguish crosswalks that exist at two ends of a sidewalk.</span>
@@ -580,6 +625,49 @@
             <span class="kw">let</span> <span class="ident">rank</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>).<span class="ident">get_rank</span>();
             <span class="ident">rank</span> <span class="op">=</span><span class="op">=</span> <span class="ident">RoadRank</span>::<span class="ident">Arterial</span> <span class="op">|</span><span class="op">|</span> <span class="ident">rank</span> <span class="op">=</span><span class="op">=</span> <span class="ident">RoadRank</span>::<span class="ident">Highway</span>
         })
+    }
+
+    <span class="doccomment">/// Is this turn legal, according to turn lane tagging?</span>
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">permitted_by_lane</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">types</span>) <span class="op">=</span> <span class="ident">map</span>
+            .<span class="ident">get_l</span>(<span class="self">self</span>.<span class="ident">id</span>.<span class="ident">src</span>)
+            .<span class="ident">get_lane_level_turn_restrictions</span>(<span class="ident">map</span>.<span class="ident">get_parent</span>(<span class="self">self</span>.<span class="ident">id</span>.<span class="ident">src</span>))
+        {
+            <span class="ident">types</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">turn_type</span>)
+        } <span class="kw">else</span> {
+            <span class="bool-val">true</span>
+        }
+    }
+
+    <span class="doccomment">/// Is this turn legal, according to turn restrictions defined between road segments?</span>
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">permitted_by_road</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">Intersection</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">between_sidewalks</span>() {
+            <span class="kw">return</span> <span class="bool-val">true</span>;
+        }
+
+        <span class="kw">let</span> <span class="ident">src</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_parent</span>(<span class="self">self</span>.<span class="ident">id</span>.<span class="ident">src</span>);
+        <span class="kw">let</span> <span class="ident">dst</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="self">self</span>.<span class="ident">id</span>.<span class="ident">dst</span>).<span class="ident">parent</span>;
+
+        <span class="kw">for</span> (<span class="ident">restriction</span>, <span class="ident">to</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">src</span>.<span class="ident">turn_restrictions</span> {
+            <span class="comment">// The restriction only applies to one direction of the road.</span>
+            <span class="kw">if</span> <span class="op">!</span><span class="ident">i</span>.<span class="ident">roads</span>.<span class="ident">contains</span>(<span class="ident">to</span>) {
+                <span class="kw">continue</span>;
+            }
+            <span class="kw">match</span> <span class="ident">restriction</span> {
+                <span class="ident">RestrictionType</span>::<span class="ident">BanTurns</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="kw">if</span> <span class="ident">dst</span> <span class="op">=</span><span class="op">=</span> <span class="kw-2">*</span><span class="ident">to</span> {
+                        <span class="kw">return</span> <span class="bool-val">false</span>;
+                    }
+                }
+                <span class="ident">RestrictionType</span>::<span class="ident">OnlyAllowTurns</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="kw">if</span> <span class="ident">dst</span> <span class="op">!</span><span class="op">=</span> <span class="kw-2">*</span><span class="ident">to</span> {
+                        <span class="kw">return</span> <span class="bool-val">false</span>;
+                    }
+                }
+            }
+        }
+
+        <span class="bool-val">true</span>
     }
 }
 

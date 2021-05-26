@@ -444,7 +444,7 @@
         ));
     }
 
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">types</span>) <span class="op">=</span> <span class="ident">l</span>.<span class="ident">get_turn_restrictions</span>(<span class="ident">r</span>) {
+    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">types</span>) <span class="op">=</span> <span class="ident">l</span>.<span class="ident">get_lane_level_turn_restrictions</span>(<span class="ident">r</span>) {
         <span class="ident">kv</span>.<span class="ident">push</span>((
             <span class="string">&quot;Turn restrictions&quot;</span>.<span class="ident">to_string</span>(),
             <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">types</span>.<span class="ident">into_iter</span>().<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>()),
