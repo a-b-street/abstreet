@@ -60,7 +60,8 @@ fn add_return_trips(scenario: &mut Scenario, rng: &mut XorShiftRng) {
         person.trips.push(IndividTrip::new(
             depart,
             TripPurpose::Home,
-            person.origin,
+            person.trips[0].destination,
+            person.trips[0].origin,
             person.trips[0].mode,
         ));
         cnt += 1;
@@ -92,7 +93,7 @@ fn add_lunch_trips(scenario: &mut Scenario, map: &Map, rng: &mut XorShiftRng, ti
         timer.next();
         let num_trips = person.trips.len();
         // Only handle people with their final trip going back home.
-        if num_trips <= 1 || person.trips[num_trips - 1].destination != person.origin {
+        if num_trips <= 1 || person.trips[num_trips - 1].destination != person.trips[0].origin {
             continue;
         }
 
@@ -116,12 +117,14 @@ fn add_lunch_trips(scenario: &mut Scenario, map: &Map, rng: &mut XorShiftRng, ti
         person.trips.push(IndividTrip::new(
             depart,
             TripPurpose::Meal,
+            TripEndpoint::Bldg(work),
             TripEndpoint::Bldg(restaurant),
             mode,
         ));
         person.trips.push(IndividTrip::new(
             depart + Duration::minutes(30),
             TripPurpose::Work,
+            TripEndpoint::Bldg(restaurant),
             TripEndpoint::Bldg(work),
             mode,
         ));

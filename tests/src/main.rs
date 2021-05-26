@@ -192,12 +192,12 @@ fn test_lane_changing(map: &Map) -> Result<()> {
     for (idx, (from, to)) in od.into_iter().enumerate() {
         scenario.people.push(PersonSpec {
             orig_id: None,
-            origin: TripEndpoint::Border(from),
             trips: vec![IndividTrip::new(
                 // Space out the spawn times a bit. If a vehicle tries to spawn and something's in
                 // the way, there's a fixed retry time in the simulation that we'll hit.
                 Time::START_OF_DAY + Duration::seconds(idx as f64 - 0.5).max(Duration::ZERO),
                 TripPurpose::Shopping,
+                TripEndpoint::Border(from),
                 TripEndpoint::Border(to),
                 // About half cars, half bikes
                 if idx % 2 == 0 {

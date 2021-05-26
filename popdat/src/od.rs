@@ -87,7 +87,7 @@ pub fn disaggregate(
         for _ in 0..desire.number_commuters {
             // Pick a specific home and workplace. It might be off-map, depending on how much the
             // zone overlaps the map.
-            if let (Some((leave_home, goto_home)), Some((_, goto_work))) = (
+            if let (Some((leave_home, goto_home)), Some((leave_work, goto_work))) = (
                 home_zone.pick_home(desire.mode, map, rng),
                 work_zone.pick_workplace(desire.mode, map, rng),
             ) {
@@ -96,12 +96,18 @@ pub fn disaggregate(
                 let return_home_time = goto_work_time + opts.work_duration.sample(rng);
                 people.push(PersonSpec {
                     orig_id: None,
-                    origin: leave_home,
                     trips: vec![
-                        IndividTrip::new(goto_work_time, TripPurpose::Work, goto_work, desire.mode),
+                        IndividTrip::new(
+                            goto_work_time,
+                            TripPurpose::Work,
+                            leave_home,
+                            goto_work,
+                            desire.mode,
+                        ),
                         IndividTrip::new(
                             return_home_time,
                             TripPurpose::Home,
+                            leave_work,
                             goto_home,
                             desire.mode,
                         ),

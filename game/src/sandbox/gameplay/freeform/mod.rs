@@ -372,13 +372,13 @@ pub fn spawn_agents_around(i: IntersectionID, app: &mut App) {
                 };
                 scenario.people.push(PersonSpec {
                     orig_id: None,
-                    origin: TripEndpoint::SuddenlyAppear(Position::new(
-                        lane.id,
-                        Scenario::rand_dist(&mut rng, Distance::ZERO, lane.length()),
-                    )),
                     trips: vec![IndividTrip::new(
                         app.primary.sim.time(),
                         TripPurpose::Shopping,
+                        TripEndpoint::SuddenlyAppear(Position::new(
+                            lane.id,
+                            Scenario::rand_dist(&mut rng, Distance::ZERO, lane.length()),
+                        )),
                         TripEndpoint::Bldg(map.all_buildings().choose(&mut rng).unwrap().id),
                         mode,
                     )],
@@ -388,13 +388,13 @@ pub fn spawn_agents_around(i: IntersectionID, app: &mut App) {
             for _ in 0..5 {
                 scenario.people.push(PersonSpec {
                     orig_id: None,
-                    origin: TripEndpoint::SuddenlyAppear(Position::new(
-                        lane.id,
-                        Scenario::rand_dist(&mut rng, 0.1 * lane.length(), 0.9 * lane.length()),
-                    )),
                     trips: vec![IndividTrip::new(
                         app.primary.sim.time(),
                         TripPurpose::Shopping,
+                        TripEndpoint::SuddenlyAppear(Position::new(
+                            lane.id,
+                            Scenario::rand_dist(&mut rng, 0.1 * lane.length(), 0.9 * lane.length()),
+                        )),
                         TripEndpoint::Bldg(map.all_buildings().choose(&mut rng).unwrap().id),
                         TripMode::Walk,
                     )],

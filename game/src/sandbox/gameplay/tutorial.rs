@@ -1077,13 +1077,13 @@ impl TutorialState {
                     let mut scenario = Scenario::empty(map, "prank");
                     scenario.people.push(PersonSpec {
                         orig_id: None,
-                        origin: TripEndpoint::SuddenlyAppear(Position::new(
-                            start_lane,
-                            map.get_l(start_lane).length() * 0.8,
-                        )),
                         trips: vec![IndividTrip::new(
                             Time::START_OF_DAY,
                             TripPurpose::Shopping,
+                            TripEndpoint::SuddenlyAppear(Position::new(
+                                start_lane,
+                                map.get_l(start_lane).length() * 0.8,
+                            )),
                             TripEndpoint::Bldg(goal_bldg),
                             TripMode::Drive,
                         )],
@@ -1092,13 +1092,13 @@ impl TutorialState {
                     for _ in 0..map.get_b(goal_bldg).num_parking_spots() {
                         scenario.people.push(PersonSpec {
                             orig_id: None,
-                            origin: TripEndpoint::SuddenlyAppear(Position::new(
-                                lane_near_bldg,
-                                map.get_l(lane_near_bldg).length() / 2.0,
-                            )),
                             trips: vec![IndividTrip::new(
                                 Time::START_OF_DAY,
                                 TripPurpose::Shopping,
+                                TripEndpoint::SuddenlyAppear(Position::new(
+                                    lane_near_bldg,
+                                    map.get_l(lane_near_bldg).length() / 2.0,
+                                )),
                                 TripEndpoint::Bldg(goal_bldg),
                                 TripMode::Drive,
                             )],

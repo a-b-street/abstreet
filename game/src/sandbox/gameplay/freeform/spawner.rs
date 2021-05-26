@@ -102,10 +102,10 @@ impl State<App> for AgentSpawner {
                     for _ in 0..self.panel.spinner("number") {
                         scenario.people.push(PersonSpec {
                             orig_id: None,
-                            origin: from,
                             trips: vec![IndividTrip::new(
                                 app.primary.sim.time(),
                                 TripPurpose::Shopping,
+                                from,
                                 to,
                                 self.panel.dropdown_value("mode"),
                             )],

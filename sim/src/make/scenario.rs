@@ -33,15 +33,16 @@ pub struct Scenario {
 pub struct PersonSpec {
     /// Just used for debugging
     pub orig_id: Option<OrigPersonID>,
-    /// The first trip starts here
-    pub origin: TripEndpoint,
-    /// Each trip starts at the destination of the previous trip
+    /// There must be continuity between trips: each trip starts at the destination of the previous
+    /// trip. In the case of borders, the outbound and inbound border may be different. This means
+    /// that there was some sort of "remote" trip happening outside the map that we don't simulate.
     pub trips: Vec<IndividTrip>,
 }
 
 #[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct IndividTrip {
     pub depart: Time,
+    pub origin: TripEndpoint,
     pub destination: TripEndpoint,
     pub mode: TripMode,
     pub purpose: TripPurpose,
@@ -54,11 +55,13 @@ impl IndividTrip {
     pub fn new(
         depart: Time,
         purpose: TripPurpose,
+        origin: TripEndpoint,
         destination: TripEndpoint,
         mode: TripMode,
     ) -> IndividTrip {
         IndividTrip {
             depart,
+            origin,
             destination,
             mode,
             purpose,
@@ -152,23 +155,17 @@ impl Scenario {
 
             let (vehicle_specs, cars_initially_parked_at, vehicle_foreach_trip) =
                 p.get_vehicles(rng);
-            let person = sim.new_person(
-                p.orig_id,
-                p.origin,
-                Scenario::rand_ped_speed(rng),
-                vehicle_specs,
-            );
+            let person = sim.new_person(p.orig_id, Scenario::rand_ped_speed(rng), vehicle_specs);
             for (idx, b) in cars_initially_parked_at {
                 parked_cars.push((person.vehicles[idx].clone(), b));
             }
-            let mut from = p.origin;
             for (trip, maybe_idx) in p.trips.iter().zip(vehicle_foreach_trip) {
                 schedule_trips.push((
                     person.id,
                     TripInfo {
                         departure: trip.depart,
                         mode: trip.mode,
-                        start: from,
+                        start: trip.origin,
                         end: trip.destination,
                         purpose: trip.purpose,
                         modified: trip.modified,
@@ -184,7 +181,6 @@ impl Scenario {
                         use_vehicle: maybe_idx.map(|idx| person.vehicles[idx].id),
                     },
                 ));
-                from = trip.destination;
             }
         }
 
@@ -416,18 +412,19 @@ impl PersonSpec {
                     pair[1].depart
                 );
             }
-        }
 
-        let mut endpts = vec![self.origin];
-        for t in &self.trips {
-            endpts.push(t.destination);
-        }
-        for pair in endpts.windows(2) {
-            if pair[0] == pair[1] {
+            if pair[0].destination != pair[1].origin {
+                // Exiting one border and re-entering another is fine
+                if matches!(pair[0].destination, TripEndpoint::Border(_))
+                    && matches!(pair[1].origin, TripEndpoint::Border(_))
+                {
+                    continue;
+                }
                 bail!(
-                    "Person ({:?}) has two adjacent trips between the same place: {:?}",
+                    "Person ({:?}) warps from {:?} to {:?} during adjacent trips",
                     self.orig_id,
-                    pair[0]
+                    pair[0].destination,
+                    pair[1].origin
                 );
             }
         }
@@ -452,7 +449,6 @@ impl PersonSpec {
         let mut car_locations: Vec<(usize, Option<BuildingID>)> = Vec::new();
 
         // TODO If the trip is cancelled, this should be affected...
-        let mut from = self.origin;
         for trip in &self.trips {
             let use_for_trip = match trip.mode {
                 TripMode::Walk | TripMode::Transit => None,
@@ -464,7 +460,7 @@ impl PersonSpec {
                     bike_idx
                 }
                 TripMode::Drive => {
-                    let need_parked_at = match from {
+                    let need_parked_at = match trip.origin {
                         TripEndpoint::Bldg(b) => Some(b),
                         _ => None,
                     };
@@ -500,7 +496,6 @@ impl PersonSpec {
                     Some(idx)
                 }
             };
-            from = trip.destination;
             vehicle_foreach_trip.push(use_for_trip);
         }
 

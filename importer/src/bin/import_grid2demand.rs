@@ -54,9 +54,9 @@ fn parse_trips(csv_path: String) -> Result<Vec<ExternalPerson>> {
         // For each row in the CSV file, create a person who takes a single trip from the origin to
         // the destination. They do not take a later trip to return home.
         people.push(ExternalPerson {
-            origin: ExternalTripEndpoint::Position(origin),
             trips: vec![ExternalTrip {
                 departure,
+                origin: ExternalTripEndpoint::Position(origin),
                 destination: ExternalTripEndpoint::Position(destination),
                 mode,
                 purpose: TripPurpose::Work,

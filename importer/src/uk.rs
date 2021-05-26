@@ -98,7 +98,7 @@ pub async fn generate_scenario(
             // Remove people from the scenario we just generated that live in the study area. The
             // data imported using importer/actdev_scenarios.sh already covers them.
             let before = scenario.people.len();
-            scenario.people.retain(|p| match p.origin {
+            scenario.people.retain(|p| match p.trips[0].origin {
                 TripEndpoint::Bldg(b) => !study_area.contains_pt(map.get_b(b).polygon.center()),
                 _ => true,
             });

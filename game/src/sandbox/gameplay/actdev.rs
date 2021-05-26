@@ -68,7 +68,8 @@ impl GameplayState for Actdev {
                     .polygon;
 
                 for person in app.primary.sim.get_all_people() {
-                    if let TripEndpoint::Bldg(b) = person.home {
+                    if let TripEndpoint::Bldg(b) = app.primary.sim.trip_info(person.trips[0]).start
+                    {
                         if study_area.contains_pt(app.primary.map.get_b(b).polygon.center()) {
                             highlight.insert(person.id);
                         }

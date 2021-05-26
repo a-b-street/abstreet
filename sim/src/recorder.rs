@@ -16,7 +16,7 @@ pub(crate) struct TrafficRecorder {
     capture_points: BTreeSet<IntersectionID>,
     // TODO The RNG will determine vehicle length, so this won't be a perfect capture. Hopefully
     // good enough.
-    trips: Vec<(TripEndpoint, IndividTrip)>,
+    trips: Vec<IndividTrip>,
     seen_trips: BTreeSet<TripID>,
 }
 
@@ -40,18 +40,16 @@ impl TrafficRecorder {
                     for step in driving.get_path(*car).unwrap().get_steps() {
                         if let PathStep::Turn(t) = step {
                             if self.capture_points.contains(&t.parent) {
-                                self.trips.push((
+                                self.trips.push(IndividTrip::new(
+                                    time,
+                                    TripPurpose::Shopping,
                                     TripEndpoint::SuddenlyAppear(Position::start(*l)),
-                                    IndividTrip::new(
-                                        time,
-                                        TripPurpose::Shopping,
-                                        TripEndpoint::Border(t.parent),
-                                        if car.vehicle_type == VehicleType::Bike {
-                                            TripMode::Bike
-                                        } else {
-                                            TripMode::Drive
-                                        },
-                                    ),
+                                    TripEndpoint::Border(t.parent),
+                                    if car.vehicle_type == VehicleType::Bike {
+                                        TripMode::Bike
+                                    } else {
+                                        TripMode::Drive
+                                    },
                                 ));
                                 self.seen_trips.insert(*trip);
                                 return;
@@ -69,10 +67,9 @@ impl TrafficRecorder {
 
     pub fn save(mut self, map: &Map) {
         let mut people = Vec::new();
-        for (origin, trip) in self.trips.drain(..) {
+        for trip in self.trips.drain(..) {
             people.push(PersonSpec {
                 orig_id: None,
-                origin,
                 trips: vec![trip],
             });
         }

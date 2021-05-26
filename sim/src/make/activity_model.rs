@@ -272,10 +272,9 @@ fn create_prole(
 
     Ok(PersonSpec {
         orig_id: None,
-        origin: home,
         trips: vec![
-            IndividTrip::new(depart_am, TripPurpose::Work, work, mode),
-            IndividTrip::new(depart_pm, TripPurpose::Home, home, mode),
+            IndividTrip::new(depart_am, TripPurpose::Work, home, work, mode),
+            IndividTrip::new(depart_pm, TripPurpose::Home, work, home, mode),
         ],
     })
 }

@@ -60,7 +60,6 @@ impl TripManager {
     pub fn new_person(
         &mut self,
         orig_id: Option<OrigPersonID>,
-        home: TripEndpoint,
         ped_speed: Speed,
         vehicle_specs: Vec<VehicleSpec>,
     ) -> &Person {
@@ -78,7 +77,6 @@ impl TripManager {
         self.people.push(Person {
             id,
             orig_id,
-            home,
             trips: Vec::new(),
             // The first new_trip will set this properly.
             state: PersonState::OffMap,
@@ -1341,7 +1339,6 @@ impl TripManager {
         for p in &self.people {
             scenario.people.push(PersonSpec {
                 orig_id: p.orig_id,
-                origin: self.trips[p.trips[0].0].info.start,
                 trips: p
                     .trips
                     .iter()
@@ -1350,6 +1347,7 @@ impl TripManager {
                         IndividTrip::new(
                             trip.info.departure,
                             trip.info.purpose,
+                            trip.info.start,
                             trip.info.end,
                             trip.info.mode,
                         )
@@ -1511,7 +1509,6 @@ impl<T> TripResult<T> {
 pub struct Person {
     pub id: PersonID,
     pub orig_id: Option<OrigPersonID>,
-    pub home: TripEndpoint,
     pub trips: Vec<TripID>,
     pub state: PersonState,
 

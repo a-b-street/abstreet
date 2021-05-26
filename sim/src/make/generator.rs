@@ -163,10 +163,10 @@ impl SpawnOverTime {
         };
         scenario.people.push(PersonSpec {
             orig_id: None,
-            origin: TripEndpoint::Bldg(from_bldg),
             trips: vec![IndividTrip::new(
                 depart,
                 TripPurpose::Shopping,
+                TripEndpoint::Bldg(from_bldg),
                 self.goal.unwrap_or_else(|| {
                     TripEndpoint::Bldg(map.all_buildings().choose(rng).unwrap().id)
                 }),
@@ -181,10 +181,10 @@ impl BorderSpawnOverTime {
         let depart = rand_time(rng, self.start_time, self.stop_time);
         scenario.people.push(PersonSpec {
             orig_id: None,
-            origin: TripEndpoint::Border(self.start_from_border),
             trips: vec![IndividTrip::new(
                 depart,
                 TripPurpose::Shopping,
+                TripEndpoint::Border(self.start_from_border),
                 self.goal.unwrap_or_else(|| {
                     TripEndpoint::Bldg(map.all_buildings().choose(rng).unwrap().id)
                 }),

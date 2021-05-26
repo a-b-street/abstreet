@@ -11,13 +11,13 @@ use crate::{IndividTrip, PersonSpec, TripEndpoint, TripMode, TripPurpose};
 
 #[derive(Deserialize)]
 pub struct ExternalPerson {
-    pub origin: ExternalTripEndpoint,
     pub trips: Vec<ExternalTrip>,
 }
 
 #[derive(Deserialize)]
 pub struct ExternalTrip {
     pub departure: Time,
+    pub origin: ExternalTripEndpoint,
     pub destination: ExternalTripEndpoint,
     pub mode: TripMode,
     pub purpose: TripPurpose,
@@ -74,25 +74,23 @@ impl ExternalPerson {
         for person in input {
             let mut spec = PersonSpec {
                 orig_id: None,
-                origin: match lookup_pt(person.origin, true, person.trips[0].mode) {
-                    Ok(endpt) => endpt,
-                    Err(err) => {
-                        if skip_problems {
-                            warn!("Skipping person: {}", err);
-                            continue;
-                        } else {
-                            return Err(err);
-                        }
-                    }
-                },
                 trips: Vec::new(),
             };
             for trip in person.trips {
                 spec.trips.push(IndividTrip::new(
                     trip.departure,
                     trip.purpose,
-                    // TODO Do we handle somebody going off-map via one one-way bridge, and
-                    // re-entering using the other?
+                    match lookup_pt(trip.origin, true, trip.mode) {
+                        Ok(endpt) => endpt,
+                        Err(err) => {
+                            if skip_problems {
+                                warn!("Skipping person: {}", err);
+                                continue;
+                            } else {
+                                return Err(err);
+                            }
+                        }
+                    },
                     match lookup_pt(trip.destination, false, trip.mode) {
                         Ok(endpt) => endpt,
                         Err(err) => {

@@ -184,7 +184,6 @@ impl PersonFactory {
 
         let mut output = PersonSpec {
             orig_id: None,
-            origin: TripEndpoint::Bldg(person.home),
             trips: Vec::new(),
         };
 
@@ -204,9 +203,13 @@ impl PersonFactory {
             };
 
             let mode = pick_mode(current_location, goto, map, rng, config);
-            output
-                .trips
-                .push(IndividTrip::new(departure_time, purpose, goto, mode));
+            output.trips.push(IndividTrip::new(
+                departure_time,
+                purpose,
+                current_location,
+                goto,
+                mode,
+            ));
 
             current_location = goto;
         }
