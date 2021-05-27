@@ -16,6 +16,11 @@ if [ "$EXPERIMENT_TAG" == "" ]; then
 	exit 1;
 fi
 
+if [ "$2" != "gcs_sync_done" ]; then
+	echo First go sync dev/data/input from S3 to GCS. https://console.cloud.google.com/transfer/cloud/jobs
+	exit 1;
+fi
+
 NUM_WORKERS=10
 ZONE=us-east1-b
 # See other options: https://cloud.google.com/compute/docs/machine-types

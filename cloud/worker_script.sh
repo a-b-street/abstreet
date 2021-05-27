@@ -25,9 +25,12 @@ cd worker_payload
 mv .aws ~/
 
 # If we import without raw files, we'd wind up downloading fresh OSM data!
-# Reuse what's in S3. We could use the updater, but probably aws sync is
-# faster.
-aws s3 sync s3://abstreet/dev/data/input data/input/
+# Reuse what's in S3. But having a bunch of GCE VMs grab from S3 is expensive,
+# so instead, sync from the GCS mirror that I manually update before each job.
+gsutil -m cp -r gs://abstreet-importer/ .
+mv abstreet-importer/dev/data/input data/input
+rmdir abstreet-importer/dev
+rmdir abstreet-importer
 find data/input -name '*.gz' -print -exec gunzip '{}' ';'
 
 # Set up Docker, for the elevation data
