@@ -37,8 +37,19 @@ pub fn make_all_turns(map: &Map, i: &Intersection) -> Vec<Turn> {
     if i.merged {
         filtered_turns.retain(|turn| {
             if turn.turn_type == TurnType::UTurn {
-                warn!("Removing u-turn from merged intersection: {}", turn.id);
-                false
+                let src_lane = map.get_l(turn.id.src);
+                // U-turns at divided highways are sometimes legal (and a common movement --
+                // https://www.openstreetmap.org/way/361443212), so let OSM turn:lanes override.
+                if src_lane
+                    .get_lane_level_turn_restrictions(map.get_r(src_lane.parent), false)
+                    .map(|set| !set.contains(&TurnType::UTurn))
+                    .unwrap_or(true)
+                {
+                    warn!("Removing u-turn from merged intersection: {}", turn.id);
+                    false
+                } else {
+                    true
+                }
             } else {
                 true
             }
