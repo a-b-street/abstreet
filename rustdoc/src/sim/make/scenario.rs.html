@@ -520,6 +520,16 @@
 <span id="517">517</span>
 <span id="518">518</span>
 <span id="519">519</span>
+<span id="520">520</span>
+<span id="521">521</span>
+<span id="522">522</span>
+<span id="523">523</span>
+<span id="524">524</span>
+<span id="525">525</span>
+<span id="526">526</span>
+<span id="527">527</span>
+<span id="528">528</span>
+<span id="529">529</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashSet</span>, <span class="ident">VecDeque</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
@@ -948,6 +958,16 @@
                     <span class="self">self</span>.<span class="ident">orig_id</span>,
                     <span class="ident">pair</span>[<span class="number">0</span>].<span class="ident">destination</span>,
                     <span class="ident">pair</span>[<span class="number">1</span>].<span class="ident">origin</span>
+                );
+            }
+        }
+
+        <span class="kw">for</span> <span class="ident">trip</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">trips</span> {
+            <span class="kw">if</span> <span class="ident">trip</span>.<span class="ident">origin</span> <span class="op">=</span><span class="op">=</span> <span class="ident">trip</span>.<span class="ident">destination</span> {
+                <span class="macro">bail</span><span class="macro">!</span>(
+                    <span class="string">&quot;Person ({:?}) has a trip from/to the same place: {:?}&quot;</span>,
+                    <span class="self">self</span>.<span class="ident">orig_id</span>,
+                    <span class="ident">trip</span>.<span class="ident">origin</span>
                 );
             }
         }
