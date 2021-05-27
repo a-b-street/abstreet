@@ -429,6 +429,16 @@ impl PersonSpec {
             }
         }
 
+        for trip in &self.trips {
+            if trip.origin == trip.destination {
+                bail!(
+                    "Person ({:?}) has a trip from/to the same place: {:?}",
+                    self.orig_id,
+                    trip.origin
+                );
+            }
+        }
+
         Ok(())
     }
 

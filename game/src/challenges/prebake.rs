@@ -39,21 +39,19 @@ pub fn prebake_all() {
         prebake(&map, scenario, None, &mut timer);
     }
 
-    if false {
-        for &scenario_name in &["base", "go_active", "base_with_bg", "go_active_with_bg"] {
-            let map = map_model::Map::load_synchronously(
-                MapName::new("gb", "poundbury", "center").path(),
-                &mut timer,
-            );
-            let scenario: Scenario = abstio::read_binary(
-                abstio::path_scenario(map.get_name(), scenario_name),
-                &mut timer,
-            );
-            let mut opts = SimOptions::new("prebaked");
-            opts.alerts = AlertHandler::Silence;
-            opts.infinite_parking = true;
-            prebake(&map, scenario, Some(opts), &mut timer);
-        }
+    for &scenario_name in &["base", "go_active", "base_with_bg", "go_active_with_bg"] {
+        let map = map_model::Map::load_synchronously(
+            MapName::new("gb", "poundbury", "center").path(),
+            &mut timer,
+        );
+        let scenario: Scenario = abstio::read_binary(
+            abstio::path_scenario(map.get_name(), scenario_name),
+            &mut timer,
+        );
+        let mut opts = SimOptions::new("prebaked");
+        opts.alerts = AlertHandler::Silence;
+        opts.infinite_parking = true;
+        prebake(&map, scenario, Some(opts), &mut timer);
     }
 }
 
