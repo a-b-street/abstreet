@@ -88,7 +88,7 @@ function create_vms {
 			--boot-disk-type=$DISK_TYPE \
 			--image-family=ubuntu-2004-lts \
 			--image-project=ubuntu-os-cloud \
-			--scopes=compute-rw
+			--scopes=compute-rw,storage-ro
 	done
 
 	# There's a funny history behind the whole "how do I wait for my VM to be

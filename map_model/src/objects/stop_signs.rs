@@ -36,6 +36,7 @@ use crate::{
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct ControlStopSign {
     pub id: IntersectionID,
+    /// Only roads incoming to the intersection are listed here.
     #[serde(
         serialize_with = "serialize_btreemap",
         deserialize_with = "deserialize_btreemap"
@@ -55,8 +56,9 @@ impl ControlStopSign {
             id,
             roads: BTreeMap::new(),
         };
-        for r in &map.get_i(id).roads {
-            let r = map.get_r(*r);
+        // One-way outbound roads don't need a stop sign, so skip them entirely.
+        for r in map.get_i(id).get_sorted_incoming_roads(map) {
+            let r = map.get_r(r);
             let want_dir = if r.dst_i == id {
                 Direction::Fwd
             } else {
@@ -92,9 +94,14 @@ impl ControlStopSign {
         }
 
         // Degenerate roads and deadends don't need any stop signs. But be careful with
-        // counting the number of roads; a roundabout with 3 might only have 2 in ss.roads, because
-        // one is outgoing. Nonetheless, we want to consider stop signs for it.
-        if map.get_i(id).roads.len() <= 2 {
+        // roundabouts; we want it to be lower priority to enter a roundabout than continue through
+        // it.
+        if ss.roads.len() <= 1
+            && ss
+                .roads
+                .keys()
+                .all(|r| !map.get_r(*r).osm_tags.is("junction", "roundabout"))
+        {
             return ss;
         }
         if map.get_i(id).is_cycleway(map) {
@@ -102,9 +109,10 @@ impl ControlStopSign {
             return ss;
         }
 
-        // Rank each road based on OSM highway type, and additionally treat cycleways as lower
-        // priority than local roads. (Sad but typical reality.) Prioritize roundabouts, so they
-        // clear out faster than people enter them.
+        // Rank each road based on OSM highway type, and additionally:
+        // - Treat cycleways as lower priority than local roads (sad but typical reality)
+        // - Prioritize roundabouts, so they clear out faster than people enter them
+        // - Treat on/off ramps with less priority than the main part of the highway
         let mut rank: HashMap<RoadID, (osm::RoadRank, usize)> = HashMap::new();
         for r in ss.roads.keys() {
             let r = map.get_r(*r);
@@ -112,9 +120,16 @@ impl ControlStopSign {
             let priority = if r.is_cycleway() {
                 0
             } else if r.osm_tags.is("junction", "roundabout") {
-                2
-            } else {
+                3
+            } else if r
+                .osm_tags
+                .get("highway")
+                .map(|hwy| hwy.ends_with("_link"))
+                .unwrap_or(false)
+            {
                 1
+            } else {
+                2
             };
             rank.insert(r.id, (r.get_rank(), priority));
         }

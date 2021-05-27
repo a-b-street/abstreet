@@ -29,8 +29,7 @@ mv .aws ~/
 # so instead, sync from the GCS mirror that I manually update before each job.
 gsutil -m cp -r gs://abstreet-importer/ .
 mv abstreet-importer/dev/data/input data/input
-rmdir abstreet-importer/dev
-rmdir abstreet-importer
+rm -rf abstreet-importer
 find data/input -name '*.gz' -print -exec gunzip '{}' ';'
 
 # Set up Docker, for the elevation data
