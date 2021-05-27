@@ -265,7 +265,11 @@ impl Lane {
     /// This will return `None` for bus lanes, unless `force_bus` is true. OSM turn restrictions on
     /// bus lanes usually apply to regular vehicles, not the buses. When generating the turns for
     /// buses, we probably don't want to use the restrictions.
-    pub fn get_lane_level_turn_restrictions(&self, road: &Road, force_bus: bool) -> Option<BTreeSet<TurnType>> {
+    pub fn get_lane_level_turn_restrictions(
+        &self,
+        road: &Road,
+        force_bus: bool,
+    ) -> Option<BTreeSet<TurnType>> {
         if !self.is_driving() && (!force_bus || !self.is_bus()) {
             return None;
         }

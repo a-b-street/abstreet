@@ -70,7 +70,8 @@ impl PathConstraints {
             PathConstraints::Bike => {
                 if lane.is_biking() {
                     true
-                } else if lane.is_driving() || (lane.is_bus() && map.config.bikes_can_use_bus_lanes) {
+                } else if lane.is_driving() || (lane.is_bus() && map.config.bikes_can_use_bus_lanes)
+                {
                     let road = map.get_r(lane.parent);
                     !road.osm_tags.is("bicycle", "no")
                         && !road
@@ -80,8 +81,12 @@ impl PathConstraints {
                     false
                 }
             }
-            PathConstraints::Bus => { return lane.is_driving() || lane.is_bus(); }
-            PathConstraints::Train => { return lane.is_light_rail(); }
+            PathConstraints::Bus => {
+                return lane.is_driving() || lane.is_bus();
+            }
+            PathConstraints::Train => {
+                return lane.is_light_rail();
+            }
         };
         if result {
             return true;
@@ -99,7 +104,8 @@ impl PathConstraints {
         //    practice this isn't an issue; a bus lane often leads to another one, but the next bus
         //    lane won't also be an exclusive turn lane.
         if lane.is_bus() {
-            if let Some(types) = lane.get_lane_level_turn_restrictions(map.get_r(lane.parent), true) {
+            if let Some(types) = lane.get_lane_level_turn_restrictions(map.get_r(lane.parent), true)
+            {
                 if types.contains(&TurnType::Right) || types.contains(&TurnType::Left) {
                     return true;
                 }

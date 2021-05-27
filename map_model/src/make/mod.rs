@@ -20,6 +20,7 @@ use crate::{
 
 mod bridges;
 mod buildings;
+mod collapse_intersections;
 pub mod initial;
 mod medians;
 mod merge_intersections;
@@ -61,6 +62,10 @@ impl Map {
         let merged_intersections =
             merge_intersections::merge_short_roads(&mut raw, opts.consolidate_all_intersections);
         timer.stop("merging short roads");
+
+        timer.start("collapsing degenerate intersections");
+        collapse_intersections::collapse(&mut raw);
+        timer.stop("collapsing degenerate intersections");
 
         timer.start("raw_map to InitialMap");
         let gps_bounds = raw.gps_bounds.clone();
