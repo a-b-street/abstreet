@@ -138,7 +138,7 @@ fn debug_body(ctx: &EventCtx, app: &App, id: LaneID) -> Widget {
         ));
     }
 
-    if let Some(types) = l.get_lane_level_turn_restrictions(r) {
+    if let Some(types) = l.get_lane_level_turn_restrictions(r, false) {
         kv.push((
             "Turn restrictions".to_string(),
             format!("{:?}", types.into_iter().collect::<Vec<_>>()),

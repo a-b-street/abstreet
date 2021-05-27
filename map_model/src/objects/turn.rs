@@ -185,7 +185,7 @@ impl Turn {
     pub(crate) fn permitted_by_lane(&self, map: &Map) -> bool {
         if let Some(types) = map
             .get_l(self.id.src)
-            .get_lane_level_turn_restrictions(map.get_parent(self.id.src))
+            .get_lane_level_turn_restrictions(map.get_parent(self.id.src), false)
         {
             types.contains(&self.turn_type)
         } else {

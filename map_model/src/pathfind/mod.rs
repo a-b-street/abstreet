@@ -12,7 +12,7 @@ pub use self::v1::{Path, PathRequest, PathStep};
 pub use self::v2::{PathStepV2, PathV2};
 pub use self::vehicles::vehicle_cost;
 pub use self::walking::WalkingNode;
-use crate::{osm, Lane, LaneID, LaneType, Map, MovementID};
+use crate::{osm, Lane, LaneID, LaneType, Map, MovementID, TurnType};
 
 mod ch;
 pub mod dijkstra;
@@ -59,15 +59,19 @@ impl PathConstraints {
         }
     }
 
-    pub fn can_use(self, l: &Lane, map: &Map) -> bool {
-        match self {
-            PathConstraints::Pedestrian => l.is_walkable(),
-            PathConstraints::Car => l.is_driving(),
+    /// Can an agent use a lane? There are some subtle exceptions with using bus-only lanes for
+    /// turns.
+    pub fn can_use(self, lane: &Lane, map: &Map) -> bool {
+        let result = match self {
+            PathConstraints::Pedestrian => {
+                return lane.is_walkable();
+            }
+            PathConstraints::Car => lane.is_driving(),
             PathConstraints::Bike => {
-                if l.is_biking() {
+                if lane.is_biking() {
                     true
-                } else if l.is_driving() || (l.is_bus() && map.config.bikes_can_use_bus_lanes) {
-                    let road = map.get_r(l.parent);
+                } else if lane.is_driving() || (lane.is_bus() && map.config.bikes_can_use_bus_lanes) {
+                    let road = map.get_r(lane.parent);
                     !road.osm_tags.is("bicycle", "no")
                         && !road
                             .osm_tags
@@ -76,9 +80,32 @@ impl PathConstraints {
                     false
                 }
             }
-            PathConstraints::Bus => l.is_driving() || l.is_bus(),
-            PathConstraints::Train => l.is_light_rail(),
+            PathConstraints::Bus => { return lane.is_driving() || lane.is_bus(); }
+            PathConstraints::Train => { return lane.is_light_rail(); }
+        };
+        if result {
+            return true;
         }
+        // Second chance for cars and bikes trying to use a bus-only lane that also happens to be a
+        // turn lane.
+        //
+        // TODO This check could be made stricter in two ways:
+        // 1) Verify that the bus-only lanes are the ONLY way to make this movement; if there's a
+        //    general purpose lane that can also turn, we shouldn't allow this.
+        // 2) Verify that the turn->lane->turn sequence is the only way to reach the destination
+        //    road. Since this function operates on a single lane, a vehicle could abuse this to
+        //    stay in the bus lane and go straight, even if there was another lane for that. Fixing
+        //    this is hard, since it requires so much context about the sequence of movements. In
+        //    practice this isn't an issue; a bus lane often leads to another one, but the next bus
+        //    lane won't also be an exclusive turn lane.
+        if lane.is_bus() {
+            if let Some(types) = lane.get_lane_level_turn_restrictions(map.get_r(lane.parent), true) {
+                if types.contains(&TurnType::Right) || types.contains(&TurnType::Left) {
+                    return true;
+                }
+            }
+        }
+        false
     }
 
     /// Strict for bikes. If there are bike lanes, not allowed to use other lanes.
