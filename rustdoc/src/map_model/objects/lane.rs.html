@@ -486,6 +486,14 @@
 <span id="483">483</span>
 <span id="484">484</span>
 <span id="485">485</span>
+<span id="486">486</span>
+<span id="487">487</span>
+<span id="488">488</span>
+<span id="489">489</span>
+<span id="490">490</span>
+<span id="491">491</span>
+<span id="492">492</span>
+<span id="493">493</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
@@ -750,8 +758,16 @@
 
     <span class="doccomment">/// Returns the set of allowed turn types, based on individual turn lane restrictions. `None`</span>
     <span class="doccomment">/// means all turn types are allowed.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_lane_level_turn_restrictions</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">road</span>: <span class="kw-2">&amp;</span><span class="ident">Road</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">TurnType</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">is_driving</span>() {
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This will return `None` for bus lanes, unless `force_bus` is true. OSM turn restrictions on</span>
+    <span class="doccomment">/// bus lanes usually apply to regular vehicles, not the buses. When generating the turns for</span>
+    <span class="doccomment">/// buses, we probably don&#39;t want to use the restrictions.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_lane_level_turn_restrictions</span>(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        <span class="ident">road</span>: <span class="kw-2">&amp;</span><span class="ident">Road</span>,
+        <span class="ident">force_bus</span>: <span class="ident">bool</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">TurnType</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">is_driving</span>() <span class="op">&amp;&amp;</span> (<span class="op">!</span><span class="ident">force_bus</span> <span class="op">|</span><span class="op">|</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">is_bus</span>()) {
             <span class="kw">return</span> <span class="prelude-val">None</span>;
         }
 

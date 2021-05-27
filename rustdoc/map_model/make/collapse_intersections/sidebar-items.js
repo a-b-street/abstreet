@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["collapse","Collapse degenerate intersections between two cycleways."],["collapse_intersection",""],["is_cycleway",""]]});
