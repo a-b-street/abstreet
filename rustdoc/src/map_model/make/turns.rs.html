@@ -417,6 +417,17 @@
 <span id="414">414</span>
 <span id="415">415</span>
 <span id="416">416</span>
+<span id="417">417</span>
+<span id="418">418</span>
+<span id="419">419</span>
+<span id="420">420</span>
+<span id="421">421</span>
+<span id="422">422</span>
+<span id="423">423</span>
+<span id="424">424</span>
+<span id="425">425</span>
+<span id="426">426</span>
+<span id="427">427</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
@@ -457,8 +468,19 @@
     <span class="kw">if</span> <span class="ident">i</span>.<span class="ident">merged</span> {
         <span class="ident">filtered_turns</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="ident">turn</span><span class="op">|</span> {
             <span class="kw">if</span> <span class="ident">turn</span>.<span class="ident">turn_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">TurnType</span>::<span class="ident">UTurn</span> {
-                <span class="macro">warn</span><span class="macro">!</span>(<span class="string">&quot;Removing u-turn from merged intersection: {}&quot;</span>, <span class="ident">turn</span>.<span class="ident">id</span>);
-                <span class="bool-val">false</span>
+                <span class="kw">let</span> <span class="ident">src_lane</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">src</span>);
+                <span class="comment">// U-turns at divided highways are sometimes legal (and a common movement --</span>
+                <span class="comment">// https://www.openstreetmap.org/way/361443212), so let OSM turn:lanes override.</span>
+                <span class="kw">if</span> <span class="ident">src_lane</span>
+                    .<span class="ident">get_lane_level_turn_restrictions</span>(<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">src_lane</span>.<span class="ident">parent</span>), <span class="bool-val">false</span>)
+                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">set</span><span class="op">|</span> <span class="op">!</span><span class="ident">set</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">TurnType</span>::<span class="ident">UTurn</span>))
+                    .<span class="ident">unwrap_or</span>(<span class="bool-val">true</span>)
+                {
+                    <span class="macro">warn</span><span class="macro">!</span>(<span class="string">&quot;Removing u-turn from merged intersection: {}&quot;</span>, <span class="ident">turn</span>.<span class="ident">id</span>);
+                    <span class="bool-val">false</span>
+                } <span class="kw">else</span> {
+                    <span class="bool-val">true</span>
+                }
             } <span class="kw">else</span> {
                 <span class="bool-val">true</span>
             }
