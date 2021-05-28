@@ -324,7 +324,6 @@
 <span id="321">321</span>
 <span id="322">322</span>
 <span id="323">323</span>
-<span id="324">324</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! An activity model creates &quot;people&quot; that follow a set schedule of activities through the day.</span>
 <span class="doccomment">//! Each activity (like shopping, working, sleeping) lasts some time, and requires the person to go</span>
@@ -336,7 +335,7 @@
 <span class="kw">use</span> <span class="ident">rand</span>::<span class="ident">Rng</span>;
 <span class="kw">use</span> <span class="ident">rand_xorshift</span>::<span class="ident">XorShiftRng</span>;
 
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">Parallelism</span>, <span class="ident">Timer</span>};
+<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">Timer</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">BuildingID</span>, <span class="ident">BuildingType</span>, <span class="ident">Map</span>, <span class="ident">PathConstraints</span>, <span class="ident">PathRequest</span>};
 
@@ -499,7 +498,6 @@
             <span class="ident">timer</span>
                 .<span class="ident">parallelize</span>(
                     <span class="string">&quot;create people: making PersonSpec from endpoints&quot;</span>,
-                    <span class="ident">Parallelism</span>::<span class="ident">Fastest</span>,
                     <span class="ident">person_params</span>,
                     <span class="op">|</span>(<span class="ident">home</span>, <span class="ident">work</span>, <span class="kw-2">mut</span> <span class="ident">rng</span>)<span class="op">|</span> <span class="kw">match</span> <span class="ident">create_prole</span>(<span class="ident">home</span>, <span class="ident">work</span>, <span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rng</span>) {
                         <span class="prelude-val">Ok</span>(<span class="ident">person</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">person</span>),

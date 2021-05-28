@@ -460,7 +460,6 @@
 <span id="457">457</span>
 <span id="458">458</span>
 <span id="459">459</span>
-<span id="460">460</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! See &lt;https://a-b-street.github.io/docs/map/importing/index.html&gt; for an overview. This module</span>
 <span class="doccomment">//! covers the RawMap-&gt;Map stage.</span>
@@ -468,7 +467,7 @@
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
 <span class="kw">use</span> <span class="ident">abstio</span>::<span class="ident">MapName</span>;
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">Parallelism</span>, <span class="ident">Tags</span>, <span class="ident">Timer</span>};
+<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">Tags</span>, <span class="ident">Timer</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{
     <span class="ident">Bounds</span>, <span class="ident">Distance</span>, <span class="ident">FindClosest</span>, <span class="ident">GPSBounds</span>, <span class="ident">HashablePt2D</span>, <span class="ident">Line</span>, <span class="ident">Polygon</span>, <span class="ident">Speed</span>, <span class="ident">EPSILON_DIST</span>,
 };
@@ -885,7 +884,6 @@
     <span class="ident">timer</span>
         .<span class="ident">parallelize</span>(
             <span class="string">&quot;find closest lane point&quot;</span>,
-            <span class="ident">Parallelism</span>::<span class="ident">Fastest</span>,
             <span class="ident">pts</span>.<span class="ident">into_iter</span>().<span class="ident">collect</span>(),
             <span class="op">|</span><span class="ident">query_pt</span><span class="op">|</span> {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">l</span>, <span class="ident">pt</span>)) <span class="op">=</span> <span class="ident">closest</span>.<span class="ident">closest_pt</span>(<span class="ident">query_pt</span>.<span class="ident">to_pt2d</span>(), <span class="ident">max_dist_away</span>) {

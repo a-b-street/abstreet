@@ -240,14 +240,10 @@
 <span id="237">237</span>
 <span id="238">238</span>
 <span id="239">239</span>
-<span id="240">240</span>
-<span id="241">241</span>
-<span id="242">242</span>
-<span id="243">243</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashMap</span>;
 
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">MultiMap</span>, <span class="ident">Parallelism</span>, <span class="ident">Timer</span>};
+<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">MultiMap</span>, <span class="ident">Timer</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">LonLat</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">osm</span>, <span class="ident">BuildingID</span>, <span class="ident">IntersectionID</span>, <span class="ident">Map</span>, <span class="ident">PathConstraints</span>, <span class="ident">PathRequest</span>, <span class="ident">PathStep</span>};
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">IndividTrip</span>, <span class="ident">MapBorders</span>, <span class="ident">OrigPersonID</span>, <span class="ident">PersonSpec</span>, <span class="ident">Scenario</span>, <span class="ident">TripEndpoint</span>, <span class="ident">TripMode</span>};
@@ -384,11 +380,8 @@
     <span class="kw">let</span> <span class="ident">borders</span> <span class="op">=</span> <span class="ident">MapBorders</span>::<span class="ident">new</span>(<span class="ident">map</span>);
 
     <span class="kw">let</span> <span class="ident">total_trips</span> <span class="op">=</span> <span class="ident">popdat</span>.<span class="ident">trips</span>.<span class="ident">len</span>();
-    <span class="kw">let</span> <span class="ident">maybe_results</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Trip</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">timer</span>.<span class="ident">parallelize</span>(
-        <span class="string">&quot;clip trips&quot;</span>,
-        <span class="ident">Parallelism</span>::<span class="ident">Polite</span>,
-        <span class="ident">popdat</span>.<span class="ident">trips</span>.<span class="ident">iter</span>().<span class="ident">collect</span>(),
-        <span class="op">|</span><span class="ident">orig</span><span class="op">|</span> {
+    <span class="kw">let</span> <span class="ident">maybe_results</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Trip</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span>
+        <span class="ident">timer</span>.<span class="ident">parallelize_polite</span>(<span class="string">&quot;clip trips&quot;</span>, <span class="ident">popdat</span>.<span class="ident">trips</span>.<span class="ident">iter</span>().<span class="ident">collect</span>(), <span class="op">|</span><span class="ident">orig</span><span class="op">|</span> {
             <span class="kw">let</span> (<span class="ident">from</span>, <span class="ident">to</span>) <span class="op">=</span> <span class="ident">endpoints</span>(
                 <span class="kw-2">&amp;</span><span class="ident">orig</span>.<span class="ident">from</span>,
                 <span class="kw-2">&amp;</span><span class="ident">orig</span>.<span class="ident">to</span>,
@@ -407,8 +400,7 @@
                 <span class="ident">to</span>,
                 <span class="ident">orig</span>: <span class="ident">orig</span>.<span class="ident">clone</span>(),
             })
-        },
-    );
+        });
     <span class="kw">let</span> <span class="ident">trips</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Trip</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">maybe_results</span>.<span class="ident">into_iter</span>().<span class="ident">flatten</span>().<span class="ident">collect</span>();
 
     <span class="macro">info</span><span class="macro">!</span>(

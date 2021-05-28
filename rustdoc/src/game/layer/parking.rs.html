@@ -431,7 +431,7 @@
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">Counter</span>, <span class="ident">Parallelism</span>};
+<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">Counter</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Pt2D</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">render</span>::<span class="ident">unzoomed_agent_radius</span>;
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">tools</span>::{<span class="ident">ColorLegend</span>, <span class="ident">ColorNetwork</span>};
@@ -809,7 +809,7 @@
                 .<span class="ident">collect</span>();
             <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;gather requests&quot;</span>);
             <span class="kw">for</span> (<span class="ident">car_pt</span>, <span class="ident">time</span>) <span class="kw">in</span> <span class="ident">timer</span>
-                .<span class="ident">parallelize</span>(<span class="string">&quot;calculate paths&quot;</span>, <span class="ident">Parallelism</span>::<span class="ident">Fastest</span>, <span class="ident">requests</span>, <span class="op">|</span><span class="ident">req</span><span class="op">|</span> {
+                .<span class="ident">parallelize</span>(<span class="string">&quot;calculate paths&quot;</span>, <span class="ident">requests</span>, <span class="op">|</span><span class="ident">req</span><span class="op">|</span> {
                     <span class="kw">let</span> <span class="ident">car_pt</span> <span class="op">=</span> <span class="ident">req</span>.<span class="ident">start</span>.<span class="ident">pt</span>(<span class="ident">map</span>);
                     <span class="comment">// TODO Walking paths should really return some indication of &quot;zero length</span>
                     <span class="comment">// path&quot; for this</span>

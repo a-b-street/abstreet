@@ -419,7 +419,6 @@
 <span id="416">416</span>
 <span id="417">417</span>
 <span id="418">418</span>
-<span id="419">419</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// TODO Rename -- this is for KML, CSV, GeoJSON</span>
 
@@ -427,7 +426,7 @@
 
 <span class="kw">use</span> <span class="ident">aabb_quadtree</span>::<span class="ident">QuadTree</span>;
 
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">Parallelism</span>, <span class="ident">Timer</span>};
+<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">Timer</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>};
 <span class="kw">use</span> <span class="ident">kml</span>::{<span class="ident">ExtraShape</span>, <span class="ident">ExtraShapes</span>};
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">colors</span>::<span class="ident">ColorScheme</span>;
@@ -665,7 +664,6 @@
     <span class="kw">let</span> <span class="ident">pairs</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Object</span>, <span class="ident">ExtraShape</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">timer</span>
         .<span class="ident">parallelize</span>(
             <span class="string">&quot;convert shapes&quot;</span>,
-            <span class="ident">Parallelism</span>::<span class="ident">Fastest</span>,
             <span class="ident">raw_shapes</span>.<span class="ident">shapes</span>.<span class="ident">into_iter</span>().<span class="ident">enumerate</span>().<span class="ident">collect</span>(),
             <span class="op">|</span>(<span class="ident">idx</span>, <span class="ident">shape</span>)<span class="op">|</span> {
                 <span class="kw">let</span> <span class="ident">pts</span> <span class="op">=</span> <span class="ident">bounds</span>.<span class="ident">convert</span>(<span class="kw-2">&amp;</span><span class="ident">shape</span>.<span class="ident">points</span>);

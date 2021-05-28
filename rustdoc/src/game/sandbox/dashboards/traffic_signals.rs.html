@@ -257,11 +257,10 @@
 <span id="254">254</span>
 <span id="255">255</span>
 <span id="256">256</span>
-<span id="257">257</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashMap</span>;
 
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">Counter</span>, <span class="ident">Parallelism</span>, <span class="ident">Timer</span>};
+<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">Counter</span>, <span class="ident">Timer</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">ArrowCap</span>, <span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Polygon</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">render</span>::<span class="ident">DrawOptions</span>;
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">ID</span>;
@@ -434,7 +433,6 @@
         <span class="kw">let</span> <span class="ident">paths</span> <span class="op">=</span> <span class="ident">timer</span>
             .<span class="ident">parallelize</span>(
                 <span class="string">&quot;predict routes&quot;</span>,
-                <span class="ident">Parallelism</span>::<span class="ident">Fastest</span>,
                 <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">all_trip_info</span>(),
                 <span class="op">|</span>(<span class="kw">_</span>, <span class="ident">trip</span>)<span class="op">|</span> {
                     <span class="kw">let</span> <span class="ident">departure</span> <span class="op">=</span> <span class="ident">trip</span>.<span class="ident">departure</span>;
