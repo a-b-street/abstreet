@@ -1,8 +1,9 @@
-use std::cmp::Ordering;
+use std::cmp::Reverse;
 use std::collections::hash_map::Entry;
-use std::collections::{BinaryHeap, HashMap};
+use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize};
+use priority_queue::PriorityQueue;
 
 use abstutil::Counter;
 use geom::{Duration, Histogram, Time};
@@ -12,6 +13,7 @@ use crate::{
     pandemic, AgentID, CarID, CreateCar, CreatePedestrian, PedestrianID, StartTripArgs, TripID,
 };
 
+// TODO clean up derives
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
 pub(crate) enum Command {
     /// If true, retry when there's no room to spawn somewhere
@@ -71,7 +73,7 @@ impl Command {
 
 /// A smaller version of Command that satisfies many more properties. Only one Command per
 /// CommandType may exist at a time.
-#[derive(Serialize, Deserialize, PartialEq, Eq, Hash, PartialOrd, Ord, Clone, Debug)]
+#[derive(Serialize, Deserialize, PartialEq, Eq, Hash, Clone, Debug)]
 enum CommandType {
     StartTrip(TripID),
     Car(CarID),
@@ -96,36 +98,12 @@ enum SimpleCommandType {
     StartBus,
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Eq, Clone)]
-struct Item {
-    time: Time,
-    cmd_type: CommandType,
-}
-
-impl PartialOrd for Item {
-    fn partial_cmp(&self, other: &Item) -> Option<Ordering> {
-        Some(self.cmp(other))
-    }
-}
-
-impl Ord for Item {
-    fn cmp(&self, other: &Item) -> Ordering {
-        // BinaryHeap is a max-heap, so reverse the comparison to get smallest times first.
-        let ord = other.time.cmp(&self.time);
-        if ord != Ordering::Equal {
-            return ord;
-        }
-        // This is important! The tie-breaker if time is the same is ARBITRARY!
-        self.cmd_type.cmp(&other.cmd_type)
-    }
-}
-
 /// The priority queue driving the discrete event simulation. Different pieces of the simulation
 /// schedule Commands to happen at a specific time, and the Scheduler hands out the commands in
 /// order.
 #[derive(Clone, Serialize, Deserialize)]
 pub(crate) struct Scheduler {
-    items: BinaryHeap<Item>,
+    queue: PriorityQueue<CommandType, Reverse<Time>>,
     queued_commands: HashMap<CommandType, (Command, Time)>,
 
     latest_time: Time,
@@ -139,7 +117,7 @@ pub(crate) struct Scheduler {
 impl Scheduler {
     pub fn new() -> Scheduler {
         Scheduler {
-            items: BinaryHeap::new(),
+            queue: PriorityQueue::new(),
             queued_commands: HashMap::new(),
             latest_time: Time::START_OF_DAY,
             last_time: Time::START_OF_DAY,
@@ -164,7 +142,7 @@ impl Scheduler {
         match self.queued_commands.entry(cmd_type.clone()) {
             Entry::Vacant(vacant) => {
                 vacant.insert((cmd, time));
-                self.items.push(Item { time, cmd_type });
+                self.queue.push(cmd_type, Reverse(time));
             }
             Entry::Occupied(occupied) => {
                 let (existing_cmd, existing_time) = occupied.get();
@@ -193,10 +171,8 @@ impl Scheduler {
         }
         self.queued_commands
             .insert(cmd_type.clone(), (cmd, new_time));
-        self.items.push(Item {
-            time: new_time,
-            cmd_type,
-        });
+        // TODO Which variation here?
+        self.queue.push(cmd_type, Reverse(new_time));
     }
 
     pub fn cancel(&mut self, cmd: Command) {
@@ -207,7 +183,7 @@ impl Scheduler {
     /// This next command might've actually been rescheduled to a later time; the caller won't know
     /// that here.
     pub fn peek_next_time(&self) -> Option<Time> {
-        self.items.peek().as_ref().map(|cmd| cmd.time)
+        self.queue.peek().map(|(_, t)| t.0)
     }
 
     pub fn get_last_time(&self) -> Time {
@@ -221,16 +197,17 @@ impl Scheduler {
     // TODO Above description is a little vague. This should be used with peek_next_time in a
     // particular way...
     pub fn get_next(&mut self) -> Option<Command> {
-        let item = self.items.pop().unwrap();
-        self.latest_time = item.time;
-        match self.queued_commands.entry(item.cmd_type) {
+        let (cmd_type, time) = self.queue.pop().unwrap();
+        let time = time.0;
+        self.latest_time = time;
+        match self.queued_commands.entry(cmd_type) {
             Entry::Vacant(_) => {
                 // Command was cancelled
                 None
             }
             Entry::Occupied(occupied) => {
                 // Command was re-scheduled for later.
-                if occupied.get().1 > item.time {
+                if occupied.get().1 > time {
                     return None;
                 }
                 Some(occupied.remove().0)

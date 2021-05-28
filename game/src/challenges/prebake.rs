@@ -11,7 +11,7 @@ use crate::sandbox::TutorialState;
 pub fn prebake_all() {
     let mut timer = Timer::new("prebake all challenge results");
 
-    {
+    /*{
         let map =
             map_model::Map::load_synchronously(MapName::seattle("montlake").path(), &mut timer);
         for generator in TutorialState::scenarios_to_prebake(&map) {
@@ -22,16 +22,16 @@ pub fn prebake_all() {
             );
             prebake(&map, scenario, None, &mut timer);
         }
-    }
+    }*/
 
     for name in vec![
-        MapName::seattle("arboretum"),
+        //MapName::seattle("arboretum"),
         MapName::seattle("montlake"),
-        MapName::seattle("lakeslice"),
+        /*MapName::seattle("lakeslice"),
         //MapName::seattle("phinney"),
         MapName::seattle("qa"),
         MapName::seattle("rainier_valley"),
-        MapName::seattle("wallingford"),
+        MapName::seattle("wallingford"),*/
     ] {
         let map = map_model::Map::load_synchronously(name.path(), &mut timer);
         let scenario: Scenario =
@@ -39,7 +39,7 @@ pub fn prebake_all() {
         prebake(&map, scenario, None, &mut timer);
     }
 
-    for &scenario_name in &["base", "go_active", "base_with_bg", "go_active_with_bg"] {
+    /*for &scenario_name in &["base", "go_active", "base_with_bg", "go_active_with_bg"] {
         let map = map_model::Map::load_synchronously(
             MapName::new("gb", "poundbury", "center").path(),
             &mut timer,
@@ -52,7 +52,7 @@ pub fn prebake_all() {
         opts.alerts = AlertHandler::Silence;
         opts.infinite_parking = true;
         prebake(&map, scenario, Some(opts), &mut timer);
-    }
+    }*/
 }
 
 fn prebake(map: &Map, scenario: Scenario, opts: Option<SimOptions>, timer: &mut Timer) {
