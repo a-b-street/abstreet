@@ -2951,6 +2951,7 @@ checksum = "8e1340009a04e81f656a4e45e295f0b1191c81de424bf940c865e33577a8e223"
 dependencies = [
  "autocfg",
  "indexmap",
+ "serde",
 ]
 
 [[package]]
@@ -3480,6 +3481,7 @@ dependencies = [
  "libm 0.2.1",
  "log",
  "map_model",
+ "priority-queue",
  "rand",
  "rand_distr",
  "rand_xorshift",

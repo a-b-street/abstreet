@@ -33,6 +33,9 @@ mod queries;
 const BLIND_RETRY_TO_SPAWN: Duration = Duration::const_seconds(5.0);
 
 /// The Sim ties together all the pieces of the simulation. Its main property is the current time.
+///
+/// Note the entire Sim must implement `Clone`, so that UI code can copy the current sim state, try
+/// some changes, and revert.
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Sim {
     driving: DrivingSimState,
@@ -415,11 +418,10 @@ impl Sim {
             if time > max_time {
                 return false;
             }
-            if let Some(cmd) = self.scheduler.get_next() {
-                if self.do_step(map, time, cmd, maybe_cb) {
-                    halt = true;
-                    break;
-                }
+            let cmd = self.scheduler.get_next();
+            if self.do_step(map, time, cmd, maybe_cb) {
+                halt = true;
+                break;
             }
         }
 
