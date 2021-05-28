@@ -4,7 +4,7 @@ use rand::seq::SliceRandom;
 use rand::Rng;
 use rand_xorshift::XorShiftRng;
 
-use abstutil::{Parallelism, Timer};
+use abstutil::Timer;
 use map_model::{BuildingID, IntersectionID, Map, PathConstraints, PathRequest};
 use sim::{IndividTrip, PersonSpec, TripEndpoint, TripMode, TripPurpose};
 
@@ -40,7 +40,6 @@ pub fn make_people(
         .collect();
     timer.parallelize(
         "making people in parallel",
-        Parallelism::Fastest,
         make_person_inputs,
         |(person, mut rng)| {
             person_factory.make_person(person, map, &commuter_borders, &mut rng, &config)

@@ -1,4 +1,3 @@
-use abstutil::Parallelism;
 use geom::{Angle, Distance, FindClosest, PolyLine, Polygon, Pt2D};
 use map_gui::tools::{ColorDiscrete, ColorScale, Grid};
 use map_gui::ID;
@@ -253,17 +252,15 @@ fn make_contours(
                 indices.push((x, y));
             }
         }
-        for (idx, elevation) in
-            timer.parallelize("fill out grid", Parallelism::Fastest, indices, |(x, y)| {
-                let pt = Pt2D::new((x as f64) * resolution_m, (y as f64) * resolution_m);
-                let elevation = match closest.closest_pt(pt, INTERSECTION_SEARCH_RADIUS) {
-                    Some((e, _)) => e,
-                    // No intersections nearby... assume ocean?
-                    None => Distance::ZERO,
-                };
-                (grid.idx(x, y), elevation)
-            })
-        {
+        for (idx, elevation) in timer.parallelize("fill out grid", indices, |(x, y)| {
+            let pt = Pt2D::new((x as f64) * resolution_m, (y as f64) * resolution_m);
+            let elevation = match closest.closest_pt(pt, INTERSECTION_SEARCH_RADIUS) {
+                Some((e, _)) => e,
+                // No intersections nearby... assume ocean?
+                None => Distance::ZERO,
+            };
+            (grid.idx(x, y), elevation)
+        }) {
             grid.data[idx] = elevation.inner_meters();
         }
         timer.stop("gather input");

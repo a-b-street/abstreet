@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use abstutil::{prettyprint_usize, MultiMap, Parallelism, Timer};
+use abstutil::{prettyprint_usize, MultiMap, Timer};
 use geom::LonLat;
 use map_model::{osm, BuildingID, IntersectionID, Map, PathConstraints, PathRequest, PathStep};
 use sim::{IndividTrip, MapBorders, OrigPersonID, PersonSpec, Scenario, TripEndpoint, TripMode};
@@ -137,11 +137,8 @@ fn clip_trips(map: &Map, popdat: &PopDat, huge_map: &Map, timer: &mut Timer) -> 
     let borders = MapBorders::new(map);
 
     let total_trips = popdat.trips.len();
-    let maybe_results: Vec<Option<Trip>> = timer.parallelize(
-        "clip trips",
-        Parallelism::Polite,
-        popdat.trips.iter().collect(),
-        |orig| {
+    let maybe_results: Vec<Option<Trip>> =
+        timer.parallelize_polite("clip trips", popdat.trips.iter().collect(), |orig| {
             let (from, to) = endpoints(
                 &orig.from,
                 &orig.to,
@@ -160,8 +157,7 @@ fn clip_trips(map: &Map, popdat: &PopDat, huge_map: &Map, timer: &mut Timer) -> 
                 to,
                 orig: orig.clone(),
             })
-        },
-    );
+        });
     let trips: Vec<Trip> = maybe_results.into_iter().flatten().collect();
 
     info!(

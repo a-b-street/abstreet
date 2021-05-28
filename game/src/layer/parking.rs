@@ -1,6 +1,6 @@
 use std::collections::BTreeSet;
 
-use abstutil::{prettyprint_usize, Counter, Parallelism};
+use abstutil::{prettyprint_usize, Counter};
 use geom::{Circle, Distance, Duration, Pt2D, Time};
 use map_gui::render::unzoomed_agent_radius;
 use map_gui::tools::{ColorLegend, ColorNetwork};
@@ -378,7 +378,7 @@ impl Efficiency {
                 .collect();
             timer.stop("gather requests");
             for (car_pt, time) in timer
-                .parallelize("calculate paths", Parallelism::Fastest, requests, |req| {
+                .parallelize("calculate paths", requests, |req| {
                     let car_pt = req.start.pt(map);
                     // TODO Walking paths should really return some indication of "zero length
                     // path" for this

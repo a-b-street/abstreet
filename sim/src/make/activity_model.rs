@@ -8,7 +8,7 @@ use rand::seq::SliceRandom;
 use rand::Rng;
 use rand_xorshift::XorShiftRng;
 
-use abstutil::{prettyprint_usize, Parallelism, Timer};
+use abstutil::{prettyprint_usize, Timer};
 use geom::{Distance, Duration, Time};
 use map_model::{BuildingID, BuildingType, Map, PathConstraints, PathRequest};
 
@@ -171,7 +171,6 @@ impl ScenarioGenerator {
             timer
                 .parallelize(
                     "create people: making PersonSpec from endpoints",
-                    Parallelism::Fastest,
                     person_params,
                     |(home, work, mut rng)| match create_prole(home, work, map, &mut rng) {
                         Ok(person) => Some(person),

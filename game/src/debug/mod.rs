@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 
 use abstio::MapName;
-use abstutil::{Parallelism, Tags, Timer};
+use abstutil::{Tags, Timer};
 use geom::{ArrowCap, Distance, PolyLine, Pt2D};
 use map_gui::colors::ColorSchemeChoice;
 use map_gui::load::MapLoader;
@@ -553,7 +553,7 @@ fn calc_all_routes(ctx: &EventCtx, app: &mut App) -> (usize, Drawable) {
     let sim = &app.primary.sim;
     let map = &app.primary.map;
     for trace in Timer::new("calculate all routes")
-        .parallelize("route to geometry", Parallelism::Fastest, agents, |id| {
+        .parallelize("route to geometry", agents, |id| {
             sim.trace_route(id, map)
                 .map(|trace| trace.make_polygons(NORMAL_LANE_THICKNESS))
         })

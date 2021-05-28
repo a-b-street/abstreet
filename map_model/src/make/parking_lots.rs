@@ -2,7 +2,7 @@ use std::collections::{HashMap, HashSet};
 
 use anyhow::Result;
 
-use abstutil::{Parallelism, Timer};
+use abstutil::Timer;
 use geom::{Angle, Distance, FindClosest, HashablePt2D, Line, PolyLine, Polygon, Pt2D, Ring};
 
 use crate::make::{match_points_to_lanes, trim_path};
@@ -114,23 +114,18 @@ pub fn make_all_parking_lots(
         }
     }
 
-    let results = timer.parallelize(
-        "generate parking lot spots",
-        Parallelism::Fastest,
-        results,
-        |mut lot| {
-            lot.spots = infer_spots(&lot.polygon, &lot.aisles);
+    let results = timer.parallelize("generate parking lot spots", results, |mut lot| {
+        lot.spots = infer_spots(&lot.polygon, &lot.aisles);
 
-            // Guess how many extra spots are available, that maybe aren't renderable.
-            if lot.spots.is_empty() {
-                // No parking aisles. Just guess based on the area. One spot per 30m^2 is a quick
-                // guess from looking at examples with aisles.
-                lot.extra_spots = (lot.polygon.area() / 30.0) as usize;
-            }
+        // Guess how many extra spots are available, that maybe aren't renderable.
+        if lot.spots.is_empty() {
+            // No parking aisles. Just guess based on the area. One spot per 30m^2 is a quick
+            // guess from looking at examples with aisles.
+            lot.extra_spots = (lot.polygon.area() / 30.0) as usize;
+        }
 
-            lot
-        },
-    );
+        lot
+    });
     timer.stop("convert parking lots");
     results
 }

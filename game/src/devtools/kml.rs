@@ -4,7 +4,7 @@ use std::collections::{BTreeMap, HashMap, HashSet};
 
 use aabb_quadtree::QuadTree;
 
-use abstutil::{prettyprint_usize, Parallelism, Timer};
+use abstutil::{prettyprint_usize, Timer};
 use geom::{Circle, Distance, PolyLine, Polygon, Pt2D, Ring};
 use kml::{ExtraShape, ExtraShapes};
 use map_gui::colors::ColorScheme;
@@ -242,7 +242,6 @@ fn load_objects(
     let pairs: Vec<(Object, ExtraShape)> = timer
         .parallelize(
             "convert shapes",
-            Parallelism::Fastest,
             raw_shapes.shapes.into_iter().enumerate().collect(),
             |(idx, shape)| {
                 let pts = bounds.convert(&shape.points);

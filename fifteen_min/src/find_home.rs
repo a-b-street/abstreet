@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use abstutil::{prettyprint_usize, Counter, Parallelism, Timer};
+use abstutil::{prettyprint_usize, Counter, Timer};
 use geom::Percent;
 use map_gui::tools::PopupMsg;
 use map_model::{AmenityType, BuildingID};
@@ -93,23 +93,18 @@ fn score_houses(
     let mut satisfied_per_bldg: Counter<BuildingID> = Counter::new();
 
     let map = &app.map;
-    for times in timer.parallelize(
-        "find houses close to amenities",
-        Parallelism::Fastest,
-        amenities,
-        |category| {
-            // For each category, find all matching stores
-            let mut stores = Vec::new();
-            for b in map.all_buildings() {
-                if b.has_amenity(category) {
-                    stores.push(b.id);
-                }
+    for times in timer.parallelize("find houses close to amenities", amenities, |category| {
+        // For each category, find all matching stores
+        let mut stores = Vec::new();
+        for b in map.all_buildings() {
+            if b.has_amenity(category) {
+                stores.push(b.id);
             }
+        }
 
-            // Then find all buildings reachable from any of those starting points
-            options.clone().times_from_buildings(map, stores)
-        },
-    ) {
+        // Then find all buildings reachable from any of those starting points
+        options.clone().times_from_buildings(map, stores)
+    }) {
         for (b, _) in times {
             satisfied_per_bldg.inc(b);
         }

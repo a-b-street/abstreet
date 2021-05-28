@@ -123,13 +123,6 @@ struct TimerSpan {
     nested_time: f64,
 }
 
-pub enum Parallelism {
-    /// Use all CPUs
-    Fastest,
-    /// Use half of CPUs
-    Polite,
-}
-
 impl<'a> Timer<'a> {
     pub fn new<S: Into<String>>(raw_name: S) -> Timer<'a> {
         let name = raw_name.into();
@@ -313,13 +306,48 @@ impl<'a> Timer<'a> {
         }
     }
 
-    /// The order of the result is deterministic / matches the input.
+    /// Execute the callback over all requests, using all CPUs available. The order of the result
+    /// is deterministic and matches the input.
     pub fn parallelize<I, O, F: Fn(I) -> O>(
         &mut self,
         timer_name: &str,
-        parallelism: Parallelism,
         requests: Vec<I>,
         cb: F,
+    ) -> Vec<O>
+    where
+        I: Send,
+        O: Send,
+        F: Send + Clone + Copy,
+    {
+        self.inner_parallelize(timer_name, requests, cb, num_cpus::get().max(1) as u32)
+    }
+
+    /// Like `parallelize`, but leave one CPU free, to avoid thrashing the user's system.
+    pub fn parallelize_polite<I, O, F: Fn(I) -> O>(
+        &mut self,
+        timer_name: &str,
+        requests: Vec<I>,
+        cb: F,
+    ) -> Vec<O>
+    where
+        I: Send,
+        O: Send,
+        F: Send + Clone + Copy,
+    {
+        self.inner_parallelize(
+            timer_name,
+            requests,
+            cb,
+            (num_cpus::get() - 1).max(1) as u32,
+        )
+    }
+
+    fn inner_parallelize<I, O, F: Fn(I) -> O>(
+        &mut self,
+        timer_name: &str,
+        requests: Vec<I>,
+        cb: F,
+        num_cpus: u32,
     ) -> Vec<O>
     where
         I: Send,
@@ -330,8 +358,6 @@ impl<'a> Timer<'a> {
         // wasm; no threads.
         #[cfg(target_arch = "wasm32")]
         {
-            // Silence an unused warning
-            let _ = parallelism;
             let mut results: Vec<O> = Vec::new();
             self.start_iter(timer_name, requests.len());
             for req in requests {
@@ -343,12 +369,7 @@ impl<'a> Timer<'a> {
 
         #[cfg(not(target_arch = "wasm32"))]
         {
-            let cpus = match parallelism {
-                Parallelism::Fastest => num_cpus::get(),
-                Parallelism::Polite => num_cpus::get() / 2,
-            }
-            .max(1) as u32;
-            scoped_threadpool::Pool::new(cpus).scoped(|scope| {
+            scoped_threadpool::Pool::new(num_cpus).scoped(|scope| {
                 let (tx, rx) = std::sync::mpsc::channel();
                 let mut results: Vec<Option<O>> = std::iter::repeat_with(|| None)
                     .take(requests.len())

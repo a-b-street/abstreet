@@ -4,7 +4,7 @@
 use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 
 use abstio::MapName;
-use abstutil::{Parallelism, Tags, Timer};
+use abstutil::{Tags, Timer};
 use geom::{
     Bounds, Distance, FindClosest, GPSBounds, HashablePt2D, Line, Polygon, Speed, EPSILON_DIST,
 };
@@ -421,7 +421,6 @@ pub fn match_points_to_lanes<F: Fn(&Lane) -> bool>(
     timer
         .parallelize(
             "find closest lane point",
-            Parallelism::Fastest,
             pts.into_iter().collect(),
             |query_pt| {
                 if let Some((l, pt)) = closest.closest_pt(query_pt.to_pt2d(), max_dist_away) {

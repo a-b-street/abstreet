@@ -25,7 +25,7 @@ use rand_xorshift::XorShiftRng;
 use serde::{Deserialize, Serialize};
 
 use abstio::MapName;
-use abstutil::{serialize_btreemap, CmdArgs, Parallelism, Timer};
+use abstutil::{serialize_btreemap, CmdArgs, Timer};
 use geom::{Distance, Duration, LonLat, Time};
 use map_model::{
     CompressedMovementID, ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, Map,
@@ -351,7 +351,6 @@ fn handle_command(
             let results: BTreeMap<TripID, Duration> = Timer::throwaway()
                 .parallelize(
                     "calculate all trip time lower bounds",
-                    Parallelism::Fastest,
                     sim.all_trip_info(),
                     |(id, _)| {
                         sim.get_trip_time_lower_bound(map, id)

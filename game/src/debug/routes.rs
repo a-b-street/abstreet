@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use abstutil::{prettyprint_usize, Counter, Parallelism, Timer};
+use abstutil::{prettyprint_usize, Counter, Timer};
 use geom::{Duration, Polygon};
 use map_gui::colors::ColorSchemeChoice;
 use map_gui::tools::ColorNetwork;
@@ -288,7 +288,6 @@ impl AllRoutesExplorer {
                 let requests = timer
                     .parallelize(
                         "predict route requests",
-                        Parallelism::Fastest,
                         app.primary.sim.all_trip_info(),
                         |(_, trip)| TripEndpoint::path_req(trip.start, trip.end, trip.mode, map),
                     )
@@ -456,9 +455,7 @@ impl State<App> for AllRoutesExplorer {
 fn calculate_demand(app: &App, requests: &[PathRequest], timer: &mut Timer) -> Counter<RoadID> {
     let map = &app.primary.map;
     let paths = timer
-        .parallelize("pathfind", Parallelism::Fastest, requests.to_vec(), |req| {
-            map.pathfind(req)
-        })
+        .parallelize("pathfind", requests.to_vec(), |req| map.pathfind(req))
         .into_iter()
         .flatten()
         .collect::<Vec<_>>();

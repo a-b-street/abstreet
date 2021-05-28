@@ -7,7 +7,7 @@ use anyhow::Result;
 use walkdir::WalkDir;
 
 use abstio::{DataPacks, Entry, Manifest};
-use abstutil::{must_run_cmd, prettyprint_usize, CmdArgs, Parallelism, Timer};
+use abstutil::{must_run_cmd, prettyprint_usize, CmdArgs, Timer};
 
 const MD5_BUF_READ_SIZE: usize = 4096;
 
@@ -163,7 +163,6 @@ fn upload(version: String) {
     let local_entries = std::mem::take(&mut local.entries);
     for (path, entry) in Timer::new("compress files").parallelize(
         "compress files",
-        Parallelism::Fastest,
         local_entries.into_iter().collect(),
         |(path, mut entry)| {
             let remote_path = format!("{}/{}.gz", remote_base, path);
@@ -218,7 +217,6 @@ fn incremental_upload(version: String) {
     for (path, entry) in Timer::new("compress files")
         .parallelize(
             "compress files",
-            Parallelism::Fastest,
             local.entries.into_iter().collect(),
             |(path, mut entry)| {
                 if truth.entries.get(&path).map(|x| &x.checksum) != Some(&entry.checksum) {
@@ -289,11 +287,8 @@ fn generate_manifest(truth: &Manifest) -> Manifest {
     }
 
     let mut kv = BTreeMap::new();
-    for (path, entry) in Timer::new("compute md5sums").parallelize(
-        "compute md5sums",
-        Parallelism::Fastest,
-        paths,
-        |(orig_path, path)| {
+    for (path, entry) in
+        Timer::new("compute md5sums").parallelize("compute md5sums", paths, |(orig_path, path)| {
             // If the file's modtime is newer than 3 hours or the uncompressed size has changed,
             // calculate md5sum. Otherwise assume no change. This heuristic saves lots of time and
             // doesn't stress my poor SSD as much.
@@ -322,8 +317,8 @@ fn generate_manifest(truth: &Manifest) -> Manifest {
                     compressed_size_bytes: 0,
                 },
             )
-        },
-    ) {
+        })
+    {
         kv.insert(path, entry);
     }
 

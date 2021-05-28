@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use abstutil::{prettyprint_usize, Counter, Parallelism, Timer};
+use abstutil::{prettyprint_usize, Counter, Timer};
 use geom::{ArrowCap, Distance, Duration, Polygon, Time};
 use map_gui::render::DrawOptions;
 use map_gui::ID;
@@ -173,7 +173,6 @@ impl Demand {
         let paths = timer
             .parallelize(
                 "predict routes",
-                Parallelism::Fastest,
                 app.primary.sim.all_trip_info(),
                 |(_, trip)| {
                     let departure = trip.departure;
