@@ -802,6 +802,11 @@ impl PolyLine {
             geo::Closest::Indeterminate => unreachable!(),
         }
     }
+
+    /// Returns the angle from the start to end of this polyline.
+    pub fn overall_angle(&self) -> Angle {
+        self.first_pt().angle_to(self.last_pt())
+    }
 }
 
 impl fmt::Display for PolyLine {

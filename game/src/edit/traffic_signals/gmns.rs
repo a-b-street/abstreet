@@ -5,7 +5,7 @@ use std::collections::{BTreeMap, BTreeSet, HashMap};
 use anyhow::Result;
 use serde::{Deserialize, Deserializer};
 
-use geom::{Duration, LonLat, Pt2D};
+use geom::{Angle, Duration, LonLat, Pt2D};
 use map_model::{
     osm, ControlTrafficSignal, DirectedRoadID, IntersectionID, Map, Movement, MovementID, Stage,
     StageType, TurnType,
@@ -72,6 +72,7 @@ pub fn import(map: &Map, i: IntersectionID, path: &str) -> Result<ControlTraffic
                 rec.geometry.1.to_pt(map.get_gps_bounds()),
             ),
             &rec.mvmt_txt_id,
+            map,
         ) {
             Ok(x) => x,
             Err(err) => {
@@ -191,7 +192,7 @@ impl Snapper {
         })
     }
 
-    fn get_mvmnt(&self, pair: (Pt2D, Pt2D), code: &str) -> Result<MovementID> {
+    fn get_mvmnt(&self, pair: (Pt2D, Pt2D), code: &str, map: &Map) -> Result<MovementID> {
         // Code is something like "WBT", westbound through.
         let code_turn_type = match code.chars().last() {
             Some('T') => TurnType::Straight,
@@ -199,23 +200,65 @@ impl Snapper {
             Some('R') => TurnType::Right,
             x => bail!("Weird movement_str {:?}", x),
         };
-        Ok(*self
+        let code_direction = &code[0..2];
+
+        let (id, mvmnt) = self
             .movements
             .iter()
             .min_by_key(|(id, mvmnt)| {
                 let from_cost = pair.0.dist_to(self.roads_incoming[&id.from]);
                 let to_cost = pair.1.dist_to(self.roads_outgoing[&id.to]);
-                // Arbitrary tuning parameter.
+                let direction = cardinal_direction(
+                    map.get_l(mvmnt.members[0].src)
+                        .lane_center_pts
+                        .overall_angle(),
+                );
+
+                // Arbitrary parameters, tuned to make weird geometry at University/Mill in Tempe
+                // work.
                 let type_cost = if mvmnt.turn_type == code_turn_type {
                     1.0
                 } else {
                     2.0
                 };
-                // TODO We could also guess each movement's bearing (northbound, westbound, etc) and
-                // penalize based on not matching that.
-                type_cost * (from_cost + to_cost)
+                // TODO This one is way more important than the geometry! Maybe JUST use the code?
+                let direction_cost = if direction == code_direction {
+                    1.0
+                } else {
+                    10.0
+                };
+                type_cost * direction_cost * (from_cost + to_cost)
             })
-            .unwrap()
-            .0)
+            .unwrap();
+
+        // Debug if the we didn't agree
+        let direction = cardinal_direction(
+            map.get_l(mvmnt.members[0].src)
+                .lane_center_pts
+                .overall_angle(),
+        );
+        if mvmnt.turn_type != code_turn_type || direction != code_direction {
+            warn!(
+                "A {} snapped to a {} {:?}",
+                code, direction, mvmnt.turn_type
+            );
+        }
+
+        Ok(*id)
     }
+}
+
+fn cardinal_direction(angle: Angle) -> &'static str {
+    // Note Y inversion, as usual
+    let deg = angle.normalized_degrees();
+    if deg >= 335.0 || deg <= 45.0 {
+        return "EB";
+    }
+    if (45.0..=135.0).contains(&deg) {
+        return "SB";
+    }
+    if (135.0..=225.0).contains(&deg) {
+        return "WB";
+    }
+    "NB"
 }
