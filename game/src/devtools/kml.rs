@@ -22,7 +22,7 @@ pub struct ViewKML {
     objects: Vec<Object>,
     draw: Drawable,
 
-    selected: Option<usize>,
+    selected: Vec<usize>,
     quadtree: QuadTree<usize>,
     draw_query: Drawable,
 }
@@ -100,7 +100,7 @@ impl ViewKML {
                 .build(ctx),
                 objects,
                 quadtree,
-                selected: None,
+                selected: Vec::new(),
                 draw_query: Drawable::empty(ctx),
             })
         })
@@ -111,7 +111,7 @@ impl State<App> for ViewKML {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         ctx.canvas_movement();
         if ctx.redo_mouseover() {
-            self.selected = None;
+            self.selected.clear();
             let details = "Mouseover an object to examine it".text_widget(ctx);
             self.panel.replace(ctx, "mouseover", details);
 
@@ -122,31 +122,40 @@ impl State<App> for ViewKML {
                         .as_bbox(),
                 ) {
                     if self.objects[*idx].polygon.contains_pt(pt) {
-                        self.selected = Some(*idx);
-                        let mut txt = Text::new();
+                        self.selected.push(*idx);
+                    }
+                }
+                if !self.selected.is_empty() {
+                    let mut txt = Text::new();
+                    if self.selected.len() > 1 {
+                        txt.add_line(format!("Selecting {} objects", self.selected.len()));
+                    }
+                    for idx in &self.selected {
+                        if self.selected.len() > 1 {
+                            txt.add_line(Line("Object").small_heading());
+                        }
                         for (k, v) in &self.objects[*idx].attribs {
                             txt.add_line(format!("{} = {}", k, v));
                         }
-                        let details = txt.into_widget(ctx);
-                        self.panel.replace(ctx, "mouseover", details);
-                        break;
                     }
+                    let details = txt.into_widget(ctx);
+                    self.panel.replace(ctx, "mouseover", details);
                 }
             }
         }
-        if let Some(idx) = self.selected {
-            if ctx.normal_left_click() {
-                self.selected = None;
-                return Transition::Push(PopupMsg::new_state(
-                    ctx,
-                    "Object",
-                    self.objects[idx]
-                        .attribs
-                        .iter()
-                        .map(|(k, v)| format!("{} = {}", k, v))
-                        .collect(),
-                ));
+        if !self.selected.is_empty() && ctx.normal_left_click() {
+            let mut lines = Vec::new();
+            let title = format!("{} objects", self.selected.len());
+            for idx in self.selected.drain(..) {
+                lines.push("Object".to_string());
+                lines.push(String::new());
+                for (k, v) in &self.objects[idx].attribs {
+                    lines.push(format!("{} = {}", k, v));
+                }
+                lines.push(String::new());
             }
+            lines.pop();
+            return Transition::Push(PopupMsg::new_state(ctx, &title, lines));
         }
 
         match self.panel.event(ctx) {
@@ -184,8 +193,8 @@ impl State<App> for ViewKML {
         g.redraw(&self.draw_query);
         self.panel.draw(g);
 
-        if let Some(idx) = self.selected {
-            let obj = &self.objects[idx];
+        for idx in &self.selected {
+            let obj = &self.objects[*idx];
             g.draw_polygon(Color::BLUE, obj.polygon.clone());
             if let Some(b) = obj.osm_bldg {
                 g.draw_polygon(Color::GREEN, app.primary.map.get_b(b).polygon.clone());
