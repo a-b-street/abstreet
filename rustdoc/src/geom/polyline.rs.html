@@ -876,6 +876,11 @@
 <span id="873">873</span>
 <span id="874">874</span>
 <span id="875">875</span>
+<span id="876">876</span>
+<span id="877">877</span>
+<span id="878">878</span>
+<span id="879">879</span>
+<span id="880">880</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
@@ -1680,6 +1685,11 @@
             }
             <span class="ident">geo</span>::<span class="ident">Closest</span>::<span class="ident">Indeterminate</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
         }
+    }
+
+    <span class="doccomment">/// Returns the angle from the start to end of this polyline.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">overall_angle</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Angle</span> {
+        <span class="self">self</span>.<span class="ident">first_pt</span>().<span class="ident">angle_to</span>(<span class="self">self</span>.<span class="ident">last_pt</span>())
     }
 }
 
