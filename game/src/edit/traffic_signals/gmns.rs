@@ -1,6 +1,6 @@
 // TODO Move to map_model
 
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::{BTreeMap, BTreeSet, HashMap};
 
 use anyhow::Result;
 use serde::{Deserialize, Deserializer};
@@ -8,7 +8,7 @@ use serde::{Deserialize, Deserializer};
 use geom::{Duration, LonLat, Pt2D};
 use map_model::{
     osm, ControlTrafficSignal, DirectedRoadID, IntersectionID, Map, Movement, MovementID, Stage,
-    StageType,
+    StageType, TurnType,
 };
 
 /// This imports timing.csv from https://github.com/asu-trans-ai-lab/Vol2Timing. It operates in a
@@ -66,10 +66,13 @@ pub fn import(map: &Map, i: IntersectionID, path: &str) -> Result<ControlTraffic
             );
         }
 
-        let mvmnt = match snapper.get_mvmnt((
-            rec.geometry.0.to_pt(map.get_gps_bounds()),
-            rec.geometry.1.to_pt(map.get_gps_bounds()),
-        )) {
+        let mvmnt = match snapper.get_mvmnt(
+            (
+                rec.geometry.0.to_pt(map.get_gps_bounds()),
+                rec.geometry.1.to_pt(map.get_gps_bounds()),
+            ),
+            &rec.mvmt_txt_id,
+        ) {
             Ok(x) => x,
             Err(err) => {
                 error!(
@@ -128,23 +131,22 @@ fn parse_osm_ids<'de, D: Deserializer<'de>>(d: D) -> Result<Vec<osm::NodeID>, D:
     Ok(ids)
 }
 
-/// Snaps a line to a vehicle movement across an intersection. It matches each endpoint to the
-/// closest end of a directed road.
+/// Snaps a line to a vehicle movement across an intersection. It uses movement endpoints and a
+/// hint about turn type to match.
 ///
 /// OSM IDs aren't used to snap, because GMNS and A/B Street may disagree about where a road
 /// segment begins/ends. This could happen from OSM IDs changing over time or from different rules
 /// about importing things like service roads.
 struct Snapper {
-    i: IntersectionID,
-    roads_incoming: Vec<(DirectedRoadID, Pt2D)>,
-    roads_outgoing: Vec<(DirectedRoadID, Pt2D)>,
+    roads_incoming: HashMap<DirectedRoadID, Pt2D>,
+    roads_outgoing: HashMap<DirectedRoadID, Pt2D>,
     movements: BTreeMap<MovementID, Movement>,
 }
 
 impl Snapper {
     fn new(map: &Map, i: IntersectionID) -> Result<Snapper> {
-        let mut roads_incoming = Vec::new();
-        let mut roads_outgoing = Vec::new();
+        let mut roads_incoming = HashMap::new();
+        let mut roads_outgoing = HashMap::new();
         for r in &map.get_i(i).roads {
             let r = map.get_r(*r);
 
@@ -168,10 +170,10 @@ impl Snapper {
             }
 
             if !incoming_pts.is_empty() {
-                roads_incoming.push((incoming_id, Pt2D::center(&incoming_pts)));
+                roads_incoming.insert(incoming_id, Pt2D::center(&incoming_pts));
             }
             if !outgoing_pts.is_empty() {
-                roads_outgoing.push((outgoing_id, Pt2D::center(&outgoing_pts)));
+                roads_outgoing.insert(outgoing_id, Pt2D::center(&outgoing_pts));
             }
         }
         if roads_incoming.is_empty() || roads_outgoing.is_empty() {
@@ -179,38 +181,41 @@ impl Snapper {
         }
 
         Ok(Snapper {
-            i,
             roads_incoming,
             roads_outgoing,
-            movements: ControlTrafficSignal::new(map, i).movements,
+            movements: ControlTrafficSignal::new(map, i)
+                .movements
+                .into_iter()
+                .filter(|(id, _)| !id.crosswalk)
+                .collect(),
         })
     }
 
-    fn get_mvmnt(&self, pair: (Pt2D, Pt2D)) -> Result<MovementID> {
-        let from = self
-            .roads_incoming
-            .iter()
-            .min_by_key(|(_, pt)| pt.dist_to(pair.0))
-            .unwrap()
-            .0;
-        let to = self
-            .roads_outgoing
-            .iter()
-            .min_by_key(|(_, pt)| pt.dist_to(pair.1))
-            .unwrap()
-            .0;
-        if from == to {
-            bail!("loop on {}", from);
-        }
-        let mvmnt = MovementID {
-            from,
-            to,
-            parent: self.i,
-            crosswalk: false,
+    fn get_mvmnt(&self, pair: (Pt2D, Pt2D), code: &str) -> Result<MovementID> {
+        // Code is something like "WBT", westbound through.
+        let code_turn_type = match code.chars().last() {
+            Some('T') => TurnType::Straight,
+            Some('L') => TurnType::Left,
+            Some('R') => TurnType::Right,
+            x => bail!("Weird movement_str {:?}", x),
         };
-        if !self.movements.contains_key(&mvmnt) {
-            bail!("Matched non-existent {:?}", mvmnt);
-        }
-        Ok(mvmnt)
+        Ok(*self
+            .movements
+            .iter()
+            .min_by_key(|(id, mvmnt)| {
+                let from_cost = pair.0.dist_to(self.roads_incoming[&id.from]);
+                let to_cost = pair.1.dist_to(self.roads_outgoing[&id.to]);
+                // Arbitrary tuning parameter.
+                let type_cost = if mvmnt.turn_type == code_turn_type {
+                    1.0
+                } else {
+                    2.0
+                };
+                // TODO We could also guess each movement's bearing (northbound, westbound, etc) and
+                // penalize based on not matching that.
+                type_cost * (from_cost + to_cost)
+            })
+            .unwrap()
+            .0)
     }
 }
