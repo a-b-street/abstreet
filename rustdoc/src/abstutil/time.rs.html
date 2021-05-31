@@ -576,6 +576,9 @@
 <span id="573">573</span>
 <span id="574">574</span>
 <span id="575">575</span>
+<span id="576">576</span>
+<span id="577">577</span>
+<span id="578">578</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">File</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">io</span>::{<span class="ident">stdout</span>, <span class="ident">BufReader</span>, <span class="ident">ErrorKind</span>, <span class="ident">Read</span>, <span class="ident">Write</span>};
@@ -937,6 +940,9 @@
         <span class="comment">// wasm; no threads.</span>
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>)]</span>
         {
+            <span class="comment">// Silence a warning</span>
+            <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">num_cpus</span>;
+
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">results</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">O</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
             <span class="self">self</span>.<span class="ident">start_iter</span>(<span class="ident">timer_name</span>, <span class="ident">requests</span>.<span class="ident">len</span>());
             <span class="kw">for</span> <span class="ident">req</span> <span class="kw">in</span> <span class="ident">requests</span> {
