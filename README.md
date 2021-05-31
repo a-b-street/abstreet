@@ -1,9 +1,9 @@
 # A/B Street
 
-Ever been stuck in traffic on a bus, wondering why is there legal street
-parking instead of a dedicated bus lane? A/B Street is a game exploring how
-small changes to a city affect the movement of drivers, cyclists, transit
-users, and pedestrians. It works anywhere in the world, thanks to
+Ever been stuck in traffic on a bus, wondering why is there legal street parking
+instead of a dedicated bus lane? A/B Street is a game exploring how small
+changes to a city affect the movement of drivers, cyclists, transit users, and
+pedestrians. It works anywhere in the world, thanks to
 [OpenStreetMap](https://www.openstreetmap.org/about).
 
 - Play on
@@ -122,8 +122,10 @@ Others:
 - Lots of help with rendering SVG and fonts from
   [RazrFalcon](https://github.com/RazrFalcon) and
   [nical](https://github.com/nical)
-- Lots of traffic signal and uber-turn work from [Bruce](https://github.com/BruceBrown)
-- [Elevation data](https://github.com/eldang/elevation_lookups) from [Eldan](https://eldang.xyz/)
+- Lots of traffic signal and uber-turn work from
+  [Bruce](https://github.com/BruceBrown)
+- [Elevation data](https://github.com/eldang/elevation_lookups) from
+  [Eldan](https://eldang.xyz/)
 
 Data:
 
