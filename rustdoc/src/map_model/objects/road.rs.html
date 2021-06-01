@@ -634,6 +634,10 @@
 <span id="631">631</span>
 <span id="632">632</span>
 <span id="633">633</span>
+<span id="634">634</span>
+<span id="635">635</span>
+<span id="636">636</span>
+<span id="637">637</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
@@ -849,6 +853,10 @@
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">speed_limit_from_osm</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Speed</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">limit</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">osm_tags</span>.<span class="ident">get</span>(<span class="ident">osm</span>::<span class="ident">MAXSPEED</span>) {
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">kmph</span>) <span class="op">=</span> <span class="ident">limit</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>() {
+                <span class="kw">if</span> <span class="ident">kmph</span> <span class="op">=</span><span class="op">=</span> <span class="number">0.0</span> {
+                    <span class="macro">warn</span><span class="macro">!</span>(<span class="string">&quot;{} has a speed limit of 0&quot;</span>, <span class="self">self</span>.<span class="ident">orig_id</span>.<span class="ident">osm_way_id</span>);
+                    <span class="kw">return</span> <span class="ident">Speed</span>::<span class="ident">miles_per_hour</span>(<span class="number">1.0</span>);
+                }
                 <span class="kw">return</span> <span class="ident">Speed</span>::<span class="ident">km_per_hour</span>(<span class="ident">kmph</span>);
             }
 
