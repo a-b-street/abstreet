@@ -212,6 +212,10 @@ impl Road {
     pub(crate) fn speed_limit_from_osm(&self) -> Speed {
         if let Some(limit) = self.osm_tags.get(osm::MAXSPEED) {
             if let Ok(kmph) = limit.parse::<f64>() {
+                if kmph == 0.0 {
+                    warn!("{} has a speed limit of 0", self.orig_id.osm_way_id);
+                    return Speed::miles_per_hour(1.0);
+                }
                 return Speed::km_per_hour(kmph);
             }
 

@@ -155,6 +155,8 @@ pub fn nice_map_name(name: &MapName) -> &str {
             ("tel_aviv", "center") => "Tel Aviv (city center)",
             _ => &name.map,
         },
+        // TODO I'm not naming the 9 maps in Tehran, because I'm not sure yet the boundaries are
+        // the ones that a researcher needs.
         "jp" => match (name.city.city.as_ref(), name.map.as_ref()) {
             ("hiroshima", "uni") => "Hiroshima University",
             _ => &name.map,
@@ -227,6 +229,7 @@ pub fn nice_country_name(code: &str) -> &str {
         "fr" => "France",
         "gb" => "Great Britain",
         "il" => "Israel",
+        "ir" => "Iran",
         "jp" => "Japan",
         "ly" => "Libya",
         "nz" => "New Zealand",

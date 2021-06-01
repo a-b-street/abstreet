@@ -120,6 +120,7 @@ async fn regenerate_everything(config: ImporterConfiguration, shard_num: usize, 
             || city == CityName::new("fr", "charleville_mezieres")
             || city == CityName::new("fr", "paris")
             || city == CityName::new("at", "salzburg")
+            || city == CityName::new("ir", "tehran")
         {
             job.city_overview = true;
         }

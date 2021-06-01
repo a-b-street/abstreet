@@ -1225,6 +1225,101 @@
       "uncompressed_size_bytes": 14673700,
       "compressed_size_bytes": 3139471
     },
+    "data/input/ir/tehran/osm/boundary0.osm": {
+      "checksum": "dacfe24fa30f4ecd5fe0033744e654a7",
+      "uncompressed_size_bytes": 3672813,
+      "compressed_size_bytes": 442477
+    },
+    "data/input/ir/tehran/osm/boundary1.osm": {
+      "checksum": "462ab49ed94c08bfa77d90324e2d2039",
+      "uncompressed_size_bytes": 3633723,
+      "compressed_size_bytes": 418267
+    },
+    "data/input/ir/tehran/osm/boundary2.osm": {
+      "checksum": "fb69b95c25b47963f5a2528e6fadfeeb",
+      "uncompressed_size_bytes": 4497848,
+      "compressed_size_bytes": 487727
+    },
+    "data/input/ir/tehran/osm/boundary3.osm": {
+      "checksum": "16759084c631a49b11b5f58c31f6cb25",
+      "uncompressed_size_bytes": 6639019,
+      "compressed_size_bytes": 806206
+    },
+    "data/input/ir/tehran/osm/boundary4.osm": {
+      "checksum": "e5ada6bf49dfa9dec08bbd19c2f85cff",
+      "uncompressed_size_bytes": 12330922,
+      "compressed_size_bytes": 1414808
+    },
+    "data/input/ir/tehran/osm/boundary5.osm": {
+      "checksum": "11f0809d59496d34677f49515c49d4ca",
+      "uncompressed_size_bytes": 5830169,
+      "compressed_size_bytes": 633244
+    },
+    "data/input/ir/tehran/osm/boundary6.osm": {
+      "checksum": "7dcf3c623a47df9337c99f40a365e5bc",
+      "uncompressed_size_bytes": 20659050,
+      "compressed_size_bytes": 2216049
+    },
+    "data/input/ir/tehran/osm/boundary7.osm": {
+      "checksum": "a3be39c530ed438c295459e5d3c5df7a",
+      "uncompressed_size_bytes": 11950966,
+      "compressed_size_bytes": 1399613
+    },
+    "data/input/ir/tehran/osm/boundary8.osm": {
+      "checksum": "59d14aa1463e7d8ddc5037eefc67de95",
+      "uncompressed_size_bytes": 5248215,
+      "compressed_size_bytes": 599973
+    },
+    "data/input/ir/tehran/osm/iran-latest.osm.pbf": {
+      "checksum": "7bef166aea49f4f1a320313259d535e7",
+      "uncompressed_size_bytes": 168661077,
+      "compressed_size_bytes": 168485097
+    },
+    "data/input/ir/tehran/raw_maps/boundary0.bin": {
+      "checksum": "ca5c27962f38f3148453c32c1f981531",
+      "uncompressed_size_bytes": 2711369,
+      "compressed_size_bytes": 453002
+    },
+    "data/input/ir/tehran/raw_maps/boundary1.bin": {
+      "checksum": "8b38dd26515496fbf5bc50ab39262d74",
+      "uncompressed_size_bytes": 2687314,
+      "compressed_size_bytes": 443650
+    },
+    "data/input/ir/tehran/raw_maps/boundary2.bin": {
+      "checksum": "4b9e874f15c3af2e726af9076671b2e1",
+      "uncompressed_size_bytes": 2395344,
+      "compressed_size_bytes": 450201
+    },
+    "data/input/ir/tehran/raw_maps/boundary3.bin": {
+      "checksum": "e506688cfaf8a08e312b2324f0304a0a",
+      "uncompressed_size_bytes": 5402837,
+      "compressed_size_bytes": 840956
+    },
+    "data/input/ir/tehran/raw_maps/boundary4.bin": {
+      "checksum": "4ca3d9078acd11cdca994f281f6c06df",
+      "uncompressed_size_bytes": 13843293,
+      "compressed_size_bytes": 2001659
+    },
+    "data/input/ir/tehran/raw_maps/boundary5.bin": {
+      "checksum": "44914fd8a92b74de8de61ee5409bbfaf",
+      "uncompressed_size_bytes": 5656621,
+      "compressed_size_bytes": 837046
+    },
+    "data/input/ir/tehran/raw_maps/boundary6.bin": {
+      "checksum": "ed1793aa247aecd28314ebeaa694943b",
+      "uncompressed_size_bytes": 7524812,
+      "compressed_size_bytes": 1307273
+    },
+    "data/input/ir/tehran/raw_maps/boundary7.bin": {
+      "checksum": "d6baf27f5348fed0652e583d313d3b08",
+      "uncompressed_size_bytes": 12711626,
+      "compressed_size_bytes": 1855831
+    },
+    "data/input/ir/tehran/raw_maps/boundary8.bin": {
+      "checksum": "104e473de5ce3323f6020632680fd843",
+      "uncompressed_size_bytes": 4951993,
+      "compressed_size_bytes": 756715
+    },
     "data/input/jp/hiroshima/osm/chugoku-latest.osm.pbf": {
       "checksum": "90f8c145f6be9bcc5f953a74963026e9",
       "uncompressed_size_bytes": 144294570,
@@ -1574,6 +1669,11 @@
       "checksum": "36aedf6e339748611462dee5bb9e20d4",
       "uncompressed_size_bytes": 4186298,
       "compressed_size_bytes": 4182806
+    },
+    "data/input/shared/elevation/srtm/srtm.51.35.tif": {
+      "checksum": "ae91bcd1e298c61c6a9d8a37b5bad54a",
+      "uncompressed_size_bytes": 6229654,
+      "compressed_size_bytes": 6225638
     },
     "data/input/shared/geofabrik-index.json": {
       "checksum": "9199b31132bd1231f4136ed38d4bdc43",
@@ -3644,6 +3744,56 @@
       "checksum": "e5bef01c5afce4629e48082ca9fa0fd6",
       "uncompressed_size_bytes": 58130877,
       "compressed_size_bytes": 19340562
+    },
+    "data/system/ir/tehran/city.bin": {
+      "checksum": "8c196b306f1ebe4df0282b78778f8661",
+      "uncompressed_size_bytes": 946386,
+      "compressed_size_bytes": 475421
+    },
+    "data/system/ir/tehran/maps/boundary0.bin": {
+      "checksum": "37f5f2162ec64dc42f34d982cbd73ed3",
+      "uncompressed_size_bytes": 17891979,
+      "compressed_size_bytes": 5848402
+    },
+    "data/system/ir/tehran/maps/boundary1.bin": {
+      "checksum": "ba1cda51c30c499117fbd6964f9d1315",
+      "uncompressed_size_bytes": 18080753,
+      "compressed_size_bytes": 5899405
+    },
+    "data/system/ir/tehran/maps/boundary2.bin": {
+      "checksum": "a446610870e8981bae80847bd28667eb",
+      "uncompressed_size_bytes": 16161547,
+      "compressed_size_bytes": 5351812
+    },
+    "data/system/ir/tehran/maps/boundary3.bin": {
+      "checksum": "f28f573134c3d9eff90f768afd5c36d2",
+      "uncompressed_size_bytes": 35778225,
+      "compressed_size_bytes": 11586367
+    },
+    "data/system/ir/tehran/maps/boundary4.bin": {
+      "checksum": "e5766280eb4b952ea58011ec4f9e373e",
+      "uncompressed_size_bytes": 101048128,
+      "compressed_size_bytes": 33365351
+    },
+    "data/system/ir/tehran/maps/boundary5.bin": {
+      "checksum": "bc95886de6f354162f5617763277cf5d",
+      "uncompressed_size_bytes": 43875238,
+      "compressed_size_bytes": 14384272
+    },
+    "data/system/ir/tehran/maps/boundary6.bin": {
+      "checksum": "3d056c42c47a5e4cb1bc4d1e46976527",
+      "uncompressed_size_bytes": 43505457,
+      "compressed_size_bytes": 14200495
+    },
+    "data/system/ir/tehran/maps/boundary7.bin": {
+      "checksum": "68b35dc0af66d82fcf0a11ac84c51345",
+      "uncompressed_size_bytes": 88312965,
+      "compressed_size_bytes": 28744313
+    },
+    "data/system/ir/tehran/maps/boundary8.bin": {
+      "checksum": "1825170cd98ef197c8e0dc6a4127beae",
+      "uncompressed_size_bytes": 38405851,
+      "compressed_size_bytes": 12632327
     },
     "data/system/jp/hiroshima/maps/uni.bin": {
       "checksum": "e5625c2057489baa419095c7b4ea6839",

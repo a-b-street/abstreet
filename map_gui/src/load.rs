@@ -42,7 +42,7 @@ impl MapLoader {
 
         // TODO Generalize this more, maybe with some kind of country code -> font config
         if let Some(extra_font) = match name.city.country.as_ref() {
-            "ly" => Some("NotoSansArabic-Regular.ttf"),
+            "ir" | "ly" => Some("NotoSansArabic-Regular.ttf"),
             "jp" => Some("NotoSerifCJKtc-Regular.otf"),
             "tw" => Some("NotoSerifCJKtc-Regular.otf"),
             _ => None,
