@@ -343,8 +343,7 @@ fn calculate_turn_markings(map: &Map, lane: &Lane) -> Vec<Polygon> {
     results.push(common_base.make_polygons(thickness));
 
     for (_, angles) in angles_per_road.into_iter() {
-        let n = angles.len() as f64;
-        let avg = angles.into_iter().sum::<Angle>() / n;
+        let avg = Angle::average(angles);
         results.push(
             PolyLine::must_new(vec![
                 common_base.last_pt(),

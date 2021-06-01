@@ -213,7 +213,7 @@ fn infer_spots(lot_polygon: &Polygon, aisles: &[Vec<Pt2D>]) -> Vec<(Pt2D, Angle)
                         && line_valid(lot_polygon, aisles, l2, &finalized_lines)
                         && line_valid(lot_polygon, aisles, &back, &finalized_lines)
                     {
-                        let avg_angle = (l1.angle() + l2.angle()) / 2.0;
+                        let avg_angle = Angle::average(vec![l1.angle(), l2.angle()]);
                         spots.push((back.middle().unwrap(), avg_angle.opposite()));
                         finalized_lines.push(l1.clone());
                         finalized_lines.push(l2.clone());

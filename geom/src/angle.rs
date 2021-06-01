@@ -80,6 +80,19 @@ impl Angle {
         }
         result
     }
+
+    /// Calculates the average of some angles.
+    pub fn average(input: Vec<Angle>) -> Angle {
+        // Thanks https://rosettacode.org/wiki/Averages/Mean_angle
+        let num = input.len() as f64;
+        let mut cos_sum = 0.0;
+        let mut sin_sum = 0.0;
+        for x in input {
+            cos_sum += x.0.cos();
+            sin_sum += x.0.sin();
+        }
+        Angle::new_rads((sin_sum / num).atan2(cos_sum / num))
+    }
 }
 
 impl fmt::Display for Angle {
@@ -101,29 +114,5 @@ impl std::ops::Neg for Angle {
 
     fn neg(self) -> Angle {
         Angle::new_rads(-self.0)
-    }
-}
-
-impl std::ops::Div<f64> for Angle {
-    type Output = Angle;
-
-    fn div(self, scalar: f64) -> Angle {
-        if scalar == 0.0 {
-            panic!("Can't divide {} / {}", self, scalar);
-        }
-        Angle::new_rads(self.0 / scalar)
-    }
-}
-
-impl std::iter::Sum for Angle {
-    fn sum<I>(iter: I) -> Angle
-    where
-        I: Iterator<Item = Angle>,
-    {
-        let mut sum = Angle::ZERO;
-        for x in iter {
-            sum = sum + x;
-        }
-        sum
     }
 }
