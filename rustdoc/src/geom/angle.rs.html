@@ -119,17 +119,6 @@
 <span id="116">116</span>
 <span id="117">117</span>
 <span id="118">118</span>
-<span id="119">119</span>
-<span id="120">120</span>
-<span id="121">121</span>
-<span id="122">122</span>
-<span id="123">123</span>
-<span id="124">124</span>
-<span id="125">125</span>
-<span id="126">126</span>
-<span id="127">127</span>
-<span id="128">128</span>
-<span id="129">129</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
 
@@ -213,6 +202,19 @@
         }
         <span class="ident">result</span>
     }
+
+    <span class="doccomment">/// Calculates the average of some angles.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">average</span>(<span class="ident">input</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Angle</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Angle</span> {
+        <span class="comment">// Thanks https://rosettacode.org/wiki/Averages/Mean_angle</span>
+        <span class="kw">let</span> <span class="ident">num</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">f64</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cos_sum</span> <span class="op">=</span> <span class="number">0.0</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">sin_sum</span> <span class="op">=</span> <span class="number">0.0</span>;
+        <span class="kw">for</span> <span class="ident">x</span> <span class="kw">in</span> <span class="ident">input</span> {
+            <span class="ident">cos_sum</span> <span class="op">+</span><span class="op">=</span> <span class="ident">x</span>.<span class="number">0</span>.<span class="ident">cos</span>();
+            <span class="ident">sin_sum</span> <span class="op">+</span><span class="op">=</span> <span class="ident">x</span>.<span class="number">0</span>.<span class="ident">sin</span>();
+        }
+        <span class="ident">Angle</span>::<span class="ident">new_rads</span>((<span class="ident">sin_sum</span> <span class="op">/</span> <span class="ident">num</span>).<span class="ident">atan2</span>(<span class="ident">cos_sum</span> <span class="op">/</span> <span class="ident">num</span>))
+    }
 }
 
 <span class="kw">impl</span> <span class="ident">fmt</span>::<span class="ident">Display</span> <span class="kw">for</span> <span class="ident">Angle</span> {
@@ -234,30 +236,6 @@
 
     <span class="kw">fn</span> <span class="ident">neg</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Angle</span> {
         <span class="ident">Angle</span>::<span class="ident">new_rads</span>(<span class="op">-</span><span class="self">self</span>.<span class="number">0</span>)
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">std</span>::<span class="ident">ops</span>::<span class="ident">Div</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Angle</span> {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Angle</span>;
-
-    <span class="kw">fn</span> <span class="ident">div</span>(<span class="self">self</span>, <span class="ident">scalar</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Angle</span> {
-        <span class="kw">if</span> <span class="ident">scalar</span> <span class="op">=</span><span class="op">=</span> <span class="number">0.0</span> {
-            <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Can&#39;t divide {} / {}&quot;</span>, <span class="self">self</span>, <span class="ident">scalar</span>);
-        }
-        <span class="ident">Angle</span>::<span class="ident">new_rads</span>(<span class="self">self</span>.<span class="number">0</span> <span class="op">/</span> <span class="ident">scalar</span>)
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">std</span>::<span class="ident">iter</span>::<span class="ident">Sum</span> <span class="kw">for</span> <span class="ident">Angle</span> {
-    <span class="kw">fn</span> <span class="ident">sum</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(<span class="ident">iter</span>: <span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Angle</span>
-    <span class="kw">where</span>
-        <span class="ident">I</span>: <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">Angle</span><span class="op">&gt;</span>,
-    {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">sum</span> <span class="op">=</span> <span class="ident">Angle</span>::<span class="ident">ZERO</span>;
-        <span class="kw">for</span> <span class="ident">x</span> <span class="kw">in</span> <span class="ident">iter</span> {
-            <span class="ident">sum</span> <span class="op">=</span> <span class="ident">sum</span> <span class="op">+</span> <span class="ident">x</span>;
-        }
-        <span class="ident">sum</span>
     }
 }
 </pre></div>

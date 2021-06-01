@@ -390,7 +390,6 @@
 <span id="387">387</span>
 <span id="388">388</span>
 <span id="389">389</span>
-<span id="390">390</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cell</span>::<span class="ident">RefCell</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashMap</span>;
@@ -737,8 +736,7 @@
     <span class="ident">results</span>.<span class="ident">push</span>(<span class="ident">common_base</span>.<span class="ident">make_polygons</span>(<span class="ident">thickness</span>));
 
     <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">angles</span>) <span class="kw">in</span> <span class="ident">angles_per_road</span>.<span class="ident">into_iter</span>() {
-        <span class="kw">let</span> <span class="ident">n</span> <span class="op">=</span> <span class="ident">angles</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">f64</span>;
-        <span class="kw">let</span> <span class="ident">avg</span> <span class="op">=</span> <span class="ident">angles</span>.<span class="ident">into_iter</span>().<span class="ident">sum</span>::<span class="op">&lt;</span><span class="ident">Angle</span><span class="op">&gt;</span>() <span class="op">/</span> <span class="ident">n</span>;
+        <span class="kw">let</span> <span class="ident">avg</span> <span class="op">=</span> <span class="ident">Angle</span>::<span class="ident">average</span>(<span class="ident">angles</span>);
         <span class="ident">results</span>.<span class="ident">push</span>(
             <span class="ident">PolyLine</span>::<span class="ident">must_new</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">common_base</span>.<span class="ident">last_pt</span>(),
