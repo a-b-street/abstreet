@@ -233,7 +233,7 @@ fn make_controls(
     ));
     col.push(Toggle::checkbox(
         ctx,
-        "show where pedestrians cross wide intersections",
+        "show where pedestrians cross arterial intersections",
         None,
         opts.show_arterial_crossings,
     ));
