@@ -194,6 +194,7 @@ pub fn edit_entire_signal(
         .last_gmns_timing_csv
         .as_ref()
         .map(|x| format!("import from GMNS {}", x));
+    let gmns_all = "import all traffic signals from a new GMNS timing.csv";
 
     let mut choices = vec![use_template.to_string()];
     if has_sidewalks {
@@ -210,6 +211,7 @@ pub fn edit_entire_signal(
     if let Some(x) = gmns_existing.clone() {
         choices.push(x);
     }
+    choices.push(gmns_all.to_string());
 
     ChooseSomething::new_state(
         ctx,
@@ -378,6 +380,26 @@ pub fn edit_entire_signal(
                     )),
                 }
             }
+            x if x == gmns_all => Transition::Replace(FilePicker::new_state(
+                ctx,
+                None,
+                Box::new(move |ctx, app, maybe_path| {
+                    if let Ok(Some(path)) = maybe_path {
+                        // TODO This menu for a single intersection is a strange place to import for all
+                        // intersections, but I'm not sure where else it should go. Also, this will
+                        // blindly overwrite changes for all intersections and quit the current editor.
+                        Transition::Multi(vec![
+                            Transition::Pop,
+                            Transition::Pop,
+                            Transition::Push(crate::edit::traffic_signals::gmns::import_all(
+                                ctx, app, &path,
+                            )),
+                        ])
+                    } else {
+                        Transition::Pop
+                    }
+                }),
+            )),
             _ => unreachable!(),
         }),
     )

@@ -6,10 +6,15 @@ use anyhow::Result;
 use serde::{Deserialize, Deserializer};
 
 use geom::{Angle, Duration, LonLat, Pt2D};
+use map_gui::tools::PopupMsg;
 use map_model::{
-    osm, ControlTrafficSignal, DirectedRoadID, DrivingSide, IntersectionID, Map, Movement,
-    MovementID, Stage, StageType, TurnPriority, TurnType,
+    osm, ControlTrafficSignal, DirectedRoadID, DrivingSide, EditCmd, EditIntersection,
+    IntersectionID, Map, Movement, MovementID, Stage, StageType, TurnPriority, TurnType,
 };
+use widgetry::{EventCtx, State};
+
+use crate::edit::apply_map_edits;
+use crate::App;
 
 /// This imports timing.csv from https://github.com/asu-trans-ai-lab/Vol2Timing. It operates in a
 /// best-effort / permissive mode, skipping over mismatched movements and other problems and should
@@ -38,13 +43,13 @@ pub fn import(map: &Map, i: IntersectionID, path: &str) -> Result<ControlTraffic
 
     let snapper = Snapper::new(map, i.id)?;
 
-    let mut tsig = ControlTrafficSignal::new(map, i.id);
-    tsig.stages.clear();
+    let mut signal = ControlTrafficSignal::new(map, i.id);
+    signal.stages.clear();
     for rec in records {
         let stage_idx = rec.stage - 1;
-        match tsig.stages.len().cmp(&stage_idx) {
+        match signal.stages.len().cmp(&stage_idx) {
             std::cmp::Ordering::Equal => {
-                tsig.stages.push(Stage {
+                signal.stages.push(Stage {
                     protected_movements: BTreeSet::new(),
                     yield_movements: BTreeSet::new(),
                     stage_type: StageType::Fixed(Duration::seconds(rec.green_time as f64)),
@@ -55,7 +60,7 @@ pub fn import(map: &Map, i: IntersectionID, path: &str) -> Result<ControlTraffic
             }
             std::cmp::Ordering::Greater => {}
         }
-        let stage = &mut tsig.stages[stage_idx];
+        let stage = &mut signal.stages[stage_idx];
 
         if stage.stage_type.simple_duration() != Duration::seconds(rec.green_time as f64) {
             bail!(
@@ -90,9 +95,58 @@ pub fn import(map: &Map, i: IntersectionID, path: &str) -> Result<ControlTraffic
         }
     }
 
-    add_crosswalks(&mut tsig, map);
+    add_crosswalks(&mut signal, map);
 
-    Ok(tsig)
+    Ok(signal)
+}
+
+pub fn import_all(ctx: &mut EventCtx, app: &mut App, path: &str) -> Box<dyn State<App>> {
+    let all_signals: Vec<IntersectionID> = app
+        .primary
+        .map
+        .all_intersections()
+        .into_iter()
+        .filter_map(|i| {
+            if i.is_traffic_signal() {
+                Some(i.id)
+            } else {
+                None
+            }
+        })
+        .collect();
+    let mut successes = 0;
+    let mut failures = 0;
+    let mut edits = app.primary.map.get_edits().clone();
+
+    for i in all_signals {
+        match import(&app.primary.map, i, path).and_then(|signal| signal.validate().map(|_| signal))
+        {
+            Ok(signal) => {
+                info!("Success at {}", i);
+                successes += 1;
+                edits.commands.push(EditCmd::ChangeIntersection {
+                    i,
+                    old: app.primary.map.get_i_edit(i),
+                    new: EditIntersection::TrafficSignal(signal.export(&app.primary.map)),
+                });
+            }
+            Err(err) => {
+                error!("Failure at {}: {}", i, err);
+                failures += 1;
+            }
+        }
+    }
+
+    apply_map_edits(ctx, app, edits);
+
+    PopupMsg::new_state(
+        ctx,
+        &format!("Import from {}", path),
+        vec![
+            format!("{} traffic signals successfully imported", successes),
+            format!("{} failures, no changes made", failures),
+        ],
+    )
 }
 
 #[derive(Debug, Deserialize)]
@@ -268,7 +322,7 @@ fn cardinal_direction(angle: Angle) -> &'static str {
 // The GMNS input doesn't include crosswalks yet -- and even once it does, it's likely the two map
 // models will disagree about where sidewalks exist. Try to add all crosswalks to the stage where
 // they're compatible. Downgrade right turns from protected to permitted as needed.
-fn add_crosswalks(tsig: &mut ControlTrafficSignal, map: &Map) {
+fn add_crosswalks(signal: &mut ControlTrafficSignal, map: &Map) {
     let downgrade_type = if map.get_config().driving_side == DrivingSide::Right {
         TurnType::Right
     } else {
@@ -276,17 +330,17 @@ fn add_crosswalks(tsig: &mut ControlTrafficSignal, map: &Map) {
     };
 
     let mut crosswalks: Vec<MovementID> = Vec::new();
-    for id in tsig.movements.keys() {
+    for id in signal.movements.keys() {
         if id.crosswalk {
             crosswalks.push(*id);
         }
     }
     // Temporary for the borrow checker
-    let movements = std::mem::take(&mut tsig.movements);
+    let movements = std::mem::take(&mut signal.movements);
 
     // We could try to look for straight turns parallel to the crosswalk, but... just brute-force
     // it
-    for stage in &mut tsig.stages {
+    for stage in &mut signal.stages {
         crosswalks.retain(|id| {
             if stage.could_be_protected(*id, &movements) {
                 stage.edit_movement(&movements[id], TurnPriority::Protected);
@@ -311,5 +365,5 @@ fn add_crosswalks(tsig: &mut ControlTrafficSignal, map: &Map) {
         });
     }
 
-    tsig.movements = movements;
+    signal.movements = movements;
 }
