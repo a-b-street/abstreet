@@ -7,8 +7,8 @@ use serde::{Deserialize, Deserializer};
 
 use geom::{Angle, Duration, LonLat, Pt2D};
 use map_model::{
-    osm, ControlTrafficSignal, DirectedRoadID, IntersectionID, Map, Movement, MovementID, Stage,
-    StageType, TurnType,
+    osm, ControlTrafficSignal, DirectedRoadID, DrivingSide, IntersectionID, Map, Movement,
+    MovementID, Stage, StageType, TurnPriority, TurnType,
 };
 
 /// This imports timing.csv from https://github.com/asu-trans-ai-lab/Vol2Timing. It operates in a
@@ -89,6 +89,8 @@ pub fn import(map: &Map, i: IntersectionID, path: &str) -> Result<ControlTraffic
             stage.yield_movements.insert(mvmnt);
         }
     }
+
+    add_crosswalks(&mut tsig, map);
 
     Ok(tsig)
 }
@@ -261,4 +263,53 @@ fn cardinal_direction(angle: Angle) -> &'static str {
         return "WB";
     }
     "NB"
+}
+
+// The GMNS input doesn't include crosswalks yet -- and even once it does, it's likely the two map
+// models will disagree about where sidewalks exist. Try to add all crosswalks to the stage where
+// they're compatible. Downgrade right turns from protected to permitted as needed.
+fn add_crosswalks(tsig: &mut ControlTrafficSignal, map: &Map) {
+    let downgrade_type = if map.get_config().driving_side == DrivingSide::Right {
+        TurnType::Right
+    } else {
+        TurnType::Left
+    };
+
+    let mut crosswalks: Vec<MovementID> = Vec::new();
+    for id in tsig.movements.keys() {
+        if id.crosswalk {
+            crosswalks.push(*id);
+        }
+    }
+    // Temporary for the borrow checker
+    let movements = std::mem::take(&mut tsig.movements);
+
+    // We could try to look for straight turns parallel to the crosswalk, but... just brute-force
+    // it
+    for stage in &mut tsig.stages {
+        crosswalks.retain(|id| {
+            if stage.could_be_protected(*id, &movements) {
+                stage.edit_movement(&movements[id], TurnPriority::Protected);
+                false
+            } else {
+                // There may be conflicting right turns that we can downgrade. Try that.
+                let mut stage_copy = stage.clone();
+                for maybe_right_turn in stage.protected_movements.clone() {
+                    if movements[&maybe_right_turn].turn_type == downgrade_type {
+                        stage.protected_movements.remove(&maybe_right_turn);
+                        stage.yield_movements.insert(maybe_right_turn);
+                    }
+                }
+                if stage_copy.could_be_protected(*id, &movements) {
+                    stage_copy.edit_movement(&movements[id], TurnPriority::Protected);
+                    *stage = stage_copy;
+                    false
+                } else {
+                    true
+                }
+            }
+        });
+    }
+
+    tsig.movements = movements;
 }
