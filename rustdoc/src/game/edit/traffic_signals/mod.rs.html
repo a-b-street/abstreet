@@ -955,8 +955,38 @@
 <span id="952">952</span>
 <span id="953">953</span>
 <span id="954">954</span>
+<span id="955">955</span>
+<span id="956">956</span>
+<span id="957">957</span>
+<span id="958">958</span>
+<span id="959">959</span>
+<span id="960">960</span>
+<span id="961">961</span>
+<span id="962">962</span>
+<span id="963">963</span>
+<span id="964">964</span>
+<span id="965">965</span>
+<span id="966">966</span>
+<span id="967">967</span>
+<span id="968">968</span>
+<span id="969">969</span>
+<span id="970">970</span>
+<span id="971">971</span>
+<span id="972">972</span>
+<span id="973">973</span>
+<span id="974">974</span>
+<span id="975">975</span>
+<span id="976">976</span>
+<span id="977">977</span>
+<span id="978">978</span>
+<span id="979">979</span>
+<span id="980">980</span>
+<span id="981">981</span>
+<span id="982">982</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeSet</span>, <span class="ident">VecDeque</span>};
+
+<span class="kw">use</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span>;
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Timer</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Line</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
@@ -1133,6 +1163,14 @@
         <span class="self">self</span>.<span class="ident">draw_current</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">batch</span>);
         <span class="self">self</span>.<span class="ident">movements</span> <span class="op">=</span> <span class="ident">movements</span>;
     }
+
+    <span class="comment">// We may have imported the signal configuration without validating it.</span>
+    <span class="kw">fn</span> <span class="ident">validate_all_members</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">members</span> {
+            <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_traffic_signal</span>(<span class="kw-2">*</span><span class="ident">i</span>).<span class="ident">validate</span>()<span class="question-mark">?</span>;
+        }
+        <span class="prelude-val">Ok</span>(())
+    }
 }
 
 <span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">TrafficSignalEditor</span> {
@@ -1257,6 +1295,15 @@
                                 changes to include them.&quot;</span>,
                             ],
                         ));
+                    } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">validate_all_members</span>(<span class="ident">app</span>) {
+                        <span class="comment">// TODO There&#39;s some crash between usvg and lyon trying to tesellate the</span>
+                        <span class="comment">// error text!</span>
+                        <span class="macro">error</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">err</span>);
+                        <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">PopupMsg</span>::<span class="ident">new_state</span>(
+                            <span class="ident">ctx</span>,
+                            <span class="string">&quot;Error&quot;</span>,
+                            <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;This signal configuration is somehow invalid; check the console logs&quot;</span>]
+                        ));
                     } <span class="kw">else</span> {
                         <span class="kw">let</span> <span class="ident">changes</span> <span class="op">=</span> <span class="ident">BundleEdits</span>::<span class="ident">get_current</span>(<span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">members</span>);
                         <span class="self">self</span>.<span class="ident">original</span>.<span class="ident">apply</span>(<span class="ident">app</span>);
@@ -1278,6 +1325,15 @@
                     ));
                 }
                 <span class="string">&quot;Edit multiple signals&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">validate_all_members</span>(<span class="ident">app</span>) {
+                        <span class="macro">error</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">err</span>);
+                        <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">PopupMsg</span>::<span class="ident">new_state</span>(
+                            <span class="ident">ctx</span>,
+                            <span class="string">&quot;Error&quot;</span>,
+                            <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;This signal configuration is somehow invalid; check the console logs&quot;</span>]
+                        ));
+                    }
+
                     <span class="comment">// First commit the current changes, so we enter SignalPicker with clean state.</span>
                     <span class="comment">// This UX flow is a little unintuitive.</span>
                     <span class="kw">let</span> <span class="ident">changes</span> <span class="op">=</span> <span class="ident">check_for_missing_turns</span>(<span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">members</span>)
