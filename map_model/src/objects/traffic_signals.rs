@@ -104,7 +104,7 @@ impl ControlTrafficSignal {
         Duration::seconds(time.inner_seconds().ceil())
     }
 
-    pub(crate) fn validate(&self) -> Result<()> {
+    pub fn validate(&self) -> Result<()> {
         // Does the assignment cover the correct set of movements?
         let expected_movements: BTreeSet<MovementID> = self.movements.keys().cloned().collect();
         let mut actual_movements: BTreeSet<MovementID> = BTreeSet::new();

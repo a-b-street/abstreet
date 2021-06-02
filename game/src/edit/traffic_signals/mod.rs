@@ -1,5 +1,7 @@
 use std::collections::{BTreeSet, VecDeque};
 
+use anyhow::Result;
+
 use abstutil::Timer;
 use geom::{Distance, Line, Polygon, Pt2D};
 use map_gui::options::TrafficSignalStyle;
@@ -175,6 +177,14 @@ impl TrafficSignalEditor {
         self.draw_current = ctx.upload(batch);
         self.movements = movements;
     }
+
+    // We may have imported the signal configuration without validating it.
+    fn validate_all_members(&self, app: &App) -> Result<()> {
+        for i in &self.members {
+            app.primary.map.get_traffic_signal(*i).validate()?;
+        }
+        Ok(())
+    }
 }
 
 impl State<App> for TrafficSignalEditor {
@@ -299,6 +309,15 @@ impl State<App> for TrafficSignalEditor {
                                 changes to include them.",
                             ],
                         ));
+                    } else if let Err(err) = self.validate_all_members(app) {
+                        // TODO There's some crash between usvg and lyon trying to tesellate the
+                        // error text!
+                        error!("{}", err);
+                        return Transition::Push(PopupMsg::new_state(
+                            ctx,
+                            "Error",
+                            vec!["This signal configuration is somehow invalid; check the console logs"]
+                        ));
                     } else {
                         let changes = BundleEdits::get_current(app, &self.members);
                         self.original.apply(app);
@@ -320,6 +339,15 @@ impl State<App> for TrafficSignalEditor {
                     ));
                 }
                 "Edit multiple signals" => {
+                    if let Err(err) = self.validate_all_members(app) {
+                        error!("{}", err);
+                        return Transition::Push(PopupMsg::new_state(
+                            ctx,
+                            "Error",
+                            vec!["This signal configuration is somehow invalid; check the console logs"]
+                        ));
+                    }
+
                     // First commit the current changes, so we enter SignalPicker with clean state.
                     // This UX flow is a little unintuitive.
                     let changes = check_for_missing_turns(app, &self.members)
