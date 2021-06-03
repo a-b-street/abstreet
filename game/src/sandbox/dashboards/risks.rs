@@ -1,5 +1,10 @@
 use std::collections::BTreeSet;
+use std::fs::File;
+use std::io::Write;
 
+use anyhow::Result;
+
+use map_gui::tools::PopupMsg;
 use sim::TripMode;
 use widgetry::{EventCtx, GfxCtx, Image, Line, Outcome, Panel, State, TextExt, Toggle, Widget};
 
@@ -116,6 +121,7 @@ impl RiskSummaries {
                     ],
                 )
                 .margin_above(30),
+                ctx.style().btn_plain.text("Export to CSV").build_def(ctx),
             ]))
             .exact_size_percent(90, 90)
             .build(ctx),
@@ -128,6 +134,18 @@ impl State<App> for RiskSummaries {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "close" => Transition::Pop,
+                "Export to CSV" => {
+                    return Transition::Push(match export_problems(app) {
+                        Ok(path) => PopupMsg::new_state(
+                            ctx,
+                            "Data exported",
+                            vec![format!("Data exported to {}", path)],
+                        ),
+                        Err(err) => {
+                            PopupMsg::new_state(ctx, "Export failed", vec![err.to_string()])
+                        }
+                    });
+                }
                 _ => unreachable!(),
             },
             Outcome::Changed(_) => {
@@ -159,4 +177,44 @@ impl TripProblemFilter for Filter {
     fn include_no_changes(&self) -> bool {
         self.include_no_changes
     }
+}
+
+fn export_problems(app: &App) -> Result<String> {
+    let path = format!(
+        "trip_problems_{}_{}.csv",
+        app.primary.map.get_name().as_filename(),
+        app.primary.sim.time().as_filename()
+    );
+    let mut f = File::create(&path)?;
+    writeln!(
+        f,
+        "id,mode,seconds_after,problem_type,problems_before,problems_after"
+    )?;
+
+    let before = app.prebaked();
+    let after = app.primary.sim.get_analytics();
+    let empty = Vec::new();
+
+    for (id, _, time_after, mode) in after.both_finished_trips(app.primary.sim.time(), before) {
+        for problem_type in ProblemType::all() {
+            let count_before =
+                problem_type.count(before.problems_per_trip.get(&id).unwrap_or(&empty));
+            let count_after =
+                problem_type.count(after.problems_per_trip.get(&id).unwrap_or(&empty));
+            if count_before != 0 || count_after != 0 {
+                writeln!(
+                    f,
+                    "{},{:?},{},{:?},{},{}",
+                    id.0,
+                    mode,
+                    time_after.inner_seconds(),
+                    problem_type,
+                    count_before,
+                    count_after
+                )?;
+            }
+        }
+    }
+
+    Ok(path)
 }

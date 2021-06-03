@@ -8,7 +8,7 @@ use widgetry::{Color, DrawWithTooltips, GeomBatch, GeomBatchStack, Text, Widget}
 
 use crate::{App, EventCtx};
 
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 pub enum ProblemType {
     IntersectionDelay,
     ComplexIntersectionCrossing,
@@ -36,6 +36,15 @@ impl ProblemType {
             }
         }
         cnt
+    }
+
+    pub fn all() -> Vec<ProblemType> {
+        vec![
+            ProblemType::IntersectionDelay,
+            ProblemType::ComplexIntersectionCrossing,
+            ProblemType::OvertakeDesired,
+            ProblemType::ArterialIntersectionCrossing,
+        ]
     }
 }
 

@@ -105,7 +105,7 @@ pub fn import_all(ctx: &mut EventCtx, app: &mut App, path: &str) -> Box<dyn Stat
         .primary
         .map
         .all_intersections()
-        .into_iter()
+        .iter()
         .filter_map(|i| {
             if i.is_traffic_signal() {
                 Some(i.id)
