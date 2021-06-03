@@ -646,6 +646,10 @@
 <span id="643">643</span>
 <span id="644">644</span>
 <span id="645">645</span>
+<span id="646">646</span>
+<span id="647">647</span>
+<span id="648">648</span>
+<span id="649">649</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cell</span>::<span class="ident">Cell</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">rc</span>::<span class="ident">Rc</span>;
@@ -1026,7 +1030,7 @@
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">window</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">winit</span>::<span class="ident">window</span>::<span class="ident">Window</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">window</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">winit</span>::<span class="ident">window</span>::<span class="ident">Window</span> {
         <span class="self">self</span>.<span class="ident">window_adapter</span>.<span class="ident">window</span>()
     }
 
@@ -1036,6 +1040,10 @@
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_cursor_icon</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">icon</span>: <span class="ident">winit</span>::<span class="ident">window</span>::<span class="ident">CursorIcon</span>) {
         <span class="self">self</span>.<span class="ident">window</span>().<span class="ident">set_cursor_icon</span>(<span class="ident">icon</span>);
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_cursor_visible</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">visible</span>: <span class="ident">bool</span>) {
+        <span class="self">self</span>.<span class="ident">window</span>().<span class="ident">set_cursor_visible</span>(<span class="ident">visible</span>);
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw_new_frame</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">GfxCtxInnards</span> {

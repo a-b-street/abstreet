@@ -217,6 +217,27 @@
 <span id="214">214</span>
 <span id="215">215</span>
 <span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
+<span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 
@@ -226,12 +247,11 @@
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">EditRoad</span>, <span class="ident">MapEdits</span>, <span class="ident">RoadID</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>,
-    <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">State</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">Transition</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">common</span>::<span class="ident">CommonState</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">edit</span>::<span class="ident">apply_map_edits</span>;
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SelectSegments</span> {
@@ -243,6 +263,7 @@
     <span class="ident">current</span>: <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span>,
     <span class="ident">draw</span>: <span class="ident">Drawable</span>,
     <span class="ident">panel</span>: <span class="ident">Panel</span>,
+    <span class="ident">selected</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">SelectSegments</span> {
@@ -283,6 +304,7 @@
             <span class="ident">current</span>,
             <span class="ident">draw</span>: <span class="ident">Drawable</span>::<span class="ident">empty</span>(<span class="ident">ctx</span>),
             <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">empty</span>(<span class="ident">ctx</span>),
+            <span class="ident">selected</span>: <span class="prelude-val">None</span>,
         };
         <span class="ident">state</span>.<span class="ident">recalculate</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
         <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">state</span>)
@@ -312,37 +334,35 @@
 
         <span class="comment">// Update the panel</span>
         <span class="self">self</span>.<span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel</span>::<span class="ident">new_builder</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">Line</span>(<span class="string">&quot;Apply changes to multiple road segments&quot;</span>)
+            <span class="ident">Line</span>(<span class="string">&quot;Apply changes to similar roads&quot;</span>)
                 .<span class="ident">small_heading</span>()
                 .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-            <span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(
-                    <span class="string">&quot;{} / {} similar segments selected&quot;</span>,
-                    <span class="self">self</span>.<span class="ident">current</span>.<span class="ident">len</span>(),
-                    <span class="self">self</span>.<span class="ident">candidates</span>.<span class="ident">len</span>()
-                )),
-                <span class="ident">Line</span>(<span class="string">&quot;Click a segment to select/deselect it.&quot;</span>),
-                <span class="ident">Line</span>(<span class="string">&quot;Only road segments with similar lane configuration are shown.&quot;</span>).<span class="ident">secondary</span>(),
-            ])
-            .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+            <span class="macro">format</span><span class="macro">!</span>(
+                <span class="string">&quot;{} / {} roads similar to #{} are selected&quot;</span>,
+                <span class="self">self</span>.<span class="ident">current</span>.<span class="ident">len</span>(),
+                <span class="self">self</span>.<span class="ident">candidates</span>.<span class="ident">len</span>(),
+                <span class="self">self</span>.<span class="ident">base_road</span>.<span class="number">0</span>
+            )
+            .<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
             <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                <span class="string">&quot;Click to select/unselect&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_outline</span>
+                    .<span class="ident">btn_plain</span>
                     .<span class="ident">text</span>(<span class="string">&quot;Select all&quot;</span>)
                     .<span class="ident">disabled</span>(<span class="self">self</span>.<span class="ident">current</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">candidates</span>.<span class="ident">len</span>())
                     .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_outline</span>
-                    .<span class="ident">text</span>(<span class="string">&quot;Deselect all&quot;</span>)
+                    .<span class="ident">btn_plain</span>
+                    .<span class="ident">text</span>(<span class="string">&quot;Unselect all&quot;</span>)
                     .<span class="ident">disabled</span>(<span class="self">self</span>.<span class="ident">current</span>.<span class="ident">is_empty</span>())
                     .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
             ]),
             <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
                     .<span class="ident">btn_solid_primary</span>
-                    .<span class="ident">text</span>(<span class="string">&quot;Apply&quot;</span>)
+                    .<span class="ident">text</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Apply changes to {} roads&quot;</span>, <span class="self">self</span>.<span class="ident">current</span>.<span class="ident">len</span>()))
                     .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Enter</span>)
-                    .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;Apply&quot;</span>),
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
                     .<span class="ident">btn_plain</span>
                     .<span class="ident">text</span>(<span class="string">&quot;Cancel&quot;</span>)
@@ -360,7 +380,6 @@
         <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
             <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
                 <span class="string">&quot;Apply&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> <span class="op">=</span> <span class="prelude-val">None</span>;
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">mem</span>::<span class="ident">take</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">base_edits</span>);
                     <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">current</span> {
                         <span class="ident">edits</span>
@@ -376,7 +395,7 @@
                             <span class="ident">ctx</span>,
                             <span class="string">&quot;Success&quot;</span>,
                             <span class="macro">vec</span><span class="macro">!</span>[<span class="macro">format</span><span class="macro">!</span>(
-                                <span class="string">&quot;Changed {} other road segments to match&quot;</span>,
+                                <span class="string">&quot;Changed {} other roads to match&quot;</span>,
                                 <span class="self">self</span>.<span class="ident">current</span>.<span class="ident">len</span>()
                             )],
                         )),
@@ -386,12 +405,11 @@
                     <span class="self">self</span>.<span class="ident">current</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">candidates</span>.<span class="ident">clone</span>();
                     <span class="self">self</span>.<span class="ident">recalculate</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
                 }
-                <span class="string">&quot;Deselect all&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="string">&quot;Unselect all&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="self">self</span>.<span class="ident">current</span>.<span class="ident">clear</span>();
                     <span class="self">self</span>.<span class="ident">recalculate</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
                 }
                 <span class="string">&quot;Cancel&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> <span class="op">=</span> <span class="prelude-val">None</span>;
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Pop</span>;
                 }
                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
@@ -399,27 +417,27 @@
         }
 
         <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">redo_mouseover</span>() {
-            <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+            <span class="self">self</span>.<span class="ident">selected</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+            <span class="ident">ctx</span>.<span class="ident">show_cursor</span>();
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">r</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">app</span>.<span class="ident">mouseover_unzoomed_roads_and_intersections</span>(<span class="ident">ctx</span>) {
                 <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">Road</span>(<span class="ident">r</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">r</span>),
                 <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">Lane</span>(<span class="ident">l</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">parent</span>),
                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
             } {
                 <span class="kw">if</span> <span class="self">self</span>.<span class="ident">candidates</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">r</span>) {
-                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">Road</span>(<span class="ident">r</span>));
+                    <span class="self">self</span>.<span class="ident">selected</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">r</span>);
+                    <span class="ident">ctx</span>.<span class="ident">hide_cursor</span>();
                 }
             }
         }
 
         <span class="ident">ctx</span>.<span class="ident">canvas_movement</span>();
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">Road</span>(<span class="ident">r</span>)) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> {
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">current</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">r</span>) <span class="op">&amp;&amp;</span> <span class="ident">app</span>.<span class="ident">per_obj</span>.<span class="ident">left_click</span>(<span class="ident">ctx</span>, <span class="string">&quot;exclude road segment&quot;</span>) {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">r</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">selected</span> {
+            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">current</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">r</span>) <span class="op">&amp;&amp;</span> <span class="ident">app</span>.<span class="ident">per_obj</span>.<span class="ident">left_click</span>(<span class="ident">ctx</span>, <span class="string">&quot;exclude road&quot;</span>) {
                 <span class="self">self</span>.<span class="ident">current</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">r</span>);
                 <span class="self">self</span>.<span class="ident">recalculate</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">current</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">r</span>)
-                <span class="op">&amp;&amp;</span> <span class="ident">app</span>.<span class="ident">per_obj</span>.<span class="ident">left_click</span>(<span class="ident">ctx</span>, <span class="string">&quot;include road segment&quot;</span>)
-            {
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">current</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">r</span>) <span class="op">&amp;&amp;</span> <span class="ident">app</span>.<span class="ident">per_obj</span>.<span class="ident">left_click</span>(<span class="ident">ctx</span>, <span class="string">&quot;include road&quot;</span>) {
                 <span class="self">self</span>.<span class="ident">current</span>.<span class="ident">insert</span>(<span class="ident">r</span>);
                 <span class="self">self</span>.<span class="ident">recalculate</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
             }
@@ -428,10 +446,34 @@
         <span class="ident">Transition</span>::<span class="ident">Keep</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
+    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
         <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">draw</span>);
         <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-        <span class="ident">CommonState</span>::<span class="ident">draw_osd</span>(<span class="ident">g</span>, <span class="ident">app</span>);
+
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">r</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">selected</span> {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">cursor</span>) <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">current</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">r</span>) {
+                <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/tools/exclude.svg&quot;</span>)
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">candidates</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">r</span>) {
+                <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/tools/include.svg&quot;</span>)
+            } <span class="kw">else</span> {
+                <span class="prelude-val">None</span>
+            } {
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
+                <span class="ident">batch</span>.<span class="ident">append</span>(
+                    <span class="ident">GeomBatch</span>::<span class="ident">load_svg</span>(<span class="ident">g</span>, <span class="ident">cursor</span>)
+                        .<span class="ident">scale</span>(<span class="number">2.0</span>)
+                        .<span class="ident">centered_on</span>(<span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor</span>().<span class="ident">to_pt</span>()),
+                );
+                <span class="ident">g</span>.<span class="ident">fork_screenspace</span>();
+                <span class="ident">batch</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
+                <span class="ident">g</span>.<span class="ident">unfork</span>();
+            }
+        }
+    }
+
+    <span class="kw">fn</span> <span class="ident">on_destroy</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) {
+        <span class="comment">// Don&#39;t forget to do this!</span>
+        <span class="ident">ctx</span>.<span class="ident">show_cursor</span>();
     }
 }
 </pre></div>
