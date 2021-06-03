@@ -216,6 +216,7 @@
 <span id="213">213</span>
 <span id="214">214</span>
 <span id="215">215</span>
+<span id="216">216</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 
@@ -272,13 +273,14 @@
             );
         }
 
+        <span class="kw">let</span> <span class="ident">current</span> <span class="op">=</span> <span class="ident">candidates</span>.<span class="ident">clone</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">SelectSegments</span> {
             <span class="ident">new_state</span>,
             <span class="ident">candidates</span>,
             <span class="ident">base_road</span>,
             <span class="ident">base_edits</span>,
 
-            <span class="ident">current</span>: <span class="ident">HashSet</span>::<span class="ident">new</span>(),
+            <span class="ident">current</span>,
             <span class="ident">draw</span>: <span class="ident">Drawable</span>::<span class="ident">empty</span>(<span class="ident">ctx</span>),
             <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">empty</span>(<span class="ident">ctx</span>),
         };
@@ -315,7 +317,7 @@
                 .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
             <span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
                 <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(
-                    <span class="string">&quot;{} / {} segments selected&quot;</span>,
+                    <span class="string">&quot;{} / {} similar segments selected&quot;</span>,
                     <span class="self">self</span>.<span class="ident">current</span>.<span class="ident">len</span>(),
                     <span class="self">self</span>.<span class="ident">candidates</span>.<span class="ident">len</span>()
                 )),

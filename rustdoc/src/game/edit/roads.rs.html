@@ -965,7 +965,7 @@
                     <span class="self">self</span>.<span class="ident">current_lane</span> <span class="op">=</span> <span class="prelude-val">None</span>;
                     <span class="self">self</span>.<span class="ident">recalc_all_panels</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
                 }
-                <span class="string">&quot;Edit multiple roads&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="string">&quot;Apply to multiple road segments&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(
                         <span class="kw">crate</span>::<span class="ident">edit</span>::<span class="ident">multiple_roads</span>::<span class="ident">SelectSegments</span>::<span class="ident">new_state</span>(
                             <span class="ident">ctx</span>,
@@ -1151,12 +1151,12 @@
             <span class="ident">Line</span>(<span class="string">&quot;Editing road&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
             <span class="ident">ctx</span>.<span class="ident">style</span>()
                 .<span class="ident">btn_plain</span>
-                .<span class="ident">text</span>(<span class="string">&quot;+ Edit multiple&quot;</span>)
+                .<span class="ident">text</span>(<span class="string">&quot;+ Apply to multiple&quot;</span>)
                 .<span class="ident">label_color</span>(<span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#4CA7E9&quot;</span>), <span class="ident">ControlState</span>::<span class="ident">Default</span>)
                 .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">M</span>)
                 .<span class="ident">disabled</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_r_edit</span>(<span class="ident">r</span>) <span class="op">=</span><span class="op">=</span> <span class="ident">orig_road_state</span>)
                 .<span class="ident">disabled_tooltip</span>(<span class="string">&quot;You have to edit one road segment first, then you can apply the changes to more segments.&quot;</span>)
-                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;Edit multiple roads&quot;</span>),
+                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;Apply to multiple road segments&quot;</span>),
         ]),
         <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
             <span class="ident">ctx</span>.<span class="ident">style</span>()
