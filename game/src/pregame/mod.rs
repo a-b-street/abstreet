@@ -172,7 +172,7 @@ impl MainMenu {
                     ctx.style().btn_outline.text("About").build_def(ctx),
                     ctx.style().btn_outline.text("Feedback").build_def(ctx),
                 ]),
-                built_info::time().into_widget(ctx),
+                built_info::maybe_update(ctx),
             ])
             .centered(),
         ];
@@ -216,6 +216,9 @@ impl State<App> for MainMenu {
                 }
                 "Internal Dev Tools" => {
                     return Transition::Push(DevToolsMode::new_state(ctx, app));
+                }
+                "Download the new release" => {
+                    open_browser("https://github.com/a-b-street/abstreet/releases");
                 }
                 _ => unreachable!(),
             }
@@ -386,25 +389,35 @@ fn default_scenario_for_map(name: &MapName) -> String {
 #[cfg(not(target_arch = "wasm32"))]
 #[allow(unused)]
 mod built_info {
-    use widgetry::{Color, DrawBaselayer, Line, State, Text};
+    use super::*;
 
     include!(concat!(env!("OUT_DIR"), "/built.rs"));
 
-    pub fn time() -> Text {
+    pub fn maybe_update(ctx: &mut EventCtx) -> Widget {
         let t = built::util::strptime(BUILT_TIME_UTC);
 
-        let mut txt = Text::from(format!("This version built on {}", t.date().naive_local()));
+        let txt = Text::from(format!("This version built on {}", t.date().naive_local()))
+            .into_widget(ctx);
         // Releases every Sunday... but sometimes we miss a week
         if (chrono::Utc::now() - t).num_days() > 15 {
-            txt.append(Line(" (get the new release from abstreet.org)".to_string()).fg(Color::RED));
+            Widget::row(vec![
+                txt.centered_vert(),
+                ctx.style()
+                    .btn_outline
+                    .text("Download the new release")
+                    .build_def(ctx),
+            ])
+        } else {
+            txt
         }
-        txt
     }
 }
 
 #[cfg(target_arch = "wasm32")]
 mod built_info {
-    pub fn time() -> widgetry::Text {
-        widgetry::Text::new()
+    use super::*;
+
+    pub fn maybe_update(_: &mut EventCtx) -> Widget {
+        Widget::nothing()
     }
 }
