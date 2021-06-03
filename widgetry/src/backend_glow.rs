@@ -377,7 +377,7 @@ impl PrerenderInnards {
         }
     }
 
-    fn window(&self) -> &winit::window::Window {
+    pub(crate) fn window(&self) -> &winit::window::Window {
         self.window_adapter.window()
     }
 
@@ -387,6 +387,10 @@ impl PrerenderInnards {
 
     pub fn set_cursor_icon(&self, icon: winit::window::CursorIcon) {
         self.window().set_cursor_icon(icon);
+    }
+
+    pub fn set_cursor_visible(&self, visible: bool) {
+        self.window().set_cursor_visible(visible);
     }
 
     pub fn draw_new_frame(&self) -> GfxCtxInnards {

@@ -6,12 +6,11 @@ use map_gui::ID;
 use map_model::{EditRoad, MapEdits, RoadID};
 use widgetry::{
     Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
-    State, Text, VerticalAlignment, Widget,
+    State, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::App;
 use crate::app::Transition;
-use crate::common::CommonState;
 use crate::edit::apply_map_edits;
 
 pub struct SelectSegments {
@@ -23,6 +22,7 @@ pub struct SelectSegments {
     current: HashSet<RoadID>,
     draw: Drawable,
     panel: Panel,
+    selected: Option<RoadID>,
 }
 
 impl SelectSegments {
@@ -63,6 +63,7 @@ impl SelectSegments {
             current,
             draw: Drawable::empty(ctx),
             panel: Panel::empty(ctx),
+            selected: None,
         };
         state.recalculate(ctx, app);
         Box::new(state)
@@ -92,37 +93,35 @@ impl SelectSegments {
 
         // Update the panel
         self.panel = Panel::new_builder(Widget::col(vec![
-            Line("Apply changes to multiple road segments")
+            Line("Apply changes to similar roads")
                 .small_heading()
                 .into_widget(ctx),
-            Text::from_multiline(vec![
-                Line(format!(
-                    "{} / {} similar segments selected",
-                    self.current.len(),
-                    self.candidates.len()
-                )),
-                Line("Click a segment to select/deselect it."),
-                Line("Only road segments with similar lane configuration are shown.").secondary(),
-            ])
-            .into_widget(ctx),
+            format!(
+                "{} / {} roads similar to #{} are selected",
+                self.current.len(),
+                self.candidates.len(),
+                self.base_road.0
+            )
+            .text_widget(ctx),
             Widget::row(vec![
+                "Click to select/unselect".text_widget(ctx).centered_vert(),
                 ctx.style()
-                    .btn_outline
+                    .btn_plain
                     .text("Select all")
                     .disabled(self.current.len() == self.candidates.len())
                     .build_def(ctx),
                 ctx.style()
-                    .btn_outline
-                    .text("Deselect all")
+                    .btn_plain
+                    .text("Unselect all")
                     .disabled(self.current.is_empty())
                     .build_def(ctx),
             ]),
             Widget::row(vec![
                 ctx.style()
                     .btn_solid_primary
-                    .text("Apply")
+                    .text(format!("Apply changes to {} roads", self.current.len()))
                     .hotkey(Key::Enter)
-                    .build_def(ctx),
+                    .build_widget(ctx, "Apply"),
                 ctx.style()
                     .btn_plain
                     .text("Cancel")
@@ -140,7 +139,6 @@ impl State<App> for SelectSegments {
         if let Outcome::Clicked(x) = self.panel.event(ctx) {
             match x.as_ref() {
                 "Apply" => {
-                    app.primary.current_selection = None;
                     let mut edits = std::mem::take(&mut self.base_edits);
                     for r in &self.current {
                         edits
@@ -156,7 +154,7 @@ impl State<App> for SelectSegments {
                             ctx,
                             "Success",
                             vec![format!(
-                                "Changed {} other road segments to match",
+                                "Changed {} other roads to match",
                                 self.current.len()
                             )],
                         )),
@@ -166,12 +164,11 @@ impl State<App> for SelectSegments {
                     self.current = self.candidates.clone();
                     self.recalculate(ctx, app);
                 }
-                "Deselect all" => {
+                "Unselect all" => {
                     self.current.clear();
                     self.recalculate(ctx, app);
                 }
                 "Cancel" => {
-                    app.primary.current_selection = None;
                     return Transition::Pop;
                 }
                 _ => unreachable!(),
@@ -179,27 +176,27 @@ impl State<App> for SelectSegments {
         }
 
         if ctx.redo_mouseover() {
-            app.primary.current_selection = None;
+            self.selected = None;
+            ctx.show_cursor();
             if let Some(r) = match app.mouseover_unzoomed_roads_and_intersections(ctx) {
                 Some(ID::Road(r)) => Some(r),
                 Some(ID::Lane(l)) => Some(app.primary.map.get_l(l).parent),
                 _ => None,
             } {
                 if self.candidates.contains(&r) {
-                    app.primary.current_selection = Some(ID::Road(r));
+                    self.selected = Some(r);
+                    ctx.hide_cursor();
                 }
             }
         }
 
         ctx.canvas_movement();
 
-        if let Some(ID::Road(r)) = app.primary.current_selection {
-            if self.current.contains(&r) && app.per_obj.left_click(ctx, "exclude road segment") {
+        if let Some(r) = self.selected {
+            if self.current.contains(&r) && app.per_obj.left_click(ctx, "exclude road") {
                 self.current.remove(&r);
                 self.recalculate(ctx, app);
-            } else if !self.current.contains(&r)
-                && app.per_obj.left_click(ctx, "include road segment")
-            {
+            } else if !self.current.contains(&r) && app.per_obj.left_click(ctx, "include road") {
                 self.current.insert(r);
                 self.recalculate(ctx, app);
             }
@@ -208,9 +205,33 @@ impl State<App> for SelectSegments {
         Transition::Keep
     }
 
-    fn draw(&self, g: &mut GfxCtx, app: &App) {
+    fn draw(&self, g: &mut GfxCtx, _: &App) {
         g.redraw(&self.draw);
         self.panel.draw(g);
-        CommonState::draw_osd(g, app);
+
+        if let Some(r) = self.selected {
+            if let Some(cursor) = if self.current.contains(&r) {
+                Some("system/assets/tools/exclude.svg")
+            } else if self.candidates.contains(&r) {
+                Some("system/assets/tools/include.svg")
+            } else {
+                None
+            } {
+                let mut batch = GeomBatch::new();
+                batch.append(
+                    GeomBatch::load_svg(g, cursor)
+                        .scale(2.0)
+                        .centered_on(g.canvas.get_cursor().to_pt()),
+                );
+                g.fork_screenspace();
+                batch.draw(g);
+                g.unfork();
+            }
+        }
+    }
+
+    fn on_destroy(&mut self, ctx: &mut EventCtx, _: &mut App) {
+        // Don't forget to do this!
+        ctx.show_cursor();
     }
 }

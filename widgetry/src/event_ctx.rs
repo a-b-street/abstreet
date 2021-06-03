@@ -203,6 +203,13 @@ impl<'a> EventCtx<'a> {
     pub fn load_font(&mut self, filename: &str, bytes: Vec<u8>) {
         self.prerender.assets.load_font(filename, bytes)
     }
+
+    pub fn hide_cursor(&self) {
+        self.prerender.inner.set_cursor_visible(false);
+    }
+    pub fn show_cursor(&self) {
+        self.prerender.inner.set_cursor_visible(true);
+    }
 }
 
 struct LoadingScreen<'a> {
