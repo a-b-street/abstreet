@@ -393,6 +393,15 @@
 <span id="390">390</span>
 <span id="391">391</span>
 <span id="392">392</span>
+<span id="393">393</span>
+<span id="394">394</span>
+<span id="395">395</span>
+<span id="396">396</span>
+<span id="397">397</span>
+<span id="398">398</span>
+<span id="399">399</span>
+<span id="400">400</span>
+<span id="401">401</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>::<span class="ident">Display</span>;
 
@@ -404,7 +413,7 @@
 
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">App</span>, <span class="ident">EventCtx</span>};
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>, <span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">ProblemType</span> {
     <span class="ident">IntersectionDelay</span>,
     <span class="ident">ComplexIntersectionCrossing</span>,
@@ -432,6 +441,15 @@
             }
         }
         <span class="ident">cnt</span>
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">all</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ProblemType</span><span class="op">&gt;</span> {
+        <span class="macro">vec</span><span class="macro">!</span>[
+            <span class="ident">ProblemType</span>::<span class="ident">IntersectionDelay</span>,
+            <span class="ident">ProblemType</span>::<span class="ident">ComplexIntersectionCrossing</span>,
+            <span class="ident">ProblemType</span>::<span class="ident">OvertakeDesired</span>,
+            <span class="ident">ProblemType</span>::<span class="ident">ArterialIntersectionCrossing</span>,
+        ]
     }
 }
 
