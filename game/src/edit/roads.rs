@@ -173,7 +173,7 @@ impl State<App> for RoadEditor {
                     self.current_lane = None;
                     self.recalc_all_panels(ctx, app);
                 }
-                "Edit multiple roads" => {
+                "Apply to multiple road segments" => {
                     return Transition::Push(
                         crate::edit::multiple_roads::SelectSegments::new_state(
                             ctx,
@@ -359,12 +359,12 @@ fn make_top_panel(
             Line("Editing road").small_heading().into_widget(ctx),
             ctx.style()
                 .btn_plain
-                .text("+ Edit multiple")
+                .text("+ Apply to multiple")
                 .label_color(Color::hex("#4CA7E9"), ControlState::Default)
                 .hotkey(Key::M)
                 .disabled(app.primary.map.get_r_edit(r) == orig_road_state)
                 .disabled_tooltip("You have to edit one road segment first, then you can apply the changes to more segments.")
-                .build_widget(ctx, "Edit multiple roads"),
+                .build_widget(ctx, "Apply to multiple road segments"),
         ]),
         Widget::row(vec![
             ctx.style()

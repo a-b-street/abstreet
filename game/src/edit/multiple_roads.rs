@@ -53,13 +53,14 @@ impl SelectSegments {
             );
         }
 
+        let current = candidates.clone();
         let mut state = SelectSegments {
             new_state,
             candidates,
             base_road,
             base_edits,
 
-            current: HashSet::new(),
+            current,
             draw: Drawable::empty(ctx),
             panel: Panel::empty(ctx),
         };
@@ -96,7 +97,7 @@ impl SelectSegments {
                 .into_widget(ctx),
             Text::from_multiline(vec![
                 Line(format!(
-                    "{} / {} segments selected",
+                    "{} / {} similar segments selected",
                     self.current.len(),
                     self.candidates.len()
                 )),
