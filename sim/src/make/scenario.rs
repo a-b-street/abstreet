@@ -290,7 +290,9 @@ fn seed_parked_cars(
 ) {
     if sim.infinite_parking() {
         let mut blackholed = 0;
+        timer.start_iter("seed parked cars in infinite mode", parked_cars.len());
         for (vehicle, b) in parked_cars {
+            timer.next();
             if let Some(spot) = sim.get_free_offstreet_spots(b).pop() {
                 sim.seed_parked_car(vehicle, spot);
             } else {

@@ -732,6 +732,9 @@ pub struct InfiniteParkingSimState {
     // way.
     blackholed_building_redirects: BTreeMap<BuildingID, BuildingID>,
 
+    // An optimization for get_free_bldg_spot
+    num_occupants_per_offstreet: BTreeMap<BuildingID, usize>,
+
     events: Vec<Event>,
 }
 
@@ -744,6 +747,8 @@ impl InfiniteParkingSimState {
 
             driving_to_offstreet: MultiMap::new(),
             blackholed_building_redirects: BTreeMap::new(),
+
+            num_occupants_per_offstreet: BTreeMap::new(),
 
             events: Vec::new(),
         };
@@ -790,7 +795,15 @@ impl InfiniteParkingSimState {
             return self.get_free_bldg_spot(*redirect);
         }
 
-        let mut i = 0;
+        // As long as the index is unique, it doesn't matter what it actually is, so optimize for
+        // initially seeding many cars in one building by starting with the number of cars already
+        // there. As the simulation runs, we'll wind up skipping some intermediate indices, but it
+        // doesn't matter.
+        let mut i = self
+            .num_occupants_per_offstreet
+            .get(&b)
+            .cloned()
+            .unwrap_or(0);
         loop {
             let spot = ParkingSpot::Offstreet(b, i);
             if self.is_free(spot) {
@@ -842,6 +855,10 @@ impl ParkingSim for InfiniteParkingSimState {
             .expect("remove_parked_car missing from occupants");
         self.events
             .push(Event::CarLeftParkingSpot(p.vehicle.id, p.spot));
+
+        if let ParkingSpot::Offstreet(b, _) = p.spot {
+            *self.num_occupants_per_offstreet.get_mut(&b).unwrap() -= 1;
+        }
     }
 
     fn add_parked_car(&mut self, p: ParkedCar) {
@@ -852,6 +869,10 @@ impl ParkingSim for InfiniteParkingSimState {
 
         assert!(!self.occupants.contains_key(&p.spot));
         self.occupants.insert(p.spot, p.vehicle.id);
+
+        if let ParkingSpot::Offstreet(b, _) = p.spot {
+            *self.num_occupants_per_offstreet.entry(b).or_insert(0) += 1;
+        }
 
         assert!(!self.parked_cars.contains_key(&p.vehicle.id));
         self.parked_cars.insert(p.vehicle.id, p);
