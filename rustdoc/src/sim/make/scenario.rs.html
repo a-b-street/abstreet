@@ -530,6 +530,8 @@
 <span id="527">527</span>
 <span id="528">528</span>
 <span id="529">529</span>
+<span id="530">530</span>
+<span id="531">531</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashSet</span>, <span class="ident">VecDeque</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
@@ -823,7 +825,9 @@
 ) {
     <span class="kw">if</span> <span class="ident">sim</span>.<span class="ident">infinite_parking</span>() {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">blackholed</span> <span class="op">=</span> <span class="number">0</span>;
+        <span class="ident">timer</span>.<span class="ident">start_iter</span>(<span class="string">&quot;seed parked cars in infinite mode&quot;</span>, <span class="ident">parked_cars</span>.<span class="ident">len</span>());
         <span class="kw">for</span> (<span class="ident">vehicle</span>, <span class="ident">b</span>) <span class="kw">in</span> <span class="ident">parked_cars</span> {
+            <span class="ident">timer</span>.<span class="ident">next</span>();
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">spot</span>) <span class="op">=</span> <span class="ident">sim</span>.<span class="ident">get_free_offstreet_spots</span>(<span class="ident">b</span>).<span class="ident">pop</span>() {
                 <span class="ident">sim</span>.<span class="ident">seed_parked_car</span>(<span class="ident">vehicle</span>, <span class="ident">spot</span>);
             } <span class="kw">else</span> {
