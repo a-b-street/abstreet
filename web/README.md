@@ -1,7 +1,7 @@
 # Web Stuff
 
-This is a collection of API's and build tools for packaging our various
-Widgetry apps as web applications.
+This is a collection of API's and build tools for packaging our various Widgetry
+apps as web applications.
 
 ## Goals
 
@@ -21,12 +21,12 @@ at root, or whatever), we rely on `import.meta` which isn't supported on some
 browsers before 2018. See: https://caniuse.com/?search=import.meta
 
 An alternative would be to require configuration, so the loader knows where to
-download it's "*_wasm.bg file".
+download it's "\*\_wasm.bg file".
 
 ### Browser Feature: WebGL
 
-We prefer WebGL2, but now gracefully fall back to WebGL1. This should cover
-all common browsers since late 2014. https://caniuse.com/?search=webgl
+We prefer WebGL2, but now gracefully fall back to WebGL1. This should cover all
+common browsers since late 2014. https://caniuse.com/?search=webgl
 
 ## Examples
 
@@ -37,6 +37,6 @@ You can build and see the examples in your webbrowser with:
 ```
 // install typescript build dependency
 npm install
-make dev 
+make dev
 make server
 ```
