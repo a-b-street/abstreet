@@ -3,6 +3,8 @@
 use std::cmp::Ordering;
 use std::collections::{BinaryHeap, HashMap, HashSet};
 
+use serde::{Deserialize, Serialize};
+
 use petgraph::graphmap::DiGraphMap;
 
 use geom::Duration;
@@ -10,9 +12,17 @@ use geom::Duration;
 pub use self::walking::{all_walking_costs_from, WalkingOptions};
 use crate::pathfind::{build_graph_for_vehicles, zone_cost};
 pub use crate::pathfind::{vehicle_cost, WalkingNode};
-use crate::{BuildingID, DirectedRoadID, LaneID, Map, PathConstraints, PathRequest};
+use crate::{
+    BuildingID, DirectedRoadID, IntersectionID, Lane, LaneID, Map, PathConstraints, PathRequest,
+};
 
 mod walking;
+
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
+pub enum Spot {
+    Building(BuildingID),
+    Border(IntersectionID),
+}
 
 /// Calculate the strongly connected components (SCC) of the part of the map accessible by
 /// constraints (ie, the graph of sidewalks or driving+bike lanes). The largest component is the
@@ -56,7 +66,7 @@ pub fn find_scc(map: &Map, constraints: PathConstraints) -> (HashSet<LaneID>, Ha
 /// away.
 pub fn all_vehicle_costs_from(
     map: &Map,
-    starts: Vec<BuildingID>,
+    starts: Vec<Spot>,
     time_limit: Duration,
     constraints: PathConstraints,
 ) -> HashMap<BuildingID, Duration> {
@@ -64,6 +74,7 @@ pub fn all_vehicle_costs_from(
     // TODO We have a graph of DirectedRoadIDs, but mapping a building to one isn't
     // straightforward. In the common case it'll be fine, but some buildings are isolated from the
     // graph by some sidewalks.
+
     let mut bldg_to_road = HashMap::new();
     for b in map.all_buildings() {
         if constraints == PathConstraints::Car {
@@ -78,12 +89,45 @@ pub fn all_vehicle_costs_from(
     }
 
     let mut queue: BinaryHeap<Item> = BinaryHeap::new();
-    for b in starts {
-        if let Some(start_road) = bldg_to_road.get(&b).cloned() {
-            queue.push(Item {
-                cost: Duration::ZERO,
-                node: start_road,
-            });
+
+    for spot in starts {
+        match spot {
+            Spot::Building(b_id) => {
+                if constraints == PathConstraints::Car {
+                    if let Some((pos, _)) = map.get_b(b_id).driving_connection(map) {
+                        queue.push(Item {
+                            cost: Duration::ZERO,
+                            node: map.get_l(pos.lane()).get_directed_parent(),
+                        });
+                    }
+                } else if constraints == PathConstraints::Bike {
+                    if let Some((pos, _)) = map.get_b(b_id).biking_connection(map) {
+                        queue.push(Item {
+                            cost: Duration::ZERO,
+                            node: map.get_l(pos.lane()).get_directed_parent(),
+                        });
+                    }
+                }
+            }
+            Spot::Border(i_id) => {
+                let intersection = map.get_i(i_id);
+                let incoming_lanes = intersection.incoming_lanes.clone();
+                let mut outgoing_lanes = intersection.outgoing_lanes.clone();
+                let mut all_lanes = incoming_lanes;
+                all_lanes.append(&mut outgoing_lanes);
+
+                let walkable_lanes: Vec<&Lane> = all_lanes
+                    .iter()
+                    .map(|l_id| map.get_l(l_id.clone()))
+                    .filter(|l| l.is_walkable())
+                    .collect();
+                for lane in walkable_lanes {
+                    queue.push(Item {
+                        cost: Duration::ZERO,
+                        node: lane.get_directed_parent(),
+                    });
+                }
+            }
         }
     }
 

@@ -1,16 +1,16 @@
 use std::collections::HashMap;
 
+use crate::isochrone::Options;
+use crate::App;
 use abstutil::{prettyprint_usize, Counter, Timer};
 use geom::Percent;
 use map_gui::tools::PopupMsg;
+use map_model::connectivity::Spot;
 use map_model::{AmenityType, BuildingID};
 use widgetry::{
     Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Panel,
     SimpleState, State, TextExt, Toggle, Transition, VerticalAlignment, Widget,
 };
-
-use crate::isochrone::Options;
-use crate::App;
 
 /// Ask what types of amenities are necessary to be within a walkshed, then rank every house with
 /// how many of those needs are satisfied.
@@ -103,7 +103,12 @@ fn score_houses(
         }
 
         // Then find all buildings reachable from any of those starting points
-        options.clone().times_from_buildings(map, stores)
+        let spot_starts = stores
+            .clone()
+            .iter()
+            .map(|b_id| Spot::Building(b_id.clone()))
+            .collect();
+        options.clone().times_from_buildings(map, spot_starts)
     }) {
         for (b, _) in times {
             satisfied_per_bldg.inc(b);

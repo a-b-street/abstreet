@@ -21,7 +21,7 @@ use widgetry::{
 
 use crate::find_amenities::FindAmenity;
 use crate::find_home::FindHome;
-use crate::isochrone::{Isochrone, Options};
+use crate::isochrone::{draw_isochrone, Isochrone, Options};
 use crate::App;
 
 /// This is the UI state for exploring the isochrone/walkshed from a single building.
@@ -450,7 +450,12 @@ impl ExploreAmenities {
         isochrone: &Isochrone,
         category: AmenityType,
     ) -> Box<dyn State<App>> {
-        let mut batch = isochrone.draw_isochrone(app);
+        let mut batch = draw_isochrone(
+            app,
+            &isochrone.time_to_reach_building,
+            &isochrone.thresholds,
+            &isochrone.colors,
+        );
         batch.append(draw_star(ctx, app.map.get_b(isochrone.start[0])));
 
         let mut entries = Vec::new();
