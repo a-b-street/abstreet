@@ -151,6 +151,10 @@ impl DrawIntersection {
         .make_polygons(Distance::meters(0.3));
         Some((octagon, pole, last_line.angle()))
     }
+
+    pub fn clear_rendering(&mut self) {
+        *self.draw_default.borrow_mut() = None;
+    }
 }
 
 impl Renderable for DrawIntersection {

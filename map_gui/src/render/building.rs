@@ -228,6 +228,10 @@ impl DrawBuilding {
             );
         }
     }
+
+    pub fn clear_rendering(&mut self) {
+        *self.label.borrow_mut() = None;
+    }
 }
 
 impl Renderable for DrawBuilding {

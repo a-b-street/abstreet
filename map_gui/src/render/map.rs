@@ -514,4 +514,23 @@ impl DrawMap {
         }
         self.draw_all_building_driveways = ctx.upload(batch);
     }
+
+    pub fn free_memory(&mut self) {
+        // Clear the lazily evaluated zoomed-in details
+        for r in &mut self.roads {
+            r.clear_rendering();
+        }
+        for l in self.lanes.values_mut() {
+            l.clear_rendering();
+        }
+        for i in &mut self.intersections {
+            i.clear_rendering();
+        }
+        for b in &mut self.buildings {
+            b.clear_rendering();
+        }
+        for pl in &mut self.parking_lots {
+            pl.clear_rendering();
+        }
+    }
 }

@@ -31,11 +31,22 @@ pub(crate) fn screenshot_everything<A: SharedAppState>(
     state.canvas.cam_zoom = zoom;
     std::fs::create_dir_all(dir_path)?;
 
+    // See https://github.com/a-b-street/abstreet/issues/671 for context. Some maps are so large
+    // and detailed that they drain all memory on some video cards. As a workaround, just free up
+    // some of the objects in the middle of this test.
+    let free_memory_frequency = 10;
+    let mut cnt = 0;
+
     for tile_y in 0..num_tiles_y {
         for tile_x in 0..num_tiles_x {
             timer.next();
             state.canvas.cam_x = (tile_x as f64) * dims.width;
             state.canvas.cam_y = (tile_y as f64) * dims.height;
+
+            cnt += 1;
+            if cnt % free_memory_frequency == 0 {
+                state.free_memory();
+            }
 
             let suffix = state.draw(prerender, true).unwrap_or_else(String::new);
 

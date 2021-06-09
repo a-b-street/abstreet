@@ -864,6 +864,10 @@ impl SharedAppState for App {
     fn before_quit(&self, canvas: &Canvas) {
         CameraState::save(canvas, self.primary.map.get_name());
     }
+
+    fn free_memory(&mut self) {
+        self.primary.draw_map.free_memory();
+    }
 }
 
 /// Load an extra GeoJSON file, and add the area to the map dynamically.

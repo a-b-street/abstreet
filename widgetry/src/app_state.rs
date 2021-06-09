@@ -19,6 +19,10 @@ pub trait SharedAppState {
     fn dump_before_abort(&self, _: &Canvas) {}
     /// Called before a normal exit, like window close
     fn before_quit(&self, _: &Canvas) {}
+
+    /// If widgetry determines the video card is low on memory, this may be called. The application
+    /// should make its best effort to delete any unused Drawables.
+    fn free_memory(&mut self) {}
 }
 
 pub(crate) struct App<A: SharedAppState> {

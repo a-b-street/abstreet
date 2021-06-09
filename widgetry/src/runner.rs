@@ -158,6 +158,10 @@ impl<A: SharedAppState> State<A> {
         prerender.inner.draw_finished(g.inner);
         naming_hint
     }
+
+    pub(crate) fn free_memory(&mut self) {
+        self.app.shared_app_state.free_memory();
+    }
 }
 
 /// Customize how widgetry works. Most of these settings can't be changed after starting.

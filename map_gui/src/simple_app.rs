@@ -315,6 +315,10 @@ impl<T: 'static> SharedAppState for SimpleApp<T> {
     fn before_quit(&self, canvas: &Canvas) {
         CameraState::save(canvas, self.map.get_name());
     }
+
+    fn free_memory(&mut self) {
+        self.draw_map.free_memory();
+    }
 }
 
 struct SimpleWarper {

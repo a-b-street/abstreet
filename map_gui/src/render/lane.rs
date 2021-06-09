@@ -179,6 +179,10 @@ impl DrawLane {
 
         batch
     }
+
+    pub fn clear_rendering(&mut self) {
+        *self.draw_default.borrow_mut() = None;
+    }
 }
 
 impl Renderable for DrawLane {
