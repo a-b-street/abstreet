@@ -28,7 +28,7 @@ csv = "1.1.4"
 downcast-rs = "1.2.0"
 enumset = "1.0.3"
 futures-channel = { version = "0.3.12"}
-geojson = "0.22"
+geojson = { version = "0.22.0", features = ["geo-types"] }
 geom = { path = "../geom" }
 getrandom = { version = "0.2.3", optional = true }
 instant = "0.1.7"

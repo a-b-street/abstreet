@@ -11,7 +11,7 @@ anyhow = "1.0.38"
 earcutr = "0.1.1"
 geo = "0.18"
 geo-booleanop = "0.3.2"
-geojson = "0.22"
+geojson = { version = "0.22.0", features = ["geo-types"] }
 histogram = "0.6.9"
 instant = "0.1.7"
 ordered-float = { version = "2.4.0", features=["serde"] }

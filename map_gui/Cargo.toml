@@ -21,7 +21,7 @@ contour = "0.4.0"
 flate2 = "1.0.20"
 futures = { version = "0.3.12" }
 futures-channel = { version = "0.3.12"}
-geojson = "0.22"
+geojson = { version = "0.22.0", features = ["geo-types"] }
 geom = { path = "../geom" }
 instant = "0.1.7"
 js-sys = { version = "0.3.47", optional = true }
