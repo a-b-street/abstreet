@@ -180,7 +180,7 @@ fn parse_linestring<'de, D: Deserializer<'de>>(d: D) -> Result<(LonLat, LonLat),
 fn parse_osm_ids<'de, D: Deserializer<'de>>(d: D) -> Result<Vec<osm::NodeID>, D::Error> {
     let raw = <String>::deserialize(d)?;
     let mut ids = Vec::new();
-    for id in raw.split(';') {
+    for id in raw.split('_') {
         ids.push(osm::NodeID(id.parse::<i64>().map_err(|_| {
             serde::de::Error::custom(format!("bad ID {}", id))
         })?));

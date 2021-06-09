@@ -1851,19 +1851,19 @@
       "compressed_size_bytes": 739378
     },
     "data/input/us/phoenix/raw_maps/gilbert.bin": {
-      "checksum": "1b7e08d73a8d2509adcb14ad1538b636",
-      "uncompressed_size_bytes": 753095,
-      "compressed_size_bytes": 151190
+      "checksum": "4f748b3056655d022a01a51c1870379f",
+      "uncompressed_size_bytes": 747284,
+      "compressed_size_bytes": 150207
     },
     "data/input/us/phoenix/raw_maps/tempe.bin": {
-      "checksum": "72b3ff3709cb27f12d37e7a8f327aa4d",
-      "uncompressed_size_bytes": 2037345,
-      "compressed_size_bytes": 439447
+      "checksum": "d0524313a5d436789441f279c3cd1fae",
+      "uncompressed_size_bytes": 2018597,
+      "compressed_size_bytes": 436153
     },
     "data/input/us/phoenix/screenshots/tempe.zip": {
-      "checksum": "45a9cfd163b3841fe31ef0c562492c33",
-      "uncompressed_size_bytes": 7522637,
-      "compressed_size_bytes": 7520470
+      "checksum": "3f78ea84608d42665df52a817a2de985",
+      "uncompressed_size_bytes": 7400797,
+      "compressed_size_bytes": 7398588
     },
     "data/input/us/providence/osm/downtown.osm": {
       "checksum": "463b986adc83ae4d1174496a4ce744d1",
@@ -3891,14 +3891,14 @@
       "compressed_size_bytes": 6044926
     },
     "data/system/us/phoenix/maps/gilbert.bin": {
-      "checksum": "9d28b139022ded140f1cea4ef207ee9a",
-      "uncompressed_size_bytes": 4173992,
-      "compressed_size_bytes": 1353041
+      "checksum": "d6c51f1cc3142d32705629d4f1fe8eb6",
+      "uncompressed_size_bytes": 4152072,
+      "compressed_size_bytes": 1345354
     },
     "data/system/us/phoenix/maps/tempe.bin": {
-      "checksum": "3657388ebc285f1573ce7682806b62de",
-      "uncompressed_size_bytes": 10783925,
-      "compressed_size_bytes": 3511801
+      "checksum": "e01892d4ad8bbd78b388e2c1676353af",
+      "uncompressed_size_bytes": 10698448,
+      "compressed_size_bytes": 3477170
     },
     "data/system/us/providence/maps/downtown.bin": {
       "checksum": "50a1e24095522eab76373ced4d05c340",

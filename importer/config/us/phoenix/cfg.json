@@ -11,6 +11,6 @@
   "private_offstreet_parking": {
     "FixedPerBldg": 10
   },
-  "include_railroads": true,
+  "include_railroads": false,
   "extra_buildings": null
 }
