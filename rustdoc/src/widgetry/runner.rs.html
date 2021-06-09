@@ -450,6 +450,10 @@
 <span id="447">447</span>
 <span id="448">448</span>
 <span id="449">449</span>
+<span id="450">450</span>
+<span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cell</span>::<span class="ident">Cell</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">panic</span>;
@@ -610,6 +614,10 @@
 
         <span class="ident">prerender</span>.<span class="ident">inner</span>.<span class="ident">draw_finished</span>(<span class="ident">g</span>.<span class="ident">inner</span>);
         <span class="ident">naming_hint</span>
+    }
+
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">free_memory</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+        <span class="self">self</span>.<span class="ident">app</span>.<span class="ident">shared_app_state</span>.<span class="ident">free_memory</span>();
     }
 }
 

@@ -283,6 +283,10 @@
 <span id="280">280</span>
 <span id="281">281</span>
 <span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cell</span>::<span class="ident">RefCell</span>;
 
@@ -513,6 +517,10 @@
                 <span class="ident">driveway</span>.<span class="ident">make_polygons</span>(<span class="ident">NORMAL_LANE_THICKNESS</span>),
             );
         }
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clear_rendering</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+        <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">label</span>.<span class="ident">borrow_mut</span>() <span class="op">=</span> <span class="prelude-val">None</span>;
     }
 }
 

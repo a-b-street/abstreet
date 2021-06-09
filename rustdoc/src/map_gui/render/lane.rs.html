@@ -390,6 +390,10 @@
 <span id="387">387</span>
 <span id="388">388</span>
 <span id="389">389</span>
+<span id="390">390</span>
+<span id="391">391</span>
+<span id="392">392</span>
+<span id="393">393</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cell</span>::<span class="ident">RefCell</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashMap</span>;
@@ -571,6 +575,10 @@
         }
 
         <span class="ident">batch</span>
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clear_rendering</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+        <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">draw_default</span>.<span class="ident">borrow_mut</span>() <span class="op">=</span> <span class="prelude-val">None</span>;
     }
 }
 

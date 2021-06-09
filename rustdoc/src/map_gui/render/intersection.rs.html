@@ -500,6 +500,10 @@
 <span id="497">497</span>
 <span id="498">498</span>
 <span id="499">499</span>
+<span id="500">500</span>
+<span id="501">501</span>
+<span id="502">502</span>
+<span id="503">503</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cell</span>::<span class="ident">RefCell</span>;
 
@@ -653,6 +657,10 @@
         )
         .<span class="ident">make_polygons</span>(<span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">0.3</span>));
         <span class="prelude-val">Some</span>((<span class="ident">octagon</span>, <span class="ident">pole</span>, <span class="ident">last_line</span>.<span class="ident">angle</span>()))
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clear_rendering</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+        <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">draw_default</span>.<span class="ident">borrow_mut</span>() <span class="op">=</span> <span class="prelude-val">None</span>;
     }
 }
 

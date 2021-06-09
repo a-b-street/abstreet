@@ -518,6 +518,25 @@
 <span id="515">515</span>
 <span id="516">516</span>
 <span id="517">517</span>
+<span id="518">518</span>
+<span id="519">519</span>
+<span id="520">520</span>
+<span id="521">521</span>
+<span id="522">522</span>
+<span id="523">523</span>
+<span id="524">524</span>
+<span id="525">525</span>
+<span id="526">526</span>
+<span id="527">527</span>
+<span id="528">528</span>
+<span id="529">529</span>
+<span id="530">530</span>
+<span id="531">531</span>
+<span id="532">532</span>
+<span id="533">533</span>
+<span id="534">534</span>
+<span id="535">535</span>
+<span id="536">536</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashMap</span>;
 
@@ -1034,6 +1053,25 @@
             <span class="ident">DrawBuilding</span>::<span class="ident">draw_driveway</span>(<span class="ident">b</span>, <span class="ident">map</span>, <span class="ident">cs</span>, <span class="ident">opts</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">batch</span>);
         }
         <span class="self">self</span>.<span class="ident">draw_all_building_driveways</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">batch</span>);
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">free_memory</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+        <span class="comment">// Clear the lazily evaluated zoomed-in details</span>
+        <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">roads</span> {
+            <span class="ident">r</span>.<span class="ident">clear_rendering</span>();
+        }
+        <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">lanes</span>.<span class="ident">values_mut</span>() {
+            <span class="ident">l</span>.<span class="ident">clear_rendering</span>();
+        }
+        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">intersections</span> {
+            <span class="ident">i</span>.<span class="ident">clear_rendering</span>();
+        }
+        <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">buildings</span> {
+            <span class="ident">b</span>.<span class="ident">clear_rendering</span>();
+        }
+        <span class="kw">for</span> <span class="ident">pl</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">parking_lots</span> {
+            <span class="ident">pl</span>.<span class="ident">clear_rendering</span>();
+        }
     }
 }
 </pre></div>

@@ -280,6 +280,10 @@
 <span id="277">277</span>
 <span id="278">278</span>
 <span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! A widgetry application splits its state into two pieces: global shared state that lasts for the</span>
 <span class="doccomment">//! entire lifetime of the application, and a stack of smaller states, only one of which is active</span>
@@ -302,6 +306,10 @@
     <span class="kw">fn</span> <span class="ident">dump_before_abort</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">Canvas</span>) {}
     <span class="doccomment">/// Called before a normal exit, like window close</span>
     <span class="kw">fn</span> <span class="ident">before_quit</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">Canvas</span>) {}
+
+    <span class="doccomment">/// If widgetry determines the video card is low on memory, this may be called. The application</span>
+    <span class="doccomment">/// should make its best effort to delete any unused Drawables.</span>
+    <span class="kw">fn</span> <span class="ident">free_memory</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {}
 }
 
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">App</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">SharedAppState</span><span class="op">&gt;</span> {
