@@ -1,6 +1,7 @@
 use std::cmp::Ordering;
-use std::collections::{BinaryHeap, HashMap};
+use std::collections::{BinaryHeap, HashMap, HashSet};
 
+use abstutil::MultiMap;
 use geom::{Duration, Speed};
 
 use crate::connectivity::Spot;
@@ -118,15 +119,22 @@ pub fn all_walking_costs_from(
         }
     }
 
-    let mut cost_per_node: HashMap<WalkingNode, Duration> = HashMap::new();
+    let mut sidewalk_to_bldgs = MultiMap::new();
+    for b in map.all_buildings() {
+        sidewalk_to_bldgs.insert(b.sidewalk(), b.id);
+    }
+
+    let mut results = HashMap::new();
+
+    let mut visited_nodes = HashSet::new();
     while let Some(current) = queue.pop() {
-        if cost_per_node.contains_key(&current.node) {
+        if visited_nodes.contains(&current.node) {
             continue;
         }
         if current.cost > time_limit {
             continue;
         }
-        cost_per_node.insert(current.node, current.cost);
+        visited_nodes.insert(current.node);
 
         let (r, is_dst_i) = match current.node {
             WalkingNode::SidewalkEndpoint(r, is_dst_i) => (r, is_dst_i),
@@ -135,16 +143,39 @@ pub fn all_walking_costs_from(
         let lane = map.get_l(r.must_get_sidewalk(map));
         // Cross the lane
         if opts.allow_shoulders || lane.lane_type != LaneType::Shoulder {
-            queue.push(Item {
-                cost: current.cost
-                    + lane.length()
-                        / Traversable::Lane(lane.id).max_speed_along(
-                            Some(opts.walking_speed),
-                            PathConstraints::Pedestrian,
-                            map,
-                        ),
-                node: WalkingNode::SidewalkEndpoint(r, !is_dst_i),
-            });
+            let sidewalk_len = lane.length();
+            let speed = Traversable::Lane(lane.id).max_speed_along(
+                Some(opts.walking_speed),
+                PathConstraints::Pedestrian,
+                map,
+            );
+            let cross_to_node = WalkingNode::SidewalkEndpoint(r, !is_dst_i);
+
+            // We're crossing the sidewalk from one end to the other. If we haven't already found a
+            // shorter path to the other end of this sidewalk, then fill out the exact distance to
+            // each building. We need to know the direction along the sidewalk we're moving to fill
+            // this out properly, so that's why the order of graph nodes visited matters and we're
+            // doing this work here.
+            if !visited_nodes.contains(&cross_to_node) {
+                for b in sidewalk_to_bldgs.get(lane.id) {
+                    let bldg_dist_along = map.get_b(*b).sidewalk_pos.dist_along();
+                    let dist_to_bldg = if is_dst_i {
+                        // Crossing from the end of the sidewalk to the beginning
+                        sidewalk_len - bldg_dist_along
+                    } else {
+                        bldg_dist_along
+                    };
+                    let bldg_cost = current.cost + dist_to_bldg / speed;
+                    if bldg_cost <= time_limit {
+                        results.insert(*b, bldg_cost);
+                    }
+                }
+
+                queue.push(Item {
+                    cost: current.cost + sidewalk_len / speed,
+                    node: cross_to_node,
+                });
+            }
         }
         // All turns from the lane
         for turn in map.get_turns_for(lane.id, PathConstraints::Pedestrian) {
@@ -165,24 +196,6 @@ pub fn all_walking_costs_from(
                     map.get_l(turn.id.dst).dst_i == turn.id.parent,
                 ),
             });
-        }
-    }
-
-    let mut results = HashMap::new();
-    // Assign every building a cost based on which end of the sidewalk it's closest to
-    // TODO We could try to get a little more accurate by accounting for the distance from that
-    // end of the sidewalk to the building
-    for b in map.all_buildings() {
-        if let Some(cost) = cost_per_node.get(&WalkingNode::closest(b.sidewalk_pos, map)) {
-            let sidewalk_len = map.get_l(b.sidewalk()).length();
-            let bldg_dist = b.sidewalk_pos.dist_along();
-            let distance_from_closest_node = if sidewalk_len - bldg_dist <= bldg_dist {
-                bldg_dist
-            } else {
-                sidewalk_len - bldg_dist
-            };
-            let total_cost = *cost + distance_from_closest_node / opts.walking_speed;
-            results.insert(b.id, total_cost);
         }
     }
 
