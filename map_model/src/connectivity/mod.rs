@@ -1,9 +1,8 @@
 // TODO Possibly these should be methods on Map.
 
+use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::collections::{BinaryHeap, HashMap, HashSet};
-
-use serde::{Deserialize, Serialize};
 
 use petgraph::graphmap::DiGraphMap;
 
@@ -13,7 +12,7 @@ pub use self::walking::{all_walking_costs_from, WalkingOptions};
 use crate::pathfind::{build_graph_for_vehicles, zone_cost};
 pub use crate::pathfind::{vehicle_cost, WalkingNode};
 use crate::{
-    BuildingID, DirectedRoadID, IntersectionID, Lane, LaneID, Map, PathConstraints, PathRequest,
+    BuildingID, DirectedRoadID, IntersectionID, LaneID, Map, PathConstraints, PathRequest,
 };
 
 mod walking;
@@ -61,7 +60,7 @@ pub fn find_scc(map: &Map, constraints: PathConstraints) -> (HashSet<LaneID>, Ha
     (largest_group, disconnected)
 }
 
-/// Starting from some initial buildings, calculate the cost to all others. If a destination isn't
+/// Starting from some initial spot, calculate the cost to all buildings. If a destination isn't
 /// reachable, it won't be included in the results. Ignore results greater than the time_limit
 /// away.
 pub fn all_vehicle_costs_from(
@@ -93,38 +92,25 @@ pub fn all_vehicle_costs_from(
     for spot in starts {
         match spot {
             Spot::Building(b_id) => {
-                if constraints == PathConstraints::Car {
-                    if let Some((pos, _)) = map.get_b(b_id).driving_connection(map) {
-                        queue.push(Item {
-                            cost: Duration::ZERO,
-                            node: map.get_l(pos.lane()).get_directed_parent(),
-                        });
-                    }
-                } else if constraints == PathConstraints::Bike {
-                    if let Some((pos, _)) = map.get_b(b_id).biking_connection(map) {
-                        queue.push(Item {
-                            cost: Duration::ZERO,
-                            node: map.get_l(pos.lane()).get_directed_parent(),
-                        });
-                    }
+                if let Some(start_road) = bldg_to_road.get(&b_id).cloned() {
+                    queue.push(Item {
+                        cost: Duration::ZERO,
+                        node: start_road,
+                    });
                 }
             }
             Spot::Border(i_id) => {
                 let intersection = map.get_i(i_id);
-                let incoming_lanes = intersection.incoming_lanes.clone();
-                let mut outgoing_lanes = intersection.outgoing_lanes.clone();
+
+                let incoming_lanes = intersection.get_incoming_lanes(map, constraints);
+                let mut outgoing_lanes = intersection.get_outgoing_lanes(map, constraints);
                 let mut all_lanes = incoming_lanes;
                 all_lanes.append(&mut outgoing_lanes);
 
-                let walkable_lanes: Vec<&Lane> = all_lanes
-                    .iter()
-                    .map(|l_id| map.get_l(l_id.clone()))
-                    .filter(|l| l.is_walkable())
-                    .collect();
-                for lane in walkable_lanes {
+                for l_id in all_lanes {
                     queue.push(Item {
                         cost: Duration::ZERO,
-                        node: lane.get_directed_parent(),
+                        node: map.get_l(l_id).get_directed_parent(),
                     });
                 }
             }

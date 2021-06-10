@@ -45,11 +45,7 @@ pub enum Options {
 impl Options {
     /// Calculate the quickest time to reach building across the map from any of the starting
     /// points, subject to the walking/biking settings configured in these Options.
-    pub fn times_from_buildings(
-        self,
-        map: &Map,
-        starts: Vec<Spot>,
-    ) -> HashMap<BuildingID, Duration> {
+    pub fn times_from(self, map: &Map, starts: Vec<Spot>) -> HashMap<BuildingID, Duration> {
         match self {
             Options::Walking(opts) => {
                 connectivity::all_walking_costs_from(map, starts, Duration::minutes(15), opts)
@@ -71,12 +67,8 @@ impl Isochrone {
         start: Vec<BuildingID>,
         options: Options,
     ) -> Isochrone {
-        let spot_starts = start
-            .clone()
-            .iter()
-            .map(|b_id| Spot::Building(b_id.clone()))
-            .collect();
-        let time_to_reach_building = options.clone().times_from_buildings(&app.map, spot_starts);
+        let spot_starts = start.iter().map(|b_id| Spot::Building(*b_id)).collect();
+        let time_to_reach_building = options.clone().times_from(&app.map, spot_starts);
 
         let mut amenities_reachable = MultiMap::new();
         let mut population = 0;
@@ -165,8 +157,8 @@ impl Isochrone {
 pub fn draw_isochrone(
     app: &App,
     time_to_reach_building: &HashMap<BuildingID, Duration>,
-    thresholds: &Vec<f64>,
-    colors: &Vec<Color>,
+    thresholds: &[f64],
+    colors: &[Color],
 ) -> GeomBatch {
     // To generate the polygons covering areas between 0-5 mins, 5-10 mins, etc, we have to feed
     // in a 2D grid of costs. Use a 100x100 meter resolution.
@@ -183,7 +175,7 @@ pub fn draw_isochrone(
     // Calculate the cost from the start building to every other building in the map
     for (b, cost) in time_to_reach_building {
         // What grid cell does the building belong to?
-        let pt = app.map.get_b(b.clone()).polygon.center();
+        let pt = app.map.get_b(*b).polygon.center();
         let idx = grid.idx(
             ((pt.x() - bounds.min_x) / resolution_m) as usize,
             ((pt.y() - bounds.min_y) / resolution_m) as usize,
@@ -211,7 +203,7 @@ pub fn draw_isochrone(
             geojson::Value::MultiPolygon(polygons) => {
                 for p in polygons {
                     if let Ok(poly) = Polygon::from_geojson(&p) {
-                        batch.push(color.clone(), poly.scale(resolution_m));
+                        batch.push(*color, poly.scale(resolution_m));
                     }
                 }
             }
@@ -245,12 +237,8 @@ impl BorderIsochrone {
         start: Vec<IntersectionID>,
         options: Options,
     ) -> BorderIsochrone {
-        let spot_starts = start
-            .clone()
-            .iter()
-            .map(|i_id| Spot::Border(i_id.clone()))
-            .collect();
-        let time_to_reach_building = options.clone().times_from_buildings(&app.map, spot_starts);
+        let spot_starts = start.iter().map(|i_id| Spot::Border(*i_id)).collect();
+        let time_to_reach_building = options.clone().times_from(&app.map, spot_starts);
 
         // Generate a single polygon showing 15 minutes from the border
         let thresholds = vec![0.1, Duration::minutes(15).inner_seconds()];

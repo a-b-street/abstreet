@@ -74,14 +74,10 @@ pub fn all_walking_costs_from(
     for spot in starts {
         match spot {
             Spot::Building(b_id) => {
-                if opts.allow_shoulders
-                    && map.get_l(map.get_b(b_id).sidewalk()).lane_type != LaneType::Shoulder
-                {
-                    queue.push(Item {
-                        cost: Duration::ZERO,
-                        node: WalkingNode::closest(map.get_b(b_id).sidewalk_pos, map),
-                    });
-                }
+                queue.push(Item {
+                    cost: Duration::ZERO,
+                    node: WalkingNode::closest(map.get_b(b_id).sidewalk_pos, map),
+                });
             }
             Spot::Border(i_id) => {
                 let intersection = map.get_i(i_id);
@@ -90,8 +86,8 @@ pub fn all_walking_costs_from(
                 let mut all_lanes = incoming_lanes;
                 all_lanes.append(&mut outgoing_lanes);
                 let walkable_lanes: Vec<&Lane> = all_lanes
-                    .iter()
-                    .map(|l_id| map.get_l(l_id.clone()))
+                    .into_iter()
+                    .map(|l_id| map.get_l(l_id))
                     .filter(|l| l.is_walkable())
                     .collect();
                 for lane in walkable_lanes {
@@ -104,6 +100,21 @@ pub fn all_walking_costs_from(
                     });
                 }
             }
+        }
+    }
+
+    if !opts.allow_shoulders {
+        let mut shoulder_endpoint = Vec::new();
+        for q in &queue {
+            if let WalkingNode::SidewalkEndpoint(dir_r, _) = q.node {
+                let lanes = &map.get_r(dir_r.id).lanes_ltr;
+                for (_, _, lane_type) in lanes {
+                    shoulder_endpoint.push(lane_type == &LaneType::Shoulder)
+                }
+            }
+        }
+        if shoulder_endpoint.into_iter().all(|x| x) {
+            return HashMap::new();
         }
     }
 
