@@ -1,10 +1,11 @@
 use crate::{
-    Drawable, EventCtx, GeomBatch, GeomBatchStack, GfxCtx, RewriteColor, ScreenDims, ScreenPt,
-    ScreenRectangle, Widget, WidgetImpl, WidgetOutput,
+    Drawable, EventCtx, GeomBatch, GeomBatchStack, GfxCtx, Outcome, RewriteColor, ScreenDims,
+    ScreenPt, ScreenRectangle, Widget, WidgetImpl, WidgetOutput,
 };
 
-pub struct DragDrop<K: Clone> {
-    members: Vec<(K, GeomBatch, ScreenDims)>,
+pub struct DragDrop {
+    label: String,
+    members: Vec<(GeomBatch, ScreenDims)>,
     draw: Drawable,
     hovering: Option<usize>,
     dragging: Option<usize>,
@@ -13,14 +14,15 @@ pub struct DragDrop<K: Clone> {
     top_left: ScreenPt,
 }
 
-impl<K: 'static + Clone> DragDrop<K> {
-    pub fn new_widget(ctx: &EventCtx, members: Vec<(K, GeomBatch)>) -> Widget {
+impl DragDrop {
+    pub fn new_widget(ctx: &EventCtx, label: &str, members: Vec<GeomBatch>) -> Widget {
         let mut dd = DragDrop {
+            label: label.to_string(),
             members: members
                 .into_iter()
-                .map(|(key, batch)| {
+                .map(|batch| {
                     let dims = batch.get_dims();
-                    (key, batch, dims)
+                    (batch, dims)
                 })
                 .collect(),
             draw: Drawable::empty(ctx),
@@ -35,10 +37,10 @@ impl<K: 'static + Clone> DragDrop<K> {
     }
 }
 
-impl<K: 'static + Clone> DragDrop<K> {
+impl DragDrop {
     fn recalc_draw(&mut self, ctx: &EventCtx) {
         let mut stack = GeomBatchStack::horizontal(Vec::new());
-        for (idx, (_, batch, _)) in self.members.iter().enumerate() {
+        for (idx, (batch, _)) in self.members.iter().enumerate() {
             let mut batch = batch.clone();
             if let Some(drag_idx) = self.dragging {
                 // If we're dragging, fade everything out except what we're dragging and where
@@ -66,7 +68,7 @@ impl<K: 'static + Clone> DragDrop<K> {
     fn mouseover_card(&self, ctx: &EventCtx) -> Option<usize> {
         let pt = ctx.canvas.get_cursor_in_screen_space()?;
         let mut top_left = self.top_left;
-        for (idx, (_, _, dims)) in self.members.iter().enumerate() {
+        for (idx, (_, dims)) in self.members.iter().enumerate() {
             if ScreenRectangle::top_left(top_left, *dims).contains(pt) {
                 return Some(idx);
             }
@@ -76,7 +78,7 @@ impl<K: 'static + Clone> DragDrop<K> {
     }
 }
 
-impl<K: 'static + Clone> WidgetImpl for DragDrop<K> {
+impl WidgetImpl for DragDrop {
     fn get_dims(&self) -> ScreenDims {
         self.dims
     }
@@ -85,13 +87,14 @@ impl<K: 'static + Clone> WidgetImpl for DragDrop<K> {
         self.top_left = top_left;
     }
 
-    fn event(&mut self, ctx: &mut EventCtx, _: &mut WidgetOutput) {
+    fn event(&mut self, ctx: &mut EventCtx, output: &mut WidgetOutput) {
         if let Some(old_idx) = self.dragging {
             if ctx.input.left_mouse_button_released() {
                 self.dragging = None;
                 if let Some(new_idx) = self.hovering {
                     if old_idx != new_idx {
-                        // TODO Emit a Changed event, then the caller can go fetch the new ordering
+                        output.outcome =
+                            Outcome::DragDropReordered(self.label.clone(), old_idx, new_idx);
                         self.members.swap(old_idx, new_idx);
                         self.recalc_draw(ctx);
                     }

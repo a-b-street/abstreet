@@ -7,9 +7,9 @@ use map_model::{
     NORMAL_LANE_THICKNESS,
 };
 use widgetry::{
-    lctrl, Choice, Color, ControlState, Drawable, EventCtx, GeomBatch, GeomBatchStack, GfxCtx,
-    HorizontalAlignment, Image, Key, Line, Outcome, Panel, State, Text, TextExt, VerticalAlignment,
-    Widget, DEFAULT_CORNER_RADIUS,
+    lctrl, Choice, Color, ControlState, DragDrop, Drawable, EventCtx, GeomBatch, GeomBatchStack,
+    GfxCtx, HorizontalAlignment, Image, Key, Line, Outcome, Panel, State, Text, TextExt,
+    VerticalAlignment, Widget, DEFAULT_CORNER_RADIUS,
 };
 
 use crate::app::{App, Transition};
@@ -282,6 +282,20 @@ impl State<App> for RoadEditor {
                 }
                 _ => unreachable!(),
             },
+            Outcome::DragDropReordered(_, old_idx, new_idx) => {
+                // TODO Not using modify_current_lane... should we try to?
+                let mut edits = app.primary.map.get_edits().clone();
+                edits
+                    .commands
+                    .push(app.primary.map.edit_road_cmd(self.r, |new| {
+                        new.lanes_ltr.swap(old_idx, new_idx);
+                    }));
+                apply_map_edits(ctx, app, edits);
+                self.redo_stack.clear();
+                self.current_lane = None; // TODO
+
+                self.recalc_all_panels(ctx, app);
+            }
             _ => {}
         }
 
@@ -330,8 +344,6 @@ impl State<App> for RoadEditor {
         // changed.
         // TODO Moving the mouse across all lanes quickly isn't responsive; rebuilding the full
         // panel is heavyweight.
-        // TODO When we hover on the cards, we only draw one highlighted lane on the map. But not
-        // vice versa; should we match that?
         if self.hovering_on_lane != prev_hovering_on_lane {
             self.recalc_all_panels(ctx, app);
         }
@@ -520,8 +532,7 @@ fn make_main_panel(
     );
     let available_lane_types_row = Widget::row(available_lane_types_row);
 
-    let mut current_lanes_ltr = Vec::new();
-
+    let mut lane_cards = Vec::new();
     let lanes_ltr = road.lanes_ltr();
     let lanes_len = lanes_ltr.len();
     for (idx, (id, dir, lt)) in lanes_ltr.into_iter().enumerate() {
@@ -546,7 +557,7 @@ fn make_main_panel(
             );
         }
         let stack_batch = stack.batch();
-        let stack_bounds = stack_batch.get_bounds();
+        /*let stack_bounds = stack_batch.get_bounds();
 
         let mut rounding = CornerRadii::zero();
         if idx == 0 {
@@ -580,14 +591,17 @@ fn make_main_panel(
                 .padding_bottom(32.0)
                 .corner_rounding(rounding)
                 .build_widget(ctx, format!("modify {}", id)),
-        );
+        );*/
+        lane_cards.push(stack_batch);
     }
 
+    /*
     // Wrap this row in an extra container, so that the background color doesn't stretch over and
     // fill any extra space on the right side.
     let current_lanes_ltr = Widget::evenly_spaced_row(2, current_lanes_ltr)
         .bg(Color::hex("#979797"))
-        .container();
+        .container();*/
+    let current_lanes_ltr = DragDrop::new_widget(ctx, "lane cards", lane_cards);
 
     let road_settings = Widget::row(vec![
         Text::from_all(vec![

@@ -316,7 +316,7 @@ fn setup_scrollable_canvas(ctx: &mut EventCtx) -> Drawable {
 
 fn make_tabs(ctx: &mut EventCtx) -> TabController {
     let draggable_cards = (0..5)
-        .map(|i| (i, make_draggable_card(ctx, i)))
+        .map(|i| make_draggable_card(ctx, i))
         .collect::<Vec<_>>();
     let style = ctx.style();
 
@@ -325,7 +325,7 @@ fn make_tabs(ctx: &mut EventCtx) -> TabController {
     let gallery_bar_item = style.btn_tab.text("Component Gallery");
     let gallery_content = Widget::col(vec![
         "Reorder the cards below".text_widget(ctx),
-        DragDrop::new_widget(ctx, draggable_cards),
+        DragDrop::new_widget(ctx, "cards", draggable_cards),
         Text::from(Line("Text").big_heading_styled().size(18)).into_widget(ctx),
         Text::from_all(vec![
             Line("You can "),

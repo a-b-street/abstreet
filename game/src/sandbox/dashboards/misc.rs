@@ -211,7 +211,7 @@ impl State<App> for TransitRoutes {
                     return Transition::Keep;
                 }
             }
-            Outcome::Nothing => {
+            _ => {
                 if let Some(routes) = self.panel.autocomplete_done("search") {
                     if !routes.is_empty() {
                         routes[0]
