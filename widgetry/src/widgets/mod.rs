@@ -20,6 +20,7 @@ pub mod autocomplete;
 pub mod button;
 pub mod compare_times;
 pub mod containers;
+pub mod drag_drop;
 pub mod dropdown;
 pub mod fan_chart;
 pub mod filler;

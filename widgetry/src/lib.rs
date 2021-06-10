@@ -8,6 +8,7 @@
 //! * [`Button`] - clickable buttons with keybindings and tooltips
 //! * [`Toggle`] - checkboxes, switches, and other toggles
 //! * [`CompareTimes`] - a scatter plot specialized for comparing times
+//! * [`DragDrop`] - a reorderable row of draggable cards
 //! * [`DrawWithTooltips`] - draw static geometry, with mouse tooltips in certain regions
 //! * [`Dropdown`] - a button that expands into a menu
 //! * [`FanChart`] - visualize a range of values over time
@@ -54,6 +55,7 @@ pub use crate::widgets::autocomplete::Autocomplete;
 pub(crate) use crate::widgets::button::Button;
 pub use crate::widgets::button::{ButtonBuilder, MultiButton};
 pub use crate::widgets::compare_times::CompareTimes;
+pub use crate::widgets::drag_drop::DragDrop;
 pub(crate) use crate::widgets::dropdown::Dropdown;
 pub use crate::widgets::fan_chart::FanChart;
 pub use crate::widgets::filler::Filler;
