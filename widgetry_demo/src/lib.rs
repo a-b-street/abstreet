@@ -5,7 +5,7 @@ use rand_xorshift::XorShiftRng;
 
 use geom::{Angle, Duration, Percent, Polygon, Pt2D, Time};
 use widgetry::{
-    lctrl, Choice, Color, ContentMode, Drawable, EventCtx, Fill, GeomBatch, GfxCtx,
+    lctrl, Choice, Color, ContentMode, DragDrop, Drawable, EventCtx, Fill, GeomBatch, GfxCtx,
     HorizontalAlignment, Image, Key, Line, LinePlot, Outcome, Panel, PersistentSplit, PlotOptions,
     ScreenDims, Series, Settings, SharedAppState, State, TabController, Text, TextExt, Texture,
     Toggle, Transition, UpdateType, VerticalAlignment, Widget,
@@ -315,12 +315,17 @@ fn setup_scrollable_canvas(ctx: &mut EventCtx) -> Drawable {
 }
 
 fn make_tabs(ctx: &mut EventCtx) -> TabController {
+    let draggable_cards = (0..5)
+        .map(|i| (i, make_draggable_card(ctx, i)))
+        .collect::<Vec<_>>();
     let style = ctx.style();
 
     let mut tabs = TabController::new("demo_tabs");
 
     let gallery_bar_item = style.btn_tab.text("Component Gallery");
     let gallery_content = Widget::col(vec![
+        "Reorder the cards below".text_widget(ctx),
+        DragDrop::new_widget(ctx, draggable_cards),
         Text::from(Line("Text").big_heading_styled().size(18)).into_widget(ctx),
         Text::from_all(vec![
             Line("You can "),
@@ -602,6 +607,14 @@ fn make_controls(ctx: &mut EventCtx, tabs: &mut TabController) -> Panel {
     ])) // end panel
     .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
     .build(ctx)
+}
+
+fn make_draggable_card(ctx: &mut EventCtx, num: usize) -> GeomBatch {
+    // TODO Kind of hardcoded. At least center the text or draw nice outlines?
+    let mut batch = GeomBatch::new();
+    batch.push(Color::RED, Polygon::rectangle(100.0, 150.0));
+    batch.append(Text::from(format!("Card {}", num)).render(ctx));
+    batch
 }
 
 // Boilerplate for web support
