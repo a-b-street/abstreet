@@ -34,7 +34,7 @@ fn convert(orig_path: &str, network: Network) -> Result<Map> {
         intersections.push(Intersection {
             id,
             polygon: junction.shape,
-            turns: BTreeSet::new(),
+            turns: Vec::new(),
             elevation: Distance::ZERO,
             intersection_type: IntersectionType::StopSign,
             // TODO Temporary ID. We could consider squeezing SUMO IDs into this scheme.
@@ -154,7 +154,6 @@ fn convert(orig_path: &str, network: Network) -> Result<Map> {
         }
     }
 
-    let mut turns = Vec::new();
     for connection in network.connections {
         if let (Some(from), Some(to), Some(via)) = (
             ids_lanes.get(&connection.from_lane()),
@@ -173,7 +172,7 @@ fn convert(orig_path: &str, network: Network) -> Result<Map> {
                 ])
                 .ok()
             }) {
-                turns.push(Turn {
+                intersections[id.parent.0].turns.push(Turn {
                     id,
                     // TODO Crosswalks and sidewalk corners
                     turn_type: match connection.dir {
@@ -186,7 +185,6 @@ fn convert(orig_path: &str, network: Network) -> Result<Map> {
                     geom,
                     other_crosswalk_ids: BTreeSet::new(),
                 });
-                intersections[id.parent.0].turns.insert(id);
             }
         }
     }
@@ -203,6 +201,5 @@ fn convert(orig_path: &str, network: Network) -> Result<Map> {
         intersections,
         roads,
         lanes,
-        turns,
     ))
 }

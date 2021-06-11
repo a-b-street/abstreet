@@ -108,11 +108,6 @@ impl Map {
                 prettyprint_usize(serialized_size_bytes(&self.intersections))
             );
             info!(
-                "- {} turns: {} bytes",
-                prettyprint_usize(self.turns.len()),
-                prettyprint_usize(serialized_size_bytes(&self.turns))
-            );
-            info!(
                 "- {} buildings: {} bytes",
                 prettyprint_usize(self.buildings.len()),
                 prettyprint_usize(serialized_size_bytes(&self.buildings))
@@ -147,7 +142,6 @@ impl Map {
             lanes: BTreeMap::new(),
             lane_id_counter: 0,
             intersections: Vec::new(),
-            turns: BTreeMap::new(),
             buildings: Vec::new(),
             bus_stops: BTreeMap::new(),
             bus_routes: Vec::new(),
@@ -191,8 +185,8 @@ impl Map {
         &self.intersections
     }
 
-    pub fn all_turns(&self) -> &BTreeMap<TurnID, Turn> {
-        &self.turns
+    pub fn all_turns(&self) -> impl Iterator<Item = &Turn> {
+        self.intersections.iter().flat_map(|i| i.turns.iter())
     }
 
     pub fn all_buildings(&self) -> &Vec<Building> {
@@ -224,7 +218,14 @@ impl Map {
     }
 
     pub fn maybe_get_t(&self, id: TurnID) -> Option<&Turn> {
-        self.turns.get(&id)
+        // Looking up the intersection is fast. Linearly scanning through all of the turns to find
+        // this one actually turns out to be fast too; thanks cache locality.
+        for turn in &self.intersections[id.parent.0].turns {
+            if turn.id == id {
+                return Some(turn);
+            }
+        }
+        None
     }
 
     pub fn maybe_get_b(&self, id: BuildingID) -> Option<&Building> {
@@ -269,8 +270,8 @@ impl Map {
 
     pub fn get_t(&self, id: TurnID) -> &Turn {
         // When pathfinding breaks, seeing this TurnID is useful.
-        if let Some(ref t) = self.turns.get(&id) {
-            t
+        if let Some(turn) = self.maybe_get_t(id) {
+            turn
         } else {
             panic!("Can't get_t({})", id);
         }
@@ -298,12 +299,8 @@ impl Map {
 
     // All these helpers should take IDs and return objects.
 
-    pub fn get_turns_in_intersection(&self, id: IntersectionID) -> Vec<&Turn> {
-        self.get_i(id)
-            .turns
-            .iter()
-            .map(|t| self.get_t(*t))
-            .collect()
+    pub fn get_turns_in_intersection(&self, id: IntersectionID) -> &Vec<Turn> {
+        &self.get_i(id).turns
     }
 
     /// The turns may belong to two different intersections!
@@ -313,14 +310,13 @@ impl Map {
             .get_i(lane.dst_i)
             .turns
             .iter()
-            .map(|t| self.get_t(*t))
             .filter(|t| t.id.src == l)
             .collect();
         // Sidewalks/shoulders are bidirectional
         if lane.is_walkable() {
             for t in &self.get_i(lane.src_i).turns {
-                if t.src == l {
-                    turns.push(self.get_t(*t));
+                if t.id.src == l {
+                    turns.push(t);
                 }
             }
         }
@@ -333,14 +329,13 @@ impl Map {
             .get_i(lane.src_i)
             .turns
             .iter()
-            .map(|t| self.get_t(*t))
             .filter(|t| t.id.dst == l)
             .collect();
         // Sidewalks/shoulders are bidirectional
         if lane.is_walkable() {
             for t in &self.get_i(lane.dst_i).turns {
-                if t.dst == l {
-                    turns.push(self.get_t(*t));
+                if t.id.dst == l {
+                    turns.push(t);
                 }
             }
         }
@@ -352,12 +347,11 @@ impl Map {
         from: LaneID,
         to: LaneID,
         parent: IntersectionID,
-    ) -> Option<TurnID> {
+    ) -> Option<&Turn> {
         self.get_i(parent)
             .turns
             .iter()
-            .find(|t| t.src == from && t.dst == to)
-            .cloned()
+            .find(|t| t.id.src == from && t.id.dst == to)
     }
 
     pub fn get_next_turns_and_lanes(
@@ -368,8 +362,8 @@ impl Map {
         self.get_i(parent)
             .turns
             .iter()
-            .filter(|t| t.src == from)
-            .map(|t| (self.get_t(*t), self.get_l(t.dst)))
+            .filter(|t| t.id.src == from)
+            .map(|t| (t, self.get_l(t.id.dst)))
             .collect()
     }
 
@@ -400,12 +394,12 @@ impl Map {
     ) -> Vec<MovementID> {
         let mut result = BTreeSet::new();
         for t in &self.get_i(from.dst_i(self)).turns {
-            let src = self.get_l(t.src);
+            let src = self.get_l(t.id.src);
             if src.get_directed_parent() == from
                 && constraints.can_use(src, self)
-                && constraints.can_use(self.get_l(t.dst), self)
+                && constraints.can_use(self.get_l(t.id.dst), self)
             {
-                result.insert(t.to_movement(self));
+                result.insert(t.id.to_movement(self));
             }
         }
         // TODO Sidewalks are bidirectional

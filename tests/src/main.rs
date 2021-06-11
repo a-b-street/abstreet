@@ -73,7 +73,7 @@ fn import_map(path: String) -> Map {
 fn dump_turn_goldenfile(map: &Map) -> Result<()> {
     let path = abstio::path(format!("../tests/goldenfiles/{}.txt", map.get_name().map));
     let mut f = File::create(path)?;
-    for t in map.all_turns().values() {
+    for t in map.all_turns() {
         writeln!(f, "{} is a {:?}", t.id, t.turn_type)?;
     }
     Ok(())

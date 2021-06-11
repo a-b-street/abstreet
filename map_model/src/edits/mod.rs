@@ -412,8 +412,8 @@ fn recalculate_turns(id: IntersectionID, map: &mut Map, effects: &mut EditEffect
 
     let mut old_turns = Vec::new();
     for t in std::mem::take(&mut i.turns) {
-        old_turns.push(map.turns.remove(&t).unwrap());
-        effects.deleted_turns.insert(t);
+        effects.deleted_turns.insert(t.id);
+        old_turns.push(t);
     }
 
     if i.is_closed() {
@@ -424,12 +424,11 @@ fn recalculate_turns(id: IntersectionID, map: &mut Map, effects: &mut EditEffect
     let i = &mut map.intersections[id.0];
     for t in turns {
         effects.added_turns.insert(t.id);
-        i.turns.insert(t.id);
         if let Some(_existing_t) = old_turns.iter().find(|turn| turn.id == t.id) {
             // TODO Except for lookup_idx
             //assert_eq!(t, *existing_t);
         }
-        map.turns.insert(t.id, t);
+        i.turns.push(t);
     }
 
     match i.intersection_type {
@@ -848,7 +847,7 @@ impl Map {
         }
 
         // Some of these might've been added, then later deleted.
-        retain_btreeset(&mut effects.added_turns, |t| self.turns.contains_key(t));
+        retain_btreeset(&mut effects.added_turns, |t| self.maybe_get_t(*t).is_some());
 
         let mut more_changed_intersections = Vec::new();
         for t in effects

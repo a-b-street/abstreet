@@ -20,7 +20,7 @@ mod walking;
 /// other disconnected lanes)
 pub fn find_scc(map: &Map, constraints: PathConstraints) -> (HashSet<LaneID>, HashSet<LaneID>) {
     let mut graph = DiGraphMap::new();
-    for turn in map.all_turns().values() {
+    for turn in map.all_turns() {
         if constraints.can_use(map.get_l(turn.id.src), map)
             && constraints.can_use(map.get_l(turn.id.dst), map)
         {

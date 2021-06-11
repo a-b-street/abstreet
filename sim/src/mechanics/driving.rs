@@ -78,7 +78,7 @@ impl DrivingSimState {
                 sim.queues.insert(q.id, q);
             }
         }
-        for t in map.all_turns().values() {
+        for t in map.all_turns() {
             if !t.between_sidewalks() {
                 let q = Queue::new(Traversable::Turn(t.id), map);
                 sim.queues.insert(q.id, q);
@@ -888,7 +888,7 @@ impl DrivingSimState {
                 new_queues.insert(Traversable::Lane(l.id));
             }
         }
-        for t in map.all_turns().values() {
+        for t in map.all_turns() {
             if !t.between_sidewalks() {
                 new_queues.insert(Traversable::Turn(t.id));
             }

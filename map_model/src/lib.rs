@@ -86,11 +86,6 @@ pub struct Map {
     lanes: BTreeMap<LaneID, Lane>,
     lane_id_counter: usize,
     intersections: Vec<Intersection>,
-    #[serde(
-        serialize_with = "serialize_btreemap",
-        deserialize_with = "deserialize_btreemap"
-    )]
-    turns: BTreeMap<TurnID, Turn>,
     buildings: Vec<Building>,
     #[serde(
         serialize_with = "serialize_btreemap",

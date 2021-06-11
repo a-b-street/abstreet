@@ -811,7 +811,7 @@ fn find_degenerate_roads(app: &App) {
         if i.roads.len() != 2 {
             continue;
         }
-        if i.turns.iter().any(|t| map.get_t(*t).between_sidewalks()) {
+        if i.turns.iter().any(|t| t.between_sidewalks()) {
             continue;
         }
         let (r1, r2) = {
@@ -861,7 +861,7 @@ fn diff_tags(t1: &Tags, t2: &Tags) {
 
 fn find_large_intersections(app: &App) {
     let mut seen = HashSet::new();
-    for t in app.primary.map.all_turns().values() {
+    for t in app.primary.map.all_turns() {
         if !seen.contains(&t.id.parent) && t.geom.length() > Distance::meters(50.0) {
             println!("{} has a long turn", t.id.parent);
             seen.insert(t.id.parent);
@@ -965,8 +965,8 @@ fn draw_banned_turns(ctx: &mut EventCtx, app: &App) -> Drawable {
             }
         }
         for t in &i.turns {
-            let r1 = map.get_l(t.src).parent;
-            let r2 = map.get_l(t.dst).parent;
+            let r1 = map.get_l(t.id.src).parent;
+            let r2 = map.get_l(t.id.dst).parent;
             pairs.remove(&(r1, r2));
         }
 
@@ -988,7 +988,7 @@ fn draw_banned_turns(ctx: &mut EventCtx, app: &App) -> Drawable {
 fn draw_arterial_crosswalks(ctx: &mut EventCtx, app: &App) -> Drawable {
     let mut batch = GeomBatch::new();
     let map = &app.primary.map;
-    for turn in map.all_turns().values() {
+    for turn in map.all_turns() {
         if turn.is_crossing_arterial_intersection(map) {
             batch.push(
                 Color::RED,

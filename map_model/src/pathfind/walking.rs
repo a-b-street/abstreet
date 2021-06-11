@@ -241,7 +241,7 @@ fn make_input_graph(
         }
     }
 
-    for t in map.all_turns().values() {
+    for t in map.all_turns() {
         if t.between_sidewalks() {
             let src = map.get_l(t.id.src);
             let dst = map.get_l(t.id.dst);

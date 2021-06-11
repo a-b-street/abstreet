@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 use abstutil::{deserialize_usize, serialize_usize};
 use geom::{Distance, Polygon};
 
-use crate::{osm, DirectedRoadID, LaneID, Map, PathConstraints, Road, RoadID, TurnID};
+use crate::{osm, DirectedRoadID, LaneID, Map, PathConstraints, Road, RoadID, Turn};
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct IntersectionID(
@@ -39,7 +39,7 @@ pub struct Intersection {
     pub id: IntersectionID,
     /// This needs to be in clockwise orientation, or later rendering of sidewalk corners breaks.
     pub polygon: Polygon,
-    pub turns: BTreeSet<TurnID>,
+    pub turns: Vec<Turn>,
     pub elevation: Distance,
 
     pub intersection_type: IntersectionType,
