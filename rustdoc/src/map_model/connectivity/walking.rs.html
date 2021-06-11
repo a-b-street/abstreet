@@ -191,10 +191,24 @@
 <span id="188">188</span>
 <span id="189">189</span>
 <span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cmp</span>::<span class="ident">Ordering</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BinaryHeap</span>, <span class="ident">HashMap</span>};
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BinaryHeap</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
+<span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">MultiMap</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Speed</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">connectivity</span>::<span class="ident">Spot</span>;
@@ -312,15 +326,22 @@
         }
     }
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cost_per_node</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">WalkingNode</span>, <span class="ident">Duration</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">HashMap</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">sidewalk_to_bldgs</span> <span class="op">=</span> <span class="ident">MultiMap</span>::<span class="ident">new</span>();
+    <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_buildings</span>() {
+        <span class="ident">sidewalk_to_bldgs</span>.<span class="ident">insert</span>(<span class="ident">b</span>.<span class="ident">sidewalk</span>(), <span class="ident">b</span>.<span class="ident">id</span>);
+    }
+
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">results</span> <span class="op">=</span> <span class="ident">HashMap</span>::<span class="ident">new</span>();
+
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">visited_nodes</span> <span class="op">=</span> <span class="ident">HashSet</span>::<span class="ident">new</span>();
     <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">current</span>) <span class="op">=</span> <span class="ident">queue</span>.<span class="ident">pop</span>() {
-        <span class="kw">if</span> <span class="ident">cost_per_node</span>.<span class="ident">contains_key</span>(<span class="kw-2">&amp;</span><span class="ident">current</span>.<span class="ident">node</span>) {
+        <span class="kw">if</span> <span class="ident">visited_nodes</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">current</span>.<span class="ident">node</span>) {
             <span class="kw">continue</span>;
         }
         <span class="kw">if</span> <span class="ident">current</span>.<span class="ident">cost</span> <span class="op">&gt;</span> <span class="ident">time_limit</span> {
             <span class="kw">continue</span>;
         }
-        <span class="ident">cost_per_node</span>.<span class="ident">insert</span>(<span class="ident">current</span>.<span class="ident">node</span>, <span class="ident">current</span>.<span class="ident">cost</span>);
+        <span class="ident">visited_nodes</span>.<span class="ident">insert</span>(<span class="ident">current</span>.<span class="ident">node</span>);
 
         <span class="kw">let</span> (<span class="ident">r</span>, <span class="ident">is_dst_i</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">current</span>.<span class="ident">node</span> {
             <span class="ident">WalkingNode</span>::<span class="ident">SidewalkEndpoint</span>(<span class="ident">r</span>, <span class="ident">is_dst_i</span>) <span class="op">=</span><span class="op">&gt;</span> (<span class="ident">r</span>, <span class="ident">is_dst_i</span>),
@@ -329,16 +350,39 @@
         <span class="kw">let</span> <span class="ident">lane</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">r</span>.<span class="ident">must_get_sidewalk</span>(<span class="ident">map</span>));
         <span class="comment">// Cross the lane</span>
         <span class="kw">if</span> <span class="ident">opts</span>.<span class="ident">allow_shoulders</span> <span class="op">|</span><span class="op">|</span> <span class="ident">lane</span>.<span class="ident">lane_type</span> <span class="op">!</span><span class="op">=</span> <span class="ident">LaneType</span>::<span class="ident">Shoulder</span> {
-            <span class="ident">queue</span>.<span class="ident">push</span>(<span class="ident">Item</span> {
-                <span class="ident">cost</span>: <span class="ident">current</span>.<span class="ident">cost</span>
-                    <span class="op">+</span> <span class="ident">lane</span>.<span class="ident">length</span>()
-                        <span class="op">/</span> <span class="ident">Traversable</span>::<span class="ident">Lane</span>(<span class="ident">lane</span>.<span class="ident">id</span>).<span class="ident">max_speed_along</span>(
-                            <span class="prelude-val">Some</span>(<span class="ident">opts</span>.<span class="ident">walking_speed</span>),
-                            <span class="ident">PathConstraints</span>::<span class="ident">Pedestrian</span>,
-                            <span class="ident">map</span>,
-                        ),
-                <span class="ident">node</span>: <span class="ident">WalkingNode</span>::<span class="ident">SidewalkEndpoint</span>(<span class="ident">r</span>, <span class="op">!</span><span class="ident">is_dst_i</span>),
-            });
+            <span class="kw">let</span> <span class="ident">sidewalk_len</span> <span class="op">=</span> <span class="ident">lane</span>.<span class="ident">length</span>();
+            <span class="kw">let</span> <span class="ident">speed</span> <span class="op">=</span> <span class="ident">Traversable</span>::<span class="ident">Lane</span>(<span class="ident">lane</span>.<span class="ident">id</span>).<span class="ident">max_speed_along</span>(
+                <span class="prelude-val">Some</span>(<span class="ident">opts</span>.<span class="ident">walking_speed</span>),
+                <span class="ident">PathConstraints</span>::<span class="ident">Pedestrian</span>,
+                <span class="ident">map</span>,
+            );
+            <span class="kw">let</span> <span class="ident">cross_to_node</span> <span class="op">=</span> <span class="ident">WalkingNode</span>::<span class="ident">SidewalkEndpoint</span>(<span class="ident">r</span>, <span class="op">!</span><span class="ident">is_dst_i</span>);
+
+            <span class="comment">// We&#39;re crossing the sidewalk from one end to the other. If we haven&#39;t already found a</span>
+            <span class="comment">// shorter path to the other end of this sidewalk, then fill out the exact distance to</span>
+            <span class="comment">// each building. We need to know the direction along the sidewalk we&#39;re moving to fill</span>
+            <span class="comment">// this out properly, so that&#39;s why the order of graph nodes visited matters and we&#39;re</span>
+            <span class="comment">// doing this work here.</span>
+            <span class="kw">if</span> <span class="op">!</span><span class="ident">visited_nodes</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">cross_to_node</span>) {
+                <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="ident">sidewalk_to_bldgs</span>.<span class="ident">get</span>(<span class="ident">lane</span>.<span class="ident">id</span>) {
+                    <span class="kw">let</span> <span class="ident">bldg_dist_along</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_b</span>(<span class="kw-2">*</span><span class="ident">b</span>).<span class="ident">sidewalk_pos</span>.<span class="ident">dist_along</span>();
+                    <span class="kw">let</span> <span class="ident">dist_to_bldg</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">is_dst_i</span> {
+                        <span class="comment">// Crossing from the end of the sidewalk to the beginning</span>
+                        <span class="ident">sidewalk_len</span> <span class="op">-</span> <span class="ident">bldg_dist_along</span>
+                    } <span class="kw">else</span> {
+                        <span class="ident">bldg_dist_along</span>
+                    };
+                    <span class="kw">let</span> <span class="ident">bldg_cost</span> <span class="op">=</span> <span class="ident">current</span>.<span class="ident">cost</span> <span class="op">+</span> <span class="ident">dist_to_bldg</span> <span class="op">/</span> <span class="ident">speed</span>;
+                    <span class="kw">if</span> <span class="ident">bldg_cost</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">time_limit</span> {
+                        <span class="ident">results</span>.<span class="ident">insert</span>(<span class="kw-2">*</span><span class="ident">b</span>, <span class="ident">bldg_cost</span>);
+                    }
+                }
+
+                <span class="ident">queue</span>.<span class="ident">push</span>(<span class="ident">Item</span> {
+                    <span class="ident">cost</span>: <span class="ident">current</span>.<span class="ident">cost</span> <span class="op">+</span> <span class="ident">sidewalk_len</span> <span class="op">/</span> <span class="ident">speed</span>,
+                    <span class="ident">node</span>: <span class="ident">cross_to_node</span>,
+                });
+            }
         }
         <span class="comment">// All turns from the lane</span>
         <span class="kw">for</span> <span class="ident">turn</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">get_turns_for</span>(<span class="ident">lane</span>.<span class="ident">id</span>, <span class="ident">PathConstraints</span>::<span class="ident">Pedestrian</span>) {
@@ -359,24 +403,6 @@
                     <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">dst</span>).<span class="ident">dst_i</span> <span class="op">=</span><span class="op">=</span> <span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">parent</span>,
                 ),
             });
-        }
-    }
-
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">results</span> <span class="op">=</span> <span class="ident">HashMap</span>::<span class="ident">new</span>();
-    <span class="comment">// Assign every building a cost based on which end of the sidewalk it&#39;s closest to</span>
-    <span class="comment">// TODO We could try to get a little more accurate by accounting for the distance from that</span>
-    <span class="comment">// end of the sidewalk to the building</span>
-    <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_buildings</span>() {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">cost</span>) <span class="op">=</span> <span class="ident">cost_per_node</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">WalkingNode</span>::<span class="ident">closest</span>(<span class="ident">b</span>.<span class="ident">sidewalk_pos</span>, <span class="ident">map</span>)) {
-            <span class="kw">let</span> <span class="ident">sidewalk_len</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">b</span>.<span class="ident">sidewalk</span>()).<span class="ident">length</span>();
-            <span class="kw">let</span> <span class="ident">bldg_dist</span> <span class="op">=</span> <span class="ident">b</span>.<span class="ident">sidewalk_pos</span>.<span class="ident">dist_along</span>();
-            <span class="kw">let</span> <span class="ident">distance_from_closest_node</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">sidewalk_len</span> <span class="op">-</span> <span class="ident">bldg_dist</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">bldg_dist</span> {
-                <span class="ident">bldg_dist</span>
-            } <span class="kw">else</span> {
-                <span class="ident">sidewalk_len</span> <span class="op">-</span> <span class="ident">bldg_dist</span>
-            };
-            <span class="kw">let</span> <span class="ident">total_cost</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">cost</span> <span class="op">+</span> <span class="ident">distance_from_closest_node</span> <span class="op">/</span> <span class="ident">opts</span>.<span class="ident">walking_speed</span>;
-            <span class="ident">results</span>.<span class="ident">insert</span>(<span class="ident">b</span>.<span class="ident">id</span>, <span class="ident">total_cost</span>);
         }
     }
 
