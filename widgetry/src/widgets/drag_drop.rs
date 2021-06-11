@@ -7,11 +7,23 @@ pub struct DragDrop {
     label: String,
     members: Vec<(GeomBatch, ScreenDims)>,
     draw: Drawable,
-    hovering: Option<usize>,
-    dragging: Option<usize>,
+    state: State,
 
     dims: ScreenDims,
     top_left: ScreenPt,
+}
+
+#[derive(PartialEq)]
+enum State {
+    Idle {
+        hovering: Option<usize>,
+    },
+    Dragging {
+        orig_idx: usize,
+        drag_from: ScreenPt,
+        cursor_at: ScreenPt,
+        new_idx: usize,
+    },
 }
 
 impl DragDrop {
@@ -26,8 +38,7 @@ impl DragDrop {
                 })
                 .collect(),
             draw: Drawable::empty(ctx),
-            hovering: None,
-            dragging: None,
+            state: State::Idle { hovering: None },
 
             dims: ScreenDims::square(0.0),
             top_left: ScreenPt::new(0.0, 0.0),
@@ -39,28 +50,37 @@ impl DragDrop {
 
 impl DragDrop {
     fn recalc_draw(&mut self, ctx: &EventCtx) {
-        let mut stack = GeomBatchStack::horizontal(Vec::new());
-        for (idx, (batch, _)) in self.members.iter().enumerate() {
-            let mut batch = batch.clone();
-            if let Some(drag_idx) = self.dragging {
-                // If we're dragging, fade everything out except what we're dragging and where
-                // we're maybe going to drop
-                if idx == drag_idx {
-                    // Leave it
-                } else if self.hovering == Some(idx) {
-                    // Possible drop
-                    batch = batch.color(RewriteColor::ChangeAlpha(0.8));
-                } else {
-                    // Fade it out
-                    batch = batch.color(RewriteColor::ChangeAlpha(0.5));
+        let batch = match self.state {
+            State::Idle { hovering } => {
+                let mut stack = GeomBatchStack::horizontal(Vec::new());
+                for (idx, (batch, _)) in self.members.iter().enumerate() {
+                    let mut batch = batch.clone();
+                    if hovering == Some(idx) {
+                        batch = batch.color(RewriteColor::ChangeAlpha(0.5));
+                    }
+                    stack.push(batch);
                 }
-            } else if self.hovering == Some(idx) {
-                // If we're not dragging, show what we're hovering on
-                batch = batch.color(RewriteColor::ChangeAlpha(0.5));
+                stack.batch()
             }
-            stack.push(batch);
-        }
-        let batch = stack.batch();
+            State::Dragging {
+                orig_idx,
+                drag_from,
+                cursor_at,
+                new_idx,
+            } => {
+                let mut stack = GeomBatchStack::horizontal(Vec::new());
+                for (idx, (batch, _)) in self.members.iter().enumerate() {
+                    let mut batch = batch.clone();
+                    if orig_idx == idx {
+                        batch =
+                            batch.translate(cursor_at.x - drag_from.x, cursor_at.y - drag_from.y);
+                        batch = batch.color(RewriteColor::ChangeAlpha(0.5));
+                    }
+                    stack.push(batch);
+                }
+                stack.batch()
+            }
+        };
         self.dims = batch.get_dims();
         self.draw = batch.upload(ctx);
     }
@@ -88,31 +108,59 @@ impl WidgetImpl for DragDrop {
     }
 
     fn event(&mut self, ctx: &mut EventCtx, output: &mut WidgetOutput) {
-        if let Some(old_idx) = self.dragging {
-            if ctx.input.left_mouse_button_released() {
-                self.dragging = None;
-                if let Some(new_idx) = self.hovering {
-                    if old_idx != new_idx {
+        let mut state = std::mem::replace(&mut self.state, State::Idle { hovering: None });
+        match state {
+            State::Idle { ref mut hovering } => {
+                if ctx.redo_mouseover() {
+                    let new = self.mouseover_card(ctx);
+                    if *hovering != new {
+                        *hovering = new;
+                    }
+                }
+                if let Some(idx) = hovering {
+                    if ctx.input.left_mouse_button_pressed() {
+                        let cursor = ctx.canvas.get_cursor_in_screen_space().unwrap();
+                        state = State::Dragging {
+                            orig_idx: *idx,
+                            drag_from: cursor,
+                            cursor_at: cursor,
+                            new_idx: *idx,
+                        };
+                    }
+                }
+            }
+            State::Dragging {
+                orig_idx,
+                ref mut cursor_at,
+                ref mut new_idx,
+                ..
+            } => {
+                if ctx.redo_mouseover() {
+                    if let Some(pt) = ctx.canvas.get_cursor_in_screen_space() {
+                        *cursor_at = pt;
+                    }
+                    if let Some(idx) = self.mouseover_card(ctx) {
+                        *new_idx = idx;
+                    }
+                }
+                if ctx.input.left_mouse_button_released() {
+                    let new_idx = *new_idx;
+                    state = State::Idle {
+                        hovering: Some(new_idx),
+                    };
+
+                    if orig_idx != new_idx {
                         output.outcome =
-                            Outcome::DragDropReordered(self.label.clone(), old_idx, new_idx);
-                        self.members.swap(old_idx, new_idx);
-                        self.recalc_draw(ctx);
+                            Outcome::DragDropReordered(self.label.clone(), orig_idx, new_idx);
+                        self.members.swap(orig_idx, new_idx);
                     }
                 }
             }
         }
-        if ctx.redo_mouseover() {
-            let old = self.hovering.take();
-            self.hovering = self.mouseover_card(ctx);
-            if old != self.hovering {
-                self.recalc_draw(ctx);
-            }
-        }
-        if let Some(idx) = self.hovering {
-            if ctx.input.left_mouse_button_pressed() {
-                self.dragging = Some(idx);
-                self.recalc_draw(ctx);
-            }
+        let changed = self.state != state;
+        self.state = state;
+        if changed {
+            self.recalc_draw(ctx);
         }
     }
 

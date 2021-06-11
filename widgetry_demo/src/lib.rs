@@ -324,6 +324,7 @@ fn make_tabs(ctx: &mut EventCtx) -> TabController {
 
     let gallery_bar_item = style.btn_tab.text("Component Gallery");
     let gallery_content = Widget::col(vec![
+        // TODO Move this to the bottom
         "Reorder the cards below".text_widget(ctx),
         DragDrop::new_widget(ctx, "cards", draggable_cards),
         Text::from(Line("Text").big_heading_styled().size(18)).into_widget(ctx),
