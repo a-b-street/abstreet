@@ -43,7 +43,7 @@ pub enum Options {
 }
 
 impl Options {
-    /// Calculate the quickest time to reach building across the map from any of the starting
+    /// Calculate the quickest time to reach buildings across the map from any of the starting
     /// points, subject to the walking/biking settings configured in these Options.
     pub fn times_from(self, map: &Map, starts: Vec<Spot>) -> HashMap<BuildingID, Duration> {
         match self {
@@ -121,15 +121,16 @@ impl Isochrone {
             start,
             options,
             draw: Drawable::empty(ctx),
-            thresholds: thresholds.clone(),
-            colors: colors.clone(),
-            time_to_reach_building: time_to_reach_building.clone(),
+            thresholds,
+            colors,
+            time_to_reach_building,
             amenities_reachable,
             population,
             onstreet_parking_spots,
         };
 
-        i.draw = draw_isochrone(app, &time_to_reach_building, &thresholds, &colors).upload(ctx);
+        i.draw =
+            draw_isochrone(app, &i.time_to_reach_building, &i.thresholds, &i.colors).upload(ctx);
         i
     }
 
@@ -244,18 +245,19 @@ impl BorderIsochrone {
         let thresholds = vec![0.1, Duration::minutes(15).inner_seconds()];
 
         // Use one color for the entire polygon
-        let colors = vec![Color::rgb(0, 0, 0).alpha(0.5)];
+        let colors = vec![Color::rgb(0, 0, 0).alpha(0.3)];
 
         let mut i = BorderIsochrone {
             start,
             options,
             draw: Drawable::empty(ctx),
-            thresholds: thresholds.clone(),
-            colors: colors.clone(),
-            time_to_reach_building: time_to_reach_building.clone(),
+            thresholds,
+            colors,
+            time_to_reach_building,
         };
 
-        i.draw = draw_isochrone(app, &time_to_reach_building, &thresholds, &colors).upload(ctx);
+        i.draw =
+            draw_isochrone(app, &i.time_to_reach_building, &i.thresholds, &i.colors).upload(ctx);
         i
     }
 }

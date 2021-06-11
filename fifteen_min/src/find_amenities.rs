@@ -69,7 +69,6 @@ fn create_border_isochrone(ctx: &mut EventCtx, app: &App, options: Options) -> B
 struct Results {
     draw: Drawable,
     isochrone: Isochrone,
-    border_isochrone: BorderIsochrone,
     hovering_on_bldg: Cached<HoverKey, HoverOnBuilding>,
 }
 
@@ -97,6 +96,11 @@ impl Results {
                     (Color::RED, "15 mins"),
                 ],
             ),
+            ColorLegend::row(
+                ctx,
+                Color::rgb(0, 0, 0).alpha(0.3),
+                "< 15 mins from border (amenity could exist off map)",
+            ),
         ]))
         .aligned(HorizontalAlignment::RightInset, VerticalAlignment::TopInset)
         .build(ctx);
@@ -122,7 +126,6 @@ impl Results {
             Box::new(Results {
                 draw: ctx.upload(batch),
                 isochrone,
-                border_isochrone,
                 hovering_on_bldg: Cached::new(),
             }),
         )
