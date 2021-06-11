@@ -113,11 +113,12 @@ impl ControlStopSign {
         // - Treat cycleways as lower priority than local roads (sad but typical reality)
         // - Prioritize roundabouts, so they clear out faster than people enter them
         // - Treat on/off ramps with less priority than the main part of the highway
+        // - Lower the priority of service roads
         let mut rank: HashMap<RoadID, (osm::RoadRank, usize)> = HashMap::new();
         for r in ss.roads.keys() {
             let r = map.get_r(*r);
             // Lower number is lower priority
-            let priority = if r.is_cycleway() {
+            let priority = if r.is_cycleway() || r.osm_tags.is(osm::HIGHWAY, "service") {
                 0
             } else if r.osm_tags.is("junction", "roundabout") {
                 3
