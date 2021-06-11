@@ -3,8 +3,9 @@ use std::collections::{BinaryHeap, HashMap};
 
 use geom::{Duration, Speed};
 
+use crate::connectivity::Spot;
 use crate::pathfind::{zone_cost, WalkingNode};
-use crate::{BuildingID, LaneType, Map, PathConstraints, Traversable};
+use crate::{BuildingID, Lane, LaneType, Map, PathConstraints, Traversable};
 
 #[derive(Clone)]
 pub struct WalkingOptions {
@@ -64,24 +65,57 @@ impl Ord for Item {
 /// the results will always be empty.
 pub fn all_walking_costs_from(
     map: &Map,
-    starts: Vec<BuildingID>,
+    starts: Vec<Spot>,
     time_limit: Duration,
     opts: WalkingOptions,
 ) -> HashMap<BuildingID, Duration> {
-    if !opts.allow_shoulders
-        && starts
-            .iter()
-            .all(|b| map.get_l(map.get_b(*b).sidewalk()).lane_type == LaneType::Shoulder)
-    {
-        return HashMap::new();
+    let mut queue: BinaryHeap<Item> = BinaryHeap::new();
+
+    for spot in starts {
+        match spot {
+            Spot::Building(b_id) => {
+                queue.push(Item {
+                    cost: Duration::ZERO,
+                    node: WalkingNode::closest(map.get_b(b_id).sidewalk_pos, map),
+                });
+            }
+            Spot::Border(i_id) => {
+                let intersection = map.get_i(i_id);
+                let incoming_lanes = intersection.incoming_lanes.clone();
+                let mut outgoing_lanes = intersection.outgoing_lanes.clone();
+                let mut all_lanes = incoming_lanes;
+                all_lanes.append(&mut outgoing_lanes);
+                let walkable_lanes: Vec<&Lane> = all_lanes
+                    .into_iter()
+                    .map(|l_id| map.get_l(l_id))
+                    .filter(|l| l.is_walkable())
+                    .collect();
+                for lane in walkable_lanes {
+                    queue.push(Item {
+                        cost: Duration::ZERO,
+                        node: WalkingNode::SidewalkEndpoint(
+                            lane.get_directed_parent(),
+                            lane.src_i == i_id,
+                        ),
+                    });
+                }
+            }
+        }
     }
 
-    let mut queue: BinaryHeap<Item> = BinaryHeap::new();
-    for b in starts {
-        queue.push(Item {
-            cost: Duration::ZERO,
-            node: WalkingNode::closest(map.get_b(b).sidewalk_pos, map),
-        });
+    if !opts.allow_shoulders {
+        let mut shoulder_endpoint = Vec::new();
+        for q in &queue {
+            if let WalkingNode::SidewalkEndpoint(dir_r, _) = q.node {
+                let lanes = &map.get_r(dir_r.id).lanes_ltr;
+                for (_, _, lane_type) in lanes {
+                    shoulder_endpoint.push(lane_type == &LaneType::Shoulder)
+                }
+            }
+        }
+        if shoulder_endpoint.into_iter().all(|x| x) {
+            return HashMap::new();
+        }
     }
 
     let mut cost_per_node: HashMap<WalkingNode, Duration> = HashMap::new();

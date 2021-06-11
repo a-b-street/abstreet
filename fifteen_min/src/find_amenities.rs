@@ -6,7 +6,7 @@ use widgetry::{
     SimpleState, State, TextExt, Transition, VerticalAlignment, Widget,
 };
 
-use crate::isochrone::{Isochrone, Options};
+use crate::isochrone::{draw_isochrone, BorderIsochrone, Isochrone, Options};
 use crate::viewer::{draw_star, HoverKey, HoverOnBuilding};
 use crate::App;
 
@@ -23,8 +23,15 @@ impl FindAmenity {
                 .map(|at| Choice::new(at.to_string(), at))
                 .collect(),
             Box::new(move |at, ctx, app| {
-                let multi_isochrone = create_multi_isochrone(ctx, app, at, options);
-                return Transition::Replace(Results::new_state(ctx, app, multi_isochrone, at));
+                let multi_isochrone = create_multi_isochrone(ctx, app, at, options.clone());
+                let border_isochrone = create_border_isochrone(ctx, app, options);
+                return Transition::Replace(Results::new_state(
+                    ctx,
+                    app,
+                    multi_isochrone,
+                    border_isochrone,
+                    at,
+                ));
             }),
         )
     }
@@ -48,6 +55,17 @@ fn create_multi_isochrone(
     Isochrone::new(ctx, app, stores, options)
 }
 
+/// Draw an isochrone from every intersection border
+fn create_border_isochrone(ctx: &mut EventCtx, app: &App, options: Options) -> BorderIsochrone {
+    let mut all_intersections = Vec::new();
+    for i in app.map.all_intersections() {
+        if i.is_border() {
+            all_intersections.push(i.id);
+        }
+    }
+    BorderIsochrone::new(ctx, app, all_intersections, options)
+}
+
 struct Results {
     draw: Drawable,
     isochrone: Isochrone,
@@ -59,6 +77,7 @@ impl Results {
         ctx: &mut EventCtx,
         app: &App,
         isochrone: Isochrone,
+        border_isochrone: BorderIsochrone,
         category: AmenityType,
     ) -> Box<dyn State<App>> {
         let panel = Panel::new_builder(Widget::col(vec![
@@ -77,11 +96,27 @@ impl Results {
                     (Color::RED, "15 mins"),
                 ],
             ),
+            ColorLegend::row(
+                ctx,
+                Color::rgb(0, 0, 0).alpha(0.3),
+                "< 15 mins from border (amenity could exist off map)",
+            ),
         ]))
         .aligned(HorizontalAlignment::RightInset, VerticalAlignment::TopInset)
         .build(ctx);
 
-        let mut batch = isochrone.draw_isochrone(app);
+        let mut batch = draw_isochrone(
+            app,
+            &border_isochrone.time_to_reach_building,
+            &border_isochrone.thresholds,
+            &border_isochrone.colors,
+        );
+        batch.append(draw_isochrone(
+            app,
+            &isochrone.time_to_reach_building,
+            &isochrone.thresholds,
+            &isochrone.colors,
+        ));
         for &start in &isochrone.start {
             batch.append(draw_star(ctx, app.map.get_b(start)));
         }
