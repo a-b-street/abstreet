@@ -68,13 +68,22 @@ impl DragDrop {
                 cursor_at,
                 new_idx,
             } => {
+                let mut members = self.members.iter().collect::<Vec<_>>();
+                // TODO Swap isn't what we want... we want to remove the old thing and insert at
+                // the new position
+                members.swap(orig_idx, new_idx);
+
                 let mut stack = GeomBatchStack::horizontal(Vec::new());
-                for (idx, (batch, _)) in self.members.iter().enumerate() {
+                let mut width = 0.0;
+                for (idx, (batch, _)) in members.into_iter().enumerate() {
                     let mut batch = batch.clone();
-                    if orig_idx == idx {
+                    if new_idx == idx {
                         batch =
-                            batch.translate(cursor_at.x - drag_from.x, cursor_at.y - drag_from.y);
+                            batch.translate(cursor_at.x - drag_from.x - width, cursor_at.y - drag_from.y);
                         batch = batch.color(RewriteColor::ChangeAlpha(0.5));
+                    } else if idx < new_idx {
+                        // TODO Not correct
+                        width += batch.get_dims().width;
                     }
                     stack.push(batch);
                 }
@@ -139,6 +148,8 @@ impl WidgetImpl for DragDrop {
                     if let Some(pt) = ctx.canvas.get_cursor_in_screen_space() {
                         *cursor_at = pt;
                     }
+                    // TODO https://jqueryui.com/sortable/ only swaps once you cross the center of
+                    // the new card
                     if let Some(idx) = self.mouseover_card(ctx) {
                         *new_idx = idx;
                     }
