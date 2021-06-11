@@ -179,7 +179,7 @@ pub fn edit_entire_signal(
         .primary
         .map
         .get_turns_in_intersection(i)
-        .into_iter()
+        .iter()
         .any(|t| t.between_sidewalks());
 
     let use_template = "use template";

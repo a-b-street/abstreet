@@ -1,7 +1,7 @@
 //! See <https://a-b-street.github.io/docs/map/importing/index.html> for an overview. This module
 //! covers the RawMap->Map stage.
 
-use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
+use std::collections::{BTreeMap, HashMap, HashSet};
 
 use abstio::MapName;
 use abstutil::{Tags, Timer};
@@ -15,7 +15,7 @@ use crate::raw::{OriginalRoad, RawMap};
 use crate::{
     connectivity, osm, AccessRestrictions, Area, AreaID, AreaType, ControlStopSign,
     ControlTrafficSignal, Intersection, IntersectionID, IntersectionType, Lane, LaneID, Map,
-    MapEdits, Movement, PathConstraints, Position, Road, RoadID, RoutingParams, Turn, Zone,
+    MapEdits, Movement, PathConstraints, Position, Road, RoadID, RoutingParams, Zone,
 };
 
 mod bridges;
@@ -78,7 +78,6 @@ impl Map {
             lanes: BTreeMap::new(),
             lane_id_counter: 0,
             intersections: Vec::new(),
-            turns: BTreeMap::new(),
             buildings: Vec::new(),
             bus_stops: BTreeMap::new(),
             bus_routes: Vec::new(),
@@ -111,7 +110,7 @@ impl Map {
             map.intersections.push(Intersection {
                 id,
                 polygon: i.polygon.clone(),
-                turns: BTreeSet::new(),
+                turns: Vec::new(),
                 elevation: i.elevation,
                 // Might change later
                 intersection_type: i.intersection_type,
@@ -243,12 +242,11 @@ impl Map {
             connectivity_problems
         );
         for t in all_turns {
-            assert!(!map.turns.contains_key(&t.id));
-            map.intersections[t.id.parent.0].turns.insert(t.id);
+            assert!(map.maybe_get_t(t.id).is_none());
             if t.geom.length() < geom::EPSILON_DIST {
                 warn!("{} is a very short turn", t.id);
             }
-            map.turns.insert(t.id, t);
+            map.intersections[t.id.parent.0].turns.push(t);
         }
 
         timer.start("find blackholes");
@@ -355,7 +353,6 @@ impl Map {
         intersections: Vec<Intersection>,
         roads: Vec<Road>,
         lanes: Vec<Lane>,
-        turns: Vec<Turn>,
     ) -> Map {
         let mut map = Map::blank();
         map.name = name;
@@ -366,7 +363,6 @@ impl Map {
         map.intersections = intersections;
         map.roads = roads;
         map.lanes = lanes.into_iter().map(|l| (l.id, l)).collect();
-        map.turns = turns.into_iter().map(|turn| (turn.id, turn)).collect();
 
         let stop_signs = map
             .intersections

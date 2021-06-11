@@ -388,7 +388,7 @@ impl App {
                 ID::Intersection(id) => {
                     intersections.push(draw_map.get_i(id));
                     for t in &map.get_i(id).turns {
-                        agents_on.push(Traversable::Turn(*t));
+                        agents_on.push(Traversable::Turn(t.id));
                     }
                 }
                 ID::Building(id) => buildings.push(draw_map.get_b(id)),
