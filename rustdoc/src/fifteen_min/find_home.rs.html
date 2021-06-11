@@ -192,13 +192,14 @@
 <span id="189">189</span>
 <span id="190">190</span>
 <span id="191">191</span>
-<span id="192">192</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashMap</span>;
 
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">App</span>;
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">Counter</span>, <span class="ident">Timer</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Percent</span>;
 <span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">tools</span>::<span class="ident">PopupMsg</span>;
+<span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">connectivity</span>::<span class="ident">Spot</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">AmenityType</span>, <span class="ident">BuildingID</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Panel</span>,
@@ -206,7 +207,6 @@
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">isochrone</span>::<span class="ident">Options</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">App</span>;
 
 <span class="doccomment">/// Ask what types of amenities are necessary to be within a walkshed, then rank every house with</span>
 <span class="doccomment">/// how many of those needs are satisfied.</span>
@@ -294,12 +294,10 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stores</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
         <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_buildings</span>() {
             <span class="kw">if</span> <span class="ident">b</span>.<span class="ident">has_amenity</span>(<span class="ident">category</span>) {
-                <span class="ident">stores</span>.<span class="ident">push</span>(<span class="ident">b</span>.<span class="ident">id</span>);
+                <span class="ident">stores</span>.<span class="ident">push</span>(<span class="ident">Spot</span>::<span class="ident">Building</span>(<span class="ident">b</span>.<span class="ident">id</span>));
             }
         }
-
-        <span class="comment">// Then find all buildings reachable from any of those starting points</span>
-        <span class="ident">options</span>.<span class="ident">clone</span>().<span class="ident">times_from_buildings</span>(<span class="ident">map</span>, <span class="ident">stores</span>)
+        <span class="ident">options</span>.<span class="ident">clone</span>().<span class="ident">times_from</span>(<span class="ident">map</span>, <span class="ident">stores</span>)
     }) {
         <span class="kw">for</span> (<span class="ident">b</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="ident">times</span> {
             <span class="ident">satisfied_per_bldg</span>.<span class="ident">inc</span>(<span class="ident">b</span>);
