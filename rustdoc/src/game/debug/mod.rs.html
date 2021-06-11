@@ -1816,7 +1816,7 @@
         <span class="kw">if</span> <span class="ident">i</span>.<span class="ident">roads</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">2</span> {
             <span class="kw">continue</span>;
         }
-        <span class="kw">if</span> <span class="ident">i</span>.<span class="ident">turns</span>.<span class="ident">iter</span>().<span class="ident">any</span>(<span class="op">|</span><span class="ident">t</span><span class="op">|</span> <span class="ident">map</span>.<span class="ident">get_t</span>(<span class="kw-2">*</span><span class="ident">t</span>).<span class="ident">between_sidewalks</span>()) {
+        <span class="kw">if</span> <span class="ident">i</span>.<span class="ident">turns</span>.<span class="ident">iter</span>().<span class="ident">any</span>(<span class="op">|</span><span class="ident">t</span><span class="op">|</span> <span class="ident">t</span>.<span class="ident">between_sidewalks</span>()) {
             <span class="kw">continue</span>;
         }
         <span class="kw">let</span> (<span class="ident">r1</span>, <span class="ident">r2</span>) <span class="op">=</span> {
@@ -1866,7 +1866,7 @@
 
 <span class="kw">fn</span> <span class="ident">find_large_intersections</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">seen</span> <span class="op">=</span> <span class="ident">HashSet</span>::<span class="ident">new</span>();
-    <span class="kw">for</span> <span class="ident">t</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">all_turns</span>().<span class="ident">values</span>() {
+    <span class="kw">for</span> <span class="ident">t</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">all_turns</span>() {
         <span class="kw">if</span> <span class="op">!</span><span class="ident">seen</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">parent</span>) <span class="op">&amp;&amp;</span> <span class="ident">t</span>.<span class="ident">geom</span>.<span class="ident">length</span>() <span class="op">&gt;</span> <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">50.0</span>) {
             <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;{} has a long turn&quot;</span>, <span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">parent</span>);
             <span class="ident">seen</span>.<span class="ident">insert</span>(<span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">parent</span>);
@@ -1970,8 +1970,8 @@
             }
         }
         <span class="kw">for</span> <span class="ident">t</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">i</span>.<span class="ident">turns</span> {
-            <span class="kw">let</span> <span class="ident">r1</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">t</span>.<span class="ident">src</span>).<span class="ident">parent</span>;
-            <span class="kw">let</span> <span class="ident">r2</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">t</span>.<span class="ident">dst</span>).<span class="ident">parent</span>;
+            <span class="kw">let</span> <span class="ident">r1</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">src</span>).<span class="ident">parent</span>;
+            <span class="kw">let</span> <span class="ident">r2</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">dst</span>).<span class="ident">parent</span>;
             <span class="ident">pairs</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span>(<span class="ident">r1</span>, <span class="ident">r2</span>));
         }
 
@@ -1993,7 +1993,7 @@
 <span class="kw">fn</span> <span class="ident">draw_arterial_crosswalks</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Drawable</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
     <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>;
-    <span class="kw">for</span> <span class="ident">turn</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_turns</span>().<span class="ident">values</span>() {
+    <span class="kw">for</span> <span class="ident">turn</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_turns</span>() {
         <span class="kw">if</span> <span class="ident">turn</span>.<span class="ident">is_crossing_arterial_intersection</span>(<span class="ident">map</span>) {
             <span class="ident">batch</span>.<span class="ident">push</span>(
                 <span class="ident">Color</span>::<span class="ident">RED</span>,

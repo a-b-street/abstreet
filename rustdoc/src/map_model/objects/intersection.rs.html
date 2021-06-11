@@ -193,7 +193,7 @@
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">deserialize_usize</span>, <span class="ident">serialize_usize</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Polygon</span>};
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">osm</span>, <span class="ident">DirectedRoadID</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">PathConstraints</span>, <span class="ident">Road</span>, <span class="ident">RoadID</span>, <span class="ident">TurnID</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">osm</span>, <span class="ident">DirectedRoadID</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">PathConstraints</span>, <span class="ident">Road</span>, <span class="ident">RoadID</span>, <span class="ident">Turn</span>};
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">Eq</span>, <span class="ident">Hash</span>, <span class="ident">PartialEq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">IntersectionID</span>(
@@ -226,7 +226,7 @@
     <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">IntersectionID</span>,
     <span class="doccomment">/// This needs to be in clockwise orientation, or later rendering of sidewalk corners breaks.</span>
     <span class="kw">pub</span> <span class="ident">polygon</span>: <span class="ident">Polygon</span>,
-    <span class="kw">pub</span> <span class="ident">turns</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">TurnID</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">turns</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Turn</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">elevation</span>: <span class="ident">Distance</span>,
 
     <span class="kw">pub</span> <span class="ident">intersection_type</span>: <span class="ident">IntersectionType</span>,

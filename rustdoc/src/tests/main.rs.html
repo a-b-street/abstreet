@@ -315,7 +315,7 @@
 <span class="kw">fn</span> <span class="ident">dump_turn_goldenfile</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">abstio</span>::<span class="ident">path</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;../tests/goldenfiles/{}.txt&quot;</span>, <span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">map</span>));
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">f</span> <span class="op">=</span> <span class="ident">File</span>::<span class="ident">create</span>(<span class="ident">path</span>)<span class="question-mark">?</span>;
-    <span class="kw">for</span> <span class="ident">t</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_turns</span>().<span class="ident">values</span>() {
+    <span class="kw">for</span> <span class="ident">t</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_turns</span>() {
         <span class="macro">writeln</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;{} is a {:?}&quot;</span>, <span class="ident">t</span>.<span class="ident">id</span>, <span class="ident">t</span>.<span class="ident">turn_type</span>)<span class="question-mark">?</span>;
     }
     <span class="prelude-val">Ok</span>(())

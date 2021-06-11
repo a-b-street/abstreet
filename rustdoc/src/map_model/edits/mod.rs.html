@@ -905,7 +905,6 @@
 <span id="902">902</span>
 <span id="903">903</span>
 <span id="904">904</span>
-<span id="905">905</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Once a Map exists, the player can edit it in the UI (producing `MapEdits` in-memory), then save</span>
 <span class="doccomment">//! the changes to a file (as `PermanentMapEdits`). See</span>
@@ -1321,8 +1320,8 @@
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">old_turns</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
     <span class="kw">for</span> <span class="ident">t</span> <span class="kw">in</span> <span class="ident">std</span>::<span class="ident">mem</span>::<span class="ident">take</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">i</span>.<span class="ident">turns</span>) {
-        <span class="ident">old_turns</span>.<span class="ident">push</span>(<span class="ident">map</span>.<span class="ident">turns</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">t</span>).<span class="ident">unwrap</span>());
-        <span class="ident">effects</span>.<span class="ident">deleted_turns</span>.<span class="ident">insert</span>(<span class="ident">t</span>);
+        <span class="ident">effects</span>.<span class="ident">deleted_turns</span>.<span class="ident">insert</span>(<span class="ident">t</span>.<span class="ident">id</span>);
+        <span class="ident">old_turns</span>.<span class="ident">push</span>(<span class="ident">t</span>);
     }
 
     <span class="kw">if</span> <span class="ident">i</span>.<span class="ident">is_closed</span>() {
@@ -1333,12 +1332,11 @@
     <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">map</span>.<span class="ident">intersections</span>[<span class="ident">id</span>.<span class="number">0</span>];
     <span class="kw">for</span> <span class="ident">t</span> <span class="kw">in</span> <span class="ident">turns</span> {
         <span class="ident">effects</span>.<span class="ident">added_turns</span>.<span class="ident">insert</span>(<span class="ident">t</span>.<span class="ident">id</span>);
-        <span class="ident">i</span>.<span class="ident">turns</span>.<span class="ident">insert</span>(<span class="ident">t</span>.<span class="ident">id</span>);
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">_existing_t</span>) <span class="op">=</span> <span class="ident">old_turns</span>.<span class="ident">iter</span>().<span class="ident">find</span>(<span class="op">|</span><span class="ident">turn</span><span class="op">|</span> <span class="ident">turn</span>.<span class="ident">id</span> <span class="op">=</span><span class="op">=</span> <span class="ident">t</span>.<span class="ident">id</span>) {
             <span class="comment">// TODO Except for lookup_idx</span>
             <span class="comment">//assert_eq!(t, *existing_t);</span>
         }
-        <span class="ident">map</span>.<span class="ident">turns</span>.<span class="ident">insert</span>(<span class="ident">t</span>.<span class="ident">id</span>, <span class="ident">t</span>);
+        <span class="ident">i</span>.<span class="ident">turns</span>.<span class="ident">push</span>(<span class="ident">t</span>);
     }
 
     <span class="kw">match</span> <span class="ident">i</span>.<span class="ident">intersection_type</span> {
@@ -1757,7 +1755,7 @@
         }
 
         <span class="comment">// Some of these might&#39;ve been added, then later deleted.</span>
-        <span class="ident">retain_btreeset</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">effects</span>.<span class="ident">added_turns</span>, <span class="op">|</span><span class="ident">t</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">turns</span>.<span class="ident">contains_key</span>(<span class="ident">t</span>));
+        <span class="ident">retain_btreeset</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">effects</span>.<span class="ident">added_turns</span>, <span class="op">|</span><span class="ident">t</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">maybe_get_t</span>(<span class="kw-2">*</span><span class="ident">t</span>).<span class="ident">is_some</span>());
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">more_changed_intersections</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
         <span class="kw">for</span> <span class="ident">t</span> <span class="kw">in</span> <span class="ident">effects</span>

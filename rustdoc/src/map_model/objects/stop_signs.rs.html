@@ -178,6 +178,7 @@
 <span id="175">175</span>
 <span id="176">176</span>
 <span id="177">177</span>
+<span id="178">178</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashMap</span>};
 
@@ -294,11 +295,12 @@
         <span class="comment">// - Treat cycleways as lower priority than local roads (sad but typical reality)</span>
         <span class="comment">// - Prioritize roundabouts, so they clear out faster than people enter them</span>
         <span class="comment">// - Treat on/off ramps with less priority than the main part of the highway</span>
+        <span class="comment">// - Lower the priority of service roads</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rank</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">RoadID</span>, (<span class="ident">osm</span>::<span class="ident">RoadRank</span>, <span class="ident">usize</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">HashMap</span>::<span class="ident">new</span>();
         <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">ss</span>.<span class="ident">roads</span>.<span class="ident">keys</span>() {
             <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>);
             <span class="comment">// Lower number is lower priority</span>
-            <span class="kw">let</span> <span class="ident">priority</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">is_cycleway</span>() {
+            <span class="kw">let</span> <span class="ident">priority</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">is_cycleway</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">r</span>.<span class="ident">osm_tags</span>.<span class="ident">is</span>(<span class="ident">osm</span>::<span class="ident">HIGHWAY</span>, <span class="string">&quot;service&quot;</span>) {
                 <span class="number">0</span>
             } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">osm_tags</span>.<span class="ident">is</span>(<span class="string">&quot;junction&quot;</span>, <span class="string">&quot;roundabout&quot;</span>) {
                 <span class="number">3</span>
