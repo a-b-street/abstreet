@@ -258,7 +258,7 @@ impl EditScenarioModifiers {
                 .build_def(ctx),
         );
         rows.push(Widget::row(vec![
-            Spinner::widget(ctx, "repeat_days", (2, 14), 2, 1),
+            Spinner::widget(ctx, "repeat_days", (2, 14), 2_usize, 1),
             ctx.style()
                 .btn_outline
                 .text("Repeat schedule multiple days")
@@ -406,7 +406,7 @@ impl ChangeMode {
                     "Percent of people to modify:"
                         .text_widget(ctx)
                         .centered_vert(),
-                    Spinner::widget(ctx, "pct_ppl", (1, 100), 50, 1),
+                    Spinner::widget(ctx, "pct_ppl", (1, 100), 50_usize, 1),
                 ]),
                 "Types of trips to convert:".text_widget(ctx),
                 checkbox_per_mode(ctx, app, &btreeset! { TripMode::Drive }),
