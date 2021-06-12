@@ -110,12 +110,14 @@ impl Results {
             &border_isochrone.time_to_reach_building,
             &border_isochrone.thresholds,
             &border_isochrone.colors,
+            border_isochrone.options.params,
         );
         batch.append(draw_isochrone(
             app,
             &isochrone.time_to_reach_building,
             &isochrone.thresholds,
             &isochrone.colors,
+            isochrone.options.params,
         ));
         for &start in &isochrone.start {
             batch.append(draw_star(ctx, app.map.get_b(start)));

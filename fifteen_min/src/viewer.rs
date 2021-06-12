@@ -21,7 +21,7 @@ use widgetry::{
 
 use crate::find_amenities::FindAmenity;
 use crate::find_home::FindHome;
-use crate::isochrone::{draw_isochrone, Isochrone, Options};
+use crate::isochrone::{draw_isochrone, Isochrone, IsochroneParams, MovementOptions, Options};
 use crate::App;
 
 /// This is the UI state for exploring the isochrone/walkshed from a single building.
@@ -56,7 +56,10 @@ impl Viewer {
             warn!("Couldn't update URL: {}", err);
         }
 
-        let options = Options::Walking(WalkingOptions::default());
+        let options = Options {
+            movement: MovementOptions::Walking(WalkingOptions::default()),
+            params: IsochroneParams::BlindlyOverwrite,
+        };
         let start = app.map.get_b(start);
         let isochrone = Isochrone::new(ctx, app, vec![start.id], options);
         let highlight_start = draw_star(ctx, start);
@@ -235,13 +238,13 @@ fn options_to_controls(ctx: &mut EventCtx, opts: &Options) -> Widget {
         "walking",
         "biking",
         None,
-        match opts {
-            Options::Walking(_) => true,
-            Options::Biking => false,
+        match opts.movement {
+            MovementOptions::Walking(_) => true,
+            MovementOptions::Biking => false,
         },
     )];
-    match opts {
-        Options::Walking(ref opts) => {
+    match opts.movement {
+        MovementOptions::Walking(ref opts) => {
             rows.push(Toggle::switch(
                 ctx,
                 "Allow walking on the shoulder of the road without a sidewalk",
@@ -260,14 +263,26 @@ fn options_to_controls(ctx: &mut EventCtx, opts: &Options) -> Widget {
 
             rows.push(ColorLegend::row(ctx, Color::BLUE, "unwalkable roads"));
         }
-        Options::Biking => {}
+        MovementOptions::Biking => {}
     }
+    rows.push(Widget::dropdown(
+        ctx,
+        "draw style",
+        opts.params,
+        vec![
+            Choice::new("blindly overwrite", IsochroneParams::BlindlyOverwrite),
+            Choice::new("min", IsochroneParams::MinPerCell),
+            Choice::new("max", IsochroneParams::MaxPerCell),
+            Choice::new("overwrite, but smooth", IsochroneParams::Smooth),
+            Choice::new("closest match", IsochroneParams::ClosestMatch),
+        ],
+    ));
     Widget::col(rows)
 }
 
 fn options_from_controls(panel: &Panel) -> Options {
-    if panel.is_checked("walking / biking") {
-        Options::Walking(WalkingOptions {
+    let movement = if panel.is_checked("walking / biking") {
+        MovementOptions::Walking(WalkingOptions {
             allow_shoulders: panel
                 .maybe_is_checked("Allow walking on the shoulder of the road without a sidewalk")
                 .unwrap_or(true),
@@ -276,8 +291,10 @@ fn options_from_controls(panel: &Panel) -> Options {
                 .unwrap_or_else(WalkingOptions::default_speed),
         })
     } else {
-        Options::Biking
-    }
+        MovementOptions::Biking
+    };
+    let params = panel.dropdown_value("draw style");
+    Options { movement, params }
 }
 
 pub fn draw_star(ctx: &mut EventCtx, b: &Building) -> GeomBatch {
@@ -455,6 +472,7 @@ impl ExploreAmenities {
             &isochrone.time_to_reach_building,
             &isochrone.thresholds,
             &isochrone.colors,
+            isochrone.options.params,
         );
         batch.append(draw_star(ctx, app.map.get_b(isochrone.start[0])));
 
@@ -566,9 +584,9 @@ impl State<App> for ExploreAmenities {
 }
 
 pub fn draw_unwalkable_roads(ctx: &mut EventCtx, app: &App, opts: &Options) -> Drawable {
-    let allow_shoulders = match opts {
-        Options::Walking(ref opts) => opts.allow_shoulders,
-        Options::Biking => {
+    let allow_shoulders = match opts.movement {
+        MovementOptions::Walking(ref opts) => opts.allow_shoulders,
+        MovementOptions::Biking => {
             return Drawable::empty(ctx);
         }
     };
