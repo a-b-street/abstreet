@@ -200,6 +200,10 @@ pub fn draw_isochrone(
     );
 
     if params == IsochroneParams::ClosestMatch {
+        // TODO This implementation is needlessly slow -- we can just do the regular loop over
+        // time_to_reach_building below. Then we only need to calculate closest_pt for grid cells
+        // that don't have anything set. Most of them usually will, at least within the total area
+        // covered by the isochrone.
         let mut closest = FindClosest::new(bounds);
         for (b, cost) in time_to_reach_building {
             closest.add(*cost, app.map.get_b(*b).polygon.points());
