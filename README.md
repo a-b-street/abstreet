@@ -37,12 +37,9 @@ Measure the effects:
 
 ## Documentation
 
-- [How A/B Street works](https://a-b-street.github.io/docs/how_it_works.html)
 - Technical
-  - [Developer guide](https://a-b-street.github.io/docs/dev/index.html)
-  - [Map model](https://a-b-street.github.io/docs/map/index.html)
-  - [Traffic simulation](https://a-b-street.github.io/docs/trafficsim/index.html)
-  - [Running A/B Street in a new city](https://a-b-street.github.io/docs/howto/new_city.html)
+  - [Developer guide](https://a-b-street.github.io/docs/tech/dev/index.html)
+  - [Running A/B Street in a new city](https://a-b-street.github.io/docs/user/new_city.html)
   - [UX design](https://yuwen-li.com/work/abstreet)
 - Presentations
   - [March 2021 ActDev workshop](https://youtu.be/P12N51qI5Cs?t=1469)

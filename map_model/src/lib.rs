@@ -4,7 +4,7 @@
 //! Helpful terminology:
 //! - ch = contraction hierarchy, for speeding up pathfinding
 //! - degenerate intersection = only has 2 roads connected, so why is it an intersection at all?
-//! - lc = lane-change (which is modelled very strangely: <https://a-b-street.github.io/docs/trafficsim/discrete_event.html#lane-changing>)
+//! - lc = lane-change (which is modelled very strangely: <https://a-b-street.github.io/docs/tech/trafficsim/discrete_event.html#lane-changing>)
 //! - ltr = left-to-right, the order of lanes for a road
 //! - osm = OpenStreetMap
 //!

@@ -1,5 +1,5 @@
 // This runs a simulation without any graphics and serves a very basic API to control things. See
-// https://a-b-street.github.io/docs/dev/api.html for documentation. To run this:
+// https://a-b-street.github.io/docs/tech/dev/api.html for documentation. To run this:
 //
 // > cd headless; cargo run -- --port=1234
 // > curl http://localhost:1234/sim/get-time

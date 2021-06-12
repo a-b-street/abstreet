@@ -1,4 +1,4 @@
-//! Some users of the API (https://a-b-street.github.io/docs/dev/api.html) have their own
+//! Some users of the API (https://a-b-street.github.io/docs/tech/dev/api.html) have their own
 //! simulation input data; import it here.
 
 use anyhow::Result;

@@ -27,7 +27,7 @@ const WAIT_BEFORE_YIELD_AT_TRAFFIC_SIGNAL: Duration = Duration::const_seconds(0.
 /// react, maybe granting one of the pending requests.
 ///
 /// Most of the complexity comes from attempting to workaround
-/// <https://a-b-street.github.io/docs/trafficsim/gridlock.html>.
+/// <https://a-b-street.github.io/docs/tech/trafficsim/gridlock.html>.
 #[derive(Serialize, Deserialize, Clone)]
 pub(crate) struct IntersectionSimState {
     state: BTreeMap<IntersectionID, State>,

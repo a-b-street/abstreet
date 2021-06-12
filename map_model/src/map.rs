@@ -69,7 +69,7 @@ impl Map {
                         );
                     }
                     error!(
-                        "Check https://a-b-street.github.io/docs/dev/index.html and file an issue \
+                        "Check https://a-b-street.github.io/docs/tech/dev/index.html and file an issue \
                          if you have trouble."
                     );
 

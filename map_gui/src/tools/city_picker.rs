@@ -202,7 +202,7 @@ impl<A: AppLike + 'static> State<A> for CityPicker<A> {
                     #[cfg(target_arch = "wasm32")]
                     {
                         crate::tools::open_browser(
-                            "https://a-b-street.github.io/docs/howto/new_city.html",
+                            "https://a-b-street.github.io/docs/user/new_city.html",
                         );
                     }
                     #[cfg(not(target_arch = "wasm32"))]

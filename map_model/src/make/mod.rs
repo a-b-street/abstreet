@@ -1,4 +1,4 @@
-//! See <https://a-b-street.github.io/docs/map/importing/index.html> for an overview. This module
+//! See <https://a-b-street.github.io/docs/tech/map/importing/index.html> for an overview. This module
 //! covers the RawMap->Map stage.
 
 use std::collections::{BTreeMap, HashMap, HashSet};

@@ -90,7 +90,7 @@ impl<A: AppLike + 'static> State<A> for ImportCity<A> {
             Outcome::Clicked(x) => match x.as_ref() {
                 "close" => Transition::Pop,
                 "Alternate instructions" => {
-                    open_browser("https://a-b-street.github.io/docs/howto/new_city.html");
+                    open_browser("https://a-b-street.github.io/docs/user/new_city.html");
                     Transition::Keep
                 }
                 "Go to geojson.io" => {

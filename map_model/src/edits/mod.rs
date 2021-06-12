@@ -1,6 +1,6 @@
 //! Once a Map exists, the player can edit it in the UI (producing `MapEdits` in-memory), then save
 //! the changes to a file (as `PermanentMapEdits`). See
-//! <https://a-b-street.github.io/docs/map/edits.html>.
+//! <https://a-b-street.github.io/docs/tech/map/edits.html>.
 
 use std::collections::{BTreeMap, BTreeSet, HashSet};
 

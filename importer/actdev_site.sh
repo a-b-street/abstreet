@@ -12,7 +12,7 @@ if [ "$SITE" == "" ]; then
 fi
 CITY=`echo $SITE | sed -r 's/-/_/g'`
 
-# Follow https://a-b-street.github.io/docs/howto/new_city.html and import as a new city.
+# Follow https://a-b-street.github.io/docs/user/new_city.html and import as a new city.
 cp -Rv importer/config/gb/leeds importer/config/gb/$CITY
 rm -fv importer/config/gb/$CITY/*.poly
 wget https://raw.githubusercontent.com/cyipt/actdev/main/data-small/$SITE/small-study-area.geojson

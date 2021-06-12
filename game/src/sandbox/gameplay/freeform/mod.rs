@@ -248,7 +248,7 @@ impl ChangeScenario {
             choices.push((
                 "import json".to_string(),
                 "import JSON scenario".to_string(),
-                "Select a JSON file specified by https://a-b-street.github.io/docs/dev/formats/scenarios.html"));
+                "Select a JSON file specified by https://a-b-street.github.io/docs/tech/dev/formats/scenarios.html"));
         }
 
         let mut col = vec![
@@ -297,7 +297,7 @@ impl SimpleState<App> for ChangeScenario {
             Transition::Pop
         } else if x == "Learn how to import your own data." {
             open_browser(
-                "https://a-b-street.github.io/docs/trafficsim/travel_demand.html#custom-import",
+                "https://a-b-street.github.io/docs/tech/trafficsim/travel_demand.html#custom-import",
             );
             Transition::Keep
         } else if x == "import grid2demand" {
