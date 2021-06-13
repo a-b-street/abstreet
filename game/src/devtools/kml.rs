@@ -5,7 +5,7 @@ use std::collections::{BTreeMap, HashMap, HashSet};
 use aabb_quadtree::QuadTree;
 
 use abstutil::{prettyprint_usize, Timer};
-use geom::{Circle, Distance, PolyLine, Polygon, Pt2D, Ring};
+use geom::{ArrowCap, Circle, Distance, PolyLine, Polygon, Pt2D, Ring};
 use kml::{ExtraShape, ExtraShapes};
 use map_gui::colors::ColorScheme;
 use map_gui::tools::{FilePicker, PopupMsg};
@@ -314,7 +314,7 @@ fn make_object(
     } else {
         let backup = pts[0];
         match PolyLine::new(pts) {
-            Ok(pl) => pl.make_polygons(THICKNESS),
+            Ok(pl) => pl.make_arrow(THICKNESS, ArrowCap::Triangle),
             Err(err) => {
                 println!(
                     "Object with attribs {:?} has messed up geometry: {}",
