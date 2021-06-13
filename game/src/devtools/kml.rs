@@ -111,10 +111,7 @@ impl State<App> for ViewKML {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         ctx.canvas_movement();
         if ctx.redo_mouseover() {
-            self.selected.clear();
-            let details = "Mouseover an object to examine it".text_widget(ctx);
-            self.panel.replace(ctx, "mouseover", details);
-
+            let mut new_selected = Vec::new();
             if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
                 for &(idx, _, _) in &self.quadtree.query(
                     Circle::new(pt, Distance::meters(3.0))
@@ -122,10 +119,16 @@ impl State<App> for ViewKML {
                         .as_bbox(),
                 ) {
                     if self.objects[*idx].polygon.contains_pt(pt) {
-                        self.selected.push(*idx);
+                        new_selected.push(*idx);
                     }
                 }
-                if !self.selected.is_empty() {
+            }
+            if new_selected != self.selected {
+                self.selected = new_selected;
+                if self.selected.is_empty() {
+                    let details = "Mouseover an object to examine it".text_widget(ctx);
+                    self.panel.replace(ctx, "mouseover", details);
+                } else {
                     let mut txt = Text::new();
                     if self.selected.len() > 1 {
                         txt.add_line(format!("Selecting {} objects", self.selected.len()));
