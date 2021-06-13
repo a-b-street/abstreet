@@ -41,11 +41,8 @@ impl CommonState {
         app: &mut App,
         ctx_actions: &mut dyn ContextualActions,
     ) -> Option<Transition> {
-        if ctx.input.pressed(lctrl(Key::S)) {
-            app.opts.dev = !app.opts.dev;
-        }
-        if ctx.input.pressed(lctrl(Key::J)) {
-            return Some(Transition::Push(warp::DebugWarp::new_state(ctx)));
+        if let Some(t) = CommonState::debug_actions(ctx, app) {
+            return Some(t);
         }
 
         // Layers can be launched from many places, many of which don't have a way of getting at
@@ -303,6 +300,17 @@ impl CommonState {
 
     pub fn info_panel_open(&self, app: &App) -> Option<ID> {
         self.info_panel.as_ref().and_then(|i| i.active_id(app))
+    }
+
+    /// Allow toggling of dev mode and warping to an object by ID.
+    pub fn debug_actions(ctx: &mut EventCtx, app: &mut App) -> Option<Transition> {
+        if ctx.input.pressed(lctrl(Key::S)) {
+            app.opts.dev = !app.opts.dev;
+        }
+        if ctx.input.pressed(lctrl(Key::J)) {
+            return Some(Transition::Push(warp::DebugWarp::new_state(ctx)));
+        }
+        None
     }
 }
 

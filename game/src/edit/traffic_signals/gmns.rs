@@ -115,27 +115,37 @@ pub fn import_all(ctx: &mut EventCtx, app: &mut App, path: &str) -> Box<dyn Stat
         })
         .collect();
     let mut successes = 0;
-    let mut failures = 0;
+    let mut failures_no_match = 0;
+    let mut failures_other = 0;
     let mut edits = app.primary.map.get_edits().clone();
 
-    for i in all_signals {
-        match import(&app.primary.map, i, path).and_then(|signal| signal.validate().map(|_| signal))
-        {
-            Ok(signal) => {
-                info!("Success at {}", i);
-                successes += 1;
-                edits.commands.push(EditCmd::ChangeIntersection {
-                    i,
-                    old: app.primary.map.get_i_edit(i),
-                    new: EditIntersection::TrafficSignal(signal.export(&app.primary.map)),
-                });
-            }
-            Err(err) => {
-                error!("Failure at {}: {}", i, err);
-                failures += 1;
+    ctx.loading_screen("import signal timing", |_, timer| {
+        timer.start_iter("import", all_signals.len());
+        for i in all_signals {
+            timer.next();
+            match import(&app.primary.map, i, path)
+                .and_then(|signal| signal.validate().map(|_| signal))
+            {
+                Ok(signal) => {
+                    info!("Success at {}", i);
+                    successes += 1;
+                    edits.commands.push(EditCmd::ChangeIntersection {
+                        i,
+                        old: app.primary.map.get_i_edit(i),
+                        new: EditIntersection::TrafficSignal(signal.export(&app.primary.map)),
+                    });
+                }
+                Err(err) => {
+                    error!("Failure at {}: {}", i, err);
+                    if err.to_string().contains("no matches for") {
+                        failures_no_match += 1;
+                    } else {
+                        failures_other += 1;
+                    }
+                }
             }
         }
-    }
+    });
 
     apply_map_edits(ctx, app, edits);
 
@@ -144,7 +154,8 @@ pub fn import_all(ctx: &mut EventCtx, app: &mut App, path: &str) -> Box<dyn Stat
         &format!("Import from {}", path),
         vec![
             format!("{} traffic signals successfully imported", successes),
-            format!("{} failures, no changes made", failures),
+            format!("{} intersections without any data", failures_no_match),
+            format!("{} other failures", failures_other),
         ],
     )
 }

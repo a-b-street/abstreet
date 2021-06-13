@@ -154,6 +154,10 @@ impl State<App> for EditMode {
             }
         }
 
+        if let Some(t) = CommonState::debug_actions(ctx, app) {
+            return t;
+        }
+
         ctx.canvas_movement();
         // Restrict what can be selected.
         if ctx.redo_mouseover() {
