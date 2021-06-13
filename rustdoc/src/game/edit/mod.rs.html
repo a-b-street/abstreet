@@ -929,6 +929,10 @@
 <span id="926">926</span>
 <span id="927">927</span>
 <span id="928">928</span>
+<span id="929">929</span>
+<span id="930">930</span>
+<span id="931">931</span>
+<span id="932">932</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">maplit</span>::<span class="ident">btreeset</span>;
 
@@ -1084,6 +1088,10 @@
                 <span class="self">self</span>.<span class="ident">unzoomed</span> <span class="op">=</span> <span class="ident">layer</span>.<span class="ident">unzoomed</span>;
                 <span class="self">self</span>.<span class="ident">zoomed</span> <span class="op">=</span> <span class="ident">layer</span>.<span class="ident">zoomed</span>;
             }
+        }
+
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident">CommonState</span>::<span class="ident">debug_actions</span>(<span class="ident">ctx</span>, <span class="ident">app</span>) {
+            <span class="kw">return</span> <span class="ident">t</span>;
         }
 
         <span class="ident">ctx</span>.<span class="ident">canvas_movement</span>();

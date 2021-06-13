@@ -455,6 +455,14 @@
 <span id="452">452</span>
 <span id="453">453</span>
 <span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
+<span id="459">459</span>
+<span id="460">460</span>
+<span id="461">461</span>
+<span id="462">462</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 
@@ -499,11 +507,8 @@
         <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>,
         <span class="ident">ctx_actions</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">ContextualActions</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Transition</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">S</span>)) {
-            <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span> <span class="op">=</span> <span class="op">!</span><span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span>;
-        }
-        <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">J</span>)) {
-            <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">warp</span>::<span class="ident">DebugWarp</span>::<span class="ident">new_state</span>(<span class="ident">ctx</span>)));
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident">CommonState</span>::<span class="ident">debug_actions</span>(<span class="ident">ctx</span>, <span class="ident">app</span>) {
+            <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>);
         }
 
         <span class="comment">// Layers can be launched from many places, many of which don&#39;t have a way of getting at</span>
@@ -761,6 +766,17 @@
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">info_panel_open</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">info_panel</span>.<span class="ident">as_ref</span>().<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">i</span><span class="op">|</span> <span class="ident">i</span>.<span class="ident">active_id</span>(<span class="ident">app</span>))
+    }
+
+    <span class="doccomment">/// Allow toggling of dev mode and warping to an object by ID.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">debug_actions</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Transition</span><span class="op">&gt;</span> {
+        <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">S</span>)) {
+            <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span> <span class="op">=</span> <span class="op">!</span><span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span>;
+        }
+        <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">J</span>)) {
+            <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">warp</span>::<span class="ident">DebugWarp</span>::<span class="ident">new_state</span>(<span class="ident">ctx</span>)));
+        }
+        <span class="prelude-val">None</span>
     }
 }
 
