@@ -11,7 +11,7 @@ use map_model::{
     Position, RoadID, Traversable, TurnID,
 };
 
-use crate::analytics::Window;
+use crate::analytics::SlidingWindow;
 use crate::{
     AgentID, AgentType, Analytics, CarID, CommutersVehiclesCounts, DrawCarInput, DrawPedCrowdInput,
     DrawPedestrianInput, OrigPersonID, PandemicModel, ParkedCar, ParkingSim, PedestrianID, Person,
@@ -343,10 +343,10 @@ impl Sim {
     ) -> Vec<(AgentType, Vec<(Time, usize)>)> {
         let window_size = Duration::hours(1);
         let mut pts_per_type: BTreeMap<AgentType, Vec<(Time, usize)>> = BTreeMap::new();
-        let mut windows_per_type: BTreeMap<AgentType, Window> = BTreeMap::new();
+        let mut windows_per_type: BTreeMap<AgentType, SlidingWindow> = BTreeMap::new();
         for agent_type in AgentType::all() {
             pts_per_type.insert(agent_type, vec![(Time::START_OF_DAY, 0)]);
-            windows_per_type.insert(agent_type, Window::new(window_size));
+            windows_per_type.insert(agent_type, SlidingWindow::new(window_size));
         }
 
         for (t, agent_type) in self.trips.all_arrivals_at_border(i) {
@@ -356,17 +356,7 @@ impl Sim {
 
         for (agent_type, pts) in pts_per_type.iter_mut() {
             let mut window = windows_per_type.remove(agent_type).unwrap();
-
-            // Add a drop-off after window_size (+ a little epsilon!)
-            let end = self.get_end_of_day();
-            let t = (pts.last().unwrap().0 + window_size + Duration::seconds(0.1)).min(end);
-            if pts.last().unwrap().0 != t {
-                pts.push((t, window.count(t)));
-            }
-
-            if pts.last().unwrap().0 != end {
-                pts.push((end, window.count(end)));
-            }
+            window.close_off_pts(pts, self.get_end_of_day());
         }
 
         pts_per_type.into_iter().collect()

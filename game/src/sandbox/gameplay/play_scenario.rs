@@ -2,13 +2,15 @@ use std::collections::BTreeSet;
 
 use maplit::btreeset;
 
+use geom::{Duration, Time};
 use map_gui::tools::{
     grey_out_map, nice_map_name, ChooseSomething, CityPicker, PopupMsg, URLManager,
 };
-use sim::{ScenarioModifier, TripMode};
+use sim::{ScenarioModifier, SlidingWindow, TripMode};
 use widgetry::{
-    lctrl, Choice, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, Slider,
-    Spinner, State, Text, TextExt, VerticalAlignment, Widget,
+    lctrl, Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, LinePlot, Outcome,
+    Panel, PlotOptions, Series, SimpleState, Slider, Spinner, State, Text, TextExt,
+    VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -16,7 +18,7 @@ use crate::common::checkbox_per_mode;
 use crate::edit::EditMode;
 use crate::sandbox::gameplay::freeform::ChangeScenario;
 use crate::sandbox::gameplay::{GameplayMode, GameplayState};
-use crate::sandbox::{Actions, SandboxControls, SandboxMode};
+use crate::sandbox::{Actions, SandboxControls, SandboxMode, TimeWarpScreen};
 
 pub struct PlayScenario {
     top_right: Panel,
@@ -125,6 +127,9 @@ impl GameplayState for PlayScenario {
                         vec![format!("Scenario '{}' saved", s.scenario_name)],
                     )))
                 }
+                "When do trips start?" => {
+                    Some(Transition::Push(DepartureSummary::new_state(ctx, app)))
+                }
                 _ => unreachable!(),
             },
             _ => None,
@@ -143,6 +148,11 @@ impl GameplayState for PlayScenario {
         let mut extra = Vec::new();
         if self.scenario_name != "empty" {
             extra.push(Widget::row(vec![
+                ctx.style()
+                    .btn_plain
+                    .icon("system/assets/tools/info.svg")
+                    .build_widget(ctx, "When do trips start?")
+                    .centered_vert(),
                 ctx.style()
                     .btn_plain
                     .icon("system/assets/tools/pencil.svg")
@@ -513,5 +523,88 @@ impl State<App> for ChangeMode {
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         grey_out_map(g, app);
         self.panel.draw(g);
+    }
+}
+
+pub struct DepartureSummary {
+    first_trip: Time,
+}
+
+impl DepartureSummary {
+    pub fn new_state(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
+        // Get all departure times, sorted so the sliding window works
+        let mut departure_times: Vec<Time> = app
+            .primary
+            .scenario
+            .as_ref()
+            .unwrap()
+            .people
+            .iter()
+            .flat_map(|person| person.trips.iter().map(|t| t.depart))
+            .collect();
+        departure_times.sort();
+        let first_trip = departure_times
+            .get(0)
+            .cloned()
+            .unwrap_or(Time::START_OF_DAY);
+
+        let mut pts = vec![(Time::START_OF_DAY, 0)];
+        let mut window = SlidingWindow::new(Duration::minutes(15));
+        for time in departure_times {
+            let count = window.add(time);
+            pts.push((time, count));
+        }
+        window.close_off_pts(&mut pts, app.primary.sim.get_end_of_day());
+
+        let panel = Panel::new_builder(Widget::col(vec![
+            Widget::row(vec![
+                Line("Trip departure times")
+                    .small_heading()
+                    .into_widget(ctx),
+                ctx.style().btn_close_widget(ctx),
+            ]),
+            LinePlot::new_widget(
+                ctx,
+                vec![Series {
+                    label: "When do trips start?".to_string(),
+                    color: Color::RED,
+                    pts,
+                }],
+                PlotOptions::fixed(),
+            )
+            .section(ctx),
+            if first_trip - app.primary.sim.time() > Duration::minutes(15) {
+                ctx.style()
+                    .btn_outline
+                    .text(format!(
+                        "Jump to first trip, at {}",
+                        first_trip.ampm_tostring()
+                    ))
+                    .build_widget(ctx, "Jump to first trip")
+            } else {
+                Widget::nothing()
+            },
+            ctx.style()
+                .btn_outline
+                .text("Commuter patterns")
+                .build_def(ctx),
+        ]))
+        .build(ctx);
+        <dyn SimpleState<_>>::new_state(panel, Box::new(DepartureSummary { first_trip }))
+    }
+}
+
+impl SimpleState<App> for DepartureSummary {
+    fn on_click(&mut self, ctx: &mut EventCtx, app: &mut App, x: &str, _: &Panel) -> Transition {
+        match x {
+            "close" => Transition::Pop,
+            "Commuter patterns" => Transition::Replace(
+                crate::sandbox::dashboards::CommuterPatterns::new_state(ctx, app),
+            ),
+            "Jump to first trip" => {
+                Transition::Replace(TimeWarpScreen::new_state(ctx, app, self.first_trip, None))
+            }
+            _ => unreachable!(),
+        }
     }
 }

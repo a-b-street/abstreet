@@ -626,10 +626,10 @@ impl<X: Ord + Clone> TimeSeriesCount<X> {
     pub fn raw_throughput(&self, now: Time, id: X) -> Vec<(AgentType, Vec<(Time, usize)>)> {
         let window_size = Duration::hours(1);
         let mut pts_per_type: BTreeMap<AgentType, Vec<(Time, usize)>> = BTreeMap::new();
-        let mut windows_per_type: BTreeMap<AgentType, Window> = BTreeMap::new();
+        let mut windows_per_type: BTreeMap<AgentType, SlidingWindow> = BTreeMap::new();
         for agent_type in AgentType::all() {
             pts_per_type.insert(agent_type, vec![(Time::START_OF_DAY, 0)]);
-            windows_per_type.insert(agent_type, Window::new(window_size));
+            windows_per_type.insert(agent_type, SlidingWindow::new(window_size));
         }
 
         for (t, agent_type, x) in &self.raw {
@@ -647,29 +647,22 @@ impl<X: Ord + Clone> TimeSeriesCount<X> {
         for (agent_type, pts) in pts_per_type.iter_mut() {
             let mut window = windows_per_type.remove(agent_type).unwrap();
 
-            // Add a drop-off after window_size (+ a little epsilon!)
-            let t = (pts.last().unwrap().0 + window_size + Duration::seconds(0.1)).min(now);
-            if pts.last().unwrap().0 != t {
-                pts.push((t, window.count(t)));
-            }
-
-            if pts.last().unwrap().0 != now {
-                pts.push((now, window.count(now)));
-            }
+            window.close_off_pts(pts, now);
         }
 
         pts_per_type.into_iter().collect()
     }
 }
 
-pub struct Window {
+/// A sliding window, used to count something over time
+pub struct SlidingWindow {
     times: VecDeque<Time>,
     window_size: Duration,
 }
 
-impl Window {
-    pub fn new(window_size: Duration) -> Window {
-        Window {
+impl SlidingWindow {
+    pub fn new(window_size: Duration) -> SlidingWindow {
+        SlidingWindow {
             times: VecDeque::new(),
             window_size,
         }
@@ -687,5 +680,19 @@ impl Window {
             self.times.pop_front();
         }
         self.times.len()
+    }
+
+    /// Ensure the points cover up to `end_time`. The last event may occur before then, and it's
+    /// necessary to draw more points to show the count drop off.
+    pub fn close_off_pts(&mut self, pts: &mut Vec<(Time, usize)>, end_time: Time) {
+        // Add a drop-off after window_size (+ a little epsilon!)
+        let t = (pts.last().unwrap().0 + self.window_size + Duration::seconds(0.1)).min(end_time);
+        if pts.last().unwrap().0 != t {
+            pts.push((t, self.count(t)));
+        }
+
+        if pts.last().unwrap().0 != end_time {
+            pts.push((end_time, self.count(end_time)));
+        }
     }
 }
