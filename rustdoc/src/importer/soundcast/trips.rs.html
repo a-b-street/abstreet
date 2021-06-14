@@ -240,12 +240,56 @@
 <span id="237">237</span>
 <span id="238">238</span>
 <span id="239">239</span>
+<span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
+<span id="244">244</span>
+<span id="245">245</span>
+<span id="246">246</span>
+<span id="247">247</span>
+<span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
+<span id="251">251</span>
+<span id="252">252</span>
+<span id="253">253</span>
+<span id="254">254</span>
+<span id="255">255</span>
+<span id="256">256</span>
+<span id="257">257</span>
+<span id="258">258</span>
+<span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashMap</span>;
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">MultiMap</span>, <span class="ident">Timer</span>};
-<span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">LonLat</span>;
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">osm</span>, <span class="ident">BuildingID</span>, <span class="ident">IntersectionID</span>, <span class="ident">Map</span>, <span class="ident">PathConstraints</span>, <span class="ident">PathRequest</span>, <span class="ident">PathStep</span>};
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">LonLat</span>, <span class="ident">PolyLine</span>};
+<span class="kw">use</span> <span class="ident">map_model</span>::{
+    <span class="ident">osm</span>, <span class="ident">BuildingID</span>, <span class="ident">IntersectionID</span>, <span class="ident">Map</span>, <span class="ident">Path</span>, <span class="ident">PathConstraints</span>, <span class="ident">PathRequest</span>, <span class="ident">PathStep</span>,
+};
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">IndividTrip</span>, <span class="ident">MapBorders</span>, <span class="ident">OrigPersonID</span>, <span class="ident">PersonSpec</span>, <span class="ident">Scenario</span>, <span class="ident">TripEndpoint</span>, <span class="ident">TripMode</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">soundcast</span>::<span class="ident">popdat</span>::{<span class="ident">Endpoint</span>, <span class="ident">OrigTrip</span>, <span class="ident">PopDat</span>};
@@ -257,7 +301,10 @@
     <span class="ident">orig</span>: <span class="ident">OrigTrip</span>,
 }
 
-<span class="comment">// TODO Saying this function exploded in complexity is like saying I have coffee occasionally.</span>
+<span class="doccomment">/// Transform the Seattle-wide `Endpoints` into specific `TripEndpoints` for this map. When the</span>
+<span class="doccomment">/// endpoint happens to be a building on the map, this is straightforward. Otherwise, the endpoint</span>
+<span class="doccomment">/// will snap to a border intersection. Trips beginning off-map, ending off-map, or both</span>
+<span class="doccomment">/// (pass-through trips) are all modelled.</span>
 <span class="kw">fn</span> <span class="ident">endpoints</span>(
     <span class="ident">from</span>: <span class="kw-2">&amp;</span><span class="ident">Endpoint</span>,
     <span class="ident">to</span>: <span class="kw-2">&amp;</span><span class="ident">Endpoint</span>,
@@ -273,93 +320,130 @@
     <span class="kw">let</span> <span class="ident">from_bldg</span> <span class="op">=</span> <span class="ident">from</span>
         .<span class="ident">osm_building</span>
         .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="ident">osm_id_to_bldg</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>))
-        .<span class="ident">cloned</span>();
+        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">b</span><span class="op">|</span> <span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="kw-2">*</span><span class="ident">b</span>));
     <span class="kw">let</span> <span class="ident">to_bldg</span> <span class="op">=</span> <span class="ident">to</span>
         .<span class="ident">osm_building</span>
         .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="ident">osm_id_to_bldg</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>))
-        .<span class="ident">cloned</span>();
-    <span class="kw">let</span> <span class="ident">border_endpt</span> <span class="op">=</span> <span class="kw">match</span> (<span class="ident">from_bldg</span>, <span class="ident">to_bldg</span>) {
-        (<span class="prelude-val">Some</span>(<span class="ident">b1</span>), <span class="prelude-val">Some</span>(<span class="ident">b2</span>)) <span class="op">=</span><span class="op">&gt;</span> {
-            <span class="kw">return</span> <span class="prelude-val">Some</span>((<span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="ident">b1</span>), <span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="ident">b2</span>)));
-        }
-        (<span class="prelude-val">Some</span>(<span class="kw">_</span>), <span class="prelude-val">None</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">to</span>,
-        (<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">from</span>,
-        (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>) <span class="op">=</span><span class="op">&gt;</span> {
-            <span class="comment">// TODO Detect and handle pass-through trips</span>
+        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">b</span><span class="op">|</span> <span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="kw-2">*</span><span class="ident">b</span>));
+
+    <span class="comment">// Easy case: totally within the map</span>
+    <span class="kw">if</span> <span class="kw">let</span> (<span class="prelude-val">Some</span>(<span class="ident">b1</span>), <span class="prelude-val">Some</span>(<span class="ident">b2</span>)) <span class="op">=</span> (<span class="ident">from_bldg</span>, <span class="ident">to_bldg</span>) {
+        <span class="kw">return</span> <span class="prelude-val">Some</span>((<span class="ident">b1</span>, <span class="ident">b2</span>));
+    }
+
+    <span class="comment">// If it&#39;s a pass-through trip, check if the straight line between the endpoints even crosses</span>
+    <span class="comment">// the map boundary. If not, the trip probably doesn&#39;t even involve this map at all. There are</span>
+    <span class="comment">// false positives and negatives with this approach; we could be more accurate by pathfinding</span>
+    <span class="comment">// on the huge_map, but that would be incredibly slow.</span>
+    <span class="kw">if</span> <span class="ident">from_bldg</span>.<span class="ident">is_none</span>() <span class="op">&amp;&amp;</span> <span class="ident">to_bldg</span>.<span class="ident">is_none</span>() {
+        <span class="comment">// TODO Don&#39;t enable pass-through trips yet. The time to generate the scenario, the</span>
+        <span class="comment">// resulting scenario file, and the simulation runtime (and gridlockiness) all skyrocket.</span>
+        <span class="comment">// Need to harden more things before enabling.</span>
+        <span class="kw">if</span> <span class="bool-val">true</span> {
             <span class="kw">return</span> <span class="prelude-val">None</span>;
         }
-    };
-    <span class="kw">let</span> <span class="ident">usable_borders</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">from_bldg</span>.<span class="ident">is_some</span>() {
-        <span class="ident">out_borders</span>
-    } <span class="kw">else</span> {
-        <span class="ident">in_borders</span>
-    };
 
-    <span class="comment">// The trip begins or ends at a border.</span>
-    <span class="comment">// TODO It&#39;d be nice to fix depart_at, trip_time, and trip_dist. Assume constant speed</span>
-    <span class="comment">// through the trip. But when I last tried this, the distance was way off. :\</span>
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">pl</span>) <span class="op">=</span> <span class="ident">PolyLine</span>::<span class="ident">new</span>(<span class="macro">vec</span><span class="macro">!</span>[
+            <span class="ident">from</span>.<span class="ident">pos</span>.<span class="ident">to_pt</span>(<span class="ident">map</span>.<span class="ident">get_gps_bounds</span>()),
+            <span class="ident">to</span>.<span class="ident">pos</span>.<span class="ident">to_pt</span>(<span class="ident">map</span>.<span class="ident">get_gps_bounds</span>()),
+        ]) {
+            <span class="kw">if</span> <span class="op">!</span><span class="ident">map</span>.<span class="ident">get_boundary_polygon</span>().<span class="ident">intersects_polyline</span>(<span class="kw-2">&amp;</span><span class="ident">pl</span>) {
+                <span class="kw">return</span> <span class="prelude-val">None</span>;
+            }
+        }
+    }
 
-    <span class="kw">let</span> <span class="ident">border_i</span> <span class="op">=</span> <span class="ident">maybe_huge_map</span>
-        .<span class="ident">and_then</span>(<span class="op">|</span>(<span class="ident">huge_map</span>, <span class="ident">huge_osm_id_to_bldg</span>)<span class="op">|</span> {
-            <span class="ident">other_border</span>(
-                <span class="ident">from</span>,
-                <span class="ident">to</span>,
-                <span class="ident">constraints</span>,
-                <span class="ident">huge_map</span>,
-                <span class="ident">huge_osm_id_to_bldg</span>,
-                <span class="ident">map</span>,
-                <span class="ident">usable_borders</span>,
-            )
-        })
+    <span class="comment">// TODO When the trip begins or ends at a border, it&#39;d be nice to fix depart_at, trip_time, and</span>
+    <span class="comment">// trip_dist. Assume constant speed through the trip. But when I last tried this, the distance</span>
+    <span class="comment">// was way off. :\</span>
+
+    <span class="kw">let</span> <span class="ident">snapper</span> <span class="op">=</span> <span class="ident">BorderSnapper</span>::<span class="ident">new</span>(<span class="ident">from</span>, <span class="ident">to</span>, <span class="ident">constraints</span>, <span class="ident">maybe_huge_map</span>)
+        .<span class="ident">unwrap_or</span>(<span class="ident">BorderSnapper</span> { <span class="ident">path</span>: <span class="prelude-val">None</span> });
+
+    <span class="kw">let</span> <span class="ident">from_endpt</span> <span class="op">=</span> <span class="ident">from_bldg</span>
+        .<span class="ident">or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">snapper</span>.<span class="ident">snap_border</span>(<span class="ident">in_borders</span>, <span class="bool-val">true</span>, <span class="ident">map</span>, <span class="ident">maybe_huge_map</span>))
         .<span class="ident">or_else</span>(<span class="op">|</span><span class="op">|</span> {
             <span class="comment">// Fallback to finding the nearest border with straight-line distance</span>
-            <span class="ident">usable_borders</span>
+            <span class="ident">in_borders</span>
                 .<span class="ident">iter</span>()
-                .<span class="ident">min_by_key</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">pt</span>)<span class="op">|</span> <span class="ident">pt</span>.<span class="ident">fast_dist</span>(<span class="ident">border_endpt</span>.<span class="ident">pos</span>))
-                .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">id</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="kw-2">*</span><span class="ident">id</span>)
+                .<span class="ident">min_by_key</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">pt</span>)<span class="op">|</span> <span class="ident">pt</span>.<span class="ident">fast_dist</span>(<span class="ident">from</span>.<span class="ident">pos</span>))
+                .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">id</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="kw-2">*</span><span class="ident">id</span>))
         })<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">border</span> <span class="op">=</span> <span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="ident">border_i</span>);
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">b</span>) <span class="op">=</span> <span class="ident">from_bldg</span> {
-        <span class="prelude-val">Some</span>((<span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="ident">b</span>), <span class="ident">border</span>))
-    } <span class="kw">else</span> {
-        <span class="prelude-val">Some</span>((<span class="ident">border</span>, <span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="ident">to_bldg</span>.<span class="ident">unwrap</span>())))
+    <span class="kw">let</span> <span class="ident">to_endpt</span> <span class="op">=</span> <span class="ident">to_bldg</span>
+        .<span class="ident">or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">snapper</span>.<span class="ident">snap_border</span>(<span class="ident">out_borders</span>, <span class="bool-val">false</span>, <span class="ident">map</span>, <span class="ident">maybe_huge_map</span>))
+        .<span class="ident">or_else</span>(<span class="op">|</span><span class="op">|</span> {
+            <span class="comment">// Fallback to finding the nearest border with straight-line distance</span>
+            <span class="ident">out_borders</span>
+                .<span class="ident">iter</span>()
+                .<span class="ident">min_by_key</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">pt</span>)<span class="op">|</span> <span class="ident">pt</span>.<span class="ident">fast_dist</span>(<span class="ident">to</span>.<span class="ident">pos</span>))
+                .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">id</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="kw-2">*</span><span class="ident">id</span>))
+        })<span class="question-mark">?</span>;
+
+    <span class="kw">if</span> <span class="ident">from_endpt</span> <span class="op">=</span><span class="op">=</span> <span class="ident">to_endpt</span> {
+        <span class="comment">//warn!(&quot;loop on {:?}. {:?} to {:?}&quot;, from_endpt, from, to);</span>
     }
+
+    <span class="prelude-val">Some</span>((<span class="ident">from_endpt</span>, <span class="ident">to_endpt</span>))
 }
 
 <span class="comment">// Use the large map to find the real path somebody might take, then try to match that to a border</span>
 <span class="comment">// in the smaller map.</span>
-<span class="kw">fn</span> <span class="ident">other_border</span>(
-    <span class="ident">from</span>: <span class="kw-2">&amp;</span><span class="ident">Endpoint</span>,
-    <span class="ident">to</span>: <span class="kw-2">&amp;</span><span class="ident">Endpoint</span>,
-    <span class="ident">constraints</span>: <span class="ident">PathConstraints</span>,
-    <span class="ident">huge_map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-    <span class="ident">huge_osm_id_to_bldg</span>: <span class="kw-2">&amp;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">osm</span>::<span class="ident">OsmID</span>, <span class="ident">BuildingID</span><span class="op">&gt;</span>,
-    <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-    <span class="ident">usable_borders</span>: <span class="kw-2">&amp;</span>[(<span class="ident">IntersectionID</span>, <span class="ident">LonLat</span>)],
-) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">b1</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">from</span>
-        .<span class="ident">osm_building</span>
-        .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="ident">huge_osm_id_to_bldg</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>))<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">b2</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">to</span>
-        .<span class="ident">osm_building</span>
-        .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="ident">huge_osm_id_to_bldg</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>))<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">PathRequest</span>::<span class="ident">between_buildings</span>(<span class="ident">huge_map</span>, <span class="ident">b1</span>, <span class="ident">b2</span>, <span class="ident">constraints</span>)<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">huge_map</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>).<span class="ident">ok</span>()<span class="question-mark">?</span>;
+<span class="kw">struct</span> <span class="ident">BorderSnapper</span> {
+    <span class="ident">path</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span>,
+}
 
-    <span class="comment">// Do any of the usable borders match the path?</span>
-    <span class="comment">// TODO Calculate this once</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">node_id_to_border</span> <span class="op">=</span> <span class="ident">HashMap</span>::<span class="ident">new</span>();
-    <span class="kw">for</span> (<span class="ident">i</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="ident">usable_borders</span> {
-        <span class="ident">node_id_to_border</span>.<span class="ident">insert</span>(<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="kw-2">*</span><span class="ident">i</span>).<span class="ident">orig_id</span>, <span class="kw-2">*</span><span class="ident">i</span>);
+<span class="kw">impl</span> <span class="ident">BorderSnapper</span> {
+    <span class="kw">fn</span> <span class="ident">new</span>(
+        <span class="ident">from</span>: <span class="kw-2">&amp;</span><span class="ident">Endpoint</span>,
+        <span class="ident">to</span>: <span class="kw-2">&amp;</span><span class="ident">Endpoint</span>,
+        <span class="ident">constraints</span>: <span class="ident">PathConstraints</span>,
+        <span class="ident">maybe_huge_map</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>(<span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">osm</span>::<span class="ident">OsmID</span>, <span class="ident">BuildingID</span><span class="op">&gt;</span>)<span class="op">&gt;</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BorderSnapper</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> (<span class="ident">huge_map</span>, <span class="ident">huge_osm_id_to_bldg</span>) <span class="op">=</span> <span class="ident">maybe_huge_map</span><span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">b1</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">from</span>
+            .<span class="ident">osm_building</span>
+            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="ident">huge_osm_id_to_bldg</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>))<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">b2</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">to</span>
+            .<span class="ident">osm_building</span>
+            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="ident">huge_osm_id_to_bldg</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>))<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">PathRequest</span>::<span class="ident">between_buildings</span>(<span class="ident">huge_map</span>, <span class="ident">b1</span>, <span class="ident">b2</span>, <span class="ident">constraints</span>)<span class="question-mark">?</span>;
+        <span class="prelude-val">Some</span>(<span class="ident">BorderSnapper</span> {
+            <span class="ident">path</span>: <span class="ident">huge_map</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>).<span class="ident">ok</span>(),
+        })
     }
-    <span class="kw">for</span> <span class="ident">step</span> <span class="kw">in</span> <span class="ident">path</span>.<span class="ident">get_steps</span>() {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">PathStep</span>::<span class="ident">Turn</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident">step</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">i</span>) <span class="op">=</span> <span class="ident">node_id_to_border</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">huge_map</span>.<span class="ident">get_i</span>(<span class="ident">t</span>.<span class="ident">parent</span>).<span class="ident">orig_id</span>) {
-                <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">i</span>);
+
+    <span class="kw">fn</span> <span class="ident">snap_border</span>(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        <span class="ident">usable_borders</span>: <span class="kw-2">&amp;</span>[(<span class="ident">IntersectionID</span>, <span class="ident">LonLat</span>)],
+        <span class="ident">incoming</span>: <span class="ident">bool</span>,
+        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
+        <span class="ident">maybe_huge_map</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>(<span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">osm</span>::<span class="ident">OsmID</span>, <span class="ident">BuildingID</span><span class="op">&gt;</span>)<span class="op">&gt;</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TripEndpoint</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">huge_map</span> <span class="op">=</span> <span class="ident">maybe_huge_map</span><span class="question-mark">?</span>.<span class="number">0</span>;
+        <span class="comment">// Do any of the usable borders match the path?</span>
+        <span class="comment">// TODO Calculate this once</span>
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">node_id_to_border</span> <span class="op">=</span> <span class="ident">HashMap</span>::<span class="ident">new</span>();
+        <span class="kw">for</span> (<span class="ident">i</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="ident">usable_borders</span> {
+            <span class="ident">node_id_to_border</span>.<span class="ident">insert</span>(<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="kw-2">*</span><span class="ident">i</span>).<span class="ident">orig_id</span>, <span class="kw-2">*</span><span class="ident">i</span>);
+        }
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">iter1</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">iter2</span>;
+        <span class="kw">let</span> <span class="ident">steps</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw">dyn</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">PathStep</span><span class="op">&gt;</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">incoming</span> {
+            <span class="ident">iter1</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">path</span>.<span class="ident">as_ref</span>()<span class="question-mark">?</span>.<span class="ident">get_steps</span>().<span class="ident">iter</span>();
+            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">iter1</span>
+        } <span class="kw">else</span> {
+            <span class="ident">iter2</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">path</span>.<span class="ident">as_ref</span>()<span class="question-mark">?</span>.<span class="ident">get_steps</span>().<span class="ident">iter</span>().<span class="ident">rev</span>();
+            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">iter2</span>
+        };
+        <span class="kw">for</span> <span class="ident">step</span> <span class="kw">in</span> <span class="ident">steps</span> {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">PathStep</span>::<span class="ident">Turn</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident">step</span> {
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">i</span>) <span class="op">=</span> <span class="ident">node_id_to_border</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">huge_map</span>.<span class="ident">get_i</span>(<span class="ident">t</span>.<span class="ident">parent</span>).<span class="ident">orig_id</span>) {
+                    <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="kw-2">*</span><span class="ident">i</span>));
+                }
             }
         }
+        <span class="prelude-val">None</span>
     }
-    <span class="prelude-val">None</span>
 }
 
 <span class="kw">fn</span> <span class="ident">clip_trips</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">popdat</span>: <span class="kw-2">&amp;</span><span class="ident">PopDat</span>, <span class="ident">huge_map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Trip</span><span class="op">&gt;</span> {
@@ -381,7 +465,7 @@
 
     <span class="kw">let</span> <span class="ident">total_trips</span> <span class="op">=</span> <span class="ident">popdat</span>.<span class="ident">trips</span>.<span class="ident">len</span>();
     <span class="kw">let</span> <span class="ident">maybe_results</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Trip</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span>
-        <span class="ident">timer</span>.<span class="ident">parallelize_polite</span>(<span class="string">&quot;clip trips&quot;</span>, <span class="ident">popdat</span>.<span class="ident">trips</span>.<span class="ident">iter</span>().<span class="ident">collect</span>(), <span class="op">|</span><span class="ident">orig</span><span class="op">|</span> {
+        <span class="ident">timer</span>.<span class="ident">parallelize</span>(<span class="string">&quot;clip trips&quot;</span>, <span class="ident">popdat</span>.<span class="ident">trips</span>.<span class="ident">iter</span>().<span class="ident">collect</span>(), <span class="op">|</span><span class="ident">orig</span><span class="op">|</span> {
             <span class="kw">let</span> (<span class="ident">from</span>, <span class="ident">to</span>) <span class="op">=</span> <span class="ident">endpoints</span>(
                 <span class="kw-2">&amp;</span><span class="ident">orig</span>.<span class="ident">from</span>,
                 <span class="kw-2">&amp;</span><span class="ident">orig</span>.<span class="ident">to</span>,
