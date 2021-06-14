@@ -795,7 +795,10 @@ impl PolyLine {
 
     /// Returns the point on the polyline closest to the query.
     pub fn project_pt(&self, query: Pt2D) -> Pt2D {
-        match pts_to_line_string(&self.pts).closest_point(&geo::Point::new(query.x(), query.y())) {
+        match self
+            .to_geo()
+            .closest_point(&geo::Point::new(query.x(), query.y()))
+        {
             geo::Closest::Intersection(hit) | geo::Closest::SinglePoint(hit) => {
                 Pt2D::new(hit.x(), hit.y())
             }
@@ -806,6 +809,15 @@ impl PolyLine {
     /// Returns the angle from the start to end of this polyline.
     pub fn overall_angle(&self) -> Angle {
         self.first_pt().angle_to(self.last_pt())
+    }
+
+    pub(crate) fn to_geo(&self) -> geo::LineString<f64> {
+        let pts: Vec<geo::Point<f64>> = self
+            .pts
+            .iter()
+            .map(|pt| geo::Point::new(pt.x(), pt.y()))
+            .collect();
+        pts.into()
     }
 }
 
@@ -869,12 +881,4 @@ fn to_set(pts: &[Pt2D]) -> (HashSet<HashablePt2D>, HashSet<HashablePt2D>) {
         }
     }
     (deduped, dupes)
-}
-
-fn pts_to_line_string(raw_pts: &[Pt2D]) -> geo::LineString<f64> {
-    let pts: Vec<geo::Point<f64>> = raw_pts
-        .iter()
-        .map(|pt| geo::Point::new(pt.x(), pt.y()))
-        .collect();
-    pts.into()
 }

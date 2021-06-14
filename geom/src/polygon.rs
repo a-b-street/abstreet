@@ -358,6 +358,11 @@ impl Polygon {
         to_geo(self.points()).intersects(&to_geo(other.points()))
     }
 
+    /// Does this polygon intersect a polyline?
+    pub fn intersects_polyline(&self, pl: &PolyLine) -> bool {
+        to_geo(self.points()).intersects(&pl.to_geo())
+    }
+
     /// Creates the outline around the polygon, with the thickness half straddling the polygon and
     /// half of it just outside. Only works for polygons that're formed from rings. Those made from
     /// PolyLines won't work, for example.

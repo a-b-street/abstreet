@@ -1,8 +1,10 @@
 use std::collections::HashMap;
 
 use abstutil::{prettyprint_usize, MultiMap, Timer};
-use geom::LonLat;
-use map_model::{osm, BuildingID, IntersectionID, Map, PathConstraints, PathRequest, PathStep};
+use geom::{LonLat, PolyLine};
+use map_model::{
+    osm, BuildingID, IntersectionID, Map, Path, PathConstraints, PathRequest, PathStep,
+};
 use sim::{IndividTrip, MapBorders, OrigPersonID, PersonSpec, Scenario, TripEndpoint, TripMode};
 
 use crate::soundcast::popdat::{Endpoint, OrigTrip, PopDat};
@@ -14,7 +16,10 @@ struct Trip {
     orig: OrigTrip,
 }
 
-// TODO Saying this function exploded in complexity is like saying I have coffee occasionally.
+/// Transform the Seattle-wide `Endpoints` into specific `TripEndpoints` for this map. When the
+/// endpoint happens to be a building on the map, this is straightforward. Otherwise, the endpoint
+/// will snap to a border intersection. Trips beginning off-map, ending off-map, or both
+/// (pass-through trips) are all modelled.
 fn endpoints(
     from: &Endpoint,
     to: &Endpoint,
@@ -30,93 +35,130 @@ fn endpoints(
     let from_bldg = from
         .osm_building
         .and_then(|id| osm_id_to_bldg.get(&id))
-        .cloned();
+        .map(|b| TripEndpoint::Bldg(*b));
     let to_bldg = to
         .osm_building
         .and_then(|id| osm_id_to_bldg.get(&id))
-        .cloned();
-    let border_endpt = match (from_bldg, to_bldg) {
-        (Some(b1), Some(b2)) => {
-            return Some((TripEndpoint::Bldg(b1), TripEndpoint::Bldg(b2)));
-        }
-        (Some(_), None) => to,
-        (None, Some(_)) => from,
-        (None, None) => {
-            // TODO Detect and handle pass-through trips
+        .map(|b| TripEndpoint::Bldg(*b));
+
+    // Easy case: totally within the map
+    if let (Some(b1), Some(b2)) = (from_bldg, to_bldg) {
+        return Some((b1, b2));
+    }
+
+    // If it's a pass-through trip, check if the straight line between the endpoints even crosses
+    // the map boundary. If not, the trip probably doesn't even involve this map at all. There are
+    // false positives and negatives with this approach; we could be more accurate by pathfinding
+    // on the huge_map, but that would be incredibly slow.
+    if from_bldg.is_none() && to_bldg.is_none() {
+        // TODO Don't enable pass-through trips yet. The time to generate the scenario, the
+        // resulting scenario file, and the simulation runtime (and gridlockiness) all skyrocket.
+        // Need to harden more things before enabling.
+        if true {
             return None;
         }
-    };
-    let usable_borders = if from_bldg.is_some() {
-        out_borders
-    } else {
-        in_borders
-    };
 
-    // The trip begins or ends at a border.
-    // TODO It'd be nice to fix depart_at, trip_time, and trip_dist. Assume constant speed
-    // through the trip. But when I last tried this, the distance was way off. :\
+        if let Ok(pl) = PolyLine::new(vec![
+            from.pos.to_pt(map.get_gps_bounds()),
+            to.pos.to_pt(map.get_gps_bounds()),
+        ]) {
+            if !map.get_boundary_polygon().intersects_polyline(&pl) {
+                return None;
+            }
+        }
+    }
 
-    let border_i = maybe_huge_map
-        .and_then(|(huge_map, huge_osm_id_to_bldg)| {
-            other_border(
-                from,
-                to,
-                constraints,
-                huge_map,
-                huge_osm_id_to_bldg,
-                map,
-                usable_borders,
-            )
-        })
+    // TODO When the trip begins or ends at a border, it'd be nice to fix depart_at, trip_time, and
+    // trip_dist. Assume constant speed through the trip. But when I last tried this, the distance
+    // was way off. :\
+
+    let snapper = BorderSnapper::new(from, to, constraints, maybe_huge_map)
+        .unwrap_or(BorderSnapper { path: None });
+
+    let from_endpt = from_bldg
+        .or_else(|| snapper.snap_border(in_borders, true, map, maybe_huge_map))
         .or_else(|| {
             // Fallback to finding the nearest border with straight-line distance
-            usable_borders
+            in_borders
                 .iter()
-                .min_by_key(|(_, pt)| pt.fast_dist(border_endpt.pos))
-                .map(|(id, _)| *id)
+                .min_by_key(|(_, pt)| pt.fast_dist(from.pos))
+                .map(|(id, _)| TripEndpoint::Border(*id))
         })?;
-    let border = TripEndpoint::Border(border_i);
-    if let Some(b) = from_bldg {
-        Some((TripEndpoint::Bldg(b), border))
-    } else {
-        Some((border, TripEndpoint::Bldg(to_bldg.unwrap())))
+    let to_endpt = to_bldg
+        .or_else(|| snapper.snap_border(out_borders, false, map, maybe_huge_map))
+        .or_else(|| {
+            // Fallback to finding the nearest border with straight-line distance
+            out_borders
+                .iter()
+                .min_by_key(|(_, pt)| pt.fast_dist(to.pos))
+                .map(|(id, _)| TripEndpoint::Border(*id))
+        })?;
+
+    if from_endpt == to_endpt {
+        //warn!("loop on {:?}. {:?} to {:?}", from_endpt, from, to);
     }
+
+    Some((from_endpt, to_endpt))
 }
 
 // Use the large map to find the real path somebody might take, then try to match that to a border
 // in the smaller map.
-fn other_border(
-    from: &Endpoint,
-    to: &Endpoint,
-    constraints: PathConstraints,
-    huge_map: &Map,
-    huge_osm_id_to_bldg: &HashMap<osm::OsmID, BuildingID>,
-    map: &Map,
-    usable_borders: &[(IntersectionID, LonLat)],
-) -> Option<IntersectionID> {
-    let b1 = *from
-        .osm_building
-        .and_then(|id| huge_osm_id_to_bldg.get(&id))?;
-    let b2 = *to
-        .osm_building
-        .and_then(|id| huge_osm_id_to_bldg.get(&id))?;
-    let req = PathRequest::between_buildings(huge_map, b1, b2, constraints)?;
-    let path = huge_map.pathfind(req).ok()?;
+struct BorderSnapper {
+    path: Option<Path>,
+}
 
-    // Do any of the usable borders match the path?
-    // TODO Calculate this once
-    let mut node_id_to_border = HashMap::new();
-    for (i, _) in usable_borders {
-        node_id_to_border.insert(map.get_i(*i).orig_id, *i);
+impl BorderSnapper {
+    fn new(
+        from: &Endpoint,
+        to: &Endpoint,
+        constraints: PathConstraints,
+        maybe_huge_map: Option<&(&Map, HashMap<osm::OsmID, BuildingID>)>,
+    ) -> Option<BorderSnapper> {
+        let (huge_map, huge_osm_id_to_bldg) = maybe_huge_map?;
+        let b1 = *from
+            .osm_building
+            .and_then(|id| huge_osm_id_to_bldg.get(&id))?;
+        let b2 = *to
+            .osm_building
+            .and_then(|id| huge_osm_id_to_bldg.get(&id))?;
+        let req = PathRequest::between_buildings(huge_map, b1, b2, constraints)?;
+        Some(BorderSnapper {
+            path: huge_map.pathfind(req).ok(),
+        })
     }
-    for step in path.get_steps() {
-        if let PathStep::Turn(t) = step {
-            if let Some(i) = node_id_to_border.get(&huge_map.get_i(t.parent).orig_id) {
-                return Some(*i);
+
+    fn snap_border(
+        &self,
+        usable_borders: &[(IntersectionID, LonLat)],
+        incoming: bool,
+        map: &Map,
+        maybe_huge_map: Option<&(&Map, HashMap<osm::OsmID, BuildingID>)>,
+    ) -> Option<TripEndpoint> {
+        let huge_map = maybe_huge_map?.0;
+        // Do any of the usable borders match the path?
+        // TODO Calculate this once
+        let mut node_id_to_border = HashMap::new();
+        for (i, _) in usable_borders {
+            node_id_to_border.insert(map.get_i(*i).orig_id, *i);
+        }
+        let mut iter1;
+        let mut iter2;
+        let steps: &mut dyn Iterator<Item = &PathStep> = if incoming {
+            iter1 = self.path.as_ref()?.get_steps().iter();
+            &mut iter1
+        } else {
+            iter2 = self.path.as_ref()?.get_steps().iter().rev();
+            &mut iter2
+        };
+        for step in steps {
+            if let PathStep::Turn(t) = step {
+                if let Some(i) = node_id_to_border.get(&huge_map.get_i(t.parent).orig_id) {
+                    return Some(TripEndpoint::Border(*i));
+                }
             }
         }
+        None
     }
-    None
 }
 
 fn clip_trips(map: &Map, popdat: &PopDat, huge_map: &Map, timer: &mut Timer) -> Vec<Trip> {
@@ -138,7 +180,7 @@ fn clip_trips(map: &Map, popdat: &PopDat, huge_map: &Map, timer: &mut Timer) -> 
 
     let total_trips = popdat.trips.len();
     let maybe_results: Vec<Option<Trip>> =
-        timer.parallelize_polite("clip trips", popdat.trips.iter().collect(), |orig| {
+        timer.parallelize("clip trips", popdat.trips.iter().collect(), |orig| {
             let (from, to) = endpoints(
                 &orig.from,
                 &orig.to,
