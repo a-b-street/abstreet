@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["ChangeMode",""],["EditScenarioModifiers",""],["PlayScenario",""]]});
+initSidebarItems({"struct":[["ChangeMode",""],["DepartureSummary",""],["EditScenarioModifiers",""],["PlayScenario",""]]});

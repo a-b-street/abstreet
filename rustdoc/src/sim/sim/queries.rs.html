@@ -543,16 +543,6 @@
 <span id="540">540</span>
 <span id="541">541</span>
 <span id="542">542</span>
-<span id="543">543</span>
-<span id="544">544</span>
-<span id="545">545</span>
-<span id="546">546</span>
-<span id="547">547</span>
-<span id="548">548</span>
-<span id="549">549</span>
-<span id="550">550</span>
-<span id="551">551</span>
-<span id="552">552</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! All sorts of read-only queries about a simulation</span>
 
@@ -567,7 +557,7 @@
     <span class="ident">Position</span>, <span class="ident">RoadID</span>, <span class="ident">Traversable</span>, <span class="ident">TurnID</span>,
 };
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">analytics</span>::<span class="ident">Window</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">analytics</span>::<span class="ident">SlidingWindow</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">AgentID</span>, <span class="ident">AgentType</span>, <span class="ident">Analytics</span>, <span class="ident">CarID</span>, <span class="ident">CommutersVehiclesCounts</span>, <span class="ident">DrawCarInput</span>, <span class="ident">DrawPedCrowdInput</span>,
     <span class="ident">DrawPedestrianInput</span>, <span class="ident">OrigPersonID</span>, <span class="ident">PandemicModel</span>, <span class="ident">ParkedCar</span>, <span class="ident">ParkingSim</span>, <span class="ident">PedestrianID</span>, <span class="ident">Person</span>,
@@ -899,10 +889,10 @@
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">AgentType</span>, <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Time</span>, <span class="ident">usize</span>)<span class="op">&gt;</span>)<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">window_size</span> <span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">hours</span>(<span class="number">1</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts_per_type</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">AgentType</span>, <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Time</span>, <span class="ident">usize</span>)<span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">BTreeMap</span>::<span class="ident">new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">windows_per_type</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">AgentType</span>, <span class="ident">Window</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">BTreeMap</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">windows_per_type</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">AgentType</span>, <span class="ident">SlidingWindow</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">BTreeMap</span>::<span class="ident">new</span>();
         <span class="kw">for</span> <span class="ident">agent_type</span> <span class="kw">in</span> <span class="ident">AgentType</span>::<span class="ident">all</span>() {
             <span class="ident">pts_per_type</span>.<span class="ident">insert</span>(<span class="ident">agent_type</span>, <span class="macro">vec</span><span class="macro">!</span>[(<span class="ident">Time</span>::<span class="ident">START_OF_DAY</span>, <span class="number">0</span>)]);
-            <span class="ident">windows_per_type</span>.<span class="ident">insert</span>(<span class="ident">agent_type</span>, <span class="ident">Window</span>::<span class="ident">new</span>(<span class="ident">window_size</span>));
+            <span class="ident">windows_per_type</span>.<span class="ident">insert</span>(<span class="ident">agent_type</span>, <span class="ident">SlidingWindow</span>::<span class="ident">new</span>(<span class="ident">window_size</span>));
         }
 
         <span class="kw">for</span> (<span class="ident">t</span>, <span class="ident">agent_type</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">trips</span>.<span class="ident">all_arrivals_at_border</span>(<span class="ident">i</span>) {
@@ -912,17 +902,7 @@
 
         <span class="kw">for</span> (<span class="ident">agent_type</span>, <span class="ident">pts</span>) <span class="kw">in</span> <span class="ident">pts_per_type</span>.<span class="ident">iter_mut</span>() {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">window</span> <span class="op">=</span> <span class="ident">windows_per_type</span>.<span class="ident">remove</span>(<span class="ident">agent_type</span>).<span class="ident">unwrap</span>();
-
-            <span class="comment">// Add a drop-off after window_size (+ a little epsilon!)</span>
-            <span class="kw">let</span> <span class="ident">end</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_end_of_day</span>();
-            <span class="kw">let</span> <span class="ident">t</span> <span class="op">=</span> (<span class="ident">pts</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>().<span class="number">0</span> <span class="op">+</span> <span class="ident">window_size</span> <span class="op">+</span> <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="number">0.1</span>)).<span class="ident">min</span>(<span class="ident">end</span>);
-            <span class="kw">if</span> <span class="ident">pts</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>().<span class="number">0</span> <span class="op">!</span><span class="op">=</span> <span class="ident">t</span> {
-                <span class="ident">pts</span>.<span class="ident">push</span>((<span class="ident">t</span>, <span class="ident">window</span>.<span class="ident">count</span>(<span class="ident">t</span>)));
-            }
-
-            <span class="kw">if</span> <span class="ident">pts</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>().<span class="number">0</span> <span class="op">!</span><span class="op">=</span> <span class="ident">end</span> {
-                <span class="ident">pts</span>.<span class="ident">push</span>((<span class="ident">end</span>, <span class="ident">window</span>.<span class="ident">count</span>(<span class="ident">end</span>)));
-            }
+            <span class="ident">window</span>.<span class="ident">close_off_pts</span>(<span class="ident">pts</span>, <span class="self">self</span>.<span class="ident">get_end_of_day</span>());
         }
 
         <span class="ident">pts_per_type</span>.<span class="ident">into_iter</span>().<span class="ident">collect</span>()
