@@ -157,8 +157,7 @@ impl ExtraShapes {
             match (
                 rec.remove("Longitude"),
                 rec.remove("Latitude"),
-                // TODO Temporary typo in the ASU data
-                rec.remove("geometry").or_else(|| rec.remove("geometory")),
+                rec.remove("geometry"),
             ) {
                 (Some(lon), Some(lat), _) => {
                     if let (Ok(lon), Ok(lat)) = (lon.parse::<f64>(), lat.parse::<f64>()) {

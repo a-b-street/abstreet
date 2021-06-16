@@ -125,6 +125,7 @@ fn run(mut settings: Settings) {
         };
         mode = Some(sandbox::GameplayMode::Actdev(name, scenario, false));
     }
+    let load_kml = args.optional("--kml");
 
     args.done();
 
@@ -138,6 +139,7 @@ fn run(mut settings: Settings) {
             initialize_tutorial,
             center_camera,
             start_time,
+            load_kml,
         )
     });
 }
@@ -151,6 +153,7 @@ fn setup_app(
     initialize_tutorial: bool,
     center_camera: Option<String>,
     start_time: Option<Duration>,
+    load_kml: Option<String>,
 ) -> (App, Vec<Box<dyn State<App>>>) {
     let title = !opts.dev
         && !flags.sim_flags.load.contains("player/save")
@@ -223,6 +226,7 @@ fn setup_app(
                     initialize_tutorial,
                     center_camera,
                     start_time,
+                    load_kml,
                 ))
             }),
         )];
@@ -252,6 +256,7 @@ fn setup_app(
             initialize_tutorial,
             center_camera,
             start_time,
+            load_kml,
         );
         (app, states)
     }
@@ -266,6 +271,7 @@ fn finish_app_setup(
     initialize_tutorial: bool,
     center_camera: Option<String>,
     start_time: Option<Duration>,
+    load_kml: Option<String>,
 ) -> Vec<Box<dyn State<App>>> {
     if let Some((pt, zoom)) =
         center_camera.and_then(|cam| URLManager::parse_center_camera(app, cam))
@@ -312,7 +318,12 @@ fn finish_app_setup(
         crate::sandbox::gameplay::Tutorial::initialize(ctx, app);
     }
 
-    let states: Vec<Box<dyn State<App>>> = if title {
+    let states: Vec<Box<dyn State<App>>> = if let Some(path) = load_kml {
+        vec![
+            Box::new(TitleScreen::new(ctx, app)),
+            crate::devtools::kml::ViewKML::new_state(ctx, app, Some(path)),
+        ]
+    } else if title {
         vec![Box::new(TitleScreen::new(ctx, app))]
     } else if let Some(ss) = savestate {
         app.primary.sim = ss;

@@ -15,7 +15,7 @@ use crate::app::{App, Transition};
 
 mod collisions;
 mod destinations;
-mod kml;
+pub mod kml;
 mod polygon;
 mod scenario;
 mod story;
