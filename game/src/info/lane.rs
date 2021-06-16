@@ -256,7 +256,7 @@ fn traffic_body(ctx: &mut EventCtx, app: &App, id: LaneID, opts: &DataOptions) -
                 a.road_thruput.raw_throughput(time, r)
             }
         },
-        &opts,
+        opts,
     ));
 
     Widget::col(rows)

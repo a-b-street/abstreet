@@ -107,7 +107,7 @@ fn traffic_body(ctx: &mut EventCtx, app: &App, id: IntersectionID, opts: &DataOp
                 a.intersection_thruput.raw_throughput(time, id)
             }
         },
-        &opts,
+        opts,
     ));
 
     Widget::col(rows)

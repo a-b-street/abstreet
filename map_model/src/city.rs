@@ -63,7 +63,7 @@ impl City {
         .filter(|path| path.ends_with(".poly"))
         .map(|path| {
             (
-                MapName::from_city(&city_name, &abstutil::basename(&path)),
+                MapName::from_city(city_name, &abstutil::basename(&path)),
                 LonLat::read_osmosis_polygon(&path).unwrap(),
             )
         })

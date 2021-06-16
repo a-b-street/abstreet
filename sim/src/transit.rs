@@ -368,7 +368,7 @@ impl TransitSimState {
 
     /// also stop idx that the bus is coming from
     pub fn buses_for_route(&self, route: BusRouteID) -> Vec<(CarID, Option<usize>)> {
-        if let Some(ref r) = self.routes.get(&route) {
+        if let Some(r) = self.routes.get(&route) {
             r.active_vehicles
                 .iter()
                 .map(|bus| {

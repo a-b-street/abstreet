@@ -243,7 +243,7 @@ impl CommuterPatterns {
                     batch.append(icon);
                 }
 
-                let others = self.count_per_block(&base_block);
+                let others = self.count_per_block(base_block);
 
                 let mut total_trips = 0;
                 let max_count = others.iter().map(|(_, cnt)| *cnt).max().unwrap_or(0);

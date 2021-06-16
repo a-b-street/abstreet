@@ -345,7 +345,7 @@ fn fix_city_name(value: &mut Value) {
         };
         map_name.insert(
             "city".to_string(),
-            serde_json::to_value(CityName::new(&country, &name)).unwrap(),
+            serde_json::to_value(CityName::new(country, name)).unwrap(),
         );
     }
 }

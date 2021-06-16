@@ -216,11 +216,11 @@ fn test_lane_changing(map: &Map) -> Result<()> {
 
     let mut opts = sim::SimOptions::new("test_lane_changing");
     opts.alerts = sim::AlertHandler::Silence;
-    let mut sim = sim::Sim::new(&map, opts);
+    let mut sim = sim::Sim::new(map, opts);
     let mut rng = sim::SimFlags::for_test("test_lane_changing").make_rng();
-    scenario.instantiate(&mut sim, &map, &mut rng, &mut Timer::throwaway());
+    scenario.instantiate(&mut sim, map, &mut rng, &mut Timer::throwaway());
     while !sim.is_done() {
-        sim.tiny_step(&map, &mut None);
+        sim.tiny_step(map, &mut None);
     }
     // This time limit was determined by watching the scenario manually. This test prevents the
     // time from regressing, which would probably indicate something breaking related to lane

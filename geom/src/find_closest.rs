@@ -59,7 +59,7 @@ where
             .into_iter()
             .filter_map(|(key, _, _)| {
                 if let geo::Closest::SinglePoint(pt) =
-                    self.geometries[&key].closest_point(&query_geom)
+                    self.geometries[key].closest_point(&query_geom)
                 {
                     let dist = Distance::meters(pt.euclidean_distance(&query_geom));
                     if dist <= max_dist_away {
@@ -67,7 +67,7 @@ where
                     } else {
                         None
                     }
-                } else if self.geometries[&key].contains(&query_geom) {
+                } else if self.geometries[key].contains(&query_geom) {
                     // TODO Yay, FindClosest has a bug. :P
                     Some((key.clone(), query_pt, Distance::ZERO))
                 } else {

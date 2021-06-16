@@ -109,7 +109,7 @@ pub fn problem_matrix(ctx: &mut EventCtx, app: &App, trips: &[(Duration, isize)]
     ];
 
     let num_buckets = 7;
-    let mut matrix = Matrix::new(duration_buckets, bucketize_isizes(num_buckets, &points));
+    let mut matrix = Matrix::new(duration_buckets, bucketize_isizes(num_buckets, points));
     for (x, y) in points {
         matrix.add_pt(*x, *y);
     }

@@ -596,7 +596,7 @@ impl<X: Ord + Clone> TimeSeriesCount<X> {
     pub fn all_total_counts(&self, agent_types: &BTreeSet<AgentType>) -> Counter<X> {
         let mut cnt = Counter::new();
         for ((id, agent_type, _), value) in &self.counts {
-            if agent_types.contains(&agent_type) {
+            if agent_types.contains(agent_type) {
                 cnt.add(id.clone(), *value);
             }
         }

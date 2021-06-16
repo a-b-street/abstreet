@@ -206,7 +206,7 @@ impl<T: 'static + SpinnerValue> WidgetImpl for Spinner<T> {
             output.outcome = Outcome::Changed(self.label.clone());
             self.current += self.step_size;
             self.clamp();
-            self.drawable = self.drawable(&ctx.prerender, ctx.style());
+            self.drawable = self.drawable(ctx.prerender, ctx.style());
             ctx.no_op_event(true, |ctx| self.up.event(ctx, output));
             return;
         }
@@ -216,7 +216,7 @@ impl<T: 'static + SpinnerValue> WidgetImpl for Spinner<T> {
             output.outcome = Outcome::Changed(self.label.clone());
             self.current -= self.step_size;
             self.clamp();
-            self.drawable = self.drawable(&ctx.prerender, ctx.style());
+            self.drawable = self.drawable(ctx.prerender, ctx.style());
             ctx.no_op_event(true, |ctx| self.down.event(ctx, output));
             return;
         }
@@ -228,13 +228,13 @@ impl<T: 'static + SpinnerValue> WidgetImpl for Spinner<T> {
                         self.current += self.step_size;
                         self.clamp();
                         output.outcome = Outcome::Changed(self.label.clone());
-                        self.drawable = self.drawable(&ctx.prerender, ctx.style());
+                        self.drawable = self.drawable(ctx.prerender, ctx.style());
                     }
                     if dy < 0.0 && self.current > self.low {
                         self.current -= self.step_size;
                         self.clamp();
                         output.outcome = Outcome::Changed(self.label.clone());
-                        self.drawable = self.drawable(&ctx.prerender, ctx.style());
+                        self.drawable = self.drawable(ctx.prerender, ctx.style());
                     }
                 }
             }

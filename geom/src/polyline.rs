@@ -803,7 +803,7 @@ impl PolyLine {
     /// Produces a GeoJSON linestring, optionally mapping the world-space points back to GPS.
     pub fn to_geojson(&self, gps: Option<&GPSBounds>) -> geojson::Geometry {
         let mut pts = Vec::new();
-        if let Some(ref gps) = gps {
+        if let Some(gps) = gps {
             for pt in gps.convert_back(&self.pts) {
                 pts.push(vec![pt.x(), pt.y()]);
             }

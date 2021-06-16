@@ -80,7 +80,7 @@ pub struct WindowAdapter(glutin::WindowedContext<glutin::PossiblyCurrent>);
 
 impl WindowAdapter {
     pub fn window(&self) -> &winit::window::Window {
-        &self.0.window()
+        self.0.window()
     }
 
     pub fn window_resized(&self, new_size: ScreenDims, scale_factor: f64) {

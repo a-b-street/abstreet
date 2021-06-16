@@ -223,13 +223,13 @@ fn generalized_trim_back(
     // intersection polygon's points along the way.
     let mut endpoints: Vec<Pt2D> = Vec::new();
     for idx in 0..lines.len() as isize {
-        let (id, _, fwd_pl, back_pl) = wraparound_get(&lines, idx);
+        let (id, _, fwd_pl, back_pl) = wraparound_get(lines, idx);
         // TODO Ahhh these names are confusing. Adjacent to the fwd_pl, but it's a back pl.
-        let (_adj_back_id, _, adj_back_pl, _) = wraparound_get(&lines, idx + 1);
-        let (_adj_fwd_id, _, _, adj_fwd_pl) = wraparound_get(&lines, idx - 1);
+        let (_adj_back_id, _, adj_back_pl, _) = wraparound_get(lines, idx + 1);
+        let (_adj_fwd_id, _, _, adj_fwd_pl) = wraparound_get(lines, idx - 1);
 
-        roads.get_mut(&id).unwrap().trimmed_center_pts = new_road_centers[&id].clone();
-        let r = &roads[&id];
+        roads.get_mut(id).unwrap().trimmed_center_pts = new_road_centers[id].clone();
+        let r = &roads[id];
 
         // Include collisions between polylines of adjacent roads, so the polygon doesn't cover area
         // not originally covered by the thick road bands.

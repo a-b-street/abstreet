@@ -365,7 +365,7 @@ impl Panel {
     pub fn restore(&mut self, ctx: &mut EventCtx, prev: &Panel) {
         self.set_scroll_offset(ctx, prev.scroll_offset());
 
-        self.top_level.restore(ctx, &prev);
+        self.top_level.restore(ctx, prev);
 
         // Since we just moved things around, let all widgets respond to the mouse being somewhere
         ctx.no_op_event(true, |ctx| assert_eq!(self.event(ctx), Outcome::Nothing));

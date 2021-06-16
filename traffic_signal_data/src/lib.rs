@@ -103,7 +103,7 @@ static DATA: include_dir::Dir = include_dir::include_dir!("data", "");
 pub fn load_all_data() -> Result<BTreeMap<i64, TrafficSignal>, std::io::Error> {
     let mut results = BTreeMap::new();
     for f in DATA.files() {
-        let ts: TrafficSignal = serde_json::from_slice(&f.contents())?;
+        let ts: TrafficSignal = serde_json::from_slice(f.contents())?;
         results.insert(ts.intersection_osm_node_id, ts);
     }
     Ok(results)
