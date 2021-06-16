@@ -9,7 +9,8 @@ use geom::Duration;
 
 use crate::pathfind::uber_turns::UberTurnV2;
 use crate::{
-    DirectedRoadID, Map, MovementID, Path, PathConstraints, PathRequest, PathStep, TurnID, UberTurn,
+    DirectedRoadID, IntersectionID, LaneID, Map, MovementID, Path, PathConstraints, PathRequest,
+    PathStep, TurnID, UberTurn,
 };
 
 /// One step along a path.
@@ -93,7 +94,7 @@ impl PathV2 {
 
     /// Transform a sequence of roads representing a path into the current lane-based path, by
     /// picking particular lanes and turns to use.
-    pub fn into_v1(self, map: &Map) -> Result<Path> {
+    pub fn into_v1(mut self, map: &Map) -> Result<Path> {
         if self.req.constraints == PathConstraints::Pedestrian {
             return self.into_v1_walking(map);
         }
@@ -119,11 +120,44 @@ impl PathV2 {
             }
         }
 
+        // The v2 path might immediately require a turn that's only available from some lanes. If
+        // the req.start lane can't make that turn, then producing the v1 path would fail. So let's
+        // allow starting from any lane on the same side of the road. Since petgraph can only start
+        // from a single node and since we want to prefer the originally requested lane anyway,
+        // create a virtual start node and connect it to all possible starting lanes.
+        let virtual_start_node = LaneID(map.lane_id_counter + 1);
+        let start_lane = self.req.start.lane();
+        let start_road = map.get_parent(start_lane);
+        let start_lane_idx = start_road.offset(start_lane) as isize;
+        for l in map
+            .get_l(start_lane)
+            .get_directed_parent()
+            .lanes(self.req.constraints, map)
+        {
+            // Heavily penalize starting from something other than the originally requested lane.
+            // At the simulation layer, we may need to block intermediate lanes to exit a driveway,
+            // so reflect that cost here. The high cost should only be worth it when the v2 path
+            // requires that up-front turn from certain lanes.
+            let idx_dist = (start_lane_idx - (start_road.offset(l) as isize)).abs();
+            let cost = 100 * idx_dist as usize;
+            let fake_turn = TurnID {
+                // Just encode the cost here for convenience
+                parent: IntersectionID(cost),
+                src: virtual_start_node,
+                dst: virtual_start_node,
+            };
+            graph.add_edge(virtual_start_node, l, fake_turn);
+        }
+
         match petgraph::algo::astar(
             &graph,
-            self.req.start.lane(),
+            virtual_start_node,
             |l| l == self.req.end.lane(),
             |(_, _, t)| {
+                if t.src == virtual_start_node {
+                    return t.parent.0;
+                }
+
                 // Normally opportunistic lane-changing adjusts the path live, but that doesn't work
                 // near uber-turns. So still use some of the penalties here.
                 let (lt, lc, slow_lane) = map.get_t(*t).penalty(map);
@@ -143,7 +177,13 @@ impl PathV2 {
         ) {
             Some((_, path)) => {
                 let mut steps = Vec::new();
+                // Skip the first node; it's always virtual_start_node
+                assert_eq!(path[0], virtual_start_node);
                 for pair in path.windows(2) {
+                    if pair[0] == virtual_start_node {
+                        continue;
+                    }
+
                     steps.push(PathStep::Lane(pair[0]));
                     // We don't need to look for this turn in the map; we know it exists.
                     steps.push(PathStep::Turn(TurnID {
@@ -153,7 +193,13 @@ impl PathV2 {
                     }));
                 }
                 steps.push(PathStep::Lane(self.req.end.lane()));
-                assert_eq!(steps[0], PathStep::Lane(self.req.start.lane()));
+                if steps[0] != PathStep::Lane(self.req.start.lane()) {
+                    let actual_start = match steps[0] {
+                        PathStep::Lane(l) => l,
+                        _ => unreachable!(),
+                    };
+                    self.req.start = self.req.start.equiv_pos(actual_start, map);
+                }
                 let uber_turns = find_uber_turns(&steps, map, self.uber_turns);
                 Ok(Path::new(map, steps, self.req, uber_turns))
             }

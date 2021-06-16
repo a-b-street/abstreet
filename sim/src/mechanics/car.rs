@@ -176,29 +176,35 @@ impl Car {
                         let maybe_full_piece = if is_parking {
                             raw_body.clone().extend(driveway.reversed())
                         } else {
+                            // It's possible to exit a driveway onto something other than the lane
+                            // closest to the building. So use force_extend to handle possibly
+                            // mismatching points.
                             driveway
                                 .clone()
-                                .extend(raw_body.clone())
+                                .force_extend(raw_body.clone())
                                 .map(|pl| pl.reversed())
                         };
-                        let full_piece = match maybe_full_piece {
-                            Ok(pl) => pl,
+                        let sliced = match maybe_full_piece {
+                            Ok(full_piece) => {
+                                // Then make the car creep along the added length of the driveway (which
+                                // could be really short)
+                                let creep_along = driveway.length() * percent_time;
+                                // TODO Ideally the car would slowly (dis)appear into the building, but
+                                // some stuff downstream needs to understand that the windows and such will
+                                // get cut off. :)
+                                full_piece
+                                    .exact_slice(creep_along, creep_along + self.vehicle.length)
+                            }
                             Err(err) => {
-                                println!(
+                                // Just avoid crashing; we'll display something nonsensical (just
+                                // part of the car body on the lane) in the meantime
+                                error!(
                                     "Body and driveway for {} at {} broken: {}",
                                     self.vehicle.id, now, err
                                 );
                                 raw_body
                             }
                         };
-                        // Then make the car creep along the added length of the driveway (which
-                        // could be really short)
-                        let creep_along = driveway.length() * percent_time;
-                        // TODO Ideally the car would slowly (dis)appear into the building, but
-                        // some stuff downstream needs to understand that the windows and such will
-                        // get cut off. :)
-                        let sliced =
-                            full_piece.exact_slice(creep_along, creep_along + self.vehicle.length);
                         if is_parking {
                             sliced
                         } else {

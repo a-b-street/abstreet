@@ -18,6 +18,10 @@ pub enum ArrowCap {
     Triangle,
 }
 
+// TODO Document and enforce invariants:
+// - at least two points
+// - no duplicate points, whether adjacent or loops
+// - no "useless" intermediate points with the same angle
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct PolyLine {
     pts: Vec<Pt2D>,
@@ -115,6 +119,9 @@ impl PolyLine {
         PolyLine::must_new(pts)
     }
 
+    /// Glue together two polylines in order. The last point of `self` must be the same as the
+    /// first point of `other`. This method handles removing unnecessary intermediate points if the
+    /// extension happens to be at the same angle as the last line segment of `self`.
     pub fn extend(self, other: PolyLine) -> Result<PolyLine> {
         if *self.pts.last().unwrap() != other.pts[0] {
             bail!("can't extend PL; last and first points don't match");
@@ -160,12 +167,27 @@ impl PolyLine {
         self_pts.extend(other_pts.iter().skip(1));
         PolyLine::new(self_pts)
     }
+
+    /// Like `extend`, but panics on failure.
     pub fn must_extend(self, other: PolyLine) -> PolyLine {
         self.extend(other).unwrap()
     }
+
+    /// Extends `self` by a single point. Assumes the last point and this new point are different
+    /// and panics otherwise. Doesn't clean up any intermediate points.
     pub fn must_push(self, pt: Pt2D) -> PolyLine {
         let new = PolyLine::must_new(vec![self.last_pt(), pt]);
         self.must_extend(new)
+    }
+
+    /// Like `extend`, but handles the last and first point not matching by inserting that point.
+    /// Doesn't clean up any intermediate points.
+    pub fn force_extend(mut self, other: PolyLine) -> Result<PolyLine> {
+        if *self.pts.last().unwrap() != other.pts[0] {
+            // TODO Blindly... what if we need to do the angle collapsing?
+            self.pts.push(other.pts[0]);
+        }
+        self.extend(other)
     }
 
     /// One or both args might be empty.
