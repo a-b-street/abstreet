@@ -796,7 +796,7 @@
         };
         <span class="ident">map_name</span>.<span class="ident">insert</span>(
             <span class="string">&quot;city&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">serde_json</span>::<span class="ident">to_value</span>(<span class="ident">CityName</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">country</span>, <span class="kw-2">&amp;</span><span class="ident">name</span>)).<span class="ident">unwrap</span>(),
+            <span class="ident">serde_json</span>::<span class="ident">to_value</span>(<span class="ident">CityName</span>::<span class="ident">new</span>(<span class="ident">country</span>, <span class="ident">name</span>)).<span class="ident">unwrap</span>(),
         );
     }
 }

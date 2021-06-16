@@ -971,7 +971,7 @@
                 .<span class="ident">bind_buffer</span>(<span class="ident">glow</span>::<span class="ident">ARRAY_BUFFER</span>, <span class="prelude-val">Some</span>(<span class="ident">vert_buffer</span>.<span class="ident">id</span>));
             <span class="self">self</span>.<span class="ident">gl</span>.<span class="ident">buffer_data_u8_slice</span>(
                 <span class="ident">glow</span>::<span class="ident">ARRAY_BUFFER</span>,
-                <span class="kw-2">&amp;</span><span class="ident">vertices</span>.<span class="ident">align_to</span>::<span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>().<span class="number">1</span>,
+                <span class="ident">vertices</span>.<span class="ident">align_to</span>::<span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>().<span class="number">1</span>,
                 <span class="comment">// TODO Use permanent</span>
                 <span class="ident">glow</span>::<span class="ident">STATIC_DRAW</span>,
             );
@@ -980,7 +980,7 @@
                 .<span class="ident">bind_buffer</span>(<span class="ident">glow</span>::<span class="ident">ELEMENT_ARRAY_BUFFER</span>, <span class="prelude-val">Some</span>(<span class="ident">elem_buffer</span>.<span class="ident">id</span>));
             <span class="self">self</span>.<span class="ident">gl</span>.<span class="ident">buffer_data_u8_slice</span>(
                 <span class="ident">glow</span>::<span class="ident">ELEMENT_ARRAY_BUFFER</span>,
-                <span class="kw-2">&amp;</span><span class="ident">indices</span>.<span class="ident">align_to</span>::<span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>().<span class="number">1</span>,
+                <span class="ident">indices</span>.<span class="ident">align_to</span>::<span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>().<span class="number">1</span>,
                 <span class="ident">glow</span>::<span class="ident">STATIC_DRAW</span>,
             );
 

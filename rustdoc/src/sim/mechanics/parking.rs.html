@@ -1376,7 +1376,7 @@
 
     <span class="kw">fn</span> <span class="ident">get_draw_cars</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">LaneID</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DrawCarInput</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cars</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">lane</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">onstreet_lanes</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>) {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">lane</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">onstreet_lanes</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>) {
             <span class="kw">for</span> <span class="ident">spot</span> <span class="kw">in</span> <span class="ident">lane</span>.<span class="ident">spots</span>() {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">car</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">occupants</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">spot</span>) {
                     <span class="ident">cars</span>.<span class="ident">push</span>(<span class="self">self</span>.<span class="ident">get_draw_car</span>(<span class="kw-2">*</span><span class="ident">car</span>, <span class="ident">map</span>).<span class="ident">unwrap</span>());
@@ -1389,7 +1389,7 @@
     <span class="kw">fn</span> <span class="ident">get_draw_cars_in_lots</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">LaneID</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DrawCarInput</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cars</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
         <span class="kw">for</span> <span class="ident">pl</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">driving_to_lots</span>.<span class="ident">get</span>(<span class="ident">id</span>) {
-            <span class="kw">for</span> <span class="ident">idx</span> <span class="kw">in</span> <span class="number">0</span>..<span class="self">self</span>.<span class="ident">num_spots_per_lot</span>[<span class="kw-2">&amp;</span><span class="ident">pl</span>] {
+            <span class="kw">for</span> <span class="ident">idx</span> <span class="kw">in</span> <span class="number">0</span>..<span class="self">self</span>.<span class="ident">num_spots_per_lot</span>[<span class="ident">pl</span>] {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">car</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">occupants</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">ParkingSpot</span>::<span class="ident">Lot</span>(<span class="kw-2">*</span><span class="ident">pl</span>, <span class="ident">idx</span>)) {
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">d</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_draw_car</span>(<span class="kw-2">*</span><span class="ident">car</span>, <span class="ident">map</span>) {
                         <span class="ident">cars</span>.<span class="ident">push</span>(<span class="ident">d</span>);
@@ -1476,7 +1476,7 @@
 
     <span class="kw">fn</span> <span class="ident">get_car_at_spot</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">spot</span>: <span class="ident">ParkingSpot</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">ParkedCar</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">car</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">occupants</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">spot</span>)<span class="question-mark">?</span>;
-        <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">parked_cars</span>[<span class="kw-2">&amp;</span><span class="ident">car</span>])
+        <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">parked_cars</span>[<span class="ident">car</span>])
     }
 
     <span class="kw">fn</span> <span class="ident">get_all_free_spots</span>(
@@ -1520,7 +1520,7 @@
         <span class="kw">for</span> <span class="ident">pl</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">driving_to_lots</span>.<span class="ident">get</span>(<span class="ident">driving_pos</span>.<span class="ident">lane</span>()) {
             <span class="kw">let</span> <span class="ident">lot_dist</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_pl</span>(<span class="kw-2">*</span><span class="ident">pl</span>).<span class="ident">driving_pos</span>.<span class="ident">dist_along</span>();
             <span class="kw">if</span> <span class="ident">driving_pos</span>.<span class="ident">dist_along</span>() <span class="op">&lt;</span> <span class="ident">lot_dist</span> {
-                <span class="kw">for</span> <span class="ident">idx</span> <span class="kw">in</span> <span class="number">0</span>..<span class="self">self</span>.<span class="ident">num_spots_per_lot</span>[<span class="kw-2">&amp;</span><span class="ident">pl</span>] {
+                <span class="kw">for</span> <span class="ident">idx</span> <span class="kw">in</span> <span class="number">0</span>..<span class="self">self</span>.<span class="ident">num_spots_per_lot</span>[<span class="ident">pl</span>] {
                     <span class="kw">let</span> <span class="ident">spot</span> <span class="op">=</span> <span class="ident">ParkingSpot</span>::<span class="ident">Lot</span>(<span class="kw-2">*</span><span class="ident">pl</span>, <span class="ident">idx</span>);
                     <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_free</span>(<span class="ident">spot</span>) {
                         <span class="ident">candidates</span>.<span class="ident">push</span>(<span class="ident">spot</span>);
@@ -1966,7 +1966,7 @@
 
     <span class="kw">fn</span> <span class="ident">get_car_at_spot</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">spot</span>: <span class="ident">ParkingSpot</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">ParkedCar</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">car</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">occupants</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">spot</span>)<span class="question-mark">?</span>;
-        <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">parked_cars</span>[<span class="kw-2">&amp;</span><span class="ident">car</span>])
+        <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">parked_cars</span>[<span class="ident">car</span>])
     }
 
     <span class="kw">fn</span> <span class="ident">get_all_free_spots</span>(

@@ -181,7 +181,7 @@
         .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">path</span><span class="op">|</span> <span class="ident">path</span>.<span class="ident">ends_with</span>(<span class="string">&quot;.poly&quot;</span>))
         .<span class="ident">map</span>(<span class="op">|</span><span class="ident">path</span><span class="op">|</span> {
             (
-                <span class="ident">MapName</span>::<span class="ident">from_city</span>(<span class="kw-2">&amp;</span><span class="ident">city_name</span>, <span class="kw-2">&amp;</span><span class="ident">abstutil</span>::<span class="ident">basename</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>)),
+                <span class="ident">MapName</span>::<span class="ident">from_city</span>(<span class="ident">city_name</span>, <span class="kw-2">&amp;</span><span class="ident">abstutil</span>::<span class="ident">basename</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>)),
                 <span class="ident">LonLat</span>::<span class="ident">read_osmosis_polygon</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>).<span class="ident">unwrap</span>(),
             )
         })

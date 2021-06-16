@@ -946,7 +946,7 @@
                     <span class="ident">batch</span>.<span class="ident">append</span>(<span class="ident">icon</span>);
                 }
 
-                <span class="kw">let</span> <span class="ident">others</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">count_per_block</span>(<span class="kw-2">&amp;</span><span class="ident">base_block</span>);
+                <span class="kw">let</span> <span class="ident">others</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">count_per_block</span>(<span class="ident">base_block</span>);
 
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">total_trips</span> <span class="op">=</span> <span class="number">0</span>;
                 <span class="kw">let</span> <span class="ident">max_count</span> <span class="op">=</span> <span class="ident">others</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">cnt</span>)<span class="op">|</span> <span class="kw-2">*</span><span class="ident">cnt</span>).<span class="ident">max</span>().<span class="ident">unwrap_or</span>(<span class="number">0</span>);

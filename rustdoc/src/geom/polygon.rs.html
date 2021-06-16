@@ -1020,7 +1020,7 @@
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">polylabel</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Pt2D</span> {
-        <span class="kw">let</span> <span class="ident">pt</span> <span class="op">=</span> <span class="ident">polylabel</span>::<span class="ident">polylabel</span>(<span class="kw-2">&amp;</span><span class="ident">to_geo</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">points</span>()), <span class="kw-2">&amp;</span><span class="number">1.0</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">pt</span> <span class="op">=</span> <span class="ident">polylabel</span>::<span class="ident">polylabel</span>(<span class="kw-2">&amp;</span><span class="ident">to_geo</span>(<span class="self">self</span>.<span class="ident">points</span>()), <span class="kw-2">&amp;</span><span class="number">1.0</span>).<span class="ident">unwrap</span>();
         <span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="ident">pt</span>.<span class="ident">x</span>(), <span class="ident">pt</span>.<span class="ident">y</span>())
     }
 
@@ -1058,7 +1058,7 @@
     <span class="doccomment">/// Usually m^2, unless the polygon is in screen-space</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">area</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">f64</span> {
         <span class="comment">// Polygon orientation messes this up sometimes</span>
-        <span class="ident">to_geo</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">points</span>()).<span class="ident">unsigned_area</span>()
+        <span class="ident">to_geo</span>(<span class="self">self</span>.<span class="ident">points</span>()).<span class="ident">unsigned_area</span>()
     }
 
     <span class="doccomment">/// Doesn&#39;t handle multiple crossings in and out.</span>
@@ -1139,7 +1139,7 @@
         <span class="kw">for</span> <span class="ident">triangle</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">triangles</span>() {
             <span class="kw">let</span> <span class="ident">raw_pts</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">triangle</span>.<span class="ident">pt1</span>, <span class="ident">triangle</span>.<span class="ident">pt2</span>, <span class="ident">triangle</span>.<span class="ident">pt3</span>, <span class="ident">triangle</span>.<span class="ident">pt1</span>];
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">gps</span>) <span class="op">=</span> <span class="ident">gps</span> {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">gps</span>) <span class="op">=</span> <span class="ident">gps</span> {
                 <span class="kw">for</span> <span class="ident">pt</span> <span class="kw">in</span> <span class="ident">gps</span>.<span class="ident">convert_back</span>(<span class="kw-2">&amp;</span><span class="ident">raw_pts</span>) {
                     <span class="ident">pts</span>.<span class="ident">push</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">pt</span>.<span class="ident">x</span>(), <span class="ident">pt</span>.<span class="ident">y</span>()]);
                 }

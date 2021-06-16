@@ -700,7 +700,7 @@
 ) {
     <span class="kw">for</span> <span class="ident">pair</span> <span class="kw">in</span> <span class="ident">dists</span>.<span class="ident">windows</span>(<span class="number">2</span>) {
         <span class="kw">if</span> <span class="ident">pair</span>[<span class="number">0</span>].<span class="number">1</span> <span class="op">-</span> <span class="ident">cars</span>[<span class="kw-2">&amp;</span><span class="ident">pair</span>[<span class="number">0</span>].<span class="number">0</span>].<span class="ident">vehicle</span>.<span class="ident">length</span> <span class="op">-</span> <span class="ident">FOLLOWING_DISTANCE</span> <span class="op">&lt;</span> <span class="ident">pair</span>[<span class="number">1</span>].<span class="number">1</span> {
-            <span class="ident">dump_cars</span>(<span class="kw-2">&amp;</span><span class="ident">dists</span>, <span class="ident">cars</span>, <span class="ident">id</span>, <span class="ident">now</span>);
+            <span class="ident">dump_cars</span>(<span class="ident">dists</span>, <span class="ident">cars</span>, <span class="ident">id</span>, <span class="ident">now</span>);
             <span class="macro">panic</span><span class="macro">!</span>(
                 <span class="string">&quot;get_car_positions wound up with bad positioning: {} then {}\n{:?}&quot;</span>,
                 <span class="ident">pair</span>[<span class="number">0</span>].<span class="number">1</span>, <span class="ident">pair</span>[<span class="number">1</span>].<span class="number">1</span>, <span class="ident">dists</span>

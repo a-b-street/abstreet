@@ -1066,7 +1066,7 @@
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cache</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">agents</span>.<span class="ident">borrow_mut</span>();
             <span class="kw">let</span> <span class="ident">objects</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_renderables_back_to_front</span>(
                 <span class="ident">g</span>.<span class="ident">get_screen_bounds</span>(),
-                <span class="kw-2">&amp;</span><span class="ident">g</span>.<span class="ident">prerender</span>,
+                <span class="ident">g</span>.<span class="ident">prerender</span>,
                 <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">cache</span>,
                 <span class="ident">show_objs</span>,
             );

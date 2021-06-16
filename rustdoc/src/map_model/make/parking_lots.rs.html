@@ -341,7 +341,7 @@
         <span class="ident">timer</span>.<span class="ident">next</span>();
         <span class="comment">// Use the center of all the aisle points to match it to lots</span>
         <span class="kw">let</span> <span class="ident">candidates</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParkingLotID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">closest</span>
-            .<span class="ident">all_close_pts</span>(<span class="ident">Pt2D</span>::<span class="ident">center</span>(<span class="kw-2">&amp;</span><span class="ident">pts</span>), <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">500.0</span>))
+            .<span class="ident">all_close_pts</span>(<span class="ident">Pt2D</span>::<span class="ident">center</span>(<span class="ident">pts</span>), <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">500.0</span>))
             .<span class="ident">into_iter</span>()
             .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">id</span>, <span class="kw">_</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">id</span>)
             .<span class="ident">collect</span>();
@@ -467,7 +467,7 @@
                 <span class="kw">let</span> <span class="ident">l1</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">pair</span>[<span class="number">0</span>];
                 <span class="kw">let</span> <span class="ident">l2</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">pair</span>[<span class="number">1</span>];
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">back</span>) <span class="op">=</span> <span class="ident">Line</span>::<span class="ident">new</span>(<span class="ident">l1</span>.<span class="ident">pt2</span>(), <span class="ident">l2</span>.<span class="ident">pt2</span>()) {
-                    <span class="kw">if</span> <span class="ident">l1</span>.<span class="ident">intersection</span>(<span class="kw-2">&amp;</span><span class="ident">l2</span>).<span class="ident">is_none</span>()
+                    <span class="kw">if</span> <span class="ident">l1</span>.<span class="ident">intersection</span>(<span class="ident">l2</span>).<span class="ident">is_none</span>()
                         <span class="op">&amp;&amp;</span> <span class="ident">l1</span>.<span class="ident">angle</span>().<span class="ident">approx_eq</span>(<span class="ident">l2</span>.<span class="ident">angle</span>(), <span class="number">5.0</span>)
                         <span class="op">&amp;&amp;</span> <span class="ident">line_valid</span>(<span class="ident">lot_polygon</span>, <span class="ident">aisles</span>, <span class="ident">l1</span>, <span class="kw-2">&amp;</span><span class="ident">finalized_lines</span>)
                         <span class="op">&amp;&amp;</span> <span class="ident">line_valid</span>(<span class="ident">lot_polygon</span>, <span class="ident">aisles</span>, <span class="ident">l2</span>, <span class="kw-2">&amp;</span><span class="ident">finalized_lines</span>)

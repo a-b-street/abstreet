@@ -178,7 +178,7 @@
 
 <span class="kw">impl</span> <span class="ident">WindowAdapter</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">window</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">winit</span>::<span class="ident">window</span>::<span class="ident">Window</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>.<span class="ident">window</span>()
+        <span class="self">self</span>.<span class="number">0</span>.<span class="ident">window</span>()
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">window_resized</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">new_size</span>: <span class="ident">ScreenDims</span>, <span class="ident">scale_factor</span>: <span class="ident">f64</span>) {

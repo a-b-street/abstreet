@@ -1325,7 +1325,7 @@
             <span class="kw">for</span> (<span class="ident">req</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="ident">all</span> {
                 <span class="ident">protected</span>.<span class="ident">push</span>(<span class="ident">req</span>);
             }
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">signal</span>) <span class="op">=</span> <span class="ident">map</span>.<span class="ident">maybe_get_traffic_signal</span>(<span class="ident">i</span>) {
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">signal</span>) <span class="op">=</span> <span class="ident">map</span>.<span class="ident">maybe_get_traffic_signal</span>(<span class="ident">i</span>) {
             <span class="kw">let</span> <span class="ident">current_stage</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">state</span>[<span class="kw-2">&amp;</span><span class="ident">i</span>].<span class="ident">signal</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>().<span class="ident">current_stage</span>;
             <span class="kw">let</span> <span class="ident">stage</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">signal</span>.<span class="ident">stages</span>[<span class="ident">current_stage</span>];
             <span class="kw">let</span> <span class="ident">reserved</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">state</span>[<span class="kw-2">&amp;</span><span class="ident">i</span>].<span class="ident">reserved</span>;
@@ -1345,7 +1345,7 @@
                     }
                 }
             }
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">sign</span>) <span class="op">=</span> <span class="ident">map</span>.<span class="ident">maybe_get_stop_sign</span>(<span class="ident">i</span>) {
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">sign</span>) <span class="op">=</span> <span class="ident">map</span>.<span class="ident">maybe_get_stop_sign</span>(<span class="ident">i</span>) {
             <span class="kw">for</span> (<span class="ident">req</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="ident">all</span> {
                 <span class="kw">match</span> <span class="ident">sign</span>.<span class="ident">get_priority</span>(<span class="ident">req</span>.<span class="ident">turn</span>, <span class="ident">map</span>) {
                     <span class="ident">TurnPriority</span>::<span class="ident">Protected</span> <span class="op">=</span><span class="op">&gt;</span> {
@@ -1532,12 +1532,12 @@
             <span class="bool-val">false</span>
         } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">maybe_cars_and_queues</span>
             .<span class="ident">as_ref</span>()
-            .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">car</span>, <span class="kw">_</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">started_uber_turn</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">*</span><span class="ident">car</span>))
+            .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">car</span>, <span class="kw">_</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">started_uber_turn</span>(<span class="self">self</span>, <span class="kw-2">*</span><span class="ident">car</span>))
             .<span class="ident">unwrap_or</span>(<span class="bool-val">false</span>)
         {
             <span class="comment">// If we started an uber-turn, then finish it! But alert if we&#39;re running a red light.</span>
             <span class="comment">// TODO: Consider reenabling alert</span>
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">signal</span>) <span class="op">=</span> <span class="ident">map</span>.<span class="ident">maybe_get_traffic_signal</span>(<span class="ident">turn</span>.<span class="ident">parent</span>) {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">signal</span>) <span class="op">=</span> <span class="ident">map</span>.<span class="ident">maybe_get_traffic_signal</span>(<span class="ident">turn</span>.<span class="ident">parent</span>) {
                 <span class="comment">// Don&#39;t pass in the scheduler, aka, don&#39;t pause before yielding.</span>
                 <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">traffic_signal_policy</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>, <span class="ident">map</span>, <span class="ident">signal</span>, <span class="ident">speed</span>, <span class="ident">now</span>, <span class="prelude-val">None</span>) <span class="op">&amp;&amp;</span> <span class="bool-val">false</span> {
                     <span class="self">self</span>.<span class="ident">events</span>.<span class="ident">push</span>(<span class="ident">Event</span>::<span class="ident">Alert</span>(
@@ -1551,9 +1551,9 @@
         } <span class="kw">else</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">use_freeform_policy_everywhere</span> {
             <span class="comment">// If we made it this far, we don&#39;t conflict with an accepted turn</span>
             <span class="bool-val">true</span>
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">signal</span>) <span class="op">=</span> <span class="ident">map</span>.<span class="ident">maybe_get_traffic_signal</span>(<span class="ident">turn</span>.<span class="ident">parent</span>) {
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">signal</span>) <span class="op">=</span> <span class="ident">map</span>.<span class="ident">maybe_get_traffic_signal</span>(<span class="ident">turn</span>.<span class="ident">parent</span>) {
             <span class="self">self</span>.<span class="ident">traffic_signal_policy</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>, <span class="ident">map</span>, <span class="ident">signal</span>, <span class="ident">speed</span>, <span class="ident">now</span>, <span class="prelude-val">Some</span>(<span class="ident">scheduler</span>))
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">sign</span>) <span class="op">=</span> <span class="ident">map</span>.<span class="ident">maybe_get_stop_sign</span>(<span class="ident">turn</span>.<span class="ident">parent</span>) {
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">sign</span>) <span class="op">=</span> <span class="ident">map</span>.<span class="ident">maybe_get_stop_sign</span>(<span class="ident">turn</span>.<span class="ident">parent</span>) {
             <span class="self">self</span>.<span class="ident">stop_sign_policy</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>, <span class="ident">map</span>, <span class="ident">sign</span>, <span class="ident">now</span>, <span class="ident">scheduler</span>)
         } <span class="kw">else</span> {
             <span class="macro">unreachable</span><span class="macro">!</span>()

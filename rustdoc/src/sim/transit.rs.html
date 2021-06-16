@@ -822,7 +822,7 @@
 
     <span class="doccomment">/// also stop idx that the bus is coming from</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">buses_for_route</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">route</span>: <span class="ident">BusRouteID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">CarID</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>)<span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">r</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">routes</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">route</span>) {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">r</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">routes</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">route</span>) {
             <span class="ident">r</span>.<span class="ident">active_vehicles</span>
                 .<span class="ident">iter</span>()
                 .<span class="ident">map</span>(<span class="op">|</span><span class="ident">bus</span><span class="op">|</span> {

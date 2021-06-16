@@ -1562,7 +1562,7 @@
                 <span class="ident">w</span>.<span class="ident">restore</span>(<span class="ident">ctx</span>, <span class="ident">prev</span>);
             }
         } <span class="kw">else</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">widget</span>.<span class="ident">can_restore</span>() {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">other</span>) <span class="op">=</span> <span class="ident">prev</span>.<span class="ident">maybe_find</span>(<span class="self">self</span>.<span class="ident">id</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>()) {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">other</span>) <span class="op">=</span> <span class="ident">prev</span>.<span class="ident">maybe_find</span>(<span class="self">self</span>.<span class="ident">id</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>()) {
                 <span class="self">self</span>.<span class="ident">widget</span>.<span class="ident">restore</span>(<span class="ident">ctx</span>, <span class="ident">other</span>.<span class="ident">widget</span>.<span class="ident">as_ref</span>());
             }
         }

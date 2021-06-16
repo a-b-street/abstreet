@@ -499,7 +499,7 @@
     <span class="kw">if</span> <span class="ident">delete_local</span> {
         <span class="kw">for</span> <span class="ident">path</span> <span class="kw">in</span> <span class="ident">local</span>.<span class="ident">entries</span>.<span class="ident">keys</span>() {
             <span class="kw">if</span> <span class="op">!</span><span class="ident">truth</span>.<span class="ident">entries</span>.<span class="ident">contains_key</span>(<span class="ident">path</span>) {
-                <span class="ident">rm</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>);
+                <span class="ident">rm</span>(<span class="ident">path</span>);
             }
         }
     }
