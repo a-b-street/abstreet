@@ -236,7 +236,7 @@ impl State<App> for TrafficSignalEditor {
                     return Transition::Push(edits::ChangeDuration::new_state(
                         ctx,
                         app,
-                        &canonical_signal,
+                        canonical_signal,
                         self.current_stage,
                     ));
                 }

@@ -95,7 +95,7 @@ impl ControlTrafficSignal {
         for movement in &self.stages[idx].protected_movements {
             if movement.crosswalk {
                 max_distance =
-                    max_distance.max(self.movements.get(&movement).unwrap().geom.length());
+                    max_distance.max(self.movements.get(movement).unwrap().geom.length());
             }
         }
         let time = max_distance / CROSSWALK_PACE;
@@ -405,7 +405,7 @@ impl Stage {
         let mut max_distance = Distance::const_meters(0.0);
         for m in &self.protected_movements {
             if m.crosswalk {
-                max_distance = max_distance.max(movements.get(&m).unwrap().geom.length());
+                max_distance = max_distance.max(movements.get(m).unwrap().geom.length());
             } else {
                 return None;
             }

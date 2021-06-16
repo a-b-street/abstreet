@@ -318,7 +318,7 @@ impl DrivingSimState {
                         );
                     }
                     ctx.scheduler.push(now, Command::UpdateCar(car.vehicle.id));
-                } else if let Some(slow_leader) = self.wants_to_overtake(&car) {
+                } else if let Some(slow_leader) = self.wants_to_overtake(car) {
                     // TODO This entire check kicks in a little late; we only enter Queued after
                     // spending the freeflow time possibly moving very slowly.
                     car.wants_to_overtake.insert(slow_leader);
@@ -424,7 +424,7 @@ impl DrivingSimState {
                         now,
                         ctx.map,
                         ctx.scheduler,
-                        Some((&car, &self.cars, &mut self.queues)),
+                        Some((car, &self.cars, &mut self.queues)),
                     ) {
                         // Don't schedule a retry here.
                         return false;
@@ -871,7 +871,7 @@ impl DrivingSimState {
             if i == 0 {
                 // Wake up the follower
                 if let Some(follower_id) = old_queue.cars.front() {
-                    let mut follower = self.cars.get_mut(&follower_id).unwrap();
+                    let mut follower = self.cars.get_mut(follower_id).unwrap();
 
                     match follower.state {
                         CarState::Queued { blocked_since } => {
@@ -1061,7 +1061,7 @@ impl DrivingSimState {
     }
 
     pub fn debug_car_ui(&self, id: CarID) -> String {
-        if let Some(ref car) = self.cars.get(&id) {
+        if let Some(car) = self.cars.get(&id) {
             format!("{:?}", car.state)
         } else {
             format!("{} isn't in DrivingSimState", id)
@@ -1173,7 +1173,7 @@ impl DrivingSimState {
         let mut affected = Vec::new();
         for car in self.cars.values() {
             if car.last_steps.iter().any(|step| match step {
-                Traversable::Lane(l) => edited_lanes.contains(&l),
+                Traversable::Lane(l) => edited_lanes.contains(l),
                 Traversable::Turn(t) => {
                     closed_intersections.contains(&t.parent)
                         || edited_lanes.contains(&t.src)

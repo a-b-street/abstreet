@@ -41,7 +41,7 @@ impl RouteExplorer {
                     .text("All routes")
                     .hotkey(Key::A)
                     .build_def(ctx),
-                params_to_controls(ctx, TripMode::Bike, &app.primary.map.routing_params())
+                params_to_controls(ctx, TripMode::Bike, app.primary.map.routing_params())
                     .named("params"),
             ]))
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)

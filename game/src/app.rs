@@ -178,7 +178,7 @@ impl App {
             let mut cache = self.primary.agents.borrow_mut();
             let objects = self.get_renderables_back_to_front(
                 g.get_screen_bounds(),
-                &g.prerender,
+                g.prerender,
                 &mut cache,
                 show_objs,
             );

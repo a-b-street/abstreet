@@ -109,7 +109,7 @@ pub fn read(path: &str, input_gps_bounds: &GPSBounds, timer: &mut Timer) -> Resu
                     if child.tag_name().name() == "nd" {
                         let n = NodeID(child.attribute("ref").unwrap().parse::<i64>().unwrap());
                         // Just skip missing nodes
-                        if let Some(ref node) = doc.nodes.get(&n) {
+                        if let Some(node) = doc.nodes.get(&n) {
                             nodes.push(n);
                             pts.push(node.pt);
                         }

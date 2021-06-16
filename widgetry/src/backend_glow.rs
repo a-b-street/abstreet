@@ -318,7 +318,7 @@ impl PrerenderInnards {
                 .bind_buffer(glow::ARRAY_BUFFER, Some(vert_buffer.id));
             self.gl.buffer_data_u8_slice(
                 glow::ARRAY_BUFFER,
-                &vertices.align_to::<u8>().1,
+                vertices.align_to::<u8>().1,
                 // TODO Use permanent
                 glow::STATIC_DRAW,
             );
@@ -327,7 +327,7 @@ impl PrerenderInnards {
                 .bind_buffer(glow::ELEMENT_ARRAY_BUFFER, Some(elem_buffer.id));
             self.gl.buffer_data_u8_slice(
                 glow::ELEMENT_ARRAY_BUFFER,
-                &indices.align_to::<u8>().1,
+                indices.align_to::<u8>().1,
                 glow::STATIC_DRAW,
             );
 

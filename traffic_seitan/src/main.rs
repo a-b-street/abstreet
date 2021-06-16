@@ -60,8 +60,8 @@ fn run(map: &mut Map, sim: &mut Sim, rng: &mut XorShiftRng, timer: &mut Timer) {
 
         map.must_apply_edits(edits);
         map.recalculate_pathfinding_after_edits(timer);
-        sim.handle_live_edited_traffic_signals(&map);
-        sim.handle_live_edits(&map);
+        sim.handle_live_edited_traffic_signals(map);
+        sim.handle_live_edits(map);
     }
 
     let mut finished = 0;

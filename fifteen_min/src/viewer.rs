@@ -218,7 +218,7 @@ impl State<App> for Viewer {
         g.redraw(&self.highlight_start);
         g.redraw(&self.draw_unwalkable_roads);
         self.panel.draw(g);
-        if let Some(ref hover) = self.hovering_on_bldg.value() {
+        if let Some(hover) = self.hovering_on_bldg.value() {
             g.draw_mouse_tooltip(hover.tooltip.clone());
             g.redraw(&hover.drawn_route);
         }

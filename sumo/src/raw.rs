@@ -261,7 +261,7 @@ fn parse_pts<'de, D: serde::Deserializer<'de>>(d: D) -> Result<Vec<Pt2D>, D::Err
     let raw = <String>::deserialize(d)?;
     let mut pts = Vec::new();
     for pt in raw.split(' ') {
-        pts.push(parse_pt(&pt).map_err(serde::de::Error::custom)?);
+        pts.push(parse_pt(pt).map_err(serde::de::Error::custom)?);
     }
     Ok(pts)
 }

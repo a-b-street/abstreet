@@ -608,7 +608,7 @@ impl Map {
 
     // None for SharedSidewalkCorners
     pub fn get_movement(&self, t: TurnID) -> Option<MovementID> {
-        if let Some(ref ts) = self.maybe_get_traffic_signal(t.parent) {
+        if let Some(ts) = self.maybe_get_traffic_signal(t.parent) {
             if self.get_t(t).turn_type == TurnType::SharedSidewalkCorner {
                 return None;
             }

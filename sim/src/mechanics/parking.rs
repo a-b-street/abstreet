@@ -318,7 +318,7 @@ impl ParkingSim for NormalParkingSimState {
 
     fn get_draw_cars(&self, id: LaneID, map: &Map) -> Vec<DrawCarInput> {
         let mut cars = Vec::new();
-        if let Some(ref lane) = self.onstreet_lanes.get(&id) {
+        if let Some(lane) = self.onstreet_lanes.get(&id) {
             for spot in lane.spots() {
                 if let Some(car) = self.occupants.get(&spot) {
                     cars.push(self.get_draw_car(*car, map).unwrap());
@@ -331,7 +331,7 @@ impl ParkingSim for NormalParkingSimState {
     fn get_draw_cars_in_lots(&self, id: LaneID, map: &Map) -> Vec<DrawCarInput> {
         let mut cars = Vec::new();
         for pl in self.driving_to_lots.get(id) {
-            for idx in 0..self.num_spots_per_lot[&pl] {
+            for idx in 0..self.num_spots_per_lot[pl] {
                 if let Some(car) = self.occupants.get(&ParkingSpot::Lot(*pl, idx)) {
                     if let Some(d) = self.get_draw_car(*car, map) {
                         cars.push(d);
@@ -418,7 +418,7 @@ impl ParkingSim for NormalParkingSimState {
 
     fn get_car_at_spot(&self, spot: ParkingSpot) -> Option<&ParkedCar> {
         let car = self.occupants.get(&spot)?;
-        Some(&self.parked_cars[&car])
+        Some(&self.parked_cars[car])
     }
 
     fn get_all_free_spots(
@@ -462,7 +462,7 @@ impl ParkingSim for NormalParkingSimState {
         for pl in self.driving_to_lots.get(driving_pos.lane()) {
             let lot_dist = map.get_pl(*pl).driving_pos.dist_along();
             if driving_pos.dist_along() < lot_dist {
-                for idx in 0..self.num_spots_per_lot[&pl] {
+                for idx in 0..self.num_spots_per_lot[pl] {
                     let spot = ParkingSpot::Lot(*pl, idx);
                     if self.is_free(spot) {
                         candidates.push(spot);
@@ -908,7 +908,7 @@ impl ParkingSim for InfiniteParkingSimState {
 
     fn get_car_at_spot(&self, spot: ParkingSpot) -> Option<&ParkedCar> {
         let car = self.occupants.get(&spot)?;
-        Some(&self.parked_cars[&car])
+        Some(&self.parked_cars[car])
     }
 
     fn get_all_free_spots(

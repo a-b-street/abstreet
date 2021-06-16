@@ -349,7 +349,7 @@ impl Polygon {
     }
 
     pub fn polylabel(&self) -> Pt2D {
-        let pt = polylabel::polylabel(&to_geo(&self.points()), &1.0).unwrap();
+        let pt = polylabel::polylabel(&to_geo(self.points()), &1.0).unwrap();
         Pt2D::new(pt.x(), pt.y())
     }
 
@@ -387,7 +387,7 @@ impl Polygon {
     /// Usually m^2, unless the polygon is in screen-space
     pub fn area(&self) -> f64 {
         // Polygon orientation messes this up sometimes
-        to_geo(&self.points()).unsigned_area()
+        to_geo(self.points()).unsigned_area()
     }
 
     /// Doesn't handle multiple crossings in and out.
@@ -468,7 +468,7 @@ impl Polygon {
         for triangle in self.triangles() {
             let raw_pts = vec![triangle.pt1, triangle.pt2, triangle.pt3, triangle.pt1];
             let mut pts = Vec::new();
-            if let Some(ref gps) = gps {
+            if let Some(gps) = gps {
                 for pt in gps.convert_back(&raw_pts) {
                     pts.push(vec![pt.x(), pt.y()]);
                 }

@@ -222,7 +222,7 @@ impl IntersectionSimState {
             for (req, _, _) in all {
                 protected.push(req);
             }
-        } else if let Some(ref signal) = map.maybe_get_traffic_signal(i) {
+        } else if let Some(signal) = map.maybe_get_traffic_signal(i) {
             let current_stage = self.state[&i].signal.as_ref().unwrap().current_stage;
             let stage = &signal.stages[current_stage];
             let reserved = &self.state[&i].reserved;
@@ -242,7 +242,7 @@ impl IntersectionSimState {
                     }
                 }
             }
-        } else if let Some(ref sign) = map.maybe_get_stop_sign(i) {
+        } else if let Some(sign) = map.maybe_get_stop_sign(i) {
             for (req, _, _) in all {
                 match sign.get_priority(req.turn, map) {
                     TurnPriority::Protected => {
@@ -429,12 +429,12 @@ impl IntersectionSimState {
             false
         } else if maybe_cars_and_queues
             .as_ref()
-            .map(|(car, _, _)| started_uber_turn(&self, *car))
+            .map(|(car, _, _)| started_uber_turn(self, *car))
             .unwrap_or(false)
         {
             // If we started an uber-turn, then finish it! But alert if we're running a red light.
             // TODO: Consider reenabling alert
-            if let Some(ref signal) = map.maybe_get_traffic_signal(turn.parent) {
+            if let Some(signal) = map.maybe_get_traffic_signal(turn.parent) {
                 // Don't pass in the scheduler, aka, don't pause before yielding.
                 if !self.traffic_signal_policy(&req, map, signal, speed, now, None) && false {
                     self.events.push(Event::Alert(
@@ -448,9 +448,9 @@ impl IntersectionSimState {
         } else if self.use_freeform_policy_everywhere {
             // If we made it this far, we don't conflict with an accepted turn
             true
-        } else if let Some(ref signal) = map.maybe_get_traffic_signal(turn.parent) {
+        } else if let Some(signal) = map.maybe_get_traffic_signal(turn.parent) {
             self.traffic_signal_policy(&req, map, signal, speed, now, Some(scheduler))
-        } else if let Some(ref sign) = map.maybe_get_stop_sign(turn.parent) {
+        } else if let Some(sign) = map.maybe_get_stop_sign(turn.parent) {
             self.stop_sign_policy(&req, map, sign, now, scheduler)
         } else {
             unreachable!()

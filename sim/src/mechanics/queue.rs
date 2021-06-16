@@ -327,7 +327,7 @@ fn validate_positions(
 ) {
     for pair in dists.windows(2) {
         if pair[0].1 - cars[&pair[0].0].vehicle.length - FOLLOWING_DISTANCE < pair[1].1 {
-            dump_cars(&dists, cars, id, now);
+            dump_cars(dists, cars, id, now);
             panic!(
                 "get_car_positions wound up with bad positioning: {} then {}\n{:?}",
                 pair[0].1, pair[1].1, dists

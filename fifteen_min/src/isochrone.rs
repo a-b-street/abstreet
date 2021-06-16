@@ -195,7 +195,7 @@ pub fn draw_isochrone(
     // TODO Actually, this still isn't working. I think each polygon is everything > the
     // threshold, not everything between two thresholds?
     for (feature, color) in c
-        .contours(&grid.data, &thresholds)
+        .contours(&grid.data, thresholds)
         .unwrap()
         .into_iter()
         .zip(colors)

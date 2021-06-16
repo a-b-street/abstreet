@@ -31,7 +31,7 @@ impl TrafficRecorder {
 
     pub fn handle_event(&mut self, time: Time, ev: &Event, map: &Map, driving: &DrivingSimState) {
         if let Event::AgentEntersTraversable(AgentID::Car(car), Some(trip), on, _) = ev {
-            if self.seen_trips.contains(&trip) {
+            if self.seen_trips.contains(trip) {
                 return;
             }
             if let Traversable::Lane(l) = on {

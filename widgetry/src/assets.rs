@@ -175,6 +175,6 @@ impl std::convert::AsRef<Assets> for Prerender {
 
 impl std::convert::AsRef<Assets> for Assets {
     fn as_ref(&self) -> &Assets {
-        &self
+        self
     }
 }

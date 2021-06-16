@@ -81,7 +81,7 @@ pub fn make_all_parking_lots(
         timer.next();
         // Use the center of all the aisle points to match it to lots
         let candidates: Vec<ParkingLotID> = closest
-            .all_close_pts(Pt2D::center(&pts), Distance::meters(500.0))
+            .all_close_pts(Pt2D::center(pts), Distance::meters(500.0))
             .into_iter()
             .map(|(id, _, _)| id)
             .collect();
@@ -207,7 +207,7 @@ fn infer_spots(lot_polygon: &Polygon, aisles: &[Vec<Pt2D>]) -> Vec<(Pt2D, Angle)
                 let l1 = &pair[0];
                 let l2 = &pair[1];
                 if let Some(back) = Line::new(l1.pt2(), l2.pt2()) {
-                    if l1.intersection(&l2).is_none()
+                    if l1.intersection(l2).is_none()
                         && l1.angle().approx_eq(l2.angle(), 5.0)
                         && line_valid(lot_polygon, aisles, l1, &finalized_lines)
                         && line_valid(lot_polygon, aisles, l2, &finalized_lines)

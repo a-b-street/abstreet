@@ -74,7 +74,7 @@ async fn download_updates(version: String, minimal: bool, delete_local: bool) {
     if delete_local {
         for path in local.entries.keys() {
             if !truth.entries.contains_key(path) {
-                rm(&path);
+                rm(path);
             }
         }
     }

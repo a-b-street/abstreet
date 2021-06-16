@@ -115,7 +115,7 @@ impl<'a> GfxCtx<'a> {
     }
 
     pub fn unfork(&mut self) {
-        self.uniforms = Uniforms::new(&self.canvas);
+        self.uniforms = Uniforms::new(self.canvas);
         self.num_forks += 1;
 
         // println!("{:?}", backtrace::Backtrace::new());
@@ -169,7 +169,7 @@ impl<'a> GfxCtx<'a> {
         // TODO Maybe also consider the cursor as a valid center
         let pt = dims.top_left_for_corner(
             ScreenPt::new(self.canvas.cursor.x, self.canvas.cursor.y + 20.0),
-            &self.canvas,
+            self.canvas,
         );
         let mut batch = GeomBatch::new();
         // TODO Outline?
@@ -232,7 +232,7 @@ impl<'a> GfxCtx<'a> {
     }
 
     pub fn style(&self) -> &Style {
-        &self.style
+        self.style
     }
 
     pub fn is_key_down(&self, key: Key) -> bool {
@@ -296,13 +296,13 @@ impl Prerender {
 
 impl std::convert::AsRef<Prerender> for GfxCtx<'_> {
     fn as_ref(&self) -> &Prerender {
-        &self.prerender
+        self.prerender
     }
 }
 
 impl std::convert::AsRef<Prerender> for EventCtx<'_> {
     fn as_ref(&self) -> &Prerender {
-        &self.prerender
+        self.prerender
     }
 }
 

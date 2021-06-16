@@ -135,7 +135,7 @@ impl<'a> EventCtx<'a> {
     }
 
     pub fn style(&self) -> &Style {
-        &self.style
+        self.style
     }
 
     pub fn set_style(&mut self, style: Style) {

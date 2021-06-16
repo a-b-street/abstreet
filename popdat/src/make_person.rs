@@ -42,7 +42,7 @@ pub fn make_people(
         "making people in parallel",
         make_person_inputs,
         |(person, mut rng)| {
-            person_factory.make_person(person, map, &commuter_borders, &mut rng, &config)
+            person_factory.make_person(person, map, &commuter_borders, &mut rng, config)
         },
     )
 }

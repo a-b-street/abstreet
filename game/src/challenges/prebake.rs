@@ -67,15 +67,15 @@ fn prebake(map: &Map, scenario: Scenario, opts: Option<SimOptions>, timer: &mut 
         opts.alerts = AlertHandler::Silence;
         opts
     });
-    let mut sim = Sim::new(&map, opts);
+    let mut sim = Sim::new(map, opts);
     // Bit of an abuse of this, but just need to fix the rng seed.
     let mut rng = SimFlags::for_test("prebaked").make_rng();
-    scenario.instantiate(&mut sim, &map, &mut rng, timer);
+    scenario.instantiate(&mut sim, map, &mut rng, timer);
 
     // Run until a few hours after the end of the day. Some trips start close to midnight, and we
     // want prebaked data for them too.
     sim.timed_step(
-        &map,
+        map,
         sim.get_end_of_day() - Time::START_OF_DAY + Duration::hours(3),
         &mut None,
         timer,
