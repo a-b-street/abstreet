@@ -302,6 +302,12 @@
 <span id="299">299</span>
 <span id="300">300</span>
 <span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeSet</span>, <span class="ident">VecDeque</span>};
 
@@ -481,29 +487,35 @@
                         <span class="kw">let</span> <span class="ident">maybe_full_piece</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">is_parking</span> {
                             <span class="ident">raw_body</span>.<span class="ident">clone</span>().<span class="ident">extend</span>(<span class="ident">driveway</span>.<span class="ident">reversed</span>())
                         } <span class="kw">else</span> {
+                            <span class="comment">// It&#39;s possible to exit a driveway onto something other than the lane</span>
+                            <span class="comment">// closest to the building. So use force_extend to handle possibly</span>
+                            <span class="comment">// mismatching points.</span>
                             <span class="ident">driveway</span>
                                 .<span class="ident">clone</span>()
-                                .<span class="ident">extend</span>(<span class="ident">raw_body</span>.<span class="ident">clone</span>())
+                                .<span class="ident">force_extend</span>(<span class="ident">raw_body</span>.<span class="ident">clone</span>())
                                 .<span class="ident">map</span>(<span class="op">|</span><span class="ident">pl</span><span class="op">|</span> <span class="ident">pl</span>.<span class="ident">reversed</span>())
                         };
-                        <span class="kw">let</span> <span class="ident">full_piece</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">maybe_full_piece</span> {
-                            <span class="prelude-val">Ok</span>(<span class="ident">pl</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">pl</span>,
+                        <span class="kw">let</span> <span class="ident">sliced</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">maybe_full_piece</span> {
+                            <span class="prelude-val">Ok</span>(<span class="ident">full_piece</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                                <span class="comment">// Then make the car creep along the added length of the driveway (which</span>
+                                <span class="comment">// could be really short)</span>
+                                <span class="kw">let</span> <span class="ident">creep_along</span> <span class="op">=</span> <span class="ident">driveway</span>.<span class="ident">length</span>() <span class="op">*</span> <span class="ident">percent_time</span>;
+                                <span class="comment">// TODO Ideally the car would slowly (dis)appear into the building, but</span>
+                                <span class="comment">// some stuff downstream needs to understand that the windows and such will</span>
+                                <span class="comment">// get cut off. :)</span>
+                                <span class="ident">full_piece</span>
+                                    .<span class="ident">exact_slice</span>(<span class="ident">creep_along</span>, <span class="ident">creep_along</span> <span class="op">+</span> <span class="self">self</span>.<span class="ident">vehicle</span>.<span class="ident">length</span>)
+                            }
                             <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                                <span class="macro">println</span><span class="macro">!</span>(
+                                <span class="comment">// Just avoid crashing; we&#39;ll display something nonsensical (just</span>
+                                <span class="comment">// part of the car body on the lane) in the meantime</span>
+                                <span class="macro">error</span><span class="macro">!</span>(
                                     <span class="string">&quot;Body and driveway for {} at {} broken: {}&quot;</span>,
                                     <span class="self">self</span>.<span class="ident">vehicle</span>.<span class="ident">id</span>, <span class="ident">now</span>, <span class="ident">err</span>
                                 );
                                 <span class="ident">raw_body</span>
                             }
                         };
-                        <span class="comment">// Then make the car creep along the added length of the driveway (which</span>
-                        <span class="comment">// could be really short)</span>
-                        <span class="kw">let</span> <span class="ident">creep_along</span> <span class="op">=</span> <span class="ident">driveway</span>.<span class="ident">length</span>() <span class="op">*</span> <span class="ident">percent_time</span>;
-                        <span class="comment">// TODO Ideally the car would slowly (dis)appear into the building, but</span>
-                        <span class="comment">// some stuff downstream needs to understand that the windows and such will</span>
-                        <span class="comment">// get cut off. :)</span>
-                        <span class="kw">let</span> <span class="ident">sliced</span> <span class="op">=</span>
-                            <span class="ident">full_piece</span>.<span class="ident">exact_slice</span>(<span class="ident">creep_along</span>, <span class="ident">creep_along</span> <span class="op">+</span> <span class="self">self</span>.<span class="ident">vehicle</span>.<span class="ident">length</span>);
                         <span class="kw">if</span> <span class="ident">is_parking</span> {
                             <span class="ident">sliced</span>
                         } <span class="kw">else</span> {

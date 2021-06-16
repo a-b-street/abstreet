@@ -226,6 +226,52 @@
 <span id="223">223</span>
 <span id="224">224</span>
 <span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
+<span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
+<span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
+<span id="244">244</span>
+<span id="245">245</span>
+<span id="246">246</span>
+<span id="247">247</span>
+<span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
+<span id="251">251</span>
+<span id="252">252</span>
+<span id="253">253</span>
+<span id="254">254</span>
+<span id="255">255</span>
+<span id="256">256</span>
+<span id="257">257</span>
+<span id="258">258</span>
+<span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Structures related to the new road-based pathfinding</span>
 <span class="doccomment">//! (https://github.com/a-b-street/abstreet/issues/555) live here. When the transition is done,</span>
@@ -238,7 +284,8 @@
 
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pathfind</span>::<span class="ident">uber_turns</span>::<span class="ident">UberTurnV2</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">DirectedRoadID</span>, <span class="ident">Map</span>, <span class="ident">MovementID</span>, <span class="ident">Path</span>, <span class="ident">PathConstraints</span>, <span class="ident">PathRequest</span>, <span class="ident">PathStep</span>, <span class="ident">TurnID</span>, <span class="ident">UberTurn</span>,
+    <span class="ident">DirectedRoadID</span>, <span class="ident">IntersectionID</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">MovementID</span>, <span class="ident">Path</span>, <span class="ident">PathConstraints</span>, <span class="ident">PathRequest</span>,
+    <span class="ident">PathStep</span>, <span class="ident">TurnID</span>, <span class="ident">UberTurn</span>,
 };
 
 <span class="doccomment">/// One step along a path.</span>
@@ -322,7 +369,7 @@
 
     <span class="doccomment">/// Transform a sequence of roads representing a path into the current lane-based path, by</span>
     <span class="doccomment">/// picking particular lanes and turns to use.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_v1</span>(<span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_v1</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">req</span>.<span class="ident">constraints</span> <span class="op">=</span><span class="op">=</span> <span class="ident">PathConstraints</span>::<span class="ident">Pedestrian</span> {
             <span class="kw">return</span> <span class="self">self</span>.<span class="ident">into_v1_walking</span>(<span class="ident">map</span>);
         }
@@ -348,11 +395,44 @@
             }
         }
 
+        <span class="comment">// The v2 path might immediately require a turn that&#39;s only available from some lanes. If</span>
+        <span class="comment">// the req.start lane can&#39;t make that turn, then producing the v1 path would fail. So let&#39;s</span>
+        <span class="comment">// allow starting from any lane on the same side of the road. Since petgraph can only start</span>
+        <span class="comment">// from a single node and since we want to prefer the originally requested lane anyway,</span>
+        <span class="comment">// create a virtual start node and connect it to all possible starting lanes.</span>
+        <span class="kw">let</span> <span class="ident">virtual_start_node</span> <span class="op">=</span> <span class="ident">LaneID</span>(<span class="ident">map</span>.<span class="ident">lane_id_counter</span> <span class="op">+</span> <span class="number">1</span>);
+        <span class="kw">let</span> <span class="ident">start_lane</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">req</span>.<span class="ident">start</span>.<span class="ident">lane</span>();
+        <span class="kw">let</span> <span class="ident">start_road</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_parent</span>(<span class="ident">start_lane</span>);
+        <span class="kw">let</span> <span class="ident">start_lane_idx</span> <span class="op">=</span> <span class="ident">start_road</span>.<span class="ident">offset</span>(<span class="ident">start_lane</span>) <span class="kw">as</span> <span class="ident">isize</span>;
+        <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="ident">map</span>
+            .<span class="ident">get_l</span>(<span class="ident">start_lane</span>)
+            .<span class="ident">get_directed_parent</span>()
+            .<span class="ident">lanes</span>(<span class="self">self</span>.<span class="ident">req</span>.<span class="ident">constraints</span>, <span class="ident">map</span>)
+        {
+            <span class="comment">// Heavily penalize starting from something other than the originally requested lane.</span>
+            <span class="comment">// At the simulation layer, we may need to block intermediate lanes to exit a driveway,</span>
+            <span class="comment">// so reflect that cost here. The high cost should only be worth it when the v2 path</span>
+            <span class="comment">// requires that up-front turn from certain lanes.</span>
+            <span class="kw">let</span> <span class="ident">idx_dist</span> <span class="op">=</span> (<span class="ident">start_lane_idx</span> <span class="op">-</span> (<span class="ident">start_road</span>.<span class="ident">offset</span>(<span class="ident">l</span>) <span class="kw">as</span> <span class="ident">isize</span>)).<span class="ident">abs</span>();
+            <span class="kw">let</span> <span class="ident">cost</span> <span class="op">=</span> <span class="number">100</span> <span class="op">*</span> <span class="ident">idx_dist</span> <span class="kw">as</span> <span class="ident">usize</span>;
+            <span class="kw">let</span> <span class="ident">fake_turn</span> <span class="op">=</span> <span class="ident">TurnID</span> {
+                <span class="comment">// Just encode the cost here for convenience</span>
+                <span class="ident">parent</span>: <span class="ident">IntersectionID</span>(<span class="ident">cost</span>),
+                <span class="ident">src</span>: <span class="ident">virtual_start_node</span>,
+                <span class="ident">dst</span>: <span class="ident">virtual_start_node</span>,
+            };
+            <span class="ident">graph</span>.<span class="ident">add_edge</span>(<span class="ident">virtual_start_node</span>, <span class="ident">l</span>, <span class="ident">fake_turn</span>);
+        }
+
         <span class="kw">match</span> <span class="ident">petgraph</span>::<span class="ident">algo</span>::<span class="ident">astar</span>(
             <span class="kw-2">&amp;</span><span class="ident">graph</span>,
-            <span class="self">self</span>.<span class="ident">req</span>.<span class="ident">start</span>.<span class="ident">lane</span>(),
+            <span class="ident">virtual_start_node</span>,
             <span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="ident">l</span> <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">req</span>.<span class="ident">end</span>.<span class="ident">lane</span>(),
             <span class="op">|</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">t</span>)<span class="op">|</span> {
+                <span class="kw">if</span> <span class="ident">t</span>.<span class="ident">src</span> <span class="op">=</span><span class="op">=</span> <span class="ident">virtual_start_node</span> {
+                    <span class="kw">return</span> <span class="ident">t</span>.<span class="ident">parent</span>.<span class="number">0</span>;
+                }
+
                 <span class="comment">// Normally opportunistic lane-changing adjusts the path live, but that doesn&#39;t work</span>
                 <span class="comment">// near uber-turns. So still use some of the penalties here.</span>
                 <span class="kw">let</span> (<span class="ident">lt</span>, <span class="ident">lc</span>, <span class="ident">slow_lane</span>) <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_t</span>(<span class="kw-2">*</span><span class="ident">t</span>).<span class="ident">penalty</span>(<span class="ident">map</span>);
@@ -372,7 +452,13 @@
         ) {
             <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="ident">path</span>)) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">steps</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+                <span class="comment">// Skip the first node; it&#39;s always virtual_start_node</span>
+                <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">path</span>[<span class="number">0</span>], <span class="ident">virtual_start_node</span>);
                 <span class="kw">for</span> <span class="ident">pair</span> <span class="kw">in</span> <span class="ident">path</span>.<span class="ident">windows</span>(<span class="number">2</span>) {
+                    <span class="kw">if</span> <span class="ident">pair</span>[<span class="number">0</span>] <span class="op">=</span><span class="op">=</span> <span class="ident">virtual_start_node</span> {
+                        <span class="kw">continue</span>;
+                    }
+
                     <span class="ident">steps</span>.<span class="ident">push</span>(<span class="ident">PathStep</span>::<span class="ident">Lane</span>(<span class="ident">pair</span>[<span class="number">0</span>]));
                     <span class="comment">// We don&#39;t need to look for this turn in the map; we know it exists.</span>
                     <span class="ident">steps</span>.<span class="ident">push</span>(<span class="ident">PathStep</span>::<span class="ident">Turn</span>(<span class="ident">TurnID</span> {
@@ -382,7 +468,13 @@
                     }));
                 }
                 <span class="ident">steps</span>.<span class="ident">push</span>(<span class="ident">PathStep</span>::<span class="ident">Lane</span>(<span class="self">self</span>.<span class="ident">req</span>.<span class="ident">end</span>.<span class="ident">lane</span>()));
-                <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">steps</span>[<span class="number">0</span>], <span class="ident">PathStep</span>::<span class="ident">Lane</span>(<span class="self">self</span>.<span class="ident">req</span>.<span class="ident">start</span>.<span class="ident">lane</span>()));
+                <span class="kw">if</span> <span class="ident">steps</span>[<span class="number">0</span>] <span class="op">!</span><span class="op">=</span> <span class="ident">PathStep</span>::<span class="ident">Lane</span>(<span class="self">self</span>.<span class="ident">req</span>.<span class="ident">start</span>.<span class="ident">lane</span>()) {
+                    <span class="kw">let</span> <span class="ident">actual_start</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">steps</span>[<span class="number">0</span>] {
+                        <span class="ident">PathStep</span>::<span class="ident">Lane</span>(<span class="ident">l</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">l</span>,
+                        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+                    };
+                    <span class="self">self</span>.<span class="ident">req</span>.<span class="ident">start</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">req</span>.<span class="ident">start</span>.<span class="ident">equiv_pos</span>(<span class="ident">actual_start</span>, <span class="ident">map</span>);
+                }
                 <span class="kw">let</span> <span class="ident">uber_turns</span> <span class="op">=</span> <span class="ident">find_uber_turns</span>(<span class="kw-2">&amp;</span><span class="ident">steps</span>, <span class="ident">map</span>, <span class="self">self</span>.<span class="ident">uber_turns</span>);
                 <span class="prelude-val">Ok</span>(<span class="ident">Path</span>::<span class="ident">new</span>(<span class="ident">map</span>, <span class="ident">steps</span>, <span class="self">self</span>.<span class="ident">req</span>, <span class="ident">uber_turns</span>))
             }

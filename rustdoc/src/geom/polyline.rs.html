@@ -885,6 +885,28 @@
 <span id="882">882</span>
 <span id="883">883</span>
 <span id="884">884</span>
+<span id="885">885</span>
+<span id="886">886</span>
+<span id="887">887</span>
+<span id="888">888</span>
+<span id="889">889</span>
+<span id="890">890</span>
+<span id="891">891</span>
+<span id="892">892</span>
+<span id="893">893</span>
+<span id="894">894</span>
+<span id="895">895</span>
+<span id="896">896</span>
+<span id="897">897</span>
+<span id="898">898</span>
+<span id="899">899</span>
+<span id="900">900</span>
+<span id="901">901</span>
+<span id="902">902</span>
+<span id="903">903</span>
+<span id="904">904</span>
+<span id="905">905</span>
+<span id="906">906</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
@@ -906,6 +928,10 @@
     <span class="ident">Triangle</span>,
 }
 
+<span class="comment">// TODO Document and enforce invariants:</span>
+<span class="comment">// - at least two points</span>
+<span class="comment">// - no duplicate points, whether adjacent or loops</span>
+<span class="comment">// - no &quot;useless&quot; intermediate points with the same angle</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PolyLine</span> {
     <span class="ident">pts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>,
@@ -1003,6 +1029,9 @@
         <span class="ident">PolyLine</span>::<span class="ident">must_new</span>(<span class="ident">pts</span>)
     }
 
+    <span class="doccomment">/// Glue together two polylines in order. The last point of `self` must be the same as the</span>
+    <span class="doccomment">/// first point of `other`. This method handles removing unnecessary intermediate points if the</span>
+    <span class="doccomment">/// extension happens to be at the same angle as the last line segment of `self`.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">extend</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">PolyLine</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PolyLine</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">pts</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>() <span class="op">!</span><span class="op">=</span> <span class="ident">other</span>.<span class="ident">pts</span>[<span class="number">0</span>] {
             <span class="macro">bail</span><span class="macro">!</span>(<span class="string">&quot;can&#39;t extend PL; last and first points don&#39;t match&quot;</span>);
@@ -1048,12 +1077,27 @@
         <span class="ident">self_pts</span>.<span class="ident">extend</span>(<span class="ident">other_pts</span>.<span class="ident">iter</span>().<span class="ident">skip</span>(<span class="number">1</span>));
         <span class="ident">PolyLine</span>::<span class="ident">new</span>(<span class="ident">self_pts</span>)
     }
+
+    <span class="doccomment">/// Like `extend`, but panics on failure.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">must_extend</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">PolyLine</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PolyLine</span> {
         <span class="self">self</span>.<span class="ident">extend</span>(<span class="ident">other</span>).<span class="ident">unwrap</span>()
     }
+
+    <span class="doccomment">/// Extends `self` by a single point. Assumes the last point and this new point are different</span>
+    <span class="doccomment">/// and panics otherwise. Doesn&#39;t clean up any intermediate points.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">must_push</span>(<span class="self">self</span>, <span class="ident">pt</span>: <span class="ident">Pt2D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PolyLine</span> {
         <span class="kw">let</span> <span class="ident">new</span> <span class="op">=</span> <span class="ident">PolyLine</span>::<span class="ident">must_new</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="self">self</span>.<span class="ident">last_pt</span>(), <span class="ident">pt</span>]);
         <span class="self">self</span>.<span class="ident">must_extend</span>(<span class="ident">new</span>)
+    }
+
+    <span class="doccomment">/// Like `extend`, but handles the last and first point not matching by inserting that point.</span>
+    <span class="doccomment">/// Doesn&#39;t clean up any intermediate points.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">force_extend</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">other</span>: <span class="ident">PolyLine</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PolyLine</span><span class="op">&gt;</span> {
+        <span class="kw">if</span> <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">pts</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>() <span class="op">!</span><span class="op">=</span> <span class="ident">other</span>.<span class="ident">pts</span>[<span class="number">0</span>] {
+            <span class="comment">// TODO Blindly... what if we need to do the angle collapsing?</span>
+            <span class="self">self</span>.<span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">other</span>.<span class="ident">pts</span>[<span class="number">0</span>]);
+        }
+        <span class="self">self</span>.<span class="ident">extend</span>(<span class="ident">other</span>)
     }
 
     <span class="doccomment">/// One or both args might be empty.</span>
