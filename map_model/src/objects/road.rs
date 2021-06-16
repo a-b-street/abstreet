@@ -576,6 +576,25 @@ impl Road {
         }
         lanes
     }
+
+    /// Returns all lanes located between l1 and l2, exclusive.
+    pub fn get_lanes_between(&self, l1: LaneID, l2: LaneID) -> Vec<LaneID> {
+        let mut results = Vec::new();
+        let mut found_start = false;
+        for (l, _, _) in self.lanes_ltr() {
+            if found_start {
+                if l == l1 || l == l2 {
+                    return results;
+                }
+                results.push(l);
+            } else {
+                if l == l1 || l == l2 {
+                    found_start = true;
+                }
+            }
+        }
+        panic!("{} doesn't contain both {} and {}", self.id, l1, l2);
+    }
 }
 
 // TODO All of this is kind of deprecated? During the transiton towards lanes_ltr, some pieces

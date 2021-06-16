@@ -97,6 +97,8 @@ pub struct Path {
     uber_turns: VecDeque<UberTurn>,
     // Is the current_step in the middle of an UberTurn?
     currently_inside_ut: Option<UberTurn>,
+
+    blocked_starts: Vec<Position>,
 }
 
 impl Path {
@@ -105,6 +107,7 @@ impl Path {
         steps: Vec<PathStep>,
         orig_req: PathRequest,
         uber_turns: Vec<UberTurn>,
+        blocked_starts: Vec<Position>,
     ) -> Path {
         // Haven't seen problems here in a very long time. Noticeably saves some time to skip.
         if false {
@@ -123,6 +126,7 @@ impl Path {
             crossed_so_far: Distance::ZERO,
             uber_turns: uber_turns.into_iter().collect(),
             currently_inside_ut: None,
+            blocked_starts,
         };
         for step in &path.steps {
             path.total_length += path.dist_crossed_from_step(map, step);
@@ -160,7 +164,13 @@ impl Path {
 
     pub fn one_step(req: PathRequest, map: &Map) -> Path {
         assert_eq!(req.start.lane(), req.end.lane());
-        Path::new(map, vec![PathStep::Lane(req.start.lane())], req, Vec::new())
+        Path::new(
+            map,
+            vec![PathStep::Lane(req.start.lane())],
+            req,
+            Vec::new(),
+            Vec::new(),
+        )
     }
 
     /// The original PathRequest used to produce this path. If the path has been modified since
@@ -410,6 +420,12 @@ impl Path {
             total += dist / speed;
         }
         total
+    }
+
+    /// If the agent following this path will initially block some intermediate lanes as they move
+    /// between a driveway and `get_req().start`, then record those equivalent positions here.
+    pub fn get_blocked_starts(&self) -> &Vec<Position> {
+        &self.blocked_starts
     }
 }
 

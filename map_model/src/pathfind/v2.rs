@@ -193,15 +193,20 @@ impl PathV2 {
                     }));
                 }
                 steps.push(PathStep::Lane(self.req.end.lane()));
+                let mut blocked_starts = Vec::new();
                 if steps[0] != PathStep::Lane(self.req.start.lane()) {
                     let actual_start = match steps[0] {
                         PathStep::Lane(l) => l,
                         _ => unreachable!(),
                     };
+                    blocked_starts.push(self.req.start);
+                    for l in start_road.get_lanes_between(start_lane, actual_start) {
+                        blocked_starts.push(self.req.start.equiv_pos(l, map));
+                    }
                     self.req.start = self.req.start.equiv_pos(actual_start, map);
                 }
                 let uber_turns = find_uber_turns(&steps, map, self.uber_turns);
-                Ok(Path::new(map, steps, self.req, uber_turns))
+                Ok(Path::new(map, steps, self.req, uber_turns, blocked_starts))
             }
             None => bail!(
                 "Can't transform a road-based path to a lane-based path for {}",
@@ -223,7 +228,7 @@ impl PathV2 {
                 }),
             });
         }
-        Ok(Path::new(map, steps, self.req, Vec::new()))
+        Ok(Path::new(map, steps, self.req, Vec::new(), Vec::new()))
     }
 }
 

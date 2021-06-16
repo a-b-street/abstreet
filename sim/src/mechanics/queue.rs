@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 use abstutil::FixedMap;
 use geom::{Distance, Time};
-use map_model::{Map, Traversable};
+use map_model::{Map, Position, Traversable};
 
 use crate::mechanics::car::{Car, CarState};
 use crate::{CarID, VehicleType, FOLLOWING_DISTANCE};
@@ -308,6 +308,14 @@ impl Queue {
             leader = Some(*car);
         }
         None
+    }
+
+    pub fn add_blockage(&mut self, _cause: CarID, front: Distance, back: Distance) {
+        assert!(front > back);
+    }
+    pub fn clear_blockage(&mut self, _cause: CarID) {}
+    pub fn can_block_from_driveway(&self, _pos: &Position, _vehicle_len: Distance) -> bool {
+        true
     }
 }
 

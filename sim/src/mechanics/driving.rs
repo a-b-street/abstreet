@@ -98,6 +98,17 @@ impl DrivingSimState {
         let first_lane = params.router.head().as_lane();
         let start_dist = params.router.get_path().get_req().start.dist_along();
 
+        // First handle any of the intermediate queues, failing fast.
+        for pos in params.router.get_path().get_blocked_starts() {
+            if !self.queues[&Traversable::Lane(pos.lane())]
+                .can_block_from_driveway(pos, params.vehicle.length)
+            {
+                return Some(params);
+            }
+            // TODO What's the purpose of nobody_headed_towards again? Do we need to enforce it for
+            // intermediate lanes too?
+        }
+
         if !ctx
             .intersections
             .nobody_headed_towards(first_lane, ctx.map.get_l(first_lane).src_i)
@@ -126,11 +137,27 @@ impl DrivingSimState {
                 let delay = match p.spot {
                     ParkingSpot::Onstreet(_, _) => self.time_to_unpark_onstreet,
                     ParkingSpot::Offstreet(_, _) | ParkingSpot::Lot(_, _) => {
-                        self.time_to_unpark_offstreet
+                        // Even in infinite parking mode, we want to block intermediate lanes for a
+                        // few seconds.
+                        //
+                        // TODO Actually, revisit ~instantaneous unparking in infinite mode. Were
+                        // we making gridlock progress somewhere because of this?
+                        if car.router.get_path().get_blocked_starts().is_empty() {
+                            self.time_to_unpark_offstreet
+                        } else {
+                            Duration::seconds(5.0)
+                        }
                     }
                 };
                 car.state =
                     CarState::Unparking(start_dist, p.spot, TimeInterval::new(now, now + delay));
+
+                for pos in car.router.get_path().get_blocked_starts() {
+                    self.queues
+                        .get_mut(&Traversable::Lane(pos.lane()))
+                        .unwrap()
+                        .add_blockage(car.vehicle.id, start_dist, start_dist - car.vehicle.length);
+                }
             } else {
                 // Have to do this early
                 if car.router.last_step() {
@@ -308,6 +335,13 @@ impl DrivingSimState {
                 }
             }
             CarState::Unparking(front, _, _) => {
+                for pos in car.router.get_path().get_blocked_starts() {
+                    self.queues
+                        .get_mut(&Traversable::Lane(pos.lane()))
+                        .unwrap()
+                        .clear_blockage(car.vehicle.id);
+                }
+
                 if car.router.last_step() {
                     // Actually, we need to do this first. Ignore the answer -- if we're doing
                     // something weird like vanishing or re-parking immediately (quite unlikely),
