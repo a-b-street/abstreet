@@ -362,6 +362,17 @@
 <span id="359">359</span>
 <span id="360">360</span>
 <span id="361">361</span>
+<span id="362">362</span>
+<span id="363">363</span>
+<span id="364">364</span>
+<span id="365">365</span>
+<span id="366">366</span>
+<span id="367">367</span>
+<span id="368">368</span>
+<span id="369">369</span>
+<span id="370">370</span>
+<span id="371">371</span>
+<span id="372">372</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Disable some noisy lints</span>
 <span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">too_many_arguments</span>, <span class="ident">clippy</span>::<span class="ident">type_complexity</span>)]</span>
@@ -490,6 +501,7 @@
         };
         <span class="ident">mode</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">sandbox</span>::<span class="ident">GameplayMode</span>::<span class="ident">Actdev</span>(<span class="ident">name</span>, <span class="ident">scenario</span>, <span class="bool-val">false</span>));
     }
+    <span class="kw">let</span> <span class="ident">load_kml</span> <span class="op">=</span> <span class="ident">args</span>.<span class="ident">optional</span>(<span class="string">&quot;--kml&quot;</span>);
 
     <span class="ident">args</span>.<span class="ident">done</span>();
 
@@ -503,6 +515,7 @@
             <span class="ident">initialize_tutorial</span>,
             <span class="ident">center_camera</span>,
             <span class="ident">start_time</span>,
+            <span class="ident">load_kml</span>,
         )
     });
 }
@@ -516,6 +529,7 @@
     <span class="ident">initialize_tutorial</span>: <span class="ident">bool</span>,
     <span class="ident">center_camera</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
     <span class="ident">start_time</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>,
+    <span class="ident">load_kml</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">App</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>) {
     <span class="kw">let</span> <span class="ident">title</span> <span class="op">=</span> <span class="op">!</span><span class="ident">opts</span>.<span class="ident">dev</span>
         <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">flags</span>.<span class="ident">sim_flags</span>.<span class="ident">load</span>.<span class="ident">contains</span>(<span class="string">&quot;player/save&quot;</span>)
@@ -588,6 +602,7 @@
                     <span class="ident">initialize_tutorial</span>,
                     <span class="ident">center_camera</span>,
                     <span class="ident">start_time</span>,
+                    <span class="ident">load_kml</span>,
                 ))
             }),
         )];
@@ -617,6 +632,7 @@
             <span class="ident">initialize_tutorial</span>,
             <span class="ident">center_camera</span>,
             <span class="ident">start_time</span>,
+            <span class="ident">load_kml</span>,
         );
         (<span class="ident">app</span>, <span class="ident">states</span>)
     }
@@ -631,6 +647,7 @@
     <span class="ident">initialize_tutorial</span>: <span class="ident">bool</span>,
     <span class="ident">center_camera</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
     <span class="ident">start_time</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>,
+    <span class="ident">load_kml</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">pt</span>, <span class="ident">zoom</span>)) <span class="op">=</span>
         <span class="ident">center_camera</span>.<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">cam</span><span class="op">|</span> <span class="ident">URLManager</span>::<span class="ident">parse_center_camera</span>(<span class="ident">app</span>, <span class="ident">cam</span>))
@@ -677,7 +694,12 @@
         <span class="kw">crate</span>::<span class="ident">sandbox</span>::<span class="ident">gameplay</span>::<span class="ident">Tutorial</span>::<span class="ident">initialize</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
     }
 
-    <span class="kw">let</span> <span class="ident">states</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">title</span> {
+    <span class="kw">let</span> <span class="ident">states</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">path</span>) <span class="op">=</span> <span class="ident">load_kml</span> {
+        <span class="macro">vec</span><span class="macro">!</span>[
+            <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">TitleScreen</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)),
+            <span class="kw">crate</span>::<span class="ident">devtools</span>::<span class="ident">kml</span>::<span class="ident">ViewKML</span>::<span class="ident">new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="prelude-val">Some</span>(<span class="ident">path</span>)),
+        ]
+    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">title</span> {
         <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">TitleScreen</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>))]
     } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ss</span>) <span class="op">=</span> <span class="ident">savestate</span> {
         <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span> <span class="op">=</span> <span class="ident">ss</span>;
