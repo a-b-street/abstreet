@@ -638,6 +638,25 @@
 <span id="635">635</span>
 <span id="636">636</span>
 <span id="637">637</span>
+<span id="638">638</span>
+<span id="639">639</span>
+<span id="640">640</span>
+<span id="641">641</span>
+<span id="642">642</span>
+<span id="643">643</span>
+<span id="644">644</span>
+<span id="645">645</span>
+<span id="646">646</span>
+<span id="647">647</span>
+<span id="648">648</span>
+<span id="649">649</span>
+<span id="650">650</span>
+<span id="651">651</span>
+<span id="652">652</span>
+<span id="653">653</span>
+<span id="654">654</span>
+<span id="655">655</span>
+<span id="656">656</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
@@ -1216,6 +1235,25 @@
             });
         }
         <span class="ident">lanes</span>
+    }
+
+    <span class="doccomment">/// Returns all lanes located between l1 and l2, exclusive.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_lanes_between</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">l1</span>: <span class="ident">LaneID</span>, <span class="ident">l2</span>: <span class="ident">LaneID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LaneID</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">results</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">found_start</span> <span class="op">=</span> <span class="bool-val">false</span>;
+        <span class="kw">for</span> (<span class="ident">l</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">lanes_ltr</span>() {
+            <span class="kw">if</span> <span class="ident">found_start</span> {
+                <span class="kw">if</span> <span class="ident">l</span> <span class="op">=</span><span class="op">=</span> <span class="ident">l1</span> <span class="op">|</span><span class="op">|</span> <span class="ident">l</span> <span class="op">=</span><span class="op">=</span> <span class="ident">l2</span> {
+                    <span class="kw">return</span> <span class="ident">results</span>;
+                }
+                <span class="ident">results</span>.<span class="ident">push</span>(<span class="ident">l</span>);
+            } <span class="kw">else</span> {
+                <span class="kw">if</span> <span class="ident">l</span> <span class="op">=</span><span class="op">=</span> <span class="ident">l1</span> <span class="op">|</span><span class="op">|</span> <span class="ident">l</span> <span class="op">=</span><span class="op">=</span> <span class="ident">l2</span> {
+                    <span class="ident">found_start</span> <span class="op">=</span> <span class="bool-val">true</span>;
+                }
+            }
+        }
+        <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;{} doesn&#39;t contain both {} and {}&quot;</span>, <span class="self">self</span>.<span class="ident">id</span>, <span class="ident">l1</span>, <span class="ident">l2</span>);
     }
 }
 
