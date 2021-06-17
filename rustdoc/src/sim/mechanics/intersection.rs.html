@@ -1100,6 +1100,11 @@
 <span id="1097">1097</span>
 <span id="1098">1098</span>
 <span id="1099">1099</span>
+<span id="1100">1100</span>
+<span id="1101">1101</span>
+<span id="1102">1102</span>
+<span id="1103">1103</span>
+<span id="1104">1104</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
@@ -1624,7 +1629,7 @@
                 <span class="kw">if</span> <span class="self">self</span>.<span class="ident">break_turn_conflict_cycles</span> {
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">c</span>) <span class="op">=</span> <span class="ident">queue</span>.<span class="ident">laggy_head</span> {
                         <span class="self">self</span>.<span class="ident">blocked_by</span>.<span class="ident">insert</span>((<span class="ident">car</span>.<span class="ident">vehicle</span>.<span class="ident">id</span>, <span class="ident">c</span>));
-                    } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">c</span>) <span class="op">=</span> <span class="ident">queue</span>.<span class="ident">cars</span>.<span class="ident">get</span>(<span class="number">0</span>) {
+                    } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">c</span>) <span class="op">=</span> <span class="ident">queue</span>.<span class="ident">get_active_cars</span>().<span class="ident">get</span>(<span class="number">0</span>) {
                         <span class="self">self</span>.<span class="ident">blocked_by</span>.<span class="ident">insert</span>((<span class="ident">car</span>.<span class="ident">vehicle</span>.<span class="ident">id</span>, <span class="kw-2">*</span><span class="ident">c</span>));
                     } <span class="kw">else</span> {
                         <span class="comment">// try_to_reserve_entry must have failed because somebody has filled up</span>
@@ -1870,7 +1875,12 @@
                     <span class="kw">let</span> <span class="ident">car</span> <span class="op">=</span> <span class="ident">cars</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">car</span>).<span class="ident">unwrap</span>();
                     <span class="kw">if</span> <span class="op">!</span><span class="ident">queue</span>.<span class="ident">room_for_car</span>(<span class="ident">car</span>) {
                         <span class="comment">// TODO Or it&#39;s reserved due to an uber turn or something</span>
-                        <span class="kw">let</span> <span class="ident">blocker</span> <span class="op">=</span> <span class="ident">queue</span>.<span class="ident">cars</span>.<span class="ident">back</span>().<span class="ident">cloned</span>().<span class="ident">or</span>(<span class="ident">queue</span>.<span class="ident">laggy_head</span>).<span class="ident">unwrap</span>();
+                        <span class="kw">let</span> <span class="ident">blocker</span> <span class="op">=</span> <span class="ident">queue</span>
+                            .<span class="ident">get_active_cars</span>()
+                            .<span class="ident">last</span>()
+                            .<span class="ident">cloned</span>()
+                            .<span class="ident">or</span>(<span class="ident">queue</span>.<span class="ident">laggy_head</span>)
+                            .<span class="ident">unwrap</span>();
                         <span class="ident">cause</span> <span class="op">=</span> <span class="ident">DelayCause</span>::<span class="ident">Agent</span>(<span class="ident">AgentID</span>::<span class="ident">Car</span>(<span class="ident">blocker</span>));
                     } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ut</span>) <span class="op">=</span> <span class="ident">car</span>.<span class="ident">router</span>.<span class="ident">get_path</span>().<span class="ident">about_to_start_ut</span>() {
                         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">blocker</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">check_for_conflicts_before_uber_turn</span>(<span class="ident">ut</span>, <span class="ident">map</span>) {
@@ -2118,7 +2128,7 @@
                     <span class="kw">let</span> <span class="ident">head</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">c</span>) <span class="op">=</span> <span class="ident">q</span>.<span class="ident">laggy_head</span> {
                         <span class="ident">c</span>
                     } <span class="kw">else</span> {
-                        <span class="kw-2">*</span><span class="ident">q</span>.<span class="ident">cars</span>.<span class="ident">get</span>(<span class="number">0</span>).<span class="ident">unwrap</span>()
+                        <span class="ident">q</span>.<span class="ident">get_active_cars</span>()[<span class="number">0</span>]
                     };
                     <span class="kw">if</span> <span class="ident">current</span> <span class="op">!</span><span class="op">=</span> <span class="ident">head</span> {
                         <span class="ident">queue</span>.<span class="ident">push</span>(<span class="ident">head</span>);
