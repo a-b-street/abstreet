@@ -26,7 +26,7 @@ use crate::{CarID, VehicleType, FOLLOWING_DISTANCE};
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub(crate) struct Queue {
     pub id: Traversable,
-    cars: VecDeque<CarID>,
+    members: VecDeque<Queued>,
     /// This car's back is still partly in this queue.
     pub laggy_head: Option<CarID>,
 
@@ -40,11 +40,35 @@ pub(crate) struct Queue {
     pub reserved_length: Distance,
 }
 
+/// A member of a `Queue`.
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
+pub enum Queued {
+    /// A regular vehicle trying to move forwards
+    Vehicle(CarID),
+    /// Something occupying a fixed interval of distance on the queue
+    StaticBlockage {
+        /// This is currently only due to a vehicle exiting a driveway and cutting across a few
+        /// lanes
+        cause: CarID,
+        front: Distance,
+        back: Distance,
+    },
+}
+
+/// The exact position of something in a `Queue` at some time
+#[derive(Clone, Debug)]
+pub struct QueueEntry {
+    pub member: Queued,
+    pub front: Distance,
+    /// Not incuding FOLLOWING_DISTANCE
+    pub back: Distance,
+}
+
 impl Queue {
     pub fn new(id: Traversable, map: &Map) -> Queue {
         Queue {
             id,
-            cars: VecDeque::new(),
+            members: VecDeque::new(),
             laggy_head: None,
             geom_len: id.get_polyline(map).length(),
             reserved_length: Distance::ZERO,
@@ -61,13 +85,13 @@ impl Queue {
         self.inner_get_last_car_position(now, cars, queues, &mut BTreeSet::new(), None)
     }
 
-    /// Return the front of each car in the queue. The farthest along (greatest distance) is first.
+    /// Return the exact position of each member of the queue. The farthest along (greatest distance) is first.
     pub fn get_car_positions(
         &self,
         now: Time,
         cars: &FixedMap<CarID, Car>,
         queues: &HashMap<Traversable, Queue>,
-    ) -> Vec<(CarID, Distance)> {
+    ) -> Vec<QueueEntry> {
         let mut all_cars = vec![];
         self.inner_get_last_car_position(
             now,
@@ -79,24 +103,25 @@ impl Queue {
         all_cars
     }
 
+    /// Returns the front of the last car in the queue, only if the last member is an active car.
     fn inner_get_last_car_position(
         &self,
         now: Time,
         cars: &FixedMap<CarID, Car>,
         queues: &HashMap<Traversable, Queue>,
         recursed_queues: &mut BTreeSet<Traversable>,
-        mut intermediate_results: Option<&mut Vec<(CarID, Distance)>>,
+        mut intermediate_results: Option<&mut Vec<QueueEntry>>,
     ) -> Option<(CarID, Distance)> {
-        if self.cars.is_empty() {
+        if self.members.is_empty() {
             return None;
         }
 
-        let mut previous: Option<(CarID, Distance)> = None;
-        for id in &self.cars {
+        // TODO Consider simplifying this loop's structure. Calculate the bound here before
+        // starting the loop, handling the laggy head case.
+        let mut previous: Option<QueueEntry> = None;
+        for queued in self.members.iter().cloned() {
             let bound = match previous {
-                Some((leader, last_dist)) => {
-                    last_dist - cars[&leader].vehicle.length - FOLLOWING_DISTANCE
-                }
+                Some(entry) => entry.back - FOLLOWING_DISTANCE,
                 None => match self.laggy_head {
                     Some(id) => {
                         // The simple but broken version:
@@ -167,40 +192,54 @@ impl Queue {
                     dump_cars(intermediate_results, cars, self.id, now);
                 }
                 panic!(
-                    "Queue has spillover on {} at {} -- can't draw {}, bound is {}. Laggy head is \
+                    "Queue has spillover on {} at {} -- can't draw {:?}, bound is {}. Laggy head is \
                      {:?}. This is usually a geometry bug; check for duplicate roads going \
                      between the same intersections.",
-                    self.id, now, id, bound, self.laggy_head
+                    self.id, now, queued, bound, self.laggy_head
                 );
             }
 
-            let car = &cars[id];
-            let front = match car.state {
-                CarState::Queued { .. } => {
-                    if car.router.last_step() {
-                        car.router.get_end_dist().min(bound)
-                    } else {
-                        bound
+            let entry = match queued {
+                Queued::Vehicle(id) => {
+                    let car = &cars[&id];
+                    let front = match car.state {
+                        CarState::Queued { .. } => {
+                            if car.router.last_step() {
+                                car.router.get_end_dist().min(bound)
+                            } else {
+                                bound
+                            }
+                        }
+                        CarState::WaitingToAdvance { .. } => {
+                            assert_eq!(bound, self.geom_len);
+                            self.geom_len
+                        }
+                        CarState::Crossing(ref time_int, ref dist_int) => {
+                            // TODO Why percent_clamp_end? We process car updates in any order, so we might
+                            // calculate this before moving this car from Crossing to another state.
+                            dist_int.lerp(time_int.percent_clamp_end(now)).min(bound)
+                        }
+                        CarState::Unparking(front, _, _) => front,
+                        CarState::Parking(front, _, _) => front,
+                        CarState::IdlingAtStop(front, _) => front,
+                    };
+                    QueueEntry {
+                        member: queued,
+                        front,
+                        back: front - car.vehicle.length,
                     }
                 }
-                CarState::WaitingToAdvance { .. } => {
-                    assert_eq!(bound, self.geom_len);
-                    self.geom_len
-                }
-                CarState::Crossing(ref time_int, ref dist_int) => {
-                    // TODO Why percent_clamp_end? We process car updates in any order, so we might
-                    // calculate this before moving this car from Crossing to another state.
-                    dist_int.lerp(time_int.percent_clamp_end(now)).min(bound)
-                }
-                CarState::Unparking(front, _, _) => front,
-                CarState::Parking(front, _, _) => front,
-                CarState::IdlingAtStop(front, _) => front,
+                Queued::StaticBlockage { front, back, .. } => QueueEntry {
+                    member: queued,
+                    front,
+                    back,
+                },
             };
 
             if let Some(ref mut intermediate_results) = intermediate_results {
-                intermediate_results.push((*id, front));
+                intermediate_results.push(entry.clone());
             }
-            previous = Some((*id, front));
+            previous = Some(entry);
         }
         // Enable to detect possible bugs, but save time otherwise
         if false {
@@ -208,7 +247,12 @@ impl Queue {
                 validate_positions(intermediate_results, cars, now, self.id)
             }
         }
-        previous
+
+        let previous = previous?;
+        match previous.member {
+            Queued::Vehicle(car) => Some((car, previous.front)),
+            Queued::StaticBlockage { .. } => None,
+        }
     }
 
     /// If the specified car can appear in the queue, return the position in the queue to do so.
@@ -220,13 +264,13 @@ impl Queue {
         cars: &FixedMap<CarID, Car>,
         queues: &HashMap<Traversable, Queue>,
     ) -> Option<usize> {
-        if self.laggy_head.is_none() && self.cars.is_empty() {
+        if self.laggy_head.is_none() && self.members.is_empty() {
             return Some(0);
         }
 
         let dists = self.get_car_positions(now, cars, queues);
         // TODO Binary search
-        let idx = match dists.iter().position(|(_, dist)| start_dist >= *dist) {
+        let idx = match dists.iter().position(|entry| start_dist >= entry.front) {
             Some(i) => i,
             None => dists.len(),
         };
@@ -237,14 +281,11 @@ impl Queue {
         }
 
         // Are we too close to the leader?
-        if idx != 0
-            && dists[idx - 1].1 - cars[&dists[idx - 1].0].vehicle.length - FOLLOWING_DISTANCE
-                < start_dist
-        {
+        if idx != 0 && dists[idx - 1].back - FOLLOWING_DISTANCE < start_dist {
             return None;
         }
         // Or the follower?
-        if idx != dists.len() && start_dist - vehicle_len - FOLLOWING_DISTANCE < dists[idx].1 {
+        if idx != dists.len() && start_dist - vehicle_len - FOLLOWING_DISTANCE < dists[idx].front {
             return None;
         }
 
@@ -254,21 +295,24 @@ impl Queue {
     /// Record that a car has entered a queue at a position. This must match get_idx_to_insert_car
     /// -- the same index and immediately after passing that query.
     pub fn insert_car_at_idx(&mut self, idx: usize, car: &Car) {
-        self.cars.insert(idx, car.vehicle.id);
+        self.members.insert(idx, Queued::Vehicle(car.vehicle.id));
         self.reserved_length += car.vehicle.length + FOLLOWING_DISTANCE;
     }
 
     /// Record that a car has entered a queue at the end. It's assumed that try_to_reserve_entry
     /// has already happened.
     pub fn push_car_onto_end(&mut self, car: CarID) {
-        self.cars.push_back(car);
+        self.members.push_back(Queued::Vehicle(car));
     }
 
     /// Change the first car in the queue to the laggy head, indicating that it's front has left
     /// the queue, but its back is still there. Return that car.
     pub fn move_first_car_to_laggy_head(&mut self) -> CarID {
         assert!(self.laggy_head.is_none());
-        let car = self.cars.pop_front().unwrap();
+        let car = match self.members.pop_front() {
+            Some(Queued::Vehicle(c)) => c,
+            _ => unreachable!(),
+        };
         self.laggy_head = Some(car);
         car
     }
@@ -317,15 +361,15 @@ impl Queue {
     /// Return a penalty for entering this queue, as opposed to some adjacent ones. Used for
     /// lane-changing.
     pub fn target_lane_penalty(&self) -> (usize, usize) {
-        let mut num_vehicles = self.cars.len();
+        let mut num_vehicles = self.members.len();
         if self.laggy_head.is_some() {
             num_vehicles += 1;
         }
 
         let bike_cost = if self
-            .cars
+            .members
             .iter()
-            .any(|c| c.vehicle_type == VehicleType::Bike)
+            .any(|x| matches!(x, Queued::Vehicle(c) if c.vehicle_type == VehicleType::Bike))
             || self
                 .laggy_head
                 .map(|c| c.vehicle_type == VehicleType::Bike)
@@ -344,11 +388,18 @@ impl Queue {
     /// head).
     pub fn get_leader(&self, id: CarID) -> Option<CarID> {
         let mut leader = None;
-        for car in &self.cars {
-            if *car == id {
-                return leader;
+        for queued in &self.members {
+            match queued {
+                Queued::Vehicle(car) => {
+                    if *car == id {
+                        return leader;
+                    }
+                    leader = Some(*car);
+                }
+                Queued::StaticBlockage { .. } => {
+                    leader = None;
+                }
             }
-            leader = Some(*car);
         }
         None
     }
@@ -358,12 +409,14 @@ impl Queue {
     /// tail.
     pub fn get_follower(&self, id: CarID) -> Option<CarID> {
         let mut next = false;
-        for car in &self.cars {
-            if *car == id {
-                next = true;
-            } else if next {
-                return Some(*car);
+        for queued in self.members.iter().cloned() {
+            if next {
+                return match queued {
+                    Queued::Vehicle(car) => Some(car),
+                    Queued::StaticBlockage { .. } => None,
+                };
             }
+            next = queued == Queued::Vehicle(id);
         }
         None
     }
@@ -383,65 +436,72 @@ impl Queue {
     }
 
     /// Get all cars in the queue, not including the laggy head or blockages.
+    ///
+    /// TODO Do NOT use this for calculating indices or getting the leader/follower. Might be safer
+    /// to just hide this and only expose number of active cars, first, and last.
     pub fn get_active_cars(&self) -> Vec<CarID> {
-        self.cars.iter().cloned().collect()
+        self.members
+            .iter()
+            .filter_map(|x| match x {
+                Queued::Vehicle(c) => Some(*c),
+                Queued::StaticBlockage { .. } => None,
+            })
+            .collect()
     }
 
     /// Remove a car from a position.
-    ///
-    /// TODO This is called by delete_car_internal, which figures out the index from
-    /// get_car_positions. This is about to be broken by blockages.
-    ///
-    /// Either we need to start handing back explicit indices, or get_car_positions should give
-    /// back the full reality, including blockages, and callers should handle that.
-    pub fn unsafe_remove_car_from_idx(&mut self, car: CarID, idx: usize) {
-        assert_eq!(self.cars.remove(idx), Some(car));
+    pub fn remove_car_from_idx(&mut self, car: CarID, idx: usize) {
+        assert_eq!(self.members.remove(idx), Some(Queued::Vehicle(car)));
     }
 }
 
 fn validate_positions(
-    dists: &[(CarID, Distance)],
+    dists: &[QueueEntry],
     cars: &FixedMap<CarID, Car>,
     now: Time,
     id: Traversable,
 ) {
     for pair in dists.windows(2) {
-        if pair[0].1 - cars[&pair[0].0].vehicle.length - FOLLOWING_DISTANCE < pair[1].1 {
+        if pair[0].back - FOLLOWING_DISTANCE < pair[1].front {
             dump_cars(dists, cars, id, now);
             panic!(
                 "get_car_positions wound up with bad positioning: {} then {}\n{:?}",
-                pair[0].1, pair[1].1, dists
+                pair[0].front, pair[1].front, dists
             );
         }
     }
 }
 
-fn dump_cars(dists: &[(CarID, Distance)], cars: &FixedMap<CarID, Car>, id: Traversable, now: Time) {
+fn dump_cars(dists: &[QueueEntry], cars: &FixedMap<CarID, Car>, id: Traversable, now: Time) {
     println!("\nOn {} at {}...", id, now);
-    for (id, dist) in dists {
-        let car = &cars[id];
-        println!("- {} @ {} (length {})", id, dist, car.vehicle.length);
-        match car.state {
-            CarState::Crossing(ref time_int, ref dist_int) => {
-                println!(
-                    "  Going {} .. {} during {} .. {}",
-                    dist_int.start, dist_int.end, time_int.start, time_int.end
-                );
-            }
-            CarState::Queued { .. } => {
-                println!("  Queued currently");
-            }
-            CarState::WaitingToAdvance { .. } => {
-                println!("  WaitingToAdvance currently");
-            }
-            CarState::Unparking(_, _, ref time_int) => {
-                println!("  Unparking during {} .. {}", time_int.start, time_int.end);
-            }
-            CarState::Parking(_, _, ref time_int) => {
-                println!("  Parking during {} .. {}", time_int.start, time_int.end);
-            }
-            CarState::IdlingAtStop(_, ref time_int) => {
-                println!("  Idling during {} .. {}", time_int.start, time_int.end);
+    for entry in dists {
+        println!("- {:?} @ {}..{}", entry.member, entry.front, entry.back);
+        match entry.member {
+            Queued::Vehicle(id) => match cars[&id].state {
+                CarState::Crossing(ref time_int, ref dist_int) => {
+                    println!(
+                        "  Going {} .. {} during {} .. {}",
+                        dist_int.start, dist_int.end, time_int.start, time_int.end
+                    );
+                }
+                CarState::Queued { .. } => {
+                    println!("  Queued currently");
+                }
+                CarState::WaitingToAdvance { .. } => {
+                    println!("  WaitingToAdvance currently");
+                }
+                CarState::Unparking(_, _, ref time_int) => {
+                    println!("  Unparking during {} .. {}", time_int.start, time_int.end);
+                }
+                CarState::Parking(_, _, ref time_int) => {
+                    println!("  Parking during {} .. {}", time_int.start, time_int.end);
+                }
+                CarState::IdlingAtStop(_, ref time_int) => {
+                    println!("  Idling during {} .. {}", time_int.start, time_int.end);
+                }
+            },
+            Queued::StaticBlockage { cause, .. } => {
+                println!("  Static blockage by {}", cause);
             }
         }
     }

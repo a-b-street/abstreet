@@ -7,7 +7,7 @@ use geom::{Distance, Duration, PolyLine, Time};
 use map_model::{IntersectionID, LaneID, Map, Path, Position, Traversable};
 
 use crate::mechanics::car::{Car, CarState};
-use crate::mechanics::Queue;
+use crate::mechanics::queue::{Queue, QueueEntry, Queued};
 use crate::sim::Ctx;
 use crate::{
     ActionAtEnd, AgentID, AgentProperties, CarID, Command, CreateCar, DelayCause, DistanceInterval,
@@ -270,7 +270,10 @@ impl DrivingSimState {
                 &self.cars,
                 &self.queues,
             );
-            let idx = dists.iter().position(|(c, _)| *c == id).unwrap();
+            let idx = dists
+                .iter()
+                .position(|entry| entry.member == Queued::Vehicle(id))
+                .unwrap();
 
             // We need to mutate two different cars in some cases. To avoid fighting the borrow
             // checker, temporarily move one of them out of the map.
@@ -494,7 +497,7 @@ impl DrivingSimState {
     fn update_car_with_distances(
         &mut self,
         car: &mut Car,
-        dists: &[(CarID, Distance)],
+        dists: &[QueueEntry],
         idx: usize,
         now: Time,
         ctx: &mut Ctx,
@@ -502,7 +505,7 @@ impl DrivingSimState {
         transit: &mut TransitSimState,
         walking: &mut WalkingSimState,
     ) -> bool {
-        let our_dist = dists[idx].1;
+        let our_dist = dists[idx].front;
 
         match car.state {
             CarState::Crossing(_, _)
@@ -656,7 +659,10 @@ impl DrivingSimState {
             &self.cars,
             &self.queues,
         );
-        let idx = dists.iter().position(|(id, _)| *id == c).unwrap();
+        let idx = dists
+            .iter()
+            .position(|entry| entry.member == Queued::Vehicle(c))
+            .unwrap();
         let mut car = self.cars.remove(&c).unwrap();
 
         // Hacks to delete cars that're mid-turn
@@ -688,14 +694,14 @@ impl DrivingSimState {
     fn delete_car_internal(
         &mut self,
         car: &mut Car,
-        dists: Vec<(CarID, Distance)>,
+        dists: Vec<QueueEntry>,
         idx: usize,
         now: Time,
         ctx: &mut Ctx,
     ) {
         {
             let queue = self.queues.get_mut(&car.router.head()).unwrap();
-            queue.unsafe_remove_car_from_idx(car.vehicle.id, idx);
+            queue.remove_car_from_idx(car.vehicle.id, idx);
             // trim_last_steps doesn't actually include the current queue!
             queue.free_reserved_space(car);
             let i = match queue.id {
@@ -719,43 +725,45 @@ impl DrivingSimState {
 
         // Update the follower so that they don't suddenly jump forwards.
         if idx != dists.len() - 1 {
-            let (follower_id, follower_dist) = dists[idx + 1];
+            if let Queued::Vehicle(follower_id) = dists[idx + 1].member {
+                let follower_dist = dists[idx + 1].front;
 
-            // If we're going to delete the follower soon, don't bother waking them up.
-            if let Some(ref deleting_agents) = ctx.handling_live_edits {
-                if deleting_agents.contains(&AgentID::Car(follower_id)) {
-                    return;
+                // If we're going to delete the follower soon, don't bother waking them up.
+                if let Some(ref deleting_agents) = ctx.handling_live_edits {
+                    if deleting_agents.contains(&AgentID::Car(follower_id)) {
+                        return;
+                    }
                 }
-            }
 
-            let mut follower = self.cars.get_mut(&follower_id).unwrap();
-            // TODO If the leader vanished at a border node, this still jumps a bit -- the lead
-            // car's back is still sticking out. Need to still be bound by them, even though they
-            // don't exist! If the leader just parked, then we're fine.
-            match follower.state {
-                CarState::Queued { blocked_since } => {
-                    // Prevent them from jumping forwards.
-                    follower.total_blocked_time += now - blocked_since;
-                    follower.state = follower.crossing_state(follower_dist, now, ctx.map);
-                    ctx.scheduler.update(
-                        follower.state.get_end_time(),
-                        Command::UpdateCar(follower_id),
-                    );
+                let mut follower = self.cars.get_mut(&follower_id).unwrap();
+                // TODO If the leader vanished at a border node, this still jumps a bit -- the lead
+                // car's back is still sticking out. Need to still be bound by them, even though they
+                // don't exist! If the leader just parked, then we're fine.
+                match follower.state {
+                    CarState::Queued { blocked_since } => {
+                        // Prevent them from jumping forwards.
+                        follower.total_blocked_time += now - blocked_since;
+                        follower.state = follower.crossing_state(follower_dist, now, ctx.map);
+                        ctx.scheduler.update(
+                            follower.state.get_end_time(),
+                            Command::UpdateCar(follower_id),
+                        );
+                    }
+                    CarState::Crossing(_, _) => {
+                        // If the follower was still Crossing, they might not've been blocked by leader
+                        // yet. In that case, recalculating their Crossing state is a no-op.
+                        follower.state = follower.crossing_state(follower_dist, now, ctx.map);
+                        ctx.scheduler.update(
+                            follower.state.get_end_time(),
+                            Command::UpdateCar(follower_id),
+                        );
+                    }
+                    // They weren't blocked
+                    CarState::Unparking(_, _, _)
+                    | CarState::Parking(_, _, _)
+                    | CarState::IdlingAtStop(_, _) => {}
+                    CarState::WaitingToAdvance { .. } => unreachable!(),
                 }
-                CarState::Crossing(_, _) => {
-                    // If the follower was still Crossing, they might not've been blocked by leader
-                    // yet. In that case, recalculating their Crossing state is a no-op.
-                    follower.state = follower.crossing_state(follower_dist, now, ctx.map);
-                    ctx.scheduler.update(
-                        follower.state.get_end_time(),
-                        Command::UpdateCar(follower_id),
-                    );
-                }
-                // They weren't blocked
-                CarState::Unparking(_, _, _)
-                | CarState::Parking(_, _, _)
-                | CarState::IdlingAtStop(_, _) => {}
-                CarState::WaitingToAdvance { .. } => unreachable!(),
             }
         }
     }
@@ -955,20 +963,22 @@ impl DrivingSimState {
                 continue;
             }
 
-            for (c, dist) in queue.get_car_positions(now, &self.cars, &self.queues) {
-                let car = &self.cars[&c];
-                result.push(UnzoomedAgent {
-                    id: AgentID::Car(car.vehicle.id),
-                    pos: match queue.id.get_polyline(map).dist_along(dist) {
-                        Ok((pt, _)) => pt,
-                        Err(err) => panic!(
-                            "At {}, invalid dist_along of {} for queue {}: {}",
-                            now, dist, queue.id, err
-                        ),
-                    },
-                    person: car.trip_and_person.map(|(_, p)| p),
-                    parking: car.is_parking(),
-                });
+            for entry in queue.get_car_positions(now, &self.cars, &self.queues) {
+                if let Queued::Vehicle(c) = entry.member {
+                    let car = &self.cars[&c];
+                    result.push(UnzoomedAgent {
+                        id: AgentID::Car(car.vehicle.id),
+                        pos: match queue.id.get_polyline(map).dist_along(entry.front) {
+                            Ok((pt, _)) => pt,
+                            Err(err) => panic!(
+                                "At {}, invalid dist_along of {} for queue {}: {}",
+                                now, entry.front, queue.id, err
+                            ),
+                        },
+                        person: car.trip_and_person.map(|(_, p)| p),
+                        parking: car.is_parking(),
+                    });
+                }
             }
         }
 
@@ -1006,7 +1016,13 @@ impl DrivingSimState {
                 queue
                     .get_car_positions(now, &self.cars, &self.queues)
                     .into_iter()
-                    .map(|(id, dist)| self.cars[&id].get_draw_car(dist, now, map, transit)),
+                    .filter_map(|entry| {
+                        if let Queued::Vehicle(id) = entry.member {
+                            Some(self.cars[&id].get_draw_car(entry.front, now, map, transit))
+                        } else {
+                            None
+                        }
+                    }),
             );
         }
         result
@@ -1037,7 +1053,13 @@ impl DrivingSimState {
             Some(q) => q
                 .get_car_positions(now, &self.cars, &self.queues)
                 .into_iter()
-                .map(|(id, dist)| self.cars[&id].get_draw_car(dist, now, map, transit))
+                .filter_map(|entry| {
+                    if let Queued::Vehicle(id) = entry.member {
+                        Some(self.cars[&id].get_draw_car(entry.front, now, map, transit))
+                    } else {
+                        None
+                    }
+                })
                 .collect(),
             None => Vec::new(),
         }
@@ -1242,9 +1264,9 @@ impl DrivingSimState {
         self.queues[&car.router.head()]
             .get_car_positions(now, &self.cars, &self.queues)
             .into_iter()
-            .find(|(c, _)| *c == car.vehicle.id)
+            .find(|entry| entry.member == Queued::Vehicle(car.vehicle.id))
             .unwrap()
-            .1
+            .front
     }
 
     /// Does the given car want to over-take the vehicle in front of it?
