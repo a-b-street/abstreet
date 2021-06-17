@@ -269,10 +269,6 @@ impl DrivingSimState {
                 CarState::Queued { .. } => car.router.last_step(),
                 CarState::Parking(_, _, _) => true,
                 CarState::IdlingAtStop(_, _) => true,
-                // TODO Or dedupe code and always do this
-                CarState::Unparking(_, _, _) => {
-                    !car.router.get_path().get_blocked_starts().is_empty()
-                }
                 _ => false,
             }
         };
@@ -358,13 +354,23 @@ impl DrivingSimState {
                 }
             }
             CarState::Unparking(front, _, _) => {
-                assert!(car.router.get_path().get_blocked_starts().is_empty());
-
                 for pos in car.router.get_path().get_blocked_starts() {
+                    // Calculate the exact positions along this blocked queue (which is ***NOT***
+                    // the same queue that the unparking car is in!). Use that to update the
+                    // follower. Note that it's fine that the current car isn't currently in
+                    // self.cars; the static blockage doesn't need it.
+                    let dists = self.queues[&Traversable::Lane(pos.lane())].get_car_positions(
+                        now,
+                        &self.cars,
+                        &self.queues,
+                    );
+                    let idx = dists.iter().position(|entry| matches!(entry.member, Queued::StaticBlockage { cause, ..} if cause == car.vehicle.id)).unwrap();
+                    self.update_follower(idx, &dists, now, ctx);
+
                     self.queues
                         .get_mut(&Traversable::Lane(pos.lane()))
                         .unwrap()
-                        .clear_blockage(car.vehicle.id);
+                        .clear_blockage(car.vehicle.id, idx);
                 }
 
                 if car.router.last_step() {
@@ -494,7 +500,9 @@ impl DrivingSimState {
         let our_dist = dists[idx].front;
 
         match car.state {
-            CarState::Crossing(_, _) | CarState::WaitingToAdvance { .. } => unreachable!(),
+            CarState::Crossing(_, _)
+            | CarState::Unparking(_, _, _)
+            | CarState::WaitingToAdvance { .. } => unreachable!(),
             CarState::Queued { blocked_since } => {
                 match car.router.maybe_handle_end(
                     our_dist,
@@ -637,69 +645,7 @@ impl DrivingSimState {
                 ctx.scheduler
                     .push(car.state.get_end_time(), Command::UpdateCar(car.vehicle.id));
 
-                // Update our follower, so they know we stopped idling.
-                // TODO refactor
-                let queue = &self.queues[&car.router.head()];
-                if let Some(follower_id) = queue.get_follower(car.vehicle.id) {
-                    let mut follower = self.cars.get_mut(&follower_id).unwrap();
-                    match follower.state {
-                        CarState::Queued { blocked_since } => {
-                            // If they're on their last step, they might be ending early and not
-                            // right behind us.
-                            if !follower.router.last_step() {
-                                follower.total_blocked_time += now - blocked_since;
-                                follower.state = follower.crossing_state(
-                                    // Since the follower was Queued, this must be where they are.
-                                    dist - car.vehicle.length - FOLLOWING_DISTANCE,
-                                    now,
-                                    ctx.map,
-                                );
-                                ctx.scheduler.update(
-                                    follower.state.get_end_time(),
-                                    Command::UpdateCar(follower.vehicle.id),
-                                );
-                            }
-                        }
-                        CarState::WaitingToAdvance { .. } => unreachable!(),
-                        // They weren't blocked. Note that there's no way the Crossing state could
-                        // jump forwards here; the leader is still in front of them.
-                        CarState::Crossing(_, _)
-                        | CarState::Unparking(_, _, _)
-                        | CarState::Parking(_, _, _)
-                        | CarState::IdlingAtStop(_, _) => {}
-                    }
-                }
-
-                true
-            }
-            CarState::Unparking(front, _, _) => {
-                assert!(!car.router.get_path().get_blocked_starts().is_empty());
-
-                for pos in car.router.get_path().get_blocked_starts() {
-                    self.queues
-                        .get_mut(&Traversable::Lane(pos.lane()))
-                        .unwrap()
-                        .clear_blockage(car.vehicle.id);
-                    // TODO Update the follower, using the refactored logic
-                }
-
-                if car.router.last_step() {
-                    // Actually, we need to do this first. Ignore the answer -- if we're doing
-                    // something weird like vanishing or re-parking immediately (quite unlikely),
-                    // the next loop will pick that up. Just trigger the side effect of choosing an
-                    // end_dist.
-                    car.router.maybe_handle_end(
-                        front,
-                        &car.vehicle,
-                        ctx.parking,
-                        ctx.map,
-                        car.trip_and_person,
-                        &mut self.events,
-                    );
-                }
-                car.state = car.crossing_state(front, now, ctx.map);
-                ctx.scheduler
-                    .push(car.state.get_end_time(), Command::UpdateCar(car.vehicle.id));
+                self.update_follower(idx, dists, now, ctx);
 
                 true
             }
@@ -780,48 +726,65 @@ impl DrivingSimState {
         ctx.scheduler
             .cancel(Command::UpdateLaggyHead(car.vehicle.id));
 
-        // Update the follower so that they don't suddenly jump forwards.
-        // TODO refactor
-        if idx != dists.len() - 1 {
-            if let Queued::Vehicle(follower_id) = dists[idx + 1].member {
-                let follower_dist = dists[idx + 1].front;
+        self.update_follower(idx, &dists, now, ctx);
+    }
 
-                // If we're going to delete the follower soon, don't bother waking them up.
-                if let Some(ref deleting_agents) = ctx.handling_live_edits {
-                    if deleting_agents.contains(&AgentID::Car(follower_id)) {
-                        return;
-                    }
-                }
+    /// After a leader (maybe an active vehicle, maybe a static blockage) gets out of the way,
+    /// update the follower so that they don't suddenly jump forwards.
+    fn update_follower(
+        &mut self,
+        idx_leader: usize,
+        dists: &[QueueEntry],
+        now: Time,
+        ctx: &mut Ctx,
+    ) {
+        if idx_leader == dists.len() - 1 {
+            return;
+        }
+        let idx_follower = idx_leader + 1;
 
-                let mut follower = self.cars.get_mut(&follower_id).unwrap();
-                // TODO If the leader vanished at a border node, this still jumps a bit -- the lead
-                // car's back is still sticking out. Need to still be bound by them, even though they
-                // don't exist! If the leader just parked, then we're fine.
-                match follower.state {
-                    CarState::Queued { blocked_since } => {
-                        // Prevent them from jumping forwards.
-                        follower.total_blocked_time += now - blocked_since;
-                        follower.state = follower.crossing_state(follower_dist, now, ctx.map);
-                        ctx.scheduler.update(
-                            follower.state.get_end_time(),
-                            Command::UpdateCar(follower_id),
-                        );
-                    }
-                    CarState::Crossing(_, _) => {
-                        // If the follower was still Crossing, they might not've been blocked by leader
-                        // yet. In that case, recalculating their Crossing state is a no-op.
-                        follower.state = follower.crossing_state(follower_dist, now, ctx.map);
-                        ctx.scheduler.update(
-                            follower.state.get_end_time(),
-                            Command::UpdateCar(follower_id),
-                        );
-                    }
-                    // They weren't blocked
-                    CarState::Unparking(_, _, _)
-                    | CarState::Parking(_, _, _)
-                    | CarState::IdlingAtStop(_, _) => {}
-                    CarState::WaitingToAdvance { .. } => unreachable!(),
+        if let Queued::Vehicle(follower_id) = dists[idx_follower].member {
+            let follower_dist = dists[idx_follower].front;
+
+            // If we're going to delete the follower soon, don't bother waking them up.
+            if let Some(ref deleting_agents) = ctx.handling_live_edits {
+                if deleting_agents.contains(&AgentID::Car(follower_id)) {
+                    return;
                 }
+            }
+
+            let mut follower = self.cars.get_mut(&follower_id).unwrap();
+            // TODO If the leader vanished at a border node, this still jumps a bit -- the lead
+            // car's back is still sticking out. Need to still be bound by them, even though they
+            // don't exist! If the leader just parked, then we're fine.
+            match follower.state {
+                CarState::Queued { blocked_since } => {
+                    // TODO If they're on their last step, they might be ending early and not right
+                    // behind us? !follower.router.last_step()
+
+                    // Prevent them from jumping forwards.
+                    follower.total_blocked_time += now - blocked_since;
+                    follower.state = follower.crossing_state(follower_dist, now, ctx.map);
+                    ctx.scheduler.update(
+                        follower.state.get_end_time(),
+                        Command::UpdateCar(follower_id),
+                    );
+                }
+                CarState::Crossing(_, _) => {
+                    // If the follower was still Crossing, they might not've been blocked by the
+                    // leader yet. But recalculating their Crossing state isn't necessarily a no-op
+                    // -- this could prevent them from suddenly warping past a blockage.
+                    follower.state = follower.crossing_state(follower_dist, now, ctx.map);
+                    ctx.scheduler.update(
+                        follower.state.get_end_time(),
+                        Command::UpdateCar(follower_id),
+                    );
+                }
+                // They weren't blocked
+                CarState::Unparking(_, _, _)
+                | CarState::Parking(_, _, _)
+                | CarState::IdlingAtStop(_, _) => {}
+                CarState::WaitingToAdvance { .. } => unreachable!(),
             }
         }
     }

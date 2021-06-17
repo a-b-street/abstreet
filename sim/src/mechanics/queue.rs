@@ -211,7 +211,12 @@ impl Queue {
                             }
                         }
                         CarState::WaitingToAdvance { .. } => {
-                            assert_eq!(bound, self.geom_len);
+                            if bound != self.geom_len {
+                                if let Some(intermediate_results) = intermediate_results {
+                                    dump_cars(intermediate_results, cars, self.id, now);
+                                }
+                                panic!("{} is waiting to advance on {}, but the current bound is {}, not geom_len {}. How can anything be in front of them?", id, self.id, bound, self.geom_len);
+                            }
                             self.geom_len
                         }
                         CarState::Crossing(ref time_int, ref dist_int) => {
@@ -411,23 +416,6 @@ impl Queue {
         None
     }
 
-    /// Find the vehicle directly behind the specified input. Only active vehicles count -- no
-    /// blockages or laggy heads. None if the vehicle isn't in the queue at all or they're the
-    /// tail.
-    pub fn get_follower(&self, id: CarID) -> Option<CarID> {
-        let mut next = false;
-        for queued in self.members.iter().cloned() {
-            if next {
-                return match queued {
-                    Queued::Vehicle(car) => Some(car),
-                    Queued::StaticBlockage { .. } => None,
-                };
-            }
-            next = queued == Queued::Vehicle(id);
-        }
-        None
-    }
-
     /// Record that a car is blocking a static portion of the queue (from front to back). Must use
     /// the index from can_block_from_driveway.
     pub fn add_blockage(&mut self, cause: CarID, front: Distance, back: Distance, idx: usize) {
@@ -439,11 +427,11 @@ impl Queue {
     }
 
     /// Record that a car is no longer blocking a static portion of the queue.
-    pub fn clear_blockage(&mut self, caused_by: CarID) {
-        let idx = self.members.iter().position(|queued| matches!(queued, Queued::StaticBlockage { cause, ..} if *cause == caused_by)).unwrap();
+    pub fn clear_blockage(&mut self, caused_by: CarID, idx: usize) {
         let blockage = self.members.remove(idx).unwrap();
         match blockage {
-            Queued::StaticBlockage { front, back, .. } => {
+            Queued::StaticBlockage { front, back, cause } => {
+                assert_eq!(caused_by, cause);
                 let vehicle_len = front - back;
                 self.reserved_length -= vehicle_len + FOLLOWING_DISTANCE;
             }
