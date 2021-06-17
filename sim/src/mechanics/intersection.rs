@@ -521,7 +521,7 @@ impl IntersectionSimState {
                 if self.break_turn_conflict_cycles {
                     if let Some(c) = queue.laggy_head {
                         self.blocked_by.insert((car.vehicle.id, c));
-                    } else if let Some(c) = queue.cars.get(0) {
+                    } else if let Some(c) = queue.get_active_cars().get(0) {
                         self.blocked_by.insert((car.vehicle.id, *c));
                     } else {
                         // try_to_reserve_entry must have failed because somebody has filled up
@@ -767,7 +767,12 @@ impl IntersectionSimState {
                     let car = cars.get(&car).unwrap();
                     if !queue.room_for_car(car) {
                         // TODO Or it's reserved due to an uber turn or something
-                        let blocker = queue.cars.back().cloned().or(queue.laggy_head).unwrap();
+                        let blocker = queue
+                            .get_active_cars()
+                            .last()
+                            .cloned()
+                            .or(queue.laggy_head)
+                            .unwrap();
                         cause = DelayCause::Agent(AgentID::Car(blocker));
                     } else if let Some(ut) = car.router.get_path().about_to_start_ut() {
                         if let Some(blocker) = self.check_for_conflicts_before_uber_turn(ut, map) {
@@ -1015,7 +1020,7 @@ impl IntersectionSimState {
                     let head = if let Some(c) = q.laggy_head {
                         c
                     } else {
-                        *q.cars.get(0).unwrap()
+                        q.get_active_cars()[0]
                     };
                     if current != head {
                         queue.push(head);

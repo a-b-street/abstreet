@@ -199,13 +199,10 @@ impl DrivingSimState {
             }
             ctx.scheduler
                 .push(car.state.get_end_time(), Command::UpdateCar(car.vehicle.id));
-            {
-                let queue = self.queues.get_mut(&Traversable::Lane(first_lane)).unwrap();
-                queue.cars.insert(idx, car.vehicle.id);
-                // Don't use try_to_reserve_entry -- it's overly conservative.
-                // get_idx_to_insert_car does a more detailed check of the current space usage.
-                queue.reserved_length += car.vehicle.length + FOLLOWING_DISTANCE;
-            }
+            self.queues
+                .get_mut(&Traversable::Lane(first_lane))
+                .unwrap()
+                .insert_car_at_idx(idx, &car);
             self.waiting_to_spawn.remove(&car.vehicle.id);
             self.cars.insert(car.vehicle.id, car);
             return None;
@@ -307,7 +304,7 @@ impl DrivingSimState {
                     return true;
                 }
                 let queue = &self.queues[&car.router.head()];
-                if queue.cars[0] == car.vehicle.id && queue.laggy_head.is_none() {
+                if queue.get_active_cars()[0] == car.vehicle.id && queue.laggy_head.is_none() {
                     // Want to re-run, but no urgency about it happening immediately.
                     car.state = CarState::WaitingToAdvance { blocked_since: now };
                     if self.recalc_lanechanging {
@@ -370,13 +367,8 @@ impl DrivingSimState {
 
                 // Update our follower, so they know we stopped idling.
                 let queue = &self.queues[&car.router.head()];
-                let idx = queue
-                    .cars
-                    .iter()
-                    .position(|c| *c == car.vehicle.id)
-                    .unwrap();
-                if idx != queue.cars.len() - 1 {
-                    let mut follower = self.cars.get_mut(&queue.cars[idx + 1]).unwrap();
+                if let Some(follower_id) = queue.get_follower(car.vehicle.id) {
+                    let mut follower = self.cars.get_mut(&follower_id).unwrap();
                     match follower.state {
                         CarState::Queued { blocked_since } => {
                             // If they're on their last step, they might be ending early and not
@@ -440,9 +432,8 @@ impl DrivingSimState {
                 }
 
                 {
-                    let mut queue = self.queues.get_mut(&from).unwrap();
-                    assert_eq!(queue.cars.pop_front().unwrap(), car.vehicle.id);
-                    queue.laggy_head = Some(car.vehicle.id);
+                    let queue = self.queues.get_mut(&from).unwrap();
+                    assert_eq!(queue.move_first_car_to_laggy_head(), car.vehicle.id);
                 }
 
                 // We do NOT need to update the follower. If they were Queued, they'll remain that
@@ -492,8 +483,7 @@ impl DrivingSimState {
                 self.queues
                     .get_mut(&goto)
                     .unwrap()
-                    .cars
-                    .push_back(car.vehicle.id);
+                    .push_car_onto_end(car.vehicle.id);
             }
             CarState::Parking(_, _, _) => unreachable!(),
         }
@@ -705,7 +695,7 @@ impl DrivingSimState {
     ) {
         {
             let queue = self.queues.get_mut(&car.router.head()).unwrap();
-            assert_eq!(queue.cars.remove(idx).unwrap(), car.vehicle.id);
+            queue.unsafe_remove_car_from_idx(car.vehicle.id, idx);
             // trim_last_steps doesn't actually include the current queue!
             queue.free_reserved_space(car);
             let i = match queue.id {
@@ -870,7 +860,7 @@ impl DrivingSimState {
 
             if i == 0 {
                 // Wake up the follower
-                if let Some(follower_id) = old_queue.cars.front() {
+                if let Some(follower_id) = old_queue.get_active_cars().get(0) {
                     let mut follower = self.cars.get_mut(follower_id).unwrap();
 
                     match follower.state {
@@ -905,7 +895,7 @@ impl DrivingSimState {
             } else {
                 // Only the last step we cleared could possibly have cars. Any intermediates, this
                 // car was previously completely blocking them.
-                assert!(old_queue.cars.is_empty());
+                assert!(old_queue.get_active_cars().is_empty());
             }
         }
     }
@@ -935,10 +925,12 @@ impl DrivingSimState {
                 true
             } else {
                 // Make sure it's empty!
-                if v.laggy_head.is_some() || !v.cars.is_empty() {
+                if v.laggy_head.is_some() || !v.get_active_cars().is_empty() {
                     panic!(
                         "After live map edits, deleted queue {} still has vehicles! {:?}, {:?}",
-                        k, v.laggy_head, v.cars
+                        k,
+                        v.laggy_head,
+                        v.get_active_cars()
                     );
                 }
                 false
@@ -959,7 +951,7 @@ impl DrivingSimState {
         let mut result = Vec::new();
 
         for queue in self.queues.values() {
-            if queue.cars.is_empty() {
+            if queue.get_active_cars().is_empty() {
                 continue;
             }
 
@@ -1218,7 +1210,7 @@ impl DrivingSimState {
         // blocked by them and waiting.
         for queue in self.queues.values() {
             if let Some(head) = queue.laggy_head {
-                if let Some(next) = queue.cars.front() {
+                if let Some(next) = queue.get_active_cars().get(0) {
                     graph.insert(
                         AgentID::Car(*next),
                         (
@@ -1228,7 +1220,10 @@ impl DrivingSimState {
                     );
                 }
             }
-            for (head, tail) in queue.cars.iter().zip(queue.cars.iter().skip(1)) {
+            // This doesn't need to account for blockages. Somebody unparking won't start doing it
+            // until they're guaranteed to be able to finish it.
+            let cars = queue.get_active_cars();
+            for (head, tail) in cars.iter().zip(cars.iter().skip(1)) {
                 graph.insert(
                     AgentID::Car(*tail),
                     (

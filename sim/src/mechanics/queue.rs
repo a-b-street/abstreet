@@ -12,13 +12,25 @@ use crate::{CarID, VehicleType, FOLLOWING_DISTANCE};
 /// A Queue of vehicles on a single lane or turn. No over-taking or lane-changing. This is where
 /// https://a-b-street.github.io/docs/tech/trafficsim/discrete_event.html#exact-positions is
 /// implemented.
+///
+/// Some helpful pieces of terminology:
+///
+/// - a "laggy head" is a vehicle whose front is now past the end of this queue, but whose back may
+///   still be partially in the queue. The position of the first car in the queue is still bounded
+///   by the laggy head's back.
+/// - a "blockage" is due to a vehicle exiting a driveway and immediately cutting across a few
+///   lanes. The blockage is "static" -- it occupies a fixed interval of distance in the queue. When
+///   the vehicle is finished exiting the driveway, this blockage is removed.
+/// - "active cars" are the main members of the queue -- everything except for laggy heads and
+///   blockages.
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub(crate) struct Queue {
     pub id: Traversable,
-    pub cars: VecDeque<CarID>,
+    cars: VecDeque<CarID>,
     /// This car's back is still partly in this queue.
     pub laggy_head: Option<CarID>,
 
+    /// How long the lane or turn physically is.
     pub geom_len: Distance,
     /// When a car's turn is accepted, reserve the vehicle length + FOLLOWING_DISTANCE for the
     /// target lane. When the car completely leaves (stops being the laggy_head), free up that
@@ -39,6 +51,7 @@ impl Queue {
         }
     }
 
+    /// Get the front of the last car in the queue.
     pub fn get_last_car_position(
         &self,
         now: Time,
@@ -48,7 +61,7 @@ impl Queue {
         self.inner_get_last_car_position(now, cars, queues, &mut BTreeSet::new(), None)
     }
 
-    /// Farthest along (greatest distance) is first.
+    /// Return the front of each car in the queue. The farthest along (greatest distance) is first.
     pub fn get_car_positions(
         &self,
         now: Time,
@@ -198,6 +211,7 @@ impl Queue {
         previous
     }
 
+    /// If the specified car can appear in the queue, return the position in the queue to do so.
     pub fn get_idx_to_insert_car(
         &self,
         start_dist: Distance,
@@ -237,6 +251,28 @@ impl Queue {
         Some(idx)
     }
 
+    /// Record that a car has entered a queue at a position. This must match get_idx_to_insert_car
+    /// -- the same index and immediately after passing that query.
+    pub fn insert_car_at_idx(&mut self, idx: usize, car: &Car) {
+        self.cars.insert(idx, car.vehicle.id);
+        self.reserved_length += car.vehicle.length + FOLLOWING_DISTANCE;
+    }
+
+    /// Record that a car has entered a queue at the end. It's assumed that try_to_reserve_entry
+    /// has already happened.
+    pub fn push_car_onto_end(&mut self, car: CarID) {
+        self.cars.push_back(car);
+    }
+
+    /// Change the first car in the queue to the laggy head, indicating that it's front has left
+    /// the queue, but its back is still there. Return that car.
+    pub fn move_first_car_to_laggy_head(&mut self) -> CarID {
+        assert!(self.laggy_head.is_none());
+        let car = self.cars.pop_front().unwrap();
+        self.laggy_head = Some(car);
+        car
+    }
+
     /// If true, there's room and the car must actually start the turn (because the space is
     /// reserved).
     pub fn try_to_reserve_entry(&mut self, car: &Car, force_entry: bool) -> bool {
@@ -255,15 +291,19 @@ impl Queue {
         false
     }
 
+    /// True if the reserved length exceeds the physical length. This means a vehicle is headed
+    /// towards the queue already and is expected to not fit entirely inside.
     pub fn is_overflowing(&self) -> bool {
         self.reserved_length >= self.geom_len
     }
 
+    /// Can a car start a turn for this queue?
     pub fn room_for_car(&self, car: &Car) -> bool {
         self.reserved_length == Distance::ZERO
             || self.reserved_length + car.vehicle.length + FOLLOWING_DISTANCE < self.geom_len
     }
 
+    /// Once a car has fully exited a queue, free up the space it was reserving.
     pub fn free_reserved_space(&mut self, car: &Car) {
         self.reserved_length -= car.vehicle.length + FOLLOWING_DISTANCE;
         assert!(
@@ -274,6 +314,8 @@ impl Queue {
         );
     }
 
+    /// Return a penalty for entering this queue, as opposed to some adjacent ones. Used for
+    /// lane-changing.
     pub fn target_lane_penalty(&self) -> (usize, usize) {
         let mut num_vehicles = self.cars.len();
         if self.laggy_head.is_some() {
@@ -297,8 +339,9 @@ impl Queue {
         (num_vehicles, bike_cost)
     }
 
-    /// Find the vehicle in front of the specified input. None if this vehicle isn't in the queue
-    /// at all, or they're the front (with or without a laggy head).
+    /// Find the vehicle in front of the specified input. None if the specified vehicle isn't
+    /// ACTIVE (not a blockage) in the queue at all, or they're the front (with or without a laggy
+    /// head).
     pub fn get_leader(&self, id: CarID) -> Option<CarID> {
         let mut leader = None;
         for car in &self.cars {
@@ -310,12 +353,49 @@ impl Queue {
         None
     }
 
+    /// Find the vehicle directly behind the specified input. Only active vehicles count -- no
+    /// blockages or laggy heads. None if the vehicle isn't in the queue at all or they're the
+    /// tail.
+    pub fn get_follower(&self, id: CarID) -> Option<CarID> {
+        let mut next = false;
+        for car in &self.cars {
+            if *car == id {
+                next = true;
+            } else if next {
+                return Some(*car);
+            }
+        }
+        None
+    }
+
+    /// Record that a car is blocking a static portion of the queue (from front to back).
     pub fn add_blockage(&mut self, _cause: CarID, front: Distance, back: Distance) {
         assert!(front > back);
     }
+
+    /// Record that a car is no longer blocking a static portion of the queue.
     pub fn clear_blockage(&mut self, _cause: CarID) {}
+
+    /// True if a static blockage can be inserted into the queue without anything already there
+    /// intersecting it.
     pub fn can_block_from_driveway(&self, _pos: &Position, _vehicle_len: Distance) -> bool {
         true
+    }
+
+    /// Get all cars in the queue, not including the laggy head or blockages.
+    pub fn get_active_cars(&self) -> Vec<CarID> {
+        self.cars.iter().cloned().collect()
+    }
+
+    /// Remove a car from a position.
+    ///
+    /// TODO This is called by delete_car_internal, which figures out the index from
+    /// get_car_positions. This is about to be broken by blockages.
+    ///
+    /// Either we need to start handing back explicit indices, or get_car_positions should give
+    /// back the full reality, including blockages, and callers should handle that.
+    pub fn unsafe_remove_car_from_idx(&mut self, car: CarID, idx: usize) {
+        assert_eq!(self.cars.remove(idx), Some(car));
     }
 }
 
