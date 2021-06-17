@@ -326,7 +326,7 @@ impl DrivingSimState {
                     return true;
                 }
                 let queue = &self.queues[&car.router.head()];
-                if queue.get_active_cars()[0] == car.vehicle.id && queue.laggy_head.is_none() {
+                if queue.is_car_at_front(car.vehicle.id) {
                     // Want to re-run, but no urgency about it happening immediately.
                     car.state = CarState::WaitingToAdvance { blocked_since: now };
                     if self.recalc_lanechanging {
@@ -890,35 +890,39 @@ impl DrivingSimState {
             if i == 0 {
                 // Wake up the follower
                 if let Some(follower_id) = old_queue.get_active_cars().get(0) {
-                    let mut follower = self.cars.get_mut(follower_id).unwrap();
+                    // TODO Stop using get_active_cars for this! Be paranoid.
+                    if old_queue.is_car_at_front(*follower_id) {
+                        let mut follower = self.cars.get_mut(follower_id).unwrap();
 
-                    match follower.state {
-                        CarState::Queued { blocked_since } => {
-                            // If they're on their last step, they might be ending early and not
-                            // right behind us.
-                            if !follower.router.last_step() {
-                                // The follower has been smoothly following while the laggy head
-                                // gets out of the way. So immediately promote them to
-                                // WaitingToAdvance.
-                                follower.state = CarState::WaitingToAdvance { blocked_since };
-                                if self.recalc_lanechanging && ctx.handling_live_edits.is_none() {
-                                    follower.router.opportunistically_lanechange(
-                                        &self.queues,
-                                        ctx.map,
-                                        self.handle_uber_turns,
-                                    );
+                        match follower.state {
+                            CarState::Queued { blocked_since } => {
+                                // If they're on their last step, they might be ending early and not
+                                // right behind us.
+                                if !follower.router.last_step() {
+                                    // The follower has been smoothly following while the laggy head
+                                    // gets out of the way. So immediately promote them to
+                                    // WaitingToAdvance.
+                                    follower.state = CarState::WaitingToAdvance { blocked_since };
+                                    if self.recalc_lanechanging && ctx.handling_live_edits.is_none()
+                                    {
+                                        follower.router.opportunistically_lanechange(
+                                            &self.queues,
+                                            ctx.map,
+                                            self.handle_uber_turns,
+                                        );
+                                    }
+                                    ctx.scheduler
+                                        .push(now, Command::UpdateCar(follower.vehicle.id));
                                 }
-                                ctx.scheduler
-                                    .push(now, Command::UpdateCar(follower.vehicle.id));
                             }
+                            CarState::WaitingToAdvance { .. } => unreachable!(),
+                            // They weren't blocked. Note that there's no way the Crossing state could
+                            // jump forwards here; the leader vanished from the end of the traversable.
+                            CarState::Crossing(_, _)
+                            | CarState::Unparking(_, _, _)
+                            | CarState::Parking(_, _, _)
+                            | CarState::IdlingAtStop(_, _) => {}
                         }
-                        CarState::WaitingToAdvance { .. } => unreachable!(),
-                        // They weren't blocked. Note that there's no way the Crossing state could
-                        // jump forwards here; the leader vanished from the end of the traversable.
-                        CarState::Crossing(_, _)
-                        | CarState::Unparking(_, _, _)
-                        | CarState::Parking(_, _, _)
-                        | CarState::IdlingAtStop(_, _) => {}
                     }
                 }
             } else {

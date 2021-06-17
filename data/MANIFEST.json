@@ -3991,14 +3991,14 @@
       "compressed_size_bytes": 25368091
     },
     "data/system/us/seattle/prebaked_results/arboretum/weekday.bin": {
-      "checksum": "219f89c281fe03a7fb052620f0af3f98",
-      "uncompressed_size_bytes": 26310946,
-      "compressed_size_bytes": 9714024
+      "checksum": "f07e367e39588aa0f82cee9075058ae4",
+      "uncompressed_size_bytes": 26198680,
+      "compressed_size_bytes": 9657444
     },
     "data/system/us/seattle/prebaked_results/lakeslice/weekday.bin": {
-      "checksum": "14134a663aed641a96d6ef516469ca29",
-      "uncompressed_size_bytes": 84758244,
-      "compressed_size_bytes": 32811478
+      "checksum": "fbd64fd0e2c4ad9c0187ea12ba6dc359",
+      "uncompressed_size_bytes": 84694320,
+      "compressed_size_bytes": 32778753
     },
     "data/system/us/seattle/prebaked_results/montlake/car vs bike contention.bin": {
       "checksum": "a18549e88113a01b42c3bf72e740f672",
@@ -4006,19 +4006,19 @@
       "compressed_size_bytes": 1894
     },
     "data/system/us/seattle/prebaked_results/montlake/weekday.bin": {
-      "checksum": "a20ae5329feee7ea9bf5d0d3e3899f1c",
+      "checksum": "3d22afeef08b7185298983f58a3ffa12",
       "uncompressed_size_bytes": 10866296,
-      "compressed_size_bytes": 3827802
+      "compressed_size_bytes": 3827804
     },
     "data/system/us/seattle/prebaked_results/qa/weekday.bin": {
-      "checksum": "df794a81d33126fc4cd42027cec481f5",
+      "checksum": "6603fac399ac1e6814ce8ce468b73549",
       "uncompressed_size_bytes": 11134239,
-      "compressed_size_bytes": 3913063
+      "compressed_size_bytes": 3913067
     },
     "data/system/us/seattle/prebaked_results/rainier_valley/weekday.bin": {
-      "checksum": "85558c2f726c8a81c28718ca23a45ce2",
-      "uncompressed_size_bytes": 20348880,
-      "compressed_size_bytes": 7239941
+      "checksum": "853c7c7e95fa5378f5f38c7bdc7a0ad8",
+      "uncompressed_size_bytes": 20346795,
+      "compressed_size_bytes": 7235486
     },
     "data/system/us/seattle/prebaked_results/wallingford/weekday.bin": {
       "checksum": "edcdd10a24f8c002ec564a91cf88360e",

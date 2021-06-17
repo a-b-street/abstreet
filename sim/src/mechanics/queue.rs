@@ -470,6 +470,12 @@ impl Queue {
     pub fn remove_car_from_idx(&mut self, car: CarID, idx: usize) {
         assert_eq!(self.members.remove(idx), Some(Queued::Vehicle(car)));
     }
+
+    /// If a car thinks it's reached the end of the queue, double check. Blockages or laggy heads
+    /// might be in the way.
+    pub fn is_car_at_front(&self, car: CarID) -> bool {
+        self.laggy_head.is_none() && self.members.get(0) == Some(&Queued::Vehicle(car))
+    }
 }
 
 fn validate_positions(
