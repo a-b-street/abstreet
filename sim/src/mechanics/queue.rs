@@ -276,6 +276,8 @@ impl Queue {
         };
 
         // Nope, there's not actually room at the front right now.
+        // (This is overly conservative; we could figure out exactly where the laggy head is and
+        // maybe allow it.)
         if self.laggy_head.is_some() && idx == 0 {
             return None;
         }
@@ -421,18 +423,40 @@ impl Queue {
         None
     }
 
-    /// Record that a car is blocking a static portion of the queue (from front to back).
-    pub fn add_blockage(&mut self, _cause: CarID, front: Distance, back: Distance) {
+    /// Record that a car is blocking a static portion of the queue (from front to back). Must use
+    /// the index from can_block_from_driveway.
+    pub fn add_blockage(&mut self, cause: CarID, front: Distance, back: Distance, idx: usize) {
         assert!(front > back);
+        let vehicle_len = front - back;
+        self.members
+            .insert(idx, Queued::StaticBlockage { cause, front, back });
+        self.reserved_length += vehicle_len + FOLLOWING_DISTANCE;
     }
 
     /// Record that a car is no longer blocking a static portion of the queue.
-    pub fn clear_blockage(&mut self, _cause: CarID) {}
+    pub fn clear_blockage(&mut self, caused_by: CarID) {
+        let idx = self.members.iter().position(|queued| matches!(queued, Queued::StaticBlockage { cause, ..} if *cause == caused_by)).unwrap();
+        let blockage = self.members.remove(idx).unwrap();
+        match blockage {
+            Queued::StaticBlockage { front, back, .. } => {
+                let vehicle_len = front - back;
+                self.reserved_length -= vehicle_len + FOLLOWING_DISTANCE;
+            }
+            _ => unreachable!(),
+        }
+    }
 
     /// True if a static blockage can be inserted into the queue without anything already there
-    /// intersecting it.
-    pub fn can_block_from_driveway(&self, _pos: &Position, _vehicle_len: Distance) -> bool {
-        true
+    /// intersecting it. Returns the index if so.
+    pub fn can_block_from_driveway(
+        &self,
+        pos: &Position,
+        vehicle_len: Distance,
+        now: Time,
+        cars: &FixedMap<CarID, Car>,
+        queues: &HashMap<Traversable, Queue>,
+    ) -> Option<usize> {
+        self.get_idx_to_insert_car(pos.dist_along(), vehicle_len, now, cars, queues)
     }
 
     /// Get all cars in the queue, not including the laggy head or blockages.
@@ -449,7 +473,7 @@ impl Queue {
             .collect()
     }
 
-    /// Remove a car from a position.
+    /// Remove a car from a position. Need to separately do free_reserved_space.
     pub fn remove_car_from_idx(&mut self, car: CarID, idx: usize) {
         assert_eq!(self.members.remove(idx), Some(Queued::Vehicle(car)));
     }

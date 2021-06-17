@@ -99,10 +99,17 @@ impl DrivingSimState {
         let start_dist = params.router.get_path().get_req().start.dist_along();
 
         // First handle any of the intermediate queues, failing fast.
+        let mut blocked_start_indices = Vec::new();
         for pos in params.router.get_path().get_blocked_starts() {
-            if !self.queues[&Traversable::Lane(pos.lane())]
-                .can_block_from_driveway(pos, params.vehicle.length)
-            {
+            if let Some(idx) = self.queues[&Traversable::Lane(pos.lane())].can_block_from_driveway(
+                pos,
+                params.vehicle.length,
+                now,
+                &self.cars,
+                &self.queues,
+            ) {
+                blocked_start_indices.push(idx);
+            } else {
                 return Some(params);
             }
             // TODO What's the purpose of nobody_headed_towards again? Do we need to enforce it for
@@ -152,11 +159,22 @@ impl DrivingSimState {
                 car.state =
                     CarState::Unparking(start_dist, p.spot, TimeInterval::new(now, now + delay));
 
-                for pos in car.router.get_path().get_blocked_starts() {
+                for (pos, idx) in car
+                    .router
+                    .get_path()
+                    .get_blocked_starts()
+                    .into_iter()
+                    .zip(blocked_start_indices)
+                {
                     self.queues
                         .get_mut(&Traversable::Lane(pos.lane()))
                         .unwrap()
-                        .add_blockage(car.vehicle.id, start_dist, start_dist - car.vehicle.length);
+                        .add_blockage(
+                            car.vehicle.id,
+                            start_dist,
+                            start_dist - car.vehicle.length,
+                            idx,
+                        );
                 }
             } else {
                 // Have to do this early
