@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `game/src/sandbox/dashboards/trip_problems.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>trip_problems.rs - source</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../../game/index.html'><div class='logo-container rust-logo'><img src='../../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../../game/index.html'><div class='logo-container rust-logo'><img src='../../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../../settings.html"><img src="../../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -403,11 +403,11 @@
 <span id="400">400</span>
 <span id="401">401</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>::<span class="ident">Display</span>;
+<span class="kw">use</span> <span class="ident">std::fmt::Display</span>;
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">abbreviated_format</span>, <span class="ident">prettyprint_usize</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">Duration</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Time</span>};
-<span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">tools</span>::<span class="ident">ColorScale</span>;
+<span class="kw">use</span> <span class="ident">map_gui::tools::ColorScale</span>;
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">Problem</span>, <span class="ident">TripMode</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Color</span>, <span class="ident">DrawWithTooltips</span>, <span class="ident">GeomBatch</span>, <span class="ident">GeomBatchStack</span>, <span class="ident">Text</span>, <span class="ident">Widget</span>};
 
@@ -424,10 +424,10 @@
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Problem</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ProblemType</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">problem</span>: <span class="kw-2">&amp;</span><span class="ident">Problem</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="kw">match</span> <span class="ident">problem</span> {
-            <span class="ident">Problem</span>::<span class="ident">IntersectionDelay</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">IntersectionDelay</span>,
-            <span class="ident">Problem</span>::<span class="ident">ComplexIntersectionCrossing</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">ComplexIntersectionCrossing</span>,
-            <span class="ident">Problem</span>::<span class="ident">OvertakeDesired</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">OvertakeDesired</span>,
-            <span class="ident">Problem</span>::<span class="ident">ArterialIntersectionCrossing</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span>::<span class="ident">ArterialIntersectionCrossing</span>,
+            <span class="ident">Problem::IntersectionDelay</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::IntersectionDelay</span>,
+            <span class="ident">Problem::ComplexIntersectionCrossing</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::ComplexIntersectionCrossing</span>,
+            <span class="ident">Problem::OvertakeDesired</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::OvertakeDesired</span>,
+            <span class="ident">Problem::ArterialIntersectionCrossing</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">Self</span><span class="ident">::ArterialIntersectionCrossing</span>,
         }
     }
 }
@@ -436,7 +436,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">count</span>(<span class="self">self</span>, <span class="ident">problems</span>: <span class="kw-2">&amp;</span>[(<span class="ident">Time</span>, <span class="ident">Problem</span>)]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cnt</span> <span class="op">=</span> <span class="number">0</span>;
         <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">problem</span>) <span class="kw">in</span> <span class="ident">problems</span> {
-            <span class="kw">if</span> <span class="self">self</span> <span class="op">=</span><span class="op">=</span> <span class="ident">ProblemType</span>::<span class="ident">from</span>(<span class="ident">problem</span>) {
+            <span class="kw">if</span> <span class="self">self</span> <span class="op">=</span><span class="op">=</span> <span class="ident">ProblemType::from</span>(<span class="ident">problem</span>) {
                 <span class="ident">cnt</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
             }
         }
@@ -444,11 +444,11 @@
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">all</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ProblemType</span><span class="op">&gt;</span> {
-        <span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">ProblemType</span>::<span class="ident">IntersectionDelay</span>,
-            <span class="ident">ProblemType</span>::<span class="ident">ComplexIntersectionCrossing</span>,
-            <span class="ident">ProblemType</span>::<span class="ident">OvertakeDesired</span>,
-            <span class="ident">ProblemType</span>::<span class="ident">ArterialIntersectionCrossing</span>,
+        <span class="macro">vec!</span>[
+            <span class="ident">ProblemType::IntersectionDelay</span>,
+            <span class="ident">ProblemType::ComplexIntersectionCrossing</span>,
+            <span class="ident">ProblemType::OvertakeDesired</span>,
+            <span class="ident">ProblemType::ArterialIntersectionCrossing</span>,
         ]
     }
 }
@@ -464,9 +464,9 @@
     <span class="kw">fn</span> <span class="ident">trip_problems</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">problem_type</span>: <span class="ident">ProblemType</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Duration</span>, <span class="ident">isize</span>)<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">before</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">prebaked</span>();
         <span class="kw">let</span> <span class="ident">after</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_analytics</span>();
-        <span class="kw">let</span> <span class="ident">empty</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="ident">empty</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">points</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">points</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
         <span class="kw">for</span> (<span class="ident">id</span>, <span class="kw">_</span>, <span class="ident">time_after</span>, <span class="ident">mode</span>) <span class="kw">in</span> <span class="ident">after</span>.<span class="ident">both_finished_trips</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>(), <span class="ident">before</span>) {
             <span class="kw">if</span> <span class="self">self</span>.<span class="ident">includes_mode</span>(<span class="kw-2">&amp;</span><span class="ident">mode</span>) {
                 <span class="kw">let</span> <span class="ident">count_before</span> <span class="op">=</span> <span class="ident">problem_type</span>
@@ -497,24 +497,24 @@
     }
 }
 
-<span class="ident">lazy_static</span>::<span class="macro">lazy_static</span><span class="macro">!</span> {
-    <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">CLEAR_COLOR_SCALE</span>: <span class="ident">ColorScale</span> <span class="op">=</span> <span class="ident">ColorScale</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Color</span>::<span class="ident">CLEAR</span>, <span class="ident">Color</span>::<span class="ident">CLEAR</span>]);
+<span class="macro">lazy_static::lazy_static!</span> {
+    <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">CLEAR_COLOR_SCALE</span>: <span class="ident">ColorScale</span> <span class="op">=</span> <span class="ident">ColorScale</span>(<span class="macro">vec!</span>[<span class="ident">Color::CLEAR</span>, <span class="ident">Color::CLEAR</span>]);
 }
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">problem_matrix</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">trips</span>: <span class="kw-2">&amp;</span>[(<span class="ident">Duration</span>, <span class="ident">isize</span>)]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
     <span class="kw">let</span> <span class="ident">points</span> <span class="op">=</span> <span class="ident">trips</span>;
 
-    <span class="kw">let</span> <span class="ident">duration_buckets</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
-        <span class="ident">Duration</span>::<span class="ident">ZERO</span>,
-        <span class="ident">Duration</span>::<span class="ident">minutes</span>(<span class="number">5</span>),
-        <span class="ident">Duration</span>::<span class="ident">minutes</span>(<span class="number">15</span>),
-        <span class="ident">Duration</span>::<span class="ident">minutes</span>(<span class="number">30</span>),
-        <span class="ident">Duration</span>::<span class="ident">hours</span>(<span class="number">1</span>),
-        <span class="ident">Duration</span>::<span class="ident">hours</span>(<span class="number">2</span>),
+    <span class="kw">let</span> <span class="ident">duration_buckets</span> <span class="op">=</span> <span class="macro">vec!</span>[
+        <span class="ident">Duration::ZERO</span>,
+        <span class="ident">Duration::minutes</span>(<span class="number">5</span>),
+        <span class="ident">Duration::minutes</span>(<span class="number">15</span>),
+        <span class="ident">Duration::minutes</span>(<span class="number">30</span>),
+        <span class="ident">Duration::hours</span>(<span class="number">1</span>),
+        <span class="ident">Duration::hours</span>(<span class="number">2</span>),
     ];
 
     <span class="kw">let</span> <span class="ident">num_buckets</span> <span class="op">=</span> <span class="number">7</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">matrix</span> <span class="op">=</span> <span class="ident">Matrix</span>::<span class="ident">new</span>(<span class="ident">duration_buckets</span>, <span class="ident">bucketize_isizes</span>(<span class="ident">num_buckets</span>, <span class="ident">points</span>));
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">matrix</span> <span class="op">=</span> <span class="ident">Matrix::new</span>(<span class="ident">duration_buckets</span>, <span class="ident">bucketize_isizes</span>(<span class="ident">num_buckets</span>, <span class="ident">points</span>));
     <span class="kw">for</span> (<span class="ident">x</span>, <span class="ident">y</span>) <span class="kw">in</span> <span class="ident">points</span> {
         <span class="ident">matrix</span>.<span class="ident">add_pt</span>(<span class="kw-2">*</span><span class="ident">x</span>, <span class="kw-2">*</span><span class="ident">y</span>);
     }
@@ -524,54 +524,54 @@
         <span class="ident">MatrixOptions</span> {
             <span class="ident">total_width</span>: <span class="number">600.0</span>,
             <span class="ident">total_height</span>: <span class="number">600.0</span>,
-            <span class="ident">color_scale_for_bucket</span>: <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">app</span>, <span class="kw">_</span>, <span class="ident">n</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">n</span>.<span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="number">0</span>) {
-                <span class="ident">std</span>::<span class="ident">cmp</span>::<span class="ident">Ordering</span>::<span class="ident">Equal</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">CLEAR_COLOR_SCALE</span>,
-                <span class="ident">std</span>::<span class="ident">cmp</span>::<span class="ident">Ordering</span>::<span class="ident">Less</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">good_to_bad_green</span>,
-                <span class="ident">std</span>::<span class="ident">cmp</span>::<span class="ident">Ordering</span>::<span class="ident">Greater</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">good_to_bad_red</span>,
+            <span class="ident">color_scale_for_bucket</span>: <span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">app</span>, <span class="kw">_</span>, <span class="ident">n</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">n</span>.<span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="number">0</span>) {
+                <span class="ident">std::cmp::Ordering::Equal</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">CLEAR_COLOR_SCALE</span>,
+                <span class="ident">std::cmp::Ordering::Less</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">good_to_bad_green</span>,
+                <span class="ident">std::cmp::Ordering::Greater</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">good_to_bad_red</span>,
             }),
-            <span class="ident">tooltip_for_bucket</span>: <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span>(<span class="ident">t1</span>, <span class="ident">t2</span>), (<span class="ident">problems1</span>, <span class="ident">problems2</span>), <span class="ident">count</span><span class="op">|</span> {
+            <span class="ident">tooltip_for_bucket</span>: <span class="ident">Box::new</span>(<span class="op">|</span>(<span class="ident">t1</span>, <span class="ident">t2</span>), (<span class="ident">problems1</span>, <span class="ident">problems2</span>), <span class="ident">count</span><span class="op">|</span> {
                 <span class="kw">let</span> <span class="ident">trip_string</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">count</span> <span class="op">=</span><span class="op">=</span> <span class="number">1</span> {
                     <span class="string">&quot;1 trip&quot;</span>.<span class="ident">to_string</span>()
                 } <span class="kw">else</span> {
-                    <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} trips&quot;</span>, <span class="ident">prettyprint_usize</span>(<span class="ident">count</span>))
+                    <span class="macro">format!</span>(<span class="string">&quot;{} trips&quot;</span>, <span class="ident">prettyprint_usize</span>(<span class="ident">count</span>))
                 };
                 <span class="kw">let</span> <span class="ident">duration_string</span> <span class="op">=</span> <span class="kw">match</span> (<span class="ident">t1</span>, <span class="ident">t2</span>) {
-                    (<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="ident">end</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;shorter than {}&quot;</span>, <span class="ident">end</span>),
-                    (<span class="prelude-val">Some</span>(<span class="ident">start</span>), <span class="prelude-val">None</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;longer than {}&quot;</span>, <span class="ident">start</span>),
-                    (<span class="prelude-val">Some</span>(<span class="ident">start</span>), <span class="prelude-val">Some</span>(<span class="ident">end</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;between {} and {}&quot;</span>, <span class="ident">start</span>, <span class="ident">end</span>),
+                    (<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="ident">end</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">format!</span>(<span class="string">&quot;shorter than {}&quot;</span>, <span class="ident">end</span>),
+                    (<span class="prelude-val">Some</span>(<span class="ident">start</span>), <span class="prelude-val">None</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">format!</span>(<span class="string">&quot;longer than {}&quot;</span>, <span class="ident">start</span>),
+                    (<span class="prelude-val">Some</span>(<span class="ident">start</span>), <span class="prelude-val">Some</span>(<span class="ident">end</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">format!</span>(<span class="string">&quot;between {} and {}&quot;</span>, <span class="ident">start</span>, <span class="ident">end</span>),
                     (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                        <span class="macro">unreachable</span><span class="macro">!</span>(<span class="string">&quot;at least one end of the duration range must be specified&quot;</span>)
+                        <span class="macro">unreachable!</span>(<span class="string">&quot;at least one end of the duration range must be specified&quot;</span>)
                     }
                 };
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">from</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} {}&quot;</span>, <span class="ident">trip_string</span>, <span class="ident">duration_string</span>));
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::from</span>(<span class="macro">format!</span>(<span class="string">&quot;{} {}&quot;</span>, <span class="ident">trip_string</span>, <span class="ident">duration_string</span>));
                 <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="kw">match</span> <span class="ident">problems1</span>.<span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="number">0</span>) {
-                    <span class="ident">std</span>::<span class="ident">cmp</span>::<span class="ident">Ordering</span>::<span class="ident">Equal</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="ident">std::cmp::Ordering::Equal</span> <span class="op">=</span><span class="op">&gt;</span> {
                         <span class="string">&quot;had no change in the number of problems encountered.&quot;</span>.<span class="ident">to_string</span>()
                     }
-                    <span class="ident">std</span>::<span class="ident">cmp</span>::<span class="ident">Ordering</span>::<span class="ident">Less</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="ident">std::cmp::Ordering::Less</span> <span class="op">=</span><span class="op">&gt;</span> {
                         <span class="kw">if</span> <span class="ident">problems1</span>.<span class="ident">abs</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">problems2</span>.<span class="ident">abs</span>() <span class="op">+</span> <span class="number">1</span> {
                             <span class="kw">if</span> <span class="ident">problems1</span>.<span class="ident">abs</span>() <span class="op">=</span><span class="op">=</span> <span class="number">1</span> {
                                 <span class="string">&quot;encountered 1 fewer problem.&quot;</span>.<span class="ident">to_string</span>()
                             } <span class="kw">else</span> {
-                                <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;encountered {} fewer problems.&quot;</span>, <span class="ident">problems1</span>.<span class="ident">abs</span>())
+                                <span class="macro">format!</span>(<span class="string">&quot;encountered {} fewer problems.&quot;</span>, <span class="ident">problems1</span>.<span class="ident">abs</span>())
                             }
                         } <span class="kw">else</span> {
-                            <span class="macro">format</span><span class="macro">!</span>(
+                            <span class="macro">format!</span>(
                                 <span class="string">&quot;encountered {}-{} fewer problems.&quot;</span>,
                                 <span class="ident">problems2</span>.<span class="ident">abs</span>() <span class="op">+</span> <span class="number">1</span>,
                                 <span class="ident">problems1</span>.<span class="ident">abs</span>()
                             )
                         }
                     }
-                    <span class="ident">std</span>::<span class="ident">cmp</span>::<span class="ident">Ordering</span>::<span class="ident">Greater</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="ident">std::cmp::Ordering::Greater</span> <span class="op">=</span><span class="op">&gt;</span> {
                         <span class="kw">if</span> <span class="ident">problems1</span> <span class="op">=</span><span class="op">=</span> <span class="ident">problems2</span> <span class="op">-</span> <span class="number">1</span> {
                             <span class="kw">if</span> <span class="ident">problems1</span> <span class="op">=</span><span class="op">=</span> <span class="number">1</span> {
                                 <span class="string">&quot;encountered 1 more problems.&quot;</span>.<span class="ident">to_string</span>()
                             } <span class="kw">else</span> {
-                                <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;encountered {} more problems.&quot;</span>, <span class="ident">problems1</span>,)
+                                <span class="macro">format!</span>(<span class="string">&quot;encountered {} more problems.&quot;</span>, <span class="ident">problems1</span>,)
                             }
                         } <span class="kw">else</span> {
-                            <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;encountered {}-{} more problems.&quot;</span>, <span class="ident">problems1</span>, <span class="ident">problems2</span> <span class="op">-</span> <span class="number">1</span>)
+                            <span class="macro">format!</span>(<span class="string">&quot;encountered {}-{} more problems.&quot;</span>, <span class="ident">problems1</span>, <span class="ident">problems2</span> <span class="op">-</span> <span class="number">1</span>)
                         }
                     }
                 });
@@ -591,7 +591,7 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">X</span>: <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialOrd</span> <span class="op">+</span> <span class="ident">Display</span>, <span class="ident">Y</span>: <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialOrd</span> <span class="op">+</span> <span class="ident">Display</span><span class="op">&gt;</span> <span class="ident">Matrix</span><span class="op">&lt;</span><span class="ident">X</span>, <span class="ident">Y</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">buckets_x</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">X</span><span class="op">&gt;</span>, <span class="ident">buckets_y</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Y</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Matrix</span><span class="op">&lt;</span><span class="ident">X</span>, <span class="ident">Y</span><span class="op">&gt;</span> {
         <span class="ident">Matrix</span> {
-            <span class="ident">counts</span>: <span class="ident">std</span>::<span class="ident">iter</span>::<span class="ident">repeat</span>(<span class="number">0</span>)
+            <span class="ident">counts</span>: <span class="ident">std::iter::repeat</span>(<span class="number">0</span>)
                 .<span class="ident">take</span>(<span class="ident">buckets_x</span>.<span class="ident">len</span>() <span class="op">*</span> <span class="ident">buckets_y</span>.<span class="ident">len</span>())
                 .<span class="ident">collect</span>(),
             <span class="ident">buckets_x</span>,
@@ -624,11 +624,11 @@
     }
 
     <span class="kw">fn</span> <span class="ident">draw</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">opts</span>: <span class="ident">MatrixOptions</span><span class="op">&lt;</span><span class="ident">X</span>, <span class="ident">Y</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tooltips</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tooltips</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
         <span class="kw">let</span> <span class="ident">cell_width</span> <span class="op">=</span> <span class="ident">opts</span>.<span class="ident">total_width</span> <span class="op">/</span> (<span class="self">self</span>.<span class="ident">buckets_x</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">f64</span>);
         <span class="kw">let</span> <span class="ident">cell_height</span> <span class="op">=</span> <span class="ident">opts</span>.<span class="ident">total_height</span> <span class="op">/</span> (<span class="self">self</span>.<span class="ident">buckets_y</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">f64</span>);
-        <span class="kw">let</span> <span class="ident">cell</span> <span class="op">=</span> <span class="ident">Polygon</span>::<span class="ident">rectangle</span>(<span class="ident">cell_width</span>, <span class="ident">cell_height</span>);
+        <span class="kw">let</span> <span class="ident">cell</span> <span class="op">=</span> <span class="ident">Polygon::rectangle</span>(<span class="ident">cell_width</span>, <span class="ident">cell_height</span>);
 
         <span class="kw">let</span> <span class="ident">max_count</span> <span class="op">=</span> <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">counts</span>.<span class="ident">iter</span>().<span class="ident">max</span>().<span class="ident">unwrap</span>() <span class="kw">as</span> <span class="ident">f64</span>;
 
@@ -639,7 +639,7 @@
                 <span class="kw">let</span> <span class="ident">is_middle_ybucket</span> <span class="op">=</span> <span class="ident">y</span> <span class="op">+</span> <span class="number">1</span> <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">buckets_y</span>.<span class="ident">len</span>() <span class="op">/</span> <span class="number">2</span>;
                 <span class="kw">let</span> <span class="ident">count</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">counts</span>[<span class="self">self</span>.<span class="ident">idx</span>(<span class="ident">x</span>, <span class="ident">y</span>)];
                 <span class="kw">let</span> <span class="ident">color</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">count</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
-                    <span class="ident">widgetry</span>::<span class="ident">Color</span>::<span class="ident">CLEAR</span>
+                    <span class="ident">widgetry::Color::CLEAR</span>
                 } <span class="kw">else</span> {
                     <span class="kw">let</span> <span class="ident">density_pct</span> <span class="op">=</span> (<span class="ident">count</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> <span class="ident">max_count</span>;
                     (<span class="ident">opts</span>.<span class="ident">color_scale_for_bucket</span>)(<span class="ident">app</span>, <span class="self">self</span>.<span class="ident">buckets_x</span>[<span class="ident">x</span>], <span class="self">self</span>.<span class="ident">buckets_y</span>[<span class="ident">y</span>])
@@ -650,7 +650,7 @@
                 <span class="kw">let</span> <span class="ident">rect</span> <span class="op">=</span> <span class="ident">cell</span>.<span class="ident">clone</span>().<span class="ident">translate</span>(<span class="ident">x1</span>, <span class="ident">y1</span>);
                 <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">color</span>, <span class="ident">rect</span>.<span class="ident">clone</span>());
                 <span class="ident">batch</span>.<span class="ident">append</span>(
-                    <span class="ident">Text</span>::<span class="ident">from</span>(<span class="kw">if</span> <span class="ident">count</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> <span class="op">&amp;&amp;</span> <span class="ident">is_middle_ybucket</span> {
+                    <span class="ident">Text::from</span>(<span class="kw">if</span> <span class="ident">count</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> <span class="op">&amp;&amp;</span> <span class="ident">is_middle_ybucket</span> {
                         <span class="string">&quot;-&quot;</span>.<span class="ident">to_string</span>()
                     } <span class="kw">else</span> {
                         <span class="ident">abbreviated_format</span>(<span class="ident">count</span>)
@@ -658,10 +658,10 @@
                     .<span class="ident">change_fg</span>(<span class="kw">if</span> <span class="ident">count</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> <span class="op">|</span><span class="op">|</span> <span class="ident">is_middle_ybucket</span> {
                         <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_primary_color</span>
                     } <span class="kw">else</span> {
-                        <span class="ident">Color</span>::<span class="ident">WHITE</span>
+                        <span class="ident">Color::WHITE</span>
                     })
                     .<span class="ident">render</span>(<span class="ident">ctx</span>)
-                    .<span class="ident">centered_on</span>(<span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="ident">x1</span> <span class="op">+</span> <span class="ident">cell_width</span> <span class="op">/</span> <span class="number">2.0</span>, <span class="ident">y1</span> <span class="op">+</span> <span class="ident">cell_height</span> <span class="op">/</span> <span class="number">2.0</span>)),
+                    .<span class="ident">centered_on</span>(<span class="ident">Pt2D::new</span>(<span class="ident">x1</span> <span class="op">+</span> <span class="ident">cell_width</span> <span class="op">/</span> <span class="number">2.0</span>, <span class="ident">y1</span> <span class="op">+</span> <span class="ident">cell_height</span> <span class="op">/</span> <span class="number">2.0</span>)),
                 );
 
                 <span class="kw">if</span> <span class="ident">count</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> <span class="op">|</span><span class="op">|</span> <span class="op">!</span><span class="ident">is_middle_ybucket</span> {
@@ -689,14 +689,14 @@
         }
 
         <span class="comment">// Axis Labels</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">y_axis_label</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">from</span>(<span class="string">&quot;More Problems &lt;--------&gt; Fewer Problems&quot;</span>)
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">y_axis_label</span> <span class="op">=</span> <span class="ident">Text::from</span>(<span class="string">&quot;More Problems &lt;--------&gt; Fewer Problems&quot;</span>)
             .<span class="ident">change_fg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_secondary_color</span>)
             .<span class="ident">render</span>(<span class="ident">ctx</span>)
-            .<span class="ident">rotate</span>(<span class="ident">Angle</span>::<span class="ident">degrees</span>(<span class="op">-</span><span class="number">90.0</span>));
+            .<span class="ident">rotate</span>(<span class="ident">Angle::degrees</span>(<span class="op">-</span><span class="number">90.0</span>));
         <span class="ident">y_axis_label</span>.<span class="ident">autocrop_dims</span> <span class="op">=</span> <span class="bool-val">true</span>;
         <span class="ident">y_axis_label</span> <span class="op">=</span> <span class="ident">y_axis_label</span>.<span class="ident">autocrop</span>();
 
-        <span class="kw">let</span> <span class="ident">x_axis_label</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">from</span>(<span class="string">&quot;       Short Trips &lt;--------&gt; Long Trips&quot;</span>)
+        <span class="kw">let</span> <span class="ident">x_axis_label</span> <span class="op">=</span> <span class="ident">Text::from</span>(<span class="string">&quot;       Short Trips &lt;--------&gt; Long Trips&quot;</span>)
             .<span class="ident">change_fg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_secondary_color</span>)
             .<span class="ident">render</span>(<span class="ident">ctx</span>);
 
@@ -704,14 +704,14 @@
         <span class="kw">for</span> (<span class="ident">polygon</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="ident">tooltips</span>.<span class="ident">iter_mut</span>() {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">translated</span> <span class="op">=</span>
                 <span class="ident">polygon</span>.<span class="ident">translate</span>(<span class="ident">vmargin</span> <span class="op">+</span> <span class="ident">y_axis_label</span>.<span class="ident">get_bounds</span>().<span class="ident">width</span>(), <span class="number">0.0</span>);
-            <span class="ident">std</span>::<span class="ident">mem</span>::<span class="ident">swap</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">translated</span>, <span class="ident">polygon</span>);
+            <span class="ident">std::mem::swap</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">translated</span>, <span class="ident">polygon</span>);
         }
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">row</span> <span class="op">=</span> <span class="ident">GeomBatchStack</span>::<span class="ident">horizontal</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">y_axis_label</span>, <span class="ident">batch</span>]);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">row</span> <span class="op">=</span> <span class="ident">GeomBatchStack::horizontal</span>(<span class="macro">vec!</span>[<span class="ident">y_axis_label</span>, <span class="ident">batch</span>]);
         <span class="ident">row</span>.<span class="ident">set_spacing</span>(<span class="ident">vmargin</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">chart</span> <span class="op">=</span> <span class="ident">GeomBatchStack</span>::<span class="ident">vertical</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">row</span>.<span class="ident">batch</span>(), <span class="ident">x_axis_label</span>]);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">chart</span> <span class="op">=</span> <span class="ident">GeomBatchStack::vertical</span>(<span class="macro">vec!</span>[<span class="ident">row</span>.<span class="ident">batch</span>(), <span class="ident">x_axis_label</span>]);
         <span class="ident">chart</span>.<span class="ident">set_spacing</span>(<span class="number">16</span>);
 
-        <span class="ident">DrawWithTooltips</span>::<span class="ident">new_widget</span>(<span class="ident">ctx</span>, <span class="ident">chart</span>.<span class="ident">batch</span>(), <span class="ident">tooltips</span>, <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>()))
+        <span class="ident">DrawWithTooltips::new_widget</span>(<span class="ident">ctx</span>, <span class="ident">chart</span>.<span class="ident">batch</span>(), <span class="ident">tooltips</span>, <span class="ident">Box::new</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">GeomBatch::new</span>()))
     }
 }
 
@@ -723,11 +723,11 @@
 }
 
 <span class="kw">fn</span> <span class="ident">bucketize_isizes</span>(<span class="ident">max_buckets</span>: <span class="ident">usize</span>, <span class="ident">pts</span>: <span class="kw-2">&amp;</span>[(<span class="ident">Duration</span>, <span class="ident">isize</span>)]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">isize</span><span class="op">&gt;</span> {
-    <span class="macro">debug_assert</span><span class="macro">!</span>(
+    <span class="macro">debug_assert!</span>(
         <span class="ident">max_buckets</span> <span class="op">%</span> <span class="number">2</span> <span class="op">=</span><span class="op">=</span> <span class="number">1</span>,
         <span class="string">&quot;num_buckets must be odd to have a symmetrical number of buckets around axis&quot;</span>
     );
-    <span class="macro">debug_assert</span><span class="macro">!</span>(<span class="ident">max_buckets</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">3</span>, <span class="string">&quot;num_buckets must be at least 3&quot;</span>);
+    <span class="macro">debug_assert!</span>(<span class="ident">max_buckets</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">3</span>, <span class="string">&quot;num_buckets must be at least 3&quot;</span>);
 
     <span class="kw">let</span> <span class="ident">positive_buckets</span> <span class="op">=</span> (<span class="ident">max_buckets</span> <span class="op">-</span> <span class="number">1</span>) <span class="op">/</span> <span class="number">2</span>;
     <span class="comment">// uniformly sized integer buckets</span>
@@ -743,7 +743,7 @@
     <span class="kw">let</span> <span class="ident">bucket_size</span> <span class="op">=</span> (<span class="ident">max</span> <span class="kw">as</span> <span class="ident">f64</span> <span class="op">/</span> <span class="ident">positive_buckets</span> <span class="kw">as</span> <span class="ident">f64</span>).<span class="ident">ceil</span>() <span class="kw">as</span> <span class="ident">isize</span>;
 
     <span class="comment">// we start with a 0-based bucket, and build the other buckets out from that.</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buckets</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="number">0</span>];
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buckets</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="number">0</span>];
 
     <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="op">=</span><span class="ident">positive_buckets</span> {
         <span class="comment">// the first positive bucket starts at `1`, to ensure that the 0 bucket stands alone</span>
@@ -753,7 +753,7 @@
         <span class="ident">buckets</span>.<span class="ident">push</span>(<span class="op">-</span>(<span class="ident">i</span> <span class="kw">as</span> <span class="ident">isize</span>) <span class="op">*</span> <span class="ident">bucket_size</span>);
     }
     <span class="ident">buckets</span>.<span class="ident">sort_unstable</span>();
-    <span class="macro">debug</span><span class="macro">!</span>(<span class="string">&quot;buckets: {:?}&quot;</span>, <span class="ident">buckets</span>);
+    <span class="macro">debug!</span>(<span class="string">&quot;buckets: {:?}&quot;</span>, <span class="ident">buckets</span>);
 
     <span class="ident">buckets</span>
 }
@@ -766,12 +766,12 @@
     <span class="kw">fn</span> <span class="ident">test_bucketize_isizes</span>() {
         <span class="kw">let</span> <span class="ident">buckets</span> <span class="op">=</span> <span class="ident">bucketize_isizes</span>(
             <span class="number">7</span>,
-            <span class="kw-2">&amp;</span><span class="macro">vec</span><span class="macro">!</span>[
-                (<span class="ident">Duration</span>::<span class="ident">minutes</span>(<span class="number">3</span>), <span class="op">-</span><span class="number">3</span>),
-                (<span class="ident">Duration</span>::<span class="ident">minutes</span>(<span class="number">3</span>), <span class="op">-</span><span class="number">3</span>),
-                (<span class="ident">Duration</span>::<span class="ident">minutes</span>(<span class="number">3</span>), <span class="op">-</span><span class="number">1</span>),
-                (<span class="ident">Duration</span>::<span class="ident">minutes</span>(<span class="number">3</span>), <span class="number">2</span>),
-                (<span class="ident">Duration</span>::<span class="ident">minutes</span>(<span class="number">3</span>), <span class="number">5</span>),
+            <span class="kw-2">&amp;</span><span class="macro">vec!</span>[
+                (<span class="ident">Duration::minutes</span>(<span class="number">3</span>), <span class="op">-</span><span class="number">3</span>),
+                (<span class="ident">Duration::minutes</span>(<span class="number">3</span>), <span class="op">-</span><span class="number">3</span>),
+                (<span class="ident">Duration::minutes</span>(<span class="number">3</span>), <span class="op">-</span><span class="number">1</span>),
+                (<span class="ident">Duration::minutes</span>(<span class="number">3</span>), <span class="number">2</span>),
+                (<span class="ident">Duration::minutes</span>(<span class="number">3</span>), <span class="number">5</span>),
             ],
         );
         <span class="comment">// there should be an even number of buckets on either side of zero so as to center</span>
@@ -780,30 +780,30 @@
         <span class="comment">// there should always be a 0-1 bucket, ensuring that only &#39;0&#39; falls into the zero-bucket.</span>
         <span class="comment">//</span>
         <span class="comment">// all other buckets edges should be evenly spaced from the zero bucket</span>
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">buckets</span>, <span class="macro">vec</span><span class="macro">!</span>[<span class="op">-</span><span class="number">6</span>, <span class="op">-</span><span class="number">4</span>, <span class="op">-</span><span class="number">2</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">3</span>, <span class="number">5</span>, <span class="number">7</span>])
+        <span class="macro">assert_eq!</span>(<span class="ident">buckets</span>, <span class="macro">vec!</span>[<span class="op">-</span><span class="number">6</span>, <span class="op">-</span><span class="number">4</span>, <span class="op">-</span><span class="number">2</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">3</span>, <span class="number">5</span>, <span class="number">7</span>])
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_bucketize_empty_isizes</span>() {
-        <span class="kw">let</span> <span class="ident">buckets</span> <span class="op">=</span> <span class="ident">bucketize_isizes</span>(<span class="number">7</span>, <span class="kw-2">&amp;</span><span class="macro">vec</span><span class="macro">!</span>[]);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">buckets</span>, <span class="macro">vec</span><span class="macro">!</span>[<span class="op">-</span><span class="number">2</span>, <span class="op">-</span><span class="number">1</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>])
+        <span class="kw">let</span> <span class="ident">buckets</span> <span class="op">=</span> <span class="ident">bucketize_isizes</span>(<span class="number">7</span>, <span class="kw-2">&amp;</span><span class="macro">vec!</span>[]);
+        <span class="macro">assert_eq!</span>(<span class="ident">buckets</span>, <span class="macro">vec!</span>[<span class="op">-</span><span class="number">2</span>, <span class="op">-</span><span class="number">1</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>])
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_bucketize_small_isizes</span>() {
         <span class="kw">let</span> <span class="ident">buckets</span> <span class="op">=</span> <span class="ident">bucketize_isizes</span>(
             <span class="number">7</span>,
-            <span class="kw-2">&amp;</span><span class="macro">vec</span><span class="macro">!</span>[
-                (<span class="ident">Duration</span>::<span class="ident">minutes</span>(<span class="number">3</span>), <span class="op">-</span><span class="number">1</span>),
-                (<span class="ident">Duration</span>::<span class="ident">minutes</span>(<span class="number">3</span>), <span class="op">-</span><span class="number">1</span>),
-                (<span class="ident">Duration</span>::<span class="ident">minutes</span>(<span class="number">3</span>), <span class="number">0</span>),
-                (<span class="ident">Duration</span>::<span class="ident">minutes</span>(<span class="number">3</span>), <span class="op">-</span><span class="number">1</span>),
-                (<span class="ident">Duration</span>::<span class="ident">minutes</span>(<span class="number">3</span>), <span class="number">0</span>),
+            <span class="kw-2">&amp;</span><span class="macro">vec!</span>[
+                (<span class="ident">Duration::minutes</span>(<span class="number">3</span>), <span class="op">-</span><span class="number">1</span>),
+                (<span class="ident">Duration::minutes</span>(<span class="number">3</span>), <span class="op">-</span><span class="number">1</span>),
+                (<span class="ident">Duration::minutes</span>(<span class="number">3</span>), <span class="number">0</span>),
+                (<span class="ident">Duration::minutes</span>(<span class="number">3</span>), <span class="op">-</span><span class="number">1</span>),
+                (<span class="ident">Duration::minutes</span>(<span class="number">3</span>), <span class="number">0</span>),
             ],
         );
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">buckets</span>, <span class="macro">vec</span><span class="macro">!</span>[<span class="op">-</span><span class="number">3</span>, <span class="op">-</span><span class="number">2</span>, <span class="op">-</span><span class="number">1</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>])
+        <span class="macro">assert_eq!</span>(<span class="ident">buckets</span>, <span class="macro">vec!</span>[<span class="op">-</span><span class="number">3</span>, <span class="op">-</span><span class="number">2</span>, <span class="op">-</span><span class="number">1</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>])
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="game" data-search-js="../../../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="game" data-search-index-js="../../../../search-index.js" data-search-js="../../../../search.js"></div>
     <script src="../../../../main.js"></script><script src="../../../../source-script.js"></script><script src="../../../../source-files.js"></script></body></html>

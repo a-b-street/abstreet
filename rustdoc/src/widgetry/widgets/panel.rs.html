@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/widgets/panel.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>panel.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../widgetry/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../widgetry/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -672,20 +672,20 @@
 <span id="669">669</span>
 <span id="670">670</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cell</span>::<span class="ident">RefCell</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">rc</span>::<span class="ident">Rc</span>;
+<span class="kw">use</span> <span class="ident">std::cell::RefCell</span>;
+<span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
+<span class="kw">use</span> <span class="ident">std::rc::Rc</span>;
 
-<span class="kw">use</span> <span class="ident">stretch</span>::<span class="ident">geometry</span>::<span class="ident">Size</span>;
-<span class="kw">use</span> <span class="ident">stretch</span>::<span class="ident">node</span>::{<span class="ident">Node</span>, <span class="ident">Stretch</span>};
-<span class="kw">use</span> <span class="ident">stretch</span>::<span class="ident">number</span>::<span class="ident">Number</span>;
-<span class="kw">use</span> <span class="ident">stretch</span>::<span class="ident">style</span>::{<span class="ident">Dimension</span>, <span class="ident">Style</span>};
+<span class="kw">use</span> <span class="ident">stretch::geometry::Size</span>;
+<span class="kw">use</span> <span class="ident">stretch::node</span>::{<span class="ident">Node</span>, <span class="ident">Stretch</span>};
+<span class="kw">use</span> <span class="ident">stretch::number::Number</span>;
+<span class="kw">use</span> <span class="ident">stretch::style</span>::{<span class="ident">Dimension</span>, <span class="ident">Style</span>};
 
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Percent</span>, <span class="ident">Polygon</span>};
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::<span class="ident">slider</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::<span class="ident">spinner</span>::<span class="ident">SpinnerValue</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::<span class="ident">Container</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::widgets::slider</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::widgets::spinner::SpinnerValue</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::widgets::Container</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">Autocomplete</span>, <span class="ident">Button</span>, <span class="ident">Color</span>, <span class="ident">Dropdown</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Menu</span>, <span class="ident">Outcome</span>,
     <span class="ident">PersistentSplit</span>, <span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>, <span class="ident">ScreenRectangle</span>, <span class="ident">Slider</span>, <span class="ident">Spinner</span>, <span class="ident">Stash</span>, <span class="ident">TextBox</span>,
@@ -711,31 +711,31 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_builder</span>(<span class="ident">top_level</span>: <span class="ident">Widget</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PanelBuilder</span> {
         <span class="ident">PanelBuilder</span> {
             <span class="ident">top_level</span>,
-            <span class="ident">horiz</span>: <span class="ident">HorizontalAlignment</span>::<span class="ident">Center</span>,
-            <span class="ident">vert</span>: <span class="ident">VerticalAlignment</span>::<span class="ident">Center</span>,
-            <span class="ident">dims</span>: <span class="ident">Dims</span>::<span class="ident">MaxPercent</span>(<span class="ident">Percent</span>::<span class="ident">int</span>(<span class="number">100</span>), <span class="ident">Percent</span>::<span class="ident">int</span>(<span class="number">100</span>)),
+            <span class="ident">horiz</span>: <span class="ident">HorizontalAlignment::Center</span>,
+            <span class="ident">vert</span>: <span class="ident">VerticalAlignment::Center</span>,
+            <span class="ident">dims</span>: <span class="ident">Dims::MaxPercent</span>(<span class="ident">Percent::int</span>(<span class="number">100</span>), <span class="ident">Percent::int</span>(<span class="number">100</span>)),
         }
     }
 
     <span class="doccomment">/// Returns an empty panel. `event` and `draw` will have no effect.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">empty</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Panel</span> {
-        <span class="ident">Panel</span>::<span class="ident">new_builder</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[])).<span class="ident">build_custom</span>(<span class="ident">ctx</span>)
+        <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[])).<span class="ident">build_custom</span>(<span class="ident">ctx</span>)
     }
 
     <span class="kw">fn</span> <span class="ident">update_container_dims_for_canvas_dims</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">canvas_dims</span>: <span class="ident">ScreenDims</span>) {
         <span class="kw">let</span> <span class="ident">new_container_dims</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">dims</span> {
-            <span class="ident">Dims</span>::<span class="ident">MaxPercent</span>(<span class="ident">w</span>, <span class="ident">h</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ScreenDims</span>::<span class="ident">new</span>(
+            <span class="ident">Dims::MaxPercent</span>(<span class="ident">w</span>, <span class="ident">h</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ScreenDims::new</span>(
                 <span class="self">self</span>.<span class="ident">contents_dims</span>.<span class="ident">width</span>.<span class="ident">min</span>(<span class="ident">w</span>.<span class="ident">inner</span>() <span class="op">*</span> <span class="ident">canvas_dims</span>.<span class="ident">width</span>),
                 <span class="self">self</span>.<span class="ident">contents_dims</span>
                     .<span class="ident">height</span>
                     .<span class="ident">min</span>(<span class="ident">h</span>.<span class="ident">inner</span>() <span class="op">*</span> <span class="ident">canvas_dims</span>.<span class="ident">height</span>),
             ),
-            <span class="ident">Dims</span>::<span class="ident">ExactPercent</span>(<span class="ident">w</span>, <span class="ident">h</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="ident">ScreenDims</span>::<span class="ident">new</span>(<span class="ident">w</span> <span class="op">*</span> <span class="ident">canvas_dims</span>.<span class="ident">width</span>, <span class="ident">h</span> <span class="op">*</span> <span class="ident">canvas_dims</span>.<span class="ident">height</span>)
+            <span class="ident">Dims::ExactPercent</span>(<span class="ident">w</span>, <span class="ident">h</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">ScreenDims::new</span>(<span class="ident">w</span> <span class="op">*</span> <span class="ident">canvas_dims</span>.<span class="ident">width</span>, <span class="ident">h</span> <span class="op">*</span> <span class="ident">canvas_dims</span>.<span class="ident">height</span>)
             }
-            <span class="ident">Dims</span>::<span class="ident">ExactSize</span>(<span class="ident">dims</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">dims</span>,
-            <span class="ident">Dims</span>::<span class="ident">ExactHeight</span>(<span class="ident">h</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="ident">ScreenDims</span>::<span class="ident">new</span>(<span class="self">self</span>.<span class="ident">contents_dims</span>.<span class="ident">width</span>.<span class="ident">min</span>(<span class="ident">canvas_dims</span>.<span class="ident">width</span>), <span class="ident">h</span>)
+            <span class="ident">Dims::ExactSize</span>(<span class="ident">dims</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">dims</span>,
+            <span class="ident">Dims::ExactHeight</span>(<span class="ident">h</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">ScreenDims::new</span>(<span class="self">self</span>.<span class="ident">contents_dims</span>.<span class="ident">width</span>.<span class="ident">min</span>(<span class="ident">canvas_dims</span>.<span class="ident">width</span>), <span class="ident">h</span>)
             }
         };
         <span class="self">self</span>.<span class="ident">container_dims</span> <span class="op">=</span> <span class="ident">new_container_dims</span>;
@@ -776,7 +776,7 @@
         <span class="comment">// TODO Handle making room for a horizontal scrollbar on the bottom. The equivalent change</span>
         <span class="comment">// to container_dims.height doesn&#39;t work as expected.</span>
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">scrollable_y</span> {
-            <span class="ident">container_dims</span>.<span class="ident">width</span> <span class="op">+</span><span class="op">=</span> <span class="ident">slider</span>::<span class="ident">SCROLLBAR_BG_WIDTH</span>;
+            <span class="ident">container_dims</span>.<span class="ident">width</span> <span class="op">+</span><span class="op">=</span> <span class="ident">slider::SCROLLBAR_BG_WIDTH</span>;
         }
         <span class="kw">let</span> <span class="ident">top_left</span> <span class="op">=</span> <span class="ident">ctx</span>
             .<span class="ident">canvas</span>
@@ -784,7 +784,7 @@
 
         <span class="comment">// Wrap the main widget in scrollable containers if necessary.</span>
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">scrollable_x</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">slider</span> <span class="op">=</span> <span class="ident">Slider</span>::<span class="ident">horizontal</span>(
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">slider</span> <span class="op">=</span> <span class="ident">Slider::horizontal</span>(
                 <span class="ident">ctx</span>,
                 <span class="self">self</span>.<span class="ident">container_dims</span>.<span class="ident">width</span>,
                 <span class="self">self</span>.<span class="ident">container_dims</span>.<span class="ident">width</span> <span class="op">*</span> (<span class="self">self</span>.<span class="ident">container_dims</span>.<span class="ident">width</span> <span class="op">/</span> <span class="self">self</span>.<span class="ident">contents_dims</span>.<span class="ident">width</span>),
@@ -798,12 +798,12 @@
                 <span class="ident">slider</span>.<span class="ident">widget</span>.<span class="ident">downcast_mut</span>::<span class="op">&lt;</span><span class="ident">Slider</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>().<span class="ident">dragging</span> <span class="op">=</span> <span class="bool-val">true</span>;
             }
 
-            <span class="kw">let</span> <span class="ident">old_top_level</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">mem</span>::<span class="ident">replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">top_level</span>, <span class="ident">Widget</span>::<span class="ident">nothing</span>());
-            <span class="self">self</span>.<span class="ident">top_level</span> <span class="op">=</span> <span class="ident">Widget</span>::<span class="ident">custom_col</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">old_top_level</span>, <span class="ident">slider</span>]);
+            <span class="kw">let</span> <span class="ident">old_top_level</span> <span class="op">=</span> <span class="ident">std::mem::replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">top_level</span>, <span class="ident">Widget::nothing</span>());
+            <span class="self">self</span>.<span class="ident">top_level</span> <span class="op">=</span> <span class="ident">Widget::custom_col</span>(<span class="macro">vec!</span>[<span class="ident">old_top_level</span>, <span class="ident">slider</span>]);
         }
 
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">scrollable_y</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">slider</span> <span class="op">=</span> <span class="ident">Slider</span>::<span class="ident">vertical</span>(
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">slider</span> <span class="op">=</span> <span class="ident">Slider::vertical</span>(
                 <span class="ident">ctx</span>,
                 <span class="self">self</span>.<span class="ident">container_dims</span>.<span class="ident">height</span>,
                 <span class="self">self</span>.<span class="ident">container_dims</span>.<span class="ident">height</span>
@@ -816,14 +816,14 @@
                 <span class="ident">slider</span>.<span class="ident">widget</span>.<span class="ident">downcast_mut</span>::<span class="op">&lt;</span><span class="ident">Slider</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>().<span class="ident">dragging</span> <span class="op">=</span> <span class="bool-val">true</span>;
             }
 
-            <span class="kw">let</span> <span class="ident">old_top_level</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">mem</span>::<span class="ident">replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">top_level</span>, <span class="ident">Widget</span>::<span class="ident">nothing</span>());
-            <span class="self">self</span>.<span class="ident">top_level</span> <span class="op">=</span> <span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">old_top_level</span>, <span class="ident">slider</span>]);
+            <span class="kw">let</span> <span class="ident">old_top_level</span> <span class="op">=</span> <span class="ident">std::mem::replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">top_level</span>, <span class="ident">Widget::nothing</span>());
+            <span class="self">self</span>.<span class="ident">top_level</span> <span class="op">=</span> <span class="ident">Widget::custom_row</span>(<span class="macro">vec!</span>[<span class="ident">old_top_level</span>, <span class="ident">slider</span>]);
         }
 
         <span class="self">self</span>.<span class="ident">update_scroll_sliders</span>(<span class="ident">ctx</span>, <span class="ident">old_scroll_offset</span>);
 
         <span class="self">self</span>.<span class="ident">clip_rect</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">scrollable_x</span> <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">scrollable_y</span> {
-            <span class="prelude-val">Some</span>(<span class="ident">ScreenRectangle</span>::<span class="ident">top_left</span>(<span class="ident">top_left</span>, <span class="self">self</span>.<span class="ident">container_dims</span>))
+            <span class="prelude-val">Some</span>(<span class="ident">ScreenRectangle::top_left</span>(<span class="ident">top_left</span>, <span class="self">self</span>.<span class="ident">container_dims</span>))
         } <span class="kw">else</span> {
             <span class="prelude-val">None</span>
         };
@@ -838,29 +838,29 @@
     }
 
     <span class="kw">fn</span> <span class="ident">invalidate_flexbox</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
-        <span class="macro">debug</span><span class="macro">!</span>(<span class="string">&quot;invalidating flexbox&quot;</span>);
+        <span class="macro">debug!</span>(<span class="string">&quot;invalidating flexbox&quot;</span>);
         <span class="self">self</span>.<span class="ident">cached_flexbox</span> <span class="op">=</span> <span class="prelude-val">None</span>;
     }
 
     <span class="kw">fn</span> <span class="ident">compute_flexbox</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">Stretch</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Node</span><span class="op">&gt;</span>, <span class="ident">ScreenDims</span>) {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stretch</span> <span class="op">=</span> <span class="ident">Stretch</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stretch</span> <span class="op">=</span> <span class="ident">Stretch::new</span>();
         <span class="kw">let</span> <span class="ident">root</span> <span class="op">=</span> <span class="ident">stretch</span>
             .<span class="ident">new_node</span>(
                 <span class="ident">Style</span> {
-                    ..<span class="ident">Default</span>::<span class="ident">default</span>()
+                    ..<span class="ident">Default::default</span>()
                 },
-                <span class="ident">Vec</span>::<span class="ident">new</span>(),
+                <span class="ident">Vec::new</span>(),
             )
             .<span class="ident">unwrap</span>();
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">nodes</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[];
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">nodes</span> <span class="op">=</span> <span class="macro">vec!</span>[];
         <span class="self">self</span>.<span class="ident">top_level</span>.<span class="ident">get_flexbox</span>(<span class="ident">root</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">stretch</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">nodes</span>);
         <span class="ident">nodes</span>.<span class="ident">reverse</span>();
 
         <span class="comment">// TODO Express more simply. Constraining this seems useless.</span>
         <span class="kw">let</span> <span class="ident">container_size</span> <span class="op">=</span> <span class="ident">Size</span> {
-            <span class="ident">width</span>: <span class="ident">Number</span>::<span class="ident">Undefined</span>,
-            <span class="ident">height</span>: <span class="ident">Number</span>::<span class="ident">Undefined</span>,
+            <span class="ident">width</span>: <span class="ident">Number::Undefined</span>,
+            <span class="ident">height</span>: <span class="ident">Number::Undefined</span>,
         };
         <span class="ident">stretch</span>.<span class="ident">compute_layout</span>(<span class="ident">root</span>, <span class="ident">container_size</span>).<span class="ident">unwrap</span>();
 
@@ -869,7 +869,7 @@
             <span class="self">self</span>.<span class="ident">container_dims</span>
         } <span class="kw">else</span> {
             <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">stretch</span>.<span class="ident">layout</span>(<span class="ident">root</span>).<span class="ident">unwrap</span>();
-            <span class="ident">ScreenDims</span>::<span class="ident">new</span>(<span class="ident">result</span>.<span class="ident">size</span>.<span class="ident">width</span>.<span class="ident">into</span>(), <span class="ident">result</span>.<span class="ident">size</span>.<span class="ident">height</span>.<span class="ident">into</span>())
+            <span class="ident">ScreenDims::new</span>(<span class="ident">result</span>.<span class="ident">size</span>.<span class="ident">width</span>.<span class="ident">into</span>(), <span class="ident">result</span>.<span class="ident">size</span>.<span class="ident">height</span>.<span class="ident">into</span>())
         };
 
         (<span class="ident">stretch</span>, <span class="ident">nodes</span>, <span class="ident">effective_dims</span>)
@@ -898,7 +898,7 @@
                 <span class="ident">recompute_bg</span>,
                 <span class="bool-val">false</span>,
             );
-            <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">nodes</span>.<span class="ident">is_empty</span>());
+            <span class="macro">assert!</span>(<span class="ident">nodes</span>.<span class="ident">is_empty</span>());
         }
         <span class="self">self</span>.<span class="ident">cached_flexbox</span> <span class="op">=</span> <span class="prelude-val">Some</span>((<span class="ident">stretch</span>, <span class="ident">nodes</span>, <span class="ident">effective_dims</span>));
     }
@@ -979,7 +979,7 @@
         }
 
         <span class="kw">let</span> <span class="ident">before</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">scroll_offset</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">output</span> <span class="op">=</span> <span class="ident">WidgetOutput</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">output</span> <span class="op">=</span> <span class="ident">WidgetOutput::new</span>();
         <span class="self">self</span>.<span class="ident">top_level</span>.<span class="ident">widget</span>.<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">output</span>);
 
         <span class="kw">if</span> <span class="ident">output</span>.<span class="ident">redo_layout</span> {
@@ -1002,14 +1002,14 @@
         <span class="comment">// Debugging</span>
         <span class="kw">if</span> <span class="bool-val">false</span> {
             <span class="ident">g</span>.<span class="ident">fork_screenspace</span>();
-            <span class="ident">g</span>.<span class="ident">draw_polygon</span>(<span class="ident">Color</span>::<span class="ident">RED</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>), <span class="self">self</span>.<span class="ident">top_level</span>.<span class="ident">rect</span>.<span class="ident">to_polygon</span>());
+            <span class="ident">g</span>.<span class="ident">draw_polygon</span>(<span class="ident">Color::RED</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>), <span class="self">self</span>.<span class="ident">top_level</span>.<span class="ident">rect</span>.<span class="ident">to_polygon</span>());
 
             <span class="kw">let</span> <span class="ident">top_left</span> <span class="op">=</span> <span class="ident">g</span>
                 .<span class="ident">canvas</span>
                 .<span class="ident">align_window</span>(<span class="self">self</span>.<span class="ident">container_dims</span>, <span class="self">self</span>.<span class="ident">horiz</span>, <span class="self">self</span>.<span class="ident">vert</span>);
             <span class="ident">g</span>.<span class="ident">draw_polygon</span>(
-                <span class="ident">Color</span>::<span class="ident">BLUE</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>),
-                <span class="ident">Polygon</span>::<span class="ident">rectangle</span>(<span class="self">self</span>.<span class="ident">container_dims</span>.<span class="ident">width</span>, <span class="self">self</span>.<span class="ident">container_dims</span>.<span class="ident">height</span>)
+                <span class="ident">Color::BLUE</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>),
+                <span class="ident">Polygon::rectangle</span>(<span class="self">self</span>.<span class="ident">container_dims</span>.<span class="ident">width</span>, <span class="self">self</span>.<span class="ident">container_dims</span>.<span class="ident">height</span>)
                     .<span class="ident">translate</span>(<span class="ident">top_left</span>.<span class="ident">x</span>, <span class="ident">top_left</span>.<span class="ident">y</span>),
             );
             <span class="ident">g</span>.<span class="ident">unfork</span>();
@@ -1031,7 +1031,7 @@
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_all_click_actions</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">actions</span> <span class="op">=</span> <span class="ident">HashSet</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">actions</span> <span class="op">=</span> <span class="ident">HashSet::new</span>();
         <span class="self">self</span>.<span class="ident">top_level</span>.<span class="ident">get_all_click_actions</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">actions</span>);
         <span class="ident">actions</span>
     }
@@ -1042,7 +1042,7 @@
         <span class="self">self</span>.<span class="ident">top_level</span>.<span class="ident">restore</span>(<span class="ident">ctx</span>, <span class="ident">prev</span>);
 
         <span class="comment">// Since we just moved things around, let all widgets respond to the mouse being somewhere</span>
-        <span class="ident">ctx</span>.<span class="ident">no_op_event</span>(<span class="bool-val">true</span>, <span class="op">|</span><span class="ident">ctx</span><span class="op">|</span> <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">event</span>(<span class="ident">ctx</span>), <span class="ident">Outcome</span>::<span class="ident">Nothing</span>));
+        <span class="ident">ctx</span>.<span class="ident">no_op_event</span>(<span class="bool-val">true</span>, <span class="op">|</span><span class="ident">ctx</span><span class="op">|</span> <span class="macro">assert_eq!</span>(<span class="self">self</span>.<span class="ident">event</span>(<span class="ident">ctx</span>), <span class="ident">Outcome::Nothing</span>));
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">scroll_to_member</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">name</span>: <span class="ident">String</span>) {
@@ -1050,7 +1050,7 @@
             <span class="kw">let</span> <span class="ident">y1</span> <span class="op">=</span> <span class="ident">w</span>.<span class="ident">rect</span>.<span class="ident">y1</span>;
             <span class="self">self</span>.<span class="ident">set_scroll_offset</span>(<span class="ident">ctx</span>, (<span class="number">0.0</span>, <span class="ident">y1</span>));
         } <span class="kw">else</span> {
-            <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Can&#39;t scroll_to_member of unknown {}&quot;</span>, <span class="ident">name</span>);
+            <span class="macro">panic!</span>(<span class="string">&quot;Can&#39;t scroll_to_member of unknown {}&quot;</span>, <span class="ident">name</span>);
         }
     }
 
@@ -1141,10 +1141,10 @@
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="ident">w</span>.<span class="ident">widget</span>.<span class="ident">downcast_ref</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>() {
                 <span class="ident">x</span>
             } <span class="kw">else</span> {
-                <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Found widget {}, but wrong type&quot;</span>, <span class="ident">name</span>);
+                <span class="macro">panic!</span>(<span class="string">&quot;Found widget {}, but wrong type&quot;</span>, <span class="ident">name</span>);
             }
         } <span class="kw">else</span> {
-            <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Can&#39;t find widget {}&quot;</span>, <span class="ident">name</span>);
+            <span class="macro">panic!</span>(<span class="string">&quot;Can&#39;t find widget {}&quot;</span>, <span class="ident">name</span>);
         }
     }
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">find_mut</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">WidgetImpl</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">T</span> {
@@ -1152,10 +1152,10 @@
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="ident">w</span>.<span class="ident">widget</span>.<span class="ident">downcast_mut</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>() {
                 <span class="ident">x</span>
             } <span class="kw">else</span> {
-                <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Found widget {}, but wrong type&quot;</span>, <span class="ident">name</span>);
+                <span class="macro">panic!</span>(<span class="string">&quot;Found widget {}, but wrong type&quot;</span>, <span class="ident">name</span>);
             }
         } <span class="kw">else</span> {
-            <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Can&#39;t find widget {}&quot;</span>, <span class="ident">name</span>);
+            <span class="macro">panic!</span>(<span class="string">&quot;Can&#39;t find widget {}&quot;</span>, <span class="ident">name</span>);
         }
     }
 
@@ -1167,12 +1167,12 @@
         <span class="ident">new_inner_content</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Widget</span>,
     ) {
         <span class="kw">let</span> <span class="ident">old_container</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Container</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">find_mut</span>(<span class="ident">container_name</span>);
-        <span class="macro">assert_eq</span><span class="macro">!</span>(
+        <span class="macro">assert_eq!</span>(
             <span class="ident">old_container</span>.<span class="ident">members</span>.<span class="ident">len</span>(),
             <span class="number">1</span>,
             <span class="string">&quot;method only intended to be used for containers created with `Widget::container`&quot;</span>
         );
-        <span class="ident">std</span>::<span class="ident">mem</span>::<span class="ident">swap</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">old_container</span>.<span class="ident">members</span>[<span class="number">0</span>], <span class="ident">new_inner_content</span>);
+        <span class="ident">std::mem::swap</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">old_container</span>.<span class="ident">members</span>[<span class="number">0</span>], <span class="ident">new_inner_content</span>);
         <span class="self">self</span>.<span class="ident">recompute_layout</span>(<span class="ident">ctx</span>, <span class="bool-val">true</span>);
     }
 
@@ -1200,13 +1200,13 @@
     <span class="doccomment">/// widget; no need to do that yourself.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">id</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="kw-2">mut</span> <span class="ident">new</span>: <span class="ident">Widget</span>) {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">new_id</span>) <span class="op">=</span> <span class="ident">new</span>.<span class="ident">id</span> {
-            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">id</span>, <span class="ident">new_id</span>);
+            <span class="macro">assert_eq!</span>(<span class="ident">id</span>, <span class="ident">new_id</span>);
         }
         <span class="ident">new</span> <span class="op">=</span> <span class="ident">new</span>.<span class="ident">named</span>(<span class="ident">id</span>);
         <span class="kw">let</span> <span class="ident">old</span> <span class="op">=</span> <span class="self">self</span>
             .<span class="ident">top_level</span>
             .<span class="ident">find_mut</span>(<span class="ident">id</span>)
-            .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Panel doesn&#39;t have {}&quot;</span>, <span class="ident">id</span>));
+            .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">panic!</span>(<span class="string">&quot;Panel doesn&#39;t have {}&quot;</span>, <span class="ident">id</span>));
         <span class="ident">new</span>.<span class="ident">layout</span>.<span class="ident">style</span> <span class="op">=</span> <span class="ident">old</span>.<span class="ident">layout</span>.<span class="ident">style</span>;
         <span class="kw-2">*</span><span class="ident">old</span> <span class="op">=</span> <span class="ident">new</span>;
         <span class="self">self</span>.<span class="ident">recompute_layout</span>(<span class="ident">ctx</span>, <span class="bool-val">true</span>);
@@ -1260,27 +1260,27 @@
 
             <span class="ident">scrollable_x</span>: <span class="bool-val">false</span>,
             <span class="ident">scrollable_y</span>: <span class="bool-val">false</span>,
-            <span class="ident">contents_dims</span>: <span class="ident">ScreenDims</span>::<span class="ident">new</span>(<span class="number">0.0</span>, <span class="number">0.0</span>),
-            <span class="ident">container_dims</span>: <span class="ident">ScreenDims</span>::<span class="ident">new</span>(<span class="number">0.0</span>, <span class="number">0.0</span>),
+            <span class="ident">contents_dims</span>: <span class="ident">ScreenDims::new</span>(<span class="number">0.0</span>, <span class="number">0.0</span>),
+            <span class="ident">container_dims</span>: <span class="ident">ScreenDims::new</span>(<span class="number">0.0</span>, <span class="number">0.0</span>),
             <span class="ident">clip_rect</span>: <span class="prelude-val">None</span>,
             <span class="ident">cached_flexbox</span>: <span class="prelude-val">None</span>,
         };
         <span class="kw">match</span> <span class="ident">panel</span>.<span class="ident">dims</span> {
-            <span class="ident">Dims</span>::<span class="ident">ExactPercent</span>(<span class="ident">w</span>, <span class="ident">h</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Dims::ExactPercent</span>(<span class="ident">w</span>, <span class="ident">h</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="comment">// Don&#39;t set size, because then scrolling breaks -- the actual size has to be based</span>
                 <span class="comment">// on the contents.</span>
                 <span class="ident">panel</span>.<span class="ident">top_level</span>.<span class="ident">layout</span>.<span class="ident">style</span>.<span class="ident">min_size</span> <span class="op">=</span> <span class="ident">Size</span> {
-                    <span class="ident">width</span>: <span class="ident">Dimension</span>::<span class="ident">Points</span>((<span class="ident">w</span> <span class="op">*</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_width</span>) <span class="kw">as</span> <span class="ident">f32</span>),
-                    <span class="ident">height</span>: <span class="ident">Dimension</span>::<span class="ident">Points</span>((<span class="ident">h</span> <span class="op">*</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_height</span>) <span class="kw">as</span> <span class="ident">f32</span>),
+                    <span class="ident">width</span>: <span class="ident">Dimension::Points</span>((<span class="ident">w</span> <span class="op">*</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_width</span>) <span class="kw">as</span> <span class="ident">f32</span>),
+                    <span class="ident">height</span>: <span class="ident">Dimension::Points</span>((<span class="ident">h</span> <span class="op">*</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_height</span>) <span class="kw">as</span> <span class="ident">f32</span>),
                 };
             }
-            <span class="ident">Dims</span>::<span class="ident">ExactHeight</span>(<span class="ident">h</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="ident">panel</span>.<span class="ident">top_level</span>.<span class="ident">layout</span>.<span class="ident">style</span>.<span class="ident">min_size</span>.<span class="ident">height</span> <span class="op">=</span> <span class="ident">Dimension</span>::<span class="ident">Points</span>(<span class="ident">h</span> <span class="kw">as</span> <span class="ident">f32</span>);
+            <span class="ident">Dims::ExactHeight</span>(<span class="ident">h</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">panel</span>.<span class="ident">top_level</span>.<span class="ident">layout</span>.<span class="ident">style</span>.<span class="ident">min_size</span>.<span class="ident">height</span> <span class="op">=</span> <span class="ident">Dimension::Points</span>(<span class="ident">h</span> <span class="kw">as</span> <span class="ident">f32</span>);
             }
-            <span class="ident">Dims</span>::<span class="ident">ExactSize</span>(<span class="ident">dims</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Dims::ExactSize</span>(<span class="ident">dims</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="ident">panel</span>.<span class="ident">top_level</span>.<span class="ident">layout</span>.<span class="ident">style</span>.<span class="ident">min_size</span> <span class="op">=</span> <span class="ident">dims</span>.<span class="ident">into</span>();
             }
-            <span class="ident">Dims</span>::<span class="ident">MaxPercent</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {}
+            <span class="ident">Dims::MaxPercent</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {}
         }
 
         <span class="comment">// There is a dependency cycle in our layout logic. As a consequence:</span>
@@ -1296,14 +1296,14 @@
         <span class="comment">// the inner content, and then potentially a second pass to layout any x/y scrollbars.</span>
         <span class="ident">panel</span>.<span class="ident">recompute_layout</span>(<span class="ident">ctx</span>, <span class="bool-val">false</span>);
         <span class="ident">panel</span>.<span class="ident">contents_dims</span> <span class="op">=</span>
-            <span class="ident">ScreenDims</span>::<span class="ident">new</span>(<span class="ident">panel</span>.<span class="ident">top_level</span>.<span class="ident">rect</span>.<span class="ident">width</span>(), <span class="ident">panel</span>.<span class="ident">top_level</span>.<span class="ident">rect</span>.<span class="ident">height</span>());
+            <span class="ident">ScreenDims::new</span>(<span class="ident">panel</span>.<span class="ident">top_level</span>.<span class="ident">rect</span>.<span class="ident">width</span>(), <span class="ident">panel</span>.<span class="ident">top_level</span>.<span class="ident">rect</span>.<span class="ident">height</span>());
         <span class="ident">panel</span>.<span class="ident">update_container_dims_for_canvas_dims</span>(<span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_window_dims</span>());
         <span class="ident">panel</span>.<span class="ident">recompute_layout</span>(<span class="ident">ctx</span>, <span class="bool-val">false</span>);
 
         <span class="comment">// Just trigger error if a button is double-defined</span>
         <span class="ident">panel</span>.<span class="ident">get_all_click_actions</span>();
         <span class="comment">// Let all widgets initially respond to the mouse being somewhere</span>
-        <span class="ident">ctx</span>.<span class="ident">no_op_event</span>(<span class="bool-val">true</span>, <span class="op">|</span><span class="ident">ctx</span><span class="op">|</span> <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>), <span class="ident">Outcome</span>::<span class="ident">Nothing</span>));
+        <span class="ident">ctx</span>.<span class="ident">no_op_event</span>(<span class="bool-val">true</span>, <span class="op">|</span><span class="ident">ctx</span><span class="op">|</span> <span class="macro">assert_eq!</span>(<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>), <span class="ident">Outcome::Nothing</span>));
         <span class="ident">panel</span>
     }
 
@@ -1320,28 +1320,28 @@
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">max_size</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">width</span>: <span class="ident">Percent</span>, <span class="ident">height</span>: <span class="ident">Percent</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PanelBuilder</span> {
-        <span class="kw">if</span> <span class="ident">width</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Percent</span>::<span class="ident">int</span>(<span class="number">100</span>) <span class="op">&amp;&amp;</span> <span class="ident">height</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Percent</span>::<span class="ident">int</span>(<span class="number">100</span>) {
-            <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;By default, Panels are capped at 100% of the screen. This is redundant.&quot;</span>);
+        <span class="kw">if</span> <span class="ident">width</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Percent::int</span>(<span class="number">100</span>) <span class="op">&amp;&amp;</span> <span class="ident">height</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Percent::int</span>(<span class="number">100</span>) {
+            <span class="macro">panic!</span>(<span class="string">&quot;By default, Panels are capped at 100% of the screen. This is redundant.&quot;</span>);
         }
-        <span class="self">self</span>.<span class="ident">dims</span> <span class="op">=</span> <span class="ident">Dims</span>::<span class="ident">MaxPercent</span>(<span class="ident">width</span>, <span class="ident">height</span>);
+        <span class="self">self</span>.<span class="ident">dims</span> <span class="op">=</span> <span class="ident">Dims::MaxPercent</span>(<span class="ident">width</span>, <span class="ident">height</span>);
         <span class="self">self</span>
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">exact_size_percent</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">pct_width</span>: <span class="ident">usize</span>, <span class="ident">pct_height</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PanelBuilder</span> {
-        <span class="self">self</span>.<span class="ident">dims</span> <span class="op">=</span> <span class="ident">Dims</span>::<span class="ident">ExactPercent</span>((<span class="ident">pct_width</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> <span class="number">100.0</span>, (<span class="ident">pct_height</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> <span class="number">100.0</span>);
+        <span class="self">self</span>.<span class="ident">dims</span> <span class="op">=</span> <span class="ident">Dims::ExactPercent</span>((<span class="ident">pct_width</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> <span class="number">100.0</span>, (<span class="ident">pct_height</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> <span class="number">100.0</span>);
         <span class="self">self</span>
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">exact_height</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">height</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PanelBuilder</span> {
-        <span class="self">self</span>.<span class="ident">dims</span> <span class="op">=</span> <span class="ident">Dims</span>::<span class="ident">ExactHeight</span>(<span class="ident">height</span>);
+        <span class="self">self</span>.<span class="ident">dims</span> <span class="op">=</span> <span class="ident">Dims::ExactHeight</span>(<span class="ident">height</span>);
         <span class="self">self</span>
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">exact_size</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">size</span>: <span class="ident">ScreenDims</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PanelBuilder</span> {
-        <span class="self">self</span>.<span class="ident">dims</span> <span class="op">=</span> <span class="ident">Dims</span>::<span class="ident">ExactSize</span>(<span class="ident">size</span>);
+        <span class="self">self</span>.<span class="ident">dims</span> <span class="op">=</span> <span class="ident">Dims::ExactSize</span>(<span class="ident">size</span>);
         <span class="self">self</span>
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="widgetry" data-search-js="../../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="widgetry" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
     <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script></body></html>

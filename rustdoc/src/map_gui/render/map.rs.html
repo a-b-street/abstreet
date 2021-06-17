@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_gui/src/render/map.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>map.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../map_gui/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../map_gui/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -538,26 +538,26 @@
 <span id="535">535</span>
 <span id="536">536</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashMap</span>;
+<span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
-<span class="kw">use</span> <span class="ident">aabb_quadtree</span>::<span class="ident">QuadTree</span>;
+<span class="kw">use</span> <span class="ident">aabb_quadtree::QuadTree</span>;
 
-<span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Timer</span>;
+<span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Bounds</span>, <span class="ident">Polygon</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{
     <span class="ident">AreaID</span>, <span class="ident">BuildingID</span>, <span class="ident">BusStopID</span>, <span class="ident">IntersectionID</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">ParkingLotID</span>, <span class="ident">Road</span>, <span class="ident">RoadID</span>,
 };
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>};
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">colors</span>::<span class="ident">ColorScheme</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">options</span>::<span class="ident">Options</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">render</span>::<span class="ident">building</span>::<span class="ident">DrawBuilding</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">render</span>::<span class="ident">bus_stop</span>::<span class="ident">DrawBusStop</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">render</span>::<span class="ident">intersection</span>::<span class="ident">DrawIntersection</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">render</span>::<span class="ident">lane</span>::<span class="ident">DrawLane</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">render</span>::<span class="ident">parking_lot</span>::<span class="ident">DrawParkingLot</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">render</span>::<span class="ident">road</span>::<span class="ident">DrawRoad</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">render</span>::{<span class="ident">AgentCache</span>, <span class="ident">DrawArea</span>, <span class="ident">Renderable</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::colors::ColorScheme</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::options::Options</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::render::building::DrawBuilding</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::render::bus_stop::DrawBusStop</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::render::intersection::DrawIntersection</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::render::lane::DrawLane</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::render::parking_lot::DrawParkingLot</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::render::road::DrawRoad</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::render</span>::{<span class="ident">AgentCache</span>, <span class="ident">DrawArea</span>, <span class="ident">Renderable</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">AppLike</span>, <span class="ident">ID</span>};
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DrawMap</span> {
@@ -582,7 +582,7 @@
 
     <span class="ident">quadtree</span>: <span class="ident">QuadTree</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span>,
     <span class="comment">// Remember these so we can modify the bounding box of some objects.</span>
-    <span class="ident">quadtree_ids</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">ID</span>, <span class="ident">aabb_quadtree</span>::<span class="ident">ItemId</span><span class="op">&gt;</span>,
+    <span class="ident">quadtree_ids</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">ID</span>, <span class="ident">aabb_quadtree::ItemId</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">DrawMap</span> {
@@ -593,42 +593,42 @@
         <span class="ident">cs</span>: <span class="kw-2">&amp;</span><span class="ident">ColorScheme</span>,
         <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DrawMap</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">roads</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DrawRoad</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">roads</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DrawRoad</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">low_z</span> <span class="op">=</span> <span class="number">0</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">high_z</span> <span class="op">=</span> <span class="number">0</span>;
         <span class="ident">timer</span>.<span class="ident">start_iter</span>(<span class="string">&quot;make DrawRoads&quot;</span>, <span class="ident">map</span>.<span class="ident">all_roads</span>().<span class="ident">len</span>());
         <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_roads</span>() {
             <span class="ident">timer</span>.<span class="ident">next</span>();
-            <span class="ident">roads</span>.<span class="ident">push</span>(<span class="ident">DrawRoad</span>::<span class="ident">new</span>(<span class="ident">r</span>));
+            <span class="ident">roads</span>.<span class="ident">push</span>(<span class="ident">DrawRoad::new</span>(<span class="ident">r</span>));
             <span class="ident">low_z</span> <span class="op">=</span> <span class="ident">low_z</span>.<span class="ident">min</span>(<span class="ident">r</span>.<span class="ident">zorder</span>);
             <span class="ident">high_z</span> <span class="op">=</span> <span class="ident">high_z</span>.<span class="ident">max</span>(<span class="ident">r</span>.<span class="ident">zorder</span>);
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lanes</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">LaneID</span>, <span class="ident">DrawLane</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">HashMap</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lanes</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">LaneID</span>, <span class="ident">DrawLane</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
         <span class="ident">timer</span>.<span class="ident">start_iter</span>(<span class="string">&quot;make DrawLanes&quot;</span>, <span class="ident">map</span>.<span class="ident">all_lanes</span>().<span class="ident">len</span>());
         <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_lanes</span>().<span class="ident">values</span>() {
             <span class="ident">timer</span>.<span class="ident">next</span>();
-            <span class="ident">lanes</span>.<span class="ident">insert</span>(<span class="ident">l</span>.<span class="ident">id</span>, <span class="ident">DrawLane</span>::<span class="ident">new</span>(<span class="ident">l</span>, <span class="ident">map</span>));
+            <span class="ident">lanes</span>.<span class="ident">insert</span>(<span class="ident">l</span>.<span class="ident">id</span>, <span class="ident">DrawLane::new</span>(<span class="ident">l</span>, <span class="ident">map</span>));
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">intersections</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DrawIntersection</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">intersections</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DrawIntersection</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
         <span class="ident">timer</span>.<span class="ident">start_iter</span>(<span class="string">&quot;make DrawIntersections&quot;</span>, <span class="ident">map</span>.<span class="ident">all_intersections</span>().<span class="ident">len</span>());
         <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_intersections</span>() {
             <span class="ident">timer</span>.<span class="ident">next</span>();
-            <span class="ident">intersections</span>.<span class="ident">push</span>(<span class="ident">DrawIntersection</span>::<span class="ident">new</span>(<span class="ident">i</span>, <span class="ident">map</span>));
+            <span class="ident">intersections</span>.<span class="ident">push</span>(<span class="ident">DrawIntersection::new</span>(<span class="ident">i</span>, <span class="ident">map</span>));
         }
 
         <span class="kw">let</span> <span class="ident">draw_all_unzoomed_roads_and_intersections</span> <span class="op">=</span>
-            <span class="ident">DrawMap</span>::<span class="ident">regenerate_unzoomed_layer</span>(<span class="ident">map</span>, <span class="ident">cs</span>, <span class="ident">ctx</span>, <span class="ident">timer</span>);
+            <span class="ident">DrawMap::regenerate_unzoomed_layer</span>(<span class="ident">map</span>, <span class="ident">cs</span>, <span class="ident">ctx</span>, <span class="ident">timer</span>);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buildings</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DrawBuilding</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">all_buildings</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">all_building_outlines</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">all_building_driveways</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buildings</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DrawBuilding</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">all_buildings</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">all_building_outlines</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">all_building_driveways</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
         <span class="ident">timer</span>.<span class="ident">start_iter</span>(<span class="string">&quot;make DrawBuildings&quot;</span>, <span class="ident">map</span>.<span class="ident">all_buildings</span>().<span class="ident">len</span>());
         <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_buildings</span>() {
             <span class="ident">timer</span>.<span class="ident">next</span>();
-            <span class="ident">buildings</span>.<span class="ident">push</span>(<span class="ident">DrawBuilding</span>::<span class="ident">new</span>(
+            <span class="ident">buildings</span>.<span class="ident">push</span>(<span class="ident">DrawBuilding::new</span>(
                 <span class="ident">ctx</span>,
                 <span class="ident">b</span>,
                 <span class="ident">map</span>,
@@ -637,7 +637,7 @@
                 <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">all_buildings</span>,
                 <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">all_building_outlines</span>,
             ));
-            <span class="ident">DrawBuilding</span>::<span class="ident">draw_driveway</span>(<span class="ident">b</span>, <span class="ident">map</span>, <span class="ident">cs</span>, <span class="ident">opts</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">all_building_driveways</span>);
+            <span class="ident">DrawBuilding::draw_driveway</span>(<span class="ident">b</span>, <span class="ident">map</span>, <span class="ident">cs</span>, <span class="ident">opts</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">all_building_driveways</span>);
         }
         <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;upload all buildings&quot;</span>);
         <span class="kw">let</span> <span class="ident">draw_all_buildings</span> <span class="op">=</span> <span class="ident">all_buildings</span>.<span class="ident">upload</span>(<span class="ident">ctx</span>);
@@ -646,10 +646,10 @@
         <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;upload all buildings&quot;</span>);
 
         <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;make DrawParkingLot&quot;</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">parking_lots</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DrawParkingLot</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">all_unzoomed_parking_lots</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">parking_lots</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DrawParkingLot</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">all_unzoomed_parking_lots</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
         <span class="kw">for</span> <span class="ident">pl</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_parking_lots</span>() {
-            <span class="ident">parking_lots</span>.<span class="ident">push</span>(<span class="ident">DrawParkingLot</span>::<span class="ident">new</span>(
+            <span class="ident">parking_lots</span>.<span class="ident">push</span>(<span class="ident">DrawParkingLot::new</span>(
                 <span class="ident">ctx</span>,
                 <span class="ident">pl</span>,
                 <span class="ident">cs</span>,
@@ -660,31 +660,31 @@
         <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;make DrawParkingLot&quot;</span>);
 
         <span class="ident">timer</span>.<span class="ident">start_iter</span>(<span class="string">&quot;make DrawBusStop&quot;</span>, <span class="ident">map</span>.<span class="ident">all_bus_stops</span>().<span class="ident">len</span>());
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bus_stops</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">BusStopID</span>, <span class="ident">DrawBusStop</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">HashMap</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bus_stops</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">BusStopID</span>, <span class="ident">DrawBusStop</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
         <span class="kw">for</span> <span class="ident">s</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_bus_stops</span>().<span class="ident">values</span>() {
             <span class="ident">timer</span>.<span class="ident">next</span>();
-            <span class="ident">bus_stops</span>.<span class="ident">insert</span>(<span class="ident">s</span>.<span class="ident">id</span>, <span class="ident">DrawBusStop</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">s</span>, <span class="ident">map</span>, <span class="ident">cs</span>));
+            <span class="ident">bus_stops</span>.<span class="ident">insert</span>(<span class="ident">s</span>.<span class="ident">id</span>, <span class="ident">DrawBusStop::new</span>(<span class="ident">ctx</span>, <span class="ident">s</span>, <span class="ident">map</span>, <span class="ident">cs</span>));
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">areas</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DrawArea</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">all_areas</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">areas</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DrawArea</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">all_areas</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
         <span class="ident">timer</span>.<span class="ident">start_iter</span>(<span class="string">&quot;make DrawAreas&quot;</span>, <span class="ident">map</span>.<span class="ident">all_areas</span>().<span class="ident">len</span>());
         <span class="kw">for</span> <span class="ident">a</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_areas</span>() {
             <span class="ident">timer</span>.<span class="ident">next</span>();
-            <span class="ident">areas</span>.<span class="ident">push</span>(<span class="ident">DrawArea</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">a</span>, <span class="ident">cs</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">all_areas</span>));
+            <span class="ident">areas</span>.<span class="ident">push</span>(<span class="ident">DrawArea::new</span>(<span class="ident">ctx</span>, <span class="ident">a</span>, <span class="ident">cs</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">all_areas</span>));
         }
         <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;upload all areas&quot;</span>);
         <span class="kw">let</span> <span class="ident">draw_all_areas</span> <span class="op">=</span> <span class="ident">all_areas</span>.<span class="ident">upload</span>(<span class="ident">ctx</span>);
         <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;upload all areas&quot;</span>);
 
-        <span class="kw">let</span> <span class="ident">boundary_polygon</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">GeomBatch</span>::<span class="ident">from</span>(<span class="macro">vec</span><span class="macro">!</span>[(
+        <span class="kw">let</span> <span class="ident">boundary_polygon</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">GeomBatch::from</span>(<span class="macro">vec!</span>[(
             <span class="ident">cs</span>.<span class="ident">map_background</span>.<span class="ident">clone</span>(),
             <span class="ident">map</span>.<span class="ident">get_boundary_polygon</span>().<span class="ident">clone</span>(),
         )]));
 
         <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;create quadtree&quot;</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">quadtree</span> <span class="op">=</span> <span class="ident">QuadTree</span>::<span class="ident">default</span>(<span class="ident">map</span>.<span class="ident">get_bounds</span>().<span class="ident">as_bbox</span>());
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">quadtree_ids</span> <span class="op">=</span> <span class="ident">HashMap</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">quadtree</span> <span class="op">=</span> <span class="ident">QuadTree::default</span>(<span class="ident">map</span>.<span class="ident">get_bounds</span>().<span class="ident">as_bbox</span>());
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">quadtree_ids</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
         <span class="comment">// TODO use iter chain if everything was boxed as a renderable...</span>
         <span class="kw">for</span> <span class="ident">obj</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">roads</span> {
             <span class="kw">let</span> <span class="ident">item_id</span> <span class="op">=</span>
@@ -713,9 +713,9 @@
         }
         <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;create quadtree&quot;</span>);
 
-        <span class="macro">info</span><span class="macro">!</span>(
+        <span class="macro">info!</span>(
             <span class="string">&quot;static DrawMap consumes {} MB on the GPU&quot;</span>,
-            <span class="ident">abstutil</span>::<span class="ident">prettyprint_usize</span>(<span class="ident">ctx</span>.<span class="ident">prerender</span>.<span class="ident">get_total_bytes_uploaded</span>() <span class="op">/</span> <span class="number">1024</span> <span class="op">/</span> <span class="number">1024</span>)
+            <span class="ident">abstutil::prettyprint_usize</span>(<span class="ident">ctx</span>.<span class="ident">prerender</span>.<span class="ident">get_total_bytes_uploaded</span>() <span class="op">/</span> <span class="number">1024</span> <span class="op">/</span> <span class="number">1024</span>)
         );
 
         <span class="kw">let</span> <span class="ident">bounds</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_bounds</span>();
@@ -752,7 +752,7 @@
         <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Drawable</span> {
         <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;generate unzoomed roads and intersections&quot;</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">unzoomed_pieces</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">isize</span>, <span class="ident">Polygon</span>, <span class="ident">Color</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">unzoomed_pieces</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">isize</span>, <span class="ident">Polygon</span>, <span class="ident">Color</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
         <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_roads</span>() {
             <span class="ident">unzoomed_pieces</span>.<span class="ident">push</span>((
                 <span class="ident">r</span>.<span class="ident">zorder</span>,
@@ -788,7 +788,7 @@
             ));
         }
         <span class="ident">unzoomed_pieces</span>.<span class="ident">sort_by_key</span>(<span class="op">|</span>(<span class="ident">z</span>, <span class="kw">_</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="kw-2">*</span><span class="ident">z</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">unzoomed_batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">unzoomed_batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
         <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">poly</span>, <span class="ident">color</span>) <span class="kw">in</span> <span class="ident">unzoomed_pieces</span> {
             <span class="ident">unzoomed_batch</span>.<span class="ident">push</span>(<span class="ident">color</span>, <span class="ident">poly</span>);
         }
@@ -834,34 +834,34 @@
         <span class="ident">agents</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">AgentCache</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw">dyn</span> <span class="ident">Renderable</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">on</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">id</span> {
-            <span class="ident">ID</span>::<span class="ident">Road</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">ID::Road</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">get_r</span>(<span class="ident">id</span>));
             }
-            <span class="ident">ID</span>::<span class="ident">Lane</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">ID::Lane</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">get_l</span>(<span class="ident">id</span>));
             }
-            <span class="ident">ID</span>::<span class="ident">Intersection</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">ID::Intersection</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">get_i</span>(<span class="ident">id</span>));
             }
-            <span class="ident">ID</span>::<span class="ident">Building</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">ID::Building</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">get_b</span>(<span class="ident">id</span>));
             }
-            <span class="ident">ID</span>::<span class="ident">ParkingLot</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">ID::ParkingLot</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">get_pl</span>(<span class="ident">id</span>));
             }
-            <span class="ident">ID</span>::<span class="ident">Car</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">ID::Car</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="comment">// Cars might be parked in a garage!</span>
                 <span class="ident">app</span>.<span class="ident">sim</span>().<span class="ident">get_draw_car</span>(<span class="ident">id</span>, <span class="ident">app</span>.<span class="ident">map</span>())<span class="question-mark">?</span>.<span class="ident">on</span>
             }
-            <span class="ident">ID</span>::<span class="ident">Pedestrian</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">app</span>.<span class="ident">sim</span>().<span class="ident">get_draw_ped</span>(<span class="ident">id</span>, <span class="ident">app</span>.<span class="ident">map</span>()).<span class="ident">unwrap</span>().<span class="ident">on</span>,
-            <span class="ident">ID</span>::<span class="ident">PedCrowd</span>(<span class="kw-2">ref</span> <span class="ident">members</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">ID::Pedestrian</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">app</span>.<span class="ident">sim</span>().<span class="ident">get_draw_ped</span>(<span class="ident">id</span>, <span class="ident">app</span>.<span class="ident">map</span>()).<span class="ident">unwrap</span>().<span class="ident">on</span>,
+            <span class="ident">ID::PedCrowd</span>(<span class="kw-2">ref</span> <span class="ident">members</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="comment">// If the first member has vanished, just give up</span>
                 <span class="ident">app</span>.<span class="ident">sim</span>().<span class="ident">get_draw_ped</span>(<span class="ident">members</span>[<span class="number">0</span>], <span class="ident">app</span>.<span class="ident">map</span>())<span class="question-mark">?</span>.<span class="ident">on</span>
             }
-            <span class="ident">ID</span>::<span class="ident">BusStop</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">ID::BusStop</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">get_bs</span>(<span class="ident">id</span>));
             }
-            <span class="ident">ID</span>::<span class="ident">Area</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">ID::Area</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">get_a</span>(<span class="ident">id</span>));
             }
         };
@@ -875,7 +875,7 @@
 
     <span class="doccomment">/// Unsorted, unexpanded, raw result.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_matching_objects</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">bounds</span>: <span class="ident">Bounds</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">results</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">results</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
         <span class="kw">for</span> <span class="kw-2">&amp;</span>(<span class="ident">id</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">quadtree</span>.<span class="ident">query</span>(<span class="ident">bounds</span>.<span class="ident">as_bbox</span>()) {
             <span class="ident">results</span>.<span class="ident">push</span>(<span class="ident">id</span>.<span class="ident">clone</span>());
         }
@@ -884,42 +884,42 @@
 
     <span class="doccomment">/// A simple variation of the one in game that shows all layers, ignores dynamic agents.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_renderables_back_to_front</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">bounds</span>: <span class="ident">Bounds</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">Renderable</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">areas</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">Renderable</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">parking_lots</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">Renderable</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lanes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">Renderable</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">roads</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">Renderable</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">intersections</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">Renderable</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buildings</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">Renderable</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bus_stops</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">Renderable</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">areas</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">Renderable</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">parking_lots</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">Renderable</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lanes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">Renderable</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">roads</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">Renderable</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">intersections</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">Renderable</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buildings</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">Renderable</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bus_stops</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">Renderable</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
 
         <span class="kw">for</span> <span class="ident">id</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">get_matching_objects</span>(<span class="ident">bounds</span>) {
             <span class="kw">match</span> <span class="ident">id</span> {
-                <span class="ident">ID</span>::<span class="ident">Area</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">areas</span>.<span class="ident">push</span>(<span class="self">self</span>.<span class="ident">get_a</span>(<span class="ident">id</span>)),
-                <span class="ident">ID</span>::<span class="ident">Lane</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">ID::Area</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">areas</span>.<span class="ident">push</span>(<span class="self">self</span>.<span class="ident">get_a</span>(<span class="ident">id</span>)),
+                <span class="ident">ID::Lane</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="ident">lanes</span>.<span class="ident">push</span>(<span class="self">self</span>.<span class="ident">get_l</span>(<span class="ident">id</span>));
                     <span class="kw">for</span> <span class="ident">bs</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">id</span>).<span class="ident">bus_stops</span> {
                         <span class="ident">bus_stops</span>.<span class="ident">push</span>(<span class="self">self</span>.<span class="ident">get_bs</span>(<span class="kw-2">*</span><span class="ident">bs</span>));
                     }
                 }
-                <span class="ident">ID</span>::<span class="ident">Road</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">ID::Road</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="ident">roads</span>.<span class="ident">push</span>(<span class="self">self</span>.<span class="ident">get_r</span>(<span class="ident">id</span>));
                 }
-                <span class="ident">ID</span>::<span class="ident">Intersection</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">ID::Intersection</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="ident">intersections</span>.<span class="ident">push</span>(<span class="self">self</span>.<span class="ident">get_i</span>(<span class="ident">id</span>));
                 }
-                <span class="ident">ID</span>::<span class="ident">Building</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">buildings</span>.<span class="ident">push</span>(<span class="self">self</span>.<span class="ident">get_b</span>(<span class="ident">id</span>)),
-                <span class="ident">ID</span>::<span class="ident">ParkingLot</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">ID::Building</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">buildings</span>.<span class="ident">push</span>(<span class="self">self</span>.<span class="ident">get_b</span>(<span class="ident">id</span>)),
+                <span class="ident">ID::ParkingLot</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="ident">parking_lots</span>.<span class="ident">push</span>(<span class="self">self</span>.<span class="ident">get_pl</span>(<span class="ident">id</span>));
                 }
 
-                <span class="ident">ID</span>::<span class="ident">BusStop</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">ID</span>::<span class="ident">Car</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">ID</span>::<span class="ident">Pedestrian</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">ID</span>::<span class="ident">PedCrowd</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;{:?} shouldn&#39;t be in the quadtree&quot;</span>, <span class="ident">id</span>)
+                <span class="ident">ID::BusStop</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">ID::Car</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">ID::Pedestrian</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">ID::PedCrowd</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="macro">panic!</span>(<span class="string">&quot;{:?} shouldn&#39;t be in the quadtree&quot;</span>, <span class="ident">id</span>)
                 }
             }
         }
 
         <span class="comment">// From background to foreground Z-order</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">borrows</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">Renderable</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">borrows</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">Renderable</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
         <span class="ident">borrows</span>.<span class="ident">extend</span>(<span class="ident">areas</span>);
         <span class="ident">borrows</span>.<span class="ident">extend</span>(<span class="ident">parking_lots</span>);
         <span class="ident">borrows</span>.<span class="ident">extend</span>(<span class="ident">lanes</span>);
@@ -941,7 +941,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">zoomed_batch</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">AppLike</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">GeomBatch</span> {
         <span class="comment">// TODO This repeats code. There are other approaches, like making EventCtx intercept</span>
         <span class="comment">// &quot;uploads&quot; and instead save the batches.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
         <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">map</span>();
         <span class="kw">let</span> <span class="ident">cs</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">cs</span>();
 
@@ -951,30 +951,30 @@
         );
 
         <span class="kw">for</span> <span class="ident">a</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_areas</span>() {
-            <span class="ident">DrawArea</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">a</span>, <span class="ident">cs</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">batch</span>);
+            <span class="ident">DrawArea::new</span>(<span class="ident">ctx</span>, <span class="ident">a</span>, <span class="ident">cs</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">batch</span>);
         }
 
         <span class="kw">for</span> <span class="ident">pl</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_parking_lots</span>() {
-            <span class="ident">batch</span>.<span class="ident">append</span>(<span class="ident">DrawParkingLot</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">pl</span>, <span class="ident">cs</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>()).<span class="ident">render</span>(<span class="ident">app</span>));
+            <span class="ident">batch</span>.<span class="ident">append</span>(<span class="ident">DrawParkingLot::new</span>(<span class="ident">ctx</span>, <span class="ident">pl</span>, <span class="ident">cs</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GeomBatch::new</span>()).<span class="ident">render</span>(<span class="ident">app</span>));
         }
 
         <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_lanes</span>().<span class="ident">values</span>() {
-            <span class="ident">batch</span>.<span class="ident">append</span>(<span class="ident">DrawLane</span>::<span class="ident">new</span>(<span class="ident">l</span>, <span class="ident">map</span>).<span class="ident">render</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
+            <span class="ident">batch</span>.<span class="ident">append</span>(<span class="ident">DrawLane::new</span>(<span class="ident">l</span>, <span class="ident">map</span>).<span class="ident">render</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
         }
 
         <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_roads</span>() {
-            <span class="ident">batch</span>.<span class="ident">append</span>(<span class="ident">DrawRoad</span>::<span class="ident">new</span>(<span class="ident">r</span>).<span class="ident">render</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
+            <span class="ident">batch</span>.<span class="ident">append</span>(<span class="ident">DrawRoad::new</span>(<span class="ident">r</span>).<span class="ident">render</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
         }
 
         <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_intersections</span>() {
-            <span class="ident">batch</span>.<span class="ident">append</span>(<span class="ident">DrawIntersection</span>::<span class="ident">new</span>(<span class="ident">i</span>, <span class="ident">map</span>).<span class="ident">render</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
+            <span class="ident">batch</span>.<span class="ident">append</span>(<span class="ident">DrawIntersection::new</span>(<span class="ident">i</span>, <span class="ident">map</span>).<span class="ident">render</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bldgs_batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">outlines_batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">driveways_batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bldgs_batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">outlines_batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">driveways_batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
         <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_buildings</span>() {
-            <span class="ident">DrawBuilding</span>::<span class="ident">new</span>(
+            <span class="ident">DrawBuilding::new</span>(
                 <span class="ident">ctx</span>,
                 <span class="ident">b</span>,
                 <span class="ident">map</span>,
@@ -983,7 +983,7 @@
                 <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bldgs_batch</span>,
                 <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">outlines_batch</span>,
             );
-            <span class="ident">DrawBuilding</span>::<span class="ident">draw_driveway</span>(<span class="ident">b</span>, <span class="ident">map</span>, <span class="ident">cs</span>, <span class="ident">app</span>.<span class="ident">opts</span>(), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">driveways_batch</span>);
+            <span class="ident">DrawBuilding::draw_driveway</span>(<span class="ident">b</span>, <span class="ident">map</span>, <span class="ident">cs</span>, <span class="ident">app</span>.<span class="ident">opts</span>(), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">driveways_batch</span>);
         }
         <span class="ident">batch</span>.<span class="ident">append</span>(<span class="ident">driveways_batch</span>);
         <span class="ident">batch</span>.<span class="ident">append</span>(<span class="ident">bldgs_batch</span>);
@@ -995,11 +995,11 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">create_lane</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">l</span>: <span class="ident">LaneID</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) {
         <span class="comment">// If we&#39;re recreating an existing lane, don&#39;t create a duplicate quadtree entry for it!</span>
         <span class="comment">// quadtree.insert_with_box isn&#39;t idempotent.</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">item_id</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">quadtree_ids</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">ID</span>::<span class="ident">Lane</span>(<span class="ident">l</span>)) {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">item_id</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">quadtree_ids</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">ID::Lane</span>(<span class="ident">l</span>)) {
             <span class="self">self</span>.<span class="ident">quadtree</span>.<span class="ident">remove</span>(<span class="ident">item_id</span>).<span class="ident">unwrap</span>();
         }
 
-        <span class="kw">let</span> <span class="ident">draw</span> <span class="op">=</span> <span class="ident">DrawLane</span>::<span class="ident">new</span>(<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>), <span class="ident">map</span>);
+        <span class="kw">let</span> <span class="ident">draw</span> <span class="op">=</span> <span class="ident">DrawLane::new</span>(<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>), <span class="ident">map</span>);
         <span class="kw">let</span> <span class="ident">item_id</span> <span class="op">=</span> <span class="self">self</span>
             .<span class="ident">quadtree</span>
             .<span class="ident">insert_with_box</span>(<span class="ident">draw</span>.<span class="ident">get_id</span>(), <span class="ident">draw</span>.<span class="ident">get_outline</span>(<span class="ident">map</span>).<span class="ident">get_bounds</span>().<span class="ident">as_bbox</span>());
@@ -1012,16 +1012,16 @@
         <span class="comment">// shuffled a few times in a single application of edits. In that case, there might not be</span>
         <span class="comment">// anything to even delete.</span>
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">lanes</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">l</span>).<span class="ident">is_some</span>() {
-            <span class="kw">let</span> <span class="ident">item_id</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">quadtree_ids</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">ID</span>::<span class="ident">Lane</span>(<span class="ident">l</span>)).<span class="ident">unwrap</span>();
+            <span class="kw">let</span> <span class="ident">item_id</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">quadtree_ids</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">ID::Lane</span>(<span class="ident">l</span>)).<span class="ident">unwrap</span>();
             <span class="self">self</span>.<span class="ident">quadtree</span>.<span class="ident">remove</span>(<span class="ident">item_id</span>).<span class="ident">unwrap</span>();
         }
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">recreate_intersection</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">i</span>: <span class="ident">IntersectionID</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) {
-        <span class="kw">let</span> <span class="ident">item_id</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">quadtree_ids</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">ID</span>::<span class="ident">Intersection</span>(<span class="ident">i</span>)).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">item_id</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">quadtree_ids</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">ID::Intersection</span>(<span class="ident">i</span>)).<span class="ident">unwrap</span>();
         <span class="self">self</span>.<span class="ident">quadtree</span>.<span class="ident">remove</span>(<span class="ident">item_id</span>).<span class="ident">unwrap</span>();
 
-        <span class="kw">let</span> <span class="ident">draw</span> <span class="op">=</span> <span class="ident">DrawIntersection</span>::<span class="ident">new</span>(<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>), <span class="ident">map</span>);
+        <span class="kw">let</span> <span class="ident">draw</span> <span class="op">=</span> <span class="ident">DrawIntersection::new</span>(<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>), <span class="ident">map</span>);
         <span class="kw">let</span> <span class="ident">item_id</span> <span class="op">=</span> <span class="self">self</span>
             .<span class="ident">quadtree</span>
             .<span class="ident">insert_with_box</span>(<span class="ident">draw</span>.<span class="ident">get_id</span>(), <span class="ident">draw</span>.<span class="ident">get_outline</span>(<span class="ident">map</span>).<span class="ident">get_bounds</span>().<span class="ident">as_bbox</span>());
@@ -1030,10 +1030,10 @@
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">recreate_road</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">road</span>: <span class="kw-2">&amp;</span><span class="ident">Road</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) {
-        <span class="kw">let</span> <span class="ident">item_id</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">quadtree_ids</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">ID</span>::<span class="ident">Road</span>(<span class="ident">road</span>.<span class="ident">id</span>)).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">item_id</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">quadtree_ids</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">ID::Road</span>(<span class="ident">road</span>.<span class="ident">id</span>)).<span class="ident">unwrap</span>();
         <span class="self">self</span>.<span class="ident">quadtree</span>.<span class="ident">remove</span>(<span class="ident">item_id</span>).<span class="ident">unwrap</span>();
 
-        <span class="kw">let</span> <span class="ident">draw</span> <span class="op">=</span> <span class="ident">DrawRoad</span>::<span class="ident">new</span>(<span class="ident">road</span>);
+        <span class="kw">let</span> <span class="ident">draw</span> <span class="op">=</span> <span class="ident">DrawRoad::new</span>(<span class="ident">road</span>);
         <span class="kw">let</span> <span class="ident">item_id</span> <span class="op">=</span> <span class="self">self</span>
             .<span class="ident">quadtree</span>
             .<span class="ident">insert_with_box</span>(<span class="ident">draw</span>.<span class="ident">get_id</span>(), <span class="ident">draw</span>.<span class="ident">get_outline</span>(<span class="ident">map</span>).<span class="ident">get_bounds</span>().<span class="ident">as_bbox</span>());
@@ -1048,9 +1048,9 @@
         <span class="ident">cs</span>: <span class="kw-2">&amp;</span><span class="ident">ColorScheme</span>,
         <span class="ident">opts</span>: <span class="kw-2">&amp;</span><span class="ident">Options</span>,
     ) {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
         <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_buildings</span>() {
-            <span class="ident">DrawBuilding</span>::<span class="ident">draw_driveway</span>(<span class="ident">b</span>, <span class="ident">map</span>, <span class="ident">cs</span>, <span class="ident">opts</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">batch</span>);
+            <span class="ident">DrawBuilding::draw_driveway</span>(<span class="ident">b</span>, <span class="ident">map</span>, <span class="ident">cs</span>, <span class="ident">opts</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">batch</span>);
         }
         <span class="self">self</span>.<span class="ident">draw_all_building_driveways</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">batch</span>);
     }
@@ -1075,5 +1075,5 @@
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_gui" data-search-js="../../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_gui" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
     <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script></body></html>

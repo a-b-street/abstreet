@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `popdat/src/activities.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>activities.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../popdat/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../popdat/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1"> 1</span>
 <span id="2"> 2</span>
 <span id="3"> 3</span>
@@ -96,8 +96,8 @@
 <span id="93">93</span>
 <span id="94">94</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">rand</span>::<span class="ident">Rng</span>;
-<span class="kw">use</span> <span class="ident">rand_xorshift</span>::<span class="ident">XorShiftRng</span>;
+<span class="kw">use</span> <span class="ident">rand::Rng</span>;
+<span class="kw">use</span> <span class="ident">rand_xorshift::XorShiftRng</span>;
 
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Time</span>};
 
@@ -107,65 +107,65 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">generate_schedule</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">_config</span>: <span class="kw-2">&amp;</span><span class="ident">Config</span>, <span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">XorShiftRng</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Schedule</span> {
         <span class="comment">// TODO How do we pick these categories based on census data?</span>
         <span class="kw">let</span> <span class="ident">person_type</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">rng</span>.<span class="ident">gen_bool</span>(<span class="number">0.5</span>) {
-            <span class="ident">PersonType</span>::<span class="ident">Student</span>
+            <span class="ident">PersonType::Student</span>
         } <span class="kw">else</span> {
-            <span class="ident">PersonType</span>::<span class="ident">Worker</span>
+            <span class="ident">PersonType::Worker</span>
         };
 
         <span class="comment">// Fill out a list of activities and how long the person should do the activity before</span>
         <span class="comment">// travelling to the next place.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">plan</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">plan</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
         <span class="kw">let</span> <span class="ident">start_time</span>;
 
         <span class="kw">match</span> <span class="ident">person_type</span> {
-            <span class="ident">PersonType</span>::<span class="ident">Student</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">PersonType::Student</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="comment">// I&#39;m probably channeling a college student here...</span>
                 <span class="ident">start_time</span> <span class="op">=</span> <span class="ident">rand_time</span>(<span class="ident">rng</span>, <span class="ident">hours</span>(<span class="number">8</span>), <span class="ident">hours</span>(<span class="number">11</span>));
                 <span class="kw">if</span> <span class="ident">rng</span>.<span class="ident">gen_bool</span>(<span class="number">0.95</span>) {
-                    <span class="ident">plan</span>.<span class="ident">push</span>((<span class="ident">Activity</span>::<span class="ident">Breakfast</span>, <span class="ident">minutes</span>(<span class="number">30</span>)));
+                    <span class="ident">plan</span>.<span class="ident">push</span>((<span class="ident">Activity::Breakfast</span>, <span class="ident">minutes</span>(<span class="number">30</span>)));
                 }
-                <span class="ident">plan</span>.<span class="ident">push</span>((<span class="ident">Activity</span>::<span class="ident">School</span>, <span class="ident">rand_duration</span>(<span class="ident">rng</span>, <span class="ident">hours</span>(<span class="number">3</span>), <span class="ident">hours</span>(<span class="number">6</span>))));
+                <span class="ident">plan</span>.<span class="ident">push</span>((<span class="ident">Activity::School</span>, <span class="ident">rand_duration</span>(<span class="ident">rng</span>, <span class="ident">hours</span>(<span class="number">3</span>), <span class="ident">hours</span>(<span class="number">6</span>))));
                 <span class="kw">if</span> <span class="ident">rng</span>.<span class="ident">gen_bool</span>(<span class="number">0.3</span>) {
                     <span class="ident">plan</span>.<span class="ident">push</span>((
-                        <span class="ident">Activity</span>::<span class="ident">Lunch</span>,
+                        <span class="ident">Activity::Lunch</span>,
                         <span class="ident">rand_duration</span>(<span class="ident">rng</span>, <span class="ident">minutes</span>(<span class="number">20</span>), <span class="ident">minutes</span>(<span class="number">40</span>)),
                     ));
                 }
-                <span class="ident">plan</span>.<span class="ident">push</span>((<span class="ident">Activity</span>::<span class="ident">School</span>, <span class="ident">rand_duration</span>(<span class="ident">rng</span>, <span class="ident">hours</span>(<span class="number">2</span>), <span class="ident">hours</span>(<span class="number">4</span>))));
+                <span class="ident">plan</span>.<span class="ident">push</span>((<span class="ident">Activity::School</span>, <span class="ident">rand_duration</span>(<span class="ident">rng</span>, <span class="ident">hours</span>(<span class="number">2</span>), <span class="ident">hours</span>(<span class="number">4</span>))));
                 <span class="kw">if</span> <span class="ident">rng</span>.<span class="ident">gen_bool</span>(<span class="number">0.6</span>) {
-                    <span class="ident">plan</span>.<span class="ident">push</span>((<span class="ident">Activity</span>::<span class="ident">Entertainment</span>, <span class="ident">hours</span>(<span class="number">2</span>)));
+                    <span class="ident">plan</span>.<span class="ident">push</span>((<span class="ident">Activity::Entertainment</span>, <span class="ident">hours</span>(<span class="number">2</span>)));
                 } <span class="kw">else</span> {
-                    <span class="ident">plan</span>.<span class="ident">push</span>((<span class="ident">Activity</span>::<span class="ident">Errands</span>, <span class="ident">rand_duration</span>(<span class="ident">rng</span>, <span class="ident">minutes</span>(<span class="number">15</span>), <span class="ident">hours</span>(<span class="number">1</span>))));
+                    <span class="ident">plan</span>.<span class="ident">push</span>((<span class="ident">Activity::Errands</span>, <span class="ident">rand_duration</span>(<span class="ident">rng</span>, <span class="ident">minutes</span>(<span class="number">15</span>), <span class="ident">hours</span>(<span class="number">1</span>))));
                 }
                 <span class="comment">// The last duration doesn&#39;t matter</span>
-                <span class="ident">plan</span>.<span class="ident">push</span>((<span class="ident">Activity</span>::<span class="ident">Home</span>, <span class="ident">hours</span>(<span class="number">8</span>)));
+                <span class="ident">plan</span>.<span class="ident">push</span>((<span class="ident">Activity::Home</span>, <span class="ident">hours</span>(<span class="number">8</span>)));
             }
-            <span class="ident">PersonType</span>::<span class="ident">Worker</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">PersonType::Worker</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="ident">start_time</span> <span class="op">=</span> <span class="ident">rand_time</span>(<span class="ident">rng</span>, <span class="ident">hours</span>(<span class="number">6</span>), <span class="ident">hours</span>(<span class="number">9</span>));
                 <span class="kw">if</span> <span class="ident">rng</span>.<span class="ident">gen_bool</span>(<span class="number">0.8</span>) {
-                    <span class="ident">plan</span>.<span class="ident">push</span>((<span class="ident">Activity</span>::<span class="ident">Breakfast</span>, <span class="ident">minutes</span>(<span class="number">15</span>)));
+                    <span class="ident">plan</span>.<span class="ident">push</span>((<span class="ident">Activity::Breakfast</span>, <span class="ident">minutes</span>(<span class="number">15</span>)));
                 }
-                <span class="ident">plan</span>.<span class="ident">push</span>((<span class="ident">Activity</span>::<span class="ident">Work</span>, <span class="ident">rand_duration</span>(<span class="ident">rng</span>, <span class="ident">hours</span>(<span class="number">4</span>), <span class="ident">hours</span>(<span class="number">5</span>))));
+                <span class="ident">plan</span>.<span class="ident">push</span>((<span class="ident">Activity::Work</span>, <span class="ident">rand_duration</span>(<span class="ident">rng</span>, <span class="ident">hours</span>(<span class="number">4</span>), <span class="ident">hours</span>(<span class="number">5</span>))));
                 <span class="ident">plan</span>.<span class="ident">push</span>((
-                    <span class="ident">Activity</span>::<span class="ident">Lunch</span>,
+                    <span class="ident">Activity::Lunch</span>,
                     <span class="ident">rand_duration</span>(<span class="ident">rng</span>, <span class="ident">minutes</span>(<span class="number">20</span>), <span class="ident">minutes</span>(<span class="number">40</span>)),
                 ));
-                <span class="ident">plan</span>.<span class="ident">push</span>((<span class="ident">Activity</span>::<span class="ident">Work</span>, <span class="ident">hours</span>(<span class="number">4</span>)));
+                <span class="ident">plan</span>.<span class="ident">push</span>((<span class="ident">Activity::Work</span>, <span class="ident">hours</span>(<span class="number">4</span>)));
                 <span class="kw">if</span> <span class="ident">rng</span>.<span class="ident">gen_bool</span>(<span class="number">0.8</span>) {
-                    <span class="ident">plan</span>.<span class="ident">push</span>((<span class="ident">Activity</span>::<span class="ident">Errands</span>, <span class="ident">rand_duration</span>(<span class="ident">rng</span>, <span class="ident">minutes</span>(<span class="number">15</span>), <span class="ident">hours</span>(<span class="number">1</span>))));
+                    <span class="ident">plan</span>.<span class="ident">push</span>((<span class="ident">Activity::Errands</span>, <span class="ident">rand_duration</span>(<span class="ident">rng</span>, <span class="ident">minutes</span>(<span class="number">15</span>), <span class="ident">hours</span>(<span class="number">1</span>))));
                 }
                 <span class="comment">// The last duration doesn&#39;t matter</span>
-                <span class="ident">plan</span>.<span class="ident">push</span>((<span class="ident">Activity</span>::<span class="ident">Home</span>, <span class="ident">hours</span>(<span class="number">8</span>)));
+                <span class="ident">plan</span>.<span class="ident">push</span>((<span class="ident">Activity::Home</span>, <span class="ident">hours</span>(<span class="number">8</span>)));
             }
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">schedule</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">schedule</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">now</span> <span class="op">=</span> <span class="ident">start_time</span>;
         <span class="kw">for</span> (<span class="ident">activity</span>, <span class="ident">duration</span>) <span class="kw">in</span> <span class="ident">plan</span> {
             <span class="ident">schedule</span>.<span class="ident">push</span>((<span class="ident">now</span>, <span class="ident">activity</span>));
             <span class="comment">// TODO We have to add in commute time here, but at this stage in the pipeline, we have</span>
             <span class="comment">// no idea...</span>
-            <span class="ident">now</span> <span class="op">+</span><span class="op">=</span> <span class="ident">rand_duration</span>(<span class="ident">rng</span>, <span class="ident">Duration</span>::<span class="ident">minutes</span>(<span class="number">30</span>), <span class="ident">Duration</span>::<span class="ident">hours</span>(<span class="number">1</span>));
+            <span class="ident">now</span> <span class="op">+</span><span class="op">=</span> <span class="ident">rand_duration</span>(<span class="ident">rng</span>, <span class="ident">Duration::minutes</span>(<span class="number">30</span>), <span class="ident">Duration::hours</span>(<span class="number">1</span>));
             <span class="ident">now</span> <span class="op">+</span><span class="op">=</span> <span class="ident">duration</span>;
         }
         <span class="ident">Schedule</span> {
@@ -175,21 +175,21 @@
 }
 
 <span class="kw">fn</span> <span class="ident">rand_duration</span>(<span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">XorShiftRng</span>, <span class="ident">low</span>: <span class="ident">Duration</span>, <span class="ident">high</span>: <span class="ident">Duration</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Duration</span> {
-    <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">high</span> <span class="op">&gt;</span> <span class="ident">low</span>);
-    <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="ident">rng</span>.<span class="ident">gen_range</span>(<span class="ident">low</span>.<span class="ident">inner_seconds</span>()..<span class="ident">high</span>.<span class="ident">inner_seconds</span>()))
+    <span class="macro">assert!</span>(<span class="ident">high</span> <span class="op">&gt;</span> <span class="ident">low</span>);
+    <span class="ident">Duration::seconds</span>(<span class="ident">rng</span>.<span class="ident">gen_range</span>(<span class="ident">low</span>.<span class="ident">inner_seconds</span>()..<span class="ident">high</span>.<span class="ident">inner_seconds</span>()))
 }
 
 <span class="kw">fn</span> <span class="ident">rand_time</span>(<span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">XorShiftRng</span>, <span class="ident">low</span>: <span class="ident">Duration</span>, <span class="ident">high</span>: <span class="ident">Duration</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Time</span> {
-    <span class="ident">Time</span>::<span class="ident">START_OF_DAY</span> <span class="op">+</span> <span class="ident">rand_duration</span>(<span class="ident">rng</span>, <span class="ident">low</span>, <span class="ident">high</span>)
+    <span class="ident">Time::START_OF_DAY</span> <span class="op">+</span> <span class="ident">rand_duration</span>(<span class="ident">rng</span>, <span class="ident">low</span>, <span class="ident">high</span>)
 }
 
 <span class="comment">// TODO I thought we could just use geom::Duration::{hours, minutes};   but this doesn&#39;t work</span>
 <span class="kw">fn</span> <span class="ident">minutes</span>(<span class="ident">x</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Duration</span> {
-    <span class="ident">Duration</span>::<span class="ident">minutes</span>(<span class="ident">x</span>)
+    <span class="ident">Duration::minutes</span>(<span class="ident">x</span>)
 }
 <span class="kw">fn</span> <span class="ident">hours</span>(<span class="ident">x</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Duration</span> {
-    <span class="ident">Duration</span>::<span class="ident">hours</span>(<span class="ident">x</span>)
+    <span class="ident">Duration::hours</span>(<span class="ident">x</span>)
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="popdat" data-search-js="../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="popdat" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script></body></html>

@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `popdat/src/import_census.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>import_census.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../popdat/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../popdat/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1"> 1</span>
 <span id="2"> 2</span>
 <span id="3"> 3</span>
@@ -97,35 +97,35 @@
 <span id="94">94</span>
 <span id="95">95</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span>;
-<span class="kw">use</span> <span class="ident">geo</span>::<span class="ident">algorithm</span>::<span class="ident">intersects</span>::<span class="ident">Intersects</span>;
+<span class="kw">use</span> <span class="ident">anyhow::Result</span>;
+<span class="kw">use</span> <span class="ident">geo::algorithm::intersects::Intersects</span>;
 
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">GPSBounds</span>, <span class="ident">Polygon</span>};
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">CensusArea</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::CensusArea</span>;
 
 <span class="kw">impl</span> <span class="ident">CensusArea</span> {
     <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">fetch_all_for_map</span>(
         <span class="ident">map_area</span>: <span class="kw-2">&amp;</span><span class="ident">Polygon</span>,
         <span class="ident">bounds</span>: <span class="kw-2">&amp;</span><span class="ident">GPSBounds</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CensusArea</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">use</span> <span class="ident">flatgeobuf</span>::<span class="ident">HttpFgbReader</span>;
-        <span class="kw">use</span> <span class="ident">geozero</span>::<span class="ident">geo_types</span>::<span class="ident">GeoWriter</span>;
+        <span class="kw">use</span> <span class="ident">flatgeobuf::HttpFgbReader</span>;
+        <span class="kw">use</span> <span class="ident">geozero::geo_types::GeoWriter</span>;
 
-        <span class="kw">use</span> <span class="ident">geo</span>::<span class="ident">algorithm</span>::{<span class="ident">bounding_rect</span>::<span class="ident">BoundingRect</span>, <span class="ident">map_coords</span>::<span class="ident">MapCoordsInplace</span>};
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">geo_map_area</span>: <span class="ident">geo</span>::<span class="ident">Polygon</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">map_area</span>.<span class="ident">clone</span>().<span class="ident">into</span>();
+        <span class="kw">use</span> <span class="ident">geo::algorithm</span>::{<span class="ident">bounding_rect::BoundingRect</span>, <span class="ident">map_coords::MapCoordsInplace</span>};
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">geo_map_area</span>: <span class="ident">geo::Polygon</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">map_area</span>.<span class="ident">clone</span>().<span class="ident">into</span>();
         <span class="ident">geo_map_area</span>.<span class="ident">map_coords_inplace</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> {
-            <span class="kw">let</span> <span class="ident">projected</span> <span class="op">=</span> <span class="ident">geom</span>::<span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="ident">c</span>.<span class="number">0</span>, <span class="ident">c</span>.<span class="number">1</span>).<span class="ident">to_gps</span>(<span class="ident">bounds</span>);
+            <span class="kw">let</span> <span class="ident">projected</span> <span class="op">=</span> <span class="ident">geom::Pt2D::new</span>(<span class="ident">c</span>.<span class="number">0</span>, <span class="ident">c</span>.<span class="number">1</span>).<span class="ident">to_gps</span>(<span class="ident">bounds</span>);
             (<span class="ident">projected</span>.<span class="ident">x</span>(), <span class="ident">projected</span>.<span class="ident">y</span>())
         });
 
         <span class="comment">// See the import handbook for how to prepare this file.</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">fgb</span> <span class="op">=</span>
-            <span class="ident">HttpFgbReader</span>::<span class="ident">open</span>(<span class="string">&quot;https://abstreet.s3.amazonaws.com/population_areas.fgb&quot;</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="ident">HttpFgbReader::open</span>(<span class="string">&quot;https://abstreet.s3.amazonaws.com/population_areas.fgb&quot;</span>).<span class="kw">await</span><span class="question-mark">?</span>;
 
         <span class="kw">let</span> <span class="ident">bounding_rect</span> <span class="op">=</span> <span class="ident">geo_map_area</span>
             .<span class="ident">bounding_rect</span>()
-            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">anyhow</span><span class="macro">!</span>(<span class="string">&quot;missing bound rect&quot;</span>))<span class="question-mark">?</span>;
+            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">anyhow!</span>(<span class="string">&quot;missing bound rect&quot;</span>))<span class="question-mark">?</span>;
         <span class="ident">fgb</span>.<span class="ident">select_bbox</span>(
             <span class="ident">bounding_rect</span>.<span class="ident">min</span>().<span class="ident">x</span>,
             <span class="ident">bounding_rect</span>.<span class="ident">min</span>().<span class="ident">y</span>,
@@ -134,32 +134,32 @@
         )
         .<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">results</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[];
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">results</span> <span class="op">=</span> <span class="macro">vec!</span>[];
         <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">feature</span>) <span class="op">=</span> <span class="ident">fgb</span>.<span class="ident">next</span>().<span class="kw">await</span><span class="question-mark">?</span> {
-            <span class="kw">use</span> <span class="ident">flatgeobuf</span>::<span class="ident">FeatureProperties</span>;
+            <span class="kw">use</span> <span class="ident">flatgeobuf::FeatureProperties</span>;
             <span class="comment">// PERF TODO: how to parse into usize directly? And avoid parsing entire props dict?</span>
             <span class="kw">let</span> <span class="ident">props</span> <span class="op">=</span> <span class="ident">feature</span>.<span class="ident">properties</span>()<span class="question-mark">?</span>;
             <span class="kw">if</span> <span class="op">!</span><span class="ident">props</span>.<span class="ident">contains_key</span>(<span class="string">&quot;population&quot;</span>) {
-                <span class="macro">warn</span><span class="macro">!</span>(<span class="string">&quot;skipping feature with missing population&quot;</span>);
+                <span class="macro">warn!</span>(<span class="string">&quot;skipping feature with missing population&quot;</span>);
                 <span class="kw">continue</span>;
             }
             <span class="kw">let</span> <span class="ident">population</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="ident">props</span>[<span class="string">&quot;population&quot;</span>].<span class="ident">parse</span>()<span class="question-mark">?</span>;
             <span class="kw">let</span> <span class="ident">geometry</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">feature</span>.<span class="ident">geometry</span>() {
                 <span class="prelude-val">Some</span>(<span class="ident">g</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">g</span>,
                 <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="macro">warn</span><span class="macro">!</span>(<span class="string">&quot;skipping feature with missing geometry&quot;</span>);
+                    <span class="macro">warn!</span>(<span class="string">&quot;skipping feature with missing geometry&quot;</span>);
                     <span class="kw">continue</span>;
                 }
             };
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">geo</span> <span class="op">=</span> <span class="ident">GeoWriter</span>::<span class="ident">new</span>();
-            <span class="ident">geometry</span>.<span class="ident">process</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">geo</span>, <span class="ident">flatgeobuf</span>::<span class="ident">GeometryType</span>::<span class="ident">MultiPolygon</span>)<span class="question-mark">?</span>;
-            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">geo</span>::<span class="ident">Geometry</span>::<span class="ident">MultiPolygon</span>(<span class="ident">multi_poly</span>) <span class="op">=</span> <span class="ident">geo</span>.<span class="ident">geometry</span>() {
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">geo</span> <span class="op">=</span> <span class="ident">GeoWriter::new</span>();
+            <span class="ident">geometry</span>.<span class="ident">process</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">geo</span>, <span class="ident">flatgeobuf::GeometryType::MultiPolygon</span>)<span class="question-mark">?</span>;
+            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">geo::Geometry::MultiPolygon</span>(<span class="ident">multi_poly</span>) <span class="op">=</span> <span class="ident">geo</span>.<span class="ident">geometry</span>() {
                 <span class="kw">let</span> <span class="ident">geo_polygon</span> <span class="op">=</span> <span class="ident">multi_poly</span>
                     .<span class="number">0</span>
                     .<span class="ident">first</span>()
-                    .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">anyhow</span><span class="macro">!</span>(<span class="string">&quot;multipolygon was unexpectedly empty&quot;</span>))<span class="question-mark">?</span>;
+                    .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">anyhow!</span>(<span class="string">&quot;multipolygon was unexpectedly empty&quot;</span>))<span class="question-mark">?</span>;
                 <span class="kw">if</span> <span class="ident">multi_poly</span>.<span class="number">0</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">1</span> {
-                    <span class="macro">warn</span><span class="macro">!</span>(
+                    <span class="macro">warn!</span>(
                         <span class="string">&quot;dropping {} extra polygons from census area: {:?}&quot;</span>,
                         <span class="ident">multi_poly</span>.<span class="number">0</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>,
                         <span class="ident">props</span>
@@ -167,7 +167,7 @@
                 }
 
                 <span class="kw">if</span> <span class="op">!</span><span class="ident">geo_polygon</span>.<span class="ident">intersects</span>(<span class="kw-2">&amp;</span><span class="ident">geo_map_area</span>) {
-                    <span class="macro">debug</span><span class="macro">!</span>(
+                    <span class="macro">debug!</span>(
                         <span class="string">&quot;skipping polygon outside of map area. polygon: {:?}, map_area: {:?}&quot;</span>,
                         <span class="ident">geo_polygon</span>, <span class="ident">geo_map_area</span>
                     );
@@ -176,7 +176,7 @@
 
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">polygon</span> <span class="op">=</span> <span class="ident">geo_polygon</span>.<span class="ident">clone</span>();
                 <span class="ident">polygon</span>.<span class="ident">map_coords_inplace</span>(<span class="op">|</span>(<span class="ident">x</span>, <span class="ident">y</span>)<span class="op">|</span> {
-                    <span class="kw">let</span> <span class="ident">point</span> <span class="op">=</span> <span class="ident">geom</span>::<span class="ident">LonLat</span>::<span class="ident">new</span>(<span class="kw-2">*</span><span class="ident">x</span>, <span class="kw-2">*</span><span class="ident">y</span>).<span class="ident">to_pt</span>(<span class="ident">bounds</span>);
+                    <span class="kw">let</span> <span class="ident">point</span> <span class="op">=</span> <span class="ident">geom::LonLat::new</span>(<span class="kw-2">*</span><span class="ident">x</span>, <span class="kw-2">*</span><span class="ident">y</span>).<span class="ident">to_pt</span>(<span class="ident">bounds</span>);
                     (<span class="ident">point</span>.<span class="ident">x</span>(), <span class="ident">point</span>.<span class="ident">y</span>())
                 });
                 <span class="ident">results</span>.<span class="ident">push</span>(<span class="ident">CensusArea</span> {
@@ -184,7 +184,7 @@
                     <span class="ident">population</span>,
                 });
             } <span class="kw">else</span> {
-                <span class="macro">warn</span><span class="macro">!</span>(<span class="string">&quot;skipping unexpected geometry&quot;</span>);
+                <span class="macro">warn!</span>(<span class="string">&quot;skipping unexpected geometry&quot;</span>);
                 <span class="kw">continue</span>;
             }
         }
@@ -193,5 +193,5 @@
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="popdat" data-search-js="../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="popdat" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script></body></html>

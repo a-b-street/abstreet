@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `geom/src/ring.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>ring.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../geom/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../geom/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -211,10 +211,10 @@
 <span id="208">208</span>
 <span id="209">209</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
+<span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
+<span class="kw">use</span> <span class="ident">std::fmt</span>;
 
-<span class="kw">use</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span>;
+<span class="kw">use</span> <span class="ident">anyhow::Result</span>;
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Distance</span>, <span class="ident">GPSBounds</span>, <span class="ident">Line</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
@@ -229,41 +229,41 @@
 <span class="kw">impl</span> <span class="ident">Ring</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">pts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Ring</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="ident">pts</span>.<span class="ident">len</span>() <span class="op">&lt;</span> <span class="number">3</span> {
-            <span class="macro">bail</span><span class="macro">!</span>(<span class="string">&quot;Can&#39;t make a ring with &lt; 3 points&quot;</span>);
+            <span class="macro">bail!</span>(<span class="string">&quot;Can&#39;t make a ring with &lt; 3 points&quot;</span>);
         }
         <span class="kw">if</span> <span class="ident">pts</span>[<span class="number">0</span>] <span class="op">!</span><span class="op">=</span> <span class="kw-2">*</span><span class="ident">pts</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>() {
-            <span class="macro">bail</span><span class="macro">!</span>(<span class="string">&quot;Can&#39;t make a ring with mismatching first/last points&quot;</span>);
+            <span class="macro">bail!</span>(<span class="string">&quot;Can&#39;t make a ring with mismatching first/last points&quot;</span>);
         }
 
         <span class="kw">if</span> <span class="ident">pts</span>.<span class="ident">windows</span>(<span class="number">2</span>).<span class="ident">any</span>(<span class="op">|</span><span class="ident">pair</span><span class="op">|</span> <span class="ident">pair</span>[<span class="number">0</span>] <span class="op">=</span><span class="op">=</span> <span class="ident">pair</span>[<span class="number">1</span>]) {
-            <span class="macro">bail</span><span class="macro">!</span>(<span class="string">&quot;Ring has ~dupe adjacent pts&quot;</span>);
+            <span class="macro">bail!</span>(<span class="string">&quot;Ring has ~dupe adjacent pts&quot;</span>);
         }
 
         <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">Ring</span> { <span class="ident">pts</span> };
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">seen_pts</span> <span class="op">=</span> <span class="ident">HashSet</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">seen_pts</span> <span class="op">=</span> <span class="ident">HashSet::new</span>();
         <span class="kw">for</span> <span class="ident">pt</span> <span class="kw">in</span> <span class="ident">result</span>.<span class="ident">pts</span>.<span class="ident">iter</span>().<span class="ident">skip</span>(<span class="number">1</span>) {
             <span class="ident">seen_pts</span>.<span class="ident">insert</span>(<span class="ident">pt</span>.<span class="ident">to_hashable</span>());
         }
         <span class="kw">if</span> <span class="ident">seen_pts</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="ident">result</span>.<span class="ident">pts</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span> {
-            <span class="macro">bail</span><span class="macro">!</span>(<span class="string">&quot;Ring has repeat non-adjacent points&quot;</span>);
+            <span class="macro">bail!</span>(<span class="string">&quot;Ring has repeat non-adjacent points&quot;</span>);
         }
 
         <span class="prelude-val">Ok</span>(<span class="ident">result</span>)
     }
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">must_new</span>(<span class="ident">pts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Ring</span> {
-        <span class="ident">Ring</span>::<span class="ident">new</span>(<span class="ident">pts</span>).<span class="ident">unwrap</span>()
+        <span class="ident">Ring::new</span>(<span class="ident">pts</span>).<span class="ident">unwrap</span>()
     }
 
     <span class="doccomment">/// Draws the ring with some thickness, with half of it straddling the interor of the ring, and</span>
     <span class="doccomment">/// half on the outside.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_outline</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">thickness</span>: <span class="ident">Distance</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Polygon</span> {
         <span class="comment">// TODO Has a weird corner. Use the polygon offset thing instead?</span>
-        <span class="ident">PolyLine</span>::<span class="ident">unchecked_new</span>(<span class="self">self</span>.<span class="ident">pts</span>.<span class="ident">clone</span>()).<span class="ident">make_polygons</span>(<span class="ident">thickness</span>)
+        <span class="ident">PolyLine::unchecked_new</span>(<span class="self">self</span>.<span class="ident">pts</span>.<span class="ident">clone</span>()).<span class="ident">make_polygons</span>(<span class="ident">thickness</span>)
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_polygon</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Polygon</span> {
-        <span class="ident">Polygon</span>::<span class="ident">with_holes</span>(<span class="self">self</span>, <span class="ident">Vec</span>::<span class="ident">new</span>())
+        <span class="ident">Polygon::with_holes</span>(<span class="self">self</span>, <span class="ident">Vec::new</span>())
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">points</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span> {
@@ -276,13 +276,13 @@
     <span class="doccomment">/// Be careful with the order of results. Hits on an earlier line segment of other show up</span>
     <span class="doccomment">/// first, but if the ring hits a line segment at multiple points, who knows. Dedupes.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">all_intersections</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">PolyLine</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">hits</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">seen</span> <span class="op">=</span> <span class="ident">HashSet</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">hits</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">seen</span> <span class="op">=</span> <span class="ident">HashSet::new</span>();
         <span class="kw">for</span> <span class="ident">l1</span> <span class="kw">in</span> <span class="ident">other</span>.<span class="ident">lines</span>() {
             <span class="kw">for</span> <span class="ident">l2</span> <span class="kw">in</span> <span class="self">self</span>
                 .<span class="ident">pts</span>
                 .<span class="ident">windows</span>(<span class="number">2</span>)
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">pair</span><span class="op">|</span> <span class="ident">Line</span>::<span class="ident">must_new</span>(<span class="ident">pair</span>[<span class="number">0</span>], <span class="ident">pair</span>[<span class="number">1</span>]))
+                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">pair</span><span class="op">|</span> <span class="ident">Line::must_new</span>(<span class="ident">pair</span>[<span class="number">0</span>], <span class="ident">pair</span>[<span class="number">1</span>]))
             {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt</span>) <span class="op">=</span> <span class="ident">l1</span>.<span class="ident">intersection</span>(<span class="kw-2">&amp;</span><span class="ident">l2</span>) {
                     <span class="kw">if</span> <span class="op">!</span><span class="ident">seen</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">pt</span>.<span class="ident">to_hashable</span>()) {
@@ -300,13 +300,13 @@
         <span class="ident">pt1</span>: <span class="ident">Pt2D</span>,
         <span class="ident">pt2</span>: <span class="ident">Pt2D</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">PolyLine</span>, <span class="ident">PolyLine</span>)<span class="op">&gt;</span> {
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">pt1</span> <span class="op">!</span><span class="op">=</span> <span class="ident">pt2</span>);
-        <span class="kw">let</span> <span class="ident">pl</span> <span class="op">=</span> <span class="ident">PolyLine</span>::<span class="ident">unchecked_new</span>(<span class="self">self</span>.<span class="ident">pts</span>.<span class="ident">clone</span>());
+        <span class="macro">assert!</span>(<span class="ident">pt1</span> <span class="op">!</span><span class="op">=</span> <span class="ident">pt2</span>);
+        <span class="kw">let</span> <span class="ident">pl</span> <span class="op">=</span> <span class="ident">PolyLine::unchecked_new</span>(<span class="self">self</span>.<span class="ident">pts</span>.<span class="ident">clone</span>());
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">dist1</span> <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">dist_along_of_point</span>(<span class="ident">pt1</span>)<span class="question-mark">?</span>.<span class="number">0</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">dist2</span> <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">dist_along_of_point</span>(<span class="ident">pt2</span>)<span class="question-mark">?</span>.<span class="number">0</span>;
         <span class="kw">if</span> <span class="ident">dist1</span> <span class="op">&gt;</span> <span class="ident">dist2</span> {
-            <span class="ident">std</span>::<span class="ident">mem</span>::<span class="ident">swap</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">dist1</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">dist2</span>);
+            <span class="ident">std::mem::swap</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">dist1</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">dist2</span>);
         }
         <span class="kw">if</span> <span class="ident">dist1</span> <span class="op">=</span><span class="op">=</span> <span class="ident">dist2</span> {
             <span class="kw">return</span> <span class="prelude-val">None</span>;
@@ -316,7 +316,7 @@
         <span class="kw">let</span> <span class="ident">candidate2</span> <span class="op">=</span> <span class="ident">pl</span>
             .<span class="ident">maybe_exact_slice</span>(<span class="ident">dist2</span>, <span class="ident">pl</span>.<span class="ident">length</span>())
             .<span class="ident">ok</span>()<span class="question-mark">?</span>
-            .<span class="ident">must_extend</span>(<span class="ident">pl</span>.<span class="ident">maybe_exact_slice</span>(<span class="ident">Distance</span>::<span class="ident">ZERO</span>, <span class="ident">dist1</span>).<span class="ident">ok</span>()<span class="question-mark">?</span>);
+            .<span class="ident">must_extend</span>(<span class="ident">pl</span>.<span class="ident">maybe_exact_slice</span>(<span class="ident">Distance::ZERO</span>, <span class="ident">dist1</span>).<span class="ident">ok</span>()<span class="question-mark">?</span>);
         <span class="prelude-val">Some</span>((<span class="ident">candidate1</span>, <span class="ident">candidate2</span>))
     }
 
@@ -331,8 +331,8 @@
 
     <span class="doccomment">/// Extract all PolyLines and Rings. Doesn&#39;t handle crazy double loops and stuff.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">split_points</span>(<span class="ident">pts</span>: <span class="kw-2">&amp;</span>[<span class="ident">Pt2D</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PolyLine</span><span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Ring</span><span class="op">&gt;</span>)<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">seen</span> <span class="op">=</span> <span class="ident">HashSet</span>::<span class="ident">new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">intersections</span> <span class="op">=</span> <span class="ident">HashSet</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">seen</span> <span class="op">=</span> <span class="ident">HashSet::new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">intersections</span> <span class="op">=</span> <span class="ident">HashSet::new</span>();
         <span class="kw">for</span> <span class="ident">pt</span> <span class="kw">in</span> <span class="ident">pts</span> {
             <span class="kw">let</span> <span class="ident">pt</span> <span class="op">=</span> <span class="ident">pt</span>.<span class="ident">to_hashable</span>();
             <span class="kw">if</span> <span class="ident">seen</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">pt</span>) {
@@ -344,16 +344,16 @@
         <span class="ident">intersections</span>.<span class="ident">insert</span>(<span class="ident">pts</span>[<span class="number">0</span>].<span class="ident">to_hashable</span>());
         <span class="ident">intersections</span>.<span class="ident">insert</span>(<span class="ident">pts</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>().<span class="ident">to_hashable</span>());
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">polylines</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rings</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">current</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">polylines</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rings</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">current</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
         <span class="kw">for</span> <span class="ident">pt</span> <span class="kw">in</span> <span class="ident">pts</span>.<span class="ident">iter</span>().<span class="ident">cloned</span>() {
             <span class="ident">current</span>.<span class="ident">push</span>(<span class="ident">pt</span>);
             <span class="kw">if</span> <span class="ident">intersections</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">pt</span>.<span class="ident">to_hashable</span>()) <span class="op">&amp;&amp;</span> <span class="ident">current</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">1</span> {
                 <span class="kw">if</span> <span class="ident">current</span>[<span class="number">0</span>] <span class="op">=</span><span class="op">=</span> <span class="ident">pt</span> <span class="op">&amp;&amp;</span> <span class="ident">current</span>.<span class="ident">len</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="number">3</span> {
-                    <span class="ident">rings</span>.<span class="ident">push</span>(<span class="ident">Ring</span>::<span class="ident">new</span>(<span class="ident">current</span>.<span class="ident">drain</span>(..).<span class="ident">collect</span>())<span class="question-mark">?</span>);
+                    <span class="ident">rings</span>.<span class="ident">push</span>(<span class="ident">Ring::new</span>(<span class="ident">current</span>.<span class="ident">drain</span>(..).<span class="ident">collect</span>())<span class="question-mark">?</span>);
                 } <span class="kw">else</span> {
-                    <span class="ident">polylines</span>.<span class="ident">push</span>(<span class="ident">PolyLine</span>::<span class="ident">new</span>(<span class="ident">current</span>.<span class="ident">drain</span>(..).<span class="ident">collect</span>())<span class="question-mark">?</span>);
+                    <span class="ident">polylines</span>.<span class="ident">push</span>(<span class="ident">PolyLine::new</span>(<span class="ident">current</span>.<span class="ident">drain</span>(..).<span class="ident">collect</span>())<span class="question-mark">?</span>);
                 }
                 <span class="ident">current</span>.<span class="ident">push</span>(<span class="ident">pt</span>);
             }
@@ -362,24 +362,24 @@
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">contains_pt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pt</span>: <span class="ident">Pt2D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="ident">PolyLine</span>::<span class="ident">unchecked_new</span>(<span class="self">self</span>.<span class="ident">pts</span>.<span class="ident">clone</span>())
+        <span class="ident">PolyLine::unchecked_new</span>(<span class="self">self</span>.<span class="ident">pts</span>.<span class="ident">clone</span>())
             .<span class="ident">dist_along_of_point</span>(<span class="ident">pt</span>)
             .<span class="ident">is_some</span>()
     }
 
     <span class="doccomment">/// Produces a GeoJSON polygon, optionally mapping the world-space points back to GPS.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_geojson</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">gps</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">GPSBounds</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">geojson</span>::<span class="ident">Geometry</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_geojson</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">gps</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">GPSBounds</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">geojson::Geometry</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">gps</span>) <span class="op">=</span> <span class="ident">gps</span> {
             <span class="kw">for</span> <span class="ident">pt</span> <span class="kw">in</span> <span class="ident">gps</span>.<span class="ident">convert_back</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">pts</span>) {
-                <span class="ident">pts</span>.<span class="ident">push</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">pt</span>.<span class="ident">x</span>(), <span class="ident">pt</span>.<span class="ident">y</span>()]);
+                <span class="ident">pts</span>.<span class="ident">push</span>(<span class="macro">vec!</span>[<span class="ident">pt</span>.<span class="ident">x</span>(), <span class="ident">pt</span>.<span class="ident">y</span>()]);
             }
         } <span class="kw">else</span> {
             <span class="kw">for</span> <span class="ident">pt</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">pts</span> {
-                <span class="ident">pts</span>.<span class="ident">push</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">pt</span>.<span class="ident">x</span>(), <span class="ident">pt</span>.<span class="ident">y</span>()]);
+                <span class="ident">pts</span>.<span class="ident">push</span>(<span class="macro">vec!</span>[<span class="ident">pt</span>.<span class="ident">x</span>(), <span class="ident">pt</span>.<span class="ident">y</span>()]);
             }
         }
-        <span class="ident">geojson</span>::<span class="ident">Geometry</span>::<span class="ident">new</span>(<span class="ident">geojson</span>::<span class="ident">Value</span>::<span class="ident">Polygon</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">pts</span>]))
+        <span class="ident">geojson::Geometry::new</span>(<span class="ident">geojson::Value::Polygon</span>(<span class="macro">vec!</span>[<span class="ident">pts</span>]))
     }
 
     <span class="doccomment">/// Translates the ring by a fixed offset.</span>
@@ -391,35 +391,35 @@
     }
 }
 
-<span class="kw">impl</span> <span class="ident">fmt</span>::<span class="ident">Display</span> <span class="kw">for</span> <span class="ident">Ring</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
-        <span class="macro">writeln</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;Ring::new(vec![&quot;</span>)<span class="question-mark">?</span>;
+<span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">Ring</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+        <span class="macro">writeln!</span>(<span class="ident">f</span>, <span class="string">&quot;Ring::new(vec![&quot;</span>)<span class="question-mark">?</span>;
         <span class="kw">for</span> <span class="ident">pt</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">pts</span> {
-            <span class="macro">writeln</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;  Pt2D::new({}, {}),&quot;</span>, <span class="ident">pt</span>.<span class="ident">x</span>(), <span class="ident">pt</span>.<span class="ident">y</span>())<span class="question-mark">?</span>;
+            <span class="macro">writeln!</span>(<span class="ident">f</span>, <span class="string">&quot;  Pt2D::new({}, {}),&quot;</span>, <span class="ident">pt</span>.<span class="ident">x</span>(), <span class="ident">pt</span>.<span class="ident">y</span>())<span class="question-mark">?</span>;
         }
-        <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;])&quot;</span>)
+        <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;])&quot;</span>)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Ring</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">geo</span>::<span class="ident">LineString</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> {
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Ring</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">geo::LineString</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">ring</span>: <span class="ident">Ring</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="kw">let</span> <span class="ident">coords</span> <span class="op">=</span> <span class="ident">ring</span>
             .<span class="ident">pts</span>
             .<span class="ident">into_iter</span>()
-            .<span class="ident">map</span>(<span class="ident">geo</span>::<span class="ident">Coordinate</span>::<span class="ident">from</span>)
+            .<span class="ident">map</span>(<span class="ident">geo::Coordinate::from</span>)
             .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
         <span class="self">Self</span>(<span class="ident">coords</span>)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">geo</span>::<span class="ident">LineString</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Ring</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">line_string</span>: <span class="ident">geo</span>::<span class="ident">LineString</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">geo::LineString</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Ring</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">line_string</span>: <span class="ident">geo::LineString</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="comment">// Dedupe adjacent points. Only needed for results from concave hull.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">line_string</span>.<span class="number">0</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="ident">Pt2D</span>::<span class="ident">from</span>).<span class="ident">collect</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">line_string</span>.<span class="number">0</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="ident">Pt2D::from</span>).<span class="ident">collect</span>();
         <span class="ident">pts</span>.<span class="ident">dedup</span>();
-        <span class="self">Self</span>::<span class="ident">must_new</span>(<span class="ident">pts</span>)
+        <span class="self">Self</span><span class="ident">::must_new</span>(<span class="ident">pts</span>)
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="geom" data-search-js="../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="geom" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script></body></html>

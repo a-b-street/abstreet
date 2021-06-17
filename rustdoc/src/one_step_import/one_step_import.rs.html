@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `importer/src/bin/one_step_import.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>one_step_import.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../one_step_import/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../one_step_import/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -116,27 +116,27 @@
 <span id="113">113</span>
 <span id="114">114</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">io</span>::<span class="ident">Write</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">path</span>::<span class="ident">Path</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">process</span>::{<span class="ident">Command</span>, <span class="ident">Stdio</span>};
+<span class="kw">use</span> <span class="ident">std::io::Write</span>;
+<span class="kw">use</span> <span class="ident">std::path::Path</span>;
+<span class="kw">use</span> <span class="ident">std::process</span>::{<span class="ident">Command</span>, <span class="ident">Stdio</span>};
 
-<span class="kw">use</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span>;
+<span class="kw">use</span> <span class="ident">anyhow::Result</span>;
 
-<span class="kw">use</span> <span class="ident">abstio</span>::<span class="ident">CityName</span>;
+<span class="kw">use</span> <span class="ident">abstio::CityName</span>;
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">must_run_cmd</span>, <span class="ident">CmdArgs</span>};
 
 <span class="doccomment">/// Import a one-shot A/B Street map in a single command. Takes a GeoJSON file with a boundary as</span>
 <span class="doccomment">/// input. Automatically fetches the OSM data, clips it, and runs the importer.</span>
-<span class="attribute">#[<span class="ident">tokio</span>::<span class="ident">main</span>]</span>
+<span class="attribute">#[<span class="ident">tokio::main</span>]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">main</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">args</span> <span class="op">=</span> <span class="ident">CmdArgs</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">args</span> <span class="op">=</span> <span class="ident">CmdArgs::new</span>();
     <span class="kw">let</span> <span class="ident">geojson_path</span> <span class="op">=</span> <span class="ident">args</span>.<span class="ident">required_free</span>();
     <span class="kw">let</span> <span class="ident">drive_on_left</span> <span class="op">=</span> <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--drive_on_left&quot;</span>);
     <span class="ident">args</span>.<span class="ident">done</span>();
 
     <span class="comment">// Handle running from a binary release or from git. If the latter and the user hasn&#39;t built</span>
     <span class="comment">// the tools, they&#39;ll get an error.</span>
-    <span class="kw">let</span> <span class="ident">bin_dir</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
+    <span class="kw">let</span> <span class="ident">bin_dir</span> <span class="op">=</span> <span class="macro">vec!</span>[
         <span class="string">&quot;./target/release&quot;</span>,
         <span class="string">&quot;../target/release&quot;</span>,
         <span class="string">&quot;../../target/release&quot;</span>,
@@ -144,27 +144,27 @@
         <span class="string">&quot;../tools&quot;</span>,
     ]
     .<span class="ident">into_iter</span>()
-    .<span class="ident">find</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">Path</span>::<span class="ident">new</span>(<span class="ident">x</span>).<span class="ident">exists</span>())
+    .<span class="ident">find</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">Path::new</span>(<span class="ident">x</span>).<span class="ident">exists</span>())
     .<span class="ident">expect</span>(<span class="string">&quot;Can&#39;t find target/ or tools/ directory&quot;</span>);
-    <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;Found other executables at {}&quot;</span>, <span class="ident">bin_dir</span>);
+    <span class="macro">println!</span>(<span class="string">&quot;Found other executables at {}&quot;</span>, <span class="ident">bin_dir</span>);
 
     <span class="comment">// Convert to a boundary polygon. This tool reads from STDIN.</span>
     {
-        <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;Converting GeoJSON to Osmosis boundary&quot;</span>);
-        <span class="kw">let</span> <span class="ident">geojson</span> <span class="op">=</span> <span class="ident">abstio</span>::<span class="ident">slurp_file</span>(<span class="ident">geojson_path</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cmd</span> <span class="op">=</span> <span class="ident">Command</span>::<span class="ident">new</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}/geojson_to_osmosis&quot;</span>, <span class="ident">bin_dir</span>))
-            .<span class="ident">stdin</span>(<span class="ident">Stdio</span>::<span class="ident">piped</span>())
+        <span class="macro">println!</span>(<span class="string">&quot;Converting GeoJSON to Osmosis boundary&quot;</span>);
+        <span class="kw">let</span> <span class="ident">geojson</span> <span class="op">=</span> <span class="ident">abstio::slurp_file</span>(<span class="ident">geojson_path</span>)<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cmd</span> <span class="op">=</span> <span class="ident">Command::new</span>(<span class="macro">format!</span>(<span class="string">&quot;{}/geojson_to_osmosis&quot;</span>, <span class="ident">bin_dir</span>))
+            .<span class="ident">stdin</span>(<span class="ident">Stdio::piped</span>())
             .<span class="ident">spawn</span>()<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">stdin</span> <span class="op">=</span> <span class="ident">cmd</span>.<span class="ident">stdin</span>.<span class="ident">as_mut</span>().<span class="ident">unwrap</span>();
         <span class="ident">stdin</span>.<span class="ident">write_all</span>(<span class="kw-2">&amp;</span><span class="ident">geojson</span>)<span class="question-mark">?</span>;
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">cmd</span>.<span class="ident">wait</span>()<span class="question-mark">?</span>.<span class="ident">success</span>());
+        <span class="macro">assert!</span>(<span class="ident">cmd</span>.<span class="ident">wait</span>()<span class="question-mark">?</span>.<span class="ident">success</span>());
 
-        <span class="kw">if</span> <span class="ident">Path</span>::<span class="ident">new</span>(<span class="string">&quot;boundary1.poly&quot;</span>).<span class="ident">exists</span>() {
-            <span class="ident">abstio</span>::<span class="ident">delete_file</span>(<span class="string">&quot;boundary0.poly&quot;</span>);
-            <span class="ident">abstio</span>::<span class="ident">delete_file</span>(<span class="string">&quot;boundary1.poly&quot;</span>);
+        <span class="kw">if</span> <span class="ident">Path::new</span>(<span class="string">&quot;boundary1.poly&quot;</span>).<span class="ident">exists</span>() {
+            <span class="ident">abstio::delete_file</span>(<span class="string">&quot;boundary0.poly&quot;</span>);
+            <span class="ident">abstio::delete_file</span>(<span class="string">&quot;boundary1.poly&quot;</span>);
             <span class="comment">// If there were more, leave them around, but at least delete these 2, so the user</span>
             <span class="comment">// can try again.</span>
-            <span class="ident">anyhow</span>::<span class="macro">bail</span><span class="macro">!</span>(
+            <span class="macro">anyhow::bail!</span>(
                 <span class="string">&quot;Your GeoJSON contained multiple polygons. You can only import one at a time.&quot;</span>
             );
         }
@@ -172,64 +172,64 @@
 
     <span class="comment">// What file should we download?</span>
     <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> {
-        <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;Figuring out what Geofabrik file contains your boundary&quot;</span>);
-        <span class="kw">let</span> <span class="ident">out</span> <span class="op">=</span> <span class="ident">Command</span>::<span class="ident">new</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}/pick_geofabrik&quot;</span>, <span class="ident">bin_dir</span>))
+        <span class="macro">println!</span>(<span class="string">&quot;Figuring out what Geofabrik file contains your boundary&quot;</span>);
+        <span class="kw">let</span> <span class="ident">out</span> <span class="op">=</span> <span class="ident">Command::new</span>(<span class="macro">format!</span>(<span class="string">&quot;{}/pick_geofabrik&quot;</span>, <span class="ident">bin_dir</span>))
             .<span class="ident">arg</span>(<span class="string">&quot;boundary0.poly&quot;</span>)
             .<span class="ident">output</span>()<span class="question-mark">?</span>;
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">out</span>.<span class="ident">status</span>.<span class="ident">success</span>());
+        <span class="macro">assert!</span>(<span class="ident">out</span>.<span class="ident">status</span>.<span class="ident">success</span>());
         <span class="comment">// pick_geofabrik might output extra lines while downloading the index. Grab the last line.</span>
-        <span class="kw">let</span> <span class="ident">output</span> <span class="op">=</span> <span class="ident">String</span>::<span class="ident">from_utf8</span>(<span class="ident">out</span>.<span class="ident">stdout</span>)<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">output</span> <span class="op">=</span> <span class="ident">String::from_utf8</span>(<span class="ident">out</span>.<span class="ident">stdout</span>)<span class="question-mark">?</span>;
         <span class="ident">output</span>.<span class="ident">trim</span>().<span class="ident">split</span>(<span class="string">&#39;\n&#39;</span>).<span class="ident">last</span>().<span class="ident">unwrap</span>().<span class="ident">trim</span>().<span class="ident">to_string</span>()
     };
 
     <span class="comment">// Name the temporary map based on the Geofabrik region.</span>
-    <span class="kw">let</span> <span class="ident">city</span> <span class="op">=</span> <span class="ident">CityName</span>::<span class="ident">new</span>(<span class="string">&quot;zz&quot;</span>, <span class="string">&quot;oneshot&quot;</span>);
-    <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="ident">abstutil</span>::<span class="ident">basename</span>(<span class="kw-2">&amp;</span><span class="ident">url</span>)
+    <span class="kw">let</span> <span class="ident">city</span> <span class="op">=</span> <span class="ident">CityName::new</span>(<span class="string">&quot;zz&quot;</span>, <span class="string">&quot;oneshot&quot;</span>);
+    <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="ident">abstutil::basename</span>(<span class="kw-2">&amp;</span><span class="ident">url</span>)
         .<span class="ident">strip_suffix</span>(<span class="string">&quot;-latest.osm&quot;</span>)
         .<span class="ident">unwrap</span>()
         .<span class="ident">to_string</span>();
-    <span class="kw">let</span> <span class="ident">pbf</span> <span class="op">=</span> <span class="ident">city</span>.<span class="ident">input_path</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;osm/{}.pbf&quot;</span>, <span class="ident">abstutil</span>::<span class="ident">basename</span>(<span class="kw-2">&amp;</span><span class="ident">url</span>)));
-    <span class="kw">let</span> <span class="ident">osm</span> <span class="op">=</span> <span class="ident">city</span>.<span class="ident">input_path</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;osm/{}.osm&quot;</span>, <span class="ident">name</span>));
-    <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">create_dir_all</span>(<span class="ident">std</span>::<span class="ident">path</span>::<span class="ident">Path</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">osm</span>).<span class="ident">parent</span>().<span class="ident">unwrap</span>())
+    <span class="kw">let</span> <span class="ident">pbf</span> <span class="op">=</span> <span class="ident">city</span>.<span class="ident">input_path</span>(<span class="macro">format!</span>(<span class="string">&quot;osm/{}.pbf&quot;</span>, <span class="ident">abstutil::basename</span>(<span class="kw-2">&amp;</span><span class="ident">url</span>)));
+    <span class="kw">let</span> <span class="ident">osm</span> <span class="op">=</span> <span class="ident">city</span>.<span class="ident">input_path</span>(<span class="macro">format!</span>(<span class="string">&quot;osm/{}.osm&quot;</span>, <span class="ident">name</span>));
+    <span class="ident">std::fs::create_dir_all</span>(<span class="ident">std::path::Path::new</span>(<span class="kw-2">&amp;</span><span class="ident">osm</span>).<span class="ident">parent</span>().<span class="ident">unwrap</span>())
         .<span class="ident">expect</span>(<span class="string">&quot;Creating parent dir failed&quot;</span>);
 
     <span class="comment">// Download it!</span>
     <span class="comment">// TODO This is timing out. Also, really could use progress bars.</span>
-    <span class="kw">if</span> <span class="op">!</span><span class="ident">abstio</span>::<span class="ident">file_exists</span>(<span class="kw-2">&amp;</span><span class="ident">pbf</span>) {
-        <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;Downloading {}&quot;</span>, <span class="ident">url</span>);
-        <span class="ident">abstio</span>::<span class="ident">download_to_file</span>(<span class="ident">url</span>, <span class="kw-2">&amp;</span><span class="ident">pbf</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">if</span> <span class="op">!</span><span class="ident">abstio::file_exists</span>(<span class="kw-2">&amp;</span><span class="ident">pbf</span>) {
+        <span class="macro">println!</span>(<span class="string">&quot;Downloading {}&quot;</span>, <span class="ident">url</span>);
+        <span class="ident">abstio::download_to_file</span>(<span class="ident">url</span>, <span class="kw-2">&amp;</span><span class="ident">pbf</span>).<span class="kw">await</span><span class="question-mark">?</span>;
     }
 
     <span class="comment">// Clip it</span>
-    <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;Clipping osm.pbf file to your boundary&quot;</span>);
+    <span class="macro">println!</span>(<span class="string">&quot;Clipping osm.pbf file to your boundary&quot;</span>);
     <span class="ident">must_run_cmd</span>(
-        <span class="ident">Command</span>::<span class="ident">new</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}/clip_osm&quot;</span>, <span class="ident">bin_dir</span>))
-            .<span class="ident">arg</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;--pbf={}&quot;</span>, <span class="ident">pbf</span>))
+        <span class="ident">Command::new</span>(<span class="macro">format!</span>(<span class="string">&quot;{}/clip_osm&quot;</span>, <span class="ident">bin_dir</span>))
+            .<span class="ident">arg</span>(<span class="macro">format!</span>(<span class="string">&quot;--pbf={}&quot;</span>, <span class="ident">pbf</span>))
             .<span class="ident">arg</span>(<span class="string">&quot;--clip=boundary0.poly&quot;</span>)
-            .<span class="ident">arg</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;--out={}&quot;</span>, <span class="ident">osm</span>)),
+            .<span class="ident">arg</span>(<span class="macro">format!</span>(<span class="string">&quot;--out={}&quot;</span>, <span class="ident">osm</span>)),
     );
 
     <span class="comment">// Import!</span>
     {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cmd</span> <span class="op">=</span> <span class="ident">Command</span>::<span class="ident">new</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}/importer&quot;</span>, <span class="ident">bin_dir</span>));
-        <span class="ident">cmd</span>.<span class="ident">arg</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;--oneshot={}&quot;</span>, <span class="ident">osm</span>));
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cmd</span> <span class="op">=</span> <span class="ident">Command::new</span>(<span class="macro">format!</span>(<span class="string">&quot;{}/importer&quot;</span>, <span class="ident">bin_dir</span>));
+        <span class="ident">cmd</span>.<span class="ident">arg</span>(<span class="macro">format!</span>(<span class="string">&quot;--oneshot={}&quot;</span>, <span class="ident">osm</span>));
         <span class="ident">cmd</span>.<span class="ident">arg</span>(<span class="string">&quot;--oneshot_clip=boundary0.poly&quot;</span>);
         <span class="kw">if</span> <span class="ident">drive_on_left</span> {
             <span class="ident">cmd</span>.<span class="ident">arg</span>(<span class="string">&quot;--oneshot_drive_on_left&quot;</span>);
         }
-        <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;Running importer&quot;</span>);
+        <span class="macro">println!</span>(<span class="string">&quot;Running importer&quot;</span>);
         <span class="ident">must_run_cmd</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">cmd</span>);
     }
 
     <span class="comment">// Clean up temporary files. If we broke before this, deliberately leave them around for</span>
     <span class="comment">// debugging.</span>
-    <span class="ident">abstio</span>::<span class="ident">delete_file</span>(<span class="string">&quot;boundary0.poly&quot;</span>);
+    <span class="ident">abstio::delete_file</span>(<span class="string">&quot;boundary0.poly&quot;</span>);
 
     <span class="comment">// For the sake of the UI, print the name of the new map as the last line of output.</span>
-    <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">name</span>);
+    <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">name</span>);
 
     <span class="prelude-val">Ok</span>(())
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="one_step_import" data-search-js="../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="one_step_import" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script></body></html>

@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/edits/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../map_model/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../map_model/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -910,17 +910,17 @@
 <span class="doccomment">//! the changes to a file (as `PermanentMapEdits`). See</span>
 <span class="doccomment">//! &lt;https://a-b-street.github.io/docs/tech/map/edits.html&gt;.</span>
 
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashSet</span>};
+<span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashSet</span>};
 
-<span class="kw">use</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span>;
+<span class="kw">use</span> <span class="ident">anyhow::Result</span>;
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">retain_btreemap</span>, <span class="ident">retain_btreeset</span>, <span class="ident">Timer</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">HashablePt2D</span>, <span class="ident">Line</span>, <span class="ident">Speed</span>, <span class="ident">Time</span>};
 
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">perma</span>::<span class="ident">PermanentMapEdits</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">make</span>::<span class="ident">initial</span>::<span class="ident">lane_specs</span>::<span class="ident">get_lane_specs_ltr</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">make</span>::{<span class="ident">match_points_to_lanes</span>, <span class="ident">snap_driveway</span>, <span class="ident">trim_path</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::perma::PermanentMapEdits</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::make::initial::lane_specs::get_lane_specs_ltr</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::make</span>::{<span class="ident">match_points_to_lanes</span>, <span class="ident">snap_driveway</span>, <span class="ident">trim_path</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">connectivity</span>, <span class="ident">AccessRestrictions</span>, <span class="ident">BuildingID</span>, <span class="ident">BusRouteID</span>, <span class="ident">ControlStopSign</span>,
     <span class="ident">ControlTrafficSignal</span>, <span class="ident">IntersectionID</span>, <span class="ident">IntersectionType</span>, <span class="ident">LaneID</span>, <span class="ident">LaneSpec</span>, <span class="ident">Map</span>, <span class="ident">MapConfig</span>,
@@ -959,7 +959,7 @@
     <span class="ident">StopSign</span>(<span class="ident">ControlStopSign</span>),
     <span class="comment">// Don&#39;t keep ControlTrafficSignal here, because it contains movements that should be</span>
     <span class="comment">// generated after all lane edits are applied.</span>
-    <span class="ident">TrafficSignal</span>(<span class="ident">traffic_signal_data</span>::<span class="ident">TrafficSignal</span>),
+    <span class="ident">TrafficSignal</span>(<span class="ident">traffic_signal_data::TrafficSignal</span>),
     <span class="ident">Closed</span>,
 }
 
@@ -980,7 +980,7 @@
     }
 
     <span class="kw">fn</span> <span class="ident">diff</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">EditRoad</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
-        <span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">comparison_chain</span>)]</span>
+        <span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::comparison_chain</span>)]</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lt</span> <span class="op">=</span> <span class="number">0</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">dir</span> <span class="op">=</span> <span class="number">0</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">width</span> <span class="op">=</span> <span class="number">0</span>;
@@ -996,21 +996,21 @@
             }
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">changes</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">changes</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
         <span class="kw">if</span> <span class="ident">lt</span> <span class="op">=</span><span class="op">=</span> <span class="number">1</span> {
             <span class="ident">changes</span>.<span class="ident">push</span>(<span class="string">&quot;1 lane type&quot;</span>.<span class="ident">to_string</span>());
         } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">lt</span> <span class="op">&gt;</span> <span class="number">1</span> {
-            <span class="ident">changes</span>.<span class="ident">push</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} lane types&quot;</span>, <span class="ident">lt</span>));
+            <span class="ident">changes</span>.<span class="ident">push</span>(<span class="macro">format!</span>(<span class="string">&quot;{} lane types&quot;</span>, <span class="ident">lt</span>));
         }
         <span class="kw">if</span> <span class="ident">dir</span> <span class="op">=</span><span class="op">=</span> <span class="number">1</span> {
             <span class="ident">changes</span>.<span class="ident">push</span>(<span class="string">&quot;1 lane reversal&quot;</span>.<span class="ident">to_string</span>());
         } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">dir</span> <span class="op">&gt;</span> <span class="number">1</span> {
-            <span class="ident">changes</span>.<span class="ident">push</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} lane reversals&quot;</span>, <span class="ident">dir</span>));
+            <span class="ident">changes</span>.<span class="ident">push</span>(<span class="macro">format!</span>(<span class="string">&quot;{} lane reversals&quot;</span>, <span class="ident">dir</span>));
         }
         <span class="kw">if</span> <span class="ident">width</span> <span class="op">=</span><span class="op">=</span> <span class="number">1</span> {
             <span class="ident">changes</span>.<span class="ident">push</span>(<span class="string">&quot;1 lane width&quot;</span>.<span class="ident">to_string</span>());
         } <span class="kw">else</span> {
-            <span class="ident">changes</span>.<span class="ident">push</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} lane widths&quot;</span>, <span class="ident">width</span>));
+            <span class="ident">changes</span>.<span class="ident">push</span>(<span class="macro">format!</span>(<span class="string">&quot;{} lane widths&quot;</span>, <span class="ident">width</span>));
         }
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">speed_limit</span> <span class="op">!</span><span class="op">=</span> <span class="ident">other</span>.<span class="ident">speed_limit</span> {
             <span class="ident">changes</span>.<span class="ident">push</span>(<span class="string">&quot;speed limit&quot;</span>.<span class="ident">to_string</span>());
@@ -1055,26 +1055,26 @@
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">MapEdits</span> {
         <span class="ident">MapEdits</span> {
             <span class="ident">edits_name</span>: <span class="string">&quot;TODO temporary&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">proposal_description</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
+            <span class="ident">proposal_description</span>: <span class="ident">Vec::new</span>(),
             <span class="ident">proposal_link</span>: <span class="prelude-val">None</span>,
-            <span class="ident">commands</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
+            <span class="ident">commands</span>: <span class="ident">Vec::new</span>(),
             <span class="ident">merge_zones</span>: <span class="bool-val">true</span>,
 
-            <span class="ident">changed_roads</span>: <span class="ident">BTreeSet</span>::<span class="ident">new</span>(),
-            <span class="ident">original_intersections</span>: <span class="ident">BTreeMap</span>::<span class="ident">new</span>(),
-            <span class="ident">changed_routes</span>: <span class="ident">BTreeSet</span>::<span class="ident">new</span>(),
+            <span class="ident">changed_roads</span>: <span class="ident">BTreeSet::new</span>(),
+            <span class="ident">original_intersections</span>: <span class="ident">BTreeMap::new</span>(),
+            <span class="ident">changed_routes</span>: <span class="ident">BTreeSet::new</span>(),
         }
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">load</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">path</span>: <span class="ident">String</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">MapEdits</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="ident">abstio</span>::<span class="ident">maybe_read_json</span>::<span class="op">&lt;</span><span class="ident">PermanentMapEdits</span><span class="op">&gt;</span>(<span class="ident">path</span>.<span class="ident">clone</span>(), <span class="ident">timer</span>) {
+        <span class="kw">match</span> <span class="ident">abstio::maybe_read_json</span>::<span class="op">&lt;</span><span class="ident">PermanentMapEdits</span><span class="op">&gt;</span>(<span class="ident">path</span>.<span class="ident">clone</span>(), <span class="ident">timer</span>) {
             <span class="prelude-val">Ok</span>(<span class="ident">perma</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">perma</span>.<span class="ident">into_edits</span>(<span class="ident">map</span>),
             <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="comment">// The JSON format may have changed, so attempt backwards compatibility.</span>
-                <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">abstio</span>::<span class="ident">slurp_file</span>(<span class="ident">path</span>)<span class="question-mark">?</span>;
-                <span class="kw">let</span> <span class="ident">contents</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">str</span>::<span class="ident">from_utf8</span>(<span class="kw-2">&amp;</span><span class="ident">bytes</span>)<span class="question-mark">?</span>;
-                <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="ident">serde_json</span>::<span class="ident">from_str</span>(<span class="ident">contents</span>)<span class="question-mark">?</span>;
-                <span class="kw">let</span> <span class="ident">perma</span> <span class="op">=</span> <span class="ident">compat</span>::<span class="ident">upgrade</span>(<span class="ident">value</span>, <span class="ident">map</span>)<span class="question-mark">?</span>;
+                <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">abstio::slurp_file</span>(<span class="ident">path</span>)<span class="question-mark">?</span>;
+                <span class="kw">let</span> <span class="ident">contents</span> <span class="op">=</span> <span class="ident">std::str::from_utf8</span>(<span class="kw-2">&amp;</span><span class="ident">bytes</span>)<span class="question-mark">?</span>;
+                <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="ident">serde_json::from_str</span>(<span class="ident">contents</span>)<span class="question-mark">?</span>;
+                <span class="kw">let</span> <span class="ident">perma</span> <span class="op">=</span> <span class="ident">compat::upgrade</span>(<span class="ident">value</span>, <span class="ident">map</span>)<span class="question-mark">?</span>;
                 <span class="ident">perma</span>.<span class="ident">into_edits</span>(<span class="ident">map</span>)
             }
         }
@@ -1086,8 +1086,8 @@
             <span class="kw">return</span>;
         }
 
-        <span class="ident">abstio</span>::<span class="ident">write_json</span>(
-            <span class="ident">abstio</span>::<span class="ident">path_edits</span>(<span class="ident">map</span>.<span class="ident">get_name</span>(), <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">edits_name</span>),
+        <span class="ident">abstio::write_json</span>(
+            <span class="ident">abstio::path_edits</span>(<span class="ident">map</span>.<span class="ident">get_name</span>(), <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">edits_name</span>),
             <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">to_permanent</span>(<span class="ident">map</span>),
         );
     }
@@ -1099,22 +1099,22 @@
 
         <span class="kw">for</span> <span class="ident">cmd</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">commands</span> {
             <span class="kw">match</span> <span class="ident">cmd</span> {
-                <span class="ident">EditCmd</span>::<span class="ident">ChangeRoad</span> { <span class="ident">r</span>, .. } <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">EditCmd::ChangeRoad</span> { <span class="ident">r</span>, .. } <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="self">self</span>.<span class="ident">changed_roads</span>.<span class="ident">insert</span>(<span class="kw-2">*</span><span class="ident">r</span>);
                 }
-                <span class="ident">EditCmd</span>::<span class="ident">ChangeIntersection</span> { <span class="ident">i</span>, <span class="kw-2">ref</span> <span class="ident">old</span>, .. } <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">EditCmd::ChangeIntersection</span> { <span class="ident">i</span>, <span class="kw-2">ref</span> <span class="ident">old</span>, .. } <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">original_intersections</span>.<span class="ident">contains_key</span>(<span class="ident">i</span>) {
                         <span class="self">self</span>.<span class="ident">original_intersections</span>.<span class="ident">insert</span>(<span class="kw-2">*</span><span class="ident">i</span>, <span class="ident">old</span>.<span class="ident">clone</span>());
                     }
                 }
-                <span class="ident">EditCmd</span>::<span class="ident">ChangeRouteSchedule</span> { <span class="ident">id</span>, .. } <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">EditCmd::ChangeRouteSchedule</span> { <span class="ident">id</span>, .. } <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="self">self</span>.<span class="ident">changed_routes</span>.<span class="ident">insert</span>(<span class="kw-2">*</span><span class="ident">id</span>);
                 }
             }
         }
 
         <span class="ident">retain_btreeset</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">changed_roads</span>, <span class="op">|</span><span class="ident">r</span><span class="op">|</span> {
-            <span class="ident">map</span>.<span class="ident">get_r_edit</span>(<span class="kw-2">*</span><span class="ident">r</span>) <span class="op">!</span><span class="op">=</span> <span class="ident">EditRoad</span>::<span class="ident">get_orig_from_osm</span>(<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>), <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">config</span>)
+            <span class="ident">map</span>.<span class="ident">get_r_edit</span>(<span class="kw-2">*</span><span class="ident">r</span>) <span class="op">!</span><span class="op">=</span> <span class="ident">EditRoad::get_orig_from_osm</span>(<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>), <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">config</span>)
         });
         <span class="ident">retain_btreemap</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">original_intersections</span>, <span class="op">|</span><span class="ident">i</span>, <span class="ident">orig</span><span class="op">|</span> {
             <span class="ident">map</span>.<span class="ident">get_i_edit</span>(<span class="kw-2">*</span><span class="ident">i</span>) <span class="op">!</span><span class="op">=</span> <span class="ident">orig</span>.<span class="ident">clone</span>()
@@ -1128,14 +1128,14 @@
     <span class="doccomment">/// Assumes update_derived has been called.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">compress</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) {
         <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">changed_roads</span> {
-            <span class="self">self</span>.<span class="ident">commands</span>.<span class="ident">push</span>(<span class="ident">EditCmd</span>::<span class="ident">ChangeRoad</span> {
+            <span class="self">self</span>.<span class="ident">commands</span>.<span class="ident">push</span>(<span class="ident">EditCmd::ChangeRoad</span> {
                 <span class="ident">r</span>: <span class="kw-2">*</span><span class="ident">r</span>,
-                <span class="ident">old</span>: <span class="ident">EditRoad</span>::<span class="ident">get_orig_from_osm</span>(<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>), <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">config</span>),
+                <span class="ident">old</span>: <span class="ident">EditRoad::get_orig_from_osm</span>(<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>), <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">config</span>),
                 <span class="ident">new</span>: <span class="ident">map</span>.<span class="ident">get_r_edit</span>(<span class="kw-2">*</span><span class="ident">r</span>),
             });
         }
         <span class="kw">for</span> (<span class="ident">i</span>, <span class="ident">old</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">original_intersections</span> {
-            <span class="self">self</span>.<span class="ident">commands</span>.<span class="ident">push</span>(<span class="ident">EditCmd</span>::<span class="ident">ChangeIntersection</span> {
+            <span class="self">self</span>.<span class="ident">commands</span>.<span class="ident">push</span>(<span class="ident">EditCmd::ChangeIntersection</span> {
                 <span class="ident">i</span>: <span class="kw-2">*</span><span class="ident">i</span>,
                 <span class="ident">old</span>: <span class="ident">old</span>.<span class="ident">clone</span>(),
                 <span class="ident">new</span>: <span class="ident">map</span>.<span class="ident">get_i_edit</span>(<span class="kw-2">*</span><span class="ident">i</span>),
@@ -1143,7 +1143,7 @@
         }
         <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">changed_routes</span> {
             <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_br</span>(<span class="kw-2">*</span><span class="ident">r</span>);
-            <span class="self">self</span>.<span class="ident">commands</span>.<span class="ident">push</span>(<span class="ident">EditCmd</span>::<span class="ident">ChangeRouteSchedule</span> {
+            <span class="self">self</span>.<span class="ident">commands</span>.<span class="ident">push</span>(<span class="ident">EditCmd::ChangeRouteSchedule</span> {
                 <span class="ident">id</span>: <span class="ident">r</span>.<span class="ident">id</span>,
                 <span class="ident">new</span>: <span class="ident">r</span>.<span class="ident">spawn_times</span>.<span class="ident">clone</span>(),
                 <span class="ident">old</span>: <span class="ident">r</span>.<span class="ident">orig_spawn_times</span>.<span class="ident">clone</span>(),
@@ -1154,11 +1154,11 @@
     <span class="doccomment">/// Pick apart changed_roads and figure out if an entire road was edited, or just a few lanes.</span>
     <span class="doccomment">/// Doesn&#39;t return deleted lanes.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">changed_lanes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">LaneID</span><span class="op">&gt;</span>, <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span>) {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lanes</span> <span class="op">=</span> <span class="ident">BTreeSet</span>::<span class="ident">new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">roads</span> <span class="op">=</span> <span class="ident">BTreeSet</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lanes</span> <span class="op">=</span> <span class="ident">BTreeSet::new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">roads</span> <span class="op">=</span> <span class="ident">BTreeSet::new</span>();
         <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">changed_roads</span> {
             <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>);
-            <span class="kw">let</span> <span class="ident">orig</span> <span class="op">=</span> <span class="ident">EditRoad</span>::<span class="ident">get_orig_from_osm</span>(<span class="ident">r</span>, <span class="ident">map</span>.<span class="ident">get_config</span>());
+            <span class="kw">let</span> <span class="ident">orig</span> <span class="op">=</span> <span class="ident">EditRoad::get_orig_from_osm</span>(<span class="ident">r</span>, <span class="ident">map</span>.<span class="ident">get_config</span>());
             <span class="comment">// What exactly changed?</span>
             <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">speed_limit</span> <span class="op">!</span><span class="op">=</span> <span class="ident">orig</span>.<span class="ident">speed_limit</span>
                 <span class="op">|</span><span class="op">|</span> <span class="ident">r</span>.<span class="ident">access_restrictions</span> <span class="op">!</span><span class="op">=</span> <span class="ident">orig</span>.<span class="ident">access_restrictions</span>
@@ -1183,29 +1183,29 @@
     }
 }
 
-<span class="kw">impl</span> <span class="ident">std</span>::<span class="ident">default</span>::<span class="ident">Default</span> <span class="kw">for</span> <span class="ident">MapEdits</span> {
+<span class="kw">impl</span> <span class="ident">std::default::Default</span> <span class="kw">for</span> <span class="ident">MapEdits</span> {
     <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">MapEdits</span> {
-        <span class="ident">MapEdits</span>::<span class="ident">new</span>()
+        <span class="ident">MapEdits::new</span>()
     }
 }
 
 <span class="kw">impl</span> <span class="ident">EditCmd</span> {
     <span class="doccomment">/// (summary, details)</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">describe</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">String</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">details</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">details</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
         <span class="kw">let</span> <span class="ident">summary</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">EditCmd</span>::<span class="ident">ChangeRoad</span> { <span class="ident">r</span>, <span class="ident">old</span>, <span class="ident">new</span> } <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">EditCmd::ChangeRoad</span> { <span class="ident">r</span>, <span class="ident">old</span>, <span class="ident">new</span> } <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="ident">details</span> <span class="op">=</span> <span class="ident">new</span>.<span class="ident">diff</span>(<span class="ident">old</span>);
-                <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;road #{}&quot;</span>, <span class="ident">r</span>.<span class="number">0</span>)
+                <span class="macro">format!</span>(<span class="string">&quot;road #{}&quot;</span>, <span class="ident">r</span>.<span class="number">0</span>)
             }
             <span class="comment">// TODO Describe changes</span>
-            <span class="ident">EditCmd</span>::<span class="ident">ChangeIntersection</span> { <span class="ident">i</span>, <span class="ident">new</span>, .. } <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">new</span> {
-                <span class="ident">EditIntersection</span>::<span class="ident">StopSign</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;stop sign #{}&quot;</span>, <span class="ident">i</span>.<span class="number">0</span>),
-                <span class="ident">EditIntersection</span>::<span class="ident">TrafficSignal</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;traffic signal #{}&quot;</span>, <span class="ident">i</span>.<span class="number">0</span>),
-                <span class="ident">EditIntersection</span>::<span class="ident">Closed</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;close {}&quot;</span>, <span class="ident">i</span>),
+            <span class="ident">EditCmd::ChangeIntersection</span> { <span class="ident">i</span>, <span class="ident">new</span>, .. } <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">new</span> {
+                <span class="ident">EditIntersection::StopSign</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">format!</span>(<span class="string">&quot;stop sign #{}&quot;</span>, <span class="ident">i</span>.<span class="number">0</span>),
+                <span class="ident">EditIntersection::TrafficSignal</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">format!</span>(<span class="string">&quot;traffic signal #{}&quot;</span>, <span class="ident">i</span>.<span class="number">0</span>),
+                <span class="ident">EditIntersection::Closed</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">format!</span>(<span class="string">&quot;close {}&quot;</span>, <span class="ident">i</span>),
             },
-            <span class="ident">EditCmd</span>::<span class="ident">ChangeRouteSchedule</span> { <span class="ident">id</span>, .. } <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;reschedule route {}&quot;</span>, <span class="ident">map</span>.<span class="ident">get_br</span>(<span class="kw-2">*</span><span class="ident">id</span>).<span class="ident">short_name</span>)
+            <span class="ident">EditCmd::ChangeRouteSchedule</span> { <span class="ident">id</span>, .. } <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="macro">format!</span>(<span class="string">&quot;reschedule route {}&quot;</span>, <span class="ident">map</span>.<span class="ident">get_br</span>(<span class="kw-2">*</span><span class="ident">id</span>).<span class="ident">short_name</span>)
             }
         };
         (<span class="ident">summary</span>, <span class="ident">details</span>)
@@ -1214,7 +1214,7 @@
     <span class="comment">// Must be idempotent</span>
     <span class="kw">fn</span> <span class="ident">apply</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">effects</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EditEffects</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Map</span>) {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">EditCmd</span>::<span class="ident">ChangeRoad</span> { <span class="ident">r</span>, <span class="kw-2">ref</span> <span class="ident">new</span>, .. } <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">EditCmd::ChangeRoad</span> { <span class="ident">r</span>, <span class="kw-2">ref</span> <span class="ident">new</span>, .. } <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_r_edit</span>(<span class="kw-2">*</span><span class="ident">r</span>) <span class="op">=</span><span class="op">=</span> <span class="ident">new</span>.<span class="ident">clone</span>() {
                     <span class="kw">return</span>;
                 }
@@ -1235,7 +1235,7 @@
                             <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">lanes</span>[<span class="kw-2">&amp;</span><span class="ident">l</span>].<span class="ident">src_i</span> <span class="op">=</span><span class="op">=</span> <span class="ident">i</span>.<span class="ident">id</span> {
                                 <span class="ident">i</span>.<span class="ident">outgoing_lanes</span>.<span class="ident">push</span>(<span class="ident">l</span>);
                             } <span class="kw">else</span> {
-                                <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">map</span>.<span class="ident">lanes</span>[<span class="kw-2">&amp;</span><span class="ident">l</span>].<span class="ident">dst_i</span>, <span class="ident">i</span>.<span class="ident">id</span>);
+                                <span class="macro">assert_eq!</span>(<span class="ident">map</span>.<span class="ident">lanes</span>[<span class="kw-2">&amp;</span><span class="ident">l</span>].<span class="ident">dst_i</span>, <span class="ident">i</span>.<span class="ident">id</span>);
                                 <span class="ident">i</span>.<span class="ident">incoming_lanes</span>.<span class="ident">push</span>(<span class="ident">l</span>);
                             }
                         }
@@ -1244,7 +1244,7 @@
                     <span class="ident">recalculate_turns</span>(<span class="ident">i</span>.<span class="ident">id</span>, <span class="ident">map</span>, <span class="ident">effects</span>);
                 }
             }
-            <span class="ident">EditCmd</span>::<span class="ident">ChangeIntersection</span> {
+            <span class="ident">EditCmd::ChangeIntersection</span> {
                 <span class="ident">i</span>,
                 <span class="kw-2">ref</span> <span class="ident">new</span>,
                 <span class="kw-2">ref</span> <span class="ident">old</span>,
@@ -1257,30 +1257,30 @@
                 <span class="ident">map</span>.<span class="ident">traffic_signals</span>.<span class="ident">remove</span>(<span class="ident">i</span>);
                 <span class="ident">effects</span>.<span class="ident">changed_intersections</span>.<span class="ident">insert</span>(<span class="kw-2">*</span><span class="ident">i</span>);
                 <span class="kw">match</span> <span class="ident">new</span> {
-                    <span class="ident">EditIntersection</span>::<span class="ident">StopSign</span>(<span class="kw-2">ref</span> <span class="ident">ss</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                        <span class="ident">map</span>.<span class="ident">intersections</span>[<span class="ident">i</span>.<span class="number">0</span>].<span class="ident">intersection_type</span> <span class="op">=</span> <span class="ident">IntersectionType</span>::<span class="ident">StopSign</span>;
+                    <span class="ident">EditIntersection::StopSign</span>(<span class="kw-2">ref</span> <span class="ident">ss</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="ident">map</span>.<span class="ident">intersections</span>[<span class="ident">i</span>.<span class="number">0</span>].<span class="ident">intersection_type</span> <span class="op">=</span> <span class="ident">IntersectionType::StopSign</span>;
                         <span class="ident">map</span>.<span class="ident">stop_signs</span>.<span class="ident">insert</span>(<span class="kw-2">*</span><span class="ident">i</span>, <span class="ident">ss</span>.<span class="ident">clone</span>());
                     }
-                    <span class="ident">EditIntersection</span>::<span class="ident">TrafficSignal</span>(<span class="kw-2">ref</span> <span class="ident">raw_ts</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                        <span class="ident">map</span>.<span class="ident">intersections</span>[<span class="ident">i</span>.<span class="number">0</span>].<span class="ident">intersection_type</span> <span class="op">=</span> <span class="ident">IntersectionType</span>::<span class="ident">TrafficSignal</span>;
-                        <span class="kw">if</span> <span class="ident">old</span> <span class="op">=</span><span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">EditIntersection</span>::<span class="ident">Closed</span> {
+                    <span class="ident">EditIntersection::TrafficSignal</span>(<span class="kw-2">ref</span> <span class="ident">raw_ts</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="ident">map</span>.<span class="ident">intersections</span>[<span class="ident">i</span>.<span class="number">0</span>].<span class="ident">intersection_type</span> <span class="op">=</span> <span class="ident">IntersectionType::TrafficSignal</span>;
+                        <span class="kw">if</span> <span class="ident">old</span> <span class="op">=</span><span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">EditIntersection::Closed</span> {
                             <span class="ident">recalculate_turns</span>(<span class="kw-2">*</span><span class="ident">i</span>, <span class="ident">map</span>, <span class="ident">effects</span>);
                         }
                         <span class="ident">map</span>.<span class="ident">traffic_signals</span>.<span class="ident">insert</span>(
                             <span class="kw-2">*</span><span class="ident">i</span>,
-                            <span class="ident">ControlTrafficSignal</span>::<span class="ident">import</span>(<span class="ident">raw_ts</span>.<span class="ident">clone</span>(), <span class="kw-2">*</span><span class="ident">i</span>, <span class="ident">map</span>).<span class="ident">unwrap</span>(),
+                            <span class="ident">ControlTrafficSignal::import</span>(<span class="ident">raw_ts</span>.<span class="ident">clone</span>(), <span class="kw-2">*</span><span class="ident">i</span>, <span class="ident">map</span>).<span class="ident">unwrap</span>(),
                         );
                     }
-                    <span class="ident">EditIntersection</span>::<span class="ident">Closed</span> <span class="op">=</span><span class="op">&gt;</span> {
-                        <span class="ident">map</span>.<span class="ident">intersections</span>[<span class="ident">i</span>.<span class="number">0</span>].<span class="ident">intersection_type</span> <span class="op">=</span> <span class="ident">IntersectionType</span>::<span class="ident">Construction</span>;
+                    <span class="ident">EditIntersection::Closed</span> <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="ident">map</span>.<span class="ident">intersections</span>[<span class="ident">i</span>.<span class="number">0</span>].<span class="ident">intersection_type</span> <span class="op">=</span> <span class="ident">IntersectionType::Construction</span>;
                     }
                 }
 
-                <span class="kw">if</span> <span class="ident">old</span> <span class="op">=</span><span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">EditIntersection</span>::<span class="ident">Closed</span> <span class="op">|</span><span class="op">|</span> <span class="ident">new</span> <span class="op">=</span><span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">EditIntersection</span>::<span class="ident">Closed</span> {
+                <span class="kw">if</span> <span class="ident">old</span> <span class="op">=</span><span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">EditIntersection::Closed</span> <span class="op">|</span><span class="op">|</span> <span class="ident">new</span> <span class="op">=</span><span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">EditIntersection::Closed</span> {
                     <span class="ident">recalculate_turns</span>(<span class="kw-2">*</span><span class="ident">i</span>, <span class="ident">map</span>, <span class="ident">effects</span>);
                 }
             }
-            <span class="ident">EditCmd</span>::<span class="ident">ChangeRouteSchedule</span> { <span class="ident">id</span>, <span class="ident">new</span>, .. } <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">EditCmd::ChangeRouteSchedule</span> { <span class="ident">id</span>, <span class="ident">new</span>, .. } <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="ident">map</span>.<span class="ident">bus_routes</span>[<span class="ident">id</span>.<span class="number">0</span>].<span class="ident">spawn_times</span> <span class="op">=</span> <span class="ident">new</span>.<span class="ident">clone</span>();
             }
         }
@@ -1288,17 +1288,17 @@
 
     <span class="kw">fn</span> <span class="ident">undo</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">EditCmd</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">EditCmd</span>::<span class="ident">ChangeRoad</span> { <span class="ident">r</span>, <span class="ident">old</span>, <span class="ident">new</span> } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">EditCmd</span>::<span class="ident">ChangeRoad</span> {
+            <span class="ident">EditCmd::ChangeRoad</span> { <span class="ident">r</span>, <span class="ident">old</span>, <span class="ident">new</span> } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">EditCmd::ChangeRoad</span> {
                 <span class="ident">r</span>,
                 <span class="ident">old</span>: <span class="ident">new</span>,
                 <span class="ident">new</span>: <span class="ident">old</span>,
             },
-            <span class="ident">EditCmd</span>::<span class="ident">ChangeIntersection</span> { <span class="ident">i</span>, <span class="ident">old</span>, <span class="ident">new</span> } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">EditCmd</span>::<span class="ident">ChangeIntersection</span> {
+            <span class="ident">EditCmd::ChangeIntersection</span> { <span class="ident">i</span>, <span class="ident">old</span>, <span class="ident">new</span> } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">EditCmd::ChangeIntersection</span> {
                 <span class="ident">i</span>,
                 <span class="ident">old</span>: <span class="ident">new</span>,
                 <span class="ident">new</span>: <span class="ident">old</span>,
             },
-            <span class="ident">EditCmd</span>::<span class="ident">ChangeRouteSchedule</span> { <span class="ident">id</span>, <span class="ident">old</span>, <span class="ident">new</span> } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">EditCmd</span>::<span class="ident">ChangeRouteSchedule</span> {
+            <span class="ident">EditCmd::ChangeRouteSchedule</span> { <span class="ident">id</span>, <span class="ident">old</span>, <span class="ident">new</span> } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">EditCmd::ChangeRouteSchedule</span> {
                 <span class="ident">id</span>,
                 <span class="ident">old</span>: <span class="ident">new</span>,
                 <span class="ident">new</span>: <span class="ident">old</span>,
@@ -1314,12 +1314,12 @@
     <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">map</span>.<span class="ident">intersections</span>[<span class="ident">id</span>.<span class="number">0</span>];
 
     <span class="kw">if</span> <span class="ident">i</span>.<span class="ident">is_border</span>() {
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">i</span>.<span class="ident">turns</span>.<span class="ident">is_empty</span>());
+        <span class="macro">assert!</span>(<span class="ident">i</span>.<span class="ident">turns</span>.<span class="ident">is_empty</span>());
         <span class="kw">return</span>;
     }
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">old_turns</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
-    <span class="kw">for</span> <span class="ident">t</span> <span class="kw">in</span> <span class="ident">std</span>::<span class="ident">mem</span>::<span class="ident">take</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">i</span>.<span class="ident">turns</span>) {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">old_turns</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+    <span class="kw">for</span> <span class="ident">t</span> <span class="kw">in</span> <span class="ident">std::mem::take</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">i</span>.<span class="ident">turns</span>) {
         <span class="ident">effects</span>.<span class="ident">deleted_turns</span>.<span class="ident">insert</span>(<span class="ident">t</span>.<span class="ident">id</span>);
         <span class="ident">old_turns</span>.<span class="ident">push</span>(<span class="ident">t</span>);
     }
@@ -1328,7 +1328,7 @@
         <span class="kw">return</span>;
     }
 
-    <span class="kw">let</span> <span class="ident">turns</span> <span class="op">=</span> <span class="kw">crate</span>::<span class="ident">make</span>::<span class="ident">turns</span>::<span class="ident">make_all_turns</span>(<span class="ident">map</span>, <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">id</span>));
+    <span class="kw">let</span> <span class="ident">turns</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::make::turns::make_all_turns</span>(<span class="ident">map</span>, <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">id</span>));
     <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">map</span>.<span class="ident">intersections</span>[<span class="ident">id</span>.<span class="number">0</span>];
     <span class="kw">for</span> <span class="ident">t</span> <span class="kw">in</span> <span class="ident">turns</span> {
         <span class="ident">effects</span>.<span class="ident">added_turns</span>.<span class="ident">insert</span>(<span class="ident">t</span>.<span class="ident">id</span>);
@@ -1340,24 +1340,24 @@
     }
 
     <span class="kw">match</span> <span class="ident">i</span>.<span class="ident">intersection_type</span> {
-        <span class="ident">IntersectionType</span>::<span class="ident">StopSign</span> <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="ident">IntersectionType::StopSign</span> <span class="op">=</span><span class="op">&gt;</span> {
             <span class="comment">// Stop sign policy usually doesn&#39;t depend on incoming lane types, except when changing</span>
             <span class="comment">// to/from construction. To be safe, always regenerate. Edits to stop signs are rare</span>
             <span class="comment">// anyway. And when we&#39;re smarter about preserving traffic signal changes in the face</span>
             <span class="comment">// of lane changes, we can do the same here.</span>
-            <span class="ident">map</span>.<span class="ident">stop_signs</span>.<span class="ident">insert</span>(<span class="ident">id</span>, <span class="ident">ControlStopSign</span>::<span class="ident">new</span>(<span class="ident">map</span>, <span class="ident">id</span>));
+            <span class="ident">map</span>.<span class="ident">stop_signs</span>.<span class="ident">insert</span>(<span class="ident">id</span>, <span class="ident">ControlStopSign::new</span>(<span class="ident">map</span>, <span class="ident">id</span>));
         }
-        <span class="ident">IntersectionType</span>::<span class="ident">TrafficSignal</span> <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="ident">IntersectionType::TrafficSignal</span> <span class="op">=</span><span class="op">&gt;</span> {
             <span class="ident">map</span>.<span class="ident">traffic_signals</span>
-                .<span class="ident">insert</span>(<span class="ident">id</span>, <span class="ident">ControlTrafficSignal</span>::<span class="ident">new</span>(<span class="ident">map</span>, <span class="ident">id</span>));
+                .<span class="ident">insert</span>(<span class="ident">id</span>, <span class="ident">ControlTrafficSignal::new</span>(<span class="ident">map</span>, <span class="ident">id</span>));
         }
-        <span class="ident">IntersectionType</span>::<span class="ident">Border</span> <span class="op">|</span> <span class="ident">IntersectionType</span>::<span class="ident">Construction</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+        <span class="ident">IntersectionType::Border</span> <span class="op">|</span> <span class="ident">IntersectionType::Construction</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
     }
 }
 
 <span class="kw">fn</span> <span class="ident">modify_lanes</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Map</span>, <span class="ident">r</span>: <span class="ident">RoadID</span>, <span class="ident">lanes_ltr</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LaneSpec</span><span class="op">&gt;</span>, <span class="ident">effects</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EditEffects</span>) {
     <span class="comment">// First update intersection geometry and re-trim the road centers.</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">road_geom_changed</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">road_geom_changed</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
     {
         <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>);
         <span class="kw">let</span> (<span class="ident">src_i</span>, <span class="ident">dst_i</span>) <span class="op">=</span> (<span class="ident">road</span>.<span class="ident">src_i</span>, <span class="ident">road</span>.<span class="ident">dst_i</span>);
@@ -1402,7 +1402,7 @@
 
     <span class="comment">// We might&#39;ve affected the geometry of other nearby roads. Recalculate the lanes for them as</span>
     <span class="comment">// well, but don&#39;t change the IDs.</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">modified_lanes</span> <span class="op">=</span> <span class="ident">BTreeSet</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">modified_lanes</span> <span class="op">=</span> <span class="ident">BTreeSet::new</span>();
     <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">road_geom_changed</span> {
         <span class="ident">effects</span>.<span class="ident">changed_roads</span>.<span class="ident">insert</span>(<span class="ident">r</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">dummy_id_counter</span> <span class="op">=</span> <span class="number">0</span>;
@@ -1421,7 +1421,7 @@
     <span class="ident">modified_lanes</span>.<span class="ident">extend</span>(<span class="ident">effects</span>.<span class="ident">deleted_lanes</span>.<span class="ident">clone</span>());
 
     <span class="comment">// Find all buildings connected to modified/deleted sidewalks</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">recalc_buildings</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">recalc_buildings</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
     <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_buildings</span>() {
         <span class="kw">if</span> <span class="ident">modified_lanes</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">b</span>.<span class="ident">sidewalk</span>()) {
             <span class="ident">recalc_buildings</span>.<span class="ident">push</span>(<span class="ident">b</span>.<span class="ident">id</span>);
@@ -1431,7 +1431,7 @@
     <span class="ident">fix_building_driveways</span>(<span class="ident">map</span>, <span class="ident">recalc_buildings</span>);
 
     <span class="comment">// Same for parking lots</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">recalc_parking_lots</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">recalc_parking_lots</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
     <span class="kw">for</span> <span class="ident">pl</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_parking_lots</span>() {
         <span class="kw">if</span> <span class="ident">modified_lanes</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">pl</span>.<span class="ident">driving_pos</span>.<span class="ident">lane</span>())
             <span class="op">|</span><span class="op">|</span> <span class="ident">modified_lanes</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">pl</span>.<span class="ident">sidewalk_pos</span>.<span class="ident">lane</span>())
@@ -1452,13 +1452,13 @@
     <span class="ident">changed_road_width</span>: <span class="ident">Distance</span>,
     <span class="ident">i</span>: <span class="ident">IntersectionID</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span> {
-    <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">make</span>::<span class="ident">initial</span>;
+    <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::make::initial</span>;
 
     <span class="kw">let</span> <span class="ident">intersection</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>);
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">intersection_roads</span> <span class="op">=</span> <span class="ident">BTreeSet</span>::<span class="ident">new</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">roads</span> <span class="op">=</span> <span class="ident">BTreeMap</span>::<span class="ident">new</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">modify_roads</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">intersection_roads</span> <span class="op">=</span> <span class="ident">BTreeSet::new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">roads</span> <span class="op">=</span> <span class="ident">BTreeMap::new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">modify_roads</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
     <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">intersection</span>.<span class="ident">roads</span> {
         <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>);
         <span class="ident">modify_roads</span>.<span class="ident">push</span>((<span class="ident">r</span>.<span class="ident">orig_id</span>, <span class="ident">r</span>.<span class="ident">id</span>));
@@ -1491,20 +1491,20 @@
 
         <span class="ident">roads</span>.<span class="ident">insert</span>(
             <span class="ident">r</span>.<span class="ident">orig_id</span>,
-            <span class="ident">initial</span>::<span class="ident">Road</span> {
+            <span class="ident">initial::Road</span> {
                 <span class="ident">id</span>: <span class="ident">r</span>.<span class="ident">orig_id</span>,
                 <span class="ident">src_i</span>: <span class="ident">r</span>.<span class="ident">orig_id</span>.<span class="ident">i1</span>,
                 <span class="ident">dst_i</span>: <span class="ident">r</span>.<span class="ident">orig_id</span>.<span class="ident">i2</span>,
                 <span class="ident">trimmed_center_pts</span>,
                 <span class="ident">half_width</span>,
                 <span class="comment">// Unused</span>
-                <span class="ident">lane_specs_ltr</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
+                <span class="ident">lane_specs_ltr</span>: <span class="ident">Vec::new</span>(),
                 <span class="ident">osm_tags</span>: <span class="ident">r</span>.<span class="ident">osm_tags</span>.<span class="ident">clone</span>(),
             },
         );
     }
 
-    <span class="kw">let</span> <span class="ident">polygon</span> <span class="op">=</span> <span class="ident">initial</span>::<span class="ident">intersection_polygon</span>(
+    <span class="kw">let</span> <span class="ident">polygon</span> <span class="op">=</span> <span class="ident">initial::intersection_polygon</span>(
         <span class="ident">intersection</span>.<span class="ident">orig_id</span>,
         <span class="ident">intersection_roads</span>,
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">roads</span>,
@@ -1515,7 +1515,7 @@
 
     <span class="ident">map</span>.<span class="ident">intersections</span>[<span class="ident">i</span>.<span class="number">0</span>].<span class="ident">polygon</span> <span class="op">=</span> <span class="ident">polygon</span>;
     <span class="comment">// Copy over the re-trimmed road centers</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">affected</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">affected</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
     <span class="kw">for</span> (<span class="ident">orig_id</span>, <span class="ident">id</span>) <span class="kw">in</span> <span class="ident">modify_roads</span> {
         <span class="ident">map</span>.<span class="ident">roads</span>[<span class="ident">id</span>.<span class="number">0</span>].<span class="ident">center_pts</span> <span class="op">=</span> <span class="ident">roads</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">orig_id</span>).<span class="ident">unwrap</span>().<span class="ident">trimmed_center_pts</span>;
         <span class="kw">if</span> <span class="ident">id</span> <span class="op">!</span><span class="op">=</span> <span class="ident">changed_road</span> {
@@ -1528,15 +1528,15 @@
 <span class="doccomment">/// Recalculate the driveways of some buildings after map edits.</span>
 <span class="kw">fn</span> <span class="ident">fix_building_driveways</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Map</span>, <span class="ident">input</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">BuildingID</span><span class="op">&gt;</span>) {
     <span class="comment">// TODO Copying from make/buildings.rs</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">center_per_bldg</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">BuildingID</span>, <span class="ident">HashablePt2D</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">BTreeMap</span>::<span class="ident">new</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">query</span>: <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">HashablePt2D</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">HashSet</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">center_per_bldg</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">BuildingID</span>, <span class="ident">HashablePt2D</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">BTreeMap::new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">query</span>: <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">HashablePt2D</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">HashSet::new</span>();
     <span class="kw">for</span> <span class="ident">id</span> <span class="kw">in</span> <span class="ident">input</span> {
         <span class="kw">let</span> <span class="ident">center</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">id</span>).<span class="ident">polygon</span>.<span class="ident">center</span>().<span class="ident">to_hashable</span>();
         <span class="ident">center_per_bldg</span>.<span class="ident">insert</span>(<span class="ident">id</span>, <span class="ident">center</span>);
         <span class="ident">query</span>.<span class="ident">insert</span>(<span class="ident">center</span>);
     }
 
-    <span class="kw">let</span> <span class="ident">sidewalk_buffer</span> <span class="op">=</span> <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">7.5</span>);
+    <span class="kw">let</span> <span class="ident">sidewalk_buffer</span> <span class="op">=</span> <span class="ident">Distance::meters</span>(<span class="number">7.5</span>);
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">sidewalk_pts</span> <span class="op">=</span> <span class="ident">match_points_to_lanes</span>(
         <span class="ident">map</span>.<span class="ident">get_bounds</span>(),
         <span class="ident">query</span>,
@@ -1545,13 +1545,13 @@
         <span class="comment">// Don&#39;t put connections too close to intersections</span>
         <span class="ident">sidewalk_buffer</span>,
         <span class="comment">// Try not to skip any buildings, but more than 1km from a sidewalk is a little much</span>
-        <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">1000.0</span>),
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>::<span class="ident">throwaway</span>(),
+        <span class="ident">Distance::meters</span>(<span class="number">1000.0</span>),
+        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer::throwaway</span>(),
     );
 
     <span class="kw">for</span> (<span class="ident">id</span>, <span class="ident">bldg_center</span>) <span class="kw">in</span> <span class="ident">center_per_bldg</span> {
         <span class="kw">match</span> <span class="ident">sidewalk_pts</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">bldg_center</span>).<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">pos</span><span class="op">|</span> {
-            <span class="ident">Line</span>::<span class="ident">new</span>(<span class="ident">bldg_center</span>.<span class="ident">to_pt2d</span>(), <span class="ident">pos</span>.<span class="ident">pt</span>(<span class="ident">map</span>))
+            <span class="ident">Line::new</span>(<span class="ident">bldg_center</span>.<span class="ident">to_pt2d</span>(), <span class="ident">pos</span>.<span class="ident">pt</span>(<span class="ident">map</span>))
                 .<span class="ident">map</span>(<span class="op">|</span><span class="ident">l</span><span class="op">|</span> (<span class="ident">pos</span>, <span class="ident">trim_path</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">id</span>).<span class="ident">polygon</span>, <span class="ident">l</span>)))
         }) {
             <span class="prelude-val">Some</span>((<span class="ident">sidewalk_pos</span>, <span class="ident">driveway_geom</span>)) <span class="op">=</span><span class="op">&gt;</span> {
@@ -1561,7 +1561,7 @@
             }
             <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="comment">// TODO Not sure what to do here yet.</span>
-                <span class="macro">error</span><span class="macro">!</span>(<span class="string">&quot;{} isn&#39;t snapped to a sidewalk now!&quot;</span>, <span class="ident">id</span>);
+                <span class="macro">error!</span>(<span class="string">&quot;{} isn&#39;t snapped to a sidewalk now!&quot;</span>, <span class="ident">id</span>);
             }
         }
     }
@@ -1570,23 +1570,23 @@
 <span class="doccomment">/// Recalculate the driveways of some parking lots after map edits.</span>
 <span class="kw">fn</span> <span class="ident">fix_parking_lot_driveways</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Map</span>, <span class="ident">input</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParkingLotID</span><span class="op">&gt;</span>) {
     <span class="comment">// TODO Partly copying from make/parking_lots.rs</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">center_per_lot</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">ParkingLotID</span>, <span class="ident">HashablePt2D</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">query</span>: <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">HashablePt2D</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">HashSet</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">center_per_lot</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">ParkingLotID</span>, <span class="ident">HashablePt2D</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">query</span>: <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">HashablePt2D</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">HashSet::new</span>();
     <span class="kw">for</span> <span class="ident">id</span> <span class="kw">in</span> <span class="ident">input</span> {
         <span class="kw">let</span> <span class="ident">center</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_pl</span>(<span class="ident">id</span>).<span class="ident">polygon</span>.<span class="ident">center</span>().<span class="ident">to_hashable</span>();
         <span class="ident">center_per_lot</span>.<span class="ident">push</span>((<span class="ident">id</span>, <span class="ident">center</span>));
         <span class="ident">query</span>.<span class="ident">insert</span>(<span class="ident">center</span>);
     }
 
-    <span class="kw">let</span> <span class="ident">sidewalk_buffer</span> <span class="op">=</span> <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">7.5</span>);
+    <span class="kw">let</span> <span class="ident">sidewalk_buffer</span> <span class="op">=</span> <span class="ident">Distance::meters</span>(<span class="number">7.5</span>);
     <span class="kw">let</span> <span class="ident">sidewalk_pts</span> <span class="op">=</span> <span class="ident">match_points_to_lanes</span>(
         <span class="ident">map</span>.<span class="ident">get_bounds</span>(),
         <span class="ident">query</span>,
         <span class="ident">map</span>.<span class="ident">all_lanes</span>(),
         <span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="ident">l</span>.<span class="ident">is_walkable</span>(),
         <span class="ident">sidewalk_buffer</span>,
-        <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">1000.0</span>),
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>::<span class="ident">throwaway</span>(),
+        <span class="ident">Distance::meters</span>(<span class="number">1000.0</span>),
+        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer::throwaway</span>(),
     );
 
     <span class="kw">for</span> (<span class="ident">id</span>, <span class="ident">center</span>) <span class="kw">in</span> <span class="ident">center_per_lot</span> {
@@ -1600,7 +1600,7 @@
             }
             <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="comment">// TODO Not sure what to do here yet.</span>
-                <span class="macro">error</span><span class="macro">!</span>(<span class="string">&quot;{} isn&#39;t snapped to a sidewalk now: {}&quot;</span>, <span class="ident">id</span>, <span class="ident">err</span>);
+                <span class="macro">error!</span>(<span class="string">&quot;{} isn&#39;t snapped to a sidewalk now: {}&quot;</span>, <span class="ident">id</span>, <span class="ident">err</span>);
             }
         }
     }
@@ -1608,13 +1608,13 @@
 
 <span class="kw">impl</span> <span class="ident">Map</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_edits</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">MapEdits</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">MapEdits</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">MapEdits::new</span>();
 
         <span class="comment">// Automatically find a new filename</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">i</span> <span class="op">=</span> <span class="number">1</span>;
         <span class="kw">loop</span> {
-            <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Untitled Proposal {}&quot;</span>, <span class="ident">i</span>);
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">abstio</span>::<span class="ident">file_exists</span>(<span class="ident">abstio</span>::<span class="ident">path_edits</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">name</span>, <span class="kw-2">&amp;</span><span class="ident">name</span>)) {
+            <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;Untitled Proposal {}&quot;</span>, <span class="ident">i</span>);
+            <span class="kw">if</span> <span class="op">!</span><span class="ident">abstio::file_exists</span>(<span class="ident">abstio::path_edits</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">name</span>, <span class="kw-2">&amp;</span><span class="ident">name</span>)) {
                 <span class="ident">edits</span>.<span class="ident">edits_name</span> <span class="op">=</span> <span class="ident">name</span>;
                 <span class="kw">return</span> <span class="ident">edits</span>;
             }
@@ -1643,18 +1643,18 @@
         <span class="kw">let</span> <span class="ident">old</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_r_edit</span>(<span class="ident">r</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">new</span> <span class="op">=</span> <span class="ident">old</span>.<span class="ident">clone</span>();
         <span class="ident">f</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">new</span>);
-        <span class="ident">EditCmd</span>::<span class="ident">ChangeRoad</span> { <span class="ident">r</span>, <span class="ident">old</span>, <span class="ident">new</span> }
+        <span class="ident">EditCmd::ChangeRoad</span> { <span class="ident">r</span>, <span class="ident">old</span>, <span class="ident">new</span> }
     }
 
     <span class="doccomment">/// Panics on borders</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_i_edit</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">i</span>: <span class="ident">IntersectionID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">EditIntersection</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">get_i</span>(<span class="ident">i</span>).<span class="ident">intersection_type</span> {
-            <span class="ident">IntersectionType</span>::<span class="ident">StopSign</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">EditIntersection</span>::<span class="ident">StopSign</span>(<span class="self">self</span>.<span class="ident">get_stop_sign</span>(<span class="ident">i</span>).<span class="ident">clone</span>()),
-            <span class="ident">IntersectionType</span>::<span class="ident">TrafficSignal</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="ident">EditIntersection</span>::<span class="ident">TrafficSignal</span>(<span class="self">self</span>.<span class="ident">get_traffic_signal</span>(<span class="ident">i</span>).<span class="ident">export</span>(<span class="self">self</span>))
+            <span class="ident">IntersectionType::StopSign</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">EditIntersection::StopSign</span>(<span class="self">self</span>.<span class="ident">get_stop_sign</span>(<span class="ident">i</span>).<span class="ident">clone</span>()),
+            <span class="ident">IntersectionType::TrafficSignal</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">EditIntersection::TrafficSignal</span>(<span class="self">self</span>.<span class="ident">get_traffic_signal</span>(<span class="ident">i</span>).<span class="ident">export</span>(<span class="self">self</span>))
             }
-            <span class="ident">IntersectionType</span>::<span class="ident">Construction</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">EditIntersection</span>::<span class="ident">Closed</span>,
-            <span class="ident">IntersectionType</span>::<span class="ident">Border</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+            <span class="ident">IntersectionType::Construction</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">EditIntersection::Closed</span>,
+            <span class="ident">IntersectionType::Border</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
         }
     }
 
@@ -1680,13 +1680,13 @@
     <span class="comment">// edits. Doesn&#39;t update pathfinding yet.</span>
     <span class="kw">fn</span> <span class="ident">apply_edits</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">new_edits</span>: <span class="ident">MapEdits</span>, <span class="ident">enforce_valid</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">EditEffects</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">effects</span> <span class="op">=</span> <span class="ident">EditEffects</span> {
-            <span class="ident">changed_roads</span>: <span class="ident">BTreeSet</span>::<span class="ident">new</span>(),
-            <span class="ident">deleted_lanes</span>: <span class="ident">BTreeSet</span>::<span class="ident">new</span>(),
-            <span class="ident">changed_intersections</span>: <span class="ident">BTreeSet</span>::<span class="ident">new</span>(),
-            <span class="ident">added_turns</span>: <span class="ident">BTreeSet</span>::<span class="ident">new</span>(),
-            <span class="ident">deleted_turns</span>: <span class="ident">BTreeSet</span>::<span class="ident">new</span>(),
+            <span class="ident">changed_roads</span>: <span class="ident">BTreeSet::new</span>(),
+            <span class="ident">deleted_lanes</span>: <span class="ident">BTreeSet::new</span>(),
+            <span class="ident">changed_intersections</span>: <span class="ident">BTreeSet::new</span>(),
+            <span class="ident">added_turns</span>: <span class="ident">BTreeSet::new</span>(),
+            <span class="ident">deleted_turns</span>: <span class="ident">BTreeSet::new</span>(),
             <span class="ident">resnapped_buildings</span>: <span class="bool-val">false</span>,
-            <span class="ident">changed_parking_lots</span>: <span class="ident">BTreeSet</span>::<span class="ident">new</span>(),
+            <span class="ident">changed_parking_lots</span>: <span class="ident">BTreeSet::new</span>(),
         };
 
         <span class="comment">// Short-circuit to avoid marking pathfinder_dirty</span>
@@ -1733,7 +1733,7 @@
                         .<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">id</span>)
                         .<span class="ident">find_closest_lane</span>(
                             <span class="ident">sidewalk_pos</span>.<span class="ident">lane</span>(),
-                            <span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="ident">PathConstraints</span>::<span class="ident">Bus</span>.<span class="ident">can_use</span>(<span class="ident">l</span>, <span class="self">self</span>),
+                            <span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="ident">PathConstraints::Bus</span>.<span class="ident">can_use</span>(<span class="ident">l</span>, <span class="self">self</span>),
                             <span class="self">self</span>,
                         )
                         .<span class="ident">unwrap</span>();
@@ -1751,13 +1751,13 @@
 
         <span class="comment">// Update zones after setting the new edits, since it&#39;ll pull merge_zones from there</span>
         <span class="kw">if</span> <span class="op">!</span><span class="ident">effects</span>.<span class="ident">changed_roads</span>.<span class="ident">is_empty</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">merge_zones_changed</span> {
-            <span class="self">self</span>.<span class="ident">zones</span> <span class="op">=</span> <span class="ident">Zone</span>::<span class="ident">make_all</span>(<span class="self">self</span>);
+            <span class="self">self</span>.<span class="ident">zones</span> <span class="op">=</span> <span class="ident">Zone::make_all</span>(<span class="self">self</span>);
         }
 
         <span class="comment">// Some of these might&#39;ve been added, then later deleted.</span>
         <span class="ident">retain_btreeset</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">effects</span>.<span class="ident">added_turns</span>, <span class="op">|</span><span class="ident">t</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">maybe_get_t</span>(<span class="kw-2">*</span><span class="ident">t</span>).<span class="ident">is_some</span>());
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">more_changed_intersections</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">more_changed_intersections</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
         <span class="kw">for</span> <span class="ident">t</span> <span class="kw">in</span> <span class="ident">effects</span>
             .<span class="ident">deleted_turns</span>
             .<span class="ident">iter</span>()
@@ -1779,7 +1779,7 @@
             <span class="kw">return</span>;
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pathfinder</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">mem</span>::<span class="ident">replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">pathfinder</span>, <span class="ident">Pathfinder</span>::<span class="ident">Dijkstra</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pathfinder</span> <span class="op">=</span> <span class="ident">std::mem::replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">pathfinder</span>, <span class="ident">Pathfinder::Dijkstra</span>);
         <span class="ident">pathfinder</span>.<span class="ident">apply_edits</span>(<span class="self">self</span>, <span class="ident">timer</span>);
         <span class="self">self</span>.<span class="ident">pathfinder</span> <span class="op">=</span> <span class="ident">pathfinder</span>;
 
@@ -1789,10 +1789,10 @@
             <span class="ident">l</span>.<span class="ident">driving_blackhole</span> <span class="op">=</span> <span class="bool-val">false</span>;
             <span class="ident">l</span>.<span class="ident">biking_blackhole</span> <span class="op">=</span> <span class="bool-val">false</span>;
         }
-        <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="ident">connectivity</span>::<span class="ident">find_scc</span>(<span class="self">self</span>, <span class="ident">PathConstraints</span>::<span class="ident">Car</span>).<span class="number">1</span> {
+        <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="ident">connectivity::find_scc</span>(<span class="self">self</span>, <span class="ident">PathConstraints::Car</span>).<span class="number">1</span> {
             <span class="self">self</span>.<span class="ident">lanes</span>.<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">l</span>).<span class="ident">unwrap</span>().<span class="ident">driving_blackhole</span> <span class="op">=</span> <span class="bool-val">true</span>;
         }
-        <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="ident">connectivity</span>::<span class="ident">find_scc</span>(<span class="self">self</span>, <span class="ident">PathConstraints</span>::<span class="ident">Bike</span>).<span class="number">1</span> {
+        <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="ident">connectivity::find_scc</span>(<span class="self">self</span>, <span class="ident">PathConstraints::Bike</span>).<span class="number">1</span> {
             <span class="self">self</span>.<span class="ident">lanes</span>.<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">l</span>).<span class="ident">unwrap</span>().<span class="ident">biking_blackhole</span> <span class="op">=</span> <span class="bool-val">true</span>;
         }
         <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;recompute blackholes&quot;</span>);
@@ -1803,13 +1803,13 @@
     <span class="doccomment">/// Since the player is in the middle of editing, the signal may not be valid. Don&#39;t go through</span>
     <span class="doccomment">/// the entire apply_edits flow.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">incremental_edit_traffic_signal</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">signal</span>: <span class="ident">ControlTrafficSignal</span>) {
-        <span class="macro">assert_eq</span><span class="macro">!</span>(
+        <span class="macro">assert_eq!</span>(
             <span class="self">self</span>.<span class="ident">get_i</span>(<span class="ident">signal</span>.<span class="ident">id</span>).<span class="ident">intersection_type</span>,
-            <span class="ident">IntersectionType</span>::<span class="ident">TrafficSignal</span>
+            <span class="ident">IntersectionType::TrafficSignal</span>
         );
         <span class="self">self</span>.<span class="ident">traffic_signals</span>.<span class="ident">insert</span>(<span class="ident">signal</span>.<span class="ident">id</span>, <span class="ident">signal</span>);
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_model" data-search-js="../../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_model" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
     <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script></body></html>

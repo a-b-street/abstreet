@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `geom/src/angle.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>angle.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../geom/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../geom/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -120,7 +120,7 @@
 <span id="117">117</span>
 <span id="118">118</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
+<span class="kw">use</span> <span class="ident">std::fmt</span>;
 
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
@@ -140,28 +140,28 @@
 
     <span class="doccomment">/// Create an angle in degrees.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">degrees</span>(<span class="ident">degs</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Angle</span> {
-        <span class="ident">Angle</span>::<span class="ident">new_rads</span>(<span class="ident">degs</span>.<span class="ident">to_radians</span>())
+        <span class="ident">Angle::new_rads</span>(<span class="ident">degs</span>.<span class="ident">to_radians</span>())
     }
 
     <span class="doccomment">/// Invert the direction of this angle.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">opposite</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Angle</span> {
-        <span class="ident">Angle</span>::<span class="ident">new_rads</span>(<span class="self">self</span>.<span class="number">0</span> <span class="op">+</span> <span class="ident">std</span>::<span class="ident">f64</span>::<span class="ident">consts</span>::<span class="ident">PI</span>)
+        <span class="ident">Angle::new_rads</span>(<span class="self">self</span>.<span class="number">0</span> <span class="op">+</span> <span class="ident">std::f64::consts::PI</span>)
     }
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">invert_y</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Angle</span> {
-        <span class="ident">Angle</span>::<span class="ident">new_rads</span>(<span class="number">2.0</span> <span class="op">*</span> <span class="ident">std</span>::<span class="ident">f64</span>::<span class="ident">consts</span>::<span class="ident">PI</span> <span class="op">-</span> <span class="self">self</span>.<span class="number">0</span>)
+        <span class="ident">Angle::new_rads</span>(<span class="number">2.0</span> <span class="op">*</span> <span class="ident">std::f64::consts::PI</span> <span class="op">-</span> <span class="self">self</span>.<span class="number">0</span>)
     }
 
     <span class="doccomment">/// Rotates this angle by some degrees.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rotate_degs</span>(<span class="self">self</span>, <span class="ident">degrees</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Angle</span> {
-        <span class="ident">Angle</span>::<span class="ident">new_rads</span>(<span class="self">self</span>.<span class="number">0</span> <span class="op">+</span> <span class="ident">degrees</span>.<span class="ident">to_radians</span>())
+        <span class="ident">Angle::new_rads</span>(<span class="self">self</span>.<span class="number">0</span> <span class="op">+</span> <span class="ident">degrees</span>.<span class="ident">to_radians</span>())
     }
 
     <span class="doccomment">/// Returns [0, 2pi)</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">normalized_radians</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">f64</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="number">0</span> <span class="op">&lt;</span> <span class="number">0.0</span> {
             <span class="comment">// TODO Be more careful about how we store the angle, to make sure this works</span>
-            <span class="self">self</span>.<span class="number">0</span> <span class="op">+</span> (<span class="number">2.0</span> <span class="op">*</span> <span class="ident">std</span>::<span class="ident">f64</span>::<span class="ident">consts</span>::<span class="ident">PI</span>)
+            <span class="self">self</span>.<span class="number">0</span> <span class="op">+</span> (<span class="number">2.0</span> <span class="op">*</span> <span class="ident">std::f64::consts::PI</span>)
         } <span class="kw">else</span> {
             <span class="self">self</span>.<span class="number">0</span>
         }
@@ -181,7 +181,7 @@
     <span class="doccomment">/// Logically this returns [-180, 180], but keep in mind when we print this angle, it&#39;ll</span>
     <span class="doccomment">/// normalize to be [0, 360].</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">shortest_rotation_towards</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">Angle</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Angle</span> {
-        <span class="ident">Angle</span>::<span class="ident">degrees</span>(<span class="self">self</span>.<span class="ident">simple_shortest_rotation_towards</span>(<span class="ident">other</span>))
+        <span class="ident">Angle::degrees</span>(<span class="self">self</span>.<span class="ident">simple_shortest_rotation_towards</span>(<span class="ident">other</span>))
     }
 
     <span class="doccomment">/// True if this angle is within some degrees of another, accounting for rotation</span>
@@ -213,31 +213,31 @@
             <span class="ident">cos_sum</span> <span class="op">+</span><span class="op">=</span> <span class="ident">x</span>.<span class="number">0</span>.<span class="ident">cos</span>();
             <span class="ident">sin_sum</span> <span class="op">+</span><span class="op">=</span> <span class="ident">x</span>.<span class="number">0</span>.<span class="ident">sin</span>();
         }
-        <span class="ident">Angle</span>::<span class="ident">new_rads</span>((<span class="ident">sin_sum</span> <span class="op">/</span> <span class="ident">num</span>).<span class="ident">atan2</span>(<span class="ident">cos_sum</span> <span class="op">/</span> <span class="ident">num</span>))
+        <span class="ident">Angle::new_rads</span>((<span class="ident">sin_sum</span> <span class="op">/</span> <span class="ident">num</span>).<span class="ident">atan2</span>(<span class="ident">cos_sum</span> <span class="op">/</span> <span class="ident">num</span>))
     }
 }
 
-<span class="kw">impl</span> <span class="ident">fmt</span>::<span class="ident">Display</span> <span class="kw">for</span> <span class="ident">Angle</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
-        <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;Angle({} degrees)&quot;</span>, <span class="self">self</span>.<span class="ident">normalized_degrees</span>())
+<span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">Angle</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+        <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Angle({} degrees)&quot;</span>, <span class="self">self</span>.<span class="ident">normalized_degrees</span>())
     }
 }
 
-<span class="kw">impl</span> <span class="ident">std</span>::<span class="ident">ops</span>::<span class="ident">Add</span> <span class="kw">for</span> <span class="ident">Angle</span> {
+<span class="kw">impl</span> <span class="ident">std::ops::Add</span> <span class="kw">for</span> <span class="ident">Angle</span> {
     <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Angle</span>;
 
     <span class="kw">fn</span> <span class="ident">add</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">Angle</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Angle</span> {
-        <span class="ident">Angle</span>::<span class="ident">new_rads</span>(<span class="self">self</span>.<span class="number">0</span> <span class="op">+</span> <span class="ident">other</span>.<span class="number">0</span>)
+        <span class="ident">Angle::new_rads</span>(<span class="self">self</span>.<span class="number">0</span> <span class="op">+</span> <span class="ident">other</span>.<span class="number">0</span>)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">std</span>::<span class="ident">ops</span>::<span class="ident">Neg</span> <span class="kw">for</span> <span class="ident">Angle</span> {
+<span class="kw">impl</span> <span class="ident">std::ops::Neg</span> <span class="kw">for</span> <span class="ident">Angle</span> {
     <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Angle</span>;
 
     <span class="kw">fn</span> <span class="ident">neg</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Angle</span> {
-        <span class="ident">Angle</span>::<span class="ident">new_rads</span>(<span class="op">-</span><span class="self">self</span>.<span class="number">0</span>)
+        <span class="ident">Angle::new_rads</span>(<span class="op">-</span><span class="self">self</span>.<span class="number">0</span>)
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="geom" data-search-js="../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="geom" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script></body></html>

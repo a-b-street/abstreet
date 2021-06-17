@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `sim/src/make/spawner.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>spawner.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../sim/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../sim/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -412,10 +412,10 @@
 <span class="doccomment">//! Intermediate structures used to instantiate a Scenario. Badly needs simplification:</span>
 <span class="doccomment">//! https://github.com/a-b-street/abstreet/issues/258</span>
 
-<span class="kw">use</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span>;
+<span class="kw">use</span> <span class="ident">anyhow::Result</span>;
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
-<span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Pt2D</span>;
+<span class="kw">use</span> <span class="ident">geom::Pt2D</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{
     <span class="ident">BuildingID</span>, <span class="ident">BusRouteID</span>, <span class="ident">BusStopID</span>, <span class="ident">IntersectionID</span>, <span class="ident">Map</span>, <span class="ident">PathConstraints</span>, <span class="ident">PathRequest</span>, <span class="ident">Position</span>,
 };
@@ -473,92 +473,92 @@
 <span class="kw">impl</span> <span class="ident">TripSpec</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_plan</span>(<span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">TripSpec</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TripLeg</span><span class="op">&gt;</span>) {
         <span class="comment">// TODO We&#39;ll want to repeat this validation when we spawn stuff later for a second leg...</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">legs</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">legs</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
         <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="self">self</span> {
-            <span class="ident">TripSpec</span>::<span class="ident">VehicleAppearing</span> {
+            <span class="ident">TripSpec::VehicleAppearing</span> {
                 <span class="ident">start_pos</span>,
                 <span class="ident">goal</span>,
                 <span class="ident">use_vehicle</span>,
                 ..
             } <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">if</span> <span class="ident">start_pos</span>.<span class="ident">dist_along</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">start_pos</span>.<span class="ident">lane</span>()).<span class="ident">length</span>() {
-                    <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Can&#39;t spawn at {}; it isn&#39;t that long&quot;</span>, <span class="ident">start_pos</span>);
+                    <span class="macro">panic!</span>(<span class="string">&quot;Can&#39;t spawn at {}; it isn&#39;t that long&quot;</span>, <span class="ident">start_pos</span>);
                 }
-                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">DrivingGoal</span>::<span class="ident">Border</span>(<span class="kw">_</span>, <span class="ident">end_lane</span>) <span class="op">=</span> <span class="ident">goal</span> {
+                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">DrivingGoal::Border</span>(<span class="kw">_</span>, <span class="ident">end_lane</span>) <span class="op">=</span> <span class="ident">goal</span> {
                     <span class="kw">if</span> <span class="ident">start_pos</span>.<span class="ident">lane</span>() <span class="op">=</span><span class="op">=</span> <span class="kw-2">*</span><span class="ident">end_lane</span>
                         <span class="op">&amp;&amp;</span> <span class="ident">start_pos</span>.<span class="ident">dist_along</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="kw-2">*</span><span class="ident">end_lane</span>).<span class="ident">length</span>()
                     {
-                        <span class="macro">panic</span><span class="macro">!</span>(
+                        <span class="macro">panic!</span>(
                             <span class="string">&quot;Can&#39;t start at {}; it&#39;s the edge of a border already&quot;</span>,
                             <span class="ident">start_pos</span>
                         );
                     }
                 }
 
-                <span class="kw">let</span> <span class="ident">constraints</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">use_vehicle</span>.<span class="ident">vehicle_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">VehicleType</span>::<span class="ident">Bike</span> {
-                    <span class="ident">PathConstraints</span>::<span class="ident">Bike</span>
+                <span class="kw">let</span> <span class="ident">constraints</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">use_vehicle</span>.<span class="ident">vehicle_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">VehicleType::Bike</span> {
+                    <span class="ident">PathConstraints::Bike</span>
                 } <span class="kw">else</span> {
-                    <span class="ident">PathConstraints</span>::<span class="ident">Car</span>
+                    <span class="ident">PathConstraints::Car</span>
                 };
 
-                <span class="ident">legs</span>.<span class="ident">push</span>(<span class="ident">TripLeg</span>::<span class="ident">Drive</span>(<span class="kw-2">*</span><span class="ident">use_vehicle</span>, <span class="ident">goal</span>.<span class="ident">clone</span>()));
-                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">DrivingGoal</span>::<span class="ident">ParkNear</span>(<span class="ident">b</span>) <span class="op">=</span> <span class="ident">goal</span> {
-                    <span class="ident">legs</span>.<span class="ident">push</span>(<span class="ident">TripLeg</span>::<span class="ident">Walk</span>(<span class="ident">SidewalkSpot</span>::<span class="ident">building</span>(<span class="kw-2">*</span><span class="ident">b</span>, <span class="ident">map</span>)));
+                <span class="ident">legs</span>.<span class="ident">push</span>(<span class="ident">TripLeg::Drive</span>(<span class="kw-2">*</span><span class="ident">use_vehicle</span>, <span class="ident">goal</span>.<span class="ident">clone</span>()));
+                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">DrivingGoal::ParkNear</span>(<span class="ident">b</span>) <span class="op">=</span> <span class="ident">goal</span> {
+                    <span class="ident">legs</span>.<span class="ident">push</span>(<span class="ident">TripLeg::Walk</span>(<span class="ident">SidewalkSpot::building</span>(<span class="kw-2">*</span><span class="ident">b</span>, <span class="ident">map</span>)));
                 }
 
                 <span class="kw">if</span> <span class="ident">goal</span>.<span class="ident">goal_pos</span>(<span class="ident">constraints</span>, <span class="ident">map</span>).<span class="ident">is_none</span>() {
-                    <span class="kw">return</span> <span class="ident">TripSpec</span>::<span class="ident">SpawningFailure</span> {
+                    <span class="kw">return</span> <span class="ident">TripSpec::SpawningFailure</span> {
                         <span class="ident">use_vehicle</span>: <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">use_vehicle</span>),
-                        <span class="ident">error</span>: <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;goal_pos to {:?} for a {:?} failed&quot;</span>, <span class="ident">goal</span>, <span class="ident">constraints</span>),
+                        <span class="ident">error</span>: <span class="macro">format!</span>(<span class="string">&quot;goal_pos to {:?} for a {:?} failed&quot;</span>, <span class="ident">goal</span>, <span class="ident">constraints</span>),
                     }
                     .<span class="ident">into_plan</span>(<span class="ident">map</span>);
                 }
             }
-            <span class="ident">TripSpec</span>::<span class="ident">SpawningFailure</span> { .. } <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">TripSpec::SpawningFailure</span> { .. } <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="comment">// TODO The legs are a lie. Since the trip gets cancelled, this doesn&#39;t matter.</span>
                 <span class="comment">// I&#39;m not going to bother doing better because I think TripLeg will get</span>
                 <span class="comment">// revamped soon anyway.</span>
-                <span class="ident">legs</span>.<span class="ident">push</span>(<span class="ident">TripLeg</span>::<span class="ident">RideBus</span>(<span class="ident">BusRouteID</span>(<span class="number">0</span>), <span class="prelude-val">None</span>));
+                <span class="ident">legs</span>.<span class="ident">push</span>(<span class="ident">TripLeg::RideBus</span>(<span class="ident">BusRouteID</span>(<span class="number">0</span>), <span class="prelude-val">None</span>));
             }
-            <span class="ident">TripSpec</span>::<span class="ident">UsingParkedCar</span> { <span class="ident">car</span>, <span class="ident">goal</span>, .. } <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="ident">legs</span>.<span class="ident">push</span>(<span class="ident">TripLeg</span>::<span class="ident">Walk</span>(<span class="ident">SidewalkSpot</span>::<span class="ident">deferred_parking_spot</span>()));
-                <span class="ident">legs</span>.<span class="ident">push</span>(<span class="ident">TripLeg</span>::<span class="ident">Drive</span>(<span class="kw-2">*</span><span class="ident">car</span>, <span class="ident">goal</span>.<span class="ident">clone</span>()));
+            <span class="ident">TripSpec::UsingParkedCar</span> { <span class="ident">car</span>, <span class="ident">goal</span>, .. } <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">legs</span>.<span class="ident">push</span>(<span class="ident">TripLeg::Walk</span>(<span class="ident">SidewalkSpot::deferred_parking_spot</span>()));
+                <span class="ident">legs</span>.<span class="ident">push</span>(<span class="ident">TripLeg::Drive</span>(<span class="kw-2">*</span><span class="ident">car</span>, <span class="ident">goal</span>.<span class="ident">clone</span>()));
                 <span class="kw">match</span> <span class="ident">goal</span> {
-                    <span class="ident">DrivingGoal</span>::<span class="ident">ParkNear</span>(<span class="ident">b</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                        <span class="ident">legs</span>.<span class="ident">push</span>(<span class="ident">TripLeg</span>::<span class="ident">Walk</span>(<span class="ident">SidewalkSpot</span>::<span class="ident">building</span>(<span class="kw-2">*</span><span class="ident">b</span>, <span class="ident">map</span>)));
+                    <span class="ident">DrivingGoal::ParkNear</span>(<span class="ident">b</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="ident">legs</span>.<span class="ident">push</span>(<span class="ident">TripLeg::Walk</span>(<span class="ident">SidewalkSpot::building</span>(<span class="kw-2">*</span><span class="ident">b</span>, <span class="ident">map</span>)));
                     }
-                    <span class="ident">DrivingGoal</span>::<span class="ident">Border</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {}
+                    <span class="ident">DrivingGoal::Border</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {}
                 }
             }
-            <span class="ident">TripSpec</span>::<span class="ident">JustWalking</span> { <span class="ident">start</span>, <span class="ident">goal</span>, .. } <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">TripSpec::JustWalking</span> { <span class="ident">start</span>, <span class="ident">goal</span>, .. } <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">if</span> <span class="ident">start</span> <span class="op">=</span><span class="op">=</span> <span class="ident">goal</span> {
-                    <span class="macro">panic</span><span class="macro">!</span>(
+                    <span class="macro">panic!</span>(
                         <span class="string">&quot;A trip just walking from {:?} to {:?} doesn&#39;t make sense&quot;</span>,
                         <span class="ident">start</span>, <span class="ident">goal</span>
                     );
                 }
-                <span class="ident">legs</span>.<span class="ident">push</span>(<span class="ident">TripLeg</span>::<span class="ident">Walk</span>(<span class="ident">goal</span>.<span class="ident">clone</span>()));
+                <span class="ident">legs</span>.<span class="ident">push</span>(<span class="ident">TripLeg::Walk</span>(<span class="ident">goal</span>.<span class="ident">clone</span>()));
             }
-            <span class="ident">TripSpec</span>::<span class="ident">UsingBike</span> { <span class="ident">start</span>, <span class="ident">goal</span>, <span class="ident">bike</span> } <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">TripSpec::UsingBike</span> { <span class="ident">start</span>, <span class="ident">goal</span>, <span class="ident">bike</span> } <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="comment">// TODO Might not be possible to walk to the same border if there&#39;s no sidewalk</span>
                 <span class="kw">let</span> <span class="ident">backup_plan</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">goal</span> {
-                    <span class="ident">DrivingGoal</span>::<span class="ident">ParkNear</span>(<span class="ident">b</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">TripSpec</span>::<span class="ident">JustWalking</span> {
-                        <span class="ident">start</span>: <span class="ident">SidewalkSpot</span>::<span class="ident">building</span>(<span class="kw-2">*</span><span class="ident">start</span>, <span class="ident">map</span>),
-                        <span class="ident">goal</span>: <span class="ident">SidewalkSpot</span>::<span class="ident">building</span>(<span class="kw-2">*</span><span class="ident">b</span>, <span class="ident">map</span>),
+                    <span class="ident">DrivingGoal::ParkNear</span>(<span class="ident">b</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">TripSpec::JustWalking</span> {
+                        <span class="ident">start</span>: <span class="ident">SidewalkSpot::building</span>(<span class="kw-2">*</span><span class="ident">start</span>, <span class="ident">map</span>),
+                        <span class="ident">goal</span>: <span class="ident">SidewalkSpot::building</span>(<span class="kw-2">*</span><span class="ident">b</span>, <span class="ident">map</span>),
                     }),
-                    <span class="ident">DrivingGoal</span>::<span class="ident">Border</span>(<span class="ident">i</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                        <span class="ident">SidewalkSpot</span>::<span class="ident">end_at_border</span>(<span class="kw-2">*</span><span class="ident">i</span>, <span class="ident">map</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">goal</span><span class="op">|</span> <span class="ident">TripSpec</span>::<span class="ident">JustWalking</span> {
-                            <span class="ident">start</span>: <span class="ident">SidewalkSpot</span>::<span class="ident">building</span>(<span class="kw-2">*</span><span class="ident">start</span>, <span class="ident">map</span>),
+                    <span class="ident">DrivingGoal::Border</span>(<span class="ident">i</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="ident">SidewalkSpot::end_at_border</span>(<span class="kw-2">*</span><span class="ident">i</span>, <span class="ident">map</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">goal</span><span class="op">|</span> <span class="ident">TripSpec::JustWalking</span> {
+                            <span class="ident">start</span>: <span class="ident">SidewalkSpot::building</span>(<span class="kw-2">*</span><span class="ident">start</span>, <span class="ident">map</span>),
                             <span class="ident">goal</span>,
                         })
                     }
                 };
 
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">start_spot</span>) <span class="op">=</span> <span class="ident">SidewalkSpot</span>::<span class="ident">bike_rack</span>(<span class="kw-2">*</span><span class="ident">start</span>, <span class="ident">map</span>) {
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="ident">DrivingGoal</span>::<span class="ident">ParkNear</span>(<span class="ident">b</span>) <span class="op">=</span> <span class="ident">goal</span> {
-                        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">goal_spot</span>) <span class="op">=</span> <span class="ident">SidewalkSpot</span>::<span class="ident">bike_rack</span>(<span class="kw-2">*</span><span class="ident">b</span>, <span class="ident">map</span>) {
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">start_spot</span>) <span class="op">=</span> <span class="ident">SidewalkSpot::bike_rack</span>(<span class="kw-2">*</span><span class="ident">start</span>, <span class="ident">map</span>) {
+                    <span class="kw">if</span> <span class="kw">let</span> <span class="ident">DrivingGoal::ParkNear</span>(<span class="ident">b</span>) <span class="op">=</span> <span class="ident">goal</span> {
+                        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">goal_spot</span>) <span class="op">=</span> <span class="ident">SidewalkSpot::bike_rack</span>(<span class="kw-2">*</span><span class="ident">b</span>, <span class="ident">map</span>) {
                             <span class="kw">if</span> <span class="ident">start_spot</span>.<span class="ident">sidewalk_pos</span>.<span class="ident">lane</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">goal_spot</span>.<span class="ident">sidewalk_pos</span>.<span class="ident">lane</span>() {
-                                <span class="macro">info</span><span class="macro">!</span>(
+                                <span class="macro">info!</span>(
                                     <span class="string">&quot;Bike trip from {} to {} will just walk; it&#39;s the same \
                                      sidewalk!&quot;</span>,
                                     <span class="ident">start</span>, <span class="ident">b</span>
@@ -566,7 +566,7 @@
                                 <span class="kw">return</span> <span class="ident">backup_plan</span>.<span class="ident">unwrap</span>().<span class="ident">into_plan</span>(<span class="ident">map</span>);
                             }
                         } <span class="kw">else</span> {
-                            <span class="macro">info</span><span class="macro">!</span>(
+                            <span class="macro">info!</span>(
                                 <span class="string">&quot;Can&#39;t find biking connection for goal {}, walking instead&quot;</span>,
                                 <span class="ident">b</span>
                             );
@@ -574,21 +574,21 @@
                         }
                     }
 
-                    <span class="ident">legs</span>.<span class="ident">push</span>(<span class="ident">TripLeg</span>::<span class="ident">Walk</span>(<span class="ident">start_spot</span>));
-                    <span class="ident">legs</span>.<span class="ident">push</span>(<span class="ident">TripLeg</span>::<span class="ident">Drive</span>(<span class="kw-2">*</span><span class="ident">bike</span>, <span class="ident">goal</span>.<span class="ident">clone</span>()));
+                    <span class="ident">legs</span>.<span class="ident">push</span>(<span class="ident">TripLeg::Walk</span>(<span class="ident">start_spot</span>));
+                    <span class="ident">legs</span>.<span class="ident">push</span>(<span class="ident">TripLeg::Drive</span>(<span class="kw-2">*</span><span class="ident">bike</span>, <span class="ident">goal</span>.<span class="ident">clone</span>()));
                     <span class="kw">match</span> <span class="ident">goal</span> {
-                        <span class="ident">DrivingGoal</span>::<span class="ident">ParkNear</span>(<span class="ident">b</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                            <span class="ident">legs</span>.<span class="ident">push</span>(<span class="ident">TripLeg</span>::<span class="ident">Walk</span>(<span class="ident">SidewalkSpot</span>::<span class="ident">building</span>(<span class="kw-2">*</span><span class="ident">b</span>, <span class="ident">map</span>)));
+                        <span class="ident">DrivingGoal::ParkNear</span>(<span class="ident">b</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                            <span class="ident">legs</span>.<span class="ident">push</span>(<span class="ident">TripLeg::Walk</span>(<span class="ident">SidewalkSpot::building</span>(<span class="kw-2">*</span><span class="ident">b</span>, <span class="ident">map</span>)));
                         }
-                        <span class="ident">DrivingGoal</span>::<span class="ident">Border</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {}
+                        <span class="ident">DrivingGoal::Border</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {}
                     }
                 } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">plan</span>) <span class="op">=</span> <span class="ident">backup_plan</span> {
-                    <span class="macro">info</span><span class="macro">!</span>(<span class="string">&quot;Can&#39;t start biking from {}. Walking instead&quot;</span>, <span class="ident">start</span>);
+                    <span class="macro">info!</span>(<span class="string">&quot;Can&#39;t start biking from {}. Walking instead&quot;</span>, <span class="ident">start</span>);
                     <span class="kw">return</span> <span class="ident">plan</span>.<span class="ident">into_plan</span>(<span class="ident">map</span>);
                 } <span class="kw">else</span> {
-                    <span class="kw">return</span> <span class="ident">TripSpec</span>::<span class="ident">SpawningFailure</span> {
+                    <span class="kw">return</span> <span class="ident">TripSpec::SpawningFailure</span> {
                         <span class="ident">use_vehicle</span>: <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">bike</span>),
-                        <span class="ident">error</span>: <span class="macro">format</span><span class="macro">!</span>(
+                        <span class="ident">error</span>: <span class="macro">format!</span>(
                             <span class="string">&quot;Can&#39;t start biking from {} and can&#39;t walk either! Goal is {:?}&quot;</span>,
                             <span class="ident">start</span>, <span class="ident">goal</span>
                         ),
@@ -596,22 +596,22 @@
                     .<span class="ident">into_plan</span>(<span class="ident">map</span>);
                 }
             }
-            <span class="ident">TripSpec</span>::<span class="ident">UsingTransit</span> {
+            <span class="ident">TripSpec::UsingTransit</span> {
                 <span class="ident">route</span>,
                 <span class="ident">stop1</span>,
                 <span class="ident">maybe_stop2</span>,
                 <span class="ident">goal</span>,
                 ..
             } <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">let</span> <span class="ident">walk_to</span> <span class="op">=</span> <span class="ident">SidewalkSpot</span>::<span class="ident">bus_stop</span>(<span class="kw-2">*</span><span class="ident">stop1</span>, <span class="ident">map</span>);
+                <span class="kw">let</span> <span class="ident">walk_to</span> <span class="op">=</span> <span class="ident">SidewalkSpot::bus_stop</span>(<span class="kw-2">*</span><span class="ident">stop1</span>, <span class="ident">map</span>);
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">stop2</span>) <span class="op">=</span> <span class="ident">maybe_stop2</span> {
-                    <span class="ident">legs</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
-                        <span class="ident">TripLeg</span>::<span class="ident">Walk</span>(<span class="ident">walk_to</span>),
-                        <span class="ident">TripLeg</span>::<span class="ident">RideBus</span>(<span class="kw-2">*</span><span class="ident">route</span>, <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">stop2</span>)),
-                        <span class="ident">TripLeg</span>::<span class="ident">Walk</span>(<span class="ident">goal</span>.<span class="ident">clone</span>()),
+                    <span class="ident">legs</span> <span class="op">=</span> <span class="macro">vec!</span>[
+                        <span class="ident">TripLeg::Walk</span>(<span class="ident">walk_to</span>),
+                        <span class="ident">TripLeg::RideBus</span>(<span class="kw-2">*</span><span class="ident">route</span>, <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">stop2</span>)),
+                        <span class="ident">TripLeg::Walk</span>(<span class="ident">goal</span>.<span class="ident">clone</span>()),
                     ];
                 } <span class="kw">else</span> {
-                    <span class="ident">legs</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">TripLeg</span>::<span class="ident">Walk</span>(<span class="ident">walk_to</span>), <span class="ident">TripLeg</span>::<span class="ident">RideBus</span>(<span class="kw-2">*</span><span class="ident">route</span>, <span class="prelude-val">None</span>)];
+                    <span class="ident">legs</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">TripLeg::Walk</span>(<span class="ident">walk_to</span>), <span class="ident">TripLeg::RideBus</span>(<span class="kw-2">*</span><span class="ident">route</span>, <span class="prelude-val">None</span>)];
                 }
             }
         };
@@ -630,30 +630,30 @@
         <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">TripSpec</span><span class="op">&gt;</span> {
         <span class="prelude-val">Ok</span>(<span class="kw">match</span> <span class="ident">mode</span> {
-            <span class="ident">TripMode</span>::<span class="ident">Drive</span> <span class="op">|</span> <span class="ident">TripMode</span>::<span class="ident">Bike</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">let</span> <span class="ident">constraints</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">mode</span> <span class="op">=</span><span class="op">=</span> <span class="ident">TripMode</span>::<span class="ident">Drive</span> {
-                    <span class="ident">PathConstraints</span>::<span class="ident">Car</span>
+            <span class="ident">TripMode::Drive</span> <span class="op">|</span> <span class="ident">TripMode::Bike</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">let</span> <span class="ident">constraints</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">mode</span> <span class="op">=</span><span class="op">=</span> <span class="ident">TripMode::Drive</span> {
+                    <span class="ident">PathConstraints::Car</span>
                 } <span class="kw">else</span> {
-                    <span class="ident">PathConstraints</span>::<span class="ident">Bike</span>
+                    <span class="ident">PathConstraints::Bike</span>
                 };
                 <span class="kw">let</span> <span class="ident">goal</span> <span class="op">=</span> <span class="ident">to</span>.<span class="ident">driving_goal</span>(<span class="ident">constraints</span>, <span class="ident">map</span>)<span class="question-mark">?</span>;
                 <span class="kw">match</span> <span class="ident">from</span> {
-                    <span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="ident">start_bldg</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                        <span class="kw">if</span> <span class="ident">mode</span> <span class="op">=</span><span class="op">=</span> <span class="ident">TripMode</span>::<span class="ident">Drive</span> {
-                            <span class="ident">TripSpec</span>::<span class="ident">UsingParkedCar</span> {
+                    <span class="ident">TripEndpoint::Bldg</span>(<span class="ident">start_bldg</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="kw">if</span> <span class="ident">mode</span> <span class="op">=</span><span class="op">=</span> <span class="ident">TripMode::Drive</span> {
+                            <span class="ident">TripSpec::UsingParkedCar</span> {
                                 <span class="ident">start_bldg</span>,
                                 <span class="ident">goal</span>,
                                 <span class="ident">car</span>: <span class="ident">use_vehicle</span>.<span class="ident">unwrap</span>(),
                             }
                         } <span class="kw">else</span> {
-                            <span class="ident">TripSpec</span>::<span class="ident">UsingBike</span> {
+                            <span class="ident">TripSpec::UsingBike</span> {
                                 <span class="ident">start</span>: <span class="ident">start_bldg</span>,
                                 <span class="ident">goal</span>,
                                 <span class="ident">bike</span>: <span class="ident">use_vehicle</span>.<span class="ident">unwrap</span>(),
                             }
                         }
                     }
-                    <span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="ident">i</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="ident">TripEndpoint::Border</span>(<span class="ident">i</span>) <span class="op">=</span><span class="op">&gt;</span> {
                         <span class="kw">let</span> <span class="ident">start_lane</span> <span class="op">=</span> <span class="ident">map</span>
                             .<span class="ident">get_i</span>(<span class="ident">i</span>)
                             .<span class="ident">some_outgoing_road</span>(<span class="ident">map</span>)
@@ -661,16 +661,16 @@
                             <span class="comment">// pick the least loaded lane or similar.</span>
                             .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">dr</span><span class="op">|</span> <span class="ident">dr</span>.<span class="ident">lanes</span>(<span class="ident">constraints</span>, <span class="ident">map</span>).<span class="ident">pop</span>())
                             .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
-                                <span class="macro">anyhow</span><span class="macro">!</span>(<span class="string">&quot;can&#39;t start a {} trip from {}&quot;</span>, <span class="ident">mode</span>.<span class="ident">ongoing_verb</span>(), <span class="ident">i</span>)
+                                <span class="macro">anyhow!</span>(<span class="string">&quot;can&#39;t start a {} trip from {}&quot;</span>, <span class="ident">mode</span>.<span class="ident">ongoing_verb</span>(), <span class="ident">i</span>)
                             })<span class="question-mark">?</span>;
-                        <span class="ident">TripSpec</span>::<span class="ident">VehicleAppearing</span> {
-                            <span class="ident">start_pos</span>: <span class="ident">Position</span>::<span class="ident">new</span>(<span class="ident">start_lane</span>, <span class="ident">SPAWN_DIST</span>),
+                        <span class="ident">TripSpec::VehicleAppearing</span> {
+                            <span class="ident">start_pos</span>: <span class="ident">Position::new</span>(<span class="ident">start_lane</span>, <span class="ident">SPAWN_DIST</span>),
                             <span class="ident">goal</span>,
                             <span class="ident">use_vehicle</span>: <span class="ident">use_vehicle</span>.<span class="ident">unwrap</span>(),
                             <span class="ident">retry_if_no_room</span>,
                         }
                     }
-                    <span class="ident">TripEndpoint</span>::<span class="ident">SuddenlyAppear</span>(<span class="ident">start_pos</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TripSpec</span>::<span class="ident">VehicleAppearing</span> {
+                    <span class="ident">TripEndpoint::SuddenlyAppear</span>(<span class="ident">start_pos</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TripSpec::VehicleAppearing</span> {
                         <span class="ident">start_pos</span>,
                         <span class="ident">goal</span>,
                         <span class="ident">use_vehicle</span>: <span class="ident">use_vehicle</span>.<span class="ident">unwrap</span>(),
@@ -678,17 +678,17 @@
                     },
                 }
             }
-            <span class="ident">TripMode</span>::<span class="ident">Walk</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TripSpec</span>::<span class="ident">JustWalking</span> {
+            <span class="ident">TripMode::Walk</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TripSpec::JustWalking</span> {
                 <span class="ident">start</span>: <span class="ident">from</span>.<span class="ident">start_sidewalk_spot</span>(<span class="ident">map</span>)<span class="question-mark">?</span>,
                 <span class="ident">goal</span>: <span class="ident">to</span>.<span class="ident">end_sidewalk_spot</span>(<span class="ident">map</span>)<span class="question-mark">?</span>,
             },
-            <span class="ident">TripMode</span>::<span class="ident">Transit</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">TripMode::Transit</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="ident">from</span>.<span class="ident">start_sidewalk_spot</span>(<span class="ident">map</span>)<span class="question-mark">?</span>;
                 <span class="kw">let</span> <span class="ident">goal</span> <span class="op">=</span> <span class="ident">to</span>.<span class="ident">end_sidewalk_spot</span>(<span class="ident">map</span>)<span class="question-mark">?</span>;
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">stop1</span>, <span class="ident">maybe_stop2</span>, <span class="ident">route</span>)) <span class="op">=</span>
                     <span class="ident">map</span>.<span class="ident">should_use_transit</span>(<span class="ident">start</span>.<span class="ident">sidewalk_pos</span>, <span class="ident">goal</span>.<span class="ident">sidewalk_pos</span>)
                 {
-                    <span class="ident">TripSpec</span>::<span class="ident">UsingTransit</span> {
+                    <span class="ident">TripSpec::UsingTransit</span> {
                         <span class="ident">start</span>,
                         <span class="ident">goal</span>,
                         <span class="ident">route</span>,
@@ -698,7 +698,7 @@
                 } <span class="kw">else</span> {
                     <span class="comment">//warn!(&quot;{:?} not actually using transit, because pathfinding didn&#39;t find any</span>
                     <span class="comment">// useful route&quot;, trip);</span>
-                    <span class="ident">TripSpec</span>::<span class="ident">JustWalking</span> { <span class="ident">start</span>, <span class="ident">goal</span> }
+                    <span class="ident">TripSpec::JustWalking</span> { <span class="ident">start</span>, <span class="ident">goal</span> }
                 }
             }
         })
@@ -729,35 +729,35 @@
             <span class="ident">start</span>: <span class="ident">from</span>.<span class="ident">pos</span>(<span class="ident">mode</span>, <span class="bool-val">true</span>, <span class="ident">map</span>)<span class="question-mark">?</span>,
             <span class="ident">end</span>: <span class="ident">to</span>.<span class="ident">pos</span>(<span class="ident">mode</span>, <span class="bool-val">false</span>, <span class="ident">map</span>)<span class="question-mark">?</span>,
             <span class="ident">constraints</span>: <span class="kw">match</span> <span class="ident">mode</span> {
-                <span class="ident">TripMode</span>::<span class="ident">Walk</span> <span class="op">|</span> <span class="ident">TripMode</span>::<span class="ident">Transit</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">PathConstraints</span>::<span class="ident">Pedestrian</span>,
-                <span class="ident">TripMode</span>::<span class="ident">Drive</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">PathConstraints</span>::<span class="ident">Car</span>,
-                <span class="ident">TripMode</span>::<span class="ident">Bike</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">PathConstraints</span>::<span class="ident">Bike</span>,
+                <span class="ident">TripMode::Walk</span> <span class="op">|</span> <span class="ident">TripMode::Transit</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">PathConstraints::Pedestrian</span>,
+                <span class="ident">TripMode::Drive</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">PathConstraints::Car</span>,
+                <span class="ident">TripMode::Bike</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">PathConstraints::Bike</span>,
             },
         })
     }
 
     <span class="kw">fn</span> <span class="ident">start_sidewalk_spot</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">SidewalkSpot</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="ident">b</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">SidewalkSpot</span>::<span class="ident">building</span>(<span class="kw-2">*</span><span class="ident">b</span>, <span class="ident">map</span>)),
-            <span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="ident">i</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">SidewalkSpot</span>::<span class="ident">start_at_border</span>(<span class="kw-2">*</span><span class="ident">i</span>, <span class="ident">map</span>)
-                .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">anyhow</span><span class="macro">!</span>(<span class="string">&quot;can&#39;t start walking from {}&quot;</span>, <span class="ident">i</span>)),
-            <span class="ident">TripEndpoint</span>::<span class="ident">SuddenlyAppear</span>(<span class="ident">pos</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">SidewalkSpot</span>::<span class="ident">suddenly_appear</span>(<span class="kw-2">*</span><span class="ident">pos</span>, <span class="ident">map</span>)),
+            <span class="ident">TripEndpoint::Bldg</span>(<span class="ident">b</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">SidewalkSpot::building</span>(<span class="kw-2">*</span><span class="ident">b</span>, <span class="ident">map</span>)),
+            <span class="ident">TripEndpoint::Border</span>(<span class="ident">i</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">SidewalkSpot::start_at_border</span>(<span class="kw-2">*</span><span class="ident">i</span>, <span class="ident">map</span>)
+                .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">anyhow!</span>(<span class="string">&quot;can&#39;t start walking from {}&quot;</span>, <span class="ident">i</span>)),
+            <span class="ident">TripEndpoint::SuddenlyAppear</span>(<span class="ident">pos</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">SidewalkSpot::suddenly_appear</span>(<span class="kw-2">*</span><span class="ident">pos</span>, <span class="ident">map</span>)),
         }
     }
 
     <span class="kw">fn</span> <span class="ident">end_sidewalk_spot</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">SidewalkSpot</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="ident">b</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">SidewalkSpot</span>::<span class="ident">building</span>(<span class="kw-2">*</span><span class="ident">b</span>, <span class="ident">map</span>)),
-            <span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="ident">i</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">SidewalkSpot</span>::<span class="ident">end_at_border</span>(<span class="kw-2">*</span><span class="ident">i</span>, <span class="ident">map</span>)
-                .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">anyhow</span><span class="macro">!</span>(<span class="string">&quot;can&#39;t end walking at {}&quot;</span>, <span class="ident">i</span>)),
-            <span class="ident">TripEndpoint</span>::<span class="ident">SuddenlyAppear</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+            <span class="ident">TripEndpoint::Bldg</span>(<span class="ident">b</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">SidewalkSpot::building</span>(<span class="kw-2">*</span><span class="ident">b</span>, <span class="ident">map</span>)),
+            <span class="ident">TripEndpoint::Border</span>(<span class="ident">i</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">SidewalkSpot::end_at_border</span>(<span class="kw-2">*</span><span class="ident">i</span>, <span class="ident">map</span>)
+                .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">anyhow!</span>(<span class="string">&quot;can&#39;t end walking at {}&quot;</span>, <span class="ident">i</span>)),
+            <span class="ident">TripEndpoint::SuddenlyAppear</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
         }
     }
 
     <span class="kw">fn</span> <span class="ident">driving_goal</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">constraints</span>: <span class="ident">PathConstraints</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">DrivingGoal</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="ident">b</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">DrivingGoal</span>::<span class="ident">ParkNear</span>(<span class="kw-2">*</span><span class="ident">b</span>)),
-            <span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="ident">i</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">map</span>
+            <span class="ident">TripEndpoint::Bldg</span>(<span class="ident">b</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">DrivingGoal::ParkNear</span>(<span class="kw-2">*</span><span class="ident">b</span>)),
+            <span class="ident">TripEndpoint::Border</span>(<span class="ident">i</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">map</span>
                 .<span class="ident">get_i</span>(<span class="kw-2">*</span><span class="ident">i</span>)
                 .<span class="ident">some_incoming_road</span>(<span class="ident">map</span>)
                 .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">dr</span><span class="op">|</span> {
@@ -766,36 +766,36 @@
                         <span class="prelude-val">None</span>
                     } <span class="kw">else</span> {
                         <span class="comment">// TODO ideally could use any</span>
-                        <span class="prelude-val">Some</span>(<span class="ident">DrivingGoal</span>::<span class="ident">Border</span>(<span class="ident">dr</span>.<span class="ident">dst_i</span>(<span class="ident">map</span>), <span class="ident">lanes</span>[<span class="number">0</span>]))
+                        <span class="prelude-val">Some</span>(<span class="ident">DrivingGoal::Border</span>(<span class="ident">dr</span>.<span class="ident">dst_i</span>(<span class="ident">map</span>), <span class="ident">lanes</span>[<span class="number">0</span>]))
                     }
                 })
-                .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">anyhow</span><span class="macro">!</span>(<span class="string">&quot;can&#39;t end at {} for {:?}&quot;</span>, <span class="ident">i</span>, <span class="ident">constraints</span>)),
-            <span class="ident">TripEndpoint</span>::<span class="ident">SuddenlyAppear</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+                .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">anyhow!</span>(<span class="string">&quot;can&#39;t end at {} for {:?}&quot;</span>, <span class="ident">i</span>, <span class="ident">constraints</span>)),
+            <span class="ident">TripEndpoint::SuddenlyAppear</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
         }
     }
 
     <span class="kw">fn</span> <span class="ident">pos</span>(<span class="self">self</span>, <span class="ident">mode</span>: <span class="ident">TripMode</span>, <span class="ident">from</span>: <span class="ident">bool</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Position</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="ident">mode</span> {
-            <span class="ident">TripMode</span>::<span class="ident">Walk</span> <span class="op">|</span> <span class="ident">TripMode</span>::<span class="ident">Transit</span> <span class="op">=</span><span class="op">&gt;</span> (<span class="kw">if</span> <span class="ident">from</span> {
+            <span class="ident">TripMode::Walk</span> <span class="op">|</span> <span class="ident">TripMode::Transit</span> <span class="op">=</span><span class="op">&gt;</span> (<span class="kw">if</span> <span class="ident">from</span> {
                 <span class="self">self</span>.<span class="ident">start_sidewalk_spot</span>(<span class="ident">map</span>)
             } <span class="kw">else</span> {
                 <span class="self">self</span>.<span class="ident">end_sidewalk_spot</span>(<span class="ident">map</span>)
             })
             .<span class="ident">ok</span>()
             .<span class="ident">map</span>(<span class="op">|</span><span class="ident">spot</span><span class="op">|</span> <span class="ident">spot</span>.<span class="ident">sidewalk_pos</span>),
-            <span class="ident">TripMode</span>::<span class="ident">Drive</span> <span class="op">|</span> <span class="ident">TripMode</span>::<span class="ident">Bike</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">TripMode::Drive</span> <span class="op">|</span> <span class="ident">TripMode::Bike</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">if</span> <span class="ident">from</span> {
                     <span class="kw">match</span> <span class="self">self</span> {
                         <span class="comment">// Fall through and use DrivingGoal also to start.</span>
-                        <span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {}
-                        <span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="ident">i</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="ident">TripEndpoint::Bldg</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {}
+                        <span class="ident">TripEndpoint::Border</span>(<span class="ident">i</span>) <span class="op">=</span><span class="op">&gt;</span> {
                             <span class="kw">return</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>).<span class="ident">some_outgoing_road</span>(<span class="ident">map</span>).<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">dr</span><span class="op">|</span> {
                                 <span class="ident">dr</span>.<span class="ident">lanes</span>(<span class="ident">mode</span>.<span class="ident">to_constraints</span>(), <span class="ident">map</span>)
                                     .<span class="ident">get</span>(<span class="number">0</span>)
-                                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="ident">Position</span>::<span class="ident">start</span>(<span class="kw-2">*</span><span class="ident">l</span>))
+                                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="ident">Position::start</span>(<span class="kw-2">*</span><span class="ident">l</span>))
                             });
                         }
-                        <span class="ident">TripEndpoint</span>::<span class="ident">SuddenlyAppear</span>(<span class="ident">pos</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="ident">TripEndpoint::SuddenlyAppear</span>(<span class="ident">pos</span>) <span class="op">=</span><span class="op">&gt;</span> {
                             <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">pos</span>);
                         }
                     }
@@ -810,12 +810,12 @@
     <span class="doccomment">/// Returns a point representing where this endpoint is.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Pt2D</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="ident">b</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">map</span>.<span class="ident">get_b</span>(<span class="kw-2">*</span><span class="ident">b</span>).<span class="ident">polygon</span>.<span class="ident">center</span>(),
-            <span class="ident">TripEndpoint</span>::<span class="ident">Border</span>(<span class="ident">i</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="kw-2">*</span><span class="ident">i</span>).<span class="ident">polygon</span>.<span class="ident">center</span>(),
-            <span class="ident">TripEndpoint</span>::<span class="ident">SuddenlyAppear</span>(<span class="ident">pos</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">pos</span>.<span class="ident">pt</span>(<span class="ident">map</span>),
+            <span class="ident">TripEndpoint::Bldg</span>(<span class="ident">b</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">map</span>.<span class="ident">get_b</span>(<span class="kw-2">*</span><span class="ident">b</span>).<span class="ident">polygon</span>.<span class="ident">center</span>(),
+            <span class="ident">TripEndpoint::Border</span>(<span class="ident">i</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="kw-2">*</span><span class="ident">i</span>).<span class="ident">polygon</span>.<span class="ident">center</span>(),
+            <span class="ident">TripEndpoint::SuddenlyAppear</span>(<span class="ident">pos</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">pos</span>.<span class="ident">pt</span>(<span class="ident">map</span>),
         }
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="sim" data-search-js="../../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="sim" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
     <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script></body></html>

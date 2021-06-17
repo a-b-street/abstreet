@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `importer/src/soundcast/popdat.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>popdat.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../importer/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../importer/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -336,7 +336,7 @@
 <span id="333">333</span>
 <span id="334">334</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
+<span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
@@ -356,22 +356,22 @@
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">import_data</span>(<span class="ident">huge_map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PopDat</span> {
     <span class="kw">let</span> <span class="ident">trips</span> <span class="op">=</span> <span class="ident">import_trips</span>(<span class="ident">huge_map</span>, <span class="ident">timer</span>);
     <span class="kw">let</span> <span class="ident">popdat</span> <span class="op">=</span> <span class="ident">PopDat</span> { <span class="ident">trips</span> };
-    <span class="ident">abstio</span>::<span class="ident">write_binary</span>(<span class="ident">abstio</span>::<span class="ident">path_popdat</span>(), <span class="kw-2">&amp;</span><span class="ident">popdat</span>);
+    <span class="ident">abstio::write_binary</span>(<span class="ident">abstio::path_popdat</span>(), <span class="kw-2">&amp;</span><span class="ident">popdat</span>);
     <span class="ident">popdat</span>
 }
 
 <span class="kw">fn</span> <span class="ident">import_trips</span>(<span class="ident">huge_map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">OrigTrip</span><span class="op">&gt;</span> {
     <span class="kw">let</span> (<span class="ident">parcels</span>, <span class="kw-2">mut</span> <span class="ident">keyed_shapes</span>) <span class="op">=</span> <span class="ident">import_parcels</span>(<span class="ident">huge_map</span>, <span class="ident">timer</span>);
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">trips</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">trips</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
     <span class="kw">let</span> (<span class="ident">reader</span>, <span class="ident">done</span>) <span class="op">=</span>
-        <span class="ident">FileWithProgress</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">CityName</span>::<span class="ident">seattle</span>().<span class="ident">input_path</span>(<span class="string">&quot;trips_2014.csv&quot;</span>)).<span class="ident">unwrap</span>();
+        <span class="ident">FileWithProgress::new</span>(<span class="kw-2">&amp;</span><span class="ident">CityName::seattle</span>().<span class="ident">input_path</span>(<span class="string">&quot;trips_2014.csv&quot;</span>)).<span class="ident">unwrap</span>();
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">total_records</span> <span class="op">=</span> <span class="number">0</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">people</span>: <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">OrigPersonID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">HashSet</span>::<span class="ident">new</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">trips_from_parcel</span>: <span class="ident">Counter</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Counter</span>::<span class="ident">new</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">trips_to_parcel</span>: <span class="ident">Counter</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Counter</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">people</span>: <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">OrigPersonID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">HashSet::new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">trips_from_parcel</span>: <span class="ident">Counter</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Counter::new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">trips_to_parcel</span>: <span class="ident">Counter</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Counter::new</span>();
 
-    <span class="kw">for</span> <span class="ident">rec</span> <span class="kw">in</span> <span class="ident">csv</span>::<span class="ident">Reader</span>::<span class="ident">from_reader</span>(<span class="ident">reader</span>).<span class="ident">deserialize</span>() {
+    <span class="kw">for</span> <span class="ident">rec</span> <span class="kw">in</span> <span class="ident">csv::Reader::from_reader</span>(<span class="ident">reader</span>).<span class="ident">deserialize</span>() {
         <span class="ident">total_records</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
         <span class="kw">let</span> <span class="ident">rec</span>: <span class="ident">RawTrip</span> <span class="op">=</span> <span class="ident">rec</span>.<span class="ident">unwrap</span>();
 
@@ -392,17 +392,17 @@
             <span class="kw">continue</span>;
         }
 
-        <span class="kw">let</span> <span class="ident">depart_at</span> <span class="op">=</span> <span class="ident">Time</span>::<span class="ident">START_OF_DAY</span> <span class="op">+</span> <span class="ident">Duration</span>::<span class="ident">minutes</span>(<span class="ident">rec</span>.<span class="ident">deptm</span> <span class="kw">as</span> <span class="ident">usize</span>);
+        <span class="kw">let</span> <span class="ident">depart_at</span> <span class="op">=</span> <span class="ident">Time::START_OF_DAY</span> <span class="op">+</span> <span class="ident">Duration::minutes</span>(<span class="ident">rec</span>.<span class="ident">deptm</span> <span class="kw">as</span> <span class="ident">usize</span>);
 
         <span class="kw">let</span> <span class="ident">mode</span> <span class="op">=</span> <span class="ident">get_mode</span>(<span class="kw-2">&amp;</span><span class="ident">rec</span>.<span class="ident">mode</span>);
         <span class="kw">let</span> <span class="ident">purpose</span> <span class="op">=</span> <span class="ident">get_purpose</span>(<span class="kw-2">&amp;</span><span class="ident">rec</span>.<span class="ident">dpurp</span>);
 
-        <span class="kw">let</span> <span class="ident">trip_time</span> <span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">f64_minutes</span>(<span class="ident">rec</span>.<span class="ident">travtime</span>);
-        <span class="kw">let</span> <span class="ident">trip_dist</span> <span class="op">=</span> <span class="ident">Distance</span>::<span class="ident">miles</span>(<span class="ident">rec</span>.<span class="ident">travdist</span>);
+        <span class="kw">let</span> <span class="ident">trip_time</span> <span class="op">=</span> <span class="ident">Duration::f64_minutes</span>(<span class="ident">rec</span>.<span class="ident">travtime</span>);
+        <span class="kw">let</span> <span class="ident">trip_dist</span> <span class="op">=</span> <span class="ident">Distance::miles</span>(<span class="ident">rec</span>.<span class="ident">travdist</span>);
 
         <span class="kw">let</span> <span class="ident">person</span> <span class="op">=</span> <span class="ident">OrigPersonID</span>(<span class="ident">rec</span>.<span class="ident">hhno</span> <span class="kw">as</span> <span class="ident">usize</span>, <span class="ident">rec</span>.<span class="ident">pno</span> <span class="kw">as</span> <span class="ident">usize</span>);
         <span class="ident">people</span>.<span class="ident">insert</span>(<span class="ident">person</span>);
-        <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">float_cmp</span>)]</span>
+        <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::float_cmp</span>)]</span>
         <span class="kw">let</span> <span class="ident">seq</span> <span class="op">=</span> (<span class="ident">rec</span>.<span class="ident">tour</span> <span class="kw">as</span> <span class="ident">usize</span>, <span class="ident">rec</span>.<span class="ident">half</span> <span class="op">=</span><span class="op">=</span> <span class="number">2.0</span>, <span class="ident">rec</span>.<span class="ident">tseg</span> <span class="kw">as</span> <span class="ident">usize</span>);
 
         <span class="ident">trips</span>.<span class="ident">push</span>(<span class="ident">OrigTrip</span> {
@@ -419,7 +419,7 @@
     }
     <span class="ident">done</span>(<span class="ident">timer</span>);
 
-    <span class="macro">info</span><span class="macro">!</span>(
+    <span class="macro">info!</span>(
         <span class="string">&quot;{} trips total, over {} people. {} records filtered out&quot;</span>,
         <span class="ident">prettyprint_usize</span>(<span class="ident">trips</span>.<span class="ident">len</span>()),
         <span class="ident">prettyprint_usize</span>(<span class="ident">people</span>.<span class="ident">len</span>()),
@@ -442,8 +442,8 @@
         }
     }
     <span class="kw">let</span> <span class="ident">shapes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ExtraShape</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">keyed_shapes</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">v</span>)<span class="op">|</span> <span class="ident">v</span>).<span class="ident">collect</span>();
-    <span class="ident">abstio</span>::<span class="ident">write_binary</span>(
-        <span class="ident">CityName</span>::<span class="ident">seattle</span>().<span class="ident">input_path</span>(<span class="string">&quot;parcels.bin&quot;</span>),
+    <span class="ident">abstio::write_binary</span>(
+        <span class="ident">CityName::seattle</span>().<span class="ident">input_path</span>(<span class="string">&quot;parcels.bin&quot;</span>),
         <span class="kw-2">&amp;</span><span class="ident">ExtraShapes</span> { <span class="ident">shapes</span> },
     );
 
@@ -457,25 +457,25 @@
     <span class="ident">huge_map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
     <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">Endpoint</span><span class="op">&gt;</span>, <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">ExtraShape</span><span class="op">&gt;</span>) {
-    <span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">FindClosest</span>;
+    <span class="kw">use</span> <span class="ident">geom::FindClosest</span>;
 
     <span class="comment">// TODO I really just want to do polygon containment with a quadtree. FindClosest only does</span>
     <span class="comment">// line-string stuff right now, which&#39;ll be weird for the last-&gt;first pt line and stuff.</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">closest_bldg</span>: <span class="ident">FindClosest</span><span class="op">&lt;</span><span class="ident">osm</span>::<span class="ident">OsmID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">FindClosest</span>::<span class="ident">new</span>(<span class="ident">huge_map</span>.<span class="ident">get_bounds</span>());
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">closest_bldg</span>: <span class="ident">FindClosest</span><span class="op">&lt;</span><span class="ident">osm::OsmID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">FindClosest::new</span>(<span class="ident">huge_map</span>.<span class="ident">get_bounds</span>());
     <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="ident">huge_map</span>.<span class="ident">all_buildings</span>() {
         <span class="ident">closest_bldg</span>.<span class="ident">add</span>(<span class="ident">b</span>.<span class="ident">orig_id</span>, <span class="ident">b</span>.<span class="ident">polygon</span>.<span class="ident">points</span>());
     }
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">x_coords</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">y_coords</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">x_coords</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">y_coords</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
     <span class="comment">// Dummy values</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">z_coords</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">z_coords</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
     <span class="comment">// (parcel ID, number of households, number of parking spots)</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">parcel_metadata</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">parcel_metadata</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
 
     <span class="kw">let</span> (<span class="ident">reader</span>, <span class="ident">done</span>) <span class="op">=</span>
-        <span class="ident">FileWithProgress</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">CityName</span>::<span class="ident">seattle</span>().<span class="ident">input_path</span>(<span class="string">&quot;parcels_urbansim.txt&quot;</span>)).<span class="ident">unwrap</span>();
-    <span class="kw">for</span> <span class="ident">rec</span> <span class="kw">in</span> <span class="ident">csv</span>::<span class="ident">ReaderBuilder</span>::<span class="ident">new</span>()
+        <span class="ident">FileWithProgress::new</span>(<span class="kw-2">&amp;</span><span class="ident">CityName::seattle</span>().<span class="ident">input_path</span>(<span class="string">&quot;parcels_urbansim.txt&quot;</span>)).<span class="ident">unwrap</span>();
+    <span class="kw">for</span> <span class="ident">rec</span> <span class="kw">in</span> <span class="ident">csv::ReaderBuilder::new</span>()
         .<span class="ident">delimiter</span>(<span class="string">b&#39; &#39;</span>)
         .<span class="ident">from_reader</span>(<span class="ident">reader</span>)
         .<span class="ident">deserialize</span>()
@@ -489,28 +489,28 @@
     }
     <span class="ident">done</span>(<span class="ident">timer</span>);
 
-    <span class="ident">timer</span>.<span class="ident">start</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;transform {} points&quot;</span>, <span class="ident">parcel_metadata</span>.<span class="ident">len</span>()));
+    <span class="ident">timer</span>.<span class="ident">start</span>(<span class="macro">format!</span>(<span class="string">&quot;transform {} points&quot;</span>, <span class="ident">parcel_metadata</span>.<span class="ident">len</span>()));
 
     <span class="comment">// From https://epsg.io/102748 to https://epsg.io/4326</span>
-    <span class="kw">let</span> <span class="ident">transform</span> <span class="op">=</span> <span class="ident">gdal</span>::<span class="ident">spatial_ref</span>::<span class="ident">CoordTransform</span>::<span class="ident">new</span>(
-        <span class="kw-2">&amp;</span><span class="ident">gdal</span>::<span class="ident">spatial_ref</span>::<span class="ident">SpatialRef</span>::<span class="ident">from_proj4</span>(
+    <span class="kw">let</span> <span class="ident">transform</span> <span class="op">=</span> <span class="ident">gdal::spatial_ref::CoordTransform::new</span>(
+        <span class="kw-2">&amp;</span><span class="ident">gdal::spatial_ref::SpatialRef::from_proj4</span>(
             <span class="string">&quot;+proj=lcc +lat_1=47.5 +lat_2=48.73333333333333 +lat_0=47 +lon_0=-120.8333333333333 \
              +x_0=500000.0000000002 +y_0=0 +datum=NAD83 +units=us-ft +no_defs&quot;</span>,
         )
         .<span class="ident">expect</span>(<span class="string">&quot;washington state plane&quot;</span>),
-        <span class="kw-2">&amp;</span><span class="ident">gdal</span>::<span class="ident">spatial_ref</span>::<span class="ident">SpatialRef</span>::<span class="ident">from_epsg</span>(<span class="number">4326</span>).<span class="ident">unwrap</span>(),
+        <span class="kw-2">&amp;</span><span class="ident">gdal::spatial_ref::SpatialRef::from_epsg</span>(<span class="number">4326</span>).<span class="ident">unwrap</span>(),
     )
     .<span class="ident">expect</span>(<span class="string">&quot;regular GPS&quot;</span>);
     <span class="ident">transform</span>
         .<span class="ident">transform_coords</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">x_coords</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">y_coords</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">z_coords</span>)
         .<span class="ident">expect</span>(<span class="string">&quot;transform coords&quot;</span>);
 
-    <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;transform {} points&quot;</span>, <span class="ident">parcel_metadata</span>.<span class="ident">len</span>()));
+    <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="macro">format!</span>(<span class="string">&quot;transform {} points&quot;</span>, <span class="ident">parcel_metadata</span>.<span class="ident">len</span>()));
 
     <span class="kw">let</span> <span class="ident">bounds</span> <span class="op">=</span> <span class="ident">huge_map</span>.<span class="ident">get_gps_bounds</span>();
     <span class="kw">let</span> <span class="ident">boundary</span> <span class="op">=</span> <span class="ident">huge_map</span>.<span class="ident">get_boundary_polygon</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">HashMap</span>::<span class="ident">new</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">shapes</span> <span class="op">=</span> <span class="ident">BTreeMap</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">shapes</span> <span class="op">=</span> <span class="ident">BTreeMap::new</span>();
     <span class="ident">timer</span>.<span class="ident">start_iter</span>(<span class="string">&quot;finalize parcel output&quot;</span>, <span class="ident">parcel_metadata</span>.<span class="ident">len</span>());
     <span class="kw">for</span> ((<span class="ident">x</span>, <span class="ident">y</span>), (<span class="ident">id</span>, <span class="ident">num_households</span>, <span class="ident">offstreet_parking_spaces</span>)) <span class="kw">in</span> <span class="ident">x_coords</span>
         .<span class="ident">into_iter</span>()
@@ -519,11 +519,11 @@
     {
         <span class="ident">timer</span>.<span class="ident">next</span>();
         <span class="comment">// This maybe got inverted with some new version of GDAL?!</span>
-        <span class="kw">let</span> <span class="ident">gps</span> <span class="op">=</span> <span class="ident">LonLat</span>::<span class="ident">new</span>(<span class="ident">y</span>, <span class="ident">x</span>);
+        <span class="kw">let</span> <span class="ident">gps</span> <span class="op">=</span> <span class="ident">LonLat::new</span>(<span class="ident">y</span>, <span class="ident">x</span>);
         <span class="kw">let</span> <span class="ident">pt</span> <span class="op">=</span> <span class="ident">gps</span>.<span class="ident">to_pt</span>(<span class="ident">bounds</span>);
         <span class="kw">let</span> <span class="ident">osm_building</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">bounds</span>.<span class="ident">contains</span>(<span class="ident">gps</span>) {
             <span class="ident">closest_bldg</span>
-                .<span class="ident">closest_pt</span>(<span class="ident">pt</span>, <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">30.0</span>))
+                .<span class="ident">closest_pt</span>(<span class="ident">pt</span>, <span class="ident">Distance::meters</span>(<span class="number">30.0</span>))
                 .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">b</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">b</span>)
         } <span class="kw">else</span> {
             <span class="prelude-val">None</span>
@@ -538,7 +538,7 @@
         );
 
         <span class="kw">if</span> <span class="ident">boundary</span>.<span class="ident">contains_pt</span>(<span class="ident">pt</span>) {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">attributes</span> <span class="op">=</span> <span class="ident">BTreeMap</span>::<span class="ident">new</span>();
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">attributes</span> <span class="op">=</span> <span class="ident">BTreeMap::new</span>();
             <span class="ident">attributes</span>.<span class="ident">insert</span>(<span class="string">&quot;id&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">id</span>.<span class="ident">to_string</span>());
             <span class="kw">if</span> <span class="ident">num_households</span> <span class="op">&gt;</span> <span class="number">0</span> {
                 <span class="ident">attributes</span>.<span class="ident">insert</span>(<span class="string">&quot;households&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">num_households</span>.<span class="ident">to_string</span>());
@@ -552,13 +552,13 @@
             <span class="ident">shapes</span>.<span class="ident">insert</span>(
                 <span class="ident">id</span>,
                 <span class="ident">ExtraShape</span> {
-                    <span class="ident">points</span>: <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">gps</span>],
+                    <span class="ident">points</span>: <span class="macro">vec!</span>[<span class="ident">gps</span>],
                     <span class="ident">attributes</span>,
                 },
             );
         }
     }
-    <span class="macro">info</span><span class="macro">!</span>(<span class="string">&quot;{} parcels&quot;</span>, <span class="ident">prettyprint_usize</span>(<span class="ident">result</span>.<span class="ident">len</span>()));
+    <span class="macro">info!</span>(<span class="string">&quot;{} parcels&quot;</span>, <span class="ident">prettyprint_usize</span>(<span class="ident">result</span>.<span class="ident">len</span>()));
 
     (<span class="ident">result</span>, <span class="ident">shapes</span>)
 }
@@ -568,39 +568,39 @@
     <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
     <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">Endpoint</span><span class="op">&gt;</span>, <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">ExtraShape</span><span class="op">&gt;</span>) {
-    <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Can&#39;t import_parcels for popdat.bin without the scenarios feature (GDAL dependency)&quot;</span>);
+    <span class="macro">panic!</span>(<span class="string">&quot;Can&#39;t import_parcels for popdat.bin without the scenarios feature (GDAL dependency)&quot;</span>);
 }
 
 <span class="comment">// From https://github.com/psrc/soundcast/wiki/Outputs#trip-file-_triptsv, opurp and dpurp</span>
 <span class="kw">fn</span> <span class="ident">get_purpose</span>(<span class="ident">code</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TripPurpose</span> {
     <span class="kw">match</span> <span class="ident">code</span> {
-        <span class="string">&quot;0.0&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TripPurpose</span>::<span class="ident">Home</span>,
-        <span class="string">&quot;1.0&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TripPurpose</span>::<span class="ident">Work</span>,
-        <span class="string">&quot;2.0&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TripPurpose</span>::<span class="ident">School</span>,
-        <span class="string">&quot;3.0&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TripPurpose</span>::<span class="ident">Escort</span>,
-        <span class="string">&quot;4.0&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TripPurpose</span>::<span class="ident">PersonalBusiness</span>,
-        <span class="string">&quot;5.0&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TripPurpose</span>::<span class="ident">Shopping</span>,
-        <span class="string">&quot;6.0&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TripPurpose</span>::<span class="ident">Meal</span>,
-        <span class="string">&quot;7.0&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TripPurpose</span>::<span class="ident">Social</span>,
-        <span class="string">&quot;8.0&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TripPurpose</span>::<span class="ident">Recreation</span>,
-        <span class="string">&quot;9.0&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TripPurpose</span>::<span class="ident">Medical</span>,
-        <span class="string">&quot;10.0&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TripPurpose</span>::<span class="ident">ParkAndRideTransfer</span>,
-        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Unknown opurp/dpurp {}&quot;</span>, <span class="ident">code</span>),
+        <span class="string">&quot;0.0&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TripPurpose::Home</span>,
+        <span class="string">&quot;1.0&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TripPurpose::Work</span>,
+        <span class="string">&quot;2.0&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TripPurpose::School</span>,
+        <span class="string">&quot;3.0&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TripPurpose::Escort</span>,
+        <span class="string">&quot;4.0&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TripPurpose::PersonalBusiness</span>,
+        <span class="string">&quot;5.0&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TripPurpose::Shopping</span>,
+        <span class="string">&quot;6.0&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TripPurpose::Meal</span>,
+        <span class="string">&quot;7.0&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TripPurpose::Social</span>,
+        <span class="string">&quot;8.0&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TripPurpose::Recreation</span>,
+        <span class="string">&quot;9.0&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TripPurpose::Medical</span>,
+        <span class="string">&quot;10.0&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TripPurpose::ParkAndRideTransfer</span>,
+        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic!</span>(<span class="string">&quot;Unknown opurp/dpurp {}&quot;</span>, <span class="ident">code</span>),
     }
 }
 
 <span class="comment">// From https://github.com/psrc/soundcast/wiki/Outputs#trip-file-_triptsv, mode</span>
 <span class="kw">fn</span> <span class="ident">get_mode</span>(<span class="ident">code</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TripMode</span> {
     <span class="kw">match</span> <span class="ident">code</span> {
-        <span class="string">&quot;1.0&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TripMode</span>::<span class="ident">Walk</span>,
-        <span class="string">&quot;2.0&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TripMode</span>::<span class="ident">Bike</span>,
-        <span class="string">&quot;3.0&quot;</span> <span class="op">|</span> <span class="string">&quot;4.0&quot;</span> <span class="op">|</span> <span class="string">&quot;5.0&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TripMode</span>::<span class="ident">Drive</span>,
+        <span class="string">&quot;1.0&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TripMode::Walk</span>,
+        <span class="string">&quot;2.0&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TripMode::Bike</span>,
+        <span class="string">&quot;3.0&quot;</span> <span class="op">|</span> <span class="string">&quot;4.0&quot;</span> <span class="op">|</span> <span class="string">&quot;5.0&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TripMode::Drive</span>,
         <span class="comment">// TODO Park-and-ride and school bus as walk-to-transit is a little weird.</span>
-        <span class="string">&quot;6.0&quot;</span> <span class="op">|</span> <span class="string">&quot;7.0&quot;</span> <span class="op">|</span> <span class="string">&quot;8.0&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TripMode</span>::<span class="ident">Transit</span>,
+        <span class="string">&quot;6.0&quot;</span> <span class="op">|</span> <span class="string">&quot;7.0&quot;</span> <span class="op">|</span> <span class="string">&quot;8.0&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TripMode::Transit</span>,
         <span class="comment">// TODO Invalid code, what&#39;s this one mean? I only see a few examples, so just default to</span>
         <span class="comment">// walking.</span>
-        <span class="string">&quot;0.0&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TripMode</span>::<span class="ident">Walk</span>,
-        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Unknown mode {}&quot;</span>, <span class="ident">code</span>),
+        <span class="string">&quot;0.0&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TripMode::Walk</span>,
+        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic!</span>(<span class="string">&quot;Unknown mode {}&quot;</span>, <span class="ident">code</span>),
     }
 }
 
@@ -667,9 +667,9 @@
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Endpoint</span> {
     <span class="kw">pub</span> <span class="ident">pos</span>: <span class="ident">LonLat</span>,
-    <span class="kw">pub</span> <span class="ident">osm_building</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">osm</span>::<span class="ident">OsmID</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">osm_building</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">osm::OsmID</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">parcel_id</span>: <span class="ident">usize</span>,
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="importer" data-search-js="../../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="importer" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
     <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script></body></html>

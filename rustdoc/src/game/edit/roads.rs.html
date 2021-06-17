@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `game/src/edit/roads.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>roads.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../game/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../game/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -791,9 +791,9 @@
 <span id="788">788</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">CornerRadii</span>, <span class="ident">Distance</span>};
-<span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">render</span>::{<span class="ident">Renderable</span>, <span class="ident">OUTLINE_THICKNESS</span>};
-<span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">tools</span>::<span class="ident">PopupMsg</span>;
-<span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">ID</span>;
+<span class="kw">use</span> <span class="ident">map_gui::render</span>::{<span class="ident">Renderable</span>, <span class="ident">OUTLINE_THICKNESS</span>};
+<span class="kw">use</span> <span class="ident">map_gui::tools::PopupMsg</span>;
+<span class="kw">use</span> <span class="ident">map_gui::ID</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{
     <span class="ident">Direction</span>, <span class="ident">EditCmd</span>, <span class="ident">EditRoad</span>, <span class="ident">LaneID</span>, <span class="ident">LaneSpec</span>, <span class="ident">LaneType</span>, <span class="ident">MapEdits</span>, <span class="ident">Road</span>, <span class="ident">RoadID</span>,
     <span class="ident">NORMAL_LANE_THICKNESS</span>,
@@ -804,9 +804,9 @@
     <span class="ident">Widget</span>, <span class="ident">DEFAULT_CORNER_RADIUS</span>,
 };
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">edit</span>::<span class="ident">zones</span>::<span class="ident">ZoneEditor</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">edit</span>::{<span class="ident">apply_map_edits</span>, <span class="ident">speed_limit_choices</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::edit::zones::ZoneEditor</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::edit</span>::{<span class="ident">apply_map_edits</span>, <span class="ident">speed_limit_choices</span>};
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RoadEditor</span> {
     <span class="ident">r</span>: <span class="ident">RoadID</span>,
@@ -831,17 +831,17 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">editor</span> <span class="op">=</span> <span class="ident">RoadEditor</span> {
             <span class="ident">r</span>,
             <span class="ident">current_lane</span>: <span class="prelude-val">Some</span>(<span class="ident">l</span>),
-            <span class="ident">top_panel</span>: <span class="ident">Panel</span>::<span class="ident">empty</span>(<span class="ident">ctx</span>),
-            <span class="ident">main_panel</span>: <span class="ident">Panel</span>::<span class="ident">empty</span>(<span class="ident">ctx</span>),
-            <span class="ident">highlight_selection</span>: (<span class="prelude-val">None</span>, <span class="ident">Drawable</span>::<span class="ident">empty</span>(<span class="ident">ctx</span>)),
+            <span class="ident">top_panel</span>: <span class="ident">Panel::empty</span>(<span class="ident">ctx</span>),
+            <span class="ident">main_panel</span>: <span class="ident">Panel::empty</span>(<span class="ident">ctx</span>),
+            <span class="ident">highlight_selection</span>: (<span class="prelude-val">None</span>, <span class="ident">Drawable::empty</span>(<span class="ident">ctx</span>)),
             <span class="ident">hovering_on_lane</span>: <span class="prelude-val">None</span>,
 
             <span class="ident">num_edit_cmds_originally</span>: <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">commands</span>.<span class="ident">len</span>(),
-            <span class="ident">redo_stack</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
+            <span class="ident">redo_stack</span>: <span class="ident">Vec::new</span>(),
             <span class="ident">orig_road_state</span>: <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_r_edit</span>(<span class="ident">r</span>),
         };
         <span class="ident">editor</span>.<span class="ident">recalc_all_panels</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
-        <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">editor</span>)
+        <span class="ident">Box::new</span>(<span class="ident">editor</span>)
     }
 
     <span class="kw">fn</span> <span class="ident">modify_current_lane</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EditRoad</span>, <span class="ident">usize</span>)<span class="op">&gt;</span>(
@@ -859,21 +859,21 @@
         <span class="kw">let</span> <span class="ident">cmd</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">edit_road_cmd</span>(<span class="self">self</span>.<span class="ident">r</span>, <span class="op">|</span><span class="ident">new</span><span class="op">|</span> (<span class="ident">f</span>)(<span class="ident">new</span>, <span class="ident">idx</span>));
 
         <span class="comment">// Special check here -- this invalid state can be reached in many ways.</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">EditCmd</span>::<span class="ident">ChangeRoad</span> { <span class="kw-2">ref</span> <span class="ident">new</span>, .. } <span class="op">=</span> <span class="ident">cmd</span> {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">EditCmd::ChangeRoad</span> { <span class="kw-2">ref</span> <span class="ident">new</span>, .. } <span class="op">=</span> <span class="ident">cmd</span> {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">parking</span> <span class="op">=</span> <span class="number">0</span>;
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">driving</span> <span class="op">=</span> <span class="number">0</span>;
             <span class="kw">for</span> <span class="ident">spec</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">new</span>.<span class="ident">lanes_ltr</span> {
-                <span class="kw">if</span> <span class="ident">spec</span>.<span class="ident">lt</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType</span>::<span class="ident">Parking</span> {
+                <span class="kw">if</span> <span class="ident">spec</span>.<span class="ident">lt</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType::Parking</span> {
                     <span class="ident">parking</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-                } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">spec</span>.<span class="ident">lt</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType</span>::<span class="ident">Driving</span> {
+                } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">spec</span>.<span class="ident">lt</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType::Driving</span> {
                     <span class="ident">driving</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
                 }
             }
             <span class="kw">if</span> <span class="ident">parking</span> <span class="op">&gt;</span> <span class="number">0</span> <span class="op">&amp;&amp;</span> <span class="ident">driving</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
-                <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">PopupMsg</span>::<span class="ident">new_state</span>(
+                <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">PopupMsg::new_state</span>(
                     <span class="ident">ctx</span>,
                     <span class="string">&quot;Error&quot;</span>,
-                    <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;Parking can&#39;t exist without a driving lane to access it.&quot;</span>],
+                    <span class="macro">vec!</span>[<span class="string">&quot;Parking can&#39;t exist without a driving lane to access it.&quot;</span>],
                 ));
             }
         }
@@ -891,7 +891,7 @@
 
         <span class="self">self</span>.<span class="ident">recalc_all_panels</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
 
-        <span class="ident">Transition</span>::<span class="ident">Keep</span>
+        <span class="ident">Transition::Keep</span>
     }
 
     <span class="kw">fn</span> <span class="ident">recalc_all_panels</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
@@ -913,15 +913,15 @@
         <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">commands</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">num_edit_cmds_originally</span> <span class="op">+</span> <span class="number">2</span> {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">clone</span>();
             <span class="kw">let</span> <span class="ident">last_edit</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>() {
-                <span class="ident">EditCmd</span>::<span class="ident">ChangeRoad</span> { <span class="ident">new</span>, .. } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">new</span>,
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+                <span class="ident">EditCmd::ChangeRoad</span> { <span class="ident">new</span>, .. } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">new</span>,
+                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
             };
             <span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">truncate</span>(<span class="self">self</span>.<span class="ident">num_edit_cmds_originally</span> <span class="op">+</span> <span class="number">1</span>);
             <span class="kw">match</span> <span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">last_mut</span>().<span class="ident">unwrap</span>() {
-                <span class="ident">EditCmd</span>::<span class="ident">ChangeRoad</span> { <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">new</span>, .. } <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">EditCmd::ChangeRoad</span> { <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">new</span>, .. } <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw-2">*</span><span class="ident">new</span> <span class="op">=</span> <span class="ident">last_edit</span>;
                 }
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
             }
             <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">edits</span>);
         }
@@ -933,13 +933,13 @@
     <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span> {
         <span class="ident">ctx</span>.<span class="ident">canvas_movement</span>();
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">top_panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">top_panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
             <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
                 <span class="string">&quot;Finish&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">edits</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">compress_edits</span>(<span class="ident">app</span>) {
                         <span class="ident">apply_map_edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">edits</span>);
                     }
-                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Pop</span>;
+                    <span class="kw">return</span> <span class="ident">Transition::Pop</span>;
                 }
                 <span class="string">&quot;Cancel&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">clone</span>();
@@ -947,7 +947,7 @@
                         <span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">truncate</span>(<span class="self">self</span>.<span class="ident">num_edit_cmds_originally</span>);
                         <span class="ident">apply_map_edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">edits</span>);
                     }
-                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Pop</span>;
+                    <span class="kw">return</span> <span class="ident">Transition::Pop</span>;
                 }
                 <span class="string">&quot;undo&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">clone</span>();
@@ -966,8 +966,8 @@
                     <span class="self">self</span>.<span class="ident">recalc_all_panels</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
                 }
                 <span class="string">&quot;Apply to multiple road segments&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(
-                        <span class="kw">crate</span>::<span class="ident">edit</span>::<span class="ident">multiple_roads</span>::<span class="ident">SelectSegments</span>::<span class="ident">new_state</span>(
+                    <span class="kw">return</span> <span class="ident">Transition::Push</span>(
+                        <span class="kw">crate</span><span class="ident">::edit::multiple_roads::SelectSegments::new_state</span>(
                             <span class="ident">ctx</span>,
                             <span class="ident">app</span>,
                             <span class="self">self</span>.<span class="ident">r</span>,
@@ -978,12 +978,12 @@
                         ),
                     );
                 }
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
             }
         }
 
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">main_panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">idx</span>) <span class="op">=</span> <span class="ident">x</span>.<span class="ident">strip_prefix</span>(<span class="string">&quot;modify Lane #&quot;</span>) {
                     <span class="self">self</span>.<span class="ident">current_lane</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">LaneID</span>(<span class="ident">idx</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>()));
                     <span class="self">self</span>.<span class="ident">recalc_all_panels</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
@@ -1004,31 +1004,31 @@
                         <span class="ident">new</span>.<span class="ident">lanes_ltr</span>.<span class="ident">swap</span>(<span class="ident">idx</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>);
                     });
                 } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">lt</span>) <span class="op">=</span> <span class="ident">x</span>.<span class="ident">strip_prefix</span>(<span class="string">&quot;change to &quot;</span>) {
-                    <span class="kw">let</span> <span class="ident">lt</span> <span class="op">=</span> <span class="ident">LaneType</span>::<span class="ident">from_short_name</span>(<span class="ident">lt</span>).<span class="ident">unwrap</span>();
+                    <span class="kw">let</span> <span class="ident">lt</span> <span class="op">=</span> <span class="ident">LaneType::from_short_name</span>(<span class="ident">lt</span>).<span class="ident">unwrap</span>();
                     <span class="kw">return</span> <span class="self">self</span>.<span class="ident">modify_current_lane</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="prelude-val">Some</span>(<span class="number">0</span>), <span class="op">|</span><span class="ident">new</span>, <span class="ident">idx</span><span class="op">|</span> {
                         <span class="ident">new</span>.<span class="ident">lanes_ltr</span>[<span class="ident">idx</span>].<span class="ident">lt</span> <span class="op">=</span> <span class="ident">lt</span>;
                     });
                 } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">lt</span>) <span class="op">=</span> <span class="ident">x</span>.<span class="ident">strip_prefix</span>(<span class="string">&quot;add &quot;</span>) {
-                    <span class="kw">let</span> <span class="ident">lt</span> <span class="op">=</span> <span class="ident">LaneType</span>::<span class="ident">from_short_name</span>(<span class="ident">lt</span>).<span class="ident">unwrap</span>();
+                    <span class="kw">let</span> <span class="ident">lt</span> <span class="op">=</span> <span class="ident">LaneType::from_short_name</span>(<span class="ident">lt</span>).<span class="ident">unwrap</span>();
 
                     <span class="comment">// Special check here</span>
-                    <span class="kw">if</span> <span class="ident">lt</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType</span>::<span class="ident">Parking</span>
+                    <span class="kw">if</span> <span class="ident">lt</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType::Parking</span>
                         <span class="op">&amp;&amp;</span> <span class="ident">app</span>
                             .<span class="ident">primary</span>
                             .<span class="ident">map</span>
                             .<span class="ident">get_r</span>(<span class="self">self</span>.<span class="ident">r</span>)
                             .<span class="ident">lanes_ltr</span>()
                             .<span class="ident">into_iter</span>()
-                            .<span class="ident">all</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">lt</span>)<span class="op">|</span> <span class="ident">lt</span> <span class="op">!</span><span class="op">=</span> <span class="ident">LaneType</span>::<span class="ident">Driving</span>)
+                            .<span class="ident">all</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">lt</span>)<span class="op">|</span> <span class="ident">lt</span> <span class="op">!</span><span class="op">=</span> <span class="ident">LaneType::Driving</span>)
                     {
-                        <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">PopupMsg</span>::<span class="ident">new_state</span>(<span class="ident">ctx</span>, <span class="string">&quot;Error&quot;</span>, <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;Add a driving lane first. Parking can&#39;t exist without a way to access it.&quot;</span>]));
+                        <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">PopupMsg::new_state</span>(<span class="ident">ctx</span>, <span class="string">&quot;Error&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;Add a driving lane first. Parking can&#39;t exist without a way to access it.&quot;</span>]));
                     }
 
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">clone</span>();
                     <span class="kw">let</span> <span class="ident">old</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_r_edit</span>(<span class="self">self</span>.<span class="ident">r</span>);
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">new</span> <span class="op">=</span> <span class="ident">old</span>.<span class="ident">clone</span>();
                     <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="ident">add_new_lane</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">new</span>, <span class="ident">lt</span>);
-                    <span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">push</span>(<span class="ident">EditCmd</span>::<span class="ident">ChangeRoad</span> {
+                    <span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">push</span>(<span class="ident">EditCmd::ChangeRoad</span> {
                         <span class="ident">r</span>: <span class="self">self</span>.<span class="ident">r</span>,
                         <span class="ident">old</span>,
                         <span class="ident">new</span>,
@@ -1036,7 +1036,7 @@
                     <span class="ident">apply_map_edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">edits</span>);
                     <span class="self">self</span>.<span class="ident">redo_stack</span>.<span class="ident">clear</span>();
 
-                    <span class="macro">assert</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">current_lane</span>.<span class="ident">is_none</span>());
+                    <span class="macro">assert!</span>(<span class="self">self</span>.<span class="ident">current_lane</span>.<span class="ident">is_none</span>());
                     <span class="self">self</span>.<span class="ident">current_lane</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="self">self</span>.<span class="ident">r</span>).<span class="ident">lanes_ltr</span>()[<span class="ident">idx</span>].<span class="number">0</span>);
                     <span class="self">self</span>.<span class="ident">recalc_all_panels</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
                 } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;Access restrictions&quot;</span> {
@@ -1046,12 +1046,12 @@
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">edits</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">compress_edits</span>(<span class="ident">app</span>) {
                         <span class="ident">apply_map_edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">edits</span>);
                     }
-                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">ZoneEditor</span>::<span class="ident">new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">r</span>));
+                    <span class="kw">return</span> <span class="ident">Transition::Replace</span>(<span class="ident">ZoneEditor::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">r</span>));
                 } <span class="kw">else</span> {
-                    <span class="macro">unreachable</span><span class="macro">!</span>()
+                    <span class="macro">unreachable!</span>()
                 }
             }
-            <span class="ident">Outcome</span>::<span class="ident">Changed</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
+            <span class="ident">Outcome::Changed</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
                 <span class="string">&quot;speed limit&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">let</span> <span class="ident">speed_limit</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">main_panel</span>.<span class="ident">dropdown_value</span>(<span class="string">&quot;speed limit&quot;</span>);
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">clone</span>();
@@ -1072,7 +1072,7 @@
                         <span class="ident">new</span>.<span class="ident">lanes_ltr</span>[<span class="ident">idx</span>].<span class="ident">width</span> <span class="op">=</span> <span class="ident">width</span>;
                     });
                 }
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
             },
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
         }
@@ -1081,12 +1081,12 @@
         <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_map_space</span>().<span class="ident">is_some</span>() {
             <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">redo_mouseover</span>() {
                 <span class="ident">app</span>.<span class="ident">recalculate_current_selection</span>(<span class="ident">ctx</span>);
-                <span class="kw">if</span> <span class="op">!</span><span class="macro">matches</span><span class="macro">!</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span>, <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">Lane</span>(<span class="kw">_</span>))) {
+                <span class="kw">if</span> <span class="op">!</span><span class="macro">matches!</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span>, <span class="prelude-val">Some</span>(<span class="ident">ID::Lane</span>(<span class="kw">_</span>))) {
                     <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> <span class="op">=</span> <span class="prelude-val">None</span>;
                 }
             }
 
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">Lane</span>(<span class="ident">l</span>)) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ID::Lane</span>(<span class="ident">l</span>)) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> {
                 <span class="self">self</span>.<span class="ident">hovering_on_lane</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">l</span>);
                 <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">normal_left_click</span>() {
                     <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">parent</span> <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">r</span> {
@@ -1098,7 +1098,7 @@
                         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">edits</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">compress_edits</span>(<span class="ident">app</span>) {
                             <span class="ident">apply_map_edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">edits</span>);
                         }
-                        <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">RoadEditor</span>::<span class="ident">new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">l</span>));
+                        <span class="kw">return</span> <span class="ident">Transition::Replace</span>(<span class="ident">RoadEditor::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">l</span>));
                     }
                 }
             } <span class="kw">else</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">current_lane</span>.<span class="ident">is_some</span>() <span class="op">&amp;&amp;</span> <span class="ident">ctx</span>.<span class="ident">normal_left_click</span>() {
@@ -1128,7 +1128,7 @@
             <span class="self">self</span>.<span class="ident">recalc_all_panels</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
         }
 
-        <span class="ident">Transition</span>::<span class="ident">Keep</span>
+        <span class="ident">Transition::Keep</span>
     }
 
     <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
@@ -1146,45 +1146,45 @@
     <span class="ident">r</span>: <span class="ident">RoadID</span>,
     <span class="ident">orig_road_state</span>: <span class="ident">EditRoad</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Panel</span> {
-    <span class="ident">Panel</span>::<span class="ident">new_builder</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
-        <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+    <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
+        <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
             <span class="ident">Line</span>(<span class="string">&quot;Editing road&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
             <span class="ident">ctx</span>.<span class="ident">style</span>()
                 .<span class="ident">btn_plain</span>
                 .<span class="ident">text</span>(<span class="string">&quot;+ Apply to multiple&quot;</span>)
-                .<span class="ident">label_color</span>(<span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#4CA7E9&quot;</span>), <span class="ident">ControlState</span>::<span class="ident">Default</span>)
-                .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">M</span>)
+                .<span class="ident">label_color</span>(<span class="ident">Color::hex</span>(<span class="string">&quot;#4CA7E9&quot;</span>), <span class="ident">ControlState::Default</span>)
+                .<span class="ident">hotkey</span>(<span class="ident">Key::M</span>)
                 .<span class="ident">disabled</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_r_edit</span>(<span class="ident">r</span>) <span class="op">=</span><span class="op">=</span> <span class="ident">orig_road_state</span>)
                 .<span class="ident">disabled_tooltip</span>(<span class="string">&quot;You have to edit one road segment first, then you can apply the changes to more segments.&quot;</span>)
                 .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;Apply to multiple road segments&quot;</span>),
         ]),
-        <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+        <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
             <span class="ident">ctx</span>.<span class="ident">style</span>()
                 .<span class="ident">btn_solid_primary</span>
                 .<span class="ident">text</span>(<span class="string">&quot;Finish&quot;</span>)
-                .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Enter</span>)
+                .<span class="ident">hotkey</span>(<span class="ident">Key::Enter</span>)
                 .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
             <span class="ident">ctx</span>.<span class="ident">style</span>()
                 .<span class="ident">btn_plain</span>
                 .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/undo.svg&quot;</span>)
                 .<span class="ident">disabled</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">commands</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">num_edit_cmds_originally</span>)
-                .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">Z</span>))
+                .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key::Z</span>))
                 .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;undo&quot;</span>),
             <span class="ident">ctx</span>.<span class="ident">style</span>()
                 .<span class="ident">btn_plain</span>
                 .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/redo.svg&quot;</span>)
                 .<span class="ident">disabled</span>(<span class="ident">no_redo_cmds</span>)
                 <span class="comment">// TODO ctrl+shift+Z!</span>
-                .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">Y</span>))
+                .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key::Y</span>))
                 .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;redo&quot;</span>),
             <span class="ident">ctx</span>.<span class="ident">style</span>()
                 .<span class="ident">btn_plain</span>
                 .<span class="ident">text</span>(<span class="string">&quot;Cancel&quot;</span>)
-                .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Escape</span>)
+                .<span class="ident">hotkey</span>(<span class="ident">Key::Escape</span>)
                 .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
         ]),
     ]))
-    .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment</span>::<span class="ident">Center</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Top</span>)
+    .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::Center</span>, <span class="ident">VerticalAlignment::Top</span>)
     .<span class="ident">build</span>(<span class="ident">ctx</span>)
 }
 
@@ -1196,7 +1196,7 @@
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Panel</span> {
     <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>;
     <span class="kw">let</span> <span class="ident">hovering_lane</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> {
-        <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">Lane</span>(<span class="ident">l</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">l</span>),
+        <span class="prelude-val">Some</span>(<span class="ident">ID::Lane</span>(<span class="ident">l</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">l</span>),
         <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
     };
 
@@ -1204,45 +1204,45 @@
         <span class="kw">let</span> <span class="ident">lane</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>);
         <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="ident">road</span>.<span class="ident">offset</span>(<span class="ident">l</span>);
 
-        <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+        <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
             <span class="ident">ctx</span>.<span class="ident">style</span>()
                 .<span class="ident">btn_solid_destructive</span>
                 .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/trash.svg&quot;</span>)
                 .<span class="ident">disabled</span>(<span class="ident">road</span>.<span class="ident">lanes_ltr</span>().<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="number">1</span>)
-                .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Backspace</span>)
+                .<span class="ident">hotkey</span>(<span class="ident">Key::Backspace</span>)
                 .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;delete lane&quot;</span>),
             <span class="ident">ctx</span>.<span class="ident">style</span>()
                 .<span class="ident">btn_plain</span>
                 .<span class="ident">text</span>(<span class="string">&quot;flip direction&quot;</span>)
                 .<span class="ident">disabled</span>(<span class="op">!</span><span class="ident">can_reverse</span>(<span class="ident">lane</span>.<span class="ident">lane_type</span>))
-                .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">F</span>)
+                .<span class="ident">hotkey</span>(<span class="ident">Key::F</span>)
                 .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
             <span class="ident">Line</span>(<span class="string">&quot;Width&quot;</span>).<span class="ident">secondary</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
-            <span class="ident">Widget</span>::<span class="ident">dropdown</span>(<span class="ident">ctx</span>, <span class="string">&quot;width&quot;</span>, <span class="ident">lane</span>.<span class="ident">width</span>, <span class="ident">width_choices</span>(<span class="ident">app</span>, <span class="ident">l</span>)),
+            <span class="ident">Widget::dropdown</span>(<span class="ident">ctx</span>, <span class="string">&quot;width&quot;</span>, <span class="ident">lane</span>.<span class="ident">width</span>, <span class="ident">width_choices</span>(<span class="ident">app</span>, <span class="ident">l</span>)),
             <span class="ident">ctx</span>.<span class="ident">style</span>()
                 .<span class="ident">btn_prev</span>()
                 .<span class="ident">disabled</span>(<span class="ident">idx</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span>)
-                .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">LeftArrow</span>)
+                .<span class="ident">hotkey</span>(<span class="ident">Key::LeftArrow</span>)
                 .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;move lane left&quot;</span>),
             <span class="ident">ctx</span>.<span class="ident">style</span>()
                 .<span class="ident">btn_next</span>()
                 .<span class="ident">disabled</span>(<span class="ident">idx</span> <span class="op">=</span><span class="op">=</span> <span class="ident">road</span>.<span class="ident">lanes_ltr</span>().<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>)
-                .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">RightArrow</span>)
+                .<span class="ident">hotkey</span>(<span class="ident">Key::RightArrow</span>)
                 .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;move lane right&quot;</span>),
         ])
     } <span class="kw">else</span> {
-        <span class="ident">Widget</span>::<span class="ident">nothing</span>()
+        <span class="ident">Widget::nothing</span>()
     };
     <span class="kw">let</span> <span class="ident">current_lt</span> <span class="op">=</span> <span class="ident">current_lane</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">lane_type</span>);
 
     <span class="kw">let</span> <span class="ident">current_lts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LaneType</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">road</span>.<span class="ident">lanes_ltr</span>().<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">lt</span>)<span class="op">|</span> <span class="ident">lt</span>).<span class="ident">collect</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">available_lane_types_row</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
-        (<span class="ident">LaneType</span>::<span class="ident">Driving</span>, <span class="ident">Key</span>::<span class="ident">D</span>),
-        (<span class="ident">LaneType</span>::<span class="ident">Biking</span>, <span class="ident">Key</span>::<span class="ident">B</span>),
-        (<span class="ident">LaneType</span>::<span class="ident">Bus</span>, <span class="ident">Key</span>::<span class="ident">T</span>),
-        (<span class="ident">LaneType</span>::<span class="ident">Parking</span>, <span class="ident">Key</span>::<span class="ident">P</span>),
-        (<span class="ident">LaneType</span>::<span class="ident">Construction</span>, <span class="ident">Key</span>::<span class="ident">C</span>),
-        (<span class="ident">LaneType</span>::<span class="ident">Sidewalk</span>, <span class="ident">Key</span>::<span class="ident">S</span>),
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">available_lane_types_row</span> <span class="op">=</span> <span class="macro">vec!</span>[
+        (<span class="ident">LaneType::Driving</span>, <span class="ident">Key::D</span>),
+        (<span class="ident">LaneType::Biking</span>, <span class="ident">Key::B</span>),
+        (<span class="ident">LaneType::Bus</span>, <span class="ident">Key::T</span>),
+        (<span class="ident">LaneType::Parking</span>, <span class="ident">Key::P</span>),
+        (<span class="ident">LaneType::Construction</span>, <span class="ident">Key::C</span>),
+        (<span class="ident">LaneType::Sidewalk</span>, <span class="ident">Key::S</span>),
     ]
     .<span class="ident">into_iter</span>()
     .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">lt</span>, <span class="ident">key</span>)<span class="op">|</span> {
@@ -1259,10 +1259,10 @@
             <span class="comment">// If the selected lane is already this type, we can&#39;t change it. Hopefully no need to</span>
             <span class="comment">// explain this.</span>
             <span class="ident">btn</span> <span class="op">=</span> <span class="ident">btn</span>.<span class="ident">disabled</span>(<span class="bool-val">true</span>);
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">lt</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType</span>::<span class="ident">Parking</span>
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">lt</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType::Parking</span>
             <span class="op">&amp;&amp;</span> <span class="ident">current_lts</span>
                 .<span class="ident">iter</span>()
-                .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType</span>::<span class="ident">Parking</span>)
+                .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType::Parking</span>)
                 .<span class="ident">count</span>()
                 <span class="op">=</span><span class="op">=</span> <span class="number">2</span>
         {
@@ -1274,7 +1274,7 @@
             <span class="ident">btn</span> <span class="op">=</span> <span class="ident">btn</span>
                 .<span class="ident">disabled</span>(<span class="bool-val">true</span>)
                 .<span class="ident">disabled_tooltip</span>(<span class="string">&quot;This road already has two parking lanes&quot;</span>);
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">lt</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType</span>::<span class="ident">Sidewalk</span>
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">lt</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType::Sidewalk</span>
             <span class="op">&amp;&amp;</span> <span class="ident">current_lts</span>.<span class="ident">iter</span>().<span class="ident">filter</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">is_walkable</span>()).<span class="ident">count</span>() <span class="op">=</span><span class="op">=</span> <span class="number">2</span>
         {
             <span class="comment">// Max 2 sidewalks or shoulders per road.</span>
@@ -1288,7 +1288,7 @@
 
         <span class="ident">btn</span>.<span class="ident">build_widget</span>(
             <span class="ident">ctx</span>,
-            <span class="macro">format</span><span class="macro">!</span>(
+            <span class="macro">format!</span>(
                 <span class="string">&quot;{} {}&quot;</span>,
                 <span class="kw">if</span> <span class="ident">current_lane</span>.<span class="ident">is_some</span>() {
                     <span class="string">&quot;change to&quot;</span>
@@ -1310,15 +1310,15 @@
         .<span class="ident">text_widget</span>(<span class="ident">ctx</span>)
         .<span class="ident">centered_vert</span>(),
     );
-    <span class="kw">let</span> <span class="ident">available_lane_types_row</span> <span class="op">=</span> <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="ident">available_lane_types_row</span>);
+    <span class="kw">let</span> <span class="ident">available_lane_types_row</span> <span class="op">=</span> <span class="ident">Widget::row</span>(<span class="ident">available_lane_types_row</span>);
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">current_lanes_ltr</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">current_lanes_ltr</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
 
     <span class="kw">let</span> <span class="ident">lanes_ltr</span> <span class="op">=</span> <span class="ident">road</span>.<span class="ident">lanes_ltr</span>();
     <span class="kw">let</span> <span class="ident">lanes_len</span> <span class="op">=</span> <span class="ident">lanes_ltr</span>.<span class="ident">len</span>();
     <span class="kw">for</span> (<span class="ident">idx</span>, (<span class="ident">id</span>, <span class="ident">dir</span>, <span class="ident">lt</span>)) <span class="kw">in</span> <span class="ident">lanes_ltr</span>.<span class="ident">into_iter</span>().<span class="ident">enumerate</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stack</span> <span class="op">=</span> <span class="ident">GeomBatchStack</span>::<span class="ident">vertical</span>(<span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">Image</span>::<span class="ident">from_path</span>(<span class="ident">lane_type_to_icon</span>(<span class="ident">lt</span>).<span class="ident">unwrap</span>())
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stack</span> <span class="op">=</span> <span class="ident">GeomBatchStack::vertical</span>(<span class="macro">vec!</span>[
+            <span class="ident">Image::from_path</span>(<span class="ident">lane_type_to_icon</span>(<span class="ident">lt</span>).<span class="ident">unwrap</span>())
                 .<span class="ident">build_batch</span>(<span class="ident">ctx</span>)
                 .<span class="ident">unwrap</span>()
                 .<span class="number">0</span>,
@@ -1327,7 +1327,7 @@
 
         <span class="kw">if</span> <span class="ident">can_reverse</span>(<span class="ident">lt</span>) {
             <span class="ident">stack</span>.<span class="ident">push</span>(
-                <span class="ident">Image</span>::<span class="ident">from_path</span>(<span class="kw">if</span> <span class="ident">dir</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Direction</span>::<span class="ident">Fwd</span> {
+                <span class="ident">Image::from_path</span>(<span class="kw">if</span> <span class="ident">dir</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Direction::Fwd</span> {
                     <span class="string">&quot;system/assets/edit/forwards.svg&quot;</span>
                 } <span class="kw">else</span> {
                     <span class="string">&quot;system/assets/edit/backwards.svg&quot;</span>
@@ -1340,7 +1340,7 @@
         <span class="kw">let</span> <span class="ident">stack_batch</span> <span class="op">=</span> <span class="ident">stack</span>.<span class="ident">batch</span>();
         <span class="kw">let</span> <span class="ident">stack_bounds</span> <span class="op">=</span> <span class="ident">stack_batch</span>.<span class="ident">get_bounds</span>();
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rounding</span> <span class="op">=</span> <span class="ident">CornerRadii</span>::<span class="ident">zero</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rounding</span> <span class="op">=</span> <span class="ident">CornerRadii::zero</span>();
         <span class="kw">if</span> <span class="ident">idx</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
             <span class="ident">rounding</span>.<span class="ident">top_left</span> <span class="op">=</span> <span class="ident">DEFAULT_CORNER_RADIUS</span>;
             <span class="ident">rounding</span>.<span class="ident">bottom_left</span> <span class="op">=</span> <span class="ident">DEFAULT_CORNER_RADIUS</span>;
@@ -1362,27 +1362,27 @@
                     } <span class="kw">else</span> {
                         <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">section_bg</span>
                     },
-                    <span class="ident">ControlState</span>::<span class="ident">Default</span>,
+                    <span class="ident">ControlState::Default</span>,
                 )
-                .<span class="ident">bg_color</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">section_bg</span>.<span class="ident">shade</span>(<span class="number">0.1</span>), <span class="ident">ControlState</span>::<span class="ident">Hovered</span>)
-                .<span class="ident">bg_color</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_solid_primary</span>.<span class="ident">bg</span>, <span class="ident">ControlState</span>::<span class="ident">Disabled</span>)
-                .<span class="ident">image_color</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_plain</span>.<span class="ident">fg</span>, <span class="ident">ControlState</span>::<span class="ident">Disabled</span>)
+                .<span class="ident">bg_color</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">section_bg</span>.<span class="ident">shade</span>(<span class="number">0.1</span>), <span class="ident">ControlState::Hovered</span>)
+                .<span class="ident">bg_color</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_solid_primary</span>.<span class="ident">bg</span>, <span class="ident">ControlState::Disabled</span>)
+                .<span class="ident">image_color</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_plain</span>.<span class="ident">fg</span>, <span class="ident">ControlState::Disabled</span>)
                 .<span class="ident">image_dims</span>(<span class="number">60.0</span>)
                 .<span class="ident">padding_top</span>(<span class="number">32.0</span>)
                 .<span class="ident">padding_bottom</span>(<span class="number">32.0</span>)
                 .<span class="ident">corner_rounding</span>(<span class="ident">rounding</span>)
-                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;modify {}&quot;</span>, <span class="ident">id</span>)),
+                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="macro">format!</span>(<span class="string">&quot;modify {}&quot;</span>, <span class="ident">id</span>)),
         );
     }
 
     <span class="comment">// Wrap this row in an extra container, so that the background color doesn&#39;t stretch over and</span>
     <span class="comment">// fill any extra space on the right side.</span>
-    <span class="kw">let</span> <span class="ident">current_lanes_ltr</span> <span class="op">=</span> <span class="ident">Widget</span>::<span class="ident">evenly_spaced_row</span>(<span class="number">2</span>, <span class="ident">current_lanes_ltr</span>)
-        .<span class="ident">bg</span>(<span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#979797&quot;</span>))
+    <span class="kw">let</span> <span class="ident">current_lanes_ltr</span> <span class="op">=</span> <span class="ident">Widget::evenly_spaced_row</span>(<span class="number">2</span>, <span class="ident">current_lanes_ltr</span>)
+        .<span class="ident">bg</span>(<span class="ident">Color::hex</span>(<span class="string">&quot;#979797&quot;</span>))
         .<span class="ident">container</span>();
 
-    <span class="kw">let</span> <span class="ident">road_settings</span> <span class="op">=</span> <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-        <span class="ident">Text</span>::<span class="ident">from_all</span>(<span class="macro">vec</span><span class="macro">!</span>[
+    <span class="kw">let</span> <span class="ident">road_settings</span> <span class="op">=</span> <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
+        <span class="ident">Text::from_all</span>(<span class="macro">vec!</span>[
             <span class="ident">Line</span>(<span class="string">&quot;Total width &quot;</span>).<span class="ident">secondary</span>(),
             <span class="ident">Line</span>(<span class="ident">road</span>.<span class="ident">get_width</span>(<span class="ident">map</span>).<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">units</span>)),
         ])
@@ -1392,7 +1392,7 @@
             .<span class="ident">secondary</span>()
             .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
             .<span class="ident">centered_vert</span>(),
-        <span class="ident">Widget</span>::<span class="ident">dropdown</span>(
+        <span class="ident">Widget::dropdown</span>(
             <span class="ident">ctx</span>,
             <span class="string">&quot;speed limit&quot;</span>,
             <span class="ident">road</span>.<span class="ident">speed_limit</span>,
@@ -1404,13 +1404,13 @@
             .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
     ]);
 
-    <span class="ident">Panel</span>::<span class="ident">new_builder</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
+    <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
         <span class="ident">modify_lane</span>,
         <span class="ident">available_lane_types_row</span>,
         <span class="ident">current_lanes_ltr</span>,
         <span class="ident">road_settings</span>,
     ]))
-    .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment</span>::<span class="ident">Left</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Center</span>)
+    .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::Left</span>, <span class="ident">VerticalAlignment::Center</span>)
     .<span class="ident">build</span>(<span class="ident">ctx</span>)
 }
 
@@ -1420,8 +1420,8 @@
     <span class="ident">r</span>: <span class="ident">RoadID</span>,
     <span class="ident">l</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">LaneID</span><span class="op">&gt;</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> (<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">LaneID</span><span class="op">&gt;</span>, <span class="ident">Drawable</span>) {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
-    <span class="kw">let</span> <span class="ident">color</span> <span class="op">=</span> <span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#DF8C3D&quot;</span>);
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
+    <span class="kw">let</span> <span class="ident">color</span> <span class="op">=</span> <span class="ident">Color::hex</span>(<span class="string">&quot;#DF8C3D&quot;</span>);
     <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>;
 
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">l</span>) <span class="op">=</span> <span class="ident">l</span> {
@@ -1440,29 +1440,29 @@
 
 <span class="kw">fn</span> <span class="ident">lane_type_to_icon</span>(<span class="ident">lt</span>: <span class="ident">LaneType</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span> {
     <span class="kw">match</span> <span class="ident">lt</span> {
-        <span class="ident">LaneType</span>::<span class="ident">Driving</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/edit/driving.svg&quot;</span>),
-        <span class="ident">LaneType</span>::<span class="ident">Parking</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/edit/parking.svg&quot;</span>),
-        <span class="ident">LaneType</span>::<span class="ident">Sidewalk</span> <span class="op">|</span> <span class="ident">LaneType</span>::<span class="ident">Shoulder</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/edit/sidewalk.svg&quot;</span>),
-        <span class="ident">LaneType</span>::<span class="ident">Biking</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/edit/bike.svg&quot;</span>),
-        <span class="ident">LaneType</span>::<span class="ident">Bus</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/edit/bus.svg&quot;</span>),
-        <span class="ident">LaneType</span>::<span class="ident">SharedLeftTurn</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/map/shared_left_turn.svg&quot;</span>),
-        <span class="ident">LaneType</span>::<span class="ident">Construction</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/edit/construction.svg&quot;</span>),
+        <span class="ident">LaneType::Driving</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/edit/driving.svg&quot;</span>),
+        <span class="ident">LaneType::Parking</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/edit/parking.svg&quot;</span>),
+        <span class="ident">LaneType::Sidewalk</span> <span class="op">|</span> <span class="ident">LaneType::Shoulder</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/edit/sidewalk.svg&quot;</span>),
+        <span class="ident">LaneType::Biking</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/edit/bike.svg&quot;</span>),
+        <span class="ident">LaneType::Bus</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/edit/bus.svg&quot;</span>),
+        <span class="ident">LaneType::SharedLeftTurn</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/map/shared_left_turn.svg&quot;</span>),
+        <span class="ident">LaneType::Construction</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/edit/construction.svg&quot;</span>),
         <span class="comment">// Don&#39;t allow creating these yet</span>
-        <span class="ident">LaneType</span>::<span class="ident">LightRail</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
+        <span class="ident">LaneType::LightRail</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
     }
 }
 
 <span class="kw">fn</span> <span class="ident">width_choices</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">l</span>: <span class="ident">LaneID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Choice</span><span class="op">&lt;</span><span class="ident">Distance</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">lane</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>);
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">choices</span> <span class="op">=</span>
-        <span class="ident">LaneSpec</span>::<span class="ident">typical_lane_widths</span>(<span class="ident">lane</span>.<span class="ident">lane_type</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">lane</span>.<span class="ident">parent</span>).<span class="ident">osm_tags</span>);
+        <span class="ident">LaneSpec::typical_lane_widths</span>(<span class="ident">lane</span>.<span class="ident">lane_type</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">lane</span>.<span class="ident">parent</span>).<span class="ident">osm_tags</span>);
     <span class="kw">if</span> <span class="op">!</span><span class="ident">choices</span>.<span class="ident">iter</span>().<span class="ident">any</span>(<span class="op">|</span>(<span class="ident">x</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="kw-2">*</span><span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="ident">lane</span>.<span class="ident">width</span>) {
         <span class="ident">choices</span>.<span class="ident">push</span>((<span class="ident">lane</span>.<span class="ident">width</span>, <span class="string">&quot;custom&quot;</span>));
     }
     <span class="ident">choices</span>.<span class="ident">sort</span>();
     <span class="ident">choices</span>
         .<span class="ident">into_iter</span>()
-        .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">x</span>, <span class="ident">label</span>)<span class="op">|</span> <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} - {}&quot;</span>, <span class="ident">x</span>.<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">units</span>), <span class="ident">label</span>), <span class="ident">x</span>))
+        .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">x</span>, <span class="ident">label</span>)<span class="op">|</span> <span class="ident">Choice::new</span>(<span class="macro">format!</span>(<span class="string">&quot;{} - {}&quot;</span>, <span class="ident">x</span>.<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">units</span>), <span class="ident">label</span>), <span class="ident">x</span>))
         .<span class="ident">collect</span>()
 }
 
@@ -1497,37 +1497,37 @@
     <span class="kw">if</span> (<span class="ident">road</span>
         .<span class="ident">lanes_ltr</span>
         .<span class="ident">iter</span>()
-        .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">dir</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Direction</span>::<span class="ident">Fwd</span> <span class="op">&amp;&amp;</span> <span class="ident">x</span>.<span class="ident">lt</span> <span class="op">=</span><span class="op">=</span> <span class="ident">lt</span>)
+        .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">dir</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Direction::Fwd</span> <span class="op">&amp;&amp;</span> <span class="ident">x</span>.<span class="ident">lt</span> <span class="op">=</span><span class="op">=</span> <span class="ident">lt</span>)
         .<span class="ident">count</span>() <span class="kw">as</span> <span class="ident">f64</span>
         <span class="op">/</span> <span class="ident">road</span>.<span class="ident">lanes_ltr</span>.<span class="ident">iter</span>().<span class="ident">filter</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">lt</span> <span class="op">=</span><span class="op">=</span> <span class="ident">lt</span>).<span class="ident">count</span>() <span class="kw">as</span> <span class="ident">f64</span>)
         <span class="op">&lt;</span><span class="op">=</span> <span class="number">0.5</span>
     {
         <span class="kw">if</span> <span class="ident">minority</span> {
-            <span class="ident">Direction</span>::<span class="ident">Fwd</span>
+            <span class="ident">Direction::Fwd</span>
         } <span class="kw">else</span> {
-            <span class="ident">Direction</span>::<span class="ident">Back</span>
+            <span class="ident">Direction::Back</span>
         }
     } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">minority</span> {
-        <span class="ident">Direction</span>::<span class="ident">Back</span>
+        <span class="ident">Direction::Back</span>
     } <span class="kw">else</span> {
-        <span class="ident">Direction</span>::<span class="ident">Fwd</span>
+        <span class="ident">Direction::Fwd</span>
     }
 }
 
 <span class="comment">// Returns the index where the new lane was inserted</span>
 <span class="kw">fn</span> <span class="ident">add_new_lane</span>(<span class="ident">road</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EditRoad</span>, <span class="ident">lt</span>: <span class="ident">LaneType</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
     <span class="kw">let</span> <span class="ident">dir</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">lt</span> {
-        <span class="ident">LaneType</span>::<span class="ident">Driving</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">determine_lane_dir</span>(<span class="ident">road</span>, <span class="ident">lt</span>, <span class="bool-val">true</span>),
-        <span class="ident">LaneType</span>::<span class="ident">Biking</span> <span class="op">|</span> <span class="ident">LaneType</span>::<span class="ident">Bus</span> <span class="op">|</span> <span class="ident">LaneType</span>::<span class="ident">Parking</span> <span class="op">|</span> <span class="ident">LaneType</span>::<span class="ident">Construction</span> <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="ident">LaneType::Driving</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">determine_lane_dir</span>(<span class="ident">road</span>, <span class="ident">lt</span>, <span class="bool-val">true</span>),
+        <span class="ident">LaneType::Biking</span> <span class="op">|</span> <span class="ident">LaneType::Bus</span> <span class="op">|</span> <span class="ident">LaneType::Parking</span> <span class="op">|</span> <span class="ident">LaneType::Construction</span> <span class="op">=</span><span class="op">&gt;</span> {
             <span class="kw">let</span> <span class="ident">relevant_lanes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">LaneSpec</span><span class="op">&gt;</span> <span class="op">=</span>
                 <span class="ident">road</span>.<span class="ident">lanes_ltr</span>.<span class="ident">iter</span>().<span class="ident">filter</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">lt</span> <span class="op">=</span><span class="op">=</span> <span class="ident">lt</span>).<span class="ident">collect</span>();
             <span class="kw">if</span> <span class="op">!</span><span class="ident">relevant_lanes</span>.<span class="ident">is_empty</span>() {
                 <span class="comment">// When a lane already exists then default to the direction on the other side of the</span>
                 <span class="comment">// road</span>
-                <span class="kw">if</span> <span class="ident">relevant_lanes</span>[<span class="number">0</span>].<span class="ident">dir</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Direction</span>::<span class="ident">Fwd</span> {
-                    <span class="ident">Direction</span>::<span class="ident">Back</span>
+                <span class="kw">if</span> <span class="ident">relevant_lanes</span>[<span class="number">0</span>].<span class="ident">dir</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Direction::Fwd</span> {
+                    <span class="ident">Direction::Back</span>
                 } <span class="kw">else</span> {
-                    <span class="ident">Direction</span>::<span class="ident">Fwd</span>
+                    <span class="ident">Direction::Fwd</span>
                 }
             } <span class="kw">else</span> {
                 <span class="comment">// If no lanes exist then default to the majority direction to help deal with one</span>
@@ -1535,37 +1535,37 @@
                 <span class="ident">determine_lane_dir</span>(<span class="ident">road</span>, <span class="ident">lt</span>, <span class="bool-val">false</span>)
             }
         }
-        <span class="ident">LaneType</span>::<span class="ident">Sidewalk</span> <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="ident">LaneType::Sidewalk</span> <span class="op">=</span><span class="op">&gt;</span> {
             <span class="kw">if</span> <span class="op">!</span><span class="ident">road</span>.<span class="ident">lanes_ltr</span>[<span class="number">0</span>].<span class="ident">lt</span>.<span class="ident">is_walkable</span>() {
                 <span class="ident">road</span>.<span class="ident">lanes_ltr</span>[<span class="number">0</span>].<span class="ident">dir</span>
             } <span class="kw">else</span> {
                 <span class="ident">road</span>.<span class="ident">lanes_ltr</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>().<span class="ident">dir</span>
             }
         }
-        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
     };
 
     <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">lt</span> {
         <span class="comment">// In the middle (where the direction changes)</span>
-        <span class="ident">LaneType</span>::<span class="ident">Driving</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">road</span>
+        <span class="ident">LaneType::Driving</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">road</span>
             .<span class="ident">lanes_ltr</span>
             .<span class="ident">windows</span>(<span class="number">2</span>)
             .<span class="ident">position</span>(<span class="op">|</span><span class="ident">pair</span><span class="op">|</span> <span class="ident">pair</span>[<span class="number">0</span>].<span class="ident">dir</span> <span class="op">!</span><span class="op">=</span> <span class="ident">pair</span>[<span class="number">1</span>].<span class="ident">dir</span>)
             .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span> <span class="op">+</span> <span class="number">1</span>)
             .<span class="ident">unwrap_or</span>(<span class="ident">road</span>.<span class="ident">lanes_ltr</span>.<span class="ident">len</span>()),
         <span class="comment">// Place on the dir side, before any sidewalk</span>
-        <span class="ident">LaneType</span>::<span class="ident">Biking</span> <span class="op">|</span> <span class="ident">LaneType</span>::<span class="ident">Bus</span> <span class="op">|</span> <span class="ident">LaneType</span>::<span class="ident">Parking</span> <span class="op">|</span> <span class="ident">LaneType</span>::<span class="ident">Construction</span> <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="ident">LaneType::Biking</span> <span class="op">|</span> <span class="ident">LaneType::Bus</span> <span class="op">|</span> <span class="ident">LaneType::Parking</span> <span class="op">|</span> <span class="ident">LaneType::Construction</span> <span class="op">=</span><span class="op">&gt;</span> {
             <span class="ident">default_outside_lane_placement</span>(<span class="ident">road</span>, <span class="ident">dir</span>)
         }
         <span class="comment">// Place it where it&#39;s missing</span>
-        <span class="ident">LaneType</span>::<span class="ident">Sidewalk</span> <span class="op">=</span><span class="op">&gt;</span> {
+        <span class="ident">LaneType::Sidewalk</span> <span class="op">=</span><span class="op">&gt;</span> {
             <span class="kw">if</span> <span class="op">!</span><span class="ident">road</span>.<span class="ident">lanes_ltr</span>[<span class="number">0</span>].<span class="ident">lt</span>.<span class="ident">is_walkable</span>() {
                 <span class="number">0</span>
             } <span class="kw">else</span> {
                 <span class="ident">road</span>.<span class="ident">lanes_ltr</span>.<span class="ident">len</span>()
             }
         }
-        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
     };
 
     <span class="ident">road</span>.<span class="ident">lanes_ltr</span>.<span class="ident">insert</span>(
@@ -1579,5 +1579,5 @@
     <span class="ident">idx</span>
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="game" data-search-js="../../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="game" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
     <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script></body></html>

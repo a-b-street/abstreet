@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../widgetry/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../widgetry/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -259,56 +259,56 @@
 <span class="doccomment">//! * [`TextBox`] - single line text entry</span>
 
 <span class="comment">//#![warn(missing_docs)]</span>
-<span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">too_many_arguments</span>, <span class="ident">clippy</span>::<span class="ident">type_complexity</span>)]</span>
-<span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">new_without_default</span>)]</span>
+<span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::too_many_arguments</span>, <span class="ident">clippy::type_complexity</span>)]</span>
+<span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::new_without_default</span>)]</span>
 
 <span class="attribute">#[<span class="ident">macro_use</span>]</span>
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">anyhow</span>;
 <span class="attribute">#[<span class="ident">macro_use</span>]</span>
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">log</span>;
 
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app_state</span>::{<span class="ident">DrawBaselayer</span>, <span class="ident">SharedAppState</span>, <span class="ident">SimpleState</span>, <span class="ident">State</span>, <span class="ident">Transition</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">backend</span>::<span class="ident">Drawable</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">canvas</span>::{<span class="ident">Canvas</span>, <span class="ident">CanvasSettings</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">VerticalAlignment</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">color</span>::{<span class="ident">Color</span>, <span class="ident">Fill</span>, <span class="ident">LinearGradient</span>, <span class="ident">Texture</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">drawing</span>::{<span class="ident">GfxCtx</span>, <span class="ident">Prerender</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">event</span>::{<span class="ident">hotkeys</span>, <span class="ident">lctrl</span>, <span class="ident">Event</span>, <span class="ident">Key</span>, <span class="ident">MultiKey</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">event_ctx</span>::{<span class="ident">EventCtx</span>, <span class="ident">UpdateType</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">geom</span>::<span class="ident">geom_batch_stack</span>::{
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::app_state</span>::{<span class="ident">DrawBaselayer</span>, <span class="ident">SharedAppState</span>, <span class="ident">SimpleState</span>, <span class="ident">State</span>, <span class="ident">Transition</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::backend::Drawable</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::canvas</span>::{<span class="ident">Canvas</span>, <span class="ident">CanvasSettings</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">VerticalAlignment</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::color</span>::{<span class="ident">Color</span>, <span class="ident">Fill</span>, <span class="ident">LinearGradient</span>, <span class="ident">Texture</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::drawing</span>::{<span class="ident">GfxCtx</span>, <span class="ident">Prerender</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::event</span>::{<span class="ident">hotkeys</span>, <span class="ident">lctrl</span>, <span class="ident">Event</span>, <span class="ident">Key</span>, <span class="ident">MultiKey</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::event_ctx</span>::{<span class="ident">EventCtx</span>, <span class="ident">UpdateType</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::geom::geom_batch_stack</span>::{
     <span class="ident">Alignment</span> <span class="kw">as</span> <span class="ident">StackAlignment</span>, <span class="ident">Axis</span> <span class="kw">as</span> <span class="ident">StackAxis</span>, <span class="ident">GeomBatchStack</span>,
 };
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">geom</span>::{<span class="ident">GeomBatch</span>, <span class="ident">RewriteColor</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">input</span>::<span class="ident">UserInput</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">runner</span>::{<span class="ident">run</span>, <span class="ident">Settings</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">screen_geom</span>::{<span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>, <span class="ident">ScreenRectangle</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">style</span>::{<span class="ident">ButtonStyle</span>, <span class="ident">OutlineStyle</span>, <span class="ident">Style</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">text</span>::{<span class="ident">Font</span>, <span class="ident">Line</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">TextSpan</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">tools</span>::<span class="ident">warper</span>::<span class="ident">Warper</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">tools</span>::<span class="ident">Cached</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::<span class="ident">autocomplete</span>::<span class="ident">Autocomplete</span>;
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::<span class="ident">button</span>::<span class="ident">Button</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::<span class="ident">button</span>::{<span class="ident">ButtonBuilder</span>, <span class="ident">MultiButton</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::<span class="ident">compare_times</span>::<span class="ident">CompareTimes</span>;
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::<span class="ident">dropdown</span>::<span class="ident">Dropdown</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::<span class="ident">fan_chart</span>::<span class="ident">FanChart</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::<span class="ident">filler</span>::<span class="ident">Filler</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::<span class="ident">image</span>::{<span class="ident">Image</span>, <span class="ident">ImageSource</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::<span class="ident">just_draw</span>::<span class="ident">DrawWithTooltips</span>;
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::<span class="ident">just_draw</span>::{<span class="ident">DeferDraw</span>, <span class="ident">JustDraw</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::<span class="ident">line_plot</span>::<span class="ident">LinePlot</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::<span class="ident">menu</span>::<span class="ident">Menu</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::<span class="ident">persistent_split</span>::<span class="ident">PersistentSplit</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::<span class="ident">plots</span>::{<span class="ident">PlotOptions</span>, <span class="ident">Series</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::<span class="ident">scatter_plot</span>::<span class="ident">ScatterPlot</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::<span class="ident">slider</span>::<span class="ident">Slider</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::<span class="ident">spinner</span>::<span class="ident">Spinner</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::<span class="ident">stash</span>::<span class="ident">Stash</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::<span class="ident">table</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::<span class="ident">tabs</span>::<span class="ident">TabController</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::<span class="ident">text_box</span>::<span class="ident">TextBox</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::<span class="ident">toggle</span>::<span class="ident">Toggle</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::<span class="ident">DEFAULT_CORNER_RADIUS</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::{
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::geom</span>::{<span class="ident">GeomBatch</span>, <span class="ident">RewriteColor</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::input::UserInput</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::runner</span>::{<span class="ident">run</span>, <span class="ident">Settings</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::screen_geom</span>::{<span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>, <span class="ident">ScreenRectangle</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::style</span>::{<span class="ident">ButtonStyle</span>, <span class="ident">OutlineStyle</span>, <span class="ident">Style</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::text</span>::{<span class="ident">Font</span>, <span class="ident">Line</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">TextSpan</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::tools::warper::Warper</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::tools::Cached</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::widgets::autocomplete::Autocomplete</span>;
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::widgets::button::Button</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::widgets::button</span>::{<span class="ident">ButtonBuilder</span>, <span class="ident">MultiButton</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::widgets::compare_times::CompareTimes</span>;
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::widgets::dropdown::Dropdown</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::widgets::fan_chart::FanChart</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::widgets::filler::Filler</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::widgets::image</span>::{<span class="ident">Image</span>, <span class="ident">ImageSource</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::widgets::just_draw::DrawWithTooltips</span>;
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::widgets::just_draw</span>::{<span class="ident">DeferDraw</span>, <span class="ident">JustDraw</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::widgets::line_plot::LinePlot</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::widgets::menu::Menu</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::widgets::persistent_split::PersistentSplit</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::widgets::plots</span>::{<span class="ident">PlotOptions</span>, <span class="ident">Series</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::widgets::scatter_plot::ScatterPlot</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::widgets::slider::Slider</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::widgets::spinner::Spinner</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::widgets::stash::Stash</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::widgets::table</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::widgets::tabs::TabController</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::widgets::text_box::TextBox</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::widgets::toggle::Toggle</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::widgets::DEFAULT_CORNER_RADIUS</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::widgets</span>::{
     <span class="ident">CornerRounding</span>, <span class="ident">EdgeInsets</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">Widget</span>, <span class="ident">WidgetImpl</span>, <span class="ident">WidgetOutput</span>,
 };
 
@@ -337,16 +337,16 @@
 
 <span class="kw">mod</span> <span class="ident">backend</span> {
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">any</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-backend&quot;</span>, <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;wasm-backend&quot;</span>))]</span>
-    <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">backend_glow</span>::<span class="kw-2">*</span>;
+    <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::backend_glow</span>::<span class="kw-2">*</span>;
 }
 
 <span class="doccomment">/// Like [`std::include_bytes!`], but also returns its argument, the relative path to the bytes</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// returns a `(path, bytes): (&amp;str, &amp;[u8])` tuple</span>
 <span class="attribute">#[<span class="ident">macro_export</span>]</span>
-<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">include_labeled_bytes</span> {
+<span class="macro">macro_rules!</span> <span class="ident">include_labeled_bytes</span> {
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">file</span>:<span class="ident">expr</span>) <span class="op">=</span><span class="op">&gt;</span> {
-        (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">file</span>, <span class="macro">include_bytes</span><span class="macro">!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">file</span>))
+        (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">file</span>, <span class="macro">include_bytes!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">file</span>))
     };
 }
 
@@ -380,7 +380,7 @@
 
 <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">ContentMode</span> {
     <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="ident">ContentMode</span>::<span class="ident">ScaleAspectFit</span>
+        <span class="ident">ContentMode::ScaleAspectFit</span>
     }
 }
 
@@ -408,12 +408,12 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">tuples</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">T</span>)<span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Choice</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="ident">tuples</span>
             .<span class="ident">into_iter</span>()
-            .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">label</span>, <span class="ident">data</span>)<span class="op">|</span> <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="ident">label</span>, <span class="ident">data</span>))
+            .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">label</span>, <span class="ident">data</span>)<span class="op">|</span> <span class="ident">Choice::new</span>(<span class="ident">label</span>, <span class="ident">data</span>))
             .<span class="ident">collect</span>()
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">key</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="ident">Key</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Choice</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">hotkey</span>, <span class="prelude-val">None</span>);
+        <span class="macro">assert_eq!</span>(<span class="self">self</span>.<span class="ident">hotkey</span>, <span class="prelude-val">None</span>);
         <span class="self">self</span>.<span class="ident">hotkey</span> <span class="op">=</span> <span class="ident">key</span>.<span class="ident">into</span>();
         <span class="self">self</span>
     }
@@ -452,18 +452,18 @@
 
 <span class="kw">impl</span> <span class="ident">Choice</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">string</span>(<span class="ident">label</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Choice</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
-        <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="ident">label</span>.<span class="ident">to_string</span>(), <span class="ident">label</span>.<span class="ident">to_string</span>())
+        <span class="ident">Choice::new</span>(<span class="ident">label</span>.<span class="ident">to_string</span>(), <span class="ident">label</span>.<span class="ident">to_string</span>())
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">strings</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">list</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Choice</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="ident">list</span>.<span class="ident">into_iter</span>()
             .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> {
                 <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="ident">x</span>.<span class="ident">into</span>();
-                <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="ident">x</span>.<span class="ident">clone</span>(), <span class="ident">x</span>)
+                <span class="ident">Choice::new</span>(<span class="ident">x</span>.<span class="ident">clone</span>(), <span class="ident">x</span>)
             })
             .<span class="ident">collect</span>()
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="widgetry" data-search-js="../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="widgetry" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script></body></html>

@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/tools/screenshot.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>screenshot.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../widgetry/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../widgetry/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1"> 1</span>
 <span id="2"> 2</span>
 <span id="3"> 3</span>
@@ -80,9 +80,9 @@
 <span id="77">77</span>
 <span id="78">78</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Timer</span>;
+<span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">runner</span>::<span class="ident">State</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::runner::State</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Prerender</span>, <span class="ident">ScreenDims</span>, <span class="ident">SharedAppState</span>};
 
 <span class="doccomment">/// Take a screenshot of the entire canvas, tiling it based on the window&#39;s width and height.</span>
@@ -93,16 +93,16 @@
     <span class="ident">zoom</span>: <span class="ident">f64</span>,
     <span class="ident">dims</span>: <span class="ident">ScreenDims</span>,
     <span class="ident">leaflet_naming</span>: <span class="ident">bool</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">anyhow::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
     <span class="kw">if</span> <span class="ident">dims</span>.<span class="ident">width</span> <span class="op">&gt;</span> <span class="ident">state</span>.<span class="ident">canvas</span>.<span class="ident">window_width</span> <span class="op">|</span><span class="op">|</span> <span class="ident">dims</span>.<span class="ident">height</span> <span class="op">&gt;</span> <span class="ident">state</span>.<span class="ident">canvas</span>.<span class="ident">window_height</span> {
-        <span class="macro">bail</span><span class="macro">!</span>(
+        <span class="macro">bail!</span>(
             <span class="string">&quot;Can&#39;t take screenshots of dims {:?} when the window is only {:?}&quot;</span>,
             <span class="ident">dims</span>,
             <span class="ident">state</span>.<span class="ident">canvas</span>.<span class="ident">get_window_dims</span>()
         );
     }
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">timer</span> <span class="op">=</span> <span class="ident">Timer</span>::<span class="ident">new</span>(<span class="string">&quot;capturing screen&quot;</span>);
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">timer</span> <span class="op">=</span> <span class="ident">Timer::new</span>(<span class="string">&quot;capturing screen&quot;</span>);
     <span class="kw">let</span> <span class="ident">num_tiles_x</span> <span class="op">=</span> (<span class="ident">state</span>.<span class="ident">canvas</span>.<span class="ident">map_dims</span>.<span class="number">0</span> <span class="op">*</span> <span class="ident">zoom</span> <span class="op">/</span> <span class="ident">dims</span>.<span class="ident">width</span>).<span class="ident">ceil</span>() <span class="kw">as</span> <span class="ident">usize</span>;
     <span class="kw">let</span> <span class="ident">num_tiles_y</span> <span class="op">=</span> (<span class="ident">state</span>.<span class="ident">canvas</span>.<span class="ident">map_dims</span>.<span class="number">1</span> <span class="op">*</span> <span class="ident">zoom</span> <span class="op">/</span> <span class="ident">dims</span>.<span class="ident">height</span>).<span class="ident">ceil</span>() <span class="kw">as</span> <span class="ident">usize</span>;
     <span class="kw">let</span> <span class="ident">orig_zoom</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span>;
@@ -111,7 +111,7 @@
 
     <span class="ident">timer</span>.<span class="ident">start_iter</span>(<span class="string">&quot;capturing images&quot;</span>, <span class="ident">num_tiles_x</span> <span class="op">*</span> <span class="ident">num_tiles_y</span>);
     <span class="ident">state</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span> <span class="op">=</span> <span class="ident">zoom</span>;
-    <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">create_dir_all</span>(<span class="ident">dir_path</span>)<span class="question-mark">?</span>;
+    <span class="ident">std::fs::create_dir_all</span>(<span class="ident">dir_path</span>)<span class="question-mark">?</span>;
 
     <span class="comment">// See https://github.com/a-b-street/abstreet/issues/671 for context. Some maps are so large</span>
     <span class="comment">// and detailed that they drain all memory on some video cards. As a workaround, just free up</span>
@@ -130,7 +130,7 @@
                 <span class="ident">state</span>.<span class="ident">free_memory</span>();
             }
 
-            <span class="kw">let</span> <span class="ident">suffix</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">draw</span>(<span class="ident">prerender</span>, <span class="bool-val">true</span>).<span class="ident">unwrap_or_else</span>(<span class="ident">String</span>::<span class="ident">new</span>);
+            <span class="kw">let</span> <span class="ident">suffix</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">draw</span>(<span class="ident">prerender</span>, <span class="bool-val">true</span>).<span class="ident">unwrap_or_else</span>(<span class="ident">String::new</span>);
 
             <span class="comment">// Sometimes the very first image captured is of the debug mode used to launch this. Not</span>
             <span class="comment">// sure why, and it&#39;s not so reproducible. But double-drawing seems to help.</span>
@@ -139,9 +139,9 @@
             }
 
             <span class="kw">let</span> <span class="ident">filename</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">leaflet_naming</span> {
-                <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}/{}_{}.png&quot;</span>, <span class="ident">dir_path</span>, <span class="ident">tile_x</span>, <span class="ident">tile_y</span>)
+                <span class="macro">format!</span>(<span class="string">&quot;{}/{}_{}.png&quot;</span>, <span class="ident">dir_path</span>, <span class="ident">tile_x</span>, <span class="ident">tile_y</span>)
             } <span class="kw">else</span> {
-                <span class="macro">format</span><span class="macro">!</span>(
+                <span class="macro">format!</span>(
                     <span class="string">&quot;{}/{:02}x{:02}{}.png&quot;</span>,
                     <span class="ident">dir_path</span>,
                     <span class="ident">tile_x</span> <span class="op">+</span> <span class="number">1</span>,
@@ -159,5 +159,5 @@
     <span class="prelude-val">Ok</span>(())
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="widgetry" data-search-js="../../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="widgetry" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
     <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script></body></html>

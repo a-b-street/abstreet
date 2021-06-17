@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `importer/src/seattle.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>seattle.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../importer/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../importer/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -326,24 +326,24 @@
 <span id="323">323</span>
 <span id="324">324</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashSet</span>};
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">File</span>;
+<span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashSet</span>};
+<span class="kw">use</span> <span class="ident">std::fs::File</span>;
 
-<span class="kw">use</span> <span class="ident">aabb_quadtree</span>::<span class="ident">QuadTree</span>;
-<span class="kw">use</span> <span class="ident">serde</span>::<span class="ident">Deserialize</span>;
+<span class="kw">use</span> <span class="ident">aabb_quadtree::QuadTree</span>;
+<span class="kw">use</span> <span class="ident">serde::Deserialize</span>;
 
 <span class="kw">use</span> <span class="ident">abstio</span>::{<span class="ident">CityName</span>, <span class="ident">MapName</span>};
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">MultiMap</span>, <span class="ident">Timer</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Polygon</span>, <span class="ident">Ring</span>, <span class="ident">Time</span>};
-<span class="kw">use</span> <span class="ident">kml</span>::<span class="ident">ExtraShapes</span>;
+<span class="kw">use</span> <span class="ident">kml::ExtraShapes</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">BuildingID</span>, <span class="ident">BuildingType</span>, <span class="ident">BusRouteID</span>, <span class="ident">Map</span>};
-<span class="kw">use</span> <span class="ident">sim</span>::<span class="ident">Scenario</span>;
+<span class="kw">use</span> <span class="ident">sim::Scenario</span>;
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">configuration</span>::<span class="ident">ImporterConfiguration</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">utils</span>::{<span class="ident">download</span>, <span class="ident">download_kml</span>, <span class="ident">osmconvert</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::configuration::ImporterConfiguration</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::utils</span>::{<span class="ident">download</span>, <span class="ident">download_kml</span>, <span class="ident">osmconvert</span>};
 
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">input</span>(<span class="ident">config</span>: <span class="kw-2">&amp;</span><span class="ident">ImporterConfiguration</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) {
-    <span class="kw">let</span> <span class="ident">city</span> <span class="op">=</span> <span class="ident">CityName</span>::<span class="ident">seattle</span>();
+    <span class="kw">let</span> <span class="ident">city</span> <span class="op">=</span> <span class="ident">CityName::seattle</span>();
 
     <span class="ident">download</span>(
         <span class="ident">config</span>,
@@ -359,8 +359,8 @@
     )
     .<span class="kw">await</span>;
 
-    <span class="kw">let</span> <span class="ident">bounds</span> <span class="op">=</span> <span class="ident">geom</span>::<span class="ident">GPSBounds</span>::<span class="ident">from</span>(
-        <span class="ident">geom</span>::<span class="ident">LonLat</span>::<span class="ident">read_osmosis_polygon</span>(<span class="string">&quot;importer/config/us/seattle/huge_seattle.poly&quot;</span>).<span class="ident">unwrap</span>(),
+    <span class="kw">let</span> <span class="ident">bounds</span> <span class="op">=</span> <span class="ident">geom::GPSBounds::from</span>(
+        <span class="ident">geom::LonLat::read_osmosis_polygon</span>(<span class="string">&quot;importer/config/us/seattle/huge_seattle.poly&quot;</span>).<span class="ident">unwrap</span>(),
     );
     <span class="comment">// From http://data-seattlecitygis.opendata.arcgis.com/datasets/blockface</span>
     <span class="ident">download_kml</span>(
@@ -398,12 +398,12 @@
 
     <span class="comment">// This is a little expensive, so delete data/input/us/seattle/collisions.bin to regenerate</span>
     <span class="comment">// this.</span>
-    <span class="kw">if</span> <span class="op">!</span><span class="ident">abstio</span>::<span class="ident">file_exists</span>(<span class="ident">city</span>.<span class="ident">input_path</span>(<span class="string">&quot;collisions.bin&quot;</span>)) {
-        <span class="kw">let</span> <span class="ident">shapes</span> <span class="op">=</span> <span class="ident">kml</span>::<span class="ident">load</span>(<span class="ident">city</span>.<span class="ident">input_path</span>(<span class="string">&quot;collisions.kml&quot;</span>), <span class="kw-2">&amp;</span><span class="ident">bounds</span>, <span class="bool-val">true</span>, <span class="ident">timer</span>).<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">collisions</span> <span class="op">=</span> <span class="ident">collisions</span>::<span class="ident">import_seattle</span>(
+    <span class="kw">if</span> <span class="op">!</span><span class="ident">abstio::file_exists</span>(<span class="ident">city</span>.<span class="ident">input_path</span>(<span class="string">&quot;collisions.bin&quot;</span>)) {
+        <span class="kw">let</span> <span class="ident">shapes</span> <span class="op">=</span> <span class="ident">kml::load</span>(<span class="ident">city</span>.<span class="ident">input_path</span>(<span class="string">&quot;collisions.kml&quot;</span>), <span class="kw-2">&amp;</span><span class="ident">bounds</span>, <span class="bool-val">true</span>, <span class="ident">timer</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">collisions</span> <span class="op">=</span> <span class="ident">collisions::import_seattle</span>(
             <span class="ident">shapes</span>,
             <span class="string">&quot;https://data-seattlecitygis.opendata.arcgis.com/datasets/5b5c745e0f1f48e7a53acec63a0022ab_0&quot;</span>);
-        <span class="ident">abstio</span>::<span class="ident">write_binary</span>(<span class="ident">city</span>.<span class="ident">input_path</span>(<span class="string">&quot;collisions.bin&quot;</span>), <span class="kw-2">&amp;</span><span class="ident">collisions</span>);
+        <span class="ident">abstio::write_binary</span>(<span class="ident">city</span>.<span class="ident">input_path</span>(<span class="string">&quot;collisions.bin&quot;</span>), <span class="kw-2">&amp;</span><span class="ident">collisions</span>);
     }
 
     <span class="comment">// From https://data-seattlecitygis.opendata.arcgis.com/datasets/parcels-1</span>
@@ -429,36 +429,36 @@
 }
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">osm_to_raw</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>, <span class="ident">config</span>: <span class="kw-2">&amp;</span><span class="ident">ImporterConfiguration</span>) {
-    <span class="kw">let</span> <span class="ident">city</span> <span class="op">=</span> <span class="ident">CityName</span>::<span class="ident">seattle</span>();
+    <span class="kw">let</span> <span class="ident">city</span> <span class="op">=</span> <span class="ident">CityName::seattle</span>();
 
     <span class="ident">input</span>(<span class="ident">config</span>, <span class="ident">timer</span>).<span class="kw">await</span>;
     <span class="ident">osmconvert</span>(
         <span class="ident">city</span>.<span class="ident">input_path</span>(<span class="string">&quot;osm/washington-latest.osm.pbf&quot;</span>),
-        <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;importer/config/us/seattle/{}.poly&quot;</span>, <span class="ident">name</span>),
-        <span class="ident">city</span>.<span class="ident">input_path</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;osm/{}.osm&quot;</span>, <span class="ident">name</span>)),
+        <span class="macro">format!</span>(<span class="string">&quot;importer/config/us/seattle/{}.poly&quot;</span>, <span class="ident">name</span>),
+        <span class="ident">city</span>.<span class="ident">input_path</span>(<span class="macro">format!</span>(<span class="string">&quot;osm/{}.osm&quot;</span>, <span class="ident">name</span>)),
         <span class="ident">config</span>,
     );
 
-    <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">convert_osm</span>::<span class="ident">convert</span>(
-        <span class="ident">convert_osm</span>::<span class="ident">Options</span> {
-            <span class="ident">osm_input</span>: <span class="ident">city</span>.<span class="ident">input_path</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;osm/{}.osm&quot;</span>, <span class="ident">name</span>)),
-            <span class="ident">name</span>: <span class="ident">MapName</span>::<span class="ident">seattle</span>(<span class="ident">name</span>),
+    <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">convert_osm::convert</span>(
+        <span class="ident">convert_osm::Options</span> {
+            <span class="ident">osm_input</span>: <span class="ident">city</span>.<span class="ident">input_path</span>(<span class="macro">format!</span>(<span class="string">&quot;osm/{}.osm&quot;</span>, <span class="ident">name</span>)),
+            <span class="ident">name</span>: <span class="ident">MapName::seattle</span>(<span class="ident">name</span>),
 
-            <span class="ident">clip</span>: <span class="prelude-val">Some</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;importer/config/us/seattle/{}.poly&quot;</span>, <span class="ident">name</span>)),
-            <span class="ident">map_config</span>: <span class="ident">map_model</span>::<span class="ident">MapConfig</span> {
-                <span class="ident">driving_side</span>: <span class="ident">map_model</span>::<span class="ident">DrivingSide</span>::<span class="ident">Right</span>,
+            <span class="ident">clip</span>: <span class="prelude-val">Some</span>(<span class="macro">format!</span>(<span class="string">&quot;importer/config/us/seattle/{}.poly&quot;</span>, <span class="ident">name</span>)),
+            <span class="ident">map_config</span>: <span class="ident">map_model::MapConfig</span> {
+                <span class="ident">driving_side</span>: <span class="ident">map_model::DrivingSide::Right</span>,
                 <span class="ident">bikes_can_use_bus_lanes</span>: <span class="bool-val">true</span>,
                 <span class="ident">inferred_sidewalks</span>: <span class="bool-val">true</span>,
-                <span class="ident">street_parking_spot_length</span>: <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">8.0</span>),
+                <span class="ident">street_parking_spot_length</span>: <span class="ident">Distance::meters</span>(<span class="number">8.0</span>),
             },
 
-            <span class="ident">onstreet_parking</span>: <span class="ident">convert_osm</span>::<span class="ident">OnstreetParking</span>::<span class="ident">Blockface</span>(
+            <span class="ident">onstreet_parking</span>: <span class="ident">convert_osm::OnstreetParking::Blockface</span>(
                 <span class="ident">city</span>.<span class="ident">input_path</span>(<span class="string">&quot;blockface.bin&quot;</span>),
             ),
-            <span class="ident">public_offstreet_parking</span>: <span class="ident">convert_osm</span>::<span class="ident">PublicOffstreetParking</span>::<span class="ident">Gis</span>(
+            <span class="ident">public_offstreet_parking</span>: <span class="ident">convert_osm::PublicOffstreetParking::Gis</span>(
                 <span class="ident">city</span>.<span class="ident">input_path</span>(<span class="string">&quot;offstreet_parking.bin&quot;</span>),
             ),
-            <span class="ident">private_offstreet_parking</span>: <span class="ident">convert_osm</span>::<span class="ident">PrivateOffstreetParking</span>::<span class="ident">FixedPerBldg</span>(
+            <span class="ident">private_offstreet_parking</span>: <span class="ident">convert_osm::PrivateOffstreetParking::FixedPerBldg</span>(
                 <span class="comment">// TODO Utter guesses or in response to gridlock</span>
                 <span class="kw">match</span> <span class="ident">name</span> {
                     <span class="string">&quot;downtown&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="number">5</span>,
@@ -484,27 +484,27 @@
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">ensure_popdat_exists</span>(
     <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
     <span class="ident">config</span>: <span class="kw-2">&amp;</span><span class="ident">ImporterConfiguration</span>,
-) <span class="op">-</span><span class="op">&gt;</span> (<span class="kw">crate</span>::<span class="ident">soundcast</span>::<span class="ident">PopDat</span>, <span class="ident">map_model</span>::<span class="ident">Map</span>) {
-    <span class="kw">let</span> <span class="ident">huge_name</span> <span class="op">=</span> <span class="ident">MapName</span>::<span class="ident">seattle</span>(<span class="string">&quot;huge_seattle&quot;</span>);
+) <span class="op">-</span><span class="op">&gt;</span> (<span class="kw">crate</span><span class="ident">::soundcast::PopDat</span>, <span class="ident">map_model::Map</span>) {
+    <span class="kw">let</span> <span class="ident">huge_name</span> <span class="op">=</span> <span class="ident">MapName::seattle</span>(<span class="string">&quot;huge_seattle&quot;</span>);
 
-    <span class="kw">if</span> <span class="ident">abstio</span>::<span class="ident">file_exists</span>(<span class="ident">abstio</span>::<span class="ident">path_popdat</span>()) {
-        <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;- {} exists, not regenerating it&quot;</span>, <span class="ident">abstio</span>::<span class="ident">path_popdat</span>());
+    <span class="kw">if</span> <span class="ident">abstio::file_exists</span>(<span class="ident">abstio::path_popdat</span>()) {
+        <span class="macro">println!</span>(<span class="string">&quot;- {} exists, not regenerating it&quot;</span>, <span class="ident">abstio::path_popdat</span>());
         <span class="kw">return</span> (
-            <span class="ident">abstio</span>::<span class="ident">read_binary</span>(<span class="ident">abstio</span>::<span class="ident">path_popdat</span>(), <span class="ident">timer</span>),
-            <span class="ident">map_model</span>::<span class="ident">Map</span>::<span class="ident">load_synchronously</span>(<span class="ident">huge_name</span>.<span class="ident">path</span>(), <span class="ident">timer</span>),
+            <span class="ident">abstio::read_binary</span>(<span class="ident">abstio::path_popdat</span>(), <span class="ident">timer</span>),
+            <span class="ident">map_model::Map::load_synchronously</span>(<span class="ident">huge_name</span>.<span class="ident">path</span>(), <span class="ident">timer</span>),
         );
     }
 
-    <span class="kw">if</span> <span class="op">!</span><span class="ident">abstio</span>::<span class="ident">file_exists</span>(<span class="ident">abstio</span>::<span class="ident">path_raw_map</span>(<span class="kw-2">&amp;</span><span class="ident">huge_name</span>)) {
+    <span class="kw">if</span> <span class="op">!</span><span class="ident">abstio::file_exists</span>(<span class="ident">abstio::path_raw_map</span>(<span class="kw-2">&amp;</span><span class="ident">huge_name</span>)) {
         <span class="ident">osm_to_raw</span>(<span class="string">&quot;huge_seattle&quot;</span>, <span class="ident">timer</span>, <span class="ident">config</span>).<span class="kw">await</span>;
     }
-    <span class="kw">let</span> <span class="ident">huge_map</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">abstio</span>::<span class="ident">file_exists</span>(<span class="ident">huge_name</span>.<span class="ident">path</span>()) {
-        <span class="ident">map_model</span>::<span class="ident">Map</span>::<span class="ident">load_synchronously</span>(<span class="ident">huge_name</span>.<span class="ident">path</span>(), <span class="ident">timer</span>)
+    <span class="kw">let</span> <span class="ident">huge_map</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">abstio::file_exists</span>(<span class="ident">huge_name</span>.<span class="ident">path</span>()) {
+        <span class="ident">map_model::Map::load_synchronously</span>(<span class="ident">huge_name</span>.<span class="ident">path</span>(), <span class="ident">timer</span>)
     } <span class="kw">else</span> {
-        <span class="kw">crate</span>::<span class="ident">utils</span>::<span class="ident">raw_to_map</span>(<span class="kw-2">&amp;</span><span class="ident">huge_name</span>, <span class="ident">map_model</span>::<span class="ident">RawToMapOptions</span>::<span class="ident">default</span>(), <span class="ident">timer</span>)
+        <span class="kw">crate</span><span class="ident">::utils::raw_to_map</span>(<span class="kw-2">&amp;</span><span class="ident">huge_name</span>, <span class="ident">map_model::RawToMapOptions::default</span>(), <span class="ident">timer</span>)
     };
 
-    (<span class="kw">crate</span>::<span class="ident">soundcast</span>::<span class="ident">import_data</span>(<span class="kw-2">&amp;</span><span class="ident">huge_map</span>, <span class="ident">timer</span>), <span class="ident">huge_map</span>)
+    (<span class="kw">crate</span><span class="ident">::soundcast::import_data</span>(<span class="kw-2">&amp;</span><span class="ident">huge_map</span>, <span class="ident">timer</span>), <span class="ident">huge_map</span>)
 }
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">adjust_private_parking</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Map</span>, <span class="ident">scenario</span>: <span class="kw-2">&amp;</span><span class="ident">Scenario</span>) {
@@ -518,11 +518,11 @@
 <span class="doccomment">/// - is specific to Seattle, whose files don&#39;t seem to match https://developers.google.com/transit/gtfs/reference</span>
 <span class="doccomment">/// - is probably wrong</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_gtfs_schedules</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Map</span>) {
-    <span class="kw">let</span> <span class="ident">city</span> <span class="op">=</span> <span class="ident">CityName</span>::<span class="ident">seattle</span>();
+    <span class="kw">let</span> <span class="ident">city</span> <span class="op">=</span> <span class="ident">CityName::seattle</span>();
     <span class="comment">// https://www.openstreetmap.org/relation/8616968 as an example, mapping to</span>
     <span class="comment">// https://kingcounty.gov/depts/transportation/metro/schedules-maps/route/048.aspx</span>
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">trip_marker_to_route</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">BusRouteID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">BTreeMap</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">trip_marker_to_route</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">BusRouteID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">BTreeMap::new</span>();
     <span class="kw">for</span> <span class="ident">br</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_bus_routes</span>() {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">m</span>) <span class="op">=</span> <span class="ident">br</span>.<span class="ident">gtfs_trip_marker</span> {
             <span class="comment">// Dunno what the :0 thing is</span>
@@ -531,9 +531,9 @@
     }
 
     <span class="comment">// Each route has a bunch of trips throughout the day</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">trip_marker_to_trips</span>: <span class="ident">MultiMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">String</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">MultiMap</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">trip_marker_to_trips</span>: <span class="ident">MultiMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">String</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">MultiMap::new</span>();
     <span class="kw">for</span> <span class="ident">rec</span> <span class="kw">in</span>
-        <span class="ident">csv</span>::<span class="ident">Reader</span>::<span class="ident">from_reader</span>(<span class="ident">File</span>::<span class="ident">open</span>(<span class="ident">city</span>.<span class="ident">input_path</span>(<span class="string">&quot;google_transit/trips.txt&quot;</span>)).<span class="ident">unwrap</span>())
+        <span class="ident">csv::Reader::from_reader</span>(<span class="ident">File::open</span>(<span class="ident">city</span>.<span class="ident">input_path</span>(<span class="string">&quot;google_transit/trips.txt&quot;</span>)).<span class="ident">unwrap</span>())
             .<span class="ident">deserialize</span>()
     {
         <span class="kw">let</span> <span class="ident">rec</span>: <span class="ident">TripRecord</span> <span class="op">=</span> <span class="ident">rec</span>.<span class="ident">unwrap</span>();
@@ -543,17 +543,17 @@
     }
 
     <span class="comment">// For every trip, find the earliest arrival time. That should be the spawn time.</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">trip_to_earliest_time</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">Time</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">BTreeMap</span>::<span class="ident">new</span>();
-    <span class="kw">for</span> <span class="ident">rec</span> <span class="kw">in</span> <span class="ident">csv</span>::<span class="ident">Reader</span>::<span class="ident">from_reader</span>(
-        <span class="ident">File</span>::<span class="ident">open</span>(<span class="ident">city</span>.<span class="ident">input_path</span>(<span class="string">&quot;google_transit/stop_times.txt&quot;</span>)).<span class="ident">unwrap</span>(),
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">trip_to_earliest_time</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">Time</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">BTreeMap::new</span>();
+    <span class="kw">for</span> <span class="ident">rec</span> <span class="kw">in</span> <span class="ident">csv::Reader::from_reader</span>(
+        <span class="ident">File::open</span>(<span class="ident">city</span>.<span class="ident">input_path</span>(<span class="string">&quot;google_transit/stop_times.txt&quot;</span>)).<span class="ident">unwrap</span>(),
     )
     .<span class="ident">deserialize</span>()
     {
         <span class="kw">let</span> <span class="ident">rec</span>: <span class="ident">StopTimeRecord</span> <span class="op">=</span> <span class="ident">rec</span>.<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">time</span> <span class="op">=</span> <span class="ident">Time</span>::<span class="ident">parse</span>(<span class="kw-2">&amp;</span><span class="ident">rec</span>.<span class="ident">arrival_time</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">time</span> <span class="op">=</span> <span class="ident">Time::parse</span>(<span class="kw-2">&amp;</span><span class="ident">rec</span>.<span class="ident">arrival_time</span>).<span class="ident">unwrap</span>();
         <span class="comment">// Maybe we should duplicate these to handle beginning and end of the simulation</span>
-        <span class="kw">if</span> <span class="ident">time</span> <span class="op">&gt;</span> <span class="ident">Time</span>::<span class="ident">START_OF_DAY</span> <span class="op">+</span> <span class="ident">Duration</span>::<span class="ident">hours</span>(<span class="number">24</span>) {
-            <span class="ident">time</span> <span class="op">=</span> <span class="ident">time</span> <span class="op">-</span> <span class="ident">Duration</span>::<span class="ident">hours</span>(<span class="number">24</span>);
+        <span class="kw">if</span> <span class="ident">time</span> <span class="op">&gt;</span> <span class="ident">Time::START_OF_DAY</span> <span class="op">+</span> <span class="ident">Duration::hours</span>(<span class="number">24</span>) {
+            <span class="ident">time</span> <span class="op">=</span> <span class="ident">time</span> <span class="op">-</span> <span class="ident">Duration::hours</span>(<span class="number">24</span>);
         }
         <span class="kw">if</span> <span class="ident">trip_to_earliest_time</span>
             .<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">rec</span>.<span class="ident">trip_id</span>)
@@ -566,7 +566,7 @@
 
     <span class="comment">// Collect the spawn times per route</span>
     <span class="kw">for</span> (<span class="ident">marker</span>, <span class="ident">trips</span>) <span class="kw">in</span> <span class="ident">trip_marker_to_trips</span>.<span class="ident">consume</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">times</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">times</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
         <span class="kw">for</span> <span class="ident">trip_id</span> <span class="kw">in</span> <span class="ident">trips</span> {
             <span class="ident">times</span>.<span class="ident">push</span>(<span class="ident">trip_to_earliest_time</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">trip_id</span>).<span class="ident">unwrap</span>());
         }
@@ -594,10 +594,10 @@
 <span class="doccomment">/// Match OSM buildings to parcels, scraping the number of housing units.</span>
 <span class="comment">// TODO It&#39;s expensive to load the huge zoning_parcels.bin file for every map.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">match_parcels_to_buildings</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Map</span>, <span class="ident">shapes</span>: <span class="kw-2">&amp;</span><span class="ident">ExtraShapes</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">parcels_with_housing</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Polygon</span>, <span class="ident">usize</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">parcels_with_housing</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Polygon</span>, <span class="ident">usize</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
     <span class="comment">// TODO We should refactor something like FindClosest, but for polygon containment</span>
     <span class="comment">// The quadtree&#39;s ID is just an index into parcels_with_housing.</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">quadtree</span>: <span class="ident">QuadTree</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">QuadTree</span>::<span class="ident">default</span>(<span class="ident">map</span>.<span class="ident">get_bounds</span>().<span class="ident">as_bbox</span>());
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">quadtree</span>: <span class="ident">QuadTree</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">QuadTree::default</span>(<span class="ident">map</span>.<span class="ident">get_bounds</span>().<span class="ident">as_bbox</span>());
     <span class="ident">timer</span>.<span class="ident">start_iter</span>(<span class="string">&quot;index all parcels&quot;</span>, <span class="ident">shapes</span>.<span class="ident">shapes</span>.<span class="ident">len</span>());
     <span class="kw">for</span> <span class="ident">shape</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">shapes</span>.<span class="ident">shapes</span> {
         <span class="ident">timer</span>.<span class="ident">next</span>();
@@ -609,7 +609,7 @@
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ring</span>) <span class="op">=</span> <span class="ident">map</span>
                 .<span class="ident">get_gps_bounds</span>()
                 .<span class="ident">try_convert</span>(<span class="kw-2">&amp;</span><span class="ident">shape</span>.<span class="ident">points</span>)
-                .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">pts</span><span class="op">|</span> <span class="ident">Ring</span>::<span class="ident">new</span>(<span class="ident">pts</span>).<span class="ident">ok</span>())
+                .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">pts</span><span class="op">|</span> <span class="ident">Ring::new</span>(<span class="ident">pts</span>).<span class="ident">ok</span>())
             {
                 <span class="kw">let</span> <span class="ident">polygon</span> <span class="op">=</span> <span class="ident">ring</span>.<span class="ident">into_polygon</span>();
                 <span class="ident">quadtree</span>
@@ -619,8 +619,8 @@
         }
     }
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">used_parcels</span>: <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">HashSet</span>::<span class="ident">new</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">units_per_bldg</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">BuildingID</span>, <span class="ident">usize</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">used_parcels</span>: <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">HashSet::new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">units_per_bldg</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">BuildingID</span>, <span class="ident">usize</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
     <span class="ident">timer</span>.<span class="ident">start_iter</span>(<span class="string">&quot;match buildings to parcels&quot;</span>, <span class="ident">map</span>.<span class="ident">all_buildings</span>().<span class="ident">len</span>());
     <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_buildings</span>() {
         <span class="ident">timer</span>.<span class="ident">next</span>();
@@ -639,7 +639,7 @@
 
     <span class="kw">for</span> (<span class="ident">b</span>, <span class="ident">num_housing_units</span>) <span class="kw">in</span> <span class="ident">units_per_bldg</span> {
         <span class="kw">let</span> <span class="ident">bldg_type</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">b</span>).<span class="ident">bldg_type</span>.<span class="ident">clone</span>() {
-            <span class="ident">BuildingType</span>::<span class="ident">Residential</span> { <span class="ident">num_residents</span>, .. } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">BuildingType</span>::<span class="ident">Residential</span> {
+            <span class="ident">BuildingType::Residential</span> { <span class="ident">num_residents</span>, .. } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">BuildingType::Residential</span> {
                 <span class="ident">num_housing_units</span>,
                 <span class="ident">num_residents</span>,
             },
@@ -651,5 +651,5 @@
     <span class="ident">map</span>.<span class="ident">save</span>();
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="importer" data-search-js="../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="importer" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script></body></html>

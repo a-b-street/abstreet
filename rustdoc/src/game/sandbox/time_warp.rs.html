@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `game/src/sandbox/time_warp.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>time_warp.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../game/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../game/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -453,21 +453,21 @@
 <span id="450">450</span>
 <span id="451">451</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">instant</span>::<span class="ident">Instant</span>;
+<span class="kw">use</span> <span class="ident">instant::Instant</span>;
 
-<span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">prettyprint_usize</span>;
+<span class="kw">use</span> <span class="ident">abstutil::prettyprint_usize</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>, <span class="ident">Time</span>};
-<span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">render</span>::<span class="ident">DrawOptions</span>;
-<span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">tools</span>::{<span class="ident">grey_out_map</span>, <span class="ident">PopupMsg</span>};
-<span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">ID</span>;
+<span class="kw">use</span> <span class="ident">map_gui::render::DrawOptions</span>;
+<span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">grey_out_map</span>, <span class="ident">PopupMsg</span>};
+<span class="kw">use</span> <span class="ident">map_gui::ID</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">Choice</span>, <span class="ident">DrawBaselayer</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">ScreenDims</span>,
     <span class="ident">Slider</span>, <span class="ident">State</span>, <span class="ident">TabController</span>, <span class="ident">Text</span>, <span class="ident">Toggle</span>, <span class="ident">UpdateType</span>, <span class="ident">Widget</span>,
 };
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::{<span class="ident">App</span>, <span class="ident">FindDelayedIntersections</span>, <span class="ident">ShowEverything</span>, <span class="ident">Transition</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">common</span>::<span class="ident">Warping</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sandbox</span>::{<span class="ident">GameplayMode</span>, <span class="ident">SandboxMode</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::app</span>::{<span class="ident">App</span>, <span class="ident">FindDelayedIntersections</span>, <span class="ident">ShowEverything</span>, <span class="ident">Transition</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::common::Warping</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::sandbox</span>::{<span class="ident">GameplayMode</span>, <span class="ident">SandboxMode</span>};
 
 <span class="comment">// TODO Text entry would be great</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">JumpToTime</span> {
@@ -490,16 +490,16 @@
             .<span class="ident">style</span>()
             .<span class="ident">btn_tab</span>
             .<span class="ident">text</span>(<span class="string">&quot;Jump to time&quot;</span>)
-            .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">T</span>)
+            .<span class="ident">hotkey</span>(<span class="ident">Key::T</span>)
             .<span class="ident">tooltip</span>(<span class="string">&quot;Jump to time&quot;</span>);
         <span class="kw">let</span> <span class="ident">jump_to_time_content</span> <span class="op">=</span> {
             <span class="comment">// TODO Auto-fill width?</span>
             <span class="kw">let</span> <span class="ident">slider_width</span> <span class="op">=</span> <span class="number">500.0</span>;
 
-            <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
+            <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
                 <span class="ident">Line</span>(<span class="string">&quot;Jump to what time?&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                 <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">has_prebaked</span>().<span class="ident">is_some</span>() {
-                    <span class="ident">GeomBatch</span>::<span class="ident">from</span>(<span class="macro">vec</span><span class="macro">!</span>[(
+                    <span class="ident">GeomBatch::from</span>(<span class="macro">vec!</span>[(
                         <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">icon_fg</span>.<span class="ident">alpha</span>(<span class="number">0.7</span>),
                         <span class="ident">area_under_curve</span>(
                             <span class="ident">app</span>.<span class="ident">prebaked</span>().<span class="ident">active_agents</span>(<span class="ident">end_of_day</span>),
@@ -509,9 +509,9 @@
                     )])
                     .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
                 } <span class="kw">else</span> {
-                    <span class="ident">Widget</span>::<span class="ident">nothing</span>()
+                    <span class="ident">Widget::nothing</span>()
                 },
-                <span class="ident">Slider</span>::<span class="ident">area</span>(<span class="ident">ctx</span>, <span class="ident">slider_width</span>, <span class="ident">target</span>.<span class="ident">to_percent</span>(<span class="ident">end_of_day</span>).<span class="ident">min</span>(<span class="number">1.0</span>))
+                <span class="ident">Slider::area</span>(<span class="ident">ctx</span>, <span class="ident">slider_width</span>, <span class="ident">target</span>.<span class="ident">to_percent</span>(<span class="ident">end_of_day</span>).<span class="ident">min</span>(<span class="number">1.0</span>))
                     .<span class="ident">named</span>(<span class="string">&quot;time slider&quot;</span>),
                 <span class="ident">build_jump_to_time_btn</span>(<span class="ident">ctx</span>, <span class="ident">target</span>),
             ])
@@ -521,20 +521,20 @@
             .<span class="ident">style</span>()
             .<span class="ident">btn_tab</span>
             .<span class="ident">text</span>(<span class="string">&quot;Jump to delay&quot;</span>)
-            .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">D</span>)
+            .<span class="ident">hotkey</span>(<span class="ident">Key::D</span>)
             .<span class="ident">tooltip</span>(<span class="string">&quot;Jump to delay&quot;</span>);
-        <span class="kw">let</span> <span class="ident">jump_to_delay_content</span> <span class="op">=</span> <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+        <span class="kw">let</span> <span class="ident">jump_to_delay_content</span> <span class="op">=</span> <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
+            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
                 <span class="ident">Line</span>(<span class="string">&quot;Jump to next&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                <span class="ident">Widget</span>::<span class="ident">dropdown</span>(
+                <span class="ident">Widget::dropdown</span>(
                     <span class="ident">ctx</span>,
                     <span class="string">&quot;delay&quot;</span>,
                     <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">jump_to_delay</span>,
-                    <span class="macro">vec</span><span class="macro">!</span>[
-                        <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;1&quot;</span>, <span class="ident">Duration</span>::<span class="ident">minutes</span>(<span class="number">1</span>)),
-                        <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;2&quot;</span>, <span class="ident">Duration</span>::<span class="ident">minutes</span>(<span class="number">2</span>)),
-                        <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;5&quot;</span>, <span class="ident">Duration</span>::<span class="ident">minutes</span>(<span class="number">5</span>)),
-                        <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;10&quot;</span>, <span class="ident">Duration</span>::<span class="ident">minutes</span>(<span class="number">10</span>)),
+                    <span class="macro">vec!</span>[
+                        <span class="ident">Choice::new</span>(<span class="string">&quot;1&quot;</span>, <span class="ident">Duration::minutes</span>(<span class="number">1</span>)),
+                        <span class="ident">Choice::new</span>(<span class="string">&quot;2&quot;</span>, <span class="ident">Duration::minutes</span>(<span class="number">2</span>)),
+                        <span class="ident">Choice::new</span>(<span class="string">&quot;5&quot;</span>, <span class="ident">Duration::minutes</span>(<span class="number">5</span>)),
+                        <span class="ident">Choice::new</span>(<span class="string">&quot;10&quot;</span>, <span class="ident">Duration::minutes</span>(<span class="number">10</span>)),
                     ],
                 ),
                 <span class="ident">Line</span>(<span class="string">&quot;minute delay&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
@@ -542,18 +542,18 @@
             <span class="ident">build_jump_to_delay_button</span>(<span class="ident">ctx</span>, <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">jump_to_delay</span>),
         ]);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tabs</span> <span class="op">=</span> <span class="ident">TabController</span>::<span class="ident">new</span>(<span class="string">&quot;jump_to_time_tabs&quot;</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tabs</span> <span class="op">=</span> <span class="ident">TabController::new</span>(<span class="string">&quot;jump_to_time_tabs&quot;</span>);
         <span class="ident">tabs</span>.<span class="ident">push_tab</span>(<span class="ident">jump_to_time_btn</span>, <span class="ident">jump_to_time_content</span>);
         <span class="ident">tabs</span>.<span class="ident">push_tab</span>(<span class="ident">jump_to_delay_btn</span>, <span class="ident">jump_to_delay_content</span>);
 
-        <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">JumpToTime</span> {
+        <span class="ident">Box::new</span>(<span class="ident">JumpToTime</span> {
             <span class="ident">target</span>,
             <span class="ident">maybe_mode</span>,
-            <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new_builder</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
+            <span class="ident">panel</span>: <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
                 <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
                 <span class="ident">tabs</span>.<span class="ident">build_widget</span>(<span class="ident">ctx</span>),
             ]))
-            .<span class="ident">exact_size</span>(<span class="ident">ScreenDims</span>::<span class="ident">new</span>(<span class="number">640.0</span>, <span class="number">360.0</span>))
+            .<span class="ident">exact_size</span>(<span class="ident">ScreenDims::new</span>(<span class="number">640.0</span>, <span class="number">360.0</span>))
             .<span class="ident">build</span>(<span class="ident">ctx</span>),
             <span class="ident">tabs</span>,
         })
@@ -563,19 +563,19 @@
 <span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">JumpToTime</span> {
     <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
+            <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
                 <span class="string">&quot;close&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Pop</span>;
+                    <span class="kw">return</span> <span class="ident">Transition::Pop</span>;
                 }
                 <span class="string">&quot;jump to time&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">if</span> <span class="self">self</span>.<span class="ident">target</span> <span class="op">&lt;</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>() {
                         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">mode</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">maybe_mode</span>.<span class="ident">take</span>() {
                             <span class="kw">let</span> <span class="ident">target_time</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">target</span>;
-                            <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">SandboxMode</span>::<span class="ident">async_new</span>(
+                            <span class="kw">return</span> <span class="ident">Transition::Replace</span>(<span class="ident">SandboxMode::async_new</span>(
                                 <span class="ident">app</span>,
                                 <span class="ident">mode</span>,
-                                <span class="ident">Box</span>::<span class="ident">new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
-                                    <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">TimeWarpScreen</span>::<span class="ident">new_state</span>(
+                                <span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
+                                    <span class="macro">vec!</span>[<span class="ident">Transition::Push</span>(<span class="ident">TimeWarpScreen::new_state</span>(
                                         <span class="ident">ctx</span>,
                                         <span class="ident">app</span>,
                                         <span class="ident">target_time</span>,
@@ -584,14 +584,14 @@
                                 }),
                             ));
                         } <span class="kw">else</span> {
-                            <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">PopupMsg</span>::<span class="ident">new_state</span>(
+                            <span class="kw">return</span> <span class="ident">Transition::Replace</span>(<span class="ident">PopupMsg::new_state</span>(
                                 <span class="ident">ctx</span>,
                                 <span class="string">&quot;Error&quot;</span>,
-                                <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;Sorry, you can&#39;t go rewind time from this mode.&quot;</span>],
+                                <span class="macro">vec!</span>[<span class="string">&quot;Sorry, you can&#39;t go rewind time from this mode.&quot;</span>],
                             ));
                         }
                     }
-                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">TimeWarpScreen</span>::<span class="ident">new_state</span>(
+                    <span class="kw">return</span> <span class="ident">Transition::Replace</span>(<span class="ident">TimeWarpScreen::new_state</span>(
                         <span class="ident">ctx</span>,
                         <span class="ident">app</span>,
                         <span class="self">self</span>.<span class="ident">target</span>,
@@ -601,7 +601,7 @@
                 <span class="string">&quot;jump to delay&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">let</span> <span class="ident">delay</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">dropdown_value</span>(<span class="string">&quot;delay&quot;</span>);
                     <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">jump_to_delay</span> <span class="op">=</span> <span class="ident">delay</span>;
-                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">TimeWarpScreen</span>::<span class="ident">new_state</span>(
+                    <span class="kw">return</span> <span class="ident">Transition::Replace</span>(<span class="ident">TimeWarpScreen::new_state</span>(
                         <span class="ident">ctx</span>,
                         <span class="ident">app</span>,
                         <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_end_of_day</span>(),
@@ -612,11 +612,11 @@
                     <span class="kw">if</span> <span class="self">self</span>.<span class="ident">tabs</span>.<span class="ident">handle_action</span>(<span class="ident">ctx</span>, <span class="ident">action</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">panel</span>) {
                         <span class="comment">// if true, tabs has handled the action</span>
                     } <span class="kw">else</span> {
-                        <span class="macro">unreachable</span><span class="macro">!</span>(<span class="string">&quot;unhandled action: {}&quot;</span>, <span class="ident">action</span>)
+                        <span class="macro">unreachable!</span>(<span class="string">&quot;unhandled action: {}&quot;</span>, <span class="ident">action</span>)
                     }
                 }
             },
-            <span class="ident">Outcome</span>::<span class="ident">Changed</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Outcome::Changed</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">if</span> <span class="self">self</span>.<span class="ident">tabs</span>.<span class="ident">active_tab_idx</span>() <span class="op">=</span><span class="op">=</span> <span class="number">1</span> {
                     <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(
                         <span class="ident">ctx</span>,
@@ -643,10 +643,10 @@
         }
 
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">clicked_outside</span>(<span class="ident">ctx</span>) {
-            <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Pop</span>;
+            <span class="kw">return</span> <span class="ident">Transition::Pop</span>;
         }
 
-        <span class="ident">Transition</span>::<span class="ident">Keep</span>
+        <span class="ident">Transition::Keep</span>
     }
 
     <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
@@ -659,7 +659,7 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TimeWarpScreen</span> {
     <span class="ident">target</span>: <span class="ident">Time</span>,
     <span class="ident">wall_time_started</span>: <span class="ident">Instant</span>,
-    <span class="ident">sim_time_started</span>: <span class="ident">geom</span>::<span class="ident">Time</span>,
+    <span class="ident">sim_time_started</span>: <span class="ident">geom::Time</span>,
     <span class="ident">halt_upon_delay</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>,
     <span class="ident">panel</span>: <span class="ident">Panel</span>,
 }
@@ -673,37 +673,37 @@
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">halt_limit</span>) <span class="op">=</span> <span class="ident">halt_upon_delay</span> {
             <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim_cb</span>.<span class="ident">is_none</span>() {
-                <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim_cb</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">FindDelayedIntersections</span> {
+                <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim_cb</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box::new</span>(<span class="ident">FindDelayedIntersections</span> {
                     <span class="ident">halt_limit</span>,
                     <span class="ident">report_limit</span>: <span class="ident">halt_limit</span>,
-                    <span class="ident">currently_delayed</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
+                    <span class="ident">currently_delayed</span>: <span class="ident">Vec::new</span>(),
                 }));
                 <span class="comment">// TODO Can we get away with less frequently? Not sure about all the edge cases</span>
-                <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">set_periodic_callback</span>(<span class="ident">Duration</span>::<span class="ident">minutes</span>(<span class="number">1</span>));
+                <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">set_periodic_callback</span>(<span class="ident">Duration::minutes</span>(<span class="number">1</span>));
             } <span class="kw">else</span> {
                 <span class="ident">halt_upon_delay</span> <span class="op">=</span> <span class="prelude-val">None</span>;
             }
         }
 
-        <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">TimeWarpScreen</span> {
+        <span class="ident">Box::new</span>(<span class="ident">TimeWarpScreen</span> {
             <span class="ident">target</span>,
-            <span class="ident">wall_time_started</span>: <span class="ident">Instant</span>::<span class="ident">now</span>(),
+            <span class="ident">wall_time_started</span>: <span class="ident">Instant::now</span>(),
             <span class="ident">sim_time_started</span>: <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>(),
             <span class="ident">halt_upon_delay</span>,
-            <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new_builder</span>(
-                <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                    <span class="ident">Text</span>::<span class="ident">new</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;text&quot;</span>),
-                    <span class="ident">Toggle</span>::<span class="ident">checkbox</span>(
+            <span class="ident">panel</span>: <span class="ident">Panel::new_builder</span>(
+                <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
+                    <span class="ident">Text::new</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;text&quot;</span>),
+                    <span class="ident">Toggle::checkbox</span>(
                         <span class="ident">ctx</span>,
                         <span class="string">&quot;skip drawing (for faster simulations)&quot;</span>,
-                        <span class="ident">Key</span>::<span class="ident">Space</span>,
+                        <span class="ident">Key::Space</span>,
                         <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dont_draw_time_warp</span>,
                     )
                     .<span class="ident">named</span>(<span class="string">&quot;don&#39;t draw&quot;</span>),
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
                         .<span class="ident">btn_outline</span>
                         .<span class="ident">text</span>(<span class="string">&quot;stop now&quot;</span>)
-                        .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Escape</span>)
+                        .<span class="ident">hotkey</span>(<span class="ident">Key::Escape</span>)
                         .<span class="ident">build_def</span>(<span class="ident">ctx</span>)
                         .<span class="ident">centered_horiz</span>(),
                 ])
@@ -722,26 +722,26 @@
             <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time_limited_step</span>(
                 <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>,
                 <span class="self">self</span>.<span class="ident">target</span> <span class="op">-</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>(),
-                <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="number">0.033</span>),
+                <span class="ident">Duration::seconds</span>(<span class="number">0.033</span>),
                 <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim_cb</span>,
             );
-            <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">never_loop</span>)]</span>
+            <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::never_loop</span>)]</span>
             <span class="kw">for</span> (<span class="ident">t</span>, <span class="ident">maybe_i</span>, <span class="ident">alert</span>) <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">clear_alerts</span>() {
                 <span class="comment">// TODO Just the first :(</span>
-                <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">PopupMsg</span>::<span class="ident">new_state</span>(
+                <span class="kw">return</span> <span class="ident">Transition::Replace</span>(<span class="ident">PopupMsg::new_state</span>(
                     <span class="ident">ctx</span>,
                     <span class="string">&quot;Alert&quot;</span>,
-                    <span class="macro">vec</span><span class="macro">!</span>[<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;At {}, near {:?}, {}&quot;</span>, <span class="ident">t</span>, <span class="ident">maybe_i</span>, <span class="ident">alert</span>)],
+                    <span class="macro">vec!</span>[<span class="macro">format!</span>(<span class="string">&quot;At {}, near {:?}, {}&quot;</span>, <span class="ident">t</span>, <span class="ident">maybe_i</span>, <span class="ident">alert</span>)],
                 ));
             }
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">cb</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim_cb</span> {
                 <span class="kw">let</span> <span class="ident">di</span> <span class="op">=</span> <span class="ident">cb</span>.<span class="ident">downcast_mut</span>::<span class="op">&lt;</span><span class="ident">FindDelayedIntersections</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">i</span>, <span class="ident">t</span>)) <span class="op">=</span> <span class="ident">di</span>.<span class="ident">currently_delayed</span>.<span class="ident">get</span>(<span class="number">0</span>) {
                     <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>() <span class="op">-</span> <span class="kw-2">*</span><span class="ident">t</span> <span class="op">&gt;</span> <span class="ident">di</span>.<span class="ident">halt_limit</span> {
-                        <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">ID</span>::<span class="ident">Intersection</span>(<span class="kw-2">*</span><span class="ident">i</span>);
+                        <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">ID::Intersection</span>(<span class="kw-2">*</span><span class="ident">i</span>);
                         <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span> <span class="op">=</span>
-                            <span class="prelude-val">Some</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="kw">crate</span>::<span class="ident">layer</span>::<span class="ident">traffic</span>::<span class="ident">TrafficJams</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)));
-                        <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">Warping</span>::<span class="ident">new_state</span>(
+                            <span class="prelude-val">Some</span>(<span class="ident">Box::new</span>(<span class="kw">crate</span><span class="ident">::layer::traffic::TrafficJams::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)));
+                        <span class="kw">return</span> <span class="ident">Transition::Replace</span>(<span class="ident">Warping::new_state</span>(
                             <span class="ident">ctx</span>,
                             <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">canonical_point</span>(<span class="ident">id</span>.<span class="ident">clone</span>()).<span class="ident">unwrap</span>(),
                             <span class="prelude-val">Some</span>(<span class="number">10.0</span>),
@@ -768,29 +768,29 @@
             };
 
             <span class="kw">let</span> <span class="ident">elapsed_sim_time</span> <span class="op">=</span> <span class="ident">now</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">sim_time_started</span>;
-            <span class="kw">let</span> <span class="ident">elapsed_wall_time</span> <span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">realtime_elapsed</span>(<span class="self">self</span>.<span class="ident">wall_time_started</span>);
-            <span class="kw">let</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
+            <span class="kw">let</span> <span class="ident">elapsed_wall_time</span> <span class="op">=</span> <span class="ident">Duration::realtime_elapsed</span>(<span class="self">self</span>.<span class="ident">wall_time_started</span>);
+            <span class="kw">let</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::from_multiline</span>(<span class="macro">vec!</span>[
                 <span class="comment">// I&#39;m covered in shame for not doing this from the start.</span>
                 <span class="ident">Line</span>(<span class="string">&quot;Let&#39;s do the time warp again!&quot;</span>).<span class="ident">small_heading</span>(),
-                <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(
+                <span class="ident">Line</span>(<span class="macro">format!</span>(
                     <span class="string">&quot;{} / {}&quot;</span>,
                     <span class="ident">now</span>.<span class="ident">ampm_tostring</span>(),
                     <span class="self">self</span>.<span class="ident">target</span>.<span class="ident">ampm_tostring</span>()
                 )),
-                <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(
+                <span class="ident">Line</span>(<span class="macro">format!</span>(
                     <span class="string">&quot;Speed: {}x&quot;</span>,
                     <span class="ident">prettyprint_usize</span>((<span class="ident">elapsed_sim_time</span> <span class="op">/</span> <span class="ident">elapsed_wall_time</span>) <span class="kw">as</span> <span class="ident">usize</span>)
                 )),
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">n</span>) <span class="op">=</span> <span class="ident">finished_before</span> {
                     <span class="comment">// TODO Underline</span>
-                    <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(
+                    <span class="ident">Line</span>(<span class="macro">format!</span>(
                         <span class="string">&quot;Finished trips: {} ({} compared to before \&quot;{}\&quot;)&quot;</span>,
                         <span class="ident">prettyprint_usize</span>(<span class="ident">finished_after</span>),
                         <span class="ident">compare_count</span>(<span class="ident">finished_after</span>, <span class="ident">n</span>),
                         <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">edits_name</span>,
                     ))
                 } <span class="kw">else</span> {
-                    <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(
+                    <span class="ident">Line</span>(<span class="macro">format!</span>(
                         <span class="string">&quot;Finished trips: {}&quot;</span>,
                         <span class="ident">prettyprint_usize</span>(<span class="ident">finished_after</span>)
                     ))
@@ -802,38 +802,38 @@
         <span class="comment">// &gt;= because of the case of resetting to midnight. GameplayMode::initialize takes a tiny</span>
         <span class="comment">// step past midnight after spawning things, so that agents initially appear on the map.</span>
         <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">target</span> {
-            <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Pop</span>;
+            <span class="kw">return</span> <span class="ident">Transition::Pop</span>;
         }
 
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="ident">Outcome</span>::<span class="ident">Changed</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Outcome::Changed</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dont_draw_time_warp</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;don&#39;t draw&quot;</span>);
             }
-            <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
+            <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
                 <span class="string">&quot;stop now&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Pop</span>;
+                    <span class="kw">return</span> <span class="ident">Transition::Pop</span>;
                 }
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
             },
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
         }
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">clicked_outside</span>(<span class="ident">ctx</span>) {
-            <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Pop</span>;
+            <span class="kw">return</span> <span class="ident">Transition::Pop</span>;
         }
 
-        <span class="ident">ctx</span>.<span class="ident">request_update</span>(<span class="ident">UpdateType</span>::<span class="ident">Game</span>);
-        <span class="ident">Transition</span>::<span class="ident">Keep</span>
+        <span class="ident">ctx</span>.<span class="ident">request_update</span>(<span class="ident">UpdateType::Game</span>);
+        <span class="ident">Transition::Keep</span>
     }
 
     <span class="kw">fn</span> <span class="ident">draw_baselayer</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DrawBaselayer</span> {
-        <span class="ident">DrawBaselayer</span>::<span class="ident">Custom</span>
+        <span class="ident">DrawBaselayer::Custom</span>
     }
 
     <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
         <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dont_draw_time_warp</span> {
             <span class="ident">g</span>.<span class="ident">clear</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">inner_panel_bg</span>);
         } <span class="kw">else</span> {
-            <span class="ident">app</span>.<span class="ident">draw</span>(<span class="ident">g</span>, <span class="ident">DrawOptions</span>::<span class="ident">new</span>(), <span class="kw-2">&amp;</span><span class="ident">ShowEverything</span>::<span class="ident">new</span>());
+            <span class="ident">app</span>.<span class="ident">draw</span>(<span class="ident">g</span>, <span class="ident">DrawOptions::new</span>(), <span class="kw-2">&amp;</span><span class="ident">ShowEverything::new</span>());
             <span class="ident">grey_out_map</span>(<span class="ident">g</span>, <span class="ident">app</span>);
         }
 
@@ -842,7 +842,7 @@
 
     <span class="kw">fn</span> <span class="ident">on_destroy</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">halt_upon_delay</span>.<span class="ident">is_some</span>() {
-            <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim_cb</span>.<span class="ident">is_some</span>());
+            <span class="macro">assert!</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim_cb</span>.<span class="ident">is_some</span>());
             <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim_cb</span> <span class="op">=</span> <span class="prelude-val">None</span>;
             <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">unset_periodic_callback</span>();
         }
@@ -850,37 +850,37 @@
 }
 
 <span class="kw">fn</span> <span class="ident">area_under_curve</span>(<span class="ident">raw</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Time</span>, <span class="ident">usize</span>)<span class="op">&gt;</span>, <span class="ident">width</span>: <span class="ident">f64</span>, <span class="ident">height</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Polygon</span> {
-    <span class="macro">assert</span><span class="macro">!</span>(<span class="op">!</span><span class="ident">raw</span>.<span class="ident">is_empty</span>());
-    <span class="kw">let</span> <span class="ident">min_x</span> <span class="op">=</span> <span class="ident">Time</span>::<span class="ident">START_OF_DAY</span>;
+    <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">raw</span>.<span class="ident">is_empty</span>());
+    <span class="kw">let</span> <span class="ident">min_x</span> <span class="op">=</span> <span class="ident">Time::START_OF_DAY</span>;
     <span class="kw">let</span> <span class="ident">min_y</span> <span class="op">=</span> <span class="number">0</span>;
     <span class="kw">let</span> <span class="ident">max_x</span> <span class="op">=</span> <span class="ident">raw</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>().<span class="number">0</span>;
     <span class="kw">let</span> <span class="ident">max_y</span> <span class="op">=</span> <span class="ident">raw</span>.<span class="ident">iter</span>().<span class="ident">max_by_key</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">cnt</span>)<span class="op">|</span> <span class="kw-2">*</span><span class="ident">cnt</span>).<span class="ident">unwrap</span>().<span class="number">1</span>;
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
     <span class="kw">for</span> (<span class="ident">t</span>, <span class="ident">cnt</span>) <span class="kw">in</span> <span class="ident">raw</span> {
-        <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">lttb</span>::<span class="ident">DataPoint</span>::<span class="ident">new</span>(
+        <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">lttb::DataPoint::new</span>(
             <span class="ident">width</span> <span class="op">*</span> (<span class="ident">t</span> <span class="op">-</span> <span class="ident">min_x</span>) <span class="op">/</span> (<span class="ident">max_x</span> <span class="op">-</span> <span class="ident">min_x</span>),
             <span class="ident">height</span> <span class="op">*</span> (<span class="number">1.0</span> <span class="op">-</span> (((<span class="ident">cnt</span> <span class="op">-</span> <span class="ident">min_y</span>) <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> ((<span class="ident">max_y</span> <span class="op">-</span> <span class="ident">min_y</span>) <span class="kw">as</span> <span class="ident">f64</span>))),
         ));
     }
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">downsampled</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
-    <span class="kw">for</span> <span class="ident">pt</span> <span class="kw">in</span> <span class="ident">lttb</span>::<span class="ident">lttb</span>(<span class="ident">pts</span>, <span class="number">100</span>) {
-        <span class="ident">downsampled</span>.<span class="ident">push</span>(<span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="ident">pt</span>.<span class="ident">x</span>, <span class="ident">pt</span>.<span class="ident">y</span>));
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">downsampled</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+    <span class="kw">for</span> <span class="ident">pt</span> <span class="kw">in</span> <span class="ident">lttb::lttb</span>(<span class="ident">pts</span>, <span class="number">100</span>) {
+        <span class="ident">downsampled</span>.<span class="ident">push</span>(<span class="ident">Pt2D::new</span>(<span class="ident">pt</span>.<span class="ident">x</span>, <span class="ident">pt</span>.<span class="ident">y</span>));
     }
-    <span class="ident">downsampled</span>.<span class="ident">push</span>(<span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="ident">width</span>, <span class="ident">height</span>));
+    <span class="ident">downsampled</span>.<span class="ident">push</span>(<span class="ident">Pt2D::new</span>(<span class="ident">width</span>, <span class="ident">height</span>));
     <span class="ident">downsampled</span>.<span class="ident">push</span>(<span class="ident">downsampled</span>[<span class="number">0</span>]);
-    <span class="ident">Ring</span>::<span class="ident">must_new</span>(<span class="ident">downsampled</span>).<span class="ident">into_polygon</span>()
+    <span class="ident">Ring::must_new</span>(<span class="ident">downsampled</span>).<span class="ident">into_polygon</span>()
 }
 
 <span class="comment">// TODO Maybe color, put in helpers</span>
 <span class="kw">fn</span> <span class="ident">compare_count</span>(<span class="ident">after</span>: <span class="ident">usize</span>, <span class="ident">before</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
     <span class="kw">match</span> <span class="ident">after</span>.<span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="ident">before</span>) {
-        <span class="ident">std</span>::<span class="ident">cmp</span>::<span class="ident">Ordering</span>::<span class="ident">Equal</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;+0&quot;</span>.<span class="ident">to_string</span>(),
-        <span class="ident">std</span>::<span class="ident">cmp</span>::<span class="ident">Ordering</span>::<span class="ident">Greater</span> <span class="op">=</span><span class="op">&gt;</span> {
-            <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;+{}&quot;</span>, <span class="ident">prettyprint_usize</span>(<span class="ident">after</span> <span class="op">-</span> <span class="ident">before</span>))
+        <span class="ident">std::cmp::Ordering::Equal</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;+0&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="ident">std::cmp::Ordering::Greater</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="macro">format!</span>(<span class="string">&quot;+{}&quot;</span>, <span class="ident">prettyprint_usize</span>(<span class="ident">after</span> <span class="op">-</span> <span class="ident">before</span>))
         }
-        <span class="ident">std</span>::<span class="ident">cmp</span>::<span class="ident">Ordering</span>::<span class="ident">Less</span> <span class="op">=</span><span class="op">&gt;</span> {
-            <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;-{}&quot;</span>, <span class="ident">prettyprint_usize</span>(<span class="ident">before</span> <span class="op">-</span> <span class="ident">after</span>))
+        <span class="ident">std::cmp::Ordering::Less</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="macro">format!</span>(<span class="string">&quot;-{}&quot;</span>, <span class="ident">prettyprint_usize</span>(<span class="ident">before</span> <span class="op">-</span> <span class="ident">after</span>))
         }
     }
 }
@@ -888,8 +888,8 @@
 <span class="kw">fn</span> <span class="ident">build_jump_to_time_btn</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">target</span>: <span class="ident">Time</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
     <span class="ident">ctx</span>.<span class="ident">style</span>()
         .<span class="ident">btn_solid_primary</span>
-        .<span class="ident">text</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Jump to {}&quot;</span>, <span class="ident">target</span>.<span class="ident">ampm_tostring</span>()))
-        .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Enter</span>)
+        .<span class="ident">text</span>(<span class="macro">format!</span>(<span class="string">&quot;Jump to {}&quot;</span>, <span class="ident">target</span>.<span class="ident">ampm_tostring</span>()))
+        .<span class="ident">hotkey</span>(<span class="ident">Key::Enter</span>)
         .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;jump to time&quot;</span>)
         .<span class="ident">centered_horiz</span>()
         .<span class="ident">margin_above</span>(<span class="number">16</span>)
@@ -898,12 +898,12 @@
 <span class="kw">fn</span> <span class="ident">build_jump_to_delay_button</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">delay</span>: <span class="ident">Duration</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
     <span class="ident">ctx</span>.<span class="ident">style</span>()
         .<span class="ident">btn_solid_primary</span>
-        .<span class="ident">text</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Jump to next {} delay&quot;</span>, <span class="ident">delay</span>))
-        .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Enter</span>)
+        .<span class="ident">text</span>(<span class="macro">format!</span>(<span class="string">&quot;Jump to next {} delay&quot;</span>, <span class="ident">delay</span>))
+        .<span class="ident">hotkey</span>(<span class="ident">Key::Enter</span>)
         .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;jump to delay&quot;</span>)
         .<span class="ident">centered_horiz</span>()
         .<span class="ident">margin_above</span>(<span class="number">16</span>)
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="game" data-search-js="../../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="game" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
     <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script></body></html>

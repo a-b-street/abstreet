@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../map_model/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../map_model/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -142,51 +142,51 @@
 <span class="doccomment">//! - t = turn</span>
 <span class="doccomment">//! - ts = traffic signal</span>
 
-<span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">new_without_default</span>)]</span>
+<span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::new_without_default</span>)]</span>
 
 <span class="attribute">#[<span class="ident">macro_use</span>]</span>
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">anyhow</span>;
 <span class="attribute">#[<span class="ident">macro_use</span>]</span>
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">log</span>;
 
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeMap</span>;
+<span class="kw">use</span> <span class="ident">std::collections::BTreeMap</span>;
 
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
-<span class="kw">use</span> <span class="ident">abstio</span>::<span class="ident">MapName</span>;
+<span class="kw">use</span> <span class="ident">abstio::MapName</span>;
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">deserialize_btreemap</span>, <span class="ident">serialize_btreemap</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Bounds</span>, <span class="ident">GPSBounds</span>, <span class="ident">Polygon</span>};
 
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">city</span>::<span class="ident">City</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">edits</span>::{
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::city::City</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::edits</span>::{
     <span class="ident">EditCmd</span>, <span class="ident">EditEffects</span>, <span class="ident">EditIntersection</span>, <span class="ident">EditRoad</span>, <span class="ident">MapEdits</span>, <span class="ident">PermanentMapEdits</span>,
 };
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">make</span>::<span class="ident">RawToMapOptions</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">map</span>::{<span class="ident">DrivingSide</span>, <span class="ident">MapConfig</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">objects</span>::<span class="ident">area</span>::{<span class="ident">Area</span>, <span class="ident">AreaID</span>, <span class="ident">AreaType</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">objects</span>::<span class="ident">building</span>::{
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::make::RawToMapOptions</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::map</span>::{<span class="ident">DrivingSide</span>, <span class="ident">MapConfig</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::objects::area</span>::{<span class="ident">Area</span>, <span class="ident">AreaID</span>, <span class="ident">AreaType</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::objects::building</span>::{
     <span class="ident">Amenity</span>, <span class="ident">AmenityType</span>, <span class="ident">Building</span>, <span class="ident">BuildingID</span>, <span class="ident">BuildingType</span>, <span class="ident">NamePerLanguage</span>, <span class="ident">OffstreetParking</span>,
 };
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">objects</span>::<span class="ident">bus_stop</span>::{<span class="ident">BusRoute</span>, <span class="ident">BusRouteID</span>, <span class="ident">BusStop</span>, <span class="ident">BusStopID</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">objects</span>::<span class="ident">intersection</span>::{<span class="ident">Intersection</span>, <span class="ident">IntersectionID</span>, <span class="ident">IntersectionType</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">objects</span>::<span class="ident">lane</span>::{
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::objects::bus_stop</span>::{<span class="ident">BusRoute</span>, <span class="ident">BusRouteID</span>, <span class="ident">BusStop</span>, <span class="ident">BusStopID</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::objects::intersection</span>::{<span class="ident">Intersection</span>, <span class="ident">IntersectionID</span>, <span class="ident">IntersectionType</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::objects::lane</span>::{
     <span class="ident">Lane</span>, <span class="ident">LaneID</span>, <span class="ident">LaneSpec</span>, <span class="ident">LaneType</span>, <span class="ident">NORMAL_LANE_THICKNESS</span>, <span class="ident">PARKING_LOT_SPOT_LENGTH</span>,
     <span class="ident">SIDEWALK_THICKNESS</span>,
 };
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">objects</span>::<span class="ident">parking_lot</span>::{<span class="ident">ParkingLot</span>, <span class="ident">ParkingLotID</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">objects</span>::<span class="ident">road</span>::{<span class="ident">DirectedRoadID</span>, <span class="ident">Direction</span>, <span class="ident">Road</span>, <span class="ident">RoadID</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">objects</span>::<span class="ident">stop_signs</span>::{<span class="ident">ControlStopSign</span>, <span class="ident">RoadWithStopSign</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">objects</span>::<span class="ident">traffic_signals</span>::{<span class="ident">ControlTrafficSignal</span>, <span class="ident">Stage</span>, <span class="ident">StageType</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">objects</span>::<span class="ident">turn</span>::{
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::objects::parking_lot</span>::{<span class="ident">ParkingLot</span>, <span class="ident">ParkingLotID</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::objects::road</span>::{<span class="ident">DirectedRoadID</span>, <span class="ident">Direction</span>, <span class="ident">Road</span>, <span class="ident">RoadID</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::objects::stop_signs</span>::{<span class="ident">ControlStopSign</span>, <span class="ident">RoadWithStopSign</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::objects::traffic_signals</span>::{<span class="ident">ControlTrafficSignal</span>, <span class="ident">Stage</span>, <span class="ident">StageType</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::objects::turn</span>::{
     <span class="ident">CompressedMovementID</span>, <span class="ident">Movement</span>, <span class="ident">MovementID</span>, <span class="ident">Turn</span>, <span class="ident">TurnID</span>, <span class="ident">TurnPriority</span>, <span class="ident">TurnType</span>,
 };
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">objects</span>::<span class="ident">zone</span>::{<span class="ident">AccessRestrictions</span>, <span class="ident">Zone</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pathfind</span>::<span class="ident">uber_turns</span>::{<span class="ident">IntersectionCluster</span>, <span class="ident">UberTurn</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pathfind</span>::<span class="ident">Pathfinder</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">pathfind</span>::{
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::objects::zone</span>::{<span class="ident">AccessRestrictions</span>, <span class="ident">Zone</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::pathfind::uber_turns</span>::{<span class="ident">IntersectionCluster</span>, <span class="ident">UberTurn</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::pathfind::Pathfinder</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::pathfind</span>::{
     <span class="ident">Path</span>, <span class="ident">PathConstraints</span>, <span class="ident">PathRequest</span>, <span class="ident">PathStep</span>, <span class="ident">PathStepV2</span>, <span class="ident">PathV2</span>, <span class="ident">RoutingParams</span>,
 };
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">traversable</span>::{<span class="ident">Position</span>, <span class="ident">Traversable</span>, <span class="ident">MAX_BIKE_SPEED</span>, <span class="ident">MAX_WALKING_SPEED</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::traversable</span>::{<span class="ident">Position</span>, <span class="ident">Traversable</span>, <span class="ident">MAX_BIKE_SPEED</span>, <span class="ident">MAX_WALKING_SPEED</span>};
 
 <span class="kw">mod</span> <span class="ident">city</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">connectivity</span>;
@@ -237,5 +237,5 @@
     <span class="ident">edits</span>: <span class="ident">MapEdits</span>,
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="map_model" data-search-js="../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="map_model" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script></body></html>

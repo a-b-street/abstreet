@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `game/src/layer/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../game/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../game/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -292,15 +292,15 @@
 <span id="289">289</span>
 <span id="290">290</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">tools</span>::{<span class="ident">grey_out_map</span>, <span class="ident">HeatmapOptions</span>};
-<span class="kw">use</span> <span class="ident">sim</span>::<span class="ident">AgentType</span>;
+<span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">grey_out_map</span>, <span class="ident">HeatmapOptions</span>};
+<span class="kw">use</span> <span class="ident">sim::AgentType</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">DrawBaselayer</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Image</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>,
     <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sandbox</span>::<span class="ident">dashboards</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::sandbox::dashboards</span>;
 
 <span class="kw">mod</span> <span class="ident">elevation</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">favorites</span>;
@@ -327,9 +327,9 @@
 <span class="kw">impl</span> <span class="kw">dyn</span> <span class="ident">Layer</span> {
     <span class="kw">fn</span> <span class="ident">simple_event</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">panel</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Panel</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">LayerOutcome</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
-                <span class="string">&quot;close&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">LayerOutcome</span>::<span class="ident">Close</span>),
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+            <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
+                <span class="string">&quot;close&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">LayerOutcome::Close</span>),
+                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
             },
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
         }
@@ -354,11 +354,11 @@
         <span class="comment">// TODO Since the Layer is embedded in App, we have to do this slight trick</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">layer</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>();
         <span class="kw">match</span> <span class="ident">layer</span>.<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="ident">app</span>) {
-            <span class="prelude-val">Some</span>(<span class="ident">LayerOutcome</span>::<span class="ident">Close</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Some</span>(<span class="ident">LayerOutcome::Close</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">None</span>;
                 <span class="kw">return</span> <span class="prelude-val">None</span>;
             }
-            <span class="prelude-val">Some</span>(<span class="ident">LayerOutcome</span>::<span class="ident">Replace</span>(<span class="ident">l</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Some</span>(<span class="ident">LayerOutcome::Replace</span>(<span class="ident">l</span>)) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">l</span>);
                 <span class="kw">return</span> <span class="prelude-val">None</span>;
             }
@@ -370,7 +370,7 @@
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pick</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">col</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">col</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">Widget::custom_row</span>(<span class="macro">vec!</span>[
             <span class="ident">Line</span>(<span class="string">&quot;Layers&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
             <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
         ])];
@@ -388,59 +388,59 @@
                 .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="ident">name</span>)
         };
 
-        <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">btn</span>(<span class="string">&quot;None&quot;</span>, <span class="ident">Key</span>::<span class="ident">N</span>));
+        <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">btn</span>(<span class="string">&quot;None&quot;</span>, <span class="ident">Key::N</span>));
 
         <span class="ident">col</span>.<span class="ident">push</span>(
-            <span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
+            <span class="ident">Widget::custom_row</span>(<span class="macro">vec!</span>[
+                <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
                     <span class="string">&quot;Traffic&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
-                    <span class="ident">btn</span>(<span class="string">&quot;delay&quot;</span>, <span class="ident">Key</span>::<span class="ident">D</span>),
-                    <span class="ident">btn</span>(<span class="string">&quot;throughput&quot;</span>, <span class="ident">Key</span>::<span class="ident">T</span>),
-                    <span class="ident">btn</span>(<span class="string">&quot;traffic jams&quot;</span>, <span class="ident">Key</span>::<span class="ident">J</span>),
-                    <span class="ident">btn</span>(<span class="string">&quot;cycling activity&quot;</span>, <span class="ident">Key</span>::<span class="ident">B</span>),
+                    <span class="ident">btn</span>(<span class="string">&quot;delay&quot;</span>, <span class="ident">Key::D</span>),
+                    <span class="ident">btn</span>(<span class="string">&quot;throughput&quot;</span>, <span class="ident">Key::T</span>),
+                    <span class="ident">btn</span>(<span class="string">&quot;traffic jams&quot;</span>, <span class="ident">Key::J</span>),
+                    <span class="ident">btn</span>(<span class="string">&quot;cycling activity&quot;</span>, <span class="ident">Key::B</span>),
                 ]),
-                <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
                     <span class="string">&quot;Map&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
-                    <span class="ident">btn</span>(<span class="string">&quot;map edits&quot;</span>, <span class="ident">Key</span>::<span class="ident">E</span>),
-                    <span class="ident">btn</span>(<span class="string">&quot;parking occupancy&quot;</span>, <span class="ident">Key</span>::<span class="ident">P</span>),
-                    <span class="ident">btn</span>(<span class="string">&quot;transit network&quot;</span>, <span class="ident">Key</span>::<span class="ident">U</span>),
-                    <span class="ident">btn</span>(<span class="string">&quot;population map&quot;</span>, <span class="ident">Key</span>::<span class="ident">X</span>),
-                    <span class="ident">btn</span>(<span class="string">&quot;no sidewalks&quot;</span>, <span class="ident">Key</span>::<span class="ident">S</span>),
-                    <span class="ident">btn</span>(<span class="string">&quot;favorite buildings&quot;</span>, <span class="ident">Key</span>::<span class="ident">F</span>),
+                    <span class="ident">btn</span>(<span class="string">&quot;map edits&quot;</span>, <span class="ident">Key::E</span>),
+                    <span class="ident">btn</span>(<span class="string">&quot;parking occupancy&quot;</span>, <span class="ident">Key::P</span>),
+                    <span class="ident">btn</span>(<span class="string">&quot;transit network&quot;</span>, <span class="ident">Key::U</span>),
+                    <span class="ident">btn</span>(<span class="string">&quot;population map&quot;</span>, <span class="ident">Key::X</span>),
+                    <span class="ident">btn</span>(<span class="string">&quot;no sidewalks&quot;</span>, <span class="ident">Key::S</span>),
+                    <span class="ident">btn</span>(<span class="string">&quot;favorite buildings&quot;</span>, <span class="ident">Key::F</span>),
                 ]),
             ])
             .<span class="ident">evenly_spaced</span>(),
         );
 
         <span class="ident">col</span>.<span class="ident">push</span>(
-            <span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
+            <span class="ident">Widget::custom_row</span>(<span class="macro">vec!</span>[
+                <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
                     <span class="string">&quot;Experimental&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
-                    <span class="ident">btn</span>(<span class="string">&quot;amenities&quot;</span>, <span class="ident">Key</span>::<span class="ident">A</span>),
-                    <span class="ident">btn</span>(<span class="string">&quot;backpressure&quot;</span>, <span class="ident">Key</span>::<span class="ident">Z</span>),
-                    <span class="ident">btn</span>(<span class="string">&quot;steep streets&quot;</span>, <span class="ident">Key</span>::<span class="ident">V</span>),
-                    <span class="ident">btn</span>(<span class="string">&quot;elevation&quot;</span>, <span class="ident">Key</span>::<span class="ident">G</span>),
-                    <span class="ident">btn</span>(<span class="string">&quot;parking efficiency&quot;</span>, <span class="ident">Key</span>::<span class="ident">O</span>),
-                    <span class="ident">btn</span>(<span class="string">&quot;blackholes&quot;</span>, <span class="ident">Key</span>::<span class="ident">L</span>),
-                    <span class="ident">btn</span>(<span class="string">&quot;congestion caps&quot;</span>, <span class="ident">Key</span>::<span class="ident">C</span>),
-                    <span class="ident">btn</span>(<span class="string">&quot;problem map&quot;</span>, <span class="ident">Key</span>::<span class="ident">K</span>),
+                    <span class="ident">btn</span>(<span class="string">&quot;amenities&quot;</span>, <span class="ident">Key::A</span>),
+                    <span class="ident">btn</span>(<span class="string">&quot;backpressure&quot;</span>, <span class="ident">Key::Z</span>),
+                    <span class="ident">btn</span>(<span class="string">&quot;steep streets&quot;</span>, <span class="ident">Key::V</span>),
+                    <span class="ident">btn</span>(<span class="string">&quot;elevation&quot;</span>, <span class="ident">Key::G</span>),
+                    <span class="ident">btn</span>(<span class="string">&quot;parking efficiency&quot;</span>, <span class="ident">Key::O</span>),
+                    <span class="ident">btn</span>(<span class="string">&quot;blackholes&quot;</span>, <span class="ident">Key::L</span>),
+                    <span class="ident">btn</span>(<span class="string">&quot;congestion caps&quot;</span>, <span class="ident">Key::C</span>),
+                    <span class="ident">btn</span>(<span class="string">&quot;problem map&quot;</span>, <span class="ident">Key::K</span>),
                     <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_pandemic_model</span>().<span class="ident">is_some</span>() {
-                        <span class="ident">btn</span>(<span class="string">&quot;pandemic model&quot;</span>, <span class="ident">Key</span>::<span class="ident">Y</span>)
+                        <span class="ident">btn</span>(<span class="string">&quot;pandemic model&quot;</span>, <span class="ident">Key::Y</span>)
                     } <span class="kw">else</span> {
-                        <span class="ident">Widget</span>::<span class="ident">nothing</span>()
+                        <span class="ident">Widget::nothing</span>()
                     },
                 ]),
-                <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
                     <span class="string">&quot;Data&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
-                    <span class="ident">btn</span>(<span class="string">&quot;traffic signal demand&quot;</span>, <span class="ident">Key</span>::<span class="ident">M</span>),
-                    <span class="ident">btn</span>(<span class="string">&quot;commuter patterns&quot;</span>, <span class="ident">Key</span>::<span class="ident">R</span>),
+                    <span class="ident">btn</span>(<span class="string">&quot;traffic signal demand&quot;</span>, <span class="ident">Key::M</span>),
+                    <span class="ident">btn</span>(<span class="string">&quot;commuter patterns&quot;</span>, <span class="ident">Key::R</span>),
                 ]),
             ])
             .<span class="ident">evenly_spaced</span>(),
         );
 
-        <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">PickLayer</span> {
-            <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new_builder</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="ident">col</span>))
+        <span class="ident">Box::new</span>(<span class="ident">PickLayer</span> {
+            <span class="ident">panel</span>: <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="ident">col</span>))
                 .<span class="ident">exact_size_percent</span>(<span class="number">35</span>, <span class="number">70</span>)
                 .<span class="ident">build</span>(<span class="ident">ctx</span>),
         })
@@ -450,115 +450,115 @@
 <span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">PickLayer</span> {
     <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
+            <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
                 <span class="string">&quot;close&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {}
                 <span class="string">&quot;None&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">None</span>;
                 }
                 <span class="string">&quot;amenities&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">map</span>::<span class="ident">Static</span>::<span class="ident">amenities</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)));
+                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box::new</span>(<span class="ident">map::Static::amenities</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)));
                 }
                 <span class="string">&quot;backpressure&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">traffic</span>::<span class="ident">Backpressure</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)));
+                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box::new</span>(<span class="ident">traffic::Backpressure::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)));
                 }
                 <span class="string">&quot;cycling activity&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">map</span>::<span class="ident">BikeActivity</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)));
+                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box::new</span>(<span class="ident">map::BikeActivity::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)));
                 }
                 <span class="string">&quot;delay&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">traffic</span>::<span class="ident">Delay</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)));
+                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box::new</span>(<span class="ident">traffic::Delay::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)));
                 }
                 <span class="string">&quot;steep streets&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">elevation</span>::<span class="ident">SteepStreets</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)));
+                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box::new</span>(<span class="ident">elevation::SteepStreets::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)));
                 }
                 <span class="string">&quot;elevation&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">elevation</span>::<span class="ident">ElevationContours</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)));
+                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box::new</span>(<span class="ident">elevation::ElevationContours::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)));
                 }
                 <span class="string">&quot;map edits&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">map</span>::<span class="ident">Static</span>::<span class="ident">edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)));
+                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box::new</span>(<span class="ident">map::Static::edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)));
                 }
                 <span class="string">&quot;no sidewalks&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">map</span>::<span class="ident">Static</span>::<span class="ident">no_sidewalks</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)));
+                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box::new</span>(<span class="ident">map::Static::no_sidewalks</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)));
                 }
                 <span class="string">&quot;favorite buildings&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">favorites</span>::<span class="ident">ShowFavorites</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)));
+                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box::new</span>(<span class="ident">favorites::ShowFavorites::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)));
                 }
                 <span class="string">&quot;pandemic model&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">pandemic</span>::<span class="ident">Pandemic</span>::<span class="ident">new</span>(
+                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box::new</span>(<span class="ident">pandemic::Pandemic::new</span>(
                         <span class="ident">ctx</span>,
                         <span class="ident">app</span>,
-                        <span class="ident">pandemic</span>::<span class="ident">Options</span> {
-                            <span class="ident">heatmap</span>: <span class="prelude-val">Some</span>(<span class="ident">HeatmapOptions</span>::<span class="ident">new</span>()),
-                            <span class="ident">state</span>: <span class="ident">pandemic</span>::<span class="ident">Seir</span>::<span class="ident">Infected</span>,
+                        <span class="ident">pandemic::Options</span> {
+                            <span class="ident">heatmap</span>: <span class="prelude-val">Some</span>(<span class="ident">HeatmapOptions::new</span>()),
+                            <span class="ident">state</span>: <span class="ident">pandemic::Seir::Infected</span>,
                         },
                     )));
                 }
                 <span class="string">&quot;blackholes&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">map</span>::<span class="ident">Static</span>::<span class="ident">blackholes</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)));
+                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box::new</span>(<span class="ident">map::Static::blackholes</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)));
                 }
                 <span class="string">&quot;congestion caps&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">map</span>::<span class="ident">CongestionCaps</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)));
+                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box::new</span>(<span class="ident">map::CongestionCaps::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)));
                 }
                 <span class="string">&quot;parking occupancy&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">parking</span>::<span class="ident">Occupancy</span>::<span class="ident">new</span>(
+                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box::new</span>(<span class="ident">parking::Occupancy::new</span>(
                         <span class="ident">ctx</span>, <span class="ident">app</span>, <span class="bool-val">true</span>, <span class="bool-val">true</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>,
                     )));
                 }
                 <span class="string">&quot;parking efficiency&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">parking</span>::<span class="ident">Efficiency</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)));
+                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box::new</span>(<span class="ident">parking::Efficiency::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)));
                 }
                 <span class="string">&quot;population map&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">population</span>::<span class="ident">PopulationMap</span>::<span class="ident">new</span>(
+                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box::new</span>(<span class="ident">population::PopulationMap::new</span>(
                         <span class="ident">ctx</span>,
                         <span class="ident">app</span>,
-                        <span class="ident">population</span>::<span class="ident">Options</span> {
-                            <span class="ident">heatmap</span>: <span class="prelude-val">Some</span>(<span class="ident">HeatmapOptions</span>::<span class="ident">new</span>()),
+                        <span class="ident">population::Options</span> {
+                            <span class="ident">heatmap</span>: <span class="prelude-val">Some</span>(<span class="ident">HeatmapOptions::new</span>()),
                         },
                     )));
                 }
                 <span class="string">&quot;problem map&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">problems</span>::<span class="ident">ProblemMap</span>::<span class="ident">new</span>(
+                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box::new</span>(<span class="ident">problems::ProblemMap::new</span>(
                         <span class="ident">ctx</span>,
                         <span class="ident">app</span>,
-                        <span class="ident">problems</span>::<span class="ident">Options</span>::<span class="ident">new</span>(<span class="ident">app</span>),
+                        <span class="ident">problems::Options::new</span>(<span class="ident">app</span>),
                     )));
                 }
                 <span class="string">&quot;throughput&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">traffic</span>::<span class="ident">Throughput</span>::<span class="ident">new</span>(
+                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box::new</span>(<span class="ident">traffic::Throughput::new</span>(
                         <span class="ident">ctx</span>,
                         <span class="ident">app</span>,
-                        <span class="ident">AgentType</span>::<span class="ident">all</span>().<span class="ident">into_iter</span>().<span class="ident">collect</span>(),
+                        <span class="ident">AgentType::all</span>().<span class="ident">into_iter</span>().<span class="ident">collect</span>(),
                     )));
                 }
                 <span class="string">&quot;traffic jams&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">traffic</span>::<span class="ident">TrafficJams</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)));
+                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box::new</span>(<span class="ident">traffic::TrafficJams::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)));
                 }
                 <span class="string">&quot;transit network&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">transit</span>::<span class="ident">TransitNetwork</span>::<span class="ident">new</span>(
+                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box::new</span>(<span class="ident">transit::TransitNetwork::new</span>(
                         <span class="ident">ctx</span>, <span class="ident">app</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="bool-val">true</span>,
                     )));
                 }
                 <span class="string">&quot;traffic signal demand&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">dashboards</span>::<span class="ident">TrafficSignalDemand</span>::<span class="ident">new_state</span>(
+                    <span class="kw">return</span> <span class="ident">Transition::Replace</span>(<span class="ident">dashboards::TrafficSignalDemand::new_state</span>(
                         <span class="ident">ctx</span>, <span class="ident">app</span>,
                     ));
                 }
                 <span class="string">&quot;commuter patterns&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">dashboards</span>::<span class="ident">CommuterPatterns</span>::<span class="ident">new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
+                    <span class="kw">return</span> <span class="ident">Transition::Replace</span>(<span class="ident">dashboards::CommuterPatterns::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
                 }
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
             },
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">if</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">clicked_outside</span>(<span class="ident">ctx</span>) {
-                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Pop</span>;
+                    <span class="kw">return</span> <span class="ident">Transition::Pop</span>;
                 }
-                <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Keep</span>;
+                <span class="kw">return</span> <span class="ident">Transition::Keep</span>;
             }
         }
-        <span class="ident">Transition</span>::<span class="ident">Pop</span>
+        <span class="ident">Transition::Pop</span>
     }
 
     <span class="kw">fn</span> <span class="ident">draw_baselayer</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DrawBaselayer</span> {
-        <span class="ident">DrawBaselayer</span>::<span class="ident">PreviousState</span>
+        <span class="ident">DrawBaselayer::PreviousState</span>
     }
 
     <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
@@ -569,8 +569,8 @@
 
 <span class="doccomment">/// Creates the top row for any layer panel.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">header</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
-    <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-        <span class="ident">Image</span>::<span class="ident">from_path</span>(<span class="string">&quot;system/assets/tools/layers.svg&quot;</span>)
+    <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
+        <span class="ident">Image::from_path</span>(<span class="string">&quot;system/assets/tools/layers.svg&quot;</span>)
             .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
             .<span class="ident">centered_vert</span>(),
         <span class="ident">name</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
@@ -579,9 +579,9 @@
 }
 
 <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">PANEL_PLACEMENT</span>: (<span class="ident">HorizontalAlignment</span>, <span class="ident">VerticalAlignment</span>) <span class="op">=</span> (
-    <span class="ident">HorizontalAlignment</span>::<span class="ident">Percent</span>(<span class="number">0.02</span>),
-    <span class="ident">VerticalAlignment</span>::<span class="ident">Percent</span>(<span class="number">0.2</span>),
+    <span class="ident">HorizontalAlignment::Percent</span>(<span class="number">0.02</span>),
+    <span class="ident">VerticalAlignment::Percent</span>(<span class="number">0.2</span>),
 );
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="game" data-search-js="../../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="game" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
     <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script></body></html>

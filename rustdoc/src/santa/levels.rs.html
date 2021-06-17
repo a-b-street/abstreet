@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `santa/src/levels.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>levels.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../santa/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../santa/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -136,9 +136,9 @@
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
-<span class="kw">use</span> <span class="ident">abstio</span>::<span class="ident">MapName</span>;
-<span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Duration</span>;
-<span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">osm</span>;
+<span class="kw">use</span> <span class="ident">abstio::MapName</span>;
+<span class="kw">use</span> <span class="ident">geom::Duration</span>;
+<span class="kw">use</span> <span class="ident">map_model::osm</span>;
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Level</span> {
@@ -146,7 +146,7 @@
     <span class="kw">pub</span> <span class="ident">description</span>: <span class="ident">String</span>,
     <span class="kw">pub</span> <span class="ident">map</span>: <span class="ident">MapName</span>,
     <span class="kw">pub</span> <span class="ident">music</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">start</span>: <span class="ident">osm</span>::<span class="ident">NodeID</span>,
+    <span class="kw">pub</span> <span class="ident">start</span>: <span class="ident">osm::NodeID</span>,
     <span class="kw">pub</span> <span class="ident">minimap_zoom</span>: <span class="ident">usize</span>,
     <span class="kw">pub</span> <span class="ident">time_limit</span>: <span class="ident">Duration</span>,
     <span class="kw">pub</span> <span class="ident">goal</span>: <span class="ident">usize</span>,
@@ -157,115 +157,115 @@
 
 <span class="kw">impl</span> <span class="ident">Level</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">all</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Level</span><span class="op">&gt;</span> {
-        <span class="macro">vec</span><span class="macro">!</span>[
+        <span class="macro">vec!</span>[
             <span class="ident">Level</span> {
                 <span class="ident">title</span>: <span class="string">&quot;Queen Anne&quot;</span>.<span class="ident">to_string</span>(),
                 <span class="ident">description</span>: <span class="string">&quot;Nice hilltop views, beautiful houses -- but are they far from \
                               stores?&quot;</span>
                     .<span class="ident">to_string</span>(),
-                <span class="ident">map</span>: <span class="ident">MapName</span>::<span class="ident">seattle</span>(<span class="string">&quot;qa&quot;</span>),
+                <span class="ident">map</span>: <span class="ident">MapName::seattle</span>(<span class="string">&quot;qa&quot;</span>),
                 <span class="ident">music</span>: <span class="string">&quot;jingle_bells&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="ident">start</span>: <span class="ident">osm</span>::<span class="ident">NodeID</span>(<span class="number">53234637</span>),
+                <span class="ident">start</span>: <span class="ident">osm::NodeID</span>(<span class="number">53234637</span>),
                 <span class="ident">minimap_zoom</span>: <span class="number">1</span>,
-                <span class="ident">time_limit</span>: <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="number">90.0</span>),
+                <span class="ident">time_limit</span>: <span class="ident">Duration::seconds</span>(<span class="number">90.0</span>),
                 <span class="ident">goal</span>: <span class="number">350</span>,
 
                 <span class="ident">unlock_upzones</span>: <span class="number">1</span>,
-                <span class="ident">unlock_vehicles</span>: <span class="macro">vec</span><span class="macro">!</span>[],
+                <span class="ident">unlock_vehicles</span>: <span class="macro">vec!</span>[],
             },
             <span class="ident">Level</span> {
                 <span class="ident">title</span>: <span class="string">&quot;University District&quot;</span>.<span class="ident">to_string</span>(),
                 <span class="ident">description</span>: <span class="string">&quot;Tear yourself away from all the bubble tea to deliver presents to \
                               some college students, whether they&#39;ve been naughty or nice.&quot;</span>
                     .<span class="ident">to_string</span>(),
-                <span class="ident">map</span>: <span class="ident">MapName</span>::<span class="ident">seattle</span>(<span class="string">&quot;udistrict_ravenna&quot;</span>),
+                <span class="ident">map</span>: <span class="ident">MapName::seattle</span>(<span class="string">&quot;udistrict_ravenna&quot;</span>),
                 <span class="ident">music</span>: <span class="string">&quot;god_rest_ye_merry_gentlemen&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="ident">start</span>: <span class="ident">osm</span>::<span class="ident">NodeID</span>(<span class="number">53162661</span>),
+                <span class="ident">start</span>: <span class="ident">osm::NodeID</span>(<span class="number">53162661</span>),
                 <span class="ident">minimap_zoom</span>: <span class="number">1</span>,
-                <span class="ident">time_limit</span>: <span class="ident">Duration</span>::<span class="ident">minutes</span>(<span class="number">2</span>),
+                <span class="ident">time_limit</span>: <span class="ident">Duration::minutes</span>(<span class="number">2</span>),
                 <span class="ident">goal</span>: <span class="number">1500</span>,
 
                 <span class="ident">unlock_upzones</span>: <span class="number">1</span>,
-                <span class="ident">unlock_vehicles</span>: <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;cargo bike&quot;</span>.<span class="ident">to_string</span>()],
+                <span class="ident">unlock_vehicles</span>: <span class="macro">vec!</span>[<span class="string">&quot;cargo bike&quot;</span>.<span class="ident">to_string</span>()],
             },
             <span class="ident">Level</span> {
                 <span class="ident">title</span>: <span class="string">&quot;Wallingfjord&quot;</span>.<span class="ident">to_string</span>(),
                 <span class="ident">description</span>: <span class="string">&quot;Stone and 45th have food aplenty, but can you manage deliveries to \
                               everyone tucked away in the neighborhood?&quot;</span>
                     .<span class="ident">to_string</span>(),
-                <span class="ident">map</span>: <span class="ident">MapName</span>::<span class="ident">seattle</span>(<span class="string">&quot;wallingford&quot;</span>),
+                <span class="ident">map</span>: <span class="ident">MapName::seattle</span>(<span class="string">&quot;wallingford&quot;</span>),
                 <span class="ident">music</span>: <span class="string">&quot;silent_night&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="ident">start</span>: <span class="ident">osm</span>::<span class="ident">NodeID</span>(<span class="number">53218389</span>),
+                <span class="ident">start</span>: <span class="ident">osm::NodeID</span>(<span class="number">53218389</span>),
                 <span class="ident">minimap_zoom</span>: <span class="number">2</span>,
-                <span class="ident">time_limit</span>: <span class="ident">Duration</span>::<span class="ident">minutes</span>(<span class="number">3</span>),
+                <span class="ident">time_limit</span>: <span class="ident">Duration::minutes</span>(<span class="number">3</span>),
                 <span class="ident">goal</span>: <span class="number">1500</span>,
 
                 <span class="ident">unlock_upzones</span>: <span class="number">1</span>,
-                <span class="ident">unlock_vehicles</span>: <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;sleigh&quot;</span>.<span class="ident">to_string</span>()],
+                <span class="ident">unlock_vehicles</span>: <span class="macro">vec!</span>[<span class="string">&quot;sleigh&quot;</span>.<span class="ident">to_string</span>()],
             },
             <span class="ident">Level</span> {
                 <span class="ident">title</span>: <span class="string">&quot;Montlake&quot;</span>.<span class="ident">to_string</span>(),
                 <span class="ident">description</span>: <span class="string">&quot;With the Montlake Market closed, how will you manage to bring cheer \
                               to this sleepy little pocket of the city?&quot;</span>
                     .<span class="ident">to_string</span>(),
-                <span class="ident">map</span>: <span class="ident">MapName</span>::<span class="ident">seattle</span>(<span class="string">&quot;montlake&quot;</span>),
+                <span class="ident">map</span>: <span class="ident">MapName::seattle</span>(<span class="string">&quot;montlake&quot;</span>),
                 <span class="ident">music</span>: <span class="string">&quot;dance_sugar_plum_fairy&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="ident">start</span>: <span class="ident">osm</span>::<span class="ident">NodeID</span>(<span class="number">53084814</span>),
+                <span class="ident">start</span>: <span class="ident">osm::NodeID</span>(<span class="number">53084814</span>),
                 <span class="ident">minimap_zoom</span>: <span class="number">1</span>,
-                <span class="ident">time_limit</span>: <span class="ident">Duration</span>::<span class="ident">minutes</span>(<span class="number">3</span>),
+                <span class="ident">time_limit</span>: <span class="ident">Duration::minutes</span>(<span class="number">3</span>),
                 <span class="ident">goal</span>: <span class="number">1000</span>,
 
                 <span class="ident">unlock_upzones</span>: <span class="number">1</span>,
-                <span class="ident">unlock_vehicles</span>: <span class="macro">vec</span><span class="macro">!</span>[],
+                <span class="ident">unlock_vehicles</span>: <span class="macro">vec!</span>[],
             },
             <span class="ident">Level</span> {
                 <span class="ident">title</span>: <span class="string">&quot;Phinney Ridge&quot;</span>.<span class="ident">to_string</span>(),
                 <span class="ident">description</span>: <span class="string">&quot;Take your pick from the scrumptious options along Greenwood Ave! \
                               But stray into the neighborhood at your own risk...&quot;</span>
                     .<span class="ident">to_string</span>(),
-                <span class="ident">map</span>: <span class="ident">MapName</span>::<span class="ident">seattle</span>(<span class="string">&quot;phinney&quot;</span>),
+                <span class="ident">map</span>: <span class="ident">MapName::seattle</span>(<span class="string">&quot;phinney&quot;</span>),
                 <span class="ident">music</span>: <span class="string">&quot;silent_night&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="ident">start</span>: <span class="ident">osm</span>::<span class="ident">NodeID</span>(<span class="number">53233319</span>),
+                <span class="ident">start</span>: <span class="ident">osm::NodeID</span>(<span class="number">53233319</span>),
                 <span class="ident">minimap_zoom</span>: <span class="number">1</span>,
-                <span class="ident">time_limit</span>: <span class="ident">Duration</span>::<span class="ident">minutes</span>(<span class="number">3</span>),
+                <span class="ident">time_limit</span>: <span class="ident">Duration::minutes</span>(<span class="number">3</span>),
                 <span class="ident">goal</span>: <span class="number">1500</span>,
 
                 <span class="ident">unlock_upzones</span>: <span class="number">1</span>,
-                <span class="ident">unlock_vehicles</span>: <span class="macro">vec</span><span class="macro">!</span>[],
+                <span class="ident">unlock_vehicles</span>: <span class="macro">vec!</span>[],
             },
             <span class="ident">Level</span> {
                 <span class="ident">title</span>: <span class="string">&quot;South Pole Union&quot;</span>.<span class="ident">to_string</span>(),
                 <span class="ident">description</span>: <span class="string">&quot;Suddenly, shops everywhere! Can you find all of the residents \
                               huddled inside?&quot;</span>
                     .<span class="ident">to_string</span>(),
-                <span class="ident">map</span>: <span class="ident">MapName</span>::<span class="ident">seattle</span>(<span class="string">&quot;slu&quot;</span>),
+                <span class="ident">map</span>: <span class="ident">MapName::seattle</span>(<span class="string">&quot;slu&quot;</span>),
                 <span class="ident">music</span>: <span class="string">&quot;carol_bells&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="ident">start</span>: <span class="ident">osm</span>::<span class="ident">NodeID</span>(<span class="number">53142423</span>),
+                <span class="ident">start</span>: <span class="ident">osm::NodeID</span>(<span class="number">53142423</span>),
                 <span class="ident">minimap_zoom</span>: <span class="number">1</span>,
-                <span class="ident">time_limit</span>: <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="number">90.0</span>),
+                <span class="ident">time_limit</span>: <span class="ident">Duration::seconds</span>(<span class="number">90.0</span>),
                 <span class="ident">goal</span>: <span class="number">1300</span>,
 
                 <span class="ident">unlock_upzones</span>: <span class="number">3</span>,
-                <span class="ident">unlock_vehicles</span>: <span class="macro">vec</span><span class="macro">!</span>[],
+                <span class="ident">unlock_vehicles</span>: <span class="macro">vec!</span>[],
             },
             <span class="ident">Level</span> {
                 <span class="ident">title</span>: <span class="string">&quot;Magnolia&quot;</span>.<span class="ident">to_string</span>(),
                 <span class="ident">description</span>: <span class="string">&quot;Struggle past the intense hills and restrictive zoning to tackle \
                               one of the lowest-density parts of Seattle!&quot;</span>
                     .<span class="ident">to_string</span>(),
-                <span class="ident">map</span>: <span class="ident">MapName</span>::<span class="ident">seattle</span>(<span class="string">&quot;ballard&quot;</span>),
+                <span class="ident">map</span>: <span class="ident">MapName::seattle</span>(<span class="string">&quot;ballard&quot;</span>),
                 <span class="ident">music</span>: <span class="string">&quot;god_rest_ye_merry_gentlemen&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="ident">start</span>: <span class="ident">osm</span>::<span class="ident">NodeID</span>(<span class="number">53130883</span>),
+                <span class="ident">start</span>: <span class="ident">osm::NodeID</span>(<span class="number">53130883</span>),
                 <span class="ident">minimap_zoom</span>: <span class="number">2</span>,
-                <span class="ident">time_limit</span>: <span class="ident">Duration</span>::<span class="ident">minutes</span>(<span class="number">4</span>),
+                <span class="ident">time_limit</span>: <span class="ident">Duration::minutes</span>(<span class="number">4</span>),
                 <span class="ident">goal</span>: <span class="number">5000</span>,
 
                 <span class="ident">unlock_upzones</span>: <span class="number">5</span>,
-                <span class="ident">unlock_vehicles</span>: <span class="macro">vec</span><span class="macro">!</span>[],
+                <span class="ident">unlock_vehicles</span>: <span class="macro">vec!</span>[],
             },
         ]
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="santa" data-search-js="../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="santa" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script></body></html>

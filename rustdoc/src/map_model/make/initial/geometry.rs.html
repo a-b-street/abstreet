@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/make/initial/geometry.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>geometry.rs - source</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../../map_model/index.html'><div class='logo-container rust-logo'><img src='../../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../../map_model/index.html'><div class='logo-container rust-logo'><img src='../../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../../settings.html"><img src="../../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -642,18 +642,18 @@
 <span class="doccomment">//! 3) &quot;Trimming back&quot; the center lines to avoid the overlap</span>
 <span class="doccomment">//! 4) Producing a polygon for the intersection itsef</span>
 
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
+<span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 
-<span class="kw">use</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span>;
+<span class="kw">use</span> <span class="ident">anyhow::Result</span>;
 
-<span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">wraparound_get</span>;
+<span class="kw">use</span> <span class="ident">abstutil::wraparound_get</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Line</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>, <span class="ident">EPSILON_DIST</span>};
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">make</span>::<span class="ident">initial</span>::<span class="ident">Road</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">osm</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">raw</span>::<span class="ident">OriginalRoad</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::make::initial::Road</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::osm</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::raw::OriginalRoad</span>;
 
-<span class="kw">const</span> <span class="ident">DEGENERATE_INTERSECTION_HALF_LENGTH</span>: <span class="ident">Distance</span> <span class="op">=</span> <span class="ident">Distance</span>::<span class="ident">const_meters</span>(<span class="number">2.5</span>);
+<span class="kw">const</span> <span class="ident">DEGENERATE_INTERSECTION_HALF_LENGTH</span>: <span class="ident">Distance</span> <span class="op">=</span> <span class="ident">Distance::const_meters</span>(<span class="number">2.5</span>);
 
 <span class="doccomment">/// Also returns a list of labeled polygons for debugging.</span>
 <span class="doccomment">///</span>
@@ -661,22 +661,22 @@
 <span class="doccomment">/// roads -- it just carves up part of that space, doesn&#39;t reach past it. But that&#39;s not always true</span>
 <span class="doccomment">/// yet.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">intersection_polygon</span>(
-    <span class="ident">intersection_id</span>: <span class="ident">osm</span>::<span class="ident">NodeID</span>,
+    <span class="ident">intersection_id</span>: <span class="ident">osm::NodeID</span>,
     <span class="ident">intersection_roads</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">OriginalRoad</span><span class="op">&gt;</span>,
     <span class="ident">roads</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">OriginalRoad</span>, <span class="ident">Road</span><span class="op">&gt;</span>,
     <span class="ident">merged</span>: <span class="ident">bool</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">Polygon</span>, <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">Polygon</span>)<span class="op">&gt;</span>)<span class="op">&gt;</span> {
     <span class="kw">if</span> <span class="ident">intersection_roads</span>.<span class="ident">is_empty</span>() {
-        <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;{} has no roads&quot;</span>, <span class="ident">intersection_id</span>);
+        <span class="macro">panic!</span>(<span class="string">&quot;{} has no roads&quot;</span>, <span class="ident">intersection_id</span>);
     }
 
     <span class="comment">// Turn all of the incident roads into two PolyLines (the &quot;forwards&quot; and &quot;backwards&quot; borders of</span>
     <span class="comment">// the road, if the roads were oriented to both be incoming to the intersection), both ending</span>
     <span class="comment">// at the intersection</span>
     <span class="comment">// TODO Maybe express the two incoming PolyLines as the &quot;right&quot; and &quot;left&quot;</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lines</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">OriginalRoad</span>, <span class="ident">Pt2D</span>, <span class="ident">PolyLine</span>, <span class="ident">PolyLine</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lines</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">OriginalRoad</span>, <span class="ident">Pt2D</span>, <span class="ident">PolyLine</span>, <span class="ident">PolyLine</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
     <span class="comment">// This is guaranteed to get set, since intersection_roads is non-empty</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">intersection_center</span> <span class="op">=</span> <span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="number">0.0</span>, <span class="number">0.0</span>);
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">intersection_center</span> <span class="op">=</span> <span class="ident">Pt2D::new</span>(<span class="number">0.0</span>, <span class="number">0.0</span>);
     <span class="kw">for</span> <span class="ident">id</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">intersection_roads</span> {
         <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">roads</span>[<span class="ident">id</span>];
 
@@ -685,7 +685,7 @@
         } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">dst_i</span> <span class="op">=</span><span class="op">=</span> <span class="ident">intersection_id</span> {
             <span class="ident">r</span>.<span class="ident">trimmed_center_pts</span>.<span class="ident">clone</span>()
         } <span class="kw">else</span> {
-            <span class="macro">panic</span><span class="macro">!</span>(
+            <span class="macro">panic!</span>(
                 <span class="string">&quot;Incident road {} doesn&#39;t have an endpoint at {}&quot;</span>,
                 <span class="ident">id</span>, <span class="ident">intersection_id</span>
             );
@@ -732,31 +732,31 @@
 
 <span class="kw">fn</span> <span class="ident">generalized_trim_back</span>(
     <span class="ident">roads</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">OriginalRoad</span>, <span class="ident">Road</span><span class="op">&gt;</span>,
-    <span class="ident">i</span>: <span class="ident">osm</span>::<span class="ident">NodeID</span>,
+    <span class="ident">i</span>: <span class="ident">osm::NodeID</span>,
     <span class="ident">lines</span>: <span class="kw-2">&amp;</span>[(<span class="ident">OriginalRoad</span>, <span class="ident">Pt2D</span>, <span class="ident">PolyLine</span>, <span class="ident">PolyLine</span>)],
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">Polygon</span>, <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">Polygon</span>)<span class="op">&gt;</span>)<span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">debug</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">debug</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">road_lines</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">OriginalRoad</span>, <span class="ident">PolyLine</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">road_lines</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">OriginalRoad</span>, <span class="ident">PolyLine</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
     <span class="kw">for</span> (<span class="ident">r</span>, <span class="kw">_</span>, <span class="ident">pl1</span>, <span class="ident">pl2</span>) <span class="kw">in</span> <span class="ident">lines</span> {
         <span class="ident">road_lines</span>.<span class="ident">push</span>((<span class="kw-2">*</span><span class="ident">r</span>, <span class="ident">pl1</span>.<span class="ident">clone</span>()));
         <span class="ident">road_lines</span>.<span class="ident">push</span>((<span class="kw-2">*</span><span class="ident">r</span>, <span class="ident">pl2</span>.<span class="ident">clone</span>()));
 
         <span class="kw">if</span> <span class="bool-val">false</span> {
             <span class="ident">debug</span>.<span class="ident">push</span>((
-                <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} fwd&quot;</span>, <span class="ident">r</span>.<span class="ident">osm_way_id</span>),
-                <span class="ident">pl1</span>.<span class="ident">make_polygons</span>(<span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">1.0</span>)),
+                <span class="macro">format!</span>(<span class="string">&quot;{} fwd&quot;</span>, <span class="ident">r</span>.<span class="ident">osm_way_id</span>),
+                <span class="ident">pl1</span>.<span class="ident">make_polygons</span>(<span class="ident">Distance::meters</span>(<span class="number">1.0</span>)),
             ));
             <span class="ident">debug</span>.<span class="ident">push</span>((
-                <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} back&quot;</span>, <span class="ident">r</span>.<span class="ident">osm_way_id</span>),
-                <span class="ident">pl2</span>.<span class="ident">make_polygons</span>(<span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">1.0</span>)),
+                <span class="macro">format!</span>(<span class="string">&quot;{} back&quot;</span>, <span class="ident">r</span>.<span class="ident">osm_way_id</span>),
+                <span class="ident">pl2</span>.<span class="ident">make_polygons</span>(<span class="ident">Distance::meters</span>(<span class="number">1.0</span>)),
             ));
         }
     }
 
     <span class="comment">// Intersect every road&#39;s boundary lines with all the other lines. Only side effect here is to</span>
     <span class="comment">// populate new_road_centers.</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">new_road_centers</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">OriginalRoad</span>, <span class="ident">PolyLine</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">BTreeMap</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">new_road_centers</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">OriginalRoad</span>, <span class="ident">PolyLine</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">BTreeMap::new</span>();
     <span class="kw">for</span> (<span class="ident">r1</span>, <span class="ident">pl1</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">road_lines</span> {
         <span class="comment">// road_center ends at the intersection.</span>
         <span class="kw">let</span> <span class="ident">road_center</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">roads</span>[<span class="ident">r1</span>].<span class="ident">dst_i</span> <span class="op">=</span><span class="op">=</span> <span class="ident">i</span> {
@@ -769,7 +769,7 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">shortest_center</span> <span class="op">=</span>
             <span class="kw">if</span> <span class="ident">road_center</span>.<span class="ident">length</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="ident">DEGENERATE_INTERSECTION_HALF_LENGTH</span> <span class="op">+</span> <span class="number">3.0</span> <span class="op">*</span> <span class="ident">EPSILON_DIST</span> {
                 <span class="ident">road_center</span>.<span class="ident">exact_slice</span>(
-                    <span class="ident">Distance</span>::<span class="ident">ZERO</span>,
+                    <span class="ident">Distance::ZERO</span>,
                     <span class="ident">road_center</span>.<span class="ident">length</span>() <span class="op">-</span> <span class="ident">DEGENERATE_INTERSECTION_HALF_LENGTH</span>,
                 )
             } <span class="kw">else</span> {
@@ -799,7 +799,7 @@
             };
 
             <span class="kw">if</span> <span class="ident">use_pl1</span> <span class="op">=</span><span class="op">=</span> <span class="ident">use_pl2</span> {
-                <span class="macro">bail</span><span class="macro">!</span>(
+                <span class="macro">bail!</span>(
                     <span class="string">&quot;{} and {} have overlapping segments. You likely need to fix OSM and make the \
                      two ways meet at exactly one node.&quot;</span>,
                     <span class="ident">r1</span>,
@@ -814,9 +814,9 @@
             <span class="comment">// TODO I hoped this would subsume the second_half() hack above, but it sadly doesn&#39;t.</span>
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">hit</span>, <span class="ident">angle</span>)) <span class="op">=</span> <span class="ident">use_pl1</span>.<span class="ident">reversed</span>().<span class="ident">intersection</span>(<span class="kw-2">&amp;</span><span class="ident">use_pl2</span>) {
                 <span class="comment">// Find where the perpendicular hits the original road line</span>
-                <span class="kw">let</span> <span class="ident">perp</span> <span class="op">=</span> <span class="ident">Line</span>::<span class="ident">must_new</span>(
+                <span class="kw">let</span> <span class="ident">perp</span> <span class="op">=</span> <span class="ident">Line::must_new</span>(
                     <span class="ident">hit</span>,
-                    <span class="ident">hit</span>.<span class="ident">project_away</span>(<span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">1.0</span>), <span class="ident">angle</span>.<span class="ident">rotate_degs</span>(<span class="number">90.0</span>)),
+                    <span class="ident">hit</span>.<span class="ident">project_away</span>(<span class="ident">Distance::meters</span>(<span class="number">1.0</span>), <span class="ident">angle</span>.<span class="ident">rotate_degs</span>(<span class="number">90.0</span>)),
                 )
                 .<span class="ident">infinite</span>();
                 <span class="comment">// How could something perpendicular to a shifted polyline never hit the original</span>
@@ -831,7 +831,7 @@
                         <span class="ident">shortest_center</span> <span class="op">=</span> <span class="ident">trimmed</span>;
                     }
                 } <span class="kw">else</span> {
-                    <span class="macro">warn</span><span class="macro">!</span>(
+                    <span class="macro">warn!</span>(
                         <span class="string">&quot;{} and {} hit, but the perpendicular never hit the original center line, \
                          or the trimmed thing is empty&quot;</span>,
                         <span class="ident">r1</span>, <span class="ident">r2</span>
@@ -858,7 +858,7 @@
 
     <span class="comment">// After doing all the intersection checks, copy over the new centers. Also fill out the</span>
     <span class="comment">// intersection polygon&#39;s points along the way.</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">endpoints</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">endpoints</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
     <span class="kw">for</span> <span class="ident">idx</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">lines</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">isize</span> {
         <span class="kw">let</span> (<span class="ident">id</span>, <span class="kw">_</span>, <span class="ident">fwd_pl</span>, <span class="ident">back_pl</span>) <span class="op">=</span> <span class="ident">wraparound_get</span>(<span class="ident">lines</span>, <span class="ident">idx</span>);
         <span class="comment">// TODO Ahhh these names are confusing. Adjacent to the fwd_pl, but it&#39;s a back pl.</span>
@@ -878,7 +878,7 @@
                 <span class="ident">endpoints</span>.<span class="ident">push</span>(<span class="ident">hit</span>);
             }
         } <span class="kw">else</span> {
-            <span class="macro">warn</span><span class="macro">!</span>(
+            <span class="macro">warn!</span>(
                 <span class="string">&quot;Excluding collision between original polylines of {} and something, because \
                  stuff&#39;s too short&quot;</span>,
                 <span class="ident">id</span>
@@ -902,7 +902,7 @@
                 <span class="ident">endpoints</span>.<span class="ident">push</span>(<span class="ident">hit</span>);
             }
         } <span class="kw">else</span> {
-            <span class="macro">warn</span><span class="macro">!</span>(
+            <span class="macro">warn!</span>(
                 <span class="string">&quot;Excluding collision between original polylines of {} and something, because \
                  stuff&#39;s too short&quot;</span>,
                 <span class="ident">id</span>
@@ -913,23 +913,23 @@
     <span class="comment">// There are bad polygons caused by weird short roads. As a temporary workaround, detect cases</span>
     <span class="comment">// where polygons dramatically double back on themselves and force the polygon to proceed</span>
     <span class="comment">// around its center.</span>
-    <span class="kw">let</span> <span class="ident">main_result</span> <span class="op">=</span> <span class="ident">close_off_polygon</span>(<span class="ident">Pt2D</span>::<span class="ident">approx_dedupe</span>(<span class="ident">endpoints</span>, <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">0.1</span>)));
+    <span class="kw">let</span> <span class="ident">main_result</span> <span class="op">=</span> <span class="ident">close_off_polygon</span>(<span class="ident">Pt2D::approx_dedupe</span>(<span class="ident">endpoints</span>, <span class="ident">Distance::meters</span>(<span class="number">0.1</span>)));
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">deduped</span> <span class="op">=</span> <span class="ident">main_result</span>.<span class="ident">clone</span>();
     <span class="ident">deduped</span>.<span class="ident">pop</span>();
     <span class="ident">deduped</span>.<span class="ident">sort_by_key</span>(<span class="op">|</span><span class="ident">pt</span><span class="op">|</span> <span class="ident">pt</span>.<span class="ident">to_hashable</span>());
-    <span class="ident">deduped</span> <span class="op">=</span> <span class="ident">Pt2D</span>::<span class="ident">approx_dedupe</span>(<span class="ident">deduped</span>, <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">0.1</span>));
-    <span class="kw">let</span> <span class="ident">center</span> <span class="op">=</span> <span class="ident">Pt2D</span>::<span class="ident">center</span>(<span class="kw-2">&amp;</span><span class="ident">deduped</span>);
+    <span class="ident">deduped</span> <span class="op">=</span> <span class="ident">Pt2D::approx_dedupe</span>(<span class="ident">deduped</span>, <span class="ident">Distance::meters</span>(<span class="number">0.1</span>));
+    <span class="kw">let</span> <span class="ident">center</span> <span class="op">=</span> <span class="ident">Pt2D::center</span>(<span class="kw-2">&amp;</span><span class="ident">deduped</span>);
     <span class="ident">deduped</span>.<span class="ident">sort_by_key</span>(<span class="op">|</span><span class="ident">pt</span><span class="op">|</span> <span class="ident">pt</span>.<span class="ident">angle_to</span>(<span class="ident">center</span>).<span class="ident">normalized_degrees</span>() <span class="kw">as</span> <span class="ident">i64</span>);
-    <span class="ident">deduped</span> <span class="op">=</span> <span class="ident">Pt2D</span>::<span class="ident">approx_dedupe</span>(<span class="ident">deduped</span>, <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">0.1</span>));
+    <span class="ident">deduped</span> <span class="op">=</span> <span class="ident">Pt2D::approx_dedupe</span>(<span class="ident">deduped</span>, <span class="ident">Distance::meters</span>(<span class="number">0.1</span>));
     <span class="ident">deduped</span> <span class="op">=</span> <span class="ident">close_off_polygon</span>(<span class="ident">deduped</span>);
     <span class="kw">if</span> <span class="ident">main_result</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">deduped</span>.<span class="ident">len</span>() {
-        <span class="prelude-val">Ok</span>((<span class="ident">Ring</span>::<span class="ident">must_new</span>(<span class="ident">main_result</span>).<span class="ident">into_polygon</span>(), <span class="ident">debug</span>))
+        <span class="prelude-val">Ok</span>((<span class="ident">Ring::must_new</span>(<span class="ident">main_result</span>).<span class="ident">into_polygon</span>(), <span class="ident">debug</span>))
     } <span class="kw">else</span> {
-        <span class="macro">warn</span><span class="macro">!</span>(
+        <span class="macro">warn!</span>(
             <span class="string">&quot;{}&#39;s polygon has weird repeats, forcibly removing points&quot;</span>,
             <span class="ident">i</span>
         );
-        <span class="prelude-val">Ok</span>((<span class="ident">Ring</span>::<span class="ident">must_new</span>(<span class="ident">deduped</span>).<span class="ident">into_polygon</span>(), <span class="ident">debug</span>))
+        <span class="prelude-val">Ok</span>((<span class="ident">Ring::must_new</span>(<span class="ident">deduped</span>).<span class="ident">into_polygon</span>(), <span class="ident">debug</span>))
     }
 
     <span class="comment">// TODO Or always sort points? Helps some cases, hurts other for downtown Seattle.</span>
@@ -942,7 +942,7 @@
 
 <span class="kw">fn</span> <span class="ident">deadend</span>(
     <span class="ident">roads</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">OriginalRoad</span>, <span class="ident">Road</span><span class="op">&gt;</span>,
-    <span class="ident">i</span>: <span class="ident">osm</span>::<span class="ident">NodeID</span>,
+    <span class="ident">i</span>: <span class="ident">osm::NodeID</span>,
     <span class="ident">lines</span>: <span class="kw-2">&amp;</span>[(<span class="ident">OriginalRoad</span>, <span class="ident">Pt2D</span>, <span class="ident">PolyLine</span>, <span class="ident">PolyLine</span>)],
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">Polygon</span>, <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">Polygon</span>)<span class="op">&gt;</span>)<span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">DEGENERATE_INTERSECTION_HALF_LENGTH</span> <span class="op">*</span> <span class="number">4.0</span>;
@@ -965,7 +965,7 @@
         } <span class="kw">else</span> {
             <span class="ident">r</span>.<span class="ident">trimmed_center_pts</span> <span class="op">=</span> <span class="ident">r</span>
                 .<span class="ident">trimmed_center_pts</span>
-                .<span class="ident">exact_slice</span>(<span class="ident">Distance</span>::<span class="ident">ZERO</span>, <span class="ident">r</span>.<span class="ident">trimmed_center_pts</span>.<span class="ident">length</span>() <span class="op">-</span> <span class="ident">len</span>);
+                .<span class="ident">exact_slice</span>(<span class="ident">Distance::ZERO</span>, <span class="ident">r</span>.<span class="ident">trimmed_center_pts</span>.<span class="ident">length</span>() <span class="op">-</span> <span class="ident">len</span>);
         }
         <span class="ident">r</span>.<span class="ident">trimmed_center_pts</span>.<span class="ident">clone</span>()
     } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">src_i</span> <span class="op">=</span><span class="op">=</span> <span class="ident">i</span> {
@@ -980,7 +980,7 @@
     <span class="comment">// After trimming the center points, the two sides of the road may be at different</span>
     <span class="comment">// points, so shift the center out again to find the endpoints.</span>
     <span class="comment">// TODO Refactor with generalized_trim_back.</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">endpts</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">pl_b</span>.<span class="ident">last_pt</span>(), <span class="ident">pl_a</span>.<span class="ident">last_pt</span>()];
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">endpts</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">pl_b</span>.<span class="ident">last_pt</span>(), <span class="ident">pl_a</span>.<span class="ident">last_pt</span>()];
     <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">dst_i</span> <span class="op">=</span><span class="op">=</span> <span class="ident">i</span> {
         <span class="ident">endpts</span>.<span class="ident">push</span>(<span class="ident">trimmed</span>.<span class="ident">shift_right</span>(<span class="ident">r</span>.<span class="ident">half_width</span>)<span class="question-mark">?</span>.<span class="ident">last_pt</span>());
         <span class="ident">endpts</span>.<span class="ident">push</span>(<span class="ident">trimmed</span>.<span class="ident">shift_left</span>(<span class="ident">r</span>.<span class="ident">half_width</span>)<span class="question-mark">?</span>.<span class="ident">last_pt</span>());
@@ -991,13 +991,13 @@
 
     <span class="ident">endpts</span>.<span class="ident">dedup</span>();
     <span class="prelude-val">Ok</span>((
-        <span class="ident">Ring</span>::<span class="ident">must_new</span>(<span class="ident">close_off_polygon</span>(<span class="ident">endpts</span>)).<span class="ident">into_polygon</span>(),
-        <span class="ident">Vec</span>::<span class="ident">new</span>(),
+        <span class="ident">Ring::must_new</span>(<span class="ident">close_off_polygon</span>(<span class="ident">endpts</span>)).<span class="ident">into_polygon</span>(),
+        <span class="ident">Vec::new</span>(),
     ))
 }
 
 <span class="kw">fn</span> <span class="ident">close_off_polygon</span>(<span class="kw-2">mut</span> <span class="ident">pts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span> {
-    <span class="kw">if</span> <span class="ident">pts</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>().<span class="ident">approx_eq</span>(<span class="ident">pts</span>[<span class="number">0</span>], <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">0.1</span>)) {
+    <span class="kw">if</span> <span class="ident">pts</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>().<span class="ident">approx_eq</span>(<span class="ident">pts</span>[<span class="number">0</span>], <span class="ident">Distance::meters</span>(<span class="number">0.1</span>)) {
         <span class="ident">pts</span>.<span class="ident">pop</span>();
     }
     <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">pts</span>[<span class="number">0</span>]);
@@ -1017,7 +1017,7 @@
 <span class="comment">// lieu of proper docs, see https://twitter.com/CarlinoDustin/status/1290799086036111360.</span>
 <span class="kw">fn</span> <span class="ident">on_off_ramp</span>(
     <span class="ident">roads</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">OriginalRoad</span>, <span class="ident">Road</span><span class="op">&gt;</span>,
-    <span class="ident">i</span>: <span class="ident">osm</span>::<span class="ident">NodeID</span>,
+    <span class="ident">i</span>: <span class="ident">osm::NodeID</span>,
     <span class="ident">lines</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">OriginalRoad</span>, <span class="ident">Pt2D</span>, <span class="ident">PolyLine</span>, <span class="ident">PolyLine</span>)<span class="op">&gt;</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Polygon</span>, <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">Polygon</span>)<span class="op">&gt;</span>)<span class="op">&gt;</span> {
     <span class="kw">if</span> <span class="ident">lines</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">3</span> {
@@ -1030,8 +1030,8 @@
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ok</span> <span class="op">=</span> <span class="bool-val">false</span>;
     <span class="kw">for</span> (<span class="ident">r</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">lines</span> {
         <span class="kw">if</span> <span class="ident">roads</span>[<span class="ident">r</span>].<span class="ident">osm_tags</span>.<span class="ident">is_any</span>(
-            <span class="ident">osm</span>::<span class="ident">HIGHWAY</span>,
-            <span class="macro">vec</span><span class="macro">!</span>[
+            <span class="ident">osm::HIGHWAY</span>,
+            <span class="macro">vec!</span>[
                 <span class="string">&quot;motorway&quot;</span>,
                 <span class="string">&quot;motorway_link&quot;</span>,
                 <span class="string">&quot;primary_link&quot;</span>,
@@ -1048,9 +1048,9 @@
         <span class="kw">return</span> <span class="prelude-val">None</span>;
     }
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">debug</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">debug</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pieces</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pieces</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
     <span class="comment">// TODO Use this abstraction for all the code here?</span>
     <span class="kw">for</span> (<span class="ident">id</span>, <span class="kw">_</span>, <span class="ident">right</span>, <span class="ident">left</span>) <span class="kw">in</span> <span class="ident">lines</span> {
         <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">roads</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>];
@@ -1087,9 +1087,9 @@
                     <span class="comment">// Find where the perpendicular hits the original road line</span>
                     <span class="comment">// TODO Refactor something to go from a hit+angle on a left/right to a trimmed</span>
                     <span class="comment">// center.</span>
-                    <span class="kw">let</span> <span class="ident">perp</span> <span class="op">=</span> <span class="ident">Line</span>::<span class="ident">must_new</span>(
+                    <span class="kw">let</span> <span class="ident">perp</span> <span class="op">=</span> <span class="ident">Line::must_new</span>(
                         <span class="ident">hit</span>,
-                        <span class="ident">hit</span>.<span class="ident">project_away</span>(<span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">1.0</span>), <span class="ident">angle</span>.<span class="ident">rotate_degs</span>(<span class="number">90.0</span>)),
+                        <span class="ident">hit</span>.<span class="ident">project_away</span>(<span class="ident">Distance::meters</span>(<span class="number">1.0</span>), <span class="ident">angle</span>.<span class="ident">rotate_degs</span>(<span class="number">90.0</span>)),
                     )
                     .<span class="ident">infinite</span>();
                     <span class="kw">let</span> <span class="ident">trimmed_thin</span> <span class="op">=</span> <span class="ident">thin</span>
@@ -1100,9 +1100,9 @@
 
                     <span class="comment">// Do the same for the thick road</span>
                     <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">angle</span>) <span class="op">=</span> <span class="ident">thick_pl</span>.<span class="ident">dist_along_of_point</span>(<span class="ident">hit</span>)<span class="question-mark">?</span>;
-                    <span class="kw">let</span> <span class="ident">perp</span> <span class="op">=</span> <span class="ident">Line</span>::<span class="ident">must_new</span>(
+                    <span class="kw">let</span> <span class="ident">perp</span> <span class="op">=</span> <span class="ident">Line::must_new</span>(
                         <span class="ident">hit</span>,
-                        <span class="ident">hit</span>.<span class="ident">project_away</span>(<span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">1.0</span>), <span class="ident">angle</span>.<span class="ident">rotate_degs</span>(<span class="number">90.0</span>)),
+                        <span class="ident">hit</span>.<span class="ident">project_away</span>(<span class="ident">Distance::meters</span>(<span class="number">1.0</span>), <span class="ident">angle</span>.<span class="ident">rotate_degs</span>(<span class="number">90.0</span>)),
                     )
                     .<span class="ident">infinite</span>();
                     <span class="kw">let</span> <span class="ident">trimmed_thick</span> <span class="op">=</span> <span class="ident">thick</span>
@@ -1114,15 +1114,15 @@
                     <span class="kw">if</span> <span class="bool-val">false</span> {
                         <span class="ident">debug</span>.<span class="ident">push</span>((
                             <span class="string">&quot;1&quot;</span>.<span class="ident">to_string</span>(),
-                            <span class="ident">Circle</span>::<span class="ident">new</span>(<span class="ident">hit</span>, <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">3.0</span>)).<span class="ident">to_polygon</span>(),
+                            <span class="ident">Circle::new</span>(<span class="ident">hit</span>, <span class="ident">Distance::meters</span>(<span class="number">3.0</span>)).<span class="ident">to_polygon</span>(),
                         ));
                         <span class="ident">debug</span>.<span class="ident">push</span>((
                             <span class="string">&quot;2&quot;</span>.<span class="ident">to_string</span>(),
-                            <span class="ident">Circle</span>::<span class="ident">new</span>(<span class="ident">trimmed_thin</span>.<span class="ident">last_pt</span>(), <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">3.0</span>)).<span class="ident">to_polygon</span>(),
+                            <span class="ident">Circle::new</span>(<span class="ident">trimmed_thin</span>.<span class="ident">last_pt</span>(), <span class="ident">Distance::meters</span>(<span class="number">3.0</span>)).<span class="ident">to_polygon</span>(),
                         ));
                         <span class="ident">debug</span>.<span class="ident">push</span>((
                             <span class="string">&quot;3&quot;</span>.<span class="ident">to_string</span>(),
-                            <span class="ident">Circle</span>::<span class="ident">new</span>(<span class="ident">trimmed_thick</span>.<span class="ident">last_pt</span>(), <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">3.0</span>))
+                            <span class="ident">Circle::new</span>(<span class="ident">trimmed_thick</span>.<span class="ident">last_pt</span>(), <span class="ident">Distance::meters</span>(<span class="number">3.0</span>))
                                 .<span class="ident">to_polygon</span>(),
                         ));
                     }
@@ -1186,7 +1186,7 @@
     }
 
     <span class="comment">// Now build the actual polygon</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">endpoints</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">endpoints</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
     <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="ident">id</span> <span class="kw">in</span> <span class="kw-2">&amp;</span>[<span class="ident">thin</span>.<span class="ident">id</span>, <span class="ident">thick1</span>.<span class="ident">id</span>, <span class="ident">thick2</span>.<span class="ident">id</span>] {
         <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">roads</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>];
         <span class="comment">// Shift those final centers out again to find the main endpoints for the polygon.</span>
@@ -1224,11 +1224,11 @@
 
     <span class="ident">endpoints</span>.<span class="ident">sort_by_key</span>(<span class="op">|</span><span class="ident">pt</span><span class="op">|</span> <span class="ident">pt</span>.<span class="ident">to_hashable</span>());
     <span class="ident">endpoints</span>.<span class="ident">dedup</span>();
-    <span class="kw">let</span> <span class="ident">center</span> <span class="op">=</span> <span class="ident">Pt2D</span>::<span class="ident">center</span>(<span class="kw-2">&amp;</span><span class="ident">endpoints</span>);
+    <span class="kw">let</span> <span class="ident">center</span> <span class="op">=</span> <span class="ident">Pt2D::center</span>(<span class="kw-2">&amp;</span><span class="ident">endpoints</span>);
     <span class="ident">endpoints</span>.<span class="ident">sort_by_key</span>(<span class="op">|</span><span class="ident">pt</span><span class="op">|</span> <span class="ident">pt</span>.<span class="ident">angle_to</span>(<span class="ident">center</span>).<span class="ident">normalized_degrees</span>() <span class="kw">as</span> <span class="ident">i64</span>);
     <span class="ident">endpoints</span>.<span class="ident">dedup</span>();
     <span class="prelude-val">Some</span>((
-        <span class="ident">Ring</span>::<span class="ident">must_new</span>(<span class="ident">close_off_polygon</span>(<span class="ident">endpoints</span>)).<span class="ident">into_polygon</span>(),
+        <span class="ident">Ring::must_new</span>(<span class="ident">close_off_polygon</span>(<span class="ident">endpoints</span>)).<span class="ident">into_polygon</span>(),
         <span class="ident">debug</span>,
     ))
 
@@ -1241,11 +1241,11 @@
 <span class="comment">// road center-lines still hit the polygon only at the border.</span>
 <span class="kw">fn</span> <span class="ident">convex_hull_merged_intersection</span>(
     <span class="ident">input</span>: <span class="ident">Polygon</span>,
-    <span class="ident">intersection_id</span>: <span class="ident">osm</span>::<span class="ident">NodeID</span>,
+    <span class="ident">intersection_id</span>: <span class="ident">osm::NodeID</span>,
     <span class="ident">intersection_roads</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">OriginalRoad</span><span class="op">&gt;</span>,
     <span class="ident">roads</span>: <span class="kw-2">&amp;</span><span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">OriginalRoad</span>, <span class="ident">Road</span><span class="op">&gt;</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">candidate</span> <span class="op">=</span> <span class="ident">Polygon</span>::<span class="ident">convex_hull</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">input</span>]);
+    <span class="kw">let</span> <span class="ident">candidate</span> <span class="op">=</span> <span class="ident">Polygon::convex_hull</span>(<span class="macro">vec!</span>[<span class="ident">input</span>]);
     <span class="kw">let</span> <span class="ident">candidate_ring</span> <span class="op">=</span> <span class="ident">candidate</span>.<span class="ident">clone</span>().<span class="ident">into_ring</span>();
 
     <span class="kw">for</span> <span class="ident">id</span> <span class="kw">in</span> <span class="ident">intersection_roads</span> {
@@ -1269,5 +1269,5 @@
     <span class="prelude-val">Some</span>(<span class="ident">candidate</span>)
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="map_model" data-search-js="../../../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="map_model" data-search-index-js="../../../../search-index.js" data-search-js="../../../../search.js"></div>
     <script src="../../../../main.js"></script><script src="../../../../source-script.js"></script><script src="../../../../source-files.js"></script></body></html>

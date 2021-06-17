@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_gui/src/tools/heatmap.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>heatmap.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../map_gui/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../map_gui/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -275,7 +275,7 @@
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Bounds</span>, <span class="ident">Histogram</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Statistic</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">Panel</span>, <span class="ident">Spinner</span>, <span class="ident">TextExt</span>, <span class="ident">Toggle</span>, <span class="ident">Widget</span>};
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">tools</span>::{<span class="ident">ColorLegend</span>, <span class="ident">ColorScale</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::tools</span>::{<span class="ident">ColorLegend</span>, <span class="ident">ColorScale</span>};
 
 <span class="kw">const</span> <span class="ident">NEIGHBORS</span>: [[<span class="ident">isize</span>; <span class="number">2</span>]; <span class="number">9</span>] <span class="op">=</span> [
     [<span class="number">0</span>, <span class="number">0</span>],
@@ -311,30 +311,30 @@
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_controls</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">legend</span>: <span class="ident">Widget</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Widget</span><span class="op">&gt;</span> {
-        <span class="macro">vec</span><span class="macro">!</span>[
+        <span class="macro">vec!</span>[
             <span class="comment">// TODO Display the value...</span>
-            <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
                 <span class="string">&quot;Resolution (meters)&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
-                <span class="ident">Spinner</span>::<span class="ident">widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;resolution&quot;</span>, (<span class="number">1.0</span>, <span class="number">100.0</span>), <span class="self">self</span>.<span class="ident">resolution</span>, <span class="number">1.0</span>)
+                <span class="ident">Spinner::widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;resolution&quot;</span>, (<span class="number">1.0</span>, <span class="number">100.0</span>), <span class="self">self</span>.<span class="ident">resolution</span>, <span class="number">1.0</span>)
                     .<span class="ident">align_right</span>(),
             ]),
-            <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
                 <span class="string">&quot;Radius (resolution multiplier)&quot;</span>
                     .<span class="ident">text_widget</span>(<span class="ident">ctx</span>)
                     .<span class="ident">centered_vert</span>(),
-                <span class="ident">Spinner</span>::<span class="ident">widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;radius&quot;</span>, (<span class="number">0.0</span>, <span class="number">10.0</span>), <span class="self">self</span>.<span class="ident">radius</span>, <span class="number">1.0</span>).<span class="ident">align_right</span>(),
+                <span class="ident">Spinner::widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;radius&quot;</span>, (<span class="number">0.0</span>, <span class="number">10.0</span>), <span class="self">self</span>.<span class="ident">radius</span>, <span class="number">1.0</span>).<span class="ident">align_right</span>(),
             ]),
-            <span class="ident">Toggle</span>::<span class="ident">switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;smoothing&quot;</span>, <span class="prelude-val">None</span>, <span class="self">self</span>.<span class="ident">smoothing</span>),
-            <span class="ident">Toggle</span>::<span class="ident">switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;contours&quot;</span>, <span class="prelude-val">None</span>, <span class="self">self</span>.<span class="ident">contours</span>),
-            <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+            <span class="ident">Toggle::switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;smoothing&quot;</span>, <span class="prelude-val">None</span>, <span class="self">self</span>.<span class="ident">smoothing</span>),
+            <span class="ident">Toggle::switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;contours&quot;</span>, <span class="prelude-val">None</span>, <span class="self">self</span>.<span class="ident">contours</span>),
+            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
                 <span class="string">&quot;Color scheme&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
-                <span class="ident">Widget</span>::<span class="ident">dropdown</span>(
+                <span class="ident">Widget::dropdown</span>(
                     <span class="ident">ctx</span>,
                     <span class="string">&quot;Color scheme&quot;</span>,
                     <span class="self">self</span>.<span class="ident">color_scheme</span>.<span class="ident">clone</span>(),
-                    <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;Turbo&quot;</span>, <span class="string">&quot;Inferno&quot;</span>, <span class="string">&quot;Warm&quot;</span>, <span class="string">&quot;Cool&quot;</span>, <span class="string">&quot;Oranges&quot;</span>, <span class="string">&quot;Spectral&quot;</span>]
+                    <span class="macro">vec!</span>[<span class="string">&quot;Turbo&quot;</span>, <span class="string">&quot;Inferno&quot;</span>, <span class="string">&quot;Warm&quot;</span>, <span class="string">&quot;Cool&quot;</span>, <span class="string">&quot;Oranges&quot;</span>, <span class="string">&quot;Spectral&quot;</span>]
                         .<span class="ident">into_iter</span>()
-                        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">Choice</span>::<span class="ident">string</span>(<span class="ident">x</span>))
+                        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">Choice::string</span>(<span class="ident">x</span>))
                         .<span class="ident">collect</span>(),
                 ),
             ]),
@@ -353,7 +353,7 @@
                 <span class="ident">color_scheme</span>: <span class="ident">c</span>.<span class="ident">dropdown_value</span>(<span class="string">&quot;Color scheme&quot;</span>),
             }
         } <span class="kw">else</span> {
-            <span class="ident">HeatmapOptions</span>::<span class="ident">new</span>()
+            <span class="ident">HeatmapOptions::new</span>()
         }
     }
 }
@@ -369,30 +369,30 @@
     <span class="comment">// 7 colors, 8 labels</span>
     <span class="kw">let</span> <span class="ident">num_colors</span> <span class="op">=</span> <span class="number">7</span>;
     <span class="kw">let</span> <span class="ident">gradient</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">opts</span>.<span class="ident">color_scheme</span>.<span class="ident">as_ref</span>() {
-        <span class="string">&quot;Turbo&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">colorous</span>::<span class="ident">TURBO</span>,
-        <span class="string">&quot;Inferno&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">colorous</span>::<span class="ident">INFERNO</span>,
-        <span class="string">&quot;Warm&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">colorous</span>::<span class="ident">WARM</span>,
-        <span class="string">&quot;Cool&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">colorous</span>::<span class="ident">COOL</span>,
-        <span class="string">&quot;Oranges&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">colorous</span>::<span class="ident">ORANGES</span>,
-        <span class="string">&quot;Spectral&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">colorous</span>::<span class="ident">SPECTRAL</span>,
-        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+        <span class="string">&quot;Turbo&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">colorous::TURBO</span>,
+        <span class="string">&quot;Inferno&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">colorous::INFERNO</span>,
+        <span class="string">&quot;Warm&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">colorous::WARM</span>,
+        <span class="string">&quot;Cool&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">colorous::COOL</span>,
+        <span class="string">&quot;Oranges&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">colorous::ORANGES</span>,
+        <span class="string">&quot;Spectral&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">colorous::SPECTRAL</span>,
+        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
     };
     <span class="kw">let</span> <span class="ident">colors</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Color</span><span class="op">&gt;</span> <span class="op">=</span> (<span class="number">0</span>..<span class="ident">num_colors</span>)
         .<span class="ident">map</span>(<span class="op">|</span><span class="ident">i</span><span class="op">|</span> {
             <span class="kw">let</span> <span class="ident">c</span> <span class="op">=</span> <span class="ident">gradient</span>.<span class="ident">eval_rational</span>(<span class="ident">i</span>, <span class="ident">num_colors</span>);
-            <span class="ident">Color</span>::<span class="ident">rgb</span>(<span class="ident">c</span>.<span class="ident">r</span> <span class="kw">as</span> <span class="ident">usize</span>, <span class="ident">c</span>.<span class="ident">g</span> <span class="kw">as</span> <span class="ident">usize</span>, <span class="ident">c</span>.<span class="ident">b</span> <span class="kw">as</span> <span class="ident">usize</span>)
+            <span class="ident">Color::rgb</span>(<span class="ident">c</span>.<span class="ident">r</span> <span class="kw">as</span> <span class="ident">usize</span>, <span class="ident">c</span>.<span class="ident">g</span> <span class="kw">as</span> <span class="ident">usize</span>, <span class="ident">c</span>.<span class="ident">b</span> <span class="kw">as</span> <span class="ident">usize</span>)
         })
         .<span class="ident">collect</span>();
 
     <span class="kw">if</span> <span class="ident">pts</span>.<span class="ident">is_empty</span>() {
-        <span class="kw">let</span> <span class="ident">labels</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">iter</span>::<span class="ident">repeat</span>(<span class="string">&quot;0&quot;</span>.<span class="ident">to_string</span>())
+        <span class="kw">let</span> <span class="ident">labels</span> <span class="op">=</span> <span class="ident">std::iter::repeat</span>(<span class="string">&quot;0&quot;</span>.<span class="ident">to_string</span>())
             .<span class="ident">take</span>(<span class="ident">num_colors</span> <span class="op">+</span> <span class="number">1</span>)
             .<span class="ident">collect</span>();
-        <span class="kw">return</span> <span class="ident">ColorLegend</span>::<span class="ident">gradient</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">ColorScale</span>(<span class="ident">colors</span>), <span class="ident">labels</span>);
+        <span class="kw">return</span> <span class="ident">ColorLegend::gradient</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">ColorScale</span>(<span class="ident">colors</span>), <span class="ident">labels</span>);
     }
 
     <span class="comment">// At each point, add a 2D Gaussian kernel centered at the point.</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">raw_grid</span>: <span class="ident">Grid</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Grid</span>::<span class="ident">new</span>(
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">raw_grid</span>: <span class="ident">Grid</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Grid::new</span>(
         (<span class="ident">bounds</span>.<span class="ident">width</span>() <span class="op">/</span> <span class="ident">opts</span>.<span class="ident">resolution</span>).<span class="ident">ceil</span>() <span class="kw">as</span> <span class="ident">usize</span>,
         (<span class="ident">bounds</span>.<span class="ident">height</span>() <span class="op">/</span> <span class="ident">opts</span>.<span class="ident">resolution</span>).<span class="ident">ceil</span>() <span class="kw">as</span> <span class="ident">usize</span>,
         <span class="number">0.0</span>,
@@ -423,7 +423,7 @@
         }
     }
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">grid</span>: <span class="ident">Grid</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Grid</span>::<span class="ident">new</span>(
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">grid</span>: <span class="ident">Grid</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Grid::new</span>(
         (<span class="ident">bounds</span>.<span class="ident">width</span>() <span class="op">/</span> <span class="ident">opts</span>.<span class="ident">resolution</span>).<span class="ident">ceil</span>() <span class="kw">as</span> <span class="ident">usize</span>,
         (<span class="ident">bounds</span>.<span class="ident">height</span>() <span class="op">/</span> <span class="ident">opts</span>.<span class="ident">resolution</span>).<span class="ident">ceil</span>() <span class="kw">as</span> <span class="ident">usize</span>,
         <span class="number">0.0</span>,
@@ -454,19 +454,19 @@
         <span class="ident">grid</span> <span class="op">=</span> <span class="ident">raw_grid</span>;
     }
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">distrib</span> <span class="op">=</span> <span class="ident">Histogram</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">distrib</span> <span class="op">=</span> <span class="ident">Histogram::new</span>();
     <span class="kw">for</span> <span class="ident">count</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">grid</span>.<span class="ident">data</span> {
         <span class="comment">// TODO Just truncate the decimal?</span>
         <span class="ident">distrib</span>.<span class="ident">add</span>(<span class="kw-2">*</span><span class="ident">count</span> <span class="kw">as</span> <span class="ident">usize</span>);
     }
 
     <span class="kw">if</span> <span class="ident">opts</span>.<span class="ident">contours</span> {
-        <span class="kw">let</span> <span class="ident">max</span> <span class="op">=</span> <span class="ident">distrib</span>.<span class="ident">select</span>(<span class="ident">Statistic</span>::<span class="ident">Max</span>).<span class="ident">unwrap</span>() <span class="kw">as</span> <span class="ident">f64</span>;
+        <span class="kw">let</span> <span class="ident">max</span> <span class="op">=</span> <span class="ident">distrib</span>.<span class="ident">select</span>(<span class="ident">Statistic::Max</span>).<span class="ident">unwrap</span>() <span class="kw">as</span> <span class="ident">f64</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">thresholds</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> <span class="op">=</span> (<span class="number">0</span>..<span class="op">=</span><span class="number">5</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">i</span><span class="op">|</span> (<span class="ident">i</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> <span class="number">5.0</span> <span class="op">*</span> <span class="ident">max</span>).<span class="ident">collect</span>();
         <span class="comment">// Skip 0; it&#39;ll cover the entire map. But have a low value to distinguish</span>
         <span class="comment">// nothing/something.</span>
         <span class="ident">thresholds</span>[<span class="number">0</span>] <span class="op">=</span> <span class="number">0.1</span>;
-        <span class="kw">let</span> <span class="ident">c</span> <span class="op">=</span> <span class="ident">contour</span>::<span class="ident">ContourBuilder</span>::<span class="ident">new</span>(<span class="ident">grid</span>.<span class="ident">width</span> <span class="kw">as</span> <span class="ident">u32</span>, <span class="ident">grid</span>.<span class="ident">height</span> <span class="kw">as</span> <span class="ident">u32</span>, <span class="bool-val">false</span>);
+        <span class="kw">let</span> <span class="ident">c</span> <span class="op">=</span> <span class="ident">contour::ContourBuilder::new</span>(<span class="ident">grid</span>.<span class="ident">width</span> <span class="kw">as</span> <span class="ident">u32</span>, <span class="ident">grid</span>.<span class="ident">height</span> <span class="kw">as</span> <span class="ident">u32</span>, <span class="bool-val">false</span>);
         <span class="kw">for</span> (<span class="ident">feature</span>, <span class="ident">value</span>) <span class="kw">in</span> <span class="ident">c</span>
             .<span class="ident">contours</span>(<span class="kw-2">&amp;</span><span class="ident">grid</span>.<span class="ident">data</span>, <span class="kw-2">&amp;</span><span class="ident">thresholds</span>)
             .<span class="ident">unwrap</span>()
@@ -476,30 +476,30 @@
             <span class="comment">// TODO We should technically not depend on the order of features matching the input</span>
             <span class="comment">// thresholds, but extracting geojson values doesn&#39;t sound fun</span>
             <span class="kw">match</span> <span class="ident">feature</span>.<span class="ident">geometry</span>.<span class="ident">unwrap</span>().<span class="ident">value</span> {
-                <span class="ident">geojson</span>::<span class="ident">Value</span>::<span class="ident">MultiPolygon</span>(<span class="ident">polygons</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">geojson::Value::MultiPolygon</span>(<span class="ident">polygons</span>) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">let</span> <span class="ident">c</span> <span class="op">=</span> <span class="ident">gradient</span>.<span class="ident">eval_continuous</span>(<span class="ident">value</span> <span class="op">/</span> <span class="ident">max</span>);
                     <span class="comment">// Don&#39;t block the map underneath</span>
-                    <span class="kw">let</span> <span class="ident">color</span> <span class="op">=</span> <span class="ident">Color</span>::<span class="ident">rgb</span>(<span class="ident">c</span>.<span class="ident">r</span> <span class="kw">as</span> <span class="ident">usize</span>, <span class="ident">c</span>.<span class="ident">g</span> <span class="kw">as</span> <span class="ident">usize</span>, <span class="ident">c</span>.<span class="ident">b</span> <span class="kw">as</span> <span class="ident">usize</span>).<span class="ident">alpha</span>(<span class="number">0.6</span>);
+                    <span class="kw">let</span> <span class="ident">color</span> <span class="op">=</span> <span class="ident">Color::rgb</span>(<span class="ident">c</span>.<span class="ident">r</span> <span class="kw">as</span> <span class="ident">usize</span>, <span class="ident">c</span>.<span class="ident">g</span> <span class="kw">as</span> <span class="ident">usize</span>, <span class="ident">c</span>.<span class="ident">b</span> <span class="kw">as</span> <span class="ident">usize</span>).<span class="ident">alpha</span>(<span class="number">0.6</span>);
                     <span class="kw">for</span> <span class="ident">p</span> <span class="kw">in</span> <span class="ident">polygons</span> {
-                        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">poly</span>) <span class="op">=</span> <span class="ident">Polygon</span>::<span class="ident">from_geojson</span>(<span class="kw-2">&amp;</span><span class="ident">p</span>) {
+                        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">poly</span>) <span class="op">=</span> <span class="ident">Polygon::from_geojson</span>(<span class="kw-2">&amp;</span><span class="ident">p</span>) {
                             <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">color</span>, <span class="ident">poly</span>.<span class="ident">scale</span>(<span class="ident">opts</span>.<span class="ident">resolution</span>));
                         }
                     }
                 }
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
             }
         }
     } <span class="kw">else</span> {
         <span class="comment">// Now draw rectangles</span>
-        <span class="kw">let</span> <span class="ident">square</span> <span class="op">=</span> <span class="ident">Polygon</span>::<span class="ident">rectangle</span>(<span class="ident">opts</span>.<span class="ident">resolution</span>, <span class="ident">opts</span>.<span class="ident">resolution</span>);
+        <span class="kw">let</span> <span class="ident">square</span> <span class="op">=</span> <span class="ident">Polygon::rectangle</span>(<span class="ident">opts</span>.<span class="ident">resolution</span>, <span class="ident">opts</span>.<span class="ident">resolution</span>);
         <span class="kw">for</span> <span class="ident">y</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">grid</span>.<span class="ident">height</span> {
             <span class="kw">for</span> <span class="ident">x</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">grid</span>.<span class="ident">width</span> {
                 <span class="kw">let</span> <span class="ident">count</span> <span class="op">=</span> <span class="ident">grid</span>.<span class="ident">data</span>[<span class="ident">grid</span>.<span class="ident">idx</span>(<span class="ident">x</span>, <span class="ident">y</span>)];
                 <span class="kw">if</span> <span class="ident">count</span> <span class="op">&gt;</span> <span class="number">0.0</span> {
-                    <span class="kw">let</span> <span class="ident">pct</span> <span class="op">=</span> (<span class="ident">count</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> (<span class="ident">distrib</span>.<span class="ident">select</span>(<span class="ident">Statistic</span>::<span class="ident">Max</span>).<span class="ident">unwrap</span>() <span class="kw">as</span> <span class="ident">f64</span>);
+                    <span class="kw">let</span> <span class="ident">pct</span> <span class="op">=</span> (<span class="ident">count</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> (<span class="ident">distrib</span>.<span class="ident">select</span>(<span class="ident">Statistic::Max</span>).<span class="ident">unwrap</span>() <span class="kw">as</span> <span class="ident">f64</span>);
                     <span class="kw">let</span> <span class="ident">c</span> <span class="op">=</span> <span class="ident">gradient</span>.<span class="ident">eval_continuous</span>(<span class="ident">pct</span>);
                     <span class="comment">// Don&#39;t block the map underneath</span>
-                    <span class="kw">let</span> <span class="ident">color</span> <span class="op">=</span> <span class="ident">Color</span>::<span class="ident">rgb</span>(<span class="ident">c</span>.<span class="ident">r</span> <span class="kw">as</span> <span class="ident">usize</span>, <span class="ident">c</span>.<span class="ident">g</span> <span class="kw">as</span> <span class="ident">usize</span>, <span class="ident">c</span>.<span class="ident">b</span> <span class="kw">as</span> <span class="ident">usize</span>).<span class="ident">alpha</span>(<span class="number">0.6</span>);
+                    <span class="kw">let</span> <span class="ident">color</span> <span class="op">=</span> <span class="ident">Color::rgb</span>(<span class="ident">c</span>.<span class="ident">r</span> <span class="kw">as</span> <span class="ident">usize</span>, <span class="ident">c</span>.<span class="ident">g</span> <span class="kw">as</span> <span class="ident">usize</span>, <span class="ident">c</span>.<span class="ident">b</span> <span class="kw">as</span> <span class="ident">usize</span>).<span class="ident">alpha</span>(<span class="number">0.6</span>);
                     <span class="ident">batch</span>.<span class="ident">push</span>(
                         <span class="ident">color</span>,
                         <span class="ident">square</span>
@@ -510,16 +510,16 @@
         }
     }
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">labels</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;0&quot;</span>.<span class="ident">to_string</span>()];
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">labels</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="string">&quot;0&quot;</span>.<span class="ident">to_string</span>()];
     <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">1</span>..<span class="op">=</span><span class="ident">num_colors</span> {
         <span class="kw">let</span> <span class="ident">pct</span> <span class="op">=</span> (<span class="ident">i</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> (<span class="ident">num_colors</span> <span class="kw">as</span> <span class="ident">f64</span>);
         <span class="ident">labels</span>.<span class="ident">push</span>(
-            (<span class="ident">pct</span> <span class="op">*</span> (<span class="ident">distrib</span>.<span class="ident">select</span>(<span class="ident">Statistic</span>::<span class="ident">Max</span>).<span class="ident">unwrap</span>() <span class="kw">as</span> <span class="ident">f64</span>))
+            (<span class="ident">pct</span> <span class="op">*</span> (<span class="ident">distrib</span>.<span class="ident">select</span>(<span class="ident">Statistic::Max</span>).<span class="ident">unwrap</span>() <span class="kw">as</span> <span class="ident">f64</span>))
                 .<span class="ident">round</span>()
                 .<span class="ident">to_string</span>(),
         );
     }
-    <span class="ident">ColorLegend</span>::<span class="ident">gradient</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">ColorScale</span>(<span class="ident">colors</span>), <span class="ident">labels</span>)
+    <span class="ident">ColorLegend::gradient</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">ColorScale</span>(<span class="ident">colors</span>), <span class="ident">labels</span>)
 }
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Grid</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
@@ -531,7 +531,7 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Copy</span><span class="op">&gt;</span> <span class="ident">Grid</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">width</span>: <span class="ident">usize</span>, <span class="ident">height</span>: <span class="ident">usize</span>, <span class="ident">default</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Grid</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
         <span class="ident">Grid</span> {
-            <span class="ident">data</span>: <span class="ident">std</span>::<span class="ident">iter</span>::<span class="ident">repeat</span>(<span class="ident">default</span>).<span class="ident">take</span>(<span class="ident">width</span> <span class="op">*</span> <span class="ident">height</span>).<span class="ident">collect</span>(),
+            <span class="ident">data</span>: <span class="ident">std::iter::repeat</span>(<span class="ident">default</span>).<span class="ident">take</span>(<span class="ident">width</span> <span class="op">*</span> <span class="ident">height</span>).<span class="ident">collect</span>(),
             <span class="ident">width</span>,
             <span class="ident">height</span>,
         }
@@ -543,5 +543,5 @@
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_gui" data-search-js="../../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_gui" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
     <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script></body></html>

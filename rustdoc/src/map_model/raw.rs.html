@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/raw.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>raw.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../map_model/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../map_model/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -641,19 +641,19 @@
 <span class="doccomment">//! structure is useful to iterate quickly on parts of the map importing pipeline without having to</span>
 <span class="doccomment">//! constantly read .osm files, and to visualize the intermediate state with map_editor.</span>
 
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
+<span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
+<span class="kw">use</span> <span class="ident">std::fmt</span>;
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">anyhow</span>::<span class="ident">Context</span>;
-<span class="kw">use</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span>;
-<span class="kw">use</span> <span class="ident">petgraph</span>::<span class="ident">graphmap</span>::<span class="ident">DiGraphMap</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::anyhow::Context</span>;
+<span class="kw">use</span> <span class="ident">anyhow::Result</span>;
+<span class="kw">use</span> <span class="ident">petgraph::graphmap::DiGraphMap</span>;
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
 <span class="kw">use</span> <span class="ident">abstio</span>::{<span class="ident">CityName</span>, <span class="ident">MapName</span>};
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">deserialize_btreemap</span>, <span class="ident">serialize_btreemap</span>, <span class="ident">Tags</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">GPSBounds</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">make</span>::<span class="ident">initial</span>::<span class="ident">lane_specs</span>::<span class="ident">get_lane_specs_ltr</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::make::initial::lane_specs::get_lane_specs_ltr</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">osm</span>, <span class="ident">Amenity</span>, <span class="ident">AreaType</span>, <span class="ident">Direction</span>, <span class="ident">DrivingSide</span>, <span class="ident">IntersectionType</span>, <span class="ident">MapConfig</span>};
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
@@ -668,16 +668,16 @@
         <span class="ident">serialize_with</span> <span class="op">=</span> <span class="string">&quot;serialize_btreemap&quot;</span>,
         <span class="ident">deserialize_with</span> <span class="op">=</span> <span class="string">&quot;deserialize_btreemap&quot;</span>
     )]</span>
-    <span class="kw">pub</span> <span class="ident">intersections</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">osm</span>::<span class="ident">NodeID</span>, <span class="ident">RawIntersection</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">intersections</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">osm::NodeID</span>, <span class="ident">RawIntersection</span><span class="op">&gt;</span>,
     <span class="attribute">#[<span class="ident">serde</span>(
         <span class="ident">serialize_with</span> <span class="op">=</span> <span class="string">&quot;serialize_btreemap&quot;</span>,
         <span class="ident">deserialize_with</span> <span class="op">=</span> <span class="string">&quot;deserialize_btreemap&quot;</span>
     )]</span>
-    <span class="kw">pub</span> <span class="ident">buildings</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">osm</span>::<span class="ident">OsmID</span>, <span class="ident">RawBuilding</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">buildings</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">osm::OsmID</span>, <span class="ident">RawBuilding</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">bus_routes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">RawBusRoute</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">areas</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">RawArea</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">parking_lots</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">RawParkingLot</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">parking_aisles</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">osm</span>::<span class="ident">WayID</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>)<span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">parking_aisles</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">osm::WayID</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>)<span class="op">&gt;</span>,
 
     <span class="kw">pub</span> <span class="ident">boundary_polygon</span>: <span class="ident">Polygon</span>,
     <span class="kw">pub</span> <span class="ident">gps_bounds</span>: <span class="ident">GPSBounds</span>,
@@ -693,52 +693,52 @@
 <span class="comment">// (https://github.com/opentraffic/architecture/issues/1).</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Hash</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">OriginalRoad</span> {
-    <span class="kw">pub</span> <span class="ident">osm_way_id</span>: <span class="ident">osm</span>::<span class="ident">WayID</span>,
-    <span class="kw">pub</span> <span class="ident">i1</span>: <span class="ident">osm</span>::<span class="ident">NodeID</span>,
-    <span class="kw">pub</span> <span class="ident">i2</span>: <span class="ident">osm</span>::<span class="ident">NodeID</span>,
+    <span class="kw">pub</span> <span class="ident">osm_way_id</span>: <span class="ident">osm::WayID</span>,
+    <span class="kw">pub</span> <span class="ident">i1</span>: <span class="ident">osm::NodeID</span>,
+    <span class="kw">pub</span> <span class="ident">i2</span>: <span class="ident">osm::NodeID</span>,
 }
 
-<span class="kw">impl</span> <span class="ident">fmt</span>::<span class="ident">Display</span> <span class="kw">for</span> <span class="ident">OriginalRoad</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
-        <span class="macro">write</span><span class="macro">!</span>(
+<span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">OriginalRoad</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+        <span class="macro">write!</span>(
             <span class="ident">f</span>,
             <span class="string">&quot;OriginalRoad({} from {} to {}&quot;</span>,
             <span class="self">self</span>.<span class="ident">osm_way_id</span>, <span class="self">self</span>.<span class="ident">i1</span>, <span class="self">self</span>.<span class="ident">i2</span>
         )
     }
 }
-<span class="kw">impl</span> <span class="ident">fmt</span>::<span class="ident">Debug</span> <span class="kw">for</span> <span class="ident">OriginalRoad</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
-        <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>)
+<span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">OriginalRoad</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+        <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>)
     }
 }
 
 <span class="kw">impl</span> <span class="ident">OriginalRoad</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">way</span>: <span class="ident">i64</span>, (<span class="ident">i1</span>, <span class="ident">i2</span>): (<span class="ident">i64</span>, <span class="ident">i64</span>)) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">OriginalRoad</span> {
         <span class="ident">OriginalRoad</span> {
-            <span class="ident">osm_way_id</span>: <span class="ident">osm</span>::<span class="ident">WayID</span>(<span class="ident">way</span>),
-            <span class="ident">i1</span>: <span class="ident">osm</span>::<span class="ident">NodeID</span>(<span class="ident">i1</span>),
-            <span class="ident">i2</span>: <span class="ident">osm</span>::<span class="ident">NodeID</span>(<span class="ident">i2</span>),
+            <span class="ident">osm_way_id</span>: <span class="ident">osm::WayID</span>(<span class="ident">way</span>),
+            <span class="ident">i1</span>: <span class="ident">osm::NodeID</span>(<span class="ident">i1</span>),
+            <span class="ident">i2</span>: <span class="ident">osm::NodeID</span>(<span class="ident">i2</span>),
         }
     }
 
     <span class="doccomment">/// Prints the OriginalRoad in a way that can be copied to Rust code.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_string_code</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
-        <span class="macro">format</span><span class="macro">!</span>(
+        <span class="macro">format!</span>(
             <span class="string">&quot;OriginalRoad::new({}, ({}, {}))&quot;</span>,
             <span class="self">self</span>.<span class="ident">osm_way_id</span>.<span class="number">0</span>, <span class="self">self</span>.<span class="ident">i1</span>.<span class="number">0</span>, <span class="self">self</span>.<span class="ident">i2</span>.<span class="number">0</span>
         )
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">common_endpt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="ident">OriginalRoad</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">osm</span>::<span class="ident">NodeID</span> {
-        <span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy</span>::<span class="ident">suspicious_operation_groupings</span>)]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">common_endpt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="ident">OriginalRoad</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">osm::NodeID</span> {
+        <span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::suspicious_operation_groupings</span>)]</span>
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">i1</span> <span class="op">=</span><span class="op">=</span> <span class="ident">other</span>.<span class="ident">i1</span> <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">i1</span> <span class="op">=</span><span class="op">=</span> <span class="ident">other</span>.<span class="ident">i2</span> {
             <span class="kw">return</span> <span class="self">self</span>.<span class="ident">i1</span>;
         }
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">i2</span> <span class="op">=</span><span class="op">=</span> <span class="ident">other</span>.<span class="ident">i1</span> <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">i2</span> <span class="op">=</span><span class="op">=</span> <span class="ident">other</span>.<span class="ident">i2</span> {
             <span class="kw">return</span> <span class="self">self</span>.<span class="ident">i2</span>;
         }
-        <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;{:?} and {:?} have no common_endpt&quot;</span>, <span class="self">self</span>, <span class="ident">other</span>);
+        <span class="macro">panic!</span>(<span class="string">&quot;{:?} and {:?} have no common_endpt&quot;</span>, <span class="self">self</span>, <span class="ident">other</span>);
     }
 }
 
@@ -746,28 +746,28 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">blank</span>(<span class="ident">name</span>: <span class="ident">MapName</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">RawMap</span> {
         <span class="ident">RawMap</span> {
             <span class="ident">name</span>,
-            <span class="ident">roads</span>: <span class="ident">BTreeMap</span>::<span class="ident">new</span>(),
-            <span class="ident">intersections</span>: <span class="ident">BTreeMap</span>::<span class="ident">new</span>(),
-            <span class="ident">buildings</span>: <span class="ident">BTreeMap</span>::<span class="ident">new</span>(),
-            <span class="ident">bus_routes</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
-            <span class="ident">areas</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
-            <span class="ident">parking_lots</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
-            <span class="ident">parking_aisles</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
+            <span class="ident">roads</span>: <span class="ident">BTreeMap::new</span>(),
+            <span class="ident">intersections</span>: <span class="ident">BTreeMap::new</span>(),
+            <span class="ident">buildings</span>: <span class="ident">BTreeMap::new</span>(),
+            <span class="ident">bus_routes</span>: <span class="ident">Vec::new</span>(),
+            <span class="ident">areas</span>: <span class="ident">Vec::new</span>(),
+            <span class="ident">parking_lots</span>: <span class="ident">Vec::new</span>(),
+            <span class="ident">parking_aisles</span>: <span class="ident">Vec::new</span>(),
             <span class="comment">// Some nonsense thing</span>
-            <span class="ident">boundary_polygon</span>: <span class="ident">Polygon</span>::<span class="ident">rectangle</span>(<span class="number">1.0</span>, <span class="number">1.0</span>),
-            <span class="ident">gps_bounds</span>: <span class="ident">GPSBounds</span>::<span class="ident">new</span>(),
+            <span class="ident">boundary_polygon</span>: <span class="ident">Polygon::rectangle</span>(<span class="number">1.0</span>, <span class="number">1.0</span>),
+            <span class="ident">gps_bounds</span>: <span class="ident">GPSBounds::new</span>(),
             <span class="ident">config</span>: <span class="ident">MapConfig</span> {
-                <span class="ident">driving_side</span>: <span class="ident">DrivingSide</span>::<span class="ident">Right</span>,
+                <span class="ident">driving_side</span>: <span class="ident">DrivingSide::Right</span>,
                 <span class="ident">bikes_can_use_bus_lanes</span>: <span class="bool-val">true</span>,
                 <span class="ident">inferred_sidewalks</span>: <span class="bool-val">true</span>,
-                <span class="ident">street_parking_spot_length</span>: <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">8.0</span>),
+                <span class="ident">street_parking_spot_length</span>: <span class="ident">Distance::meters</span>(<span class="number">8.0</span>),
             },
         }
     }
 
     <span class="comment">// TODO Might be better to maintain this instead of doing a search everytime.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">roads_per_intersection</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">i</span>: <span class="ident">osm</span>::<span class="ident">NodeID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">OriginalRoad</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">results</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">roads_per_intersection</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">i</span>: <span class="ident">osm::NodeID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">OriginalRoad</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">results</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
         <span class="kw">for</span> <span class="ident">id</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">roads</span>.<span class="ident">keys</span>() {
             <span class="kw">if</span> <span class="ident">id</span>.<span class="ident">i1</span> <span class="op">=</span><span class="op">=</span> <span class="ident">i</span> <span class="op">|</span><span class="op">|</span> <span class="ident">id</span>.<span class="ident">i2</span> <span class="op">=</span><span class="op">=</span> <span class="ident">i</span> {
                 <span class="ident">results</span>.<span class="ident">push</span>(<span class="kw-2">*</span><span class="ident">id</span>);
@@ -776,22 +776,22 @@
         <span class="ident">results</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_osm_node_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">start</span>: <span class="ident">i64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">osm</span>::<span class="ident">NodeID</span> {
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">start</span> <span class="op">&lt;</span> <span class="number">0</span>);
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_osm_node_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">start</span>: <span class="ident">i64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">osm::NodeID</span> {
+        <span class="macro">assert!</span>(<span class="ident">start</span> <span class="op">&lt;</span> <span class="number">0</span>);
         <span class="comment">// Slow, but deterministic.</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">osm_node_id</span> <span class="op">=</span> <span class="ident">start</span>;
         <span class="kw">loop</span> {
             <span class="kw">if</span> <span class="self">self</span>.<span class="ident">intersections</span>.<span class="ident">keys</span>().<span class="ident">any</span>(<span class="op">|</span><span class="ident">i</span><span class="op">|</span> <span class="ident">i</span>.<span class="number">0</span> <span class="op">=</span><span class="op">=</span> <span class="ident">osm_node_id</span>) {
                 <span class="ident">osm_node_id</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
             } <span class="kw">else</span> {
-                <span class="kw">return</span> <span class="ident">osm</span>::<span class="ident">NodeID</span>(<span class="ident">osm_node_id</span>);
+                <span class="kw">return</span> <span class="ident">osm::NodeID</span>(<span class="ident">osm_node_id</span>);
             }
         }
     }
 
     <span class="comment">// TODO Almost gone...</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_osm_way_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">start</span>: <span class="ident">i64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">osm</span>::<span class="ident">WayID</span> {
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">start</span> <span class="op">&lt;</span> <span class="number">0</span>);
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_osm_way_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">start</span>: <span class="ident">i64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">osm::WayID</span> {
+        <span class="macro">assert!</span>(<span class="ident">start</span> <span class="op">&lt;</span> <span class="number">0</span>);
         <span class="comment">// Slow, but deterministic.</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">osm_way_id</span> <span class="op">=</span> <span class="ident">start</span>;
         <span class="kw">loop</span> {
@@ -800,7 +800,7 @@
             <span class="kw">if</span> <span class="self">self</span>.<span class="ident">roads</span>.<span class="ident">keys</span>().<span class="ident">any</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="ident">r</span>.<span class="ident">osm_way_id</span>.<span class="number">0</span> <span class="op">=</span><span class="op">=</span> <span class="ident">osm_way_id</span>) {
                 <span class="ident">osm_way_id</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
             } <span class="kw">else</span> {
-                <span class="kw">return</span> <span class="ident">osm</span>::<span class="ident">WayID</span>(<span class="ident">osm_way_id</span>);
+                <span class="kw">return</span> <span class="ident">osm::WayID</span>(<span class="ident">osm_way_id</span>);
             }
         }
     }
@@ -808,24 +808,24 @@
     <span class="doccomment">/// (Intersection polygon, polygons for roads, list of labeled polylines to debug)</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">preview_intersection</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">id</span>: <span class="ident">osm</span>::<span class="ident">NodeID</span>,
+        <span class="ident">id</span>: <span class="ident">osm::NodeID</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">Polygon</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">Polygon</span>)<span class="op">&gt;</span>) {
-        <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">make</span>::<span class="ident">initial</span>;
+        <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::make::initial</span>;
 
         <span class="kw">let</span> <span class="ident">intersection_roads</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">OriginalRoad</span><span class="op">&gt;</span> <span class="op">=</span>
             <span class="self">self</span>.<span class="ident">roads_per_intersection</span>(<span class="ident">id</span>).<span class="ident">into_iter</span>().<span class="ident">collect</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">roads</span> <span class="op">=</span> <span class="ident">BTreeMap</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">roads</span> <span class="op">=</span> <span class="ident">BTreeMap::new</span>();
         <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">intersection_roads</span> {
             <span class="ident">roads</span>.<span class="ident">insert</span>(
                 <span class="kw-2">*</span><span class="ident">r</span>,
-                <span class="ident">initial</span>::<span class="ident">Road</span>::<span class="ident">new</span>(<span class="kw-2">*</span><span class="ident">r</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">roads</span>[<span class="ident">r</span>], <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">config</span>).<span class="ident">unwrap</span>(),
+                <span class="ident">initial::Road::new</span>(<span class="kw-2">*</span><span class="ident">r</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">roads</span>[<span class="ident">r</span>], <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">config</span>).<span class="ident">unwrap</span>(),
             );
         }
 
         <span class="comment">// We don&#39;t yet know if there are short roads that we&#39;ll merge</span>
         <span class="kw">let</span> <span class="ident">merged</span> <span class="op">=</span> <span class="bool-val">false</span>;
         <span class="kw">let</span> (<span class="ident">poly</span>, <span class="ident">debug</span>) <span class="op">=</span>
-            <span class="ident">initial</span>::<span class="ident">intersection_polygon</span>(<span class="ident">id</span>, <span class="ident">intersection_roads</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">roads</span>, <span class="ident">merged</span>).<span class="ident">unwrap</span>();
+            <span class="ident">initial::intersection_polygon</span>(<span class="ident">id</span>, <span class="ident">intersection_roads</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">roads</span>, <span class="ident">merged</span>).<span class="ident">unwrap</span>();
         (
             <span class="ident">poly</span>,
             <span class="ident">roads</span>
@@ -838,21 +838,21 @@
 
     <span class="doccomment">/// Generate the trimmed `PolyLine` for a single RawRoad by calculating both intersections</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">trimmed_road_geometry</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">road</span>: <span class="ident">OriginalRoad</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PolyLine</span><span class="op">&gt;</span> {
-        <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">make</span>::<span class="ident">initial</span>;
+        <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::make::initial</span>;
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">roads</span> <span class="op">=</span> <span class="ident">BTreeMap</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">roads</span> <span class="op">=</span> <span class="ident">BTreeMap::new</span>();
         <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="ident">id</span> <span class="kw">in</span> <span class="kw-2">&amp;</span>[<span class="ident">road</span>.<span class="ident">i1</span>, <span class="ident">road</span>.<span class="ident">i2</span>] {
             <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">roads_per_intersection</span>(<span class="ident">id</span>) {
                 <span class="ident">roads</span>.<span class="ident">insert</span>(
                     <span class="ident">r</span>,
-                    <span class="ident">initial</span>::<span class="ident">Road</span>::<span class="ident">new</span>(<span class="ident">r</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">roads</span>[<span class="kw-2">&amp;</span><span class="ident">r</span>], <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">config</span>).<span class="ident">ok</span>()<span class="question-mark">?</span>,
+                    <span class="ident">initial::Road::new</span>(<span class="ident">r</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">roads</span>[<span class="kw-2">&amp;</span><span class="ident">r</span>], <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">config</span>).<span class="ident">ok</span>()<span class="question-mark">?</span>,
                 );
             }
         }
         <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="ident">id</span> <span class="kw">in</span> <span class="kw-2">&amp;</span>[<span class="ident">road</span>.<span class="ident">i1</span>, <span class="ident">road</span>.<span class="ident">i2</span>] {
             <span class="comment">// We don&#39;t yet know if there are short roads that we&#39;ll merge</span>
             <span class="kw">let</span> <span class="ident">merged</span> <span class="op">=</span> <span class="bool-val">false</span>;
-            <span class="ident">initial</span>::<span class="ident">intersection_polygon</span>(
+            <span class="ident">initial::intersection_polygon</span>(
                 <span class="ident">id</span>,
                 <span class="self">self</span>.<span class="ident">roads_per_intersection</span>(<span class="ident">id</span>).<span class="ident">into_iter</span>().<span class="ident">collect</span>(),
                 <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">roads</span>,
@@ -865,7 +865,7 @@
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">save</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {
-        <span class="ident">abstio</span>::<span class="ident">write_binary</span>(<span class="ident">abstio</span>::<span class="ident">path_raw_map</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">name</span>), <span class="self">self</span>)
+        <span class="ident">abstio::write_binary</span>(<span class="ident">abstio::path_raw_map</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">name</span>), <span class="self">self</span>)
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_city_name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">CityName</span> {
@@ -875,13 +875,13 @@
 
 <span class="comment">// Mutations and supporting queries</span>
 <span class="kw">impl</span> <span class="ident">RawMap</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">can_delete_intersection</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">i</span>: <span class="ident">osm</span>::<span class="ident">NodeID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">can_delete_intersection</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">i</span>: <span class="ident">osm::NodeID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">roads_per_intersection</span>(<span class="ident">i</span>).<span class="ident">is_empty</span>()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">delete_intersection</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">id</span>: <span class="ident">osm</span>::<span class="ident">NodeID</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">delete_intersection</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">id</span>: <span class="ident">osm::NodeID</span>) {
         <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">can_delete_intersection</span>(<span class="ident">id</span>) {
-            <span class="macro">panic</span><span class="macro">!</span>(
+            <span class="macro">panic!</span>(
                 <span class="string">&quot;Can&#39;t delete_intersection {}, must have roads connected&quot;</span>,
                 <span class="ident">id</span>
             );
@@ -889,18 +889,18 @@
         <span class="self">self</span>.<span class="ident">intersections</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>).<span class="ident">unwrap</span>();
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">move_intersection</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">id</span>: <span class="ident">osm</span>::<span class="ident">NodeID</span>, <span class="ident">point</span>: <span class="ident">Pt2D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">OriginalRoad</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">move_intersection</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">id</span>: <span class="ident">osm::NodeID</span>, <span class="ident">point</span>: <span class="ident">Pt2D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">OriginalRoad</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">intersections</span>.<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>).<span class="ident">unwrap</span>().<span class="ident">point</span> <span class="op">=</span> <span class="ident">point</span>;
 
         <span class="comment">// Update all the roads.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">fixed</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">fixed</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
         <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">roads_per_intersection</span>(<span class="ident">id</span>) {
             <span class="ident">fixed</span>.<span class="ident">push</span>(<span class="ident">r</span>);
             <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">roads</span>.<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">r</span>).<span class="ident">unwrap</span>();
             <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">i1</span> <span class="op">=</span><span class="op">=</span> <span class="ident">id</span> {
                 <span class="ident">road</span>.<span class="ident">center_points</span>[<span class="number">0</span>] <span class="op">=</span> <span class="ident">point</span>;
             } <span class="kw">else</span> {
-                <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">r</span>.<span class="ident">i2</span>, <span class="ident">id</span>);
+                <span class="macro">assert_eq!</span>(<span class="ident">r</span>.<span class="ident">i2</span>, <span class="ident">id</span>);
                 <span class="kw-2">*</span><span class="ident">road</span>.<span class="ident">center_points</span>.<span class="ident">last_mut</span>().<span class="ident">unwrap</span>() <span class="op">=</span> <span class="ident">point</span>;
             }
         }
@@ -908,7 +908,7 @@
         <span class="prelude-val">Some</span>(<span class="ident">fixed</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">closest_intersection</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pt</span>: <span class="ident">Pt2D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">osm</span>::<span class="ident">NodeID</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">closest_intersection</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pt</span>: <span class="ident">Pt2D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">osm::NodeID</span> {
         <span class="self">self</span>.<span class="ident">intersections</span>
             .<span class="ident">iter</span>()
             .<span class="ident">min_by_key</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">i</span>)<span class="op">|</span> <span class="ident">i</span>.<span class="ident">point</span>.<span class="ident">dist_to</span>(<span class="ident">pt</span>))
@@ -916,17 +916,17 @@
             .<span class="ident">unwrap</span>()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">path_dist_to</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">from</span>: <span class="ident">osm</span>::<span class="ident">NodeID</span>, <span class="ident">to</span>: <span class="ident">osm</span>::<span class="ident">NodeID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Distance</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">graph</span> <span class="op">=</span> <span class="ident">DiGraphMap</span>::<span class="ident">new</span>();
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">path_dist_to</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">from</span>: <span class="ident">osm::NodeID</span>, <span class="ident">to</span>: <span class="ident">osm::NodeID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Distance</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">graph</span> <span class="op">=</span> <span class="ident">DiGraphMap::new</span>();
         <span class="kw">for</span> (<span class="ident">id</span>, <span class="ident">r</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">roads</span> {
             <span class="ident">graph</span>.<span class="ident">add_edge</span>(<span class="ident">id</span>.<span class="ident">i1</span>, <span class="ident">id</span>.<span class="ident">i2</span>, <span class="ident">id</span>);
             <span class="kw">if</span> <span class="op">!</span><span class="ident">r</span>.<span class="ident">osm_tags</span>.<span class="ident">contains_key</span>(<span class="string">&quot;oneway&quot;</span>) {
                 <span class="ident">graph</span>.<span class="ident">add_edge</span>(<span class="ident">id</span>.<span class="ident">i2</span>, <span class="ident">id</span>.<span class="ident">i1</span>, <span class="ident">id</span>);
             }
         }
-        <span class="ident">petgraph</span>::<span class="ident">algo</span>::<span class="ident">dijkstra</span>(<span class="kw-2">&amp;</span><span class="ident">graph</span>, <span class="ident">from</span>, <span class="prelude-val">Some</span>(<span class="ident">to</span>), <span class="op">|</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">r</span>)<span class="op">|</span> {
+        <span class="ident">petgraph::algo::dijkstra</span>(<span class="kw-2">&amp;</span><span class="ident">graph</span>, <span class="ident">from</span>, <span class="prelude-val">Some</span>(<span class="ident">to</span>), <span class="op">|</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">r</span>)<span class="op">|</span> {
             <span class="comment">// TODO Expensive!</span>
-            <span class="ident">PolyLine</span>::<span class="ident">unchecked_new</span>(<span class="self">self</span>.<span class="ident">roads</span>[<span class="ident">r</span>].<span class="ident">center_points</span>.<span class="ident">clone</span>()).<span class="ident">length</span>()
+            <span class="ident">PolyLine::unchecked_new</span>(<span class="self">self</span>.<span class="ident">roads</span>[<span class="ident">r</span>].<span class="ident">center_points</span>.<span class="ident">clone</span>()).<span class="ident">length</span>()
         })
         .<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">to</span>)
         .<span class="ident">cloned</span>()
@@ -937,8 +937,8 @@
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
         <span class="ident">short</span>: <span class="ident">OriginalRoad</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(
-        <span class="ident">osm</span>::<span class="ident">NodeID</span>,
-        <span class="ident">osm</span>::<span class="ident">NodeID</span>,
+        <span class="ident">osm::NodeID</span>,
+        <span class="ident">osm::NodeID</span>,
         <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">OriginalRoad</span><span class="op">&gt;</span>,
         <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">OriginalRoad</span><span class="op">&gt;</span>,
     )<span class="op">&gt;</span> {
@@ -946,10 +946,10 @@
         {
             <span class="kw">let</span> <span class="ident">i1</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">intersections</span>[<span class="kw-2">&amp;</span><span class="ident">short</span>.<span class="ident">i1</span>];
             <span class="kw">let</span> <span class="ident">i2</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">intersections</span>[<span class="kw-2">&amp;</span><span class="ident">short</span>.<span class="ident">i2</span>];
-            <span class="kw">if</span> <span class="ident">i1</span>.<span class="ident">intersection_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">IntersectionType</span>::<span class="ident">Border</span>
-                <span class="op">|</span><span class="op">|</span> <span class="ident">i2</span>.<span class="ident">intersection_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">IntersectionType</span>::<span class="ident">Border</span>
+            <span class="kw">if</span> <span class="ident">i1</span>.<span class="ident">intersection_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">IntersectionType::Border</span>
+                <span class="op">|</span><span class="op">|</span> <span class="ident">i2</span>.<span class="ident">intersection_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">IntersectionType::Border</span>
             {
-                <span class="macro">bail</span><span class="macro">!</span>(<span class="string">&quot;{} touches a border&quot;</span>, <span class="ident">short</span>);
+                <span class="macro">bail!</span>(<span class="string">&quot;{} touches a border&quot;</span>, <span class="ident">short</span>);
             }
         }
 
@@ -964,7 +964,7 @@
 
         <span class="kw">let</span> (<span class="ident">i1</span>, <span class="ident">i2</span>) <span class="op">=</span> (<span class="ident">short</span>.<span class="ident">i1</span>, <span class="ident">short</span>.<span class="ident">i2</span>);
         <span class="kw">if</span> <span class="ident">i1</span> <span class="op">=</span><span class="op">=</span> <span class="ident">i2</span> {
-            <span class="macro">bail</span><span class="macro">!</span>(<span class="string">&quot;Can&#39;t merge {} -- it&#39;s a loop on {}&quot;</span>, <span class="ident">short</span>, <span class="ident">i1</span>);
+            <span class="macro">bail!</span>(<span class="string">&quot;Can&#39;t merge {} -- it&#39;s a loop on {}&quot;</span>, <span class="ident">short</span>, <span class="ident">i1</span>);
         }
         <span class="kw">let</span> <span class="ident">i1_pt</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">intersections</span>[<span class="kw-2">&amp;</span><span class="ident">i1</span>].<span class="ident">point</span>;
         <span class="comment">// Remember the original connections to i1 before we merge. None of these will change IDs.</span>
@@ -978,9 +978,9 @@
         {
             <span class="comment">// Don&#39;t use delete_intersection; we&#39;re manually fixing up connected roads</span>
             <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">intersections</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">i2</span>).<span class="ident">unwrap</span>();
-            <span class="kw">if</span> <span class="ident">i</span>.<span class="ident">intersection_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">IntersectionType</span>::<span class="ident">TrafficSignal</span> {
+            <span class="kw">if</span> <span class="ident">i</span>.<span class="ident">intersection_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">IntersectionType::TrafficSignal</span> {
                 <span class="self">self</span>.<span class="ident">intersections</span>.<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">i1</span>).<span class="ident">unwrap</span>().<span class="ident">intersection_type</span> <span class="op">=</span>
-                    <span class="ident">IntersectionType</span>::<span class="ident">TrafficSignal</span>;
+                    <span class="ident">IntersectionType::TrafficSignal</span>;
             }
         }
 
@@ -1001,15 +1001,15 @@
             <span class="ident">ArbitrarilyOne</span>,
             <span class="ident">OnlyNormalRoads</span>,
         }
-        <span class="kw">let</span> <span class="ident">modify_geom</span> <span class="op">=</span> <span class="ident">ModifyGeom</span>::<span class="ident">AddOnePoint</span>;
-        <span class="kw">let</span> <span class="ident">modify_which</span> <span class="op">=</span> <span class="ident">ModifyWhichRoads</span>::<span class="ident">All</span>;
+        <span class="kw">let</span> <span class="ident">modify_geom</span> <span class="op">=</span> <span class="ident">ModifyGeom::AddOnePoint</span>;
+        <span class="kw">let</span> <span class="ident">modify_which</span> <span class="op">=</span> <span class="ident">ModifyWhichRoads::All</span>;
 
         <span class="comment">// Fix up all roads connected to i2. Delete them and create a new copy; the ID changes,</span>
         <span class="comment">// since one intersection changes.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">deleted</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">short</span>];
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">created</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">old_to_new</span> <span class="op">=</span> <span class="ident">BTreeMap</span>::<span class="ident">new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">new_to_old</span> <span class="op">=</span> <span class="ident">BTreeMap</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">deleted</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">short</span>];
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">created</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">old_to_new</span> <span class="op">=</span> <span class="ident">BTreeMap::new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">new_to_old</span> <span class="op">=</span> <span class="ident">BTreeMap::new</span>();
         <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">roads_per_intersection</span>(<span class="ident">i2</span>) {
             <span class="ident">deleted</span>.<span class="ident">push</span>(<span class="ident">r</span>);
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">road</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">roads</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">r</span>).<span class="ident">unwrap</span>();
@@ -1018,43 +1018,43 @@
                 <span class="ident">new_id</span>.<span class="ident">i1</span> <span class="op">=</span> <span class="ident">i1</span>;
 
                 <span class="kw">if</span> <span class="kw">match</span> <span class="ident">modify_which</span> {
-                    <span class="ident">ModifyWhichRoads</span>::<span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
-                    <span class="ident">ModifyWhichRoads</span>::<span class="ident">All</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
-                    <span class="ident">ModifyWhichRoads</span>::<span class="ident">ArbitrarilyOne</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">created</span>.<span class="ident">is_empty</span>(),
-                    <span class="ident">ModifyWhichRoads</span>::<span class="ident">OnlyNormalRoads</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="ident">ModifyWhichRoads::None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+                    <span class="ident">ModifyWhichRoads::All</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
+                    <span class="ident">ModifyWhichRoads::ArbitrarilyOne</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">created</span>.<span class="ident">is_empty</span>(),
+                    <span class="ident">ModifyWhichRoads::OnlyNormalRoads</span> <span class="op">=</span><span class="op">&gt;</span> {
                         <span class="op">!</span><span class="ident">road</span>.<span class="ident">osm_tags</span>.<span class="ident">is</span>(<span class="string">&quot;junction&quot;</span>, <span class="string">&quot;intersection&quot;</span>)
                     }
                 } {
                     <span class="kw">match</span> <span class="ident">modify_geom</span> {
-                        <span class="ident">ModifyGeom</span>::<span class="ident">AddOnePoint</span> <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="ident">ModifyGeom::AddOnePoint</span> <span class="op">=</span><span class="op">&gt;</span> {
                             <span class="ident">road</span>.<span class="ident">center_points</span>.<span class="ident">insert</span>(<span class="number">0</span>, <span class="ident">i1_pt</span>);
                         }
-                        <span class="ident">ModifyGeom</span>::<span class="ident">ChangeEndpoint</span> <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="ident">ModifyGeom::ChangeEndpoint</span> <span class="op">=</span><span class="op">&gt;</span> {
                             <span class="ident">road</span>.<span class="ident">center_points</span>[<span class="number">0</span>] <span class="op">=</span> <span class="ident">i1_pt</span>;
                         }
-                        <span class="ident">ModifyGeom</span>::<span class="ident">AddAllPoints</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">todo</span><span class="macro">!</span>(),
+                        <span class="ident">ModifyGeom::AddAllPoints</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">todo!</span>(),
                     }
                 }
             } <span class="kw">else</span> {
-                <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">r</span>.<span class="ident">i2</span>, <span class="ident">i2</span>);
+                <span class="macro">assert_eq!</span>(<span class="ident">r</span>.<span class="ident">i2</span>, <span class="ident">i2</span>);
                 <span class="ident">new_id</span>.<span class="ident">i2</span> <span class="op">=</span> <span class="ident">i1</span>;
 
                 <span class="kw">if</span> <span class="kw">match</span> <span class="ident">modify_which</span> {
-                    <span class="ident">ModifyWhichRoads</span>::<span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
-                    <span class="ident">ModifyWhichRoads</span>::<span class="ident">All</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
-                    <span class="ident">ModifyWhichRoads</span>::<span class="ident">ArbitrarilyOne</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">created</span>.<span class="ident">is_empty</span>(),
-                    <span class="ident">ModifyWhichRoads</span>::<span class="ident">OnlyNormalRoads</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="ident">ModifyWhichRoads::None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
+                    <span class="ident">ModifyWhichRoads::All</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">true</span>,
+                    <span class="ident">ModifyWhichRoads::ArbitrarilyOne</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">created</span>.<span class="ident">is_empty</span>(),
+                    <span class="ident">ModifyWhichRoads::OnlyNormalRoads</span> <span class="op">=</span><span class="op">&gt;</span> {
                         <span class="op">!</span><span class="ident">road</span>.<span class="ident">osm_tags</span>.<span class="ident">is</span>(<span class="string">&quot;junction&quot;</span>, <span class="string">&quot;intersection&quot;</span>)
                     }
                 } {
                     <span class="kw">match</span> <span class="ident">modify_geom</span> {
-                        <span class="ident">ModifyGeom</span>::<span class="ident">AddOnePoint</span> <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="ident">ModifyGeom::AddOnePoint</span> <span class="op">=</span><span class="op">&gt;</span> {
                             <span class="ident">road</span>.<span class="ident">center_points</span>.<span class="ident">push</span>(<span class="ident">i1_pt</span>);
                         }
-                        <span class="ident">ModifyGeom</span>::<span class="ident">ChangeEndpoint</span> <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="ident">ModifyGeom::ChangeEndpoint</span> <span class="op">=</span><span class="op">&gt;</span> {
                             <span class="kw-2">*</span><span class="ident">road</span>.<span class="ident">center_points</span>.<span class="ident">last_mut</span>().<span class="ident">unwrap</span>() <span class="op">=</span> <span class="ident">i1_pt</span>;
                         }
-                        <span class="ident">ModifyGeom</span>::<span class="ident">AddAllPoints</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">todo</span><span class="macro">!</span>(),
+                        <span class="ident">ModifyGeom::AddAllPoints</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">todo!</span>(),
                     }
                 }
             }
@@ -1067,9 +1067,9 @@
 
         <span class="comment">// If we&#39;re deleting the target of a simple restriction somewhere, update it.</span>
         <span class="kw">for</span> (<span class="ident">from_id</span>, <span class="ident">road</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">roads</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">fix_trs</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">fix_trs</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
             <span class="kw">for</span> (<span class="ident">rt</span>, <span class="ident">to</span>) <span class="kw">in</span> <span class="ident">road</span>.<span class="ident">turn_restrictions</span>.<span class="ident">drain</span>(..) {
-                <span class="kw">if</span> <span class="ident">to</span> <span class="op">=</span><span class="op">=</span> <span class="ident">short</span> <span class="op">&amp;&amp;</span> <span class="ident">rt</span> <span class="op">=</span><span class="op">=</span> <span class="ident">RestrictionType</span>::<span class="ident">BanTurns</span> {
+                <span class="kw">if</span> <span class="ident">to</span> <span class="op">=</span><span class="op">=</span> <span class="ident">short</span> <span class="op">&amp;&amp;</span> <span class="ident">rt</span> <span class="op">=</span><span class="op">=</span> <span class="ident">RestrictionType::BanTurns</span> {
                     <span class="comment">// Remove this restriction, replace it with a new one to each of the successors</span>
                     <span class="comment">// of the deleted road. Depending if the intersection we kept is the one</span>
                     <span class="comment">// connecting these two roads, the successors differ.</span>
@@ -1098,12 +1098,12 @@
         <span class="comment">// If we&#39;re deleting the &#39;via&#39; of a complicated restriction somewhere, change it to a</span>
         <span class="comment">// simple restriction.</span>
         <span class="kw">for</span> <span class="ident">road</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">roads</span>.<span class="ident">values_mut</span>() {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">add</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">add</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
             <span class="ident">road</span>.<span class="ident">complicated_turn_restrictions</span>.<span class="ident">retain</span>(<span class="op">|</span>(<span class="ident">via</span>, <span class="ident">to</span>)<span class="op">|</span> {
                 <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">via</span> <span class="op">=</span><span class="op">=</span> <span class="ident">short</span> {
                     <span class="comment">// Depending which intersection we&#39;re deleting, the ID of &#39;to&#39; might change</span>
                     <span class="kw">let</span> <span class="ident">to_id</span> <span class="op">=</span> <span class="ident">old_to_new</span>.<span class="ident">get</span>(<span class="ident">to</span>).<span class="ident">cloned</span>().<span class="ident">unwrap_or</span>(<span class="kw-2">*</span><span class="ident">to</span>);
-                    <span class="ident">add</span>.<span class="ident">push</span>((<span class="ident">RestrictionType</span>::<span class="ident">BanTurns</span>, <span class="ident">to_id</span>));
+                    <span class="ident">add</span>.<span class="ident">push</span>((<span class="ident">RestrictionType::BanTurns</span>, <span class="ident">to_id</span>));
                     <span class="bool-val">false</span>
                 } <span class="kw">else</span> {
                     <span class="bool-val">true</span>
@@ -1133,13 +1133,13 @@
     <span class="doccomment">/// Returns the corrected center and total width</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_geometry</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">OriginalRoad</span>, <span class="ident">cfg</span>: <span class="kw-2">&amp;</span><span class="ident">MapConfig</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">PolyLine</span>, <span class="ident">Distance</span>)<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">lane_specs</span> <span class="op">=</span> <span class="ident">get_lane_specs_ltr</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">osm_tags</span>, <span class="ident">cfg</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">total_width</span> <span class="op">=</span> <span class="ident">Distance</span>::<span class="ident">ZERO</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">total_width</span> <span class="op">=</span> <span class="ident">Distance::ZERO</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">sidewalk_right</span> <span class="op">=</span> <span class="prelude-val">None</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">sidewalk_left</span> <span class="op">=</span> <span class="prelude-val">None</span>;
         <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">lane_specs</span> {
             <span class="ident">total_width</span> <span class="op">+</span><span class="op">=</span> <span class="ident">l</span>.<span class="ident">width</span>;
             <span class="kw">if</span> <span class="ident">l</span>.<span class="ident">lt</span>.<span class="ident">is_walkable</span>() {
-                <span class="kw">if</span> <span class="ident">l</span>.<span class="ident">dir</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Direction</span>::<span class="ident">Back</span> {
+                <span class="kw">if</span> <span class="ident">l</span>.<span class="ident">dir</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Direction::Back</span> {
                     <span class="ident">sidewalk_left</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">l</span>.<span class="ident">width</span>);
                 } <span class="kw">else</span> {
                     <span class="ident">sidewalk_right</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">l</span>.<span class="ident">width</span>);
@@ -1149,7 +1149,7 @@
 
         <span class="comment">// If there&#39;s a sidewalk on only one side, adjust the true center of the road.</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">true_center</span> <span class="op">=</span>
-            <span class="ident">PolyLine</span>::<span class="ident">new</span>(<span class="self">self</span>.<span class="ident">center_points</span>.<span class="ident">clone</span>()).<span class="ident">with_context</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">id</span>.<span class="ident">to_string</span>())<span class="question-mark">?</span>;
+            <span class="ident">PolyLine::new</span>(<span class="self">self</span>.<span class="ident">center_points</span>.<span class="ident">clone</span>()).<span class="ident">with_context</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">id</span>.<span class="ident">to_string</span>())<span class="question-mark">?</span>;
         <span class="kw">match</span> (<span class="ident">sidewalk_right</span>, <span class="ident">sidewalk_left</span>) {
             (<span class="prelude-val">Some</span>(<span class="ident">w</span>), <span class="prelude-val">None</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="ident">true_center</span> <span class="op">=</span> <span class="ident">true_center</span>.<span class="ident">must_shift_right</span>(<span class="ident">w</span> <span class="op">/</span> <span class="number">2.0</span>);
@@ -1165,13 +1165,13 @@
 
     <span class="comment">// TODO For the moment, treating all rail things as light rail</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_light_rail</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">osm_tags</span>.<span class="ident">is_any</span>(<span class="string">&quot;railway&quot;</span>, <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;light_rail&quot;</span>, <span class="string">&quot;rail&quot;</span>])
+        <span class="self">self</span>.<span class="ident">osm_tags</span>.<span class="ident">is_any</span>(<span class="string">&quot;railway&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;light_rail&quot;</span>, <span class="string">&quot;rail&quot;</span>])
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_footway</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">osm_tags</span>.<span class="ident">is_any</span>(
-            <span class="ident">osm</span>::<span class="ident">HIGHWAY</span>,
-            <span class="macro">vec</span><span class="macro">!</span>[
+            <span class="ident">osm::HIGHWAY</span>,
+            <span class="macro">vec!</span>[
                 <span class="string">&quot;cycleway&quot;</span>,
                 <span class="string">&quot;footway&quot;</span>,
                 <span class="string">&quot;path&quot;</span>,
@@ -1183,7 +1183,7 @@
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_service</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">osm_tags</span>.<span class="ident">is</span>(<span class="ident">osm</span>::<span class="ident">HIGHWAY</span>, <span class="string">&quot;service&quot;</span>)
+        <span class="self">self</span>.<span class="ident">osm_tags</span>.<span class="ident">is</span>(<span class="ident">osm::HIGHWAY</span>, <span class="string">&quot;service&quot;</span>)
     }
 }
 
@@ -1210,12 +1210,12 @@
     <span class="kw">pub</span> <span class="ident">area_type</span>: <span class="ident">AreaType</span>,
     <span class="kw">pub</span> <span class="ident">polygon</span>: <span class="ident">Polygon</span>,
     <span class="kw">pub</span> <span class="ident">osm_tags</span>: <span class="ident">Tags</span>,
-    <span class="kw">pub</span> <span class="ident">osm_id</span>: <span class="ident">osm</span>::<span class="ident">OsmID</span>,
+    <span class="kw">pub</span> <span class="ident">osm_id</span>: <span class="ident">osm::OsmID</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RawParkingLot</span> {
-    <span class="kw">pub</span> <span class="ident">osm_id</span>: <span class="ident">osm</span>::<span class="ident">OsmID</span>,
+    <span class="kw">pub</span> <span class="ident">osm_id</span>: <span class="ident">osm::OsmID</span>,
     <span class="kw">pub</span> <span class="ident">polygon</span>: <span class="ident">Polygon</span>,
     <span class="kw">pub</span> <span class="ident">osm_tags</span>: <span class="ident">Tags</span>,
 }
@@ -1238,9 +1238,9 @@
         <span class="comment">// https://taginfo.openstreetmap.org/keys/restriction#values</span>
         <span class="comment">// Just attempt to bucket into allow / deny.</span>
         <span class="kw">if</span> <span class="ident">restriction</span>.<span class="ident">contains</span>(<span class="string">&quot;no_&quot;</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">restriction</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;psv&quot;</span> {
-            <span class="prelude-val">Some</span>(<span class="ident">RestrictionType</span>::<span class="ident">BanTurns</span>)
+            <span class="prelude-val">Some</span>(<span class="ident">RestrictionType::BanTurns</span>)
         } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">restriction</span>.<span class="ident">contains</span>(<span class="string">&quot;only_&quot;</span>) {
-            <span class="prelude-val">Some</span>(<span class="ident">RestrictionType</span>::<span class="ident">OnlyAllowTurns</span>)
+            <span class="prelude-val">Some</span>(<span class="ident">RestrictionType::OnlyAllowTurns</span>)
         } <span class="kw">else</span> {
             <span class="prelude-val">None</span>
         }
@@ -1251,27 +1251,27 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RawBusRoute</span> {
     <span class="kw">pub</span> <span class="ident">full_name</span>: <span class="ident">String</span>,
     <span class="kw">pub</span> <span class="ident">short_name</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">osm_rel_id</span>: <span class="ident">osm</span>::<span class="ident">RelationID</span>,
+    <span class="kw">pub</span> <span class="ident">osm_rel_id</span>: <span class="ident">osm::RelationID</span>,
     <span class="kw">pub</span> <span class="ident">gtfs_trip_marker</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
     <span class="doccomment">/// If not, light rail</span>
     <span class="kw">pub</span> <span class="ident">is_bus</span>: <span class="ident">bool</span>,
     <span class="kw">pub</span> <span class="ident">stops</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">RawBusStop</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">border_start</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">osm</span>::<span class="ident">NodeID</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">border_end</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">osm</span>::<span class="ident">NodeID</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">border_start</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">osm::NodeID</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">border_end</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">osm::NodeID</span><span class="op">&gt;</span>,
     <span class="doccomment">/// This is guaranteed to be in order and contiguous.</span>
-    <span class="kw">pub</span> <span class="ident">all_pts</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">osm</span>::<span class="ident">NodeID</span>, <span class="ident">Pt2D</span>)<span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">all_pts</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">osm::NodeID</span>, <span class="ident">Pt2D</span>)<span class="op">&gt;</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RawBusStop</span> {
     <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">String</span>,
     <span class="doccomment">/// Probably not an intersection, but this type is more convenient.</span>
-    <span class="kw">pub</span> <span class="ident">vehicle_pos</span>: (<span class="ident">osm</span>::<span class="ident">NodeID</span>, <span class="ident">Pt2D</span>),
+    <span class="kw">pub</span> <span class="ident">vehicle_pos</span>: (<span class="ident">osm::NodeID</span>, <span class="ident">Pt2D</span>),
     <span class="doccomment">/// Guaranteed to be filled out when RawMap is fully written.</span>
     <span class="kw">pub</span> <span class="ident">matched_road</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">OriginalRoad</span>, <span class="ident">Direction</span>)<span class="op">&gt;</span>,
     <span class="doccomment">/// If it&#39;s not explicitly mapped, we&#39;ll do equiv_pos.</span>
     <span class="kw">pub</span> <span class="ident">ped_pos</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>,
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="map_model" data-search-js="../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="map_model" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script></body></html>

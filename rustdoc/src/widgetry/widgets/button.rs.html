@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/widgets/button.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>button.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../widgetry/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../widgetry/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -794,12 +794,12 @@
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Polygon</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">text</span>::<span class="ident">Font</span>, <span class="ident">Color</span>, <span class="ident">ContentMode</span>, <span class="ident">ControlState</span>, <span class="ident">CornerRounding</span>, <span class="ident">Drawable</span>, <span class="ident">EdgeInsets</span>, <span class="ident">EventCtx</span>,
+    <span class="ident">text::Font</span>, <span class="ident">Color</span>, <span class="ident">ContentMode</span>, <span class="ident">ControlState</span>, <span class="ident">CornerRounding</span>, <span class="ident">Drawable</span>, <span class="ident">EdgeInsets</span>, <span class="ident">EventCtx</span>,
     <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Image</span>, <span class="ident">Line</span>, <span class="ident">MultiKey</span>, <span class="ident">Outcome</span>, <span class="ident">OutlineStyle</span>, <span class="ident">RewriteColor</span>, <span class="ident">ScreenDims</span>,
     <span class="ident">ScreenPt</span>, <span class="ident">ScreenRectangle</span>, <span class="ident">Text</span>, <span class="ident">Widget</span>, <span class="ident">WidgetImpl</span>, <span class="ident">WidgetOutput</span>,
 };
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">geom</span>::<span class="ident">geom_batch_stack</span>::{<span class="ident">Axis</span>, <span class="ident">GeomBatchStack</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::geom::geom_batch_stack</span>::{<span class="ident">Axis</span>, <span class="ident">GeomBatchStack</span>};
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Button</span> {
     <span class="doccomment">/// When a button is clicked, `Outcome::Clicked` with this string is produced.</span>
@@ -839,8 +839,8 @@
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Button</span> {
         <span class="comment">// dims are based on the hitbox, not the two drawables!</span>
         <span class="kw">let</span> <span class="ident">bounds</span> <span class="op">=</span> <span class="ident">hitbox</span>.<span class="ident">get_bounds</span>();
-        <span class="kw">let</span> <span class="ident">dims</span> <span class="op">=</span> <span class="ident">ScreenDims</span>::<span class="ident">new</span>(<span class="ident">bounds</span>.<span class="ident">width</span>(), <span class="ident">bounds</span>.<span class="ident">height</span>());
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="op">!</span><span class="ident">action</span>.<span class="ident">is_empty</span>());
+        <span class="kw">let</span> <span class="ident">dims</span> <span class="op">=</span> <span class="ident">ScreenDims::new</span>(<span class="ident">bounds</span>.<span class="ident">width</span>(), <span class="ident">bounds</span>.<span class="ident">height</span>());
+        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">action</span>.<span class="ident">is_empty</span>());
         <span class="ident">Button</span> {
             <span class="ident">action</span>: <span class="ident">action</span>.<span class="ident">to_string</span>(),
             <span class="ident">draw_normal</span>: <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">normal</span>),
@@ -853,7 +853,7 @@
                     <span class="prelude-val">Some</span>(<span class="ident">t</span>)
                 }
             } <span class="kw">else</span> {
-                <span class="prelude-val">Some</span>(<span class="ident">Text</span>::<span class="ident">tooltip</span>(<span class="ident">ctx</span>, <span class="ident">hotkey</span>.<span class="ident">clone</span>(), <span class="ident">action</span>))
+                <span class="prelude-val">Some</span>(<span class="ident">Text::tooltip</span>(<span class="ident">ctx</span>, <span class="ident">hotkey</span>.<span class="ident">clone</span>(), <span class="ident">action</span>))
             },
             <span class="ident">disabled_tooltip</span>,
             <span class="ident">hotkey</span>,
@@ -862,7 +862,7 @@
             <span class="ident">is_disabled</span>,
             <span class="ident">hovering</span>: <span class="bool-val">false</span>,
 
-            <span class="ident">top_left</span>: <span class="ident">ScreenPt</span>::<span class="ident">new</span>(<span class="number">0.0</span>, <span class="number">0.0</span>),
+            <span class="ident">top_left</span>: <span class="ident">ScreenPt::new</span>(<span class="number">0.0</span>, <span class="number">0.0</span>),
             <span class="ident">dims</span>,
         }
     }
@@ -899,13 +899,13 @@
 
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">hovering</span> <span class="op">&amp;&amp;</span> <span class="ident">ctx</span>.<span class="ident">normal_left_click</span>() {
             <span class="self">self</span>.<span class="ident">hovering</span> <span class="op">=</span> <span class="bool-val">false</span>;
-            <span class="ident">output</span>.<span class="ident">outcome</span> <span class="op">=</span> <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="self">self</span>.<span class="ident">action</span>.<span class="ident">clone</span>());
+            <span class="ident">output</span>.<span class="ident">outcome</span> <span class="op">=</span> <span class="ident">Outcome::Clicked</span>(<span class="self">self</span>.<span class="ident">action</span>.<span class="ident">clone</span>());
             <span class="kw">return</span>;
         }
 
         <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="self">self</span>.<span class="ident">hotkey</span>.<span class="ident">clone</span>()) {
             <span class="self">self</span>.<span class="ident">hovering</span> <span class="op">=</span> <span class="bool-val">false</span>;
-            <span class="ident">output</span>.<span class="ident">outcome</span> <span class="op">=</span> <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="self">self</span>.<span class="ident">action</span>.<span class="ident">clone</span>());
+            <span class="ident">output</span>.<span class="ident">outcome</span> <span class="op">=</span> <span class="ident">Outcome::Clicked</span>(<span class="self">self</span>.<span class="ident">action</span>.<span class="ident">clone</span>());
             <span class="kw">return</span>;
         }
 
@@ -969,7 +969,7 @@
                 <span class="ident">right</span>: <span class="number">16.0</span>,
             },
             <span class="ident">stack_spacing</span>: <span class="number">10.0</span>,
-            ..<span class="ident">Default</span>::<span class="ident">default</span>()
+            ..<span class="ident">Default::default</span>()
         }
     }
 
@@ -1028,7 +1028,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">label_underlined_text</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">text</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">label</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">default_style</span>.<span class="ident">label</span>.<span class="ident">take</span>().<span class="ident">unwrap_or_default</span>();
         <span class="ident">label</span>.<span class="ident">text</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">text</span>.<span class="ident">to_string</span>());
-        <span class="ident">label</span>.<span class="ident">styled_text</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="ident">text</span>).<span class="ident">underlined</span>()));
+        <span class="ident">label</span>.<span class="ident">styled_text</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Text::from</span>(<span class="ident">Line</span>(<span class="ident">text</span>).<span class="ident">underlined</span>()));
         <span class="self">self</span>.<span class="ident">default_style</span>.<span class="ident">label</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">label</span>);
         <span class="self">self</span>
     }
@@ -1113,7 +1113,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// This method is useful when doing more complex transforms. For example, to re-write more than</span>
     <span class="doccomment">/// one color for your button image, do so externally and pass in the resultant GeomBatch here.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">image_batch</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">batch</span>: <span class="ident">GeomBatch</span>, <span class="ident">bounds</span>: <span class="ident">geom</span>::<span class="ident">Bounds</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">image_batch</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">batch</span>: <span class="ident">GeomBatch</span>, <span class="ident">bounds</span>: <span class="ident">geom::Bounds</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">image</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">default_style</span>.<span class="ident">image</span>.<span class="ident">take</span>().<span class="ident">unwrap_or_default</span>();
         <span class="ident">image</span> <span class="op">=</span> <span class="ident">image</span>.<span class="ident">source_batch</span>(<span class="ident">batch</span>, <span class="ident">bounds</span>);
         <span class="self">self</span>.<span class="ident">default_style</span>.<span class="ident">image</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">image</span>);
@@ -1235,7 +1235,7 @@
     <span class="doccomment">/// you do not want even the default tooltip to appear.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">no_tooltip</span>(<span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="comment">// otherwise the widgets `name` is used</span>
-        <span class="self">self</span>.<span class="ident">tooltip</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Text</span>::<span class="ident">new</span>());
+        <span class="self">self</span>.<span class="ident">tooltip</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Text::new</span>());
         <span class="self">self</span>
     }
 
@@ -1252,7 +1252,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// If the button doesn&#39;t have both an image and label, this has no effect.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">vertical</span>(<span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">stack_axis</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Axis</span>::<span class="ident">Vertical</span>);
+        <span class="self">self</span>.<span class="ident">stack_axis</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Axis::Vertical</span>);
         <span class="self">self</span>
     }
 
@@ -1260,7 +1260,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// If the button doesn&#39;t have both an image and label, this has no effect.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">horizontal</span>(<span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">stack_axis</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Axis</span>::<span class="ident">Horizontal</span>);
+        <span class="self">self</span>.<span class="ident">stack_axis</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Axis::Horizontal</span>);
         <span class="self">self</span>
     }
 
@@ -1322,16 +1322,16 @@
     <span class="doccomment">/// }</span>
     <span class="doccomment">/// ```</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">action</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Button</span> {
-        <span class="kw">let</span> <span class="ident">normal</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">batch</span>(<span class="ident">ctx</span>, <span class="ident">ControlState</span>::<span class="ident">Default</span>);
-        <span class="kw">let</span> <span class="ident">hovered</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">batch</span>(<span class="ident">ctx</span>, <span class="ident">ControlState</span>::<span class="ident">Hovered</span>);
-        <span class="kw">let</span> <span class="ident">disabled</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">batch</span>(<span class="ident">ctx</span>, <span class="ident">ControlState</span>::<span class="ident">Disabled</span>);
+        <span class="kw">let</span> <span class="ident">normal</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">batch</span>(<span class="ident">ctx</span>, <span class="ident">ControlState::Default</span>);
+        <span class="kw">let</span> <span class="ident">hovered</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">batch</span>(<span class="ident">ctx</span>, <span class="ident">ControlState::Hovered</span>);
+        <span class="kw">let</span> <span class="ident">disabled</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">batch</span>(<span class="ident">ctx</span>, <span class="ident">ControlState::Disabled</span>);
 
-        <span class="macro">assert</span><span class="macro">!</span>(
-            <span class="ident">normal</span>.<span class="ident">get_bounds</span>() <span class="op">!</span><span class="op">=</span> <span class="ident">geom</span>::<span class="ident">Bounds</span>::<span class="ident">zero</span>(),
+        <span class="macro">assert!</span>(
+            <span class="ident">normal</span>.<span class="ident">get_bounds</span>() <span class="op">!</span><span class="op">=</span> <span class="ident">geom::Bounds::zero</span>(),
             <span class="string">&quot;button was empty&quot;</span>
         );
         <span class="kw">let</span> <span class="ident">hitbox</span> <span class="op">=</span> <span class="ident">normal</span>.<span class="ident">get_bounds</span>().<span class="ident">get_rectangle</span>();
-        <span class="ident">Button</span>::<span class="ident">new</span>(
+        <span class="ident">Button::new</span>(
             <span class="ident">ctx</span>,
             <span class="ident">normal</span>,
             <span class="ident">hovered</span>,
@@ -1350,7 +1350,7 @@
     <span class="doccomment">/// `action`: The event that will be fired when clicked</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build_widget</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">action</span>: <span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
         <span class="kw">let</span> <span class="ident">action</span> <span class="op">=</span> <span class="ident">action</span>.<span class="ident">as_ref</span>();
-        <span class="ident">Widget</span>::<span class="ident">new</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="self">self</span>.<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="ident">action</span>))).<span class="ident">named</span>(<span class="ident">action</span>)
+        <span class="ident">Widget::new</span>(<span class="ident">Box::new</span>(<span class="self">self</span>.<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="ident">action</span>))).<span class="ident">named</span>(<span class="ident">action</span>)
     }
 
     <span class="doccomment">/// Shorthand method to build a default widget whose `action` is derived from the label&#39;s text.</span>
@@ -1369,17 +1369,17 @@
 
     <span class="kw">fn</span> <span class="ident">style_mut</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">state</span>: <span class="ident">ControlState</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="kw-2">mut</span> <span class="ident">ButtonStateStyle</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="ident">state</span> {
-            <span class="ident">ControlState</span>::<span class="ident">Default</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">default_style</span>,
-            <span class="ident">ControlState</span>::<span class="ident">Hovered</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">hover_style</span>,
-            <span class="ident">ControlState</span>::<span class="ident">Disabled</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">disable_style</span>,
+            <span class="ident">ControlState::Default</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">default_style</span>,
+            <span class="ident">ControlState::Hovered</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">hover_style</span>,
+            <span class="ident">ControlState::Disabled</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">disable_style</span>,
         }
     }
 
     <span class="kw">fn</span> <span class="ident">style</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="self">self</span>, <span class="ident">state</span>: <span class="ident">ControlState</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="ident">ButtonStateStyle</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="ident">state</span> {
-            <span class="ident">ControlState</span>::<span class="ident">Default</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">default_style</span>,
-            <span class="ident">ControlState</span>::<span class="ident">Hovered</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">hover_style</span>,
-            <span class="ident">ControlState</span>::<span class="ident">Disabled</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">disable_style</span>,
+            <span class="ident">ControlState::Default</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">default_style</span>,
+            <span class="ident">ControlState::Hovered</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">hover_style</span>,
+            <span class="ident">ControlState::Disabled</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">disable_style</span>,
         }
     }
 
@@ -1401,7 +1401,7 @@
             (<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="ident">default_image</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">default_image</span>.<span class="ident">build_batch</span>(<span class="ident">ctx</span>),
             (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
             (<span class="prelude-val">Some</span>(<span class="kw">_</span>), <span class="prelude-val">None</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="macro">debug_assert</span><span class="macro">!</span>(
+                <span class="macro">debug_assert!</span>(
                     <span class="bool-val">false</span>,
                     <span class="string">&quot;unexpectedly found a per-state image with no default image&quot;</span>
                 );
@@ -1422,7 +1422,7 @@
                     .<span class="ident">as_ref</span>()
                     .<span class="ident">or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">default</span>.<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">d</span><span class="op">|</span> <span class="ident">d</span>.<span class="ident">styled_text</span>.<span class="ident">as_ref</span>()))
                 {
-                    <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">styled_text</span>.<span class="ident">clone</span>().<span class="ident">bg</span>(<span class="ident">Color</span>::<span class="ident">CLEAR</span>).<span class="ident">render</span>(<span class="ident">ctx</span>));
+                    <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">styled_text</span>.<span class="ident">clone</span>().<span class="ident">bg</span>(<span class="ident">Color::CLEAR</span>).<span class="ident">render</span>(<span class="ident">ctx</span>));
                 }
 
                 <span class="kw">let</span> <span class="ident">text</span> <span class="op">=</span> <span class="ident">label</span>
@@ -1448,17 +1448,17 @@
                 }
 
                 <span class="prelude-val">Some</span>(
-                    <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">line</span>)
+                    <span class="ident">Text::from</span>(<span class="ident">line</span>)
                         <span class="comment">// Add a clear background to maintain a consistent amount of space for the</span>
                         <span class="comment">// label based on the font, rather than the particular text.</span>
                         <span class="comment">// Otherwise a button with text &quot;YYY&quot; will not line up with a button</span>
                         <span class="comment">// with text &quot;aaa&quot;.</span>
-                        .<span class="ident">bg</span>(<span class="ident">Color</span>::<span class="ident">CLEAR</span>)
+                        .<span class="ident">bg</span>(<span class="ident">Color::CLEAR</span>)
                         .<span class="ident">render</span>(<span class="ident">ctx</span>),
                 )
             });
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">items</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[];
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">items</span> <span class="op">=</span> <span class="macro">vec!</span>[];
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">image_batch</span>) <span class="op">=</span> <span class="ident">image_batch</span> {
             <span class="ident">items</span>.<span class="ident">push</span>(<span class="ident">image_batch</span>);
         }
@@ -1468,7 +1468,7 @@
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_label_before_image</span> {
             <span class="ident">items</span>.<span class="ident">reverse</span>()
         }
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stack</span> <span class="op">=</span> <span class="ident">GeomBatchStack</span>::<span class="ident">horizontal</span>(<span class="ident">items</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stack</span> <span class="op">=</span> <span class="ident">GeomBatchStack::horizontal</span>(<span class="ident">items</span>);
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">stack_axis</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">stack_axis</span> {
             <span class="ident">stack</span>.<span class="ident">set_axis</span>(<span class="ident">stack_axis</span>);
         }
@@ -1485,7 +1485,7 @@
                 <span class="comment">// If we have *no* background, buttons will be cropped differently depending on</span>
                 <span class="comment">// their specific content, and it becomes impossible to have</span>
                 <span class="comment">// uniformly sized buttons.</span>
-                .<span class="ident">unwrap_or</span>(<span class="ident">Color</span>::<span class="ident">CLEAR</span>));
+                .<span class="ident">unwrap_or</span>(<span class="ident">Color::CLEAR</span>));
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">outline</span>) <span class="op">=</span> <span class="ident">state_style</span>.<span class="ident">outline</span>.<span class="ident">or</span>(<span class="ident">default_style</span>.<span class="ident">outline</span>) {
             <span class="ident">button_widget</span> <span class="op">=</span> <span class="ident">button_widget</span>.<span class="ident">outline</span>(<span class="ident">outline</span>);
@@ -1525,9 +1525,9 @@
         <span class="ident">batch</span>: <span class="ident">GeomBatch</span>,
         <span class="ident">hitboxes</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Polygon</span>, <span class="ident">String</span>)<span class="op">&gt;</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
-        <span class="ident">Widget</span>::<span class="ident">new</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">MultiButton</span> {
+        <span class="ident">Widget::new</span>(<span class="ident">Box::new</span>(<span class="ident">MultiButton</span> {
             <span class="ident">dims</span>: <span class="ident">batch</span>.<span class="ident">get_dims</span>(),
-            <span class="ident">top_left</span>: <span class="ident">ScreenPt</span>::<span class="ident">new</span>(<span class="number">0.0</span>, <span class="number">0.0</span>),
+            <span class="ident">top_left</span>: <span class="ident">ScreenPt::new</span>(<span class="number">0.0</span>, <span class="number">0.0</span>),
             <span class="ident">draw</span>: <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">batch</span>),
             <span class="ident">hitboxes</span>,
             <span class="ident">hovering</span>: <span class="prelude-val">None</span>,
@@ -1548,11 +1548,11 @@
         <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">redo_mouseover</span>() {
             <span class="self">self</span>.<span class="ident">hovering</span> <span class="op">=</span> <span class="prelude-val">None</span>;
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">cursor</span>) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_screen_space</span>() {
-                <span class="kw">if</span> <span class="op">!</span><span class="ident">ScreenRectangle</span>::<span class="ident">top_left</span>(<span class="self">self</span>.<span class="ident">top_left</span>, <span class="self">self</span>.<span class="ident">dims</span>).<span class="ident">contains</span>(<span class="ident">cursor</span>) {
+                <span class="kw">if</span> <span class="op">!</span><span class="ident">ScreenRectangle::top_left</span>(<span class="self">self</span>.<span class="ident">top_left</span>, <span class="self">self</span>.<span class="ident">dims</span>).<span class="ident">contains</span>(<span class="ident">cursor</span>) {
                     <span class="kw">return</span>;
                 }
                 <span class="kw">let</span> <span class="ident">translated</span> <span class="op">=</span>
-                    <span class="ident">ScreenPt</span>::<span class="ident">new</span>(<span class="ident">cursor</span>.<span class="ident">x</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">top_left</span>.<span class="ident">x</span>, <span class="ident">cursor</span>.<span class="ident">y</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">top_left</span>.<span class="ident">y</span>).<span class="ident">to_pt</span>();
+                    <span class="ident">ScreenPt::new</span>(<span class="ident">cursor</span>.<span class="ident">x</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">top_left</span>.<span class="ident">x</span>, <span class="ident">cursor</span>.<span class="ident">y</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">top_left</span>.<span class="ident">y</span>).<span class="ident">to_pt</span>();
                 <span class="comment">// TODO Assume regions are non-overlapping</span>
                 <span class="kw">for</span> (<span class="ident">idx</span>, (<span class="ident">region</span>, <span class="kw">_</span>)) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">hitboxes</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
                     <span class="kw">if</span> <span class="ident">region</span>.<span class="ident">contains_pt</span>(<span class="ident">translated</span>) {
@@ -1565,7 +1565,7 @@
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">idx</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">hovering</span> {
             <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">normal_left_click</span>() {
                 <span class="self">self</span>.<span class="ident">hovering</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-                <span class="ident">output</span>.<span class="ident">outcome</span> <span class="op">=</span> <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="self">self</span>.<span class="ident">hitboxes</span>[<span class="ident">idx</span>].<span class="number">1</span>.<span class="ident">clone</span>());
+                <span class="ident">output</span>.<span class="ident">outcome</span> <span class="op">=</span> <span class="ident">Outcome::Clicked</span>(<span class="self">self</span>.<span class="ident">hitboxes</span>[<span class="ident">idx</span>].<span class="number">1</span>.<span class="ident">clone</span>());
             }
         }
     }
@@ -1573,13 +1573,13 @@
     <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>) {
         <span class="ident">g</span>.<span class="ident">redraw_at</span>(<span class="self">self</span>.<span class="ident">top_left</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">draw</span>);
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">idx</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">hovering</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">p</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">hitboxes</span>[<span class="ident">idx</span>].<span class="number">0</span>.<span class="ident">to_outline</span>(<span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">1.0</span>)) {
-                <span class="kw">let</span> <span class="ident">draw</span> <span class="op">=</span> <span class="ident">g</span>.<span class="ident">upload</span>(<span class="ident">GeomBatch</span>::<span class="ident">from</span>(<span class="macro">vec</span><span class="macro">!</span>[(<span class="ident">Color</span>::<span class="ident">YELLOW</span>, <span class="ident">p</span>)]));
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">p</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">hitboxes</span>[<span class="ident">idx</span>].<span class="number">0</span>.<span class="ident">to_outline</span>(<span class="ident">Distance::meters</span>(<span class="number">1.0</span>)) {
+                <span class="kw">let</span> <span class="ident">draw</span> <span class="op">=</span> <span class="ident">g</span>.<span class="ident">upload</span>(<span class="ident">GeomBatch::from</span>(<span class="macro">vec!</span>[(<span class="ident">Color::YELLOW</span>, <span class="ident">p</span>)]));
                 <span class="ident">g</span>.<span class="ident">redraw_at</span>(<span class="self">self</span>.<span class="ident">top_left</span>, <span class="kw-2">&amp;</span><span class="ident">draw</span>);
             }
         }
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="widgetry" data-search-js="../../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="widgetry" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
     <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script></body></html>

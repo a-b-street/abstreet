@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `game/src/debug/floodfill.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>floodfill.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../game/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../game/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -166,17 +166,17 @@
 <span id="163">163</span>
 <span id="164">164</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
+<span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 
-<span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">tools</span>::<span class="ident">ColorDiscrete</span>;
+<span class="kw">use</span> <span class="ident">map_gui::tools::ColorDiscrete</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">connectivity</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">PathConstraints</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>,
     <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">Transition</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::app::App</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::app::Transition</span>;
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Floodfiller</span> {
     <span class="ident">panel</span>: <span class="ident">Panel</span>,
@@ -187,12 +187,12 @@
 
 <span class="kw">impl</span> <span class="ident">Floodfiller</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">floodfill</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">l</span>: <span class="ident">LaneID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">constraints</span> <span class="op">=</span> <span class="ident">PathConstraints</span>::<span class="ident">from_lt</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">lane_type</span>);
-        <span class="ident">Floodfiller</span>::<span class="ident">new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">Source</span>::<span class="ident">Floodfill</span>(<span class="ident">l</span>), <span class="ident">constraints</span>)
+        <span class="kw">let</span> <span class="ident">constraints</span> <span class="op">=</span> <span class="ident">PathConstraints::from_lt</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">lane_type</span>);
+        <span class="ident">Floodfiller::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">Source::Floodfill</span>(<span class="ident">l</span>), <span class="ident">constraints</span>)
     }
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">scc</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">l</span>: <span class="ident">LaneID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">constraints</span> <span class="op">=</span> <span class="ident">PathConstraints</span>::<span class="ident">from_lt</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">lane_type</span>);
-        <span class="ident">Floodfiller</span>::<span class="ident">new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">Source</span>::<span class="ident">Scc</span>, <span class="ident">constraints</span>)
+        <span class="kw">let</span> <span class="ident">constraints</span> <span class="op">=</span> <span class="ident">PathConstraints::from_lt</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">lane_type</span>);
+        <span class="ident">Floodfiller::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">Source::Scc</span>, <span class="ident">constraints</span>)
     }
 
     <span class="kw">fn</span> <span class="ident">new_state</span>(
@@ -203,9 +203,9 @@
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> (<span class="ident">reachable_lanes</span>, <span class="ident">unreachable_lanes</span>, <span class="ident">title</span>) <span class="op">=</span>
             <span class="ident">source</span>.<span class="ident">calculate</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>, <span class="ident">constraints</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">colorer</span> <span class="op">=</span> <span class="ident">ColorDiscrete</span>::<span class="ident">new</span>(
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">colorer</span> <span class="op">=</span> <span class="ident">ColorDiscrete::new</span>(
             <span class="ident">app</span>,
-            <span class="macro">vec</span><span class="macro">!</span>[(<span class="string">&quot;unreachable&quot;</span>, <span class="ident">Color</span>::<span class="ident">RED</span>), (<span class="string">&quot;reachable&quot;</span>, <span class="ident">Color</span>::<span class="ident">GREEN</span>)],
+            <span class="macro">vec!</span>[(<span class="string">&quot;unreachable&quot;</span>, <span class="ident">Color::RED</span>), (<span class="string">&quot;reachable&quot;</span>, <span class="ident">Color::GREEN</span>)],
         );
         <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="ident">reachable_lanes</span> {
             <span class="ident">colorer</span>.<span class="ident">add_l</span>(<span class="ident">l</span>, <span class="string">&quot;reachable&quot;</span>);
@@ -216,28 +216,28 @@
         }
 
         <span class="kw">let</span> (<span class="ident">unzoomed</span>, <span class="ident">zoomed</span>, <span class="ident">legend</span>) <span class="op">=</span> <span class="ident">colorer</span>.<span class="ident">build</span>(<span class="ident">ctx</span>);
-        <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">Floodfiller</span> {
-            <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new_builder</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+        <span class="ident">Box::new</span>(<span class="ident">Floodfiller</span> {
+            <span class="ident">panel</span>: <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
+                <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
                     <span class="ident">Line</span>(<span class="ident">title</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                     <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
                 ]),
-                <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} unreachable lanes&quot;</span>, <span class="ident">num_unreachable</span>).<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
+                <span class="macro">format!</span>(<span class="string">&quot;{} unreachable lanes&quot;</span>, <span class="ident">num_unreachable</span>).<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
                 <span class="ident">legend</span>,
-                <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
                     <span class="string">&quot;Connectivity type:&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
-                    <span class="ident">Widget</span>::<span class="ident">dropdown</span>(
+                    <span class="ident">Widget::dropdown</span>(
                         <span class="ident">ctx</span>,
                         <span class="string">&quot;constraints&quot;</span>,
                         <span class="ident">constraints</span>,
-                        <span class="ident">PathConstraints</span>::<span class="ident">all</span>()
+                        <span class="ident">PathConstraints::all</span>()
                             .<span class="ident">into_iter</span>()
-                            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">c</span>), <span class="ident">c</span>))
+                            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">Choice::new</span>(<span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">c</span>), <span class="ident">c</span>))
                             .<span class="ident">collect</span>(),
                     ),
                 ]),
             ]))
-            .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment</span>::<span class="ident">Center</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Top</span>)
+            .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::Center</span>, <span class="ident">VerticalAlignment::Top</span>)
             .<span class="ident">build</span>(<span class="ident">ctx</span>),
             <span class="ident">unzoomed</span>,
             <span class="ident">zoomed</span>,
@@ -254,14 +254,14 @@
         <span class="ident">ctx</span>.<span class="ident">canvas_movement</span>();
 
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
+            <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
                 <span class="string">&quot;close&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Pop</span>;
+                    <span class="kw">return</span> <span class="ident">Transition::Pop</span>;
                 }
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
             },
-            <span class="ident">Outcome</span>::<span class="ident">Changed</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">Floodfiller</span>::<span class="ident">new_state</span>(
+            <span class="ident">Outcome::Changed</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">return</span> <span class="ident">Transition::Replace</span>(<span class="ident">Floodfiller::new_state</span>(
                     <span class="ident">ctx</span>,
                     <span class="ident">app</span>,
                     <span class="self">self</span>.<span class="ident">source</span>.<span class="ident">clone</span>(),
@@ -271,7 +271,7 @@
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
         }
 
-        <span class="ident">Transition</span>::<span class="ident">Keep</span>
+        <span class="ident">Transition::Keep</span>
     }
 
     <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
@@ -298,9 +298,9 @@
         <span class="ident">constraints</span>: <span class="ident">PathConstraints</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">LaneID</span><span class="op">&gt;</span>, <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">LaneID</span><span class="op">&gt;</span>, <span class="ident">String</span>) {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">Source</span>::<span class="ident">Floodfill</span>(<span class="ident">start</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">visited</span> <span class="op">=</span> <span class="ident">HashSet</span>::<span class="ident">new</span>();
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">queue</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="kw-2">*</span><span class="ident">start</span>];
+            <span class="ident">Source::Floodfill</span>(<span class="ident">start</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">visited</span> <span class="op">=</span> <span class="ident">HashSet::new</span>();
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">queue</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="kw-2">*</span><span class="ident">start</span>];
                 <span class="kw">while</span> <span class="op">!</span><span class="ident">queue</span>.<span class="ident">is_empty</span>() {
                     <span class="kw">let</span> <span class="ident">current</span> <span class="op">=</span> <span class="ident">queue</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>();
                     <span class="kw">if</span> <span class="ident">visited</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">current</span>) {
@@ -314,22 +314,22 @@
                     }
                 }
 
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">unreached</span> <span class="op">=</span> <span class="ident">HashSet</span>::<span class="ident">new</span>();
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">unreached</span> <span class="op">=</span> <span class="ident">HashSet::new</span>();
                 <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_lanes</span>().<span class="ident">values</span>() {
                     <span class="kw">if</span> <span class="ident">constraints</span>.<span class="ident">can_use</span>(<span class="ident">l</span>, <span class="ident">map</span>) <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">visited</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">l</span>.<span class="ident">id</span>) {
                         <span class="ident">unreached</span>.<span class="ident">insert</span>(<span class="ident">l</span>.<span class="ident">id</span>);
                     }
                 }
 
-                (<span class="ident">visited</span>, <span class="ident">unreached</span>, <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Floodfill from {}&quot;</span>, <span class="ident">start</span>))
+                (<span class="ident">visited</span>, <span class="ident">unreached</span>, <span class="macro">format!</span>(<span class="string">&quot;Floodfill from {}&quot;</span>, <span class="ident">start</span>))
             }
-            <span class="ident">Source</span>::<span class="ident">Scc</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">let</span> (<span class="ident">good</span>, <span class="ident">bad</span>) <span class="op">=</span> <span class="ident">connectivity</span>::<span class="ident">find_scc</span>(<span class="ident">map</span>, <span class="ident">constraints</span>);
+            <span class="ident">Source::Scc</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">let</span> (<span class="ident">good</span>, <span class="ident">bad</span>) <span class="op">=</span> <span class="ident">connectivity::find_scc</span>(<span class="ident">map</span>, <span class="ident">constraints</span>);
                 (<span class="ident">good</span>, <span class="ident">bad</span>, <span class="string">&quot;strongly-connected component&quot;</span>.<span class="ident">to_string</span>())
             }
         }
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="game" data-search-js="../../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="game" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
     <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script></body></html>

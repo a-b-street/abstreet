@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `geom/src/polygon.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>polygon.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../geom/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../geom/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -669,18 +669,18 @@
 <span id="666">666</span>
 <span id="667">667</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">convert</span>::<span class="ident">TryFrom</span>;
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
+<span class="kw">use</span> <span class="ident">std::convert::TryFrom</span>;
+<span class="kw">use</span> <span class="ident">std::fmt</span>;
 
-<span class="kw">use</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span>;
-<span class="kw">use</span> <span class="ident">geo</span>::<span class="ident">algorithm</span>::<span class="ident">area</span>::<span class="ident">Area</span>;
-<span class="kw">use</span> <span class="ident">geo</span>::<span class="ident">algorithm</span>::<span class="ident">concave_hull</span>::<span class="ident">ConcaveHull</span>;
-<span class="kw">use</span> <span class="ident">geo</span>::<span class="ident">algorithm</span>::<span class="ident">convex_hull</span>::<span class="ident">ConvexHull</span>;
-<span class="kw">use</span> <span class="ident">geo</span>::<span class="ident">algorithm</span>::<span class="ident">intersects</span>::<span class="ident">Intersects</span>;
-<span class="kw">use</span> <span class="ident">geo_booleanop</span>::<span class="ident">boolean</span>::<span class="ident">BooleanOp</span>;
+<span class="kw">use</span> <span class="ident">anyhow::Result</span>;
+<span class="kw">use</span> <span class="ident">geo::algorithm::area::Area</span>;
+<span class="kw">use</span> <span class="ident">geo::algorithm::concave_hull::ConcaveHull</span>;
+<span class="kw">use</span> <span class="ident">geo::algorithm::convex_hull::ConvexHull</span>;
+<span class="kw">use</span> <span class="ident">geo::algorithm::intersects::Intersects</span>;
+<span class="kw">use</span> <span class="ident">geo_booleanop::boolean::BooleanOp</span>;
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
-<span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Tags</span>;
+<span class="kw">use</span> <span class="ident">abstutil::Tags</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">Angle</span>, <span class="ident">Bounds</span>, <span class="ident">CornerRadii</span>, <span class="ident">Distance</span>, <span class="ident">GPSBounds</span>, <span class="ident">HashablePt2D</span>, <span class="ident">LonLat</span>, <span class="ident">PolyLine</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>,
@@ -702,14 +702,14 @@
     <span class="comment">// TODO Last result when we&#39;ve got something that isn&#39;t a valid Ring, but want to draw it</span>
     <span class="comment">// anyway. Fix the root cause of those cases instead.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">buggy_new</span>(<span class="ident">orig_pts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Polygon</span> {
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">orig_pts</span>.<span class="ident">len</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="number">3</span>);
+        <span class="macro">assert!</span>(<span class="ident">orig_pts</span>.<span class="ident">len</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="number">3</span>);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">vertices</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">vertices</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
         <span class="kw">for</span> <span class="ident">pt</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">orig_pts</span> {
             <span class="ident">vertices</span>.<span class="ident">push</span>(<span class="ident">pt</span>.<span class="ident">x</span>());
             <span class="ident">vertices</span>.<span class="ident">push</span>(<span class="ident">pt</span>.<span class="ident">y</span>());
         }
-        <span class="kw">let</span> <span class="ident">indices</span> <span class="op">=</span> <span class="ident">downsize</span>(<span class="ident">earcutr</span>::<span class="ident">earcut</span>(<span class="kw-2">&amp;</span><span class="ident">vertices</span>, <span class="kw-2">&amp;</span><span class="ident">Vec</span>::<span class="ident">new</span>(), <span class="number">2</span>));
+        <span class="kw">let</span> <span class="ident">indices</span> <span class="op">=</span> <span class="ident">downsize</span>(<span class="ident">earcutr::earcut</span>(<span class="kw-2">&amp;</span><span class="ident">vertices</span>, <span class="kw-2">&amp;</span><span class="ident">Vec::new</span>(), <span class="number">2</span>));
 
         <span class="ident">Polygon</span> {
             <span class="ident">points</span>: <span class="ident">orig_pts</span>,
@@ -725,17 +725,17 @@
             .<span class="ident">map</span>(<span class="op">|</span><span class="ident">ring</span><span class="op">|</span> {
                 <span class="ident">ring</span>.<span class="ident">points</span>()
                     .<span class="ident">iter</span>()
-                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">pt</span><span class="op">|</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">pt</span>.<span class="ident">x</span>(), <span class="ident">pt</span>.<span class="ident">y</span>()])
+                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">pt</span><span class="op">|</span> <span class="macro">vec!</span>[<span class="ident">pt</span>.<span class="ident">x</span>(), <span class="ident">pt</span>.<span class="ident">y</span>()])
                     .<span class="ident">collect</span>()
             })
             .<span class="ident">collect</span>();
-        <span class="kw">let</span> (<span class="ident">vertices</span>, <span class="ident">holes</span>, <span class="ident">dims</span>) <span class="op">=</span> <span class="ident">earcutr</span>::<span class="ident">flatten</span>(<span class="kw-2">&amp;</span><span class="ident">geojson_style</span>);
-        <span class="kw">let</span> <span class="ident">indices</span> <span class="op">=</span> <span class="ident">downsize</span>(<span class="ident">earcutr</span>::<span class="ident">earcut</span>(<span class="kw-2">&amp;</span><span class="ident">vertices</span>, <span class="kw-2">&amp;</span><span class="ident">holes</span>, <span class="ident">dims</span>));
+        <span class="kw">let</span> (<span class="ident">vertices</span>, <span class="ident">holes</span>, <span class="ident">dims</span>) <span class="op">=</span> <span class="ident">earcutr::flatten</span>(<span class="kw-2">&amp;</span><span class="ident">geojson_style</span>);
+        <span class="kw">let</span> <span class="ident">indices</span> <span class="op">=</span> <span class="ident">downsize</span>(<span class="ident">earcutr::earcut</span>(<span class="kw-2">&amp;</span><span class="ident">vertices</span>, <span class="kw-2">&amp;</span><span class="ident">holes</span>, <span class="ident">dims</span>));
 
         <span class="ident">Polygon</span> {
             <span class="ident">points</span>: <span class="ident">vertices</span>
                 .<span class="ident">chunks</span>(<span class="number">2</span>)
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">pair</span><span class="op">|</span> <span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="ident">pair</span>[<span class="number">0</span>], <span class="ident">pair</span>[<span class="number">1</span>]))
+                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">pair</span><span class="op">|</span> <span class="ident">Pt2D::new</span>(<span class="ident">pair</span>[<span class="number">0</span>], <span class="ident">pair</span>[<span class="number">1</span>]))
                 .<span class="ident">collect</span>(),
             <span class="ident">indices</span>,
             <span class="ident">rings</span>: <span class="kw">if</span> <span class="ident">inner</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="number">1</span> { <span class="prelude-val">None</span> } <span class="kw">else</span> { <span class="prelude-val">Some</span>(<span class="ident">inner</span>) },
@@ -743,25 +743,25 @@
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_rings</span>(<span class="kw-2">mut</span> <span class="ident">rings</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Ring</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Polygon</span> {
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="op">!</span><span class="ident">rings</span>.<span class="ident">is_empty</span>());
+        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">rings</span>.<span class="ident">is_empty</span>());
         <span class="kw">let</span> <span class="ident">outer</span> <span class="op">=</span> <span class="ident">rings</span>.<span class="ident">remove</span>(<span class="number">0</span>);
-        <span class="ident">Polygon</span>::<span class="ident">with_holes</span>(<span class="ident">outer</span>, <span class="ident">rings</span>)
+        <span class="ident">Polygon::with_holes</span>(<span class="ident">outer</span>, <span class="ident">rings</span>)
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_geojson</span>(<span class="ident">raw</span>: <span class="kw-2">&amp;</span>[<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span><span class="op">&gt;</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rings</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rings</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
         <span class="kw">for</span> <span class="ident">pts</span> <span class="kw">in</span> <span class="ident">raw</span> {
             <span class="kw">let</span> <span class="ident">transformed</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span> <span class="op">=</span>
-                <span class="ident">pts</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">pair</span><span class="op">|</span> <span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="ident">pair</span>[<span class="number">0</span>], <span class="ident">pair</span>[<span class="number">1</span>])).<span class="ident">collect</span>();
-            <span class="ident">rings</span>.<span class="ident">push</span>(<span class="ident">Ring</span>::<span class="ident">new</span>(<span class="ident">transformed</span>)<span class="question-mark">?</span>);
+                <span class="ident">pts</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">pair</span><span class="op">|</span> <span class="ident">Pt2D::new</span>(<span class="ident">pair</span>[<span class="number">0</span>], <span class="ident">pair</span>[<span class="number">1</span>])).<span class="ident">collect</span>();
+            <span class="ident">rings</span>.<span class="ident">push</span>(<span class="ident">Ring::new</span>(<span class="ident">transformed</span>)<span class="question-mark">?</span>);
         }
-        <span class="prelude-val">Ok</span>(<span class="ident">Polygon</span>::<span class="ident">from_rings</span>(<span class="ident">rings</span>))
+        <span class="prelude-val">Ok</span>(<span class="ident">Polygon::from_rings</span>(<span class="ident">rings</span>))
     }
 
     <span class="comment">// TODO No guarantee points forms a ring. In fact, the main caller is from SVG-&gt;lyon parsing,</span>
     <span class="comment">// and it&#39;s NOT true there yet.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">precomputed</span>(<span class="ident">points</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>, <span class="ident">indices</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Polygon</span> {
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">indices</span>.<span class="ident">len</span>() <span class="op">%</span> <span class="number">3</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span>);
+        <span class="macro">assert!</span>(<span class="ident">indices</span>.<span class="ident">len</span>() <span class="op">%</span> <span class="number">3</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span>);
         <span class="ident">Polygon</span> {
             <span class="ident">points</span>,
             <span class="ident">indices</span>: <span class="ident">downsize</span>(<span class="ident">indices</span>),
@@ -771,16 +771,16 @@
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_triangle</span>(<span class="ident">tri</span>: <span class="kw-2">&amp;</span><span class="ident">Triangle</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Polygon</span> {
         <span class="ident">Polygon</span> {
-            <span class="ident">points</span>: <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">tri</span>.<span class="ident">pt1</span>, <span class="ident">tri</span>.<span class="ident">pt2</span>, <span class="ident">tri</span>.<span class="ident">pt3</span>, <span class="ident">tri</span>.<span class="ident">pt1</span>],
-            <span class="ident">indices</span>: <span class="macro">vec</span><span class="macro">!</span>[<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>],
+            <span class="ident">points</span>: <span class="macro">vec!</span>[<span class="ident">tri</span>.<span class="ident">pt1</span>, <span class="ident">tri</span>.<span class="ident">pt2</span>, <span class="ident">tri</span>.<span class="ident">pt3</span>, <span class="ident">tri</span>.<span class="ident">pt1</span>],
+            <span class="ident">indices</span>: <span class="macro">vec!</span>[<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>],
             <span class="ident">rings</span>: <span class="prelude-val">None</span>,
         }
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">triangles</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Triangle</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">triangles</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Triangle</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">triangles</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Triangle</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
         <span class="kw">for</span> <span class="ident">slice</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">indices</span>.<span class="ident">chunks_exact</span>(<span class="number">3</span>) {
-            <span class="ident">triangles</span>.<span class="ident">push</span>(<span class="ident">Triangle</span>::<span class="ident">new</span>(
+            <span class="ident">triangles</span>.<span class="ident">push</span>(<span class="ident">Triangle::new</span>(
                 <span class="self">self</span>.<span class="ident">points</span>[<span class="ident">slice</span>[<span class="number">0</span>] <span class="kw">as</span> <span class="ident">usize</span>],
                 <span class="self">self</span>.<span class="ident">points</span>[<span class="ident">slice</span>[<span class="number">1</span>] <span class="kw">as</span> <span class="ident">usize</span>],
                 <span class="self">self</span>.<span class="ident">points</span>[<span class="ident">slice</span>[<span class="number">2</span>] <span class="kw">as</span> <span class="ident">usize</span>],
@@ -800,7 +800,7 @@
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_bounds</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Bounds</span> {
-        <span class="ident">Bounds</span>::<span class="ident">from</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">points</span>)
+        <span class="ident">Bounds::from</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">points</span>)
     }
 
     <span class="kw">fn</span> <span class="ident">transform</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">Pt2D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Pt2D</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Polygon</span> {
@@ -812,7 +812,7 @@
                     .<span class="ident">iter</span>()
                     <span class="comment">// When scaling, rings may collapse entirely; just give up on preserving in</span>
                     <span class="comment">// that case.</span>
-                    .<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">ring</span><span class="op">|</span> <span class="ident">Ring</span>::<span class="ident">new</span>(<span class="ident">ring</span>.<span class="ident">points</span>().<span class="ident">iter</span>().<span class="ident">map</span>(<span class="kw-2">&amp;</span><span class="ident">f</span>).<span class="ident">collect</span>()).<span class="ident">ok</span>())
+                    .<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">ring</span><span class="op">|</span> <span class="ident">Ring::new</span>(<span class="ident">ring</span>.<span class="ident">points</span>().<span class="ident">iter</span>().<span class="ident">map</span>(<span class="kw-2">&amp;</span><span class="ident">f</span>).<span class="ident">collect</span>()).<span class="ident">ok</span>())
                     .<span class="ident">collect</span>()
             }),
         }
@@ -823,11 +823,11 @@
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">scale</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">factor</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Polygon</span> {
-        <span class="self">self</span>.<span class="ident">transform</span>(<span class="op">|</span><span class="ident">pt</span><span class="op">|</span> <span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="ident">pt</span>.<span class="ident">x</span>() <span class="op">*</span> <span class="ident">factor</span>, <span class="ident">pt</span>.<span class="ident">y</span>() <span class="op">*</span> <span class="ident">factor</span>))
+        <span class="self">self</span>.<span class="ident">transform</span>(<span class="op">|</span><span class="ident">pt</span><span class="op">|</span> <span class="ident">Pt2D::new</span>(<span class="ident">pt</span>.<span class="ident">x</span>() <span class="op">*</span> <span class="ident">factor</span>, <span class="ident">pt</span>.<span class="ident">y</span>() <span class="op">*</span> <span class="ident">factor</span>))
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">scale_xy</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">x_factor</span>: <span class="ident">f64</span>, <span class="ident">y_factor</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Polygon</span> {
-        <span class="self">self</span>.<span class="ident">transform</span>(<span class="op">|</span><span class="ident">pt</span><span class="op">|</span> <span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="ident">pt</span>.<span class="ident">x</span>() <span class="op">*</span> <span class="ident">x_factor</span>, <span class="ident">pt</span>.<span class="ident">y</span>() <span class="op">*</span> <span class="ident">y_factor</span>))
+        <span class="self">self</span>.<span class="ident">transform</span>(<span class="op">|</span><span class="ident">pt</span><span class="op">|</span> <span class="ident">Pt2D::new</span>(<span class="ident">pt</span>.<span class="ident">x</span>() <span class="op">*</span> <span class="ident">x_factor</span>, <span class="ident">pt</span>.<span class="ident">y</span>() <span class="op">*</span> <span class="ident">y_factor</span>))
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rotate</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">angle</span>: <span class="ident">Angle</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Polygon</span> {
@@ -836,9 +836,9 @@
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rotate_around</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">angle</span>: <span class="ident">Angle</span>, <span class="ident">pivot</span>: <span class="ident">Pt2D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Polygon</span> {
         <span class="self">self</span>.<span class="ident">transform</span>(<span class="op">|</span><span class="ident">pt</span><span class="op">|</span> {
-            <span class="kw">let</span> <span class="ident">origin_pt</span> <span class="op">=</span> <span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="ident">pt</span>.<span class="ident">x</span>() <span class="op">-</span> <span class="ident">pivot</span>.<span class="ident">x</span>(), <span class="ident">pt</span>.<span class="ident">y</span>() <span class="op">-</span> <span class="ident">pivot</span>.<span class="ident">y</span>());
+            <span class="kw">let</span> <span class="ident">origin_pt</span> <span class="op">=</span> <span class="ident">Pt2D::new</span>(<span class="ident">pt</span>.<span class="ident">x</span>() <span class="op">-</span> <span class="ident">pivot</span>.<span class="ident">x</span>(), <span class="ident">pt</span>.<span class="ident">y</span>() <span class="op">-</span> <span class="ident">pivot</span>.<span class="ident">y</span>());
             <span class="kw">let</span> (<span class="ident">sin</span>, <span class="ident">cos</span>) <span class="op">=</span> <span class="ident">angle</span>.<span class="ident">normalized_radians</span>().<span class="ident">sin_cos</span>();
-            <span class="ident">Pt2D</span>::<span class="ident">new</span>(
+            <span class="ident">Pt2D::new</span>(
                 <span class="ident">pivot</span>.<span class="ident">x</span>() <span class="op">+</span> <span class="ident">origin_pt</span>.<span class="ident">x</span>() <span class="op">*</span> <span class="ident">cos</span> <span class="op">-</span> <span class="ident">origin_pt</span>.<span class="ident">y</span>() <span class="op">*</span> <span class="ident">sin</span>,
                 <span class="ident">pivot</span>.<span class="ident">y</span>() <span class="op">+</span> <span class="ident">origin_pt</span>.<span class="ident">y</span>() <span class="op">*</span> <span class="ident">cos</span> <span class="op">+</span> <span class="ident">origin_pt</span>.<span class="ident">x</span>() <span class="op">*</span> <span class="ident">sin</span>,
             )
@@ -863,7 +863,7 @@
         }
     }
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_ring</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Ring</span> {
-        <span class="ident">Ring</span>::<span class="ident">must_new</span>(<span class="self">self</span>.<span class="ident">into_points</span>())
+        <span class="ident">Ring::must_new</span>(<span class="self">self</span>.<span class="ident">into_points</span>())
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">center</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Pt2D</span> {
@@ -871,34 +871,34 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">HashablePt2D</span><span class="op">&gt;</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">points</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">pt</span><span class="op">|</span> <span class="ident">pt</span>.<span class="ident">to_hashable</span>()).<span class="ident">collect</span>();
         <span class="ident">pts</span>.<span class="ident">sort</span>();
         <span class="ident">pts</span>.<span class="ident">dedup</span>();
-        <span class="ident">Pt2D</span>::<span class="ident">center</span>(<span class="kw-2">&amp;</span><span class="ident">pts</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">pt</span><span class="op">|</span> <span class="ident">pt</span>.<span class="ident">to_pt2d</span>()).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>())
+        <span class="ident">Pt2D::center</span>(<span class="kw-2">&amp;</span><span class="ident">pts</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">pt</span><span class="op">|</span> <span class="ident">pt</span>.<span class="ident">to_pt2d</span>()).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>())
     }
 
     <span class="doccomment">/// Top-left at the origin. Doesn&#39;t take Distance, because this is usually pixels, actually.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rectangle</span>(<span class="ident">width</span>: <span class="ident">f64</span>, <span class="ident">height</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Polygon</span> {
         <span class="ident">Polygon</span> {
-            <span class="ident">points</span>: <span class="macro">vec</span><span class="macro">!</span>[
-                <span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="number">0.0</span>, <span class="number">0.0</span>),
-                <span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="ident">width</span>, <span class="number">0.0</span>),
-                <span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="ident">width</span>, <span class="ident">height</span>),
-                <span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="number">0.0</span>, <span class="ident">height</span>),
-                <span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="number">0.0</span>, <span class="number">0.0</span>),
+            <span class="ident">points</span>: <span class="macro">vec!</span>[
+                <span class="ident">Pt2D::new</span>(<span class="number">0.0</span>, <span class="number">0.0</span>),
+                <span class="ident">Pt2D::new</span>(<span class="ident">width</span>, <span class="number">0.0</span>),
+                <span class="ident">Pt2D::new</span>(<span class="ident">width</span>, <span class="ident">height</span>),
+                <span class="ident">Pt2D::new</span>(<span class="number">0.0</span>, <span class="ident">height</span>),
+                <span class="ident">Pt2D::new</span>(<span class="number">0.0</span>, <span class="number">0.0</span>),
             ],
-            <span class="ident">indices</span>: <span class="macro">vec</span><span class="macro">!</span>[<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">0</span>, <span class="number">2</span>, <span class="number">3</span>],
+            <span class="ident">indices</span>: <span class="macro">vec!</span>[<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">0</span>, <span class="number">2</span>, <span class="number">3</span>],
             <span class="ident">rings</span>: <span class="prelude-val">None</span>,
         }
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rectangle_centered</span>(<span class="ident">center</span>: <span class="ident">Pt2D</span>, <span class="ident">width</span>: <span class="ident">Distance</span>, <span class="ident">height</span>: <span class="ident">Distance</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Polygon</span> {
-        <span class="ident">Polygon</span>::<span class="ident">rectangle</span>(<span class="ident">width</span>.<span class="ident">inner_meters</span>(), <span class="ident">height</span>.<span class="ident">inner_meters</span>()).<span class="ident">translate</span>(
+        <span class="ident">Polygon::rectangle</span>(<span class="ident">width</span>.<span class="ident">inner_meters</span>(), <span class="ident">height</span>.<span class="ident">inner_meters</span>()).<span class="ident">translate</span>(
             <span class="ident">center</span>.<span class="ident">x</span>() <span class="op">-</span> <span class="ident">width</span>.<span class="ident">inner_meters</span>() <span class="op">/</span> <span class="number">2.0</span>,
             <span class="ident">center</span>.<span class="ident">y</span>() <span class="op">-</span> <span class="ident">height</span>.<span class="ident">inner_meters</span>() <span class="op">/</span> <span class="number">2.0</span>,
         )
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rectangle_two_corners</span>(<span class="ident">pt1</span>: <span class="ident">Pt2D</span>, <span class="ident">pt2</span>: <span class="ident">Pt2D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="ident">pt1</span>.<span class="ident">x</span>(), <span class="number">0.0</span>) <span class="op">=</span><span class="op">=</span> <span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="ident">pt2</span>.<span class="ident">x</span>(), <span class="number">0.0</span>)
-            <span class="op">|</span><span class="op">|</span> <span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="number">0.0</span>, <span class="ident">pt1</span>.<span class="ident">y</span>()) <span class="op">=</span><span class="op">=</span> <span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="number">0.0</span>, <span class="ident">pt2</span>.<span class="ident">y</span>())
+        <span class="kw">if</span> <span class="ident">Pt2D::new</span>(<span class="ident">pt1</span>.<span class="ident">x</span>(), <span class="number">0.0</span>) <span class="op">=</span><span class="op">=</span> <span class="ident">Pt2D::new</span>(<span class="ident">pt2</span>.<span class="ident">x</span>(), <span class="number">0.0</span>)
+            <span class="op">|</span><span class="op">|</span> <span class="ident">Pt2D::new</span>(<span class="number">0.0</span>, <span class="ident">pt1</span>.<span class="ident">y</span>()) <span class="op">=</span><span class="op">=</span> <span class="ident">Pt2D::new</span>(<span class="number">0.0</span>, <span class="ident">pt2</span>.<span class="ident">y</span>())
         {
             <span class="kw">return</span> <span class="prelude-val">None</span>;
         }
@@ -913,7 +913,7 @@
         } <span class="kw">else</span> {
             (<span class="ident">pt2</span>.<span class="ident">y</span>(), <span class="ident">pt1</span>.<span class="ident">y</span>() <span class="op">-</span> <span class="ident">pt2</span>.<span class="ident">y</span>())
         };
-        <span class="prelude-val">Some</span>(<span class="ident">Polygon</span>::<span class="ident">rectangle</span>(<span class="ident">width</span>, <span class="ident">height</span>).<span class="ident">translate</span>(<span class="ident">x1</span>, <span class="ident">y1</span>))
+        <span class="prelude-val">Some</span>(<span class="ident">Polygon::rectangle</span>(<span class="ident">width</span>, <span class="ident">height</span>).<span class="ident">translate</span>(<span class="ident">x1</span>, <span class="ident">y1</span>))
     }
 
     <span class="doccomment">/// Top-left at the origin. Doesn&#39;t take Distance, because this is usually pixels, actually.</span>
@@ -928,56 +928,56 @@
             <span class="kw">return</span> <span class="prelude-val">None</span>;
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[];
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span> <span class="op">=</span> <span class="macro">vec!</span>[];
 
         <span class="kw">const</span> <span class="ident">RESOLUTION</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">5</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">arc</span> <span class="op">=</span> <span class="op">|</span><span class="ident">r</span>: <span class="ident">f64</span>, <span class="ident">center</span>: <span class="ident">Pt2D</span>, <span class="ident">angle1_degs</span>: <span class="ident">f64</span>, <span class="ident">angle2_degs</span>: <span class="ident">f64</span><span class="op">|</span> {
             <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="op">=</span><span class="ident">RESOLUTION</span> {
-                <span class="kw">let</span> <span class="ident">angle</span> <span class="op">=</span> <span class="ident">Angle</span>::<span class="ident">degrees</span>(
+                <span class="kw">let</span> <span class="ident">angle</span> <span class="op">=</span> <span class="ident">Angle::degrees</span>(
                     <span class="ident">angle1_degs</span> <span class="op">+</span> (<span class="ident">angle2_degs</span> <span class="op">-</span> <span class="ident">angle1_degs</span>) <span class="op">*</span> ((<span class="ident">i</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> (<span class="ident">RESOLUTION</span> <span class="kw">as</span> <span class="ident">f64</span>)),
                 );
-                <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">center</span>.<span class="ident">project_away</span>(<span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="ident">r</span>), <span class="ident">angle</span>.<span class="ident">invert_y</span>()));
+                <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">center</span>.<span class="ident">project_away</span>(<span class="ident">Distance::meters</span>(<span class="ident">r</span>), <span class="ident">angle</span>.<span class="ident">invert_y</span>()));
             }
         };
 
-        <span class="ident">arc</span>(<span class="ident">r</span>.<span class="ident">top_left</span>, <span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="ident">r</span>.<span class="ident">top_left</span>, <span class="ident">r</span>.<span class="ident">top_left</span>), <span class="number">180.0</span>, <span class="number">90.0</span>);
+        <span class="ident">arc</span>(<span class="ident">r</span>.<span class="ident">top_left</span>, <span class="ident">Pt2D::new</span>(<span class="ident">r</span>.<span class="ident">top_left</span>, <span class="ident">r</span>.<span class="ident">top_left</span>), <span class="number">180.0</span>, <span class="number">90.0</span>);
         <span class="ident">arc</span>(
             <span class="ident">r</span>.<span class="ident">top_right</span>,
-            <span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="ident">w</span> <span class="op">-</span> <span class="ident">r</span>.<span class="ident">top_right</span>, <span class="ident">r</span>.<span class="ident">top_right</span>),
+            <span class="ident">Pt2D::new</span>(<span class="ident">w</span> <span class="op">-</span> <span class="ident">r</span>.<span class="ident">top_right</span>, <span class="ident">r</span>.<span class="ident">top_right</span>),
             <span class="number">90.0</span>,
             <span class="number">0.0</span>,
         );
         <span class="ident">arc</span>(
             <span class="ident">r</span>.<span class="ident">bottom_right</span>,
-            <span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="ident">w</span> <span class="op">-</span> <span class="ident">r</span>.<span class="ident">bottom_right</span>, <span class="ident">h</span> <span class="op">-</span> <span class="ident">r</span>.<span class="ident">bottom_right</span>),
+            <span class="ident">Pt2D::new</span>(<span class="ident">w</span> <span class="op">-</span> <span class="ident">r</span>.<span class="ident">bottom_right</span>, <span class="ident">h</span> <span class="op">-</span> <span class="ident">r</span>.<span class="ident">bottom_right</span>),
             <span class="number">360.0</span>,
             <span class="number">270.0</span>,
         );
         <span class="ident">arc</span>(
             <span class="ident">r</span>.<span class="ident">bottom_left</span>,
-            <span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="ident">r</span>.<span class="ident">bottom_left</span>, <span class="ident">h</span> <span class="op">-</span> <span class="ident">r</span>.<span class="ident">bottom_left</span>),
+            <span class="ident">Pt2D::new</span>(<span class="ident">r</span>.<span class="ident">bottom_left</span>, <span class="ident">h</span> <span class="op">-</span> <span class="ident">r</span>.<span class="ident">bottom_left</span>),
             <span class="number">270.0</span>,
             <span class="number">180.0</span>,
         );
         <span class="comment">// Close it off</span>
-        <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="number">0.0</span>, <span class="ident">r</span>.<span class="ident">top_left</span>));
+        <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">Pt2D::new</span>(<span class="number">0.0</span>, <span class="ident">r</span>.<span class="ident">top_left</span>));
 
         <span class="comment">// If the radius was maximized, then some of the edges will be zero length.</span>
         <span class="ident">pts</span>.<span class="ident">dedup</span>();
 
-        <span class="prelude-val">Some</span>(<span class="ident">Ring</span>::<span class="ident">must_new</span>(<span class="ident">pts</span>).<span class="ident">into_polygon</span>())
+        <span class="prelude-val">Some</span>(<span class="ident">Ring::must_new</span>(<span class="ident">pts</span>).<span class="ident">into_polygon</span>())
     }
 
     <span class="doccomment">/// A rectangle, two sides of which are fully rounded half-circles.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pill</span>(<span class="ident">w</span>: <span class="ident">f64</span>, <span class="ident">h</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Polygon</span> {
         <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">w</span>.<span class="ident">min</span>(<span class="ident">h</span>) <span class="op">/</span> <span class="number">2.0</span>;
-        <span class="ident">Polygon</span>::<span class="ident">maybe_rounded_rectangle</span>(<span class="ident">w</span>, <span class="ident">h</span>, <span class="ident">r</span>).<span class="ident">unwrap</span>()
+        <span class="ident">Polygon::maybe_rounded_rectangle</span>(<span class="ident">w</span>, <span class="ident">h</span>, <span class="ident">r</span>).<span class="ident">unwrap</span>()
     }
 
     <span class="doccomment">/// Top-left at the origin. Doesn&#39;t take Distance, because this is usually pixels, actually.</span>
     <span class="doccomment">/// If it&#39;s not possible to apply the specified radius, fallback to a regular rectangle.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rounded_rectangle</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">CornerRadii</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">w</span>: <span class="ident">f64</span>, <span class="ident">h</span>: <span class="ident">f64</span>, <span class="ident">r</span>: <span class="ident">R</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Polygon</span> {
-        <span class="ident">Polygon</span>::<span class="ident">maybe_rounded_rectangle</span>(<span class="ident">w</span>, <span class="ident">h</span>, <span class="ident">r</span>).<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">Polygon</span>::<span class="ident">rectangle</span>(<span class="ident">w</span>, <span class="ident">h</span>))
+        <span class="ident">Polygon::maybe_rounded_rectangle</span>(<span class="ident">w</span>, <span class="ident">h</span>, <span class="ident">r</span>).<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">Polygon::rectangle</span>(<span class="ident">w</span>, <span class="ident">h</span>))
     }
 
     <span class="comment">// TODO Result won&#39;t be a nice Ring</span>
@@ -1010,18 +1010,18 @@
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">convex_hull</span>(<span class="ident">list</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Polygon</span> {
-        <span class="kw">let</span> <span class="ident">mp</span>: <span class="ident">geo</span>::<span class="ident">MultiPolygon</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">list</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">to_geo</span>(<span class="ident">p</span>.<span class="ident">points</span>())).<span class="ident">collect</span>();
+        <span class="kw">let</span> <span class="ident">mp</span>: <span class="ident">geo::MultiPolygon</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">list</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">to_geo</span>(<span class="ident">p</span>.<span class="ident">points</span>())).<span class="ident">collect</span>();
         <span class="ident">mp</span>.<span class="ident">convex_hull</span>().<span class="ident">into</span>()
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">concave_hull</span>(<span class="ident">list</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span>, <span class="ident">concavity</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Polygon</span> {
-        <span class="kw">let</span> <span class="ident">mp</span>: <span class="ident">geo</span>::<span class="ident">MultiPolygon</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">list</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">to_geo</span>(<span class="ident">p</span>.<span class="ident">points</span>())).<span class="ident">collect</span>();
+        <span class="kw">let</span> <span class="ident">mp</span>: <span class="ident">geo::MultiPolygon</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">list</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">to_geo</span>(<span class="ident">p</span>.<span class="ident">points</span>())).<span class="ident">collect</span>();
         <span class="ident">mp</span>.<span class="ident">concave_hull</span>(<span class="ident">concavity</span>).<span class="ident">into</span>()
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">polylabel</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Pt2D</span> {
-        <span class="kw">let</span> <span class="ident">pt</span> <span class="op">=</span> <span class="ident">polylabel</span>::<span class="ident">polylabel</span>(<span class="kw-2">&amp;</span><span class="ident">to_geo</span>(<span class="self">self</span>.<span class="ident">points</span>()), <span class="kw-2">&amp;</span><span class="number">1.0</span>).<span class="ident">unwrap</span>();
-        <span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="ident">pt</span>.<span class="ident">x</span>(), <span class="ident">pt</span>.<span class="ident">y</span>())
+        <span class="kw">let</span> <span class="ident">pt</span> <span class="op">=</span> <span class="ident">polylabel::polylabel</span>(<span class="kw-2">&amp;</span><span class="ident">to_geo</span>(<span class="self">self</span>.<span class="ident">points</span>()), <span class="kw-2">&amp;</span><span class="number">1.0</span>).<span class="ident">unwrap</span>();
+        <span class="ident">Pt2D::new</span>(<span class="ident">pt</span>.<span class="ident">x</span>(), <span class="ident">pt</span>.<span class="ident">y</span>())
     }
 
     <span class="doccomment">/// Do two polygons intersect at all?</span>
@@ -1039,11 +1039,11 @@
     <span class="doccomment">/// PolyLines won&#39;t work, for example.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_outline</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">thickness</span>: <span class="ident">Distance</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">rings</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">rings</span> {
-            <span class="prelude-val">Ok</span>(<span class="ident">Polygon</span>::<span class="ident">union_all</span>(
+            <span class="prelude-val">Ok</span>(<span class="ident">Polygon::union_all</span>(
                 <span class="ident">rings</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="ident">r</span>.<span class="ident">to_outline</span>(<span class="ident">thickness</span>)).<span class="ident">collect</span>(),
             ))
         } <span class="kw">else</span> {
-            <span class="ident">Ring</span>::<span class="ident">new</span>(<span class="self">self</span>.<span class="ident">points</span>.<span class="ident">clone</span>()).<span class="ident">map</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="ident">r</span>.<span class="ident">to_outline</span>(<span class="ident">thickness</span>))
+            <span class="ident">Ring::new</span>(<span class="self">self</span>.<span class="ident">points</span>.<span class="ident">clone</span>()).<span class="ident">map</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="ident">r</span>.<span class="ident">to_outline</span>(<span class="ident">thickness</span>))
         }
     }
 
@@ -1063,7 +1063,7 @@
 
     <span class="doccomment">/// Doesn&#39;t handle multiple crossings in and out.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clip_polyline</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">PolyLine</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">ring</span> <span class="op">=</span> <span class="ident">Ring</span>::<span class="ident">must_new</span>(<span class="self">self</span>.<span class="ident">points</span>.<span class="ident">clone</span>());
+        <span class="kw">let</span> <span class="ident">ring</span> <span class="op">=</span> <span class="ident">Ring::must_new</span>(<span class="self">self</span>.<span class="ident">points</span>.<span class="ident">clone</span>());
         <span class="kw">let</span> <span class="ident">hits</span> <span class="op">=</span> <span class="ident">ring</span>.<span class="ident">all_intersections</span>(<span class="ident">input</span>);
 
         <span class="kw">if</span> <span class="ident">hits</span>.<span class="ident">is_empty</span>() {
@@ -1094,8 +1094,8 @@
 
     <span class="comment">// TODO Only handles a few cases</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clip_ring</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">Ring</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">ring</span> <span class="op">=</span> <span class="ident">Ring</span>::<span class="ident">must_new</span>(<span class="self">self</span>.<span class="ident">points</span>.<span class="ident">clone</span>());
-        <span class="kw">let</span> <span class="ident">hits</span> <span class="op">=</span> <span class="ident">ring</span>.<span class="ident">all_intersections</span>(<span class="kw-2">&amp;</span><span class="ident">PolyLine</span>::<span class="ident">unchecked_new</span>(<span class="ident">input</span>.<span class="ident">clone</span>().<span class="ident">into_points</span>()));
+        <span class="kw">let</span> <span class="ident">ring</span> <span class="op">=</span> <span class="ident">Ring::must_new</span>(<span class="self">self</span>.<span class="ident">points</span>.<span class="ident">clone</span>());
+        <span class="kw">let</span> <span class="ident">hits</span> <span class="op">=</span> <span class="ident">ring</span>.<span class="ident">all_intersections</span>(<span class="kw-2">&amp;</span><span class="ident">PolyLine::unchecked_new</span>(<span class="ident">input</span>.<span class="ident">clone</span>().<span class="ident">into_points</span>()));
 
         <span class="kw">if</span> <span class="ident">hits</span>.<span class="ident">is_empty</span>() {
             <span class="comment">// If the first point is inside, then all must be</span>
@@ -1130,28 +1130,28 @@
     <span class="doccomment">/// If the polygon is just a single outer ring, produces a GeoJSON polygon. Otherwise, produces</span>
     <span class="doccomment">/// a GeoJSON multipolygon consisting of individual triangles. Optionally map the world-space</span>
     <span class="doccomment">/// points back to GPS.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_geojson</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">gps</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">GPSBounds</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">geojson</span>::<span class="ident">Geometry</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">ring</span>) <span class="op">=</span> <span class="ident">Ring</span>::<span class="ident">new</span>(<span class="self">self</span>.<span class="ident">points</span>.<span class="ident">clone</span>()) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_geojson</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">gps</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">GPSBounds</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">geojson::Geometry</span> {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">ring</span>) <span class="op">=</span> <span class="ident">Ring::new</span>(<span class="self">self</span>.<span class="ident">points</span>.<span class="ident">clone</span>()) {
             <span class="kw">return</span> <span class="ident">ring</span>.<span class="ident">to_geojson</span>(<span class="ident">gps</span>);
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">polygons</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">polygons</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
         <span class="kw">for</span> <span class="ident">triangle</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">triangles</span>() {
-            <span class="kw">let</span> <span class="ident">raw_pts</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">triangle</span>.<span class="ident">pt1</span>, <span class="ident">triangle</span>.<span class="ident">pt2</span>, <span class="ident">triangle</span>.<span class="ident">pt3</span>, <span class="ident">triangle</span>.<span class="ident">pt1</span>];
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+            <span class="kw">let</span> <span class="ident">raw_pts</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">triangle</span>.<span class="ident">pt1</span>, <span class="ident">triangle</span>.<span class="ident">pt2</span>, <span class="ident">triangle</span>.<span class="ident">pt3</span>, <span class="ident">triangle</span>.<span class="ident">pt1</span>];
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">gps</span>) <span class="op">=</span> <span class="ident">gps</span> {
                 <span class="kw">for</span> <span class="ident">pt</span> <span class="kw">in</span> <span class="ident">gps</span>.<span class="ident">convert_back</span>(<span class="kw-2">&amp;</span><span class="ident">raw_pts</span>) {
-                    <span class="ident">pts</span>.<span class="ident">push</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">pt</span>.<span class="ident">x</span>(), <span class="ident">pt</span>.<span class="ident">y</span>()]);
+                    <span class="ident">pts</span>.<span class="ident">push</span>(<span class="macro">vec!</span>[<span class="ident">pt</span>.<span class="ident">x</span>(), <span class="ident">pt</span>.<span class="ident">y</span>()]);
                 }
             } <span class="kw">else</span> {
                 <span class="kw">for</span> <span class="ident">pt</span> <span class="kw">in</span> <span class="ident">raw_pts</span> {
-                    <span class="ident">pts</span>.<span class="ident">push</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">pt</span>.<span class="ident">x</span>(), <span class="ident">pt</span>.<span class="ident">y</span>()]);
+                    <span class="ident">pts</span>.<span class="ident">push</span>(<span class="macro">vec!</span>[<span class="ident">pt</span>.<span class="ident">x</span>(), <span class="ident">pt</span>.<span class="ident">y</span>()]);
                 }
             }
-            <span class="ident">polygons</span>.<span class="ident">push</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">pts</span>]);
+            <span class="ident">polygons</span>.<span class="ident">push</span>(<span class="macro">vec!</span>[<span class="ident">pts</span>]);
         }
 
-        <span class="ident">geojson</span>::<span class="ident">Geometry</span>::<span class="ident">new</span>(<span class="ident">geojson</span>::<span class="ident">Value</span>::<span class="ident">MultiPolygon</span>(<span class="ident">polygons</span>))
+        <span class="ident">geojson::Geometry::new</span>(<span class="ident">geojson::Value::MultiPolygon</span>(<span class="ident">polygons</span>))
     }
 
     <span class="doccomment">/// Extracts all polygons from raw bytes representing a GeoJSON file, along with the string</span>
@@ -1162,21 +1162,21 @@
         <span class="ident">gps_bounds</span>: <span class="kw-2">&amp;</span><span class="ident">GPSBounds</span>,
         <span class="ident">require_in_bounds</span>: <span class="ident">bool</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Polygon</span>, <span class="ident">Tags</span>)<span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">raw_string</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">str</span>::<span class="ident">from_utf8</span>(<span class="ident">raw_bytes</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">geojson</span> <span class="op">=</span> <span class="ident">raw_string</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">geojson</span>::<span class="ident">GeoJson</span><span class="op">&gt;</span>()<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">raw_string</span> <span class="op">=</span> <span class="ident">std::str::from_utf8</span>(<span class="ident">raw_bytes</span>)<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">geojson</span> <span class="op">=</span> <span class="ident">raw_string</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">geojson::GeoJson</span><span class="op">&gt;</span>()<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">features</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">geojson</span> {
-            <span class="ident">geojson</span>::<span class="ident">GeoJson</span>::<span class="ident">Feature</span>(<span class="ident">feature</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">feature</span>],
-            <span class="ident">geojson</span>::<span class="ident">GeoJson</span>::<span class="ident">FeatureCollection</span>(<span class="ident">collection</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">collection</span>.<span class="ident">features</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">anyhow</span>::<span class="macro">bail</span><span class="macro">!</span>(<span class="string">&quot;Unexpected geojson: {:?}&quot;</span>, <span class="ident">geojson</span>),
+            <span class="ident">geojson::GeoJson::Feature</span>(<span class="ident">feature</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec!</span>[<span class="ident">feature</span>],
+            <span class="ident">geojson::GeoJson::FeatureCollection</span>(<span class="ident">collection</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">collection</span>.<span class="ident">features</span>,
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">anyhow::bail!</span>(<span class="string">&quot;Unexpected geojson: {:?}&quot;</span>, <span class="ident">geojson</span>),
         };
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">results</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">results</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
         <span class="kw">for</span> <span class="ident">feature</span> <span class="kw">in</span> <span class="ident">features</span> {
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">geom</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">feature</span>.<span class="ident">geometry</span> {
                 <span class="kw">let</span> <span class="ident">raw_pts</span> <span class="op">=</span> <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">geom</span>.<span class="ident">value</span> {
-                    <span class="ident">geojson</span>::<span class="ident">Value</span>::<span class="ident">Polygon</span>(<span class="ident">pts</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">pts</span>,
+                    <span class="ident">geojson::Value::Polygon</span>(<span class="ident">pts</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">pts</span>,
                     <span class="comment">// If there are multiple, just use the first</span>
-                    <span class="ident">geojson</span>::<span class="ident">Value</span>::<span class="ident">MultiPolygon</span>(<span class="ident">polygons</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">polygons</span>[<span class="number">0</span>],
+                    <span class="ident">geojson::Value::MultiPolygon</span>(<span class="ident">polygons</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">polygons</span>[<span class="number">0</span>],
                     <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
                         <span class="kw">continue</span>;
                     }
@@ -1184,7 +1184,7 @@
                 <span class="comment">// TODO Handle holes</span>
                 <span class="kw">let</span> <span class="ident">gps_pts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LonLat</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">raw_pts</span>[<span class="number">0</span>]
                     .<span class="ident">iter</span>()
-                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">pt</span><span class="op">|</span> <span class="ident">LonLat</span>::<span class="ident">new</span>(<span class="ident">pt</span>[<span class="number">0</span>], <span class="ident">pt</span>[<span class="number">1</span>]))
+                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">pt</span><span class="op">|</span> <span class="ident">LonLat::new</span>(<span class="ident">pt</span>[<span class="number">0</span>], <span class="ident">pt</span>[<span class="number">1</span>]))
                     .<span class="ident">collect</span>();
                 <span class="kw">let</span> <span class="ident">pts</span> <span class="op">=</span> <span class="kw">if</span> <span class="op">!</span><span class="ident">require_in_bounds</span> {
                     <span class="ident">gps_bounds</span>.<span class="ident">convert</span>(<span class="kw-2">&amp;</span><span class="ident">gps_pts</span>)
@@ -1193,8 +1193,8 @@
                 } <span class="kw">else</span> {
                     <span class="kw">continue</span>;
                 };
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">ring</span>) <span class="op">=</span> <span class="ident">Ring</span>::<span class="ident">new</span>(<span class="ident">pts</span>) {
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tags</span> <span class="op">=</span> <span class="ident">Tags</span>::<span class="ident">empty</span>();
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">ring</span>) <span class="op">=</span> <span class="ident">Ring::new</span>(<span class="ident">pts</span>) {
+                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tags</span> <span class="op">=</span> <span class="ident">Tags::empty</span>();
                     <span class="kw">for</span> (<span class="ident">key</span>, <span class="ident">value</span>) <span class="kw">in</span> <span class="ident">feature</span>.<span class="ident">properties_iter</span>() {
                         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">value</span>) <span class="op">=</span> <span class="ident">value</span>.<span class="ident">as_str</span>() {
                             <span class="ident">tags</span>.<span class="ident">insert</span>(<span class="ident">key</span>, <span class="ident">value</span>);
@@ -1208,22 +1208,22 @@
     }
 }
 
-<span class="kw">impl</span> <span class="ident">fmt</span>::<span class="ident">Display</span> <span class="kw">for</span> <span class="ident">Polygon</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
-        <span class="macro">writeln</span><span class="macro">!</span>(
+<span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">Polygon</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
+        <span class="macro">writeln!</span>(
             <span class="ident">f</span>,
             <span class="string">&quot;Polygon with {} points and {} indices&quot;</span>,
             <span class="self">self</span>.<span class="ident">points</span>.<span class="ident">len</span>(),
             <span class="self">self</span>.<span class="ident">indices</span>.<span class="ident">len</span>()
         )<span class="question-mark">?</span>;
         <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">pt</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">points</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
-            <span class="macro">writeln</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;  {}: {}&quot;</span>, <span class="ident">idx</span>, <span class="ident">pt</span>)<span class="question-mark">?</span>;
+            <span class="macro">writeln!</span>(<span class="ident">f</span>, <span class="string">&quot;  {}: {}&quot;</span>, <span class="ident">idx</span>, <span class="ident">pt</span>)<span class="question-mark">?</span>;
         }
-        <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;Indices: [&quot;</span>)<span class="question-mark">?</span>;
+        <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Indices: [&quot;</span>)<span class="question-mark">?</span>;
         <span class="kw">for</span> <span class="ident">slice</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">indices</span>.<span class="ident">chunks_exact</span>(<span class="number">3</span>) {
-            <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;({}, {}, {}), &quot;</span>, <span class="ident">slice</span>[<span class="number">0</span>], <span class="ident">slice</span>[<span class="number">1</span>], <span class="ident">slice</span>[<span class="number">2</span>])<span class="question-mark">?</span>;
+            <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;({}, {}, {}), &quot;</span>, <span class="ident">slice</span>[<span class="number">0</span>], <span class="ident">slice</span>[<span class="number">1</span>], <span class="ident">slice</span>[<span class="number">2</span>])<span class="question-mark">?</span>;
         }
-        <span class="macro">writeln</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;]&quot;</span>)
+        <span class="macro">writeln!</span>(<span class="ident">f</span>, <span class="string">&quot;]&quot;</span>)
     }
 }
 
@@ -1267,47 +1267,47 @@
     }
 }
 
-<span class="kw">fn</span> <span class="ident">to_geo</span>(<span class="ident">pts</span>: <span class="kw-2">&amp;</span>[<span class="ident">Pt2D</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">geo</span>::<span class="ident">Polygon</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> {
-    <span class="ident">geo</span>::<span class="ident">Polygon</span>::<span class="ident">new</span>(
-        <span class="ident">geo</span>::<span class="ident">LineString</span>::<span class="ident">from</span>(
+<span class="kw">fn</span> <span class="ident">to_geo</span>(<span class="ident">pts</span>: <span class="kw-2">&amp;</span>[<span class="ident">Pt2D</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">geo::Polygon</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> {
+    <span class="ident">geo::Polygon::new</span>(
+        <span class="ident">geo::LineString::from</span>(
             <span class="ident">pts</span>.<span class="ident">iter</span>()
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">pt</span><span class="op">|</span> <span class="ident">geo</span>::<span class="ident">Point</span>::<span class="ident">new</span>(<span class="ident">pt</span>.<span class="ident">x</span>(), <span class="ident">pt</span>.<span class="ident">y</span>()))
+                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">pt</span><span class="op">|</span> <span class="ident">geo::Point::new</span>(<span class="ident">pt</span>.<span class="ident">x</span>(), <span class="ident">pt</span>.<span class="ident">y</span>()))
                 .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>(),
         ),
-        <span class="ident">Vec</span>::<span class="ident">new</span>(),
+        <span class="ident">Vec::new</span>(),
     )
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">geo</span>::<span class="ident">Polygon</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Polygon</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">poly</span>: <span class="ident">geo</span>::<span class="ident">Polygon</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">geo::Polygon</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Polygon</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">poly</span>: <span class="ident">geo::Polygon</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="kw">let</span> (<span class="ident">exterior</span>, <span class="ident">interiors</span>) <span class="op">=</span> <span class="ident">poly</span>.<span class="ident">into_inner</span>();
-        <span class="ident">Polygon</span>::<span class="ident">with_holes</span>(
-            <span class="ident">Ring</span>::<span class="ident">from</span>(<span class="ident">exterior</span>),
-            <span class="ident">interiors</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="ident">Ring</span>::<span class="ident">from</span>).<span class="ident">collect</span>(),
+        <span class="ident">Polygon::with_holes</span>(
+            <span class="ident">Ring::from</span>(<span class="ident">exterior</span>),
+            <span class="ident">interiors</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="ident">Ring::from</span>).<span class="ident">collect</span>(),
         )
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">geo</span>::<span class="ident">Polygon</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> {
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">geo::Polygon</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">poly</span>: <span class="ident">Polygon</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">mut</span> <span class="ident">rings</span>) <span class="op">=</span> <span class="ident">poly</span>.<span class="ident">rings</span> {
             <span class="kw">let</span> <span class="ident">exterior</span> <span class="op">=</span> <span class="ident">rings</span>.<span class="ident">pop</span>().<span class="ident">expect</span>(<span class="string">&quot;expected poly.rings[0] to be exterior&quot;</span>);
-            <span class="kw">let</span> <span class="ident">interiors</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">geo</span>::<span class="ident">LineString</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span>
-                <span class="ident">rings</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="ident">geo</span>::<span class="ident">LineString</span>::<span class="ident">from</span>).<span class="ident">collect</span>();
-            <span class="self">Self</span>::<span class="ident">new</span>(<span class="ident">exterior</span>.<span class="ident">into</span>(), <span class="ident">interiors</span>)
+            <span class="kw">let</span> <span class="ident">interiors</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">geo::LineString</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span>
+                <span class="ident">rings</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="ident">geo::LineString::from</span>).<span class="ident">collect</span>();
+            <span class="self">Self</span><span class="ident">::new</span>(<span class="ident">exterior</span>.<span class="ident">into</span>(), <span class="ident">interiors</span>)
         } <span class="kw">else</span> {
             <span class="kw">let</span> <span class="ident">exterior_coords</span> <span class="op">=</span> <span class="ident">poly</span>
                 .<span class="ident">points</span>
                 .<span class="ident">into_iter</span>()
-                .<span class="ident">map</span>(<span class="ident">geo</span>::<span class="ident">Coordinate</span>::<span class="ident">from</span>)
+                .<span class="ident">map</span>(<span class="ident">geo::Coordinate::from</span>)
                 .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
-            <span class="kw">let</span> <span class="ident">exterior</span> <span class="op">=</span> <span class="ident">geo</span>::<span class="ident">LineString</span>(<span class="ident">exterior_coords</span>);
-            <span class="self">Self</span>::<span class="ident">new</span>(<span class="ident">exterior</span>, <span class="ident">Vec</span>::<span class="ident">new</span>())
+            <span class="kw">let</span> <span class="ident">exterior</span> <span class="op">=</span> <span class="ident">geo::LineString</span>(<span class="ident">exterior_coords</span>);
+            <span class="self">Self</span><span class="ident">::new</span>(<span class="ident">exterior</span>, <span class="ident">Vec::new</span>())
         }
     }
 }
 
-<span class="kw">fn</span> <span class="ident">from_multi</span>(<span class="ident">multi</span>: <span class="ident">geo</span>::<span class="ident">MultiPolygon</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">from_multi</span>(<span class="ident">multi</span>: <span class="ident">geo::MultiPolygon</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span> {
     <span class="comment">// TODO This should just call Polygon::from, but while importing maps, it seems like</span>
     <span class="comment">// intersection() is hitting non-Ring cases that crash. So keep using buggy_new for now.</span>
     <span class="ident">multi</span>
@@ -1318,24 +1318,24 @@
                 .<span class="number">0</span>
                 .<span class="ident">into_points</span>()
                 .<span class="ident">into_iter</span>()
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">pt</span><span class="op">|</span> <span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="ident">pt</span>.<span class="ident">x</span>(), <span class="ident">pt</span>.<span class="ident">y</span>()))
+                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">pt</span><span class="op">|</span> <span class="ident">Pt2D::new</span>(<span class="ident">pt</span>.<span class="ident">x</span>(), <span class="ident">pt</span>.<span class="ident">y</span>()))
                 .<span class="ident">collect</span>();
-            <span class="ident">Polygon</span>::<span class="ident">buggy_new</span>(<span class="ident">pts</span>)
+            <span class="ident">Polygon::buggy_new</span>(<span class="ident">pts</span>)
         })
         .<span class="ident">collect</span>()
 }
 
 <span class="kw">fn</span> <span class="ident">downsize</span>(<span class="ident">input</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">output</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">output</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
     <span class="kw">for</span> <span class="ident">x</span> <span class="kw">in</span> <span class="ident">input</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="ident">u16</span>::<span class="ident">try_from</span>(<span class="ident">x</span>) {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="ident">u16::try_from</span>(<span class="ident">x</span>) {
             <span class="ident">output</span>.<span class="ident">push</span>(<span class="ident">x</span>);
         } <span class="kw">else</span> {
-            <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;{} can&#39;t fit in u16, some polygon is too huge&quot;</span>, <span class="ident">x</span>);
+            <span class="macro">panic!</span>(<span class="string">&quot;{} can&#39;t fit in u16, some polygon is too huge&quot;</span>, <span class="ident">x</span>);
         }
     }
     <span class="ident">output</span>
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="geom" data-search-js="../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="geom" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script></body></html>

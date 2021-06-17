@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/widgets/image.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>image.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../widgetry/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../widgetry/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -317,7 +317,7 @@
 };
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Bounds</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
 
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">borrow</span>::<span class="ident">Cow</span>;
+<span class="kw">use</span> <span class="ident">std::borrow::Cow</span>;
 
 <span class="doccomment">/// A stylable UI component builder which presents vector graphics from an [`ImageSource`].</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Default</span>)]</span>
@@ -343,23 +343,23 @@
 
     <span class="doccomment">/// Previously rendered graphics, in the form of a [`GeomBatch`], can</span>
     <span class="doccomment">/// be packaged as an `Image`.</span>
-    <span class="ident">GeomBatch</span>(<span class="ident">GeomBatch</span>, <span class="ident">geom</span>::<span class="ident">Bounds</span>),
+    <span class="ident">GeomBatch</span>(<span class="ident">GeomBatch</span>, <span class="ident">geom::Bounds</span>),
 }
 
 <span class="kw">impl</span> <span class="ident">ImageSource</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Process `self` into a [`GeomBatch`].</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// The underlying implementation makes use of caching to avoid re-parsing SVGs.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">load</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">prerender</span>: <span class="kw-2">&amp;</span><span class="kw">crate</span>::<span class="ident">Prerender</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">GeomBatch</span>, <span class="ident">geom</span>::<span class="ident">Bounds</span>) {
-        <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">svg</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">load</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">prerender</span>: <span class="kw-2">&amp;</span><span class="kw">crate</span><span class="ident">::Prerender</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">GeomBatch</span>, <span class="ident">geom::Bounds</span>) {
+        <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::svg</span>;
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">ImageSource</span>::<span class="ident">Path</span>(<span class="ident">image_path</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">svg</span>::<span class="ident">load_svg</span>(<span class="ident">prerender</span>, <span class="ident">image_path</span>),
-            <span class="ident">ImageSource</span>::<span class="ident">Bytes</span> { <span class="ident">bytes</span>, <span class="ident">cache_key</span> } <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="ident">svg</span>::<span class="ident">load_svg_bytes</span>(<span class="ident">prerender</span>, <span class="ident">cache_key</span>, <span class="ident">bytes</span>).<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> {
-                    <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Failed to load svg from bytes. cache_key: {}&quot;</span>, <span class="ident">cache_key</span>)
+            <span class="ident">ImageSource::Path</span>(<span class="ident">image_path</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">svg::load_svg</span>(<span class="ident">prerender</span>, <span class="ident">image_path</span>),
+            <span class="ident">ImageSource::Bytes</span> { <span class="ident">bytes</span>, <span class="ident">cache_key</span> } <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">svg::load_svg_bytes</span>(<span class="ident">prerender</span>, <span class="ident">cache_key</span>, <span class="ident">bytes</span>).<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> {
+                    <span class="macro">panic!</span>(<span class="string">&quot;Failed to load svg from bytes. cache_key: {}&quot;</span>, <span class="ident">cache_key</span>)
                 })
             }
-            <span class="ident">ImageSource</span>::<span class="ident">GeomBatch</span>(<span class="ident">geom_batch</span>, <span class="ident">bounds</span>) <span class="op">=</span><span class="op">&gt;</span> (<span class="ident">geom_batch</span>.<span class="ident">clone</span>(), <span class="kw-2">*</span><span class="ident">bounds</span>),
+            <span class="ident">ImageSource::GeomBatch</span>(<span class="ident">geom_batch</span>, <span class="ident">bounds</span>) <span class="op">=</span><span class="op">&gt;</span> (<span class="ident">geom_batch</span>.<span class="ident">clone</span>(), <span class="kw-2">*</span><span class="ident">bounds</span>),
         }
     }
 }
@@ -369,15 +369,15 @@
     <span class="doccomment">/// several similar images using a builder pattern.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">empty</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> {
-            ..<span class="ident">Default</span>::<span class="ident">default</span>()
+            ..<span class="ident">Default::default</span>()
         }
     }
 
     <span class="doccomment">/// Create an SVG `Image`, read from `filename`, which is colored to match `Style.icon_fg`</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_path</span>(<span class="ident">filename</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> {
-            <span class="ident">source</span>: <span class="prelude-val">Some</span>(<span class="ident">Cow</span>::<span class="ident">Owned</span>(<span class="ident">ImageSource</span>::<span class="ident">Path</span>(<span class="ident">filename</span>))),
-            ..<span class="ident">Default</span>::<span class="ident">default</span>()
+            <span class="ident">source</span>: <span class="prelude-val">Some</span>(<span class="ident">Cow::Owned</span>(<span class="ident">ImageSource::Path</span>(<span class="ident">filename</span>))),
+            ..<span class="ident">Default::default</span>()
         }
     }
 
@@ -386,7 +386,7 @@
     <span class="doccomment">/// The image&#39;s intrinsic colors will be used, it will not be tinted like `Image::icon`, unless</span>
     <span class="doccomment">/// you also call `color()`</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">untinted</span>(<span class="ident">filename</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="self">Self</span>::<span class="ident">from_path</span>(<span class="ident">filename</span>).<span class="ident">color</span>(<span class="ident">RewriteColor</span>::<span class="ident">NoOp</span>)
+        <span class="self">Self</span><span class="ident">::from_path</span>(<span class="ident">filename</span>).<span class="ident">color</span>(<span class="ident">RewriteColor::NoOp</span>)
     }
 
     <span class="doccomment">/// Create a new SVG `Image` from bytes.</span>
@@ -397,19 +397,19 @@
     <span class="doccomment">/// * `bytes`: UTF-8 encoded bytes of the SVG</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_bytes</span>(<span class="ident">labeled_bytes</span>: (<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>])) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> {
-            <span class="ident">source</span>: <span class="prelude-val">Some</span>(<span class="ident">Cow</span>::<span class="ident">Owned</span>(<span class="ident">ImageSource</span>::<span class="ident">Bytes</span> {
+            <span class="ident">source</span>: <span class="prelude-val">Some</span>(<span class="ident">Cow::Owned</span>(<span class="ident">ImageSource::Bytes</span> {
                 <span class="ident">cache_key</span>: <span class="ident">labeled_bytes</span>.<span class="number">0</span>,
                 <span class="ident">bytes</span>: <span class="ident">labeled_bytes</span>.<span class="number">1</span>,
             })),
-            ..<span class="ident">Default</span>::<span class="ident">default</span>()
+            ..<span class="ident">Default::default</span>()
         }
     }
 
     <span class="doccomment">/// Create a new `Image` from a [`GeomBatch`].</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_batch</span>(<span class="ident">batch</span>: <span class="ident">GeomBatch</span>, <span class="ident">bounds</span>: <span class="ident">Bounds</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> {
-            <span class="ident">source</span>: <span class="prelude-val">Some</span>(<span class="ident">Cow</span>::<span class="ident">Owned</span>(<span class="ident">ImageSource</span>::<span class="ident">GeomBatch</span>(<span class="ident">batch</span>, <span class="ident">bounds</span>))),
-            ..<span class="ident">Default</span>::<span class="ident">default</span>()
+            <span class="ident">source</span>: <span class="prelude-val">Some</span>(<span class="ident">Cow::Owned</span>(<span class="ident">ImageSource::GeomBatch</span>(<span class="ident">batch</span>, <span class="ident">bounds</span>))),
+            ..<span class="ident">Default::default</span>()
         }
     }
 
@@ -417,7 +417,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// This will replace any previously set source.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">source</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">source</span>: <span class="ident">ImageSource</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">source</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Cow</span>::<span class="ident">Owned</span>(<span class="ident">source</span>));
+        <span class="self">self</span>.<span class="ident">source</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Cow::Owned</span>(<span class="ident">source</span>));
         <span class="self">self</span>
     }
 
@@ -425,7 +425,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// This will replace any image source previously set.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">source_path</span>(<span class="self">self</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">source</span>(<span class="ident">ImageSource</span>::<span class="ident">Path</span>(<span class="ident">path</span>))
+        <span class="self">self</span>.<span class="ident">source</span>(<span class="ident">ImageSource::Path</span>(<span class="ident">path</span>))
     }
 
     <span class="doccomment">/// Set the bytes for the image.</span>
@@ -438,7 +438,7 @@
     <span class="doccomment">/// * `bytes`: UTF-8 encoded bytes of the SVG</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">source_bytes</span>(<span class="self">self</span>, <span class="ident">labeled_bytes</span>: (<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>])) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="kw">let</span> (<span class="ident">label</span>, <span class="ident">bytes</span>) <span class="op">=</span> <span class="ident">labeled_bytes</span>;
-        <span class="self">self</span>.<span class="ident">source</span>(<span class="ident">ImageSource</span>::<span class="ident">Bytes</span> {
+        <span class="self">self</span>.<span class="ident">source</span>(<span class="ident">ImageSource::Bytes</span> {
             <span class="ident">bytes</span>,
             <span class="ident">cache_key</span>: <span class="ident">label</span>,
         })
@@ -450,8 +450,8 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// This method is useful when doing more complex transforms. For example, to re-write more than</span>
     <span class="doccomment">/// one color for your image, do so externally and pass in the resultant GeomBatch here.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">source_batch</span>(<span class="self">self</span>, <span class="ident">batch</span>: <span class="ident">GeomBatch</span>, <span class="ident">bounds</span>: <span class="ident">geom</span>::<span class="ident">Bounds</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">source</span>(<span class="ident">ImageSource</span>::<span class="ident">GeomBatch</span>(<span class="ident">batch</span>, <span class="ident">bounds</span>))
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">source_batch</span>(<span class="self">self</span>, <span class="ident">batch</span>: <span class="ident">GeomBatch</span>, <span class="ident">bounds</span>: <span class="ident">geom::Bounds</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="self">self</span>.<span class="ident">source</span>(<span class="ident">ImageSource::GeomBatch</span>(<span class="ident">batch</span>, <span class="ident">bounds</span>))
     }
 
     <span class="doccomment">/// Add a tooltip to appear when hovering over the image.</span>
@@ -466,7 +466,7 @@
             <span class="ident">other</span>.<span class="ident">source</span>.<span class="ident">as_ref</span>().<span class="ident">or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">source</span>.<span class="ident">as_ref</span>());
         <span class="kw">let</span> <span class="ident">source</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="lifetime">&#39;c</span>, <span class="ident">ImageSource</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">source_cow</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">source</span>: <span class="kw-2">&amp;</span><span class="ident">Cow</span><span class="op">&lt;</span><span class="ident">ImageSource</span><span class="op">&gt;</span><span class="op">|</span> {
             <span class="kw">let</span> <span class="ident">source</span>: <span class="kw-2">&amp;</span><span class="ident">ImageSource</span> <span class="op">=</span> <span class="ident">source</span>;
-            <span class="ident">Cow</span>::<span class="ident">Borrowed</span>(<span class="ident">source</span>)
+            <span class="ident">Cow::Borrowed</span>(<span class="ident">source</span>)
         });
 
         <span class="self">Self</span> {
@@ -535,13 +535,13 @@
 
             <span class="ident">image_batch</span> <span class="op">=</span> <span class="ident">image_batch</span>.<span class="ident">color</span>(
                 <span class="self">self</span>.<span class="ident">color</span>
-                    .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">RewriteColor</span>::<span class="ident">ChangeAll</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">icon_fg</span>)),
+                    .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">RewriteColor::ChangeAll</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">icon_fg</span>)),
             );
 
             <span class="kw">match</span> <span class="self">self</span>.<span class="ident">dims</span> {
                 <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="comment">// Preserve any padding intrinsic to the SVG.</span>
-                    <span class="ident">image_batch</span>.<span class="ident">push</span>(<span class="ident">Color</span>::<span class="ident">CLEAR</span>, <span class="ident">image_bounds</span>.<span class="ident">get_rectangle</span>());
+                    <span class="ident">image_batch</span>.<span class="ident">push</span>(<span class="ident">Color::CLEAR</span>, <span class="ident">image_bounds</span>.<span class="ident">get_rectangle</span>());
                     (<span class="ident">image_batch</span>, <span class="ident">image_bounds</span>)
                 }
                 <span class="prelude-val">Some</span>(<span class="ident">image_dims</span>) <span class="op">=</span><span class="op">&gt;</span> {
@@ -551,11 +551,11 @@
                             <span class="ident">image_dims</span>.<span class="ident">height</span> <span class="op">/</span> <span class="ident">image_bounds</span>.<span class="ident">height</span>(),
                         );
                         <span class="ident">image_batch</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">content_mode</span>.<span class="ident">unwrap_or_default</span>() {
-                            <span class="ident">ContentMode</span>::<span class="ident">ScaleToFill</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">image_batch</span>.<span class="ident">scale_xy</span>(<span class="ident">x_factor</span>, <span class="ident">y_factor</span>),
-                            <span class="ident">ContentMode</span>::<span class="ident">ScaleAspectFit</span> <span class="op">=</span><span class="op">&gt;</span> {
+                            <span class="ident">ContentMode::ScaleToFill</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">image_batch</span>.<span class="ident">scale_xy</span>(<span class="ident">x_factor</span>, <span class="ident">y_factor</span>),
+                            <span class="ident">ContentMode::ScaleAspectFit</span> <span class="op">=</span><span class="op">&gt;</span> {
                                 <span class="ident">image_batch</span>.<span class="ident">scale</span>(<span class="ident">x_factor</span>.<span class="ident">min</span>(<span class="ident">y_factor</span>))
                             }
-                            <span class="ident">ContentMode</span>::<span class="ident">ScaleAspectFill</span> <span class="op">=</span><span class="op">&gt;</span> {
+                            <span class="ident">ContentMode::ScaleAspectFill</span> <span class="op">=</span><span class="op">&gt;</span> {
                                 <span class="ident">image_batch</span>.<span class="ident">scale</span>(<span class="ident">x_factor</span>.<span class="ident">max</span>(<span class="ident">y_factor</span>))
                             }
                         };
@@ -564,7 +564,7 @@
                     <span class="kw">let</span> <span class="ident">image_corners</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">corner_rounding</span>.<span class="ident">unwrap_or_default</span>();
                     <span class="kw">let</span> <span class="ident">padding</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">padding</span>.<span class="ident">unwrap_or_default</span>();
 
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">container_batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
+                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">container_batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
                     <span class="kw">let</span> <span class="ident">container_bounds</span> <span class="op">=</span> <span class="ident">Bounds</span> {
                         <span class="ident">min_x</span>: <span class="number">0.0</span>,
                         <span class="ident">min_y</span>: <span class="number">0.0</span>,
@@ -572,20 +572,20 @@
                         <span class="ident">max_y</span>: <span class="ident">image_dims</span>.<span class="ident">height</span> <span class="op">+</span> <span class="ident">padding</span>.<span class="ident">top</span> <span class="op">+</span> <span class="ident">padding</span>.<span class="ident">bottom</span>,
                     };
                     <span class="kw">let</span> <span class="ident">container</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">image_corners</span> {
-                        <span class="ident">CornerRounding</span>::<span class="ident">FullyRounded</span> <span class="op">=</span><span class="op">&gt;</span> {
-                            <span class="ident">Polygon</span>::<span class="ident">pill</span>(<span class="ident">container_bounds</span>.<span class="ident">width</span>(), <span class="ident">container_bounds</span>.<span class="ident">height</span>())
+                        <span class="ident">CornerRounding::FullyRounded</span> <span class="op">=</span><span class="op">&gt;</span> {
+                            <span class="ident">Polygon::pill</span>(<span class="ident">container_bounds</span>.<span class="ident">width</span>(), <span class="ident">container_bounds</span>.<span class="ident">height</span>())
                         }
-                        <span class="ident">CornerRounding</span>::<span class="ident">CornerRadii</span>(<span class="ident">image_corners</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Polygon</span>::<span class="ident">rounded_rectangle</span>(
+                        <span class="ident">CornerRounding::CornerRadii</span>(<span class="ident">image_corners</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Polygon::rounded_rectangle</span>(
                             <span class="ident">container_bounds</span>.<span class="ident">width</span>(),
                             <span class="ident">container_bounds</span>.<span class="ident">height</span>(),
                             <span class="ident">image_corners</span>,
                         ),
                     };
 
-                    <span class="kw">let</span> <span class="ident">image_bg</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">bg_color</span>.<span class="ident">unwrap_or</span>(<span class="ident">Color</span>::<span class="ident">CLEAR</span>);
+                    <span class="kw">let</span> <span class="ident">image_bg</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">bg_color</span>.<span class="ident">unwrap_or</span>(<span class="ident">Color::CLEAR</span>);
                     <span class="ident">container_batch</span>.<span class="ident">push</span>(<span class="ident">image_bg</span>, <span class="ident">container</span>);
 
-                    <span class="kw">let</span> <span class="ident">center</span> <span class="op">=</span> <span class="ident">Pt2D</span>::<span class="ident">new</span>(
+                    <span class="kw">let</span> <span class="ident">center</span> <span class="op">=</span> <span class="ident">Pt2D::new</span>(
                         <span class="ident">image_dims</span>.<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span> <span class="op">+</span> <span class="ident">padding</span>.<span class="ident">left</span>,
                         <span class="ident">image_dims</span>.<span class="ident">height</span> <span class="op">/</span> <span class="number">2.0</span> <span class="op">+</span> <span class="ident">padding</span>.<span class="ident">top</span>,
                     );
@@ -600,20 +600,20 @@
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_widget</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">build_batch</span>(<span class="ident">ctx</span>) {
-            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Widget</span>::<span class="ident">nothing</span>(),
+            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Widget::nothing</span>(),
             <span class="prelude-val">Some</span>((<span class="ident">batch</span>, <span class="ident">bounds</span>)) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">tooltip</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">tooltip</span> {
-                    <span class="ident">DrawWithTooltips</span>::<span class="ident">new_widget</span>(
+                    <span class="ident">DrawWithTooltips::new_widget</span>(
                         <span class="ident">ctx</span>,
                         <span class="ident">batch</span>,
-                        <span class="macro">vec</span><span class="macro">!</span>[(<span class="ident">bounds</span>.<span class="ident">get_rectangle</span>(), <span class="ident">tooltip</span>)],
-                        <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>()),
+                        <span class="macro">vec!</span>[(<span class="ident">bounds</span>.<span class="ident">get_rectangle</span>(), <span class="ident">tooltip</span>)],
+                        <span class="ident">Box::new</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">GeomBatch::new</span>()),
                     )
                 } <span class="kw">else</span> {
-                    <span class="ident">Widget</span>::<span class="ident">new</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">JustDraw</span> {
-                        <span class="ident">dims</span>: <span class="ident">ScreenDims</span>::<span class="ident">new</span>(<span class="ident">bounds</span>.<span class="ident">width</span>(), <span class="ident">bounds</span>.<span class="ident">height</span>()),
+                    <span class="ident">Widget::new</span>(<span class="ident">Box::new</span>(<span class="ident">JustDraw</span> {
+                        <span class="ident">dims</span>: <span class="ident">ScreenDims::new</span>(<span class="ident">bounds</span>.<span class="ident">width</span>(), <span class="ident">bounds</span>.<span class="ident">height</span>()),
                         <span class="ident">draw</span>: <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">batch</span>),
-                        <span class="ident">top_left</span>: <span class="ident">ScreenPt</span>::<span class="ident">new</span>(<span class="number">0.0</span>, <span class="number">0.0</span>),
+                        <span class="ident">top_left</span>: <span class="ident">ScreenPt::new</span>(<span class="number">0.0</span>, <span class="number">0.0</span>),
                     }))
                 }
             }
@@ -621,5 +621,5 @@
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="widgetry" data-search-js="../../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="widgetry" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
     <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script></body></html>

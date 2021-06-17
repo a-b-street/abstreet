@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/widgets/fan_chart.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>fan_chart.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../widgetry/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../widgetry/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -231,13 +231,13 @@
 <span id="228">228</span>
 <span id="229">229</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">VecDeque</span>;
+<span class="kw">use</span> <span class="ident">std::collections::VecDeque</span>;
 
 <span class="kw">use</span> <span class="ident">geom</span>::{
     <span class="ident">Angle</span>, <span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">HgramValue</span>, <span class="ident">Histogram</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Statistic</span>, <span class="ident">Time</span>,
 };
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">widgets</span>::<span class="ident">plots</span>::{<span class="ident">make_legend</span>, <span class="ident">thick_lineseries</span>, <span class="ident">Axis</span>, <span class="ident">PlotOptions</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::widgets::plots</span>::{<span class="ident">make_legend</span>, <span class="ident">thick_lineseries</span>, <span class="ident">Axis</span>, <span class="ident">PlotOptions</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>, <span class="ident">Series</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>,
     <span class="ident">Widget</span>, <span class="ident">WidgetImpl</span>, <span class="ident">WidgetOutput</span>,
@@ -270,10 +270,10 @@
                         .<span class="ident">iter</span>()
                         .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">t</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="kw-2">*</span><span class="ident">t</span>)
                         .<span class="ident">max</span>()
-                        .<span class="ident">unwrap_or</span>(<span class="ident">Time</span>::<span class="ident">START_OF_DAY</span>)
+                        .<span class="ident">unwrap_or</span>(<span class="ident">Time::START_OF_DAY</span>)
                 })
                 .<span class="ident">max</span>()
-                .<span class="ident">unwrap_or</span>(<span class="ident">Time</span>::<span class="ident">START_OF_DAY</span>)
+                .<span class="ident">unwrap_or</span>(<span class="ident">Time::START_OF_DAY</span>)
         });
         <span class="kw">let</span> <span class="ident">max_y</span> <span class="op">=</span> <span class="ident">opts</span>.<span class="ident">max_y</span>.<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> {
             <span class="ident">series</span>
@@ -283,10 +283,10 @@
                         .<span class="ident">iter</span>()
                         .<span class="ident">map</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">value</span>)<span class="op">|</span> <span class="kw-2">*</span><span class="ident">value</span>)
                         .<span class="ident">max</span>()
-                        .<span class="ident">unwrap_or_else</span>(<span class="ident">Y</span>::<span class="ident">zero</span>)
+                        .<span class="ident">unwrap_or_else</span>(<span class="ident">Y::zero</span>)
                 })
                 .<span class="ident">max</span>()
-                .<span class="ident">unwrap_or_else</span>(<span class="ident">Y</span>::<span class="ident">zero</span>)
+                .<span class="ident">unwrap_or_else</span>(<span class="ident">Y::zero</span>)
         });
 
         <span class="comment">// TODO Tuned to fit the info panel. Instead these should somehow stretch to fill their</span>
@@ -294,7 +294,7 @@
         <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span> <span class="number">0.22</span> <span class="op">*</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_width</span>;
         <span class="kw">let</span> <span class="ident">height</span> <span class="op">=</span> <span class="number">0.2</span> <span class="op">*</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_height</span>;
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
         <span class="comment">// Grid lines for the Y scale. Draw up to 10 lines max to cover the order of magnitude of</span>
         <span class="comment">// the range.</span>
         <span class="comment">// TODO This caps correctly, but if the max is 105, then suddenly we just have 2 grid</span>
@@ -308,42 +308,42 @@
                     <span class="kw">break</span>;
                 }
                 <span class="ident">batch</span>.<span class="ident">push</span>(
-                    <span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#7C7C7C&quot;</span>),
-                    <span class="ident">PolyLine</span>::<span class="ident">must_new</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                        <span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="number">0.0</span>, (<span class="number">1.0</span> <span class="op">-</span> <span class="ident">pct</span>) <span class="op">*</span> <span class="ident">height</span>),
-                        <span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="ident">width</span>, (<span class="number">1.0</span> <span class="op">-</span> <span class="ident">pct</span>) <span class="op">*</span> <span class="ident">height</span>),
+                    <span class="ident">Color::hex</span>(<span class="string">&quot;#7C7C7C&quot;</span>),
+                    <span class="ident">PolyLine::must_new</span>(<span class="macro">vec!</span>[
+                        <span class="ident">Pt2D::new</span>(<span class="number">0.0</span>, (<span class="number">1.0</span> <span class="op">-</span> <span class="ident">pct</span>) <span class="op">*</span> <span class="ident">height</span>),
+                        <span class="ident">Pt2D::new</span>(<span class="ident">width</span>, (<span class="number">1.0</span> <span class="op">-</span> <span class="ident">pct</span>) <span class="op">*</span> <span class="ident">height</span>),
                     ])
-                    .<span class="ident">make_polygons</span>(<span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">1.0</span>)),
+                    .<span class="ident">make_polygons</span>(<span class="ident">Distance::meters</span>(<span class="number">1.0</span>)),
                 );
             }
         }
         <span class="comment">// X axis grid</span>
-        <span class="kw">if</span> <span class="ident">max_x</span> <span class="op">!</span><span class="op">=</span> <span class="ident">Time</span>::<span class="ident">START_OF_DAY</span> {
+        <span class="kw">if</span> <span class="ident">max_x</span> <span class="op">!</span><span class="op">=</span> <span class="ident">Time::START_OF_DAY</span> {
             <span class="kw">let</span> <span class="ident">order_of_mag</span> <span class="op">=</span> <span class="number">10.0_f64</span>.<span class="ident">powf</span>(<span class="ident">max_x</span>.<span class="ident">inner_seconds</span>().<span class="ident">log10</span>().<span class="ident">ceil</span>());
             <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">10</span> {
-                <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="ident">Time</span>::<span class="ident">START_OF_DAY</span> <span class="op">+</span> <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="ident">order_of_mag</span> <span class="op">/</span> <span class="number">10.0</span> <span class="op">*</span> (<span class="ident">i</span> <span class="kw">as</span> <span class="ident">f64</span>));
+                <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="ident">Time::START_OF_DAY</span> <span class="op">+</span> <span class="ident">Duration::seconds</span>(<span class="ident">order_of_mag</span> <span class="op">/</span> <span class="number">10.0</span> <span class="op">*</span> (<span class="ident">i</span> <span class="kw">as</span> <span class="ident">f64</span>));
                 <span class="kw">let</span> <span class="ident">pct</span> <span class="op">=</span> <span class="ident">x</span>.<span class="ident">to_percent</span>(<span class="ident">max_x</span>);
                 <span class="kw">if</span> <span class="ident">pct</span> <span class="op">&gt;</span> <span class="number">1.0</span> {
                     <span class="kw">break</span>;
                 }
                 <span class="ident">batch</span>.<span class="ident">push</span>(
-                    <span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#7C7C7C&quot;</span>),
-                    <span class="ident">PolyLine</span>::<span class="ident">must_new</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                        <span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="ident">pct</span> <span class="op">*</span> <span class="ident">width</span>, <span class="number">0.0</span>),
-                        <span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="ident">pct</span> <span class="op">*</span> <span class="ident">width</span>, <span class="ident">height</span>),
+                    <span class="ident">Color::hex</span>(<span class="string">&quot;#7C7C7C&quot;</span>),
+                    <span class="ident">PolyLine::must_new</span>(<span class="macro">vec!</span>[
+                        <span class="ident">Pt2D::new</span>(<span class="ident">pct</span> <span class="op">*</span> <span class="ident">width</span>, <span class="number">0.0</span>),
+                        <span class="ident">Pt2D::new</span>(<span class="ident">pct</span> <span class="op">*</span> <span class="ident">width</span>, <span class="ident">height</span>),
                     ])
-                    .<span class="ident">make_polygons</span>(<span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">1.0</span>)),
+                    .<span class="ident">make_polygons</span>(<span class="ident">Distance::meters</span>(<span class="number">1.0</span>)),
                 );
             }
         }
 
         <span class="kw">let</span> <span class="ident">transform</span> <span class="op">=</span> <span class="op">|</span><span class="ident">input</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Time</span>, <span class="ident">Y</span>)<span class="op">&gt;</span><span class="op">|</span> {
             <span class="comment">// TODO Copied from LinePlot...</span>
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
             <span class="kw">for</span> (<span class="ident">t</span>, <span class="ident">y</span>) <span class="kw">in</span> <span class="ident">input</span> {
                 <span class="kw">let</span> <span class="ident">percent_x</span> <span class="op">=</span> <span class="ident">t</span>.<span class="ident">to_percent</span>(<span class="ident">max_x</span>);
                 <span class="kw">let</span> <span class="ident">percent_y</span> <span class="op">=</span> <span class="ident">y</span>.<span class="ident">to_percent</span>(<span class="ident">max_y</span>);
-                <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">Pt2D</span>::<span class="ident">new</span>(
+                <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">Pt2D::new</span>(
                     <span class="ident">percent_x</span> <span class="op">*</span> <span class="ident">width</span>,
                     <span class="comment">// Y inversion! :D</span>
                     (<span class="number">1.0</span> <span class="op">-</span> <span class="ident">percent_y</span>) <span class="op">*</span> <span class="ident">height</span>,
@@ -357,55 +357,55 @@
             <span class="kw">if</span> <span class="ident">s</span>.<span class="ident">pts</span>.<span class="ident">len</span>() <span class="op">&lt;</span> <span class="number">2</span> {
                 <span class="kw">continue</span>;
             }
-            <span class="kw">let</span> (<span class="ident">p50</span>, <span class="ident">p90</span>, <span class="kw-2">mut</span> <span class="ident">p99</span>) <span class="op">=</span> <span class="ident">slidey_window</span>(<span class="ident">s</span>.<span class="ident">pts</span>, <span class="ident">Duration</span>::<span class="ident">hours</span>(<span class="number">1</span>));
+            <span class="kw">let</span> (<span class="ident">p50</span>, <span class="ident">p90</span>, <span class="kw-2">mut</span> <span class="ident">p99</span>) <span class="op">=</span> <span class="ident">slidey_window</span>(<span class="ident">s</span>.<span class="ident">pts</span>, <span class="ident">Duration::hours</span>(<span class="number">1</span>));
 
             <span class="comment">// Make a band between p50 and p99</span>
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">band</span> <span class="op">=</span> <span class="ident">transform</span>(<span class="ident">p50</span>);
             <span class="ident">p99</span>.<span class="ident">reverse</span>();
             <span class="ident">band</span>.<span class="ident">extend</span>(<span class="ident">transform</span>(<span class="ident">p99</span>));
             <span class="ident">band</span>.<span class="ident">push</span>(<span class="ident">band</span>[<span class="number">0</span>]);
-            <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">s</span>.<span class="ident">color</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>), <span class="ident">Polygon</span>::<span class="ident">buggy_new</span>(<span class="ident">band</span>));
+            <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">s</span>.<span class="ident">color</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>), <span class="ident">Polygon::buggy_new</span>(<span class="ident">band</span>));
 
             <span class="ident">batch</span>.<span class="ident">push</span>(
                 <span class="ident">s</span>.<span class="ident">color</span>,
-                <span class="ident">thick_lineseries</span>(<span class="ident">transform</span>(<span class="ident">p90</span>), <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">5.0</span>)),
+                <span class="ident">thick_lineseries</span>(<span class="ident">transform</span>(<span class="ident">p90</span>), <span class="ident">Distance::meters</span>(<span class="number">5.0</span>)),
             );
         }
 
         <span class="kw">let</span> <span class="ident">plot</span> <span class="op">=</span> <span class="ident">FanChart</span> {
             <span class="ident">draw</span>: <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">batch</span>),
 
-            <span class="ident">top_left</span>: <span class="ident">ScreenPt</span>::<span class="ident">new</span>(<span class="number">0.0</span>, <span class="number">0.0</span>),
-            <span class="ident">dims</span>: <span class="ident">ScreenDims</span>::<span class="ident">new</span>(<span class="ident">width</span>, <span class="ident">height</span>),
+            <span class="ident">top_left</span>: <span class="ident">ScreenPt::new</span>(<span class="number">0.0</span>, <span class="number">0.0</span>),
+            <span class="ident">dims</span>: <span class="ident">ScreenDims::new</span>(<span class="ident">width</span>, <span class="ident">height</span>),
         };
 
         <span class="kw">let</span> <span class="ident">num_x_labels</span> <span class="op">=</span> <span class="number">3</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">row</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">row</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
         <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">num_x_labels</span> {
             <span class="kw">let</span> <span class="ident">percent_x</span> <span class="op">=</span> (<span class="ident">i</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> ((<span class="ident">num_x_labels</span> <span class="op">-</span> <span class="number">1</span>) <span class="kw">as</span> <span class="ident">f64</span>);
             <span class="kw">let</span> <span class="ident">t</span> <span class="op">=</span> <span class="ident">max_x</span>.<span class="ident">percent_of</span>(<span class="ident">percent_x</span>);
             <span class="comment">// TODO Need ticks now to actually see where this goes</span>
-            <span class="kw">let</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">t</span>.<span class="ident">to_string</span>())
+            <span class="kw">let</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">Text::from</span>(<span class="ident">t</span>.<span class="ident">to_string</span>())
                 .<span class="ident">render</span>(<span class="ident">ctx</span>)
-                .<span class="ident">rotate</span>(<span class="ident">Angle</span>::<span class="ident">degrees</span>(<span class="op">-</span><span class="number">15.0</span>))
+                .<span class="ident">rotate</span>(<span class="ident">Angle::degrees</span>(<span class="op">-</span><span class="number">15.0</span>))
                 .<span class="ident">autocrop</span>();
             <span class="ident">row</span>.<span class="ident">push</span>(<span class="ident">batch</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>));
         }
-        <span class="kw">let</span> <span class="ident">x_axis</span> <span class="op">=</span> <span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="ident">row</span>).<span class="ident">padding</span>(<span class="number">10</span>).<span class="ident">evenly_spaced</span>();
+        <span class="kw">let</span> <span class="ident">x_axis</span> <span class="op">=</span> <span class="ident">Widget::custom_row</span>(<span class="ident">row</span>).<span class="ident">padding</span>(<span class="number">10</span>).<span class="ident">evenly_spaced</span>();
 
         <span class="kw">let</span> <span class="ident">num_y_labels</span> <span class="op">=</span> <span class="number">4</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">col</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">col</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
         <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">num_y_labels</span> {
             <span class="kw">let</span> <span class="ident">percent_y</span> <span class="op">=</span> (<span class="ident">i</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> ((<span class="ident">num_y_labels</span> <span class="op">-</span> <span class="number">1</span>) <span class="kw">as</span> <span class="ident">f64</span>);
             <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">max_y</span>.<span class="ident">from_percent</span>(<span class="ident">percent_y</span>).<span class="ident">prettyprint</span>().<span class="ident">text_widget</span>(<span class="ident">ctx</span>));
         }
         <span class="ident">col</span>.<span class="ident">reverse</span>();
-        <span class="kw">let</span> <span class="ident">y_axis</span> <span class="op">=</span> <span class="ident">Widget</span>::<span class="ident">custom_col</span>(<span class="ident">col</span>).<span class="ident">padding</span>(<span class="number">10</span>).<span class="ident">evenly_spaced</span>();
+        <span class="kw">let</span> <span class="ident">y_axis</span> <span class="op">=</span> <span class="ident">Widget::custom_col</span>(<span class="ident">col</span>).<span class="ident">padding</span>(<span class="number">10</span>).<span class="ident">evenly_spaced</span>();
 
         <span class="comment">// Don&#39;t let the x-axis fill the parent container</span>
-        <span class="ident">Widget</span>::<span class="ident">custom_col</span>(<span class="macro">vec</span><span class="macro">!</span>[
+        <span class="ident">Widget::custom_col</span>(<span class="macro">vec!</span>[
             <span class="ident">legend</span>.<span class="ident">margin_below</span>(<span class="number">10</span>),
-            <span class="ident">Widget</span>::<span class="ident">custom_row</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">y_axis</span>, <span class="ident">Widget</span>::<span class="ident">new</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">plot</span>))]),
+            <span class="ident">Widget::custom_row</span>(<span class="macro">vec!</span>[<span class="ident">y_axis</span>, <span class="ident">Widget::new</span>(<span class="ident">Box::new</span>(<span class="ident">plot</span>))]),
             <span class="ident">x_axis</span>,
         ])
         .<span class="ident">container</span>()
@@ -433,22 +433,22 @@
     <span class="ident">input</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Time</span>, <span class="ident">Y</span>)<span class="op">&gt;</span>,
     <span class="ident">window_size</span>: <span class="ident">Duration</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Time</span>, <span class="ident">Y</span>)<span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Time</span>, <span class="ident">Y</span>)<span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Time</span>, <span class="ident">Y</span>)<span class="op">&gt;</span>) {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">p50</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Time</span>, <span class="ident">Y</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">p90</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Time</span>, <span class="ident">Y</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">p99</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Time</span>, <span class="ident">Y</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">window</span>: <span class="ident">VecDeque</span><span class="op">&lt;</span>(<span class="ident">Time</span>, <span class="ident">Y</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">VecDeque</span>::<span class="ident">new</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">hgram</span> <span class="op">=</span> <span class="ident">Histogram</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">p50</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Time</span>, <span class="ident">Y</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">p90</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Time</span>, <span class="ident">Y</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">p99</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Time</span>, <span class="ident">Y</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">window</span>: <span class="ident">VecDeque</span><span class="op">&lt;</span>(<span class="ident">Time</span>, <span class="ident">Y</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">VecDeque::new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">hgram</span> <span class="op">=</span> <span class="ident">Histogram::new</span>();
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">last_sample</span> <span class="op">=</span> <span class="ident">Time</span>::<span class="ident">START_OF_DAY</span>;
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">last_sample</span> <span class="op">=</span> <span class="ident">Time::START_OF_DAY</span>;
 
     <span class="kw">for</span> (<span class="ident">t</span>, <span class="ident">value</span>) <span class="kw">in</span> <span class="ident">input</span> {
         <span class="ident">window</span>.<span class="ident">push_back</span>((<span class="ident">t</span>, <span class="ident">value</span>));
         <span class="ident">hgram</span>.<span class="ident">add</span>(<span class="ident">value</span>);
 
-        <span class="kw">if</span> <span class="ident">t</span> <span class="op">-</span> <span class="ident">last_sample</span> <span class="op">&gt;</span> <span class="ident">Duration</span>::<span class="ident">minutes</span>(<span class="number">1</span>) {
-            <span class="ident">p50</span>.<span class="ident">push</span>((<span class="ident">t</span>, <span class="ident">hgram</span>.<span class="ident">select</span>(<span class="ident">Statistic</span>::<span class="ident">P50</span>).<span class="ident">unwrap</span>()));
-            <span class="ident">p90</span>.<span class="ident">push</span>((<span class="ident">t</span>, <span class="ident">hgram</span>.<span class="ident">select</span>(<span class="ident">Statistic</span>::<span class="ident">P90</span>).<span class="ident">unwrap</span>()));
-            <span class="ident">p99</span>.<span class="ident">push</span>((<span class="ident">t</span>, <span class="ident">hgram</span>.<span class="ident">select</span>(<span class="ident">Statistic</span>::<span class="ident">P99</span>).<span class="ident">unwrap</span>()));
+        <span class="kw">if</span> <span class="ident">t</span> <span class="op">-</span> <span class="ident">last_sample</span> <span class="op">&gt;</span> <span class="ident">Duration::minutes</span>(<span class="number">1</span>) {
+            <span class="ident">p50</span>.<span class="ident">push</span>((<span class="ident">t</span>, <span class="ident">hgram</span>.<span class="ident">select</span>(<span class="ident">Statistic::P50</span>).<span class="ident">unwrap</span>()));
+            <span class="ident">p90</span>.<span class="ident">push</span>((<span class="ident">t</span>, <span class="ident">hgram</span>.<span class="ident">select</span>(<span class="ident">Statistic::P90</span>).<span class="ident">unwrap</span>()));
+            <span class="ident">p99</span>.<span class="ident">push</span>((<span class="ident">t</span>, <span class="ident">hgram</span>.<span class="ident">select</span>(<span class="ident">Statistic::P99</span>).<span class="ident">unwrap</span>()));
             <span class="ident">last_sample</span> <span class="op">=</span> <span class="ident">t</span>;
         }
 
@@ -461,5 +461,5 @@
     (<span class="ident">p50</span>, <span class="ident">p90</span>, <span class="ident">p99</span>)
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="widgetry" data-search-js="../../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="widgetry" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
     <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script></body></html>

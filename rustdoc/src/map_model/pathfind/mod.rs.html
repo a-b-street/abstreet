@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/pathfind/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../map_model/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../map_model/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -186,18 +186,18 @@
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Everything related to pathfinding through a map for different types of agents.</span>
 
-<span class="kw">use</span> <span class="ident">enumset</span>::<span class="ident">EnumSetType</span>;
+<span class="kw">use</span> <span class="ident">enumset::EnumSetType</span>;
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
-<span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Duration</span>;
+<span class="kw">use</span> <span class="ident">geom::Duration</span>;
 
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">ch</span>::<span class="ident">ContractionHierarchyPathfinder</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">dijkstra</span>::{<span class="ident">build_graph_for_pedestrians</span>, <span class="ident">build_graph_for_vehicles</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">pathfinder</span>::<span class="ident">Pathfinder</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">v1</span>::{<span class="ident">Path</span>, <span class="ident">PathRequest</span>, <span class="ident">PathStep</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">v2</span>::{<span class="ident">PathStepV2</span>, <span class="ident">PathV2</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">vehicles</span>::<span class="ident">vehicle_cost</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">walking</span>::<span class="ident">WalkingNode</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::ch::ContractionHierarchyPathfinder</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::dijkstra</span>::{<span class="ident">build_graph_for_pedestrians</span>, <span class="ident">build_graph_for_vehicles</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::pathfinder::Pathfinder</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::v1</span>::{<span class="ident">Path</span>, <span class="ident">PathRequest</span>, <span class="ident">PathStep</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::v2</span>::{<span class="ident">PathStepV2</span>, <span class="ident">PathV2</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::vehicles::vehicle_cost</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::walking::WalkingNode</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">osm</span>, <span class="ident">Lane</span>, <span class="ident">LaneID</span>, <span class="ident">LaneType</span>, <span class="ident">Map</span>, <span class="ident">MovementID</span>, <span class="ident">TurnType</span>};
 
 <span class="kw">mod</span> <span class="ident">ch</span>;
@@ -224,24 +224,24 @@
 
 <span class="kw">impl</span> <span class="ident">PathConstraints</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">all</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PathConstraints</span><span class="op">&gt;</span> {
-        <span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">PathConstraints</span>::<span class="ident">Pedestrian</span>,
-            <span class="ident">PathConstraints</span>::<span class="ident">Car</span>,
-            <span class="ident">PathConstraints</span>::<span class="ident">Bike</span>,
-            <span class="ident">PathConstraints</span>::<span class="ident">Bus</span>,
-            <span class="ident">PathConstraints</span>::<span class="ident">Train</span>,
+        <span class="macro">vec!</span>[
+            <span class="ident">PathConstraints::Pedestrian</span>,
+            <span class="ident">PathConstraints::Car</span>,
+            <span class="ident">PathConstraints::Bike</span>,
+            <span class="ident">PathConstraints::Bus</span>,
+            <span class="ident">PathConstraints::Train</span>,
         ]
     }
 
     <span class="doccomment">/// Not bijective, but this is the best guess of user intent</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_lt</span>(<span class="ident">lt</span>: <span class="ident">LaneType</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PathConstraints</span> {
         <span class="kw">match</span> <span class="ident">lt</span> {
-            <span class="ident">LaneType</span>::<span class="ident">Sidewalk</span> <span class="op">|</span> <span class="ident">LaneType</span>::<span class="ident">Shoulder</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">PathConstraints</span>::<span class="ident">Pedestrian</span>,
-            <span class="ident">LaneType</span>::<span class="ident">Driving</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">PathConstraints</span>::<span class="ident">Car</span>,
-            <span class="ident">LaneType</span>::<span class="ident">Biking</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">PathConstraints</span>::<span class="ident">Bike</span>,
-            <span class="ident">LaneType</span>::<span class="ident">Bus</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">PathConstraints</span>::<span class="ident">Bus</span>,
-            <span class="ident">LaneType</span>::<span class="ident">LightRail</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">PathConstraints</span>::<span class="ident">Train</span>,
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;PathConstraints::from_lt({:?}) doesn&#39;t make sense&quot;</span>, <span class="ident">lt</span>),
+            <span class="ident">LaneType::Sidewalk</span> <span class="op">|</span> <span class="ident">LaneType::Shoulder</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">PathConstraints::Pedestrian</span>,
+            <span class="ident">LaneType::Driving</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">PathConstraints::Car</span>,
+            <span class="ident">LaneType::Biking</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">PathConstraints::Bike</span>,
+            <span class="ident">LaneType::Bus</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">PathConstraints::Bus</span>,
+            <span class="ident">LaneType::LightRail</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">PathConstraints::Train</span>,
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic!</span>(<span class="string">&quot;PathConstraints::from_lt({:?}) doesn&#39;t make sense&quot;</span>, <span class="ident">lt</span>),
         }
     }
 
@@ -249,11 +249,11 @@
     <span class="doccomment">/// turns.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">can_use</span>(<span class="self">self</span>, <span class="ident">lane</span>: <span class="kw-2">&amp;</span><span class="ident">Lane</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">PathConstraints</span>::<span class="ident">Pedestrian</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">PathConstraints::Pedestrian</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">return</span> <span class="ident">lane</span>.<span class="ident">is_walkable</span>();
             }
-            <span class="ident">PathConstraints</span>::<span class="ident">Car</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">lane</span>.<span class="ident">is_driving</span>(),
-            <span class="ident">PathConstraints</span>::<span class="ident">Bike</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">PathConstraints::Car</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">lane</span>.<span class="ident">is_driving</span>(),
+            <span class="ident">PathConstraints::Bike</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">if</span> <span class="ident">lane</span>.<span class="ident">is_biking</span>() {
                     <span class="bool-val">true</span>
                 } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">lane</span>.<span class="ident">is_driving</span>() <span class="op">|</span><span class="op">|</span> (<span class="ident">lane</span>.<span class="ident">is_bus</span>() <span class="op">&amp;&amp;</span> <span class="ident">map</span>.<span class="ident">config</span>.<span class="ident">bikes_can_use_bus_lanes</span>)
@@ -262,15 +262,15 @@
                     <span class="op">!</span><span class="ident">road</span>.<span class="ident">osm_tags</span>.<span class="ident">is</span>(<span class="string">&quot;bicycle&quot;</span>, <span class="string">&quot;no&quot;</span>)
                         <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">road</span>
                             .<span class="ident">osm_tags</span>
-                            .<span class="ident">is_any</span>(<span class="ident">osm</span>::<span class="ident">HIGHWAY</span>, <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;motorway&quot;</span>, <span class="string">&quot;motorway_link&quot;</span>])
+                            .<span class="ident">is_any</span>(<span class="ident">osm::HIGHWAY</span>, <span class="macro">vec!</span>[<span class="string">&quot;motorway&quot;</span>, <span class="string">&quot;motorway_link&quot;</span>])
                 } <span class="kw">else</span> {
                     <span class="bool-val">false</span>
                 }
             }
-            <span class="ident">PathConstraints</span>::<span class="ident">Bus</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">PathConstraints::Bus</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">return</span> <span class="ident">lane</span>.<span class="ident">is_driving</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">lane</span>.<span class="ident">is_bus</span>();
             }
-            <span class="ident">PathConstraints</span>::<span class="ident">Train</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">PathConstraints::Train</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">return</span> <span class="ident">lane</span>.<span class="ident">is_light_rail</span>();
             }
         };
@@ -292,7 +292,7 @@
         <span class="kw">if</span> <span class="ident">lane</span>.<span class="ident">is_bus</span>() {
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">types</span>) <span class="op">=</span> <span class="ident">lane</span>.<span class="ident">get_lane_level_turn_restrictions</span>(<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">lane</span>.<span class="ident">parent</span>), <span class="bool-val">true</span>)
             {
-                <span class="kw">if</span> <span class="ident">types</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">TurnType</span>::<span class="ident">Right</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">types</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">TurnType</span>::<span class="ident">Left</span>) {
+                <span class="kw">if</span> <span class="ident">types</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">TurnType::Right</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">types</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">TurnType::Left</span>) {
                     <span class="kw">return</span> <span class="bool-val">true</span>;
                 }
             }
@@ -303,7 +303,7 @@
     <span class="doccomment">/// Strict for bikes. If there are bike lanes, not allowed to use other lanes.</span>
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">filter_lanes</span>(<span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">choices</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LaneID</span><span class="op">&gt;</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LaneID</span><span class="op">&gt;</span> {
         <span class="ident">choices</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">can_use</span>(<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="kw-2">*</span><span class="ident">l</span>), <span class="ident">map</span>));
-        <span class="kw">if</span> <span class="self">self</span> <span class="op">=</span><span class="op">=</span> <span class="ident">PathConstraints</span>::<span class="ident">Bike</span> {
+        <span class="kw">if</span> <span class="self">self</span> <span class="op">=</span><span class="op">=</span> <span class="ident">PathConstraints::Bike</span> {
             <span class="kw">let</span> <span class="ident">just_bike_lanes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LaneID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">choices</span>
                 .<span class="ident">iter</span>()
                 .<span class="ident">copied</span>()
@@ -334,9 +334,9 @@
         <span class="comment">// This should be high enough to achieve the desired effect of somebody not entering</span>
         <span class="comment">// the zone unless absolutely necessary. Someone would violate that and cut through anyway</span>
         <span class="comment">// only when the alternative route would take more than 3 hours longer!</span>
-        <span class="ident">Duration</span>::<span class="ident">hours</span>(<span class="number">3</span>)
+        <span class="ident">Duration::hours</span>(<span class="number">3</span>)
     } <span class="kw">else</span> {
-        <span class="ident">Duration</span>::<span class="ident">ZERO</span>
+        <span class="ident">Duration::ZERO</span>
     }
 }
 
@@ -359,7 +359,7 @@
         <span class="ident">RoutingParams</span> {
             <span class="comment">// This is a total guess -- it really depends on the traffic patterns of the particular</span>
             <span class="comment">// road at the time we&#39;re routing.</span>
-            <span class="ident">unprotected_turn_penalty</span>: <span class="ident">Duration</span>::<span class="ident">const_seconds</span>(<span class="number">30.0</span>),
+            <span class="ident">unprotected_turn_penalty</span>: <span class="ident">Duration::const_seconds</span>(<span class="number">30.0</span>),
             <span class="ident">bike_lane_penalty</span>: <span class="number">1.0</span>,
             <span class="ident">bus_lane_penalty</span>: <span class="number">1.1</span>,
             <span class="ident">driving_lane_penalty</span>: <span class="number">1.5</span>,
@@ -367,5 +367,5 @@
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_model" data-search-js="../../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_model" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
     <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script></body></html>

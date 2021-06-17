@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `game/src/sandbox/gameplay/tutorial.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>tutorial.rs - source</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../../game/index.html'><div class='logo-container rust-logo'><img src='../../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../../game/index.html'><div class='logo-container rust-logo'><img src='../../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../../settings.html"><img src="../../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">   1</span>
 <span id="2">   2</span>
 <span id="3">   3</span>
@@ -1434,15 +1434,15 @@
 <span id="1431">1431</span>
 <span id="1432">1432</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">BTreeSet</span>;
+<span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
 
-<span class="kw">use</span> <span class="ident">abstio</span>::<span class="ident">MapName</span>;
-<span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Timer</span>;
+<span class="kw">use</span> <span class="ident">abstio::MapName</span>;
+<span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">ArrowCap</span>, <span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">PolyLine</span>, <span class="ident">Pt2D</span>, <span class="ident">Time</span>};
-<span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">load</span>::<span class="ident">MapLoader</span>;
-<span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">tools</span>::{<span class="ident">Minimap</span>, <span class="ident">PopupMsg</span>};
-<span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">ID</span>;
-<span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">raw</span>::<span class="ident">OriginalRoad</span>;
+<span class="kw">use</span> <span class="ident">map_gui::load::MapLoader</span>;
+<span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">Minimap</span>, <span class="ident">PopupMsg</span>};
+<span class="kw">use</span> <span class="ident">map_gui::ID</span>;
+<span class="kw">use</span> <span class="ident">map_model::raw::OriginalRoad</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">osm</span>, <span class="ident">BuildingID</span>, <span class="ident">Map</span>, <span class="ident">Position</span>};
 <span class="kw">use</span> <span class="ident">sim</span>::{
     <span class="ident">AgentID</span>, <span class="ident">BorderSpawnOverTime</span>, <span class="ident">CarID</span>, <span class="ident">IndividTrip</span>, <span class="ident">PersonSpec</span>, <span class="ident">Scenario</span>, <span class="ident">ScenarioGenerator</span>,
@@ -1453,21 +1453,21 @@
     <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">ScreenPt</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">challenges</span>::<span class="ident">cutscene</span>::<span class="ident">CutsceneBuilder</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">common</span>::{<span class="ident">tool_panel</span>, <span class="ident">Warping</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">edit</span>::<span class="ident">EditMode</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sandbox</span>::<span class="ident">gameplay</span>::{<span class="ident">GameplayMode</span>, <span class="ident">GameplayState</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">sandbox</span>::{
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::challenges::cutscene::CutsceneBuilder</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::common</span>::{<span class="ident">tool_panel</span>, <span class="ident">Warping</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::edit::EditMode</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::sandbox::gameplay</span>::{<span class="ident">GameplayMode</span>, <span class="ident">GameplayState</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::sandbox</span>::{
     <span class="ident">maybe_exit_sandbox</span>, <span class="ident">spawn_agents_around</span>, <span class="ident">Actions</span>, <span class="ident">MinimapController</span>, <span class="ident">SandboxControls</span>,
     <span class="ident">SandboxMode</span>, <span class="ident">TimePanel</span>,
 };
 
 <span class="kw">const</span> <span class="ident">ESCORT</span>: <span class="ident">CarID</span> <span class="op">=</span> <span class="ident">CarID</span> {
     <span class="ident">id</span>: <span class="number">0</span>,
-    <span class="ident">vehicle_type</span>: <span class="ident">VehicleType</span>::<span class="ident">Car</span>,
+    <span class="ident">vehicle_type</span>: <span class="ident">VehicleType::Car</span>,
 };
-<span class="kw">const</span> <span class="ident">CAR_BIKE_CONTENTION_GOAL</span>: <span class="ident">Duration</span> <span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">const_seconds</span>(<span class="number">15.0</span>);
+<span class="kw">const</span> <span class="ident">CAR_BIKE_CONTENTION_GOAL</span>: <span class="ident">Duration</span> <span class="op">=</span> <span class="ident">Duration::const_seconds</span>(<span class="number">15.0</span>);
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Tutorial</span> {
     <span class="ident">top_right</span>: <span class="ident">Panel</span>,
@@ -1493,26 +1493,26 @@
 <span class="kw">impl</span> <span class="ident">Tutorial</span> {
     <span class="doccomment">/// Launches the tutorial gameplay along with its cutscene</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">start</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span> {
-        <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">MapLoader</span>::<span class="ident">new_state</span>(
+        <span class="ident">Transition::Push</span>(<span class="ident">MapLoader::new_state</span>(
             <span class="ident">ctx</span>,
             <span class="ident">app</span>,
-            <span class="ident">MapName</span>::<span class="ident">seattle</span>(<span class="string">&quot;montlake&quot;</span>),
-            <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
-                <span class="ident">Tutorial</span>::<span class="ident">initialize</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+            <span class="ident">MapName::seattle</span>(<span class="string">&quot;montlake&quot;</span>),
+            <span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
+                <span class="ident">Tutorial::initialize</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
 
-                <span class="ident">Transition</span>::<span class="ident">Multi</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                    <span class="ident">Transition</span>::<span class="ident">Pop</span>,
-                    <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">SandboxMode</span>::<span class="ident">simple_new</span>(
+                <span class="ident">Transition::Multi</span>(<span class="macro">vec!</span>[
+                    <span class="ident">Transition::Pop</span>,
+                    <span class="ident">Transition::Push</span>(<span class="ident">SandboxMode::simple_new</span>(
                         <span class="ident">app</span>,
-                        <span class="ident">GameplayMode</span>::<span class="ident">Tutorial</span>(
+                        <span class="ident">GameplayMode::Tutorial</span>(
                             <span class="ident">app</span>.<span class="ident">session</span>
                                 .<span class="ident">tutorial</span>
                                 .<span class="ident">as_ref</span>()
                                 .<span class="ident">map</span>(<span class="op">|</span><span class="ident">tut</span><span class="op">|</span> <span class="ident">tut</span>.<span class="ident">current</span>)
-                                .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">TutorialPointer</span>::<span class="ident">new</span>(<span class="number">0</span>, <span class="number">0</span>)),
+                                .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">TutorialPointer::new</span>(<span class="number">0</span>, <span class="number">0</span>)),
                         ),
                     )),
-                    <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">intro_story</span>(<span class="ident">ctx</span>)),
+                    <span class="ident">Transition::Push</span>(<span class="ident">intro_story</span>(<span class="ident">ctx</span>)),
                 ])
             }),
         ))
@@ -1522,7 +1522,7 @@
     <span class="doccomment">/// be montlake.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">initialize</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) {
         <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">tutorial</span>.<span class="ident">is_none</span>() {
-            <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">tutorial</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">TutorialState</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
+            <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">tutorial</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">TutorialState::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
         }
     }
 
@@ -1555,7 +1555,7 @@
         <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">warped</span> {
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="kw-2">ref</span> <span class="ident">id</span>, <span class="ident">zoom</span>)) <span class="op">=</span> <span class="ident">tut</span>.<span class="ident">stage</span>().<span class="ident">warp_to</span> {
                 <span class="self">self</span>.<span class="ident">warped</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">Warping</span>::<span class="ident">new_state</span>(
+                <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition::Push</span>(<span class="ident">Warping::new_state</span>(
                     <span class="ident">ctx</span>,
                     <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">canonical_point</span>(<span class="ident">id</span>.<span class="ident">clone</span>()).<span class="ident">unwrap</span>(),
                     <span class="prelude-val">Some</span>(<span class="ident">zoom</span>),
@@ -1565,37 +1565,37 @@
             }
         }
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">top_right</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">top_right</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
             <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
                 <span class="string">&quot;Quit&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">maybe_exit_sandbox</span>(<span class="ident">ctx</span>));
                 }
                 <span class="string">&quot;previous tutorial&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="ident">tut</span>.<span class="ident">current</span> <span class="op">=</span> <span class="ident">TutorialPointer</span>::<span class="ident">new</span>(<span class="ident">tut</span>.<span class="ident">current</span>.<span class="ident">stage</span> <span class="op">-</span> <span class="number">1</span>, <span class="number">0</span>);
+                    <span class="ident">tut</span>.<span class="ident">current</span> <span class="op">=</span> <span class="ident">TutorialPointer::new</span>(<span class="ident">tut</span>.<span class="ident">current</span>.<span class="ident">stage</span> <span class="op">-</span> <span class="number">1</span>, <span class="number">0</span>);
                     <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">transition</span>(<span class="ident">app</span>, <span class="ident">tut</span>));
                 }
                 <span class="string">&quot;next tutorial&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="ident">tut</span>.<span class="ident">current</span> <span class="op">=</span> <span class="ident">TutorialPointer</span>::<span class="ident">new</span>(<span class="ident">tut</span>.<span class="ident">current</span>.<span class="ident">stage</span> <span class="op">+</span> <span class="number">1</span>, <span class="number">0</span>);
+                    <span class="ident">tut</span>.<span class="ident">current</span> <span class="op">=</span> <span class="ident">TutorialPointer::new</span>(<span class="ident">tut</span>.<span class="ident">current</span>.<span class="ident">stage</span> <span class="op">+</span> <span class="number">1</span>, <span class="number">0</span>);
                     <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">transition</span>(<span class="ident">app</span>, <span class="ident">tut</span>));
                 }
                 <span class="string">&quot;instructions&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="ident">tut</span>.<span class="ident">current</span> <span class="op">=</span> <span class="ident">TutorialPointer</span>::<span class="ident">new</span>(<span class="ident">tut</span>.<span class="ident">current</span>.<span class="ident">stage</span>, <span class="number">0</span>);
+                    <span class="ident">tut</span>.<span class="ident">current</span> <span class="op">=</span> <span class="ident">TutorialPointer::new</span>(<span class="ident">tut</span>.<span class="ident">current</span>.<span class="ident">stage</span>, <span class="number">0</span>);
                     <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">transition</span>(<span class="ident">app</span>, <span class="ident">tut</span>));
                 }
                 <span class="string">&quot;edit map&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="comment">// TODO Ideally this would be an inactive button in message states</span>
                     <span class="kw">if</span> <span class="self">self</span>.<span class="ident">msg_panel</span>.<span class="ident">is_none</span>() {
-                        <span class="kw">let</span> <span class="ident">mode</span> <span class="op">=</span> <span class="ident">GameplayMode</span>::<span class="ident">Tutorial</span>(<span class="ident">tut</span>.<span class="ident">current</span>);
-                        <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">EditMode</span>::<span class="ident">new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">mode</span>)));
+                        <span class="kw">let</span> <span class="ident">mode</span> <span class="op">=</span> <span class="ident">GameplayMode::Tutorial</span>(<span class="ident">tut</span>.<span class="ident">current</span>);
+                        <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition::Push</span>(<span class="ident">EditMode::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">mode</span>)));
                     }
                 }
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
             }
         }
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">msg</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">msg_panel</span> {
             <span class="kw">match</span> <span class="ident">msg</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-                <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
+                <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
                     <span class="string">&quot;previous message&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                         <span class="ident">tut</span>.<span class="ident">prev</span>();
                         <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">transition</span>(<span class="ident">app</span>, <span class="ident">tut</span>));
@@ -1604,40 +1604,40 @@
                         <span class="ident">tut</span>.<span class="ident">next</span>();
                         <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">transition</span>(<span class="ident">app</span>, <span class="ident">tut</span>));
                     }
-                    <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+                    <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
                 },
                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="comment">// Don&#39;t allow other interactions</span>
-                    <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition</span>::<span class="ident">Keep</span>);
+                    <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition::Keep</span>);
                 }
             }
         }
 
         <span class="comment">// Interaction things</span>
-        <span class="kw">if</span> <span class="ident">tut</span>.<span class="ident">interaction</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">Task</span>::<span class="ident">Camera</span> {
-            <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> <span class="op">=</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">Building</span>(<span class="ident">tut</span>.<span class="ident">fire_station</span>))
+        <span class="kw">if</span> <span class="ident">tut</span>.<span class="ident">interaction</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">Task::Camera</span> {
+            <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> <span class="op">=</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">ID::Building</span>(<span class="ident">tut</span>.<span class="ident">fire_station</span>))
                 <span class="op">&amp;&amp;</span> <span class="ident">app</span>.<span class="ident">per_obj</span>.<span class="ident">left_click</span>(<span class="ident">ctx</span>, <span class="string">&quot;put out the... fire?&quot;</span>)
             {
                 <span class="ident">tut</span>.<span class="ident">next</span>();
                 <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">transition</span>(<span class="ident">app</span>, <span class="ident">tut</span>));
             }
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">tut</span>.<span class="ident">interaction</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">Task</span>::<span class="ident">InspectObjects</span> {
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">tut</span>.<span class="ident">interaction</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">Task::InspectObjects</span> {
             <span class="comment">// TODO Have to wiggle the mouse or something after opening the panel, because of the</span>
             <span class="comment">// order in SandboxMode.</span>
             <span class="kw">match</span> <span class="ident">controls</span>.<span class="ident">common</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>().<span class="ident">info_panel_open</span>(<span class="ident">app</span>) {
-                <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">Lane</span>(<span class="ident">l</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="prelude-val">Some</span>(<span class="ident">ID::Lane</span>(<span class="ident">l</span>)) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">is_biking</span>() <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">tut</span>.<span class="ident">inspected_bike_lane</span> {
                         <span class="ident">tut</span>.<span class="ident">inspected_bike_lane</span> <span class="op">=</span> <span class="bool-val">true</span>;
                         <span class="self">self</span>.<span class="ident">top_right</span> <span class="op">=</span> <span class="ident">tut</span>.<span class="ident">make_top_right</span>(<span class="ident">ctx</span>, <span class="bool-val">false</span>);
                     }
                 }
-                <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">Building</span>(<span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="prelude-val">Some</span>(<span class="ident">ID::Building</span>(<span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">if</span> <span class="op">!</span><span class="ident">tut</span>.<span class="ident">inspected_building</span> {
                         <span class="ident">tut</span>.<span class="ident">inspected_building</span> <span class="op">=</span> <span class="bool-val">true</span>;
                         <span class="self">self</span>.<span class="ident">top_right</span> <span class="op">=</span> <span class="ident">tut</span>.<span class="ident">make_top_right</span>(<span class="ident">ctx</span>, <span class="bool-val">false</span>);
                     }
                 }
-                <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">Intersection</span>(<span class="ident">i</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="prelude-val">Some</span>(<span class="ident">ID::Intersection</span>(<span class="ident">i</span>)) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>);
                     <span class="kw">if</span> <span class="ident">i</span>.<span class="ident">is_stop_sign</span>() <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">tut</span>.<span class="ident">inspected_stop_sign</span> {
                         <span class="ident">tut</span>.<span class="ident">inspected_stop_sign</span> <span class="op">=</span> <span class="bool-val">true</span>;
@@ -1658,12 +1658,12 @@
                 <span class="ident">tut</span>.<span class="ident">next</span>();
                 <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">transition</span>(<span class="ident">app</span>, <span class="ident">tut</span>));
             }
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">tut</span>.<span class="ident">interaction</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">Task</span>::<span class="ident">TimeControls</span> {
-            <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="ident">Time</span>::<span class="ident">START_OF_DAY</span> <span class="op">+</span> <span class="ident">Duration</span>::<span class="ident">hours</span>(<span class="number">17</span>) {
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">tut</span>.<span class="ident">interaction</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">Task::TimeControls</span> {
+            <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="ident">Time::START_OF_DAY</span> <span class="op">+</span> <span class="ident">Duration::hours</span>(<span class="number">17</span>) {
                 <span class="ident">tut</span>.<span class="ident">next</span>();
                 <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">transition</span>(<span class="ident">app</span>, <span class="ident">tut</span>));
             }
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">tut</span>.<span class="ident">interaction</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">Task</span>::<span class="ident">PauseResume</span> {
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">tut</span>.<span class="ident">interaction</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">Task::PauseResume</span> {
             <span class="kw">let</span> <span class="ident">is_paused</span> <span class="op">=</span> <span class="ident">controls</span>.<span class="ident">time_panel</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>().<span class="ident">is_paused</span>();
             <span class="kw">if</span> <span class="ident">tut</span>.<span class="ident">was_paused</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">is_paused</span> {
                 <span class="ident">tut</span>.<span class="ident">was_paused</span> <span class="op">=</span> <span class="bool-val">false</span>;
@@ -1677,13 +1677,13 @@
                 <span class="ident">tut</span>.<span class="ident">next</span>();
                 <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">transition</span>(<span class="ident">app</span>, <span class="ident">tut</span>));
             }
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">tut</span>.<span class="ident">interaction</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">Task</span>::<span class="ident">Escort</span> {
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">tut</span>.<span class="ident">interaction</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">Task::Escort</span> {
             <span class="kw">let</span> <span class="ident">following_car</span> <span class="op">=</span>
-                <span class="ident">controls</span>.<span class="ident">common</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>().<span class="ident">info_panel_open</span>(<span class="ident">app</span>) <span class="op">=</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">Car</span>(<span class="ident">ESCORT</span>));
+                <span class="ident">controls</span>.<span class="ident">common</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>().<span class="ident">info_panel_open</span>(<span class="ident">app</span>) <span class="op">=</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">ID::Car</span>(<span class="ident">ESCORT</span>));
             <span class="kw">let</span> <span class="ident">is_parked</span> <span class="op">=</span> <span class="ident">app</span>
                 .<span class="ident">primary</span>
                 .<span class="ident">sim</span>
-                .<span class="ident">agent_to_trip</span>(<span class="ident">AgentID</span>::<span class="ident">Car</span>(<span class="ident">ESCORT</span>))
+                .<span class="ident">agent_to_trip</span>(<span class="ident">AgentID::Car</span>(<span class="ident">ESCORT</span>))
                 .<span class="ident">is_none</span>();
             <span class="kw">if</span> <span class="op">!</span><span class="ident">tut</span>.<span class="ident">car_parked</span> <span class="op">&amp;&amp;</span> <span class="ident">is_parked</span> <span class="op">&amp;&amp;</span> <span class="ident">tut</span>.<span class="ident">following_car</span> {
                 <span class="ident">tut</span>.<span class="ident">car_parked</span> <span class="op">=</span> <span class="bool-val">true</span>;
@@ -1701,20 +1701,20 @@
                 <span class="ident">tut</span>.<span class="ident">next</span>();
                 <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">transition</span>(<span class="ident">app</span>, <span class="ident">tut</span>));
             }
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">tut</span>.<span class="ident">interaction</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">Task</span>::<span class="ident">LowParking</span> {
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">tut</span>.<span class="ident">interaction</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">Task::LowParking</span> {
             <span class="kw">if</span> <span class="ident">tut</span>.<span class="ident">parking_found</span> {
                 <span class="ident">tut</span>.<span class="ident">next</span>();
                 <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">transition</span>(<span class="ident">app</span>, <span class="ident">tut</span>));
             }
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">tut</span>.<span class="ident">interaction</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">Task</span>::<span class="ident">WatchBikes</span> {
-            <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="ident">Time</span>::<span class="ident">START_OF_DAY</span> <span class="op">+</span> <span class="ident">Duration</span>::<span class="ident">minutes</span>(<span class="number">3</span>) {
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">tut</span>.<span class="ident">interaction</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">Task::WatchBikes</span> {
+            <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="ident">Time::START_OF_DAY</span> <span class="op">+</span> <span class="ident">Duration::minutes</span>(<span class="number">3</span>) {
                 <span class="ident">tut</span>.<span class="ident">next</span>();
                 <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">transition</span>(<span class="ident">app</span>, <span class="ident">tut</span>));
             }
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">tut</span>.<span class="ident">interaction</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">Task</span>::<span class="ident">FixBikes</span> {
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">tut</span>.<span class="ident">interaction</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">Task::FixBikes</span> {
             <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">is_done</span>() {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">before</span> <span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">ZERO</span>;
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">after</span> <span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">ZERO</span>;
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">before</span> <span class="op">=</span> <span class="ident">Duration::ZERO</span>;
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">after</span> <span class="op">=</span> <span class="ident">Duration::ZERO</span>;
                 <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">b</span>, <span class="ident">a</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="ident">app</span>
                     .<span class="ident">primary</span>
                     .<span class="ident">sim</span>
@@ -1727,22 +1727,22 @@
                 <span class="kw">if</span> <span class="op">!</span><span class="ident">tut</span>.<span class="ident">score_delivered</span> {
                     <span class="ident">tut</span>.<span class="ident">score_delivered</span> <span class="op">=</span> <span class="bool-val">true</span>;
                     <span class="kw">if</span> <span class="ident">before</span> <span class="op">=</span><span class="op">=</span> <span class="ident">after</span> {
-                        <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">PopupMsg</span>::<span class="ident">new_state</span>(
+                        <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition::Push</span>(<span class="ident">PopupMsg::new_state</span>(
                             <span class="ident">ctx</span>,
                             <span class="string">&quot;All trips completed&quot;</span>,
-                            <span class="macro">vec</span><span class="macro">!</span>[
+                            <span class="macro">vec!</span>[
                                 <span class="string">&quot;Your changes didn&#39;t affect anything!&quot;</span>,
                                 <span class="string">&quot;Try editing the map to create some bike lanes.&quot;</span>,
                             ],
                         )));
                     }
                     <span class="kw">if</span> <span class="ident">after</span> <span class="op">&gt;</span> <span class="ident">before</span> {
-                        <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">PopupMsg</span>::<span class="ident">new_state</span>(
+                        <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition::Push</span>(<span class="ident">PopupMsg::new_state</span>(
                             <span class="ident">ctx</span>,
                             <span class="string">&quot;All trips completed&quot;</span>,
-                            <span class="macro">vec</span><span class="macro">!</span>[
+                            <span class="macro">vec!</span>[
                                 <span class="string">&quot;Your changes made things worse!&quot;</span>.<span class="ident">to_string</span>(),
-                                <span class="macro">format</span><span class="macro">!</span>(
+                                <span class="macro">format!</span>(
                                     <span class="string">&quot;All trips originally finished in {}, but now they took {}&quot;</span>,
                                     <span class="ident">before</span>, <span class="ident">after</span>
                                 ),
@@ -1752,12 +1752,12 @@
                         )));
                     }
                     <span class="kw">if</span> <span class="ident">before</span> <span class="op">-</span> <span class="ident">after</span> <span class="op">&lt;</span> <span class="ident">CAR_BIKE_CONTENTION_GOAL</span> {
-                        <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">PopupMsg</span>::<span class="ident">new_state</span>(
+                        <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition::Push</span>(<span class="ident">PopupMsg::new_state</span>(
                             <span class="ident">ctx</span>,
                             <span class="string">&quot;All trips completed&quot;</span>,
-                            <span class="macro">vec</span><span class="macro">!</span>[
+                            <span class="macro">vec!</span>[
                                 <span class="string">&quot;Nice, you helped things a bit!&quot;</span>.<span class="ident">to_string</span>(),
-                                <span class="macro">format</span><span class="macro">!</span>(
+                                <span class="macro">format!</span>(
                                     <span class="string">&quot;All trips originally took {}, but now they took {}&quot;</span>,
                                     <span class="ident">before</span>, <span class="ident">after</span>
                                 ),
@@ -1766,10 +1766,10 @@
                             ],
                         )));
                     }
-                    <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">PopupMsg</span>::<span class="ident">new_state</span>(
+                    <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition::Push</span>(<span class="ident">PopupMsg::new_state</span>(
                         <span class="ident">ctx</span>,
                         <span class="string">&quot;All trips completed&quot;</span>,
-                        <span class="macro">vec</span><span class="macro">!</span>[<span class="macro">format</span><span class="macro">!</span>(
+                        <span class="macro">vec!</span>[<span class="macro">format!</span>(
                             <span class="string">&quot;Awesome! All trips originally took {}, but now they only took {}&quot;</span>,
                             <span class="ident">before</span>, <span class="ident">after</span>
                         )],
@@ -1780,7 +1780,7 @@
                 }
                 <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">transition</span>(<span class="ident">app</span>, <span class="ident">tut</span>));
             }
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">tut</span>.<span class="ident">interaction</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">Task</span>::<span class="ident">Done</span> {
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">tut</span>.<span class="ident">interaction</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">Task::Done</span> {
             <span class="comment">// If the player chooses to stay here, at least go back to the message panel.</span>
             <span class="ident">tut</span>.<span class="ident">prev</span>();
             <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">maybe_exit_sandbox</span>(<span class="ident">ctx</span>));
@@ -1804,7 +1804,7 @@
         <span class="comment">// The arrows get screwy when window size changes.</span>
         <span class="kw">let</span> <span class="ident">window_dims</span> <span class="op">=</span> (<span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_width</span>, <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_height</span>);
         <span class="kw">if</span> <span class="ident">window_dims</span> <span class="op">!</span><span class="op">=</span> <span class="ident">tut</span>.<span class="ident">window_dims</span> {
-            <span class="ident">tut</span>.<span class="ident">stages</span> <span class="op">=</span> <span class="ident">TutorialState</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>).<span class="ident">stages</span>;
+            <span class="ident">tut</span>.<span class="ident">stages</span> <span class="op">=</span> <span class="ident">TutorialState::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>).<span class="ident">stages</span>;
             <span class="ident">tut</span>.<span class="ident">window_dims</span> <span class="op">=</span> <span class="ident">window_dims</span>;
         }
 
@@ -1824,7 +1824,7 @@
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">fxn</span>) <span class="op">=</span> <span class="ident">msg</span>.<span class="ident">arrow</span> {
                     <span class="kw">let</span> <span class="ident">pt</span> <span class="op">=</span> (<span class="ident">fxn</span>)(<span class="ident">g</span>, <span class="ident">app</span>);
                     <span class="ident">g</span>.<span class="ident">fork_screenspace</span>();
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">pl</span>) <span class="op">=</span> <span class="ident">PolyLine</span>::<span class="ident">new</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">pl</span>) <span class="op">=</span> <span class="ident">PolyLine::new</span>(<span class="macro">vec!</span>[
                         <span class="self">self</span>.<span class="ident">msg_panel</span>
                             .<span class="ident">as_ref</span>()
                             .<span class="ident">unwrap</span>()
@@ -1833,8 +1833,8 @@
                         <span class="ident">pt</span>,
                     ]) {
                         <span class="ident">g</span>.<span class="ident">draw_polygon</span>(
-                            <span class="ident">Color</span>::<span class="ident">RED</span>,
-                            <span class="ident">pl</span>.<span class="ident">make_arrow</span>(<span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">20.0</span>), <span class="ident">ArrowCap</span>::<span class="ident">Triangle</span>),
+                            <span class="ident">Color::RED</span>,
+                            <span class="ident">pl</span>.<span class="ident">make_arrow</span>(<span class="ident">Distance::meters</span>(<span class="number">20.0</span>), <span class="ident">ArrowCap::Triangle</span>),
                         );
                     }
                     <span class="ident">g</span>.<span class="ident">unfork</span>();
@@ -1845,8 +1845,8 @@
         }
 
         <span class="comment">// Special things</span>
-        <span class="kw">if</span> <span class="ident">tut</span>.<span class="ident">interaction</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">Task</span>::<span class="ident">Camera</span> {
-            <span class="kw">let</span> <span class="ident">fire</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">load_svg</span>(<span class="ident">g</span>, <span class="string">&quot;system/assets/tools/fire.svg&quot;</span>)
+        <span class="kw">if</span> <span class="ident">tut</span>.<span class="ident">interaction</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">Task::Camera</span> {
+            <span class="kw">let</span> <span class="ident">fire</span> <span class="op">=</span> <span class="ident">GeomBatch::load_svg</span>(<span class="ident">g</span>, <span class="string">&quot;system/assets/tools/fire.svg&quot;</span>)
                 .<span class="ident">scale</span>(<span class="kw">if</span> <span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span> <span class="op">&lt;</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">min_zoom_for_detail</span> {
                     <span class="number">0.2</span>
                 } <span class="kw">else</span> {
@@ -1858,16 +1858,16 @@
             <span class="ident">fire</span>.<span class="ident">translate</span>(<span class="number">0.0</span>, <span class="ident">offset</span>).<span class="ident">draw</span>(<span class="ident">g</span>);
 
             <span class="ident">g</span>.<span class="ident">draw_polygon</span>(
-                <span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#FEDE17&quot;</span>),
+                <span class="ident">Color::hex</span>(<span class="string">&quot;#FEDE17&quot;</span>),
                 <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">tut</span>.<span class="ident">fire_station</span>).<span class="ident">polygon</span>.<span class="ident">clone</span>(),
             );
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">tut</span>.<span class="ident">interaction</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">Task</span>::<span class="ident">Escort</span> {
-            <span class="ident">GeomBatch</span>::<span class="ident">load_svg</span>(<span class="ident">g</span>, <span class="string">&quot;system/assets/tools/star.svg&quot;</span>)
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">tut</span>.<span class="ident">interaction</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">Task::Escort</span> {
+            <span class="ident">GeomBatch::load_svg</span>(<span class="ident">g</span>, <span class="string">&quot;system/assets/tools/star.svg&quot;</span>)
                 .<span class="ident">scale</span>(<span class="number">0.1</span>)
                 .<span class="ident">centered_on</span>(
                     <span class="ident">app</span>.<span class="ident">primary</span>
                         .<span class="ident">sim</span>
-                        .<span class="ident">canonical_pt_for_agent</span>(<span class="ident">AgentID</span>::<span class="ident">Car</span>(<span class="ident">ESCORT</span>), <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>)
+                        .<span class="ident">canonical_pt_for_agent</span>(<span class="ident">AgentID::Car</span>(<span class="ident">ESCORT</span>), <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>)
                         .<span class="ident">unwrap</span>(),
                 )
                 .<span class="ident">draw</span>(<span class="ident">g</span>);
@@ -1876,7 +1876,7 @@
 
     <span class="kw">fn</span> <span class="ident">recreate_panels</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
         <span class="kw">let</span> <span class="ident">tut</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">tutorial</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>();
-        <span class="self">self</span>.<span class="ident">top_right</span> <span class="op">=</span> <span class="ident">tut</span>.<span class="ident">make_top_right</span>(<span class="ident">ctx</span>, <span class="self">self</span>.<span class="ident">last_finished_task</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">Task</span>::<span class="ident">WatchBikes</span>);
+        <span class="self">self</span>.<span class="ident">top_right</span> <span class="op">=</span> <span class="ident">tut</span>.<span class="ident">make_top_right</span>(<span class="ident">ctx</span>, <span class="self">self</span>.<span class="ident">last_finished_task</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">Task::WatchBikes</span>);
 
         <span class="comment">// Time can&#39;t pass while self.msg_panel is active</span>
     }
@@ -1885,19 +1885,19 @@
         <span class="self">self</span>.<span class="ident">msg_panel</span>.<span class="ident">is_none</span>()
     }
     <span class="kw">fn</span> <span class="ident">can_examine_objects</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">last_finished_task</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">Task</span>::<span class="ident">WatchBikes</span>
+        <span class="self">self</span>.<span class="ident">last_finished_task</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">Task::WatchBikes</span>
     }
     <span class="kw">fn</span> <span class="ident">has_common</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">last_finished_task</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">Task</span>::<span class="ident">Camera</span>
+        <span class="self">self</span>.<span class="ident">last_finished_task</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">Task::Camera</span>
     }
     <span class="kw">fn</span> <span class="ident">has_tool_panel</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="bool-val">true</span>
     }
     <span class="kw">fn</span> <span class="ident">has_time_panel</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">last_finished_task</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">Task</span>::<span class="ident">InspectObjects</span>
+        <span class="self">self</span>.<span class="ident">last_finished_task</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">Task::InspectObjects</span>
     }
     <span class="kw">fn</span> <span class="ident">has_minimap</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">last_finished_task</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">Task</span>::<span class="ident">Escort</span>
+        <span class="self">self</span>.<span class="ident">last_finished_task</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">Task::Escort</span>
     }
 }
 
@@ -1920,10 +1920,10 @@
         <span class="kw">let</span> <span class="ident">hotkey_color</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_hotkey_color</span>;
 
         <span class="kw">let</span> <span class="ident">simple</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">Task</span>::<span class="ident">Nil</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
-            <span class="ident">Task</span>::<span class="ident">Camera</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Put out the fire at the fire station&quot;</span>,
-            <span class="ident">Task</span>::<span class="ident">InspectObjects</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">from</span>(<span class="string">&quot;Find one of each:&quot;</span>);
+            <span class="ident">Task::Nil</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
+            <span class="ident">Task::Camera</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Put out the fire at the fire station&quot;</span>,
+            <span class="ident">Task::InspectObjects</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::from</span>(<span class="string">&quot;Find one of each:&quot;</span>);
                 <span class="kw">for</span> <span class="kw-2">&amp;</span>(<span class="ident">name</span>, <span class="ident">done</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span>[
                     (<span class="string">&quot;bike lane&quot;</span>, <span class="ident">state</span>.<span class="ident">inspected_bike_lane</span>),
                     (<span class="string">&quot;building&quot;</span>, <span class="ident">state</span>.<span class="ident">inspected_building</span>),
@@ -1931,22 +1931,22 @@
                     (<span class="string">&quot;intersection on the map border&quot;</span>, <span class="ident">state</span>.<span class="ident">inspected_border</span>),
                 ] {
                     <span class="kw">if</span> <span class="ident">done</span> {
-                        <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;[X] {}&quot;</span>, <span class="ident">name</span>)).<span class="ident">fg</span>(<span class="ident">hotkey_color</span>));
+                        <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">Line</span>(<span class="macro">format!</span>(<span class="string">&quot;[X] {}&quot;</span>, <span class="ident">name</span>)).<span class="ident">fg</span>(<span class="ident">hotkey_color</span>));
                     } <span class="kw">else</span> {
-                        <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;[ ] {}&quot;</span>, <span class="ident">name</span>));
+                        <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="macro">format!</span>(<span class="string">&quot;[ ] {}&quot;</span>, <span class="ident">name</span>));
                     }
                 }
                 <span class="kw">return</span> <span class="ident">txt</span>;
             }
-            <span class="ident">Task</span>::<span class="ident">TimeControls</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Wait until after 5pm&quot;</span>,
-            <span class="ident">Task</span>::<span class="ident">PauseResume</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">from</span>(<span class="string">&quot;[ ] Pause/resume &quot;</span>);
-                <span class="ident">txt</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} times&quot;</span>, <span class="number">3</span> <span class="op">-</span> <span class="ident">state</span>.<span class="ident">num_pauses</span>)).<span class="ident">fg</span>(<span class="ident">hotkey_color</span>));
+            <span class="ident">Task::TimeControls</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Wait until after 5pm&quot;</span>,
+            <span class="ident">Task::PauseResume</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::from</span>(<span class="string">&quot;[ ] Pause/resume &quot;</span>);
+                <span class="ident">txt</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="macro">format!</span>(<span class="string">&quot;{} times&quot;</span>, <span class="number">3</span> <span class="op">-</span> <span class="ident">state</span>.<span class="ident">num_pauses</span>)).<span class="ident">fg</span>(<span class="ident">hotkey_color</span>));
                 <span class="kw">return</span> <span class="ident">txt</span>;
             }
-            <span class="ident">Task</span>::<span class="ident">Escort</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Task::Escort</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="comment">// Inspect the target car, wait for them to park, draw WASH ME on the window</span>
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">new</span>();
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::new</span>();
                 <span class="kw">if</span> <span class="ident">state</span>.<span class="ident">following_car</span> {
                     <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">Line</span>(<span class="string">&quot;[X] follow the target car&quot;</span>).<span class="ident">fg</span>(<span class="ident">hotkey_color</span>));
                 } <span class="kw">else</span> {
@@ -1963,42 +1963,42 @@
                     );
                 } <span class="kw">else</span> {
                     <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="string">&quot;[ ] click car and press &quot;</span>);
-                    <span class="ident">txt</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="ident">Key</span>::<span class="ident">C</span>.<span class="ident">describe</span>()).<span class="ident">fg</span>(<span class="ident">hotkey_color</span>));
+                    <span class="ident">txt</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="ident">Key::C</span>.<span class="ident">describe</span>()).<span class="ident">fg</span>(<span class="ident">hotkey_color</span>));
                     <span class="ident">txt</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="string">&quot; to draw WASH ME&quot;</span>));
                 }
                 <span class="kw">return</span> <span class="ident">txt</span>;
             }
-            <span class="ident">Task</span>::<span class="ident">LowParking</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">from</span>(<span class="string">&quot;1) Find a road with almost no parking spots available&quot;</span>);
+            <span class="ident">Task::LowParking</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::from</span>(<span class="string">&quot;1) Find a road with almost no parking spots available&quot;</span>);
                 <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="string">&quot;2) Click it and press &quot;</span>);
-                <span class="ident">txt</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="ident">Key</span>::<span class="ident">C</span>.<span class="ident">describe</span>()).<span class="ident">fg</span>(<span class="ident">hotkey_color</span>));
+                <span class="ident">txt</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="ident">Key::C</span>.<span class="ident">describe</span>()).<span class="ident">fg</span>(<span class="ident">hotkey_color</span>));
                 <span class="ident">txt</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="string">&quot; to check the occupancy&quot;</span>));
                 <span class="kw">return</span> <span class="ident">txt</span>;
             }
-            <span class="ident">Task</span>::<span class="ident">WatchBikes</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Watch for 3 minutes&quot;</span>,
-            <span class="ident">Task</span>::<span class="ident">FixBikes</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">return</span> <span class="ident">Text</span>::<span class="ident">from</span>(<span class="macro">format</span><span class="macro">!</span>(
+            <span class="ident">Task::WatchBikes</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Watch for 3 minutes&quot;</span>,
+            <span class="ident">Task::FixBikes</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">return</span> <span class="ident">Text::from</span>(<span class="macro">format!</span>(
                     <span class="string">&quot;[ ] Complete all trips {} faster&quot;</span>,
                     <span class="ident">CAR_BIKE_CONTENTION_GOAL</span>
                 ));
             }
-            <span class="ident">Task</span>::<span class="ident">Done</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Tutorial complete!&quot;</span>,
+            <span class="ident">Task::Done</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Tutorial complete!&quot;</span>,
         };
-        <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">simple</span>)
+        <span class="ident">Text::from</span>(<span class="ident">simple</span>)
     }
 
     <span class="kw">fn</span> <span class="ident">label</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">Task</span>::<span class="ident">Nil</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
-            <span class="ident">Task</span>::<span class="ident">Camera</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Moving the drone&quot;</span>,
-            <span class="ident">Task</span>::<span class="ident">InspectObjects</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Interacting with objects&quot;</span>,
-            <span class="ident">Task</span>::<span class="ident">TimeControls</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Passing the time&quot;</span>,
-            <span class="ident">Task</span>::<span class="ident">PauseResume</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Pausing/resuming&quot;</span>,
-            <span class="ident">Task</span>::<span class="ident">Escort</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Following people&quot;</span>,
-            <span class="ident">Task</span>::<span class="ident">LowParking</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Exploring map layers&quot;</span>,
-            <span class="ident">Task</span>::<span class="ident">WatchBikes</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Observing a problem&quot;</span>,
-            <span class="ident">Task</span>::<span class="ident">FixBikes</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Editing lanes&quot;</span>,
-            <span class="ident">Task</span>::<span class="ident">Done</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Tutorial complete!&quot;</span>,
+            <span class="ident">Task::Nil</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
+            <span class="ident">Task::Camera</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Moving the drone&quot;</span>,
+            <span class="ident">Task::InspectObjects</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Interacting with objects&quot;</span>,
+            <span class="ident">Task::TimeControls</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Passing the time&quot;</span>,
+            <span class="ident">Task::PauseResume</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Pausing/resuming&quot;</span>,
+            <span class="ident">Task::Escort</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Following people&quot;</span>,
+            <span class="ident">Task::LowParking</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Exploring map layers&quot;</span>,
+            <span class="ident">Task::WatchBikes</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Observing a problem&quot;</span>,
+            <span class="ident">Task::FixBikes</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Editing lanes&quot;</span>,
+            <span class="ident">Task::Done</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Tutorial complete!&quot;</span>,
         }
     }
 }
@@ -2022,14 +2022,14 @@
     <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">txt</span>: <span class="ident">Text</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Message</span> {
         <span class="ident">Message</span> {
             <span class="ident">txt</span>,
-            <span class="ident">aligned</span>: <span class="ident">HorizontalAlignment</span>::<span class="ident">Center</span>,
+            <span class="ident">aligned</span>: <span class="ident">HorizontalAlignment::Center</span>,
             <span class="ident">arrow</span>: <span class="prelude-val">None</span>,
             <span class="ident">icon</span>: <span class="prelude-val">None</span>,
         }
     }
 
     <span class="kw">fn</span> <span class="ident">arrow</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">pt</span>: <span class="ident">ScreenPt</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Message</span> {
-        <span class="self">self</span>.<span class="ident">arrow</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="kw">move</span> <span class="op">|</span><span class="kw">_</span>, <span class="kw">_</span><span class="op">|</span> <span class="ident">pt</span>.<span class="ident">to_pt</span>()));
+        <span class="self">self</span>.<span class="ident">arrow</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="kw">_</span>, <span class="kw">_</span><span class="op">|</span> <span class="ident">pt</span>.<span class="ident">to_pt</span>()));
         <span class="self">self</span>
     }
 
@@ -2044,7 +2044,7 @@
     }
 
     <span class="kw">fn</span> <span class="ident">left_aligned</span>(<span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Message</span> {
-        <span class="self">self</span>.<span class="ident">aligned</span> <span class="op">=</span> <span class="ident">HorizontalAlignment</span>::<span class="ident">Left</span>;
+        <span class="self">self</span>.<span class="ident">aligned</span> <span class="op">=</span> <span class="ident">HorizontalAlignment::Left</span>;
         <span class="self">self</span>
     }
 }
@@ -2052,7 +2052,7 @@
 <span class="kw">impl</span> <span class="ident">Stage</span> {
     <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">task</span>: <span class="ident">Task</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Stage</span> {
         <span class="ident">Stage</span> {
-            <span class="ident">messages</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
+            <span class="ident">messages</span>: <span class="ident">Vec::new</span>(),
             <span class="ident">task</span>,
             <span class="ident">warp_to</span>: <span class="prelude-val">None</span>,
             <span class="ident">custom_spawn</span>: <span class="prelude-val">None</span>,
@@ -2066,19 +2066,19 @@
     }
 
     <span class="kw">fn</span> <span class="ident">warp_to</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">id</span>: <span class="ident">ID</span>, <span class="ident">zoom</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Stage</span> {
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">warp_to</span>.<span class="ident">is_none</span>());
+        <span class="macro">assert!</span>(<span class="self">self</span>.<span class="ident">warp_to</span>.<span class="ident">is_none</span>());
         <span class="self">self</span>.<span class="ident">warp_to</span> <span class="op">=</span> <span class="prelude-val">Some</span>((<span class="ident">id</span>, <span class="ident">zoom</span>.<span class="ident">unwrap_or</span>(<span class="number">4.0</span>)));
         <span class="self">self</span>
     }
 
     <span class="kw">fn</span> <span class="ident">custom_spawn</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">cb</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>)<span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Stage</span> {
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">custom_spawn</span>.<span class="ident">is_none</span>());
+        <span class="macro">assert!</span>(<span class="self">self</span>.<span class="ident">custom_spawn</span>.<span class="ident">is_none</span>());
         <span class="self">self</span>.<span class="ident">custom_spawn</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">cb</span>);
         <span class="self">self</span>
     }
 
     <span class="kw">fn</span> <span class="ident">scenario</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">generator</span>: <span class="ident">ScenarioGenerator</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Stage</span> {
-        <span class="macro">assert</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">make_scenario</span>.<span class="ident">is_none</span>());
+        <span class="macro">assert!</span>(<span class="self">self</span>.<span class="ident">make_scenario</span>.<span class="ident">is_none</span>());
         <span class="self">self</span>.<span class="ident">make_scenario</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">generator</span>);
         <span class="self">self</span>
     }
@@ -2111,16 +2111,16 @@
 }
 
 <span class="kw">fn</span> <span class="ident">make_bike_lane_scenario</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ScenarioGenerator</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">ScenarioGenerator</span>::<span class="ident">empty</span>(<span class="string">&quot;car vs bike contention&quot;</span>);
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">ScenarioGenerator::empty</span>(<span class="string">&quot;car vs bike contention&quot;</span>);
     <span class="ident">s</span>.<span class="ident">border_spawn_over_time</span>.<span class="ident">push</span>(<span class="ident">BorderSpawnOverTime</span> {
         <span class="ident">num_peds</span>: <span class="number">0</span>,
         <span class="ident">num_cars</span>: <span class="number">10</span>,
         <span class="ident">num_bikes</span>: <span class="number">10</span>,
         <span class="ident">percent_use_transit</span>: <span class="number">0.0</span>,
-        <span class="ident">start_time</span>: <span class="ident">Time</span>::<span class="ident">START_OF_DAY</span>,
-        <span class="ident">stop_time</span>: <span class="ident">Time</span>::<span class="ident">START_OF_DAY</span> <span class="op">+</span> <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="number">10.0</span>),
-        <span class="ident">start_from_border</span>: <span class="ident">map</span>.<span class="ident">find_i_by_osm_id</span>(<span class="ident">osm</span>::<span class="ident">NodeID</span>(<span class="number">3005680098</span>)).<span class="ident">unwrap</span>(),
-        <span class="ident">goal</span>: <span class="prelude-val">Some</span>(<span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(
+        <span class="ident">start_time</span>: <span class="ident">Time::START_OF_DAY</span>,
+        <span class="ident">stop_time</span>: <span class="ident">Time::START_OF_DAY</span> <span class="op">+</span> <span class="ident">Duration::seconds</span>(<span class="number">10.0</span>),
+        <span class="ident">start_from_border</span>: <span class="ident">map</span>.<span class="ident">find_i_by_osm_id</span>(<span class="ident">osm::NodeID</span>(<span class="number">3005680098</span>)).<span class="ident">unwrap</span>(),
+        <span class="ident">goal</span>: <span class="prelude-val">Some</span>(<span class="ident">TripEndpoint::Bldg</span>(
             <span class="ident">map</span>.<span class="ident">find_b_by_osm_id</span>(<span class="ident">bldg</span>(<span class="number">217699501</span>)).<span class="ident">unwrap</span>(),
         )),
     });
@@ -2129,8 +2129,8 @@
 
 <span class="kw">fn</span> <span class="ident">transition</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>, <span class="ident">tut</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">TutorialState</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span> {
     <span class="ident">tut</span>.<span class="ident">reset_state</span>();
-    <span class="kw">let</span> <span class="ident">mode</span> <span class="op">=</span> <span class="ident">GameplayMode</span>::<span class="ident">Tutorial</span>(<span class="ident">tut</span>.<span class="ident">current</span>);
-    <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">SandboxMode</span>::<span class="ident">simple_new</span>(<span class="ident">app</span>, <span class="ident">mode</span>))
+    <span class="kw">let</span> <span class="ident">mode</span> <span class="op">=</span> <span class="ident">GameplayMode::Tutorial</span>(<span class="ident">tut</span>.<span class="ident">current</span>);
+    <span class="ident">Transition::Replace</span>(<span class="ident">SandboxMode::simple_new</span>(<span class="ident">app</span>, <span class="ident">mode</span>))
 }
 
 <span class="kw">impl</span> <span class="ident">TutorialState</span> {
@@ -2159,7 +2159,7 @@
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">current</span>.<span class="ident">part</span> <span class="op">=</span><span class="op">=</span> <span class="ident">stage</span>.<span class="ident">messages</span>.<span class="ident">len</span>() {
             <span class="ident">stage</span>.<span class="ident">task</span>
         } <span class="kw">else</span> {
-            <span class="ident">Task</span>::<span class="ident">Nil</span>
+            <span class="ident">Task::Nil</span>
         }
     }
     <span class="kw">fn</span> <span class="ident">message</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Message</span><span class="op">&gt;</span> {
@@ -2174,12 +2174,12 @@
     <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
         <span class="self">self</span>.<span class="ident">current</span>.<span class="ident">part</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">current</span>.<span class="ident">part</span> <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">stage</span>().<span class="ident">messages</span>.<span class="ident">len</span>() <span class="op">+</span> <span class="number">1</span> {
-            <span class="self">self</span>.<span class="ident">current</span> <span class="op">=</span> <span class="ident">TutorialPointer</span>::<span class="ident">new</span>(<span class="self">self</span>.<span class="ident">current</span>.<span class="ident">stage</span> <span class="op">+</span> <span class="number">1</span>, <span class="number">0</span>);
+            <span class="self">self</span>.<span class="ident">current</span> <span class="op">=</span> <span class="ident">TutorialPointer::new</span>(<span class="self">self</span>.<span class="ident">current</span>.<span class="ident">stage</span> <span class="op">+</span> <span class="number">1</span>, <span class="number">0</span>);
         }
     }
     <span class="kw">fn</span> <span class="ident">prev</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">current</span>.<span class="ident">part</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
-            <span class="self">self</span>.<span class="ident">current</span> <span class="op">=</span> <span class="ident">TutorialPointer</span>::<span class="ident">new</span>(
+            <span class="self">self</span>.<span class="ident">current</span> <span class="op">=</span> <span class="ident">TutorialPointer::new</span>(
                 <span class="self">self</span>.<span class="ident">current</span>.<span class="ident">stage</span> <span class="op">-</span> <span class="number">1</span>,
                 <span class="self">self</span>.<span class="ident">stages</span>[<span class="self">self</span>.<span class="ident">current</span>.<span class="ident">stage</span> <span class="op">-</span> <span class="number">1</span>].<span class="ident">messages</span>.<span class="ident">len</span>(),
             );
@@ -2189,17 +2189,17 @@
     }
 
     <span class="kw">fn</span> <span class="ident">make_top_right</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">edit_map</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Panel</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">col</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">col</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
             <span class="ident">Line</span>(<span class="string">&quot;Tutorial&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-            <span class="ident">Widget</span>::<span class="ident">vert_separator</span>(<span class="ident">ctx</span>, <span class="number">50.0</span>),
+            <span class="ident">Widget::vert_separator</span>(<span class="ident">ctx</span>, <span class="number">50.0</span>),
             <span class="ident">ctx</span>.<span class="ident">style</span>()
                 .<span class="ident">btn_prev</span>()
                 .<span class="ident">disabled</span>(<span class="self">self</span>.<span class="ident">current</span>.<span class="ident">stage</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span>)
                 .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;previous tutorial&quot;</span>),
             {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">from</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Task {}&quot;</span>, <span class="self">self</span>.<span class="ident">current</span>.<span class="ident">stage</span> <span class="op">+</span> <span class="number">1</span>));
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::from</span>(<span class="macro">format!</span>(<span class="string">&quot;Task {}&quot;</span>, <span class="self">self</span>.<span class="ident">current</span>.<span class="ident">stage</span> <span class="op">+</span> <span class="number">1</span>));
                 <span class="comment">// TODO Smaller font and use alpha for the &quot;/9&quot; part</span>
-                <span class="ident">txt</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;/{}&quot;</span>, <span class="self">self</span>.<span class="ident">stages</span>.<span class="ident">len</span>())).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">grey</span>(<span class="number">0.7</span>)));
+                <span class="ident">txt</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="macro">format!</span>(<span class="string">&quot;/{}&quot;</span>, <span class="self">self</span>.<span class="ident">stages</span>.<span class="ident">len</span>())).<span class="ident">fg</span>(<span class="ident">Color::grey</span>(<span class="number">0.7</span>)));
                 <span class="ident">txt</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
             },
             <span class="ident">ctx</span>.<span class="ident">style</span>()
@@ -2211,10 +2211,10 @@
         .<span class="ident">centered</span>()];
         {
             <span class="kw">let</span> <span class="ident">task</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">interaction</span>();
-            <span class="kw">if</span> <span class="ident">task</span> <span class="op">!</span><span class="op">=</span> <span class="ident">Task</span>::<span class="ident">Nil</span> {
-                <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                    <span class="ident">Text</span>::<span class="ident">from</span>(
-                        <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(
+            <span class="kw">if</span> <span class="ident">task</span> <span class="op">!</span><span class="op">=</span> <span class="ident">Task::Nil</span> {
+                <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
+                    <span class="ident">Text::from</span>(
+                        <span class="ident">Line</span>(<span class="macro">format!</span>(
                             <span class="string">&quot;Task {}: {}&quot;</span>,
                             <span class="self">self</span>.<span class="ident">current</span>.<span class="ident">stage</span> <span class="op">+</span> <span class="number">1</span>,
                             <span class="self">self</span>.<span class="ident">stage</span>().<span class="ident">task</span>.<span class="ident">label</span>()
@@ -2239,18 +2239,18 @@
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
                     .<span class="ident">btn_outline</span>
                     .<span class="ident">icon_text</span>(<span class="string">&quot;system/assets/tools/pencil.svg&quot;</span>, <span class="string">&quot;Edit map&quot;</span>)
-                    .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">E</span>))
+                    .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key::E</span>))
                     .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;edit map&quot;</span>),
             );
         }
 
-        <span class="ident">Panel</span>::<span class="ident">new_builder</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="ident">col</span>))
-            .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment</span>::<span class="ident">Right</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Top</span>)
+        <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="ident">col</span>))
+            .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::Right</span>, <span class="ident">VerticalAlignment::Top</span>)
             .<span class="ident">build</span>(<span class="ident">ctx</span>)
     }
 
     <span class="kw">fn</span> <span class="ident">make_state</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">GameplayState</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">interaction</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">Task</span>::<span class="ident">Nil</span> {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">interaction</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">Task::Nil</span> {
             <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> <span class="op">=</span> <span class="prelude-val">None</span>;
         }
 
@@ -2263,39 +2263,39 @@
         <span class="comment">// If this stage has a scenario, it&#39;s instantiated when SandboxMode gets created.</span>
 
         <span class="kw">let</span> <span class="ident">last_finished_task</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">current</span>.<span class="ident">stage</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
-            <span class="ident">Task</span>::<span class="ident">Nil</span>
+            <span class="ident">Task::Nil</span>
         } <span class="kw">else</span> {
             <span class="self">self</span>.<span class="ident">stages</span>[<span class="self">self</span>.<span class="ident">current</span>.<span class="ident">stage</span> <span class="op">-</span> <span class="number">1</span>].<span class="ident">task</span>
         };
 
-        <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">Tutorial</span> {
-            <span class="ident">top_right</span>: <span class="self">self</span>.<span class="ident">make_top_right</span>(<span class="ident">ctx</span>, <span class="ident">last_finished_task</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">Task</span>::<span class="ident">WatchBikes</span>),
+        <span class="ident">Box::new</span>(<span class="ident">Tutorial</span> {
+            <span class="ident">top_right</span>: <span class="self">self</span>.<span class="ident">make_top_right</span>(<span class="ident">ctx</span>, <span class="ident">last_finished_task</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">Task::WatchBikes</span>),
             <span class="ident">last_finished_task</span>,
 
             <span class="ident">msg_panel</span>: <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">msg</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">message</span>() {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">col</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[{
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">new</span>();
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">col</span> <span class="op">=</span> <span class="macro">vec!</span>[{
+                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::new</span>();
                     <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">Line</span>(<span class="self">self</span>.<span class="ident">stage</span>().<span class="ident">task</span>.<span class="ident">label</span>()).<span class="ident">small_heading</span>());
                     <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="string">&quot;&quot;</span>);
                     <span class="ident">txt</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
                 }];
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">icon</span>) <span class="op">=</span> <span class="ident">msg</span>.<span class="ident">icon</span> {
-                    <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">Image</span>::<span class="ident">from_path</span>(<span class="ident">icon</span>).<span class="ident">dims</span>(<span class="number">30.0</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>));
+                    <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">Image::from_path</span>(<span class="ident">icon</span>).<span class="ident">dims</span>(<span class="number">30.0</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>));
                 }
                 <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">msg</span>.<span class="ident">txt</span>.<span class="ident">clone</span>().<span class="ident">wrap_to_pct</span>(<span class="ident">ctx</span>, <span class="number">30</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>));
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">controls</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">controls</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
                         .<span class="ident">btn_prev</span>()
                         .<span class="ident">disabled</span>(<span class="self">self</span>.<span class="ident">current</span>.<span class="ident">part</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span>)
-                        .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">LeftArrow</span>)
+                        .<span class="ident">hotkey</span>(<span class="ident">Key::LeftArrow</span>)
                         .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;previous message&quot;</span>),
-                    <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}/{}&quot;</span>, <span class="self">self</span>.<span class="ident">current</span>.<span class="ident">part</span> <span class="op">+</span> <span class="number">1</span>, <span class="self">self</span>.<span class="ident">stage</span>().<span class="ident">messages</span>.<span class="ident">len</span>())
+                    <span class="macro">format!</span>(<span class="string">&quot;{}/{}&quot;</span>, <span class="self">self</span>.<span class="ident">current</span>.<span class="ident">part</span> <span class="op">+</span> <span class="number">1</span>, <span class="self">self</span>.<span class="ident">stage</span>().<span class="ident">messages</span>.<span class="ident">len</span>())
                         .<span class="ident">text_widget</span>(<span class="ident">ctx</span>)
                         .<span class="ident">centered_vert</span>(),
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
                         .<span class="ident">btn_next</span>()
                         .<span class="ident">disabled</span>(<span class="self">self</span>.<span class="ident">current</span>.<span class="ident">part</span> <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">stage</span>().<span class="ident">messages</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>)
-                        .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">RightArrow</span>)
+                        .<span class="ident">hotkey</span>(<span class="ident">Key::RightArrow</span>)
                         .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;next message&quot;</span>),
                 ])];
                 <span class="kw">if</span> <span class="self">self</span>.<span class="ident">current</span>.<span class="ident">part</span> <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">stage</span>().<span class="ident">messages</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span> {
@@ -2303,16 +2303,16 @@
                         <span class="ident">ctx</span>.<span class="ident">style</span>()
                             .<span class="ident">btn_solid_primary</span>
                             .<span class="ident">text</span>(<span class="string">&quot;Try it&quot;</span>)
-                            .<span class="ident">hotkey</span>(<span class="ident">hotkeys</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Key</span>::<span class="ident">RightArrow</span>, <span class="ident">Key</span>::<span class="ident">Space</span>, <span class="ident">Key</span>::<span class="ident">Enter</span>]))
+                            .<span class="ident">hotkey</span>(<span class="ident">hotkeys</span>(<span class="macro">vec!</span>[<span class="ident">Key::RightArrow</span>, <span class="ident">Key::Space</span>, <span class="ident">Key::Enter</span>]))
                             .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                     );
                 }
-                <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="ident">controls</span>).<span class="ident">align_bottom</span>());
+                <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">Widget::col</span>(<span class="ident">controls</span>).<span class="ident">align_bottom</span>());
 
                 <span class="prelude-val">Some</span>(
-                    <span class="ident">Panel</span>::<span class="ident">new_builder</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="ident">col</span>).<span class="ident">outline</span>((<span class="number">5.0</span>, <span class="ident">Color</span>::<span class="ident">WHITE</span>)))
+                    <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="ident">col</span>).<span class="ident">outline</span>((<span class="number">5.0</span>, <span class="ident">Color::WHITE</span>)))
                         .<span class="ident">exact_size_percent</span>(<span class="number">40</span>, <span class="number">40</span>)
-                        .<span class="ident">aligned</span>(<span class="ident">msg</span>.<span class="ident">aligned</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Center</span>)
+                        .<span class="ident">aligned</span>(<span class="ident">msg</span>.<span class="ident">aligned</span>, <span class="ident">VerticalAlignment::Center</span>)
                         .<span class="ident">build</span>(<span class="ident">ctx</span>),
                 )
             } <span class="kw">else</span> {
@@ -2324,8 +2324,8 @@
 
     <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TutorialState</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">TutorialState</span> {
-            <span class="ident">stages</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
-            <span class="ident">current</span>: <span class="ident">TutorialPointer</span>::<span class="ident">new</span>(<span class="number">0</span>, <span class="number">0</span>),
+            <span class="ident">stages</span>: <span class="ident">Vec::new</span>(),
+            <span class="ident">current</span>: <span class="ident">TutorialPointer::new</span>(<span class="number">0</span>, <span class="number">0</span>),
             <span class="ident">window_dims</span>: (<span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_width</span>, <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_height</span>),
 
             <span class="ident">inspected_bike_lane</span>: <span class="bool-val">false</span>,
@@ -2344,40 +2344,40 @@
         };
 
         <span class="kw">let</span> <span class="ident">tool_panel</span> <span class="op">=</span> <span class="ident">tool_panel</span>(<span class="ident">ctx</span>);
-        <span class="kw">let</span> <span class="ident">time</span> <span class="op">=</span> <span class="ident">TimePanel</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+        <span class="kw">let</span> <span class="ident">time</span> <span class="op">=</span> <span class="ident">TimePanel::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
         <span class="comment">// The minimap is hidden at low zoom levels</span>
         <span class="kw">let</span> <span class="ident">orig_zoom</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span>;
         <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span> <span class="op">=</span> <span class="number">100.0</span>;
-        <span class="kw">let</span> <span class="ident">minimap</span> <span class="op">=</span> <span class="ident">Minimap</span>::<span class="ident">new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">MinimapController</span>);
+        <span class="kw">let</span> <span class="ident">minimap</span> <span class="op">=</span> <span class="ident">Minimap::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">MinimapController</span>);
         <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span> <span class="op">=</span> <span class="ident">orig_zoom</span>;
 
         <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>;
 
         <span class="ident">state</span>.<span class="ident">stages</span>.<span class="ident">push</span>(
-            <span class="ident">Stage</span>::<span class="ident">new</span>(<span class="ident">Task</span>::<span class="ident">Camera</span>)
+            <span class="ident">Stage::new</span>(<span class="ident">Task::Camera</span>)
                 .<span class="ident">warp_to</span>(
-                    <span class="ident">ID</span>::<span class="ident">Intersection</span>(<span class="ident">map</span>.<span class="ident">find_i_by_osm_id</span>(<span class="ident">osm</span>::<span class="ident">NodeID</span>(<span class="number">53096945</span>)).<span class="ident">unwrap</span>()),
+                    <span class="ident">ID::Intersection</span>(<span class="ident">map</span>.<span class="ident">find_i_by_osm_id</span>(<span class="ident">osm::NodeID</span>(<span class="number">53096945</span>)).<span class="ident">unwrap</span>()),
                     <span class="prelude-val">None</span>,
                 )
-                .<span class="ident">msg</span>(<span class="ident">Message</span>::<span class="ident">new</span>(<span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                .<span class="ident">msg</span>(<span class="ident">Message::new</span>(<span class="ident">Text::from_multiline</span>(<span class="macro">vec!</span>[
                     <span class="string">&quot;Let&#39;s start by piloting your fancy new drone.&quot;</span>,
                     <span class="string">&quot;&quot;</span>,
                     <span class="string">&quot;- Click and drag to pan around the map&quot;</span>,
                     <span class="string">&quot;- Use your scroll wheel or touchpad to zoom in and out.&quot;</span>,
                 ])))
                 .<span class="ident">msg</span>(
-                    <span class="ident">Message</span>::<span class="ident">new</span>(<span class="ident">Text</span>::<span class="ident">from</span>(
+                    <span class="ident">Message::new</span>(<span class="ident">Text::from</span>(
                         <span class="string">&quot;If the controls feel wrong, try adjusting the settings.&quot;</span>,
                     ))
                     .<span class="ident">arrow</span>(<span class="ident">tool_panel</span>.<span class="ident">center_of</span>(<span class="string">&quot;settings&quot;</span>)),
                 )
-                .<span class="ident">msg</span>(<span class="ident">Message</span>::<span class="ident">new</span>(<span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                .<span class="ident">msg</span>(<span class="ident">Message::new</span>(<span class="ident">Text::from_multiline</span>(<span class="macro">vec!</span>[
                     <span class="string">&quot;Let&#39;s try the drone ou--&quot;</span>,
                     <span class="string">&quot;&quot;</span>,
                     <span class="string">&quot;WHOA, THERE&#39;S A FIRE STATION ON FIRE!&quot;</span>,
                     <span class="string">&quot;GO CLICK ON IT, QUICK!&quot;</span>,
                 ])))
-                .<span class="ident">msg</span>(<span class="ident">Message</span>::<span class="ident">new</span>(<span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                .<span class="ident">msg</span>(<span class="ident">Message::new</span>(<span class="ident">Text::from_multiline</span>(<span class="macro">vec!</span>[
                     <span class="string">&quot;Hint:&quot;</span>,
                     <span class="string">&quot;- Look around for an unusually red building&quot;</span>,
                     <span class="string">&quot;- You have to zoom in to interact with anything on the map.&quot;</span>,
@@ -2385,12 +2385,12 @@
         );
 
         <span class="ident">state</span>.<span class="ident">stages</span>.<span class="ident">push</span>(
-            <span class="ident">Stage</span>::<span class="ident">new</span>(<span class="ident">Task</span>::<span class="ident">InspectObjects</span>)
-                .<span class="ident">msg</span>(<span class="ident">Message</span>::<span class="ident">new</span>(<span class="ident">Text</span>::<span class="ident">from</span>(
+            <span class="ident">Stage::new</span>(<span class="ident">Task::InspectObjects</span>)
+                .<span class="ident">msg</span>(<span class="ident">Message::new</span>(<span class="ident">Text::from</span>(
                     <span class="string">&quot;What, no fire? Er, sorry about that. Just a little joke we like to play on \
                      the new recruits.&quot;</span>,
                 )))
-                .<span class="ident">msg</span>(<span class="ident">Message</span>::<span class="ident">new</span>(<span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                .<span class="ident">msg</span>(<span class="ident">Message::new</span>(<span class="ident">Text::from_multiline</span>(<span class="macro">vec!</span>[
                     <span class="string">&quot;Now, let&#39;s learn how to inspect and interact with objects in the map.&quot;</span>,
                     <span class="string">&quot;&quot;</span>,
                     <span class="string">&quot;Find one of each:&quot;</span>,
@@ -2403,13 +2403,13 @@
         );
 
         <span class="ident">state</span>.<span class="ident">stages</span>.<span class="ident">push</span>(
-            <span class="ident">Stage</span>::<span class="ident">new</span>(<span class="ident">Task</span>::<span class="ident">TimeControls</span>)
+            <span class="ident">Stage::new</span>(<span class="ident">Task::TimeControls</span>)
                 .<span class="ident">warp_to</span>(
-                    <span class="ident">ID</span>::<span class="ident">Intersection</span>(<span class="ident">map</span>.<span class="ident">find_i_by_osm_id</span>(<span class="ident">osm</span>::<span class="ident">NodeID</span>(<span class="number">53096945</span>)).<span class="ident">unwrap</span>()),
+                    <span class="ident">ID::Intersection</span>(<span class="ident">map</span>.<span class="ident">find_i_by_osm_id</span>(<span class="ident">osm::NodeID</span>(<span class="number">53096945</span>)).<span class="ident">unwrap</span>()),
                     <span class="prelude-val">Some</span>(<span class="number">6.5</span>),
                 )
                 .<span class="ident">msg</span>(
-                    <span class="ident">Message</span>::<span class="ident">new</span>(<span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                    <span class="ident">Message::new</span>(<span class="ident">Text::from_multiline</span>(<span class="macro">vec!</span>[
                         <span class="string">&quot;Inspection complete!&quot;</span>,
                         <span class="string">&quot;&quot;</span>,
                         <span class="string">&quot;You&#39;ll work day and night, watching traffic patterns unfold.&quot;</span>,
@@ -2417,11 +2417,11 @@
                     .<span class="ident">arrow</span>(<span class="ident">time</span>.<span class="ident">panel</span>.<span class="ident">center_of_panel</span>()),
                 )
                 .<span class="ident">msg</span>(
-                    <span class="ident">Message</span>::<span class="ident">new</span>({
-                        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="string">&quot;You can pause or resume time&quot;</span>));
+                    <span class="ident">Message::new</span>({
+                        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::from</span>(<span class="ident">Line</span>(<span class="string">&quot;You can pause or resume time&quot;</span>));
                         <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="string">&quot;&quot;</span>);
                         <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="string">&quot;Hint: Press &quot;</span>);
-                        <span class="ident">txt</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="ident">Key</span>::<span class="ident">Space</span>.<span class="ident">describe</span>()).<span class="ident">fg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_hotkey_color</span>));
+                        <span class="ident">txt</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="ident">Key::Space</span>.<span class="ident">describe</span>()).<span class="ident">fg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_hotkey_color</span>));
                         <span class="ident">txt</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="string">&quot; to pause/resume&quot;</span>));
                         <span class="ident">txt</span>
                     })
@@ -2429,16 +2429,16 @@
                     .<span class="ident">icon</span>(<span class="string">&quot;system/assets/speed/pause.svg&quot;</span>),
                 )
                 .<span class="ident">msg</span>(
-                    <span class="ident">Message</span>::<span class="ident">new</span>({
-                        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="string">&quot;Speed things up&quot;</span>));
+                    <span class="ident">Message::new</span>({
+                        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::from</span>(<span class="ident">Line</span>(<span class="string">&quot;Speed things up&quot;</span>));
                         <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="string">&quot;&quot;</span>);
                         <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="string">&quot;Hint: Press &quot;</span>);
                         <span class="ident">txt</span>.<span class="ident">append</span>(
-                            <span class="ident">Line</span>(<span class="ident">Key</span>::<span class="ident">LeftArrow</span>.<span class="ident">describe</span>()).<span class="ident">fg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_hotkey_color</span>),
+                            <span class="ident">Line</span>(<span class="ident">Key::LeftArrow</span>.<span class="ident">describe</span>()).<span class="ident">fg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_hotkey_color</span>),
                         );
                         <span class="ident">txt</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="string">&quot; to slow down, &quot;</span>));
                         <span class="ident">txt</span>.<span class="ident">append</span>(
-                            <span class="ident">Line</span>(<span class="ident">Key</span>::<span class="ident">RightArrow</span>.<span class="ident">describe</span>()).<span class="ident">fg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_hotkey_color</span>),
+                            <span class="ident">Line</span>(<span class="ident">Key::RightArrow</span>.<span class="ident">describe</span>()).<span class="ident">fg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_hotkey_color</span>),
                         );
                         <span class="ident">txt</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="string">&quot; to speed up&quot;</span>));
                         <span class="ident">txt</span>
@@ -2447,96 +2447,96 @@
                     .<span class="ident">icon</span>(<span class="string">&quot;system/assets/speed/triangle.svg&quot;</span>),
                 )
                 .<span class="ident">msg</span>(
-                    <span class="ident">Message</span>::<span class="ident">new</span>(<span class="ident">Text</span>::<span class="ident">from</span>(<span class="string">&quot;Advance time by certain amounts&quot;</span>))
+                    <span class="ident">Message::new</span>(<span class="ident">Text::from</span>(<span class="string">&quot;Advance time by certain amounts&quot;</span>))
                         .<span class="ident">arrow</span>(<span class="ident">time</span>.<span class="ident">panel</span>.<span class="ident">center_of</span>(<span class="string">&quot;step forwards&quot;</span>)),
                 )
                 .<span class="ident">msg</span>(
-                    <span class="ident">Message</span>::<span class="ident">new</span>(<span class="ident">Text</span>::<span class="ident">from</span>(<span class="string">&quot;And jump to the beginning of the day&quot;</span>))
+                    <span class="ident">Message::new</span>(<span class="ident">Text::from</span>(<span class="string">&quot;And jump to the beginning of the day&quot;</span>))
                         .<span class="ident">arrow</span>(<span class="ident">time</span>.<span class="ident">panel</span>.<span class="ident">center_of</span>(<span class="string">&quot;reset to midnight&quot;</span>))
                         .<span class="ident">icon</span>(<span class="string">&quot;system/assets/speed/reset.svg&quot;</span>),
                 )
-                .<span class="ident">msg</span>(<span class="ident">Message</span>::<span class="ident">new</span>(<span class="ident">Text</span>::<span class="ident">from</span>(
+                .<span class="ident">msg</span>(<span class="ident">Message::new</span>(<span class="ident">Text::from</span>(
                     <span class="string">&quot;Let&#39;s try these controls out. Wait until 5pm or later.&quot;</span>,
                 ))),
         );
 
         <span class="ident">state</span>.<span class="ident">stages</span>.<span class="ident">push</span>(
-            <span class="ident">Stage</span>::<span class="ident">new</span>(<span class="ident">Task</span>::<span class="ident">PauseResume</span>)
-                .<span class="ident">msg</span>(<span class="ident">Message</span>::<span class="ident">new</span>(<span class="ident">Text</span>::<span class="ident">from</span>(
+            <span class="ident">Stage::new</span>(<span class="ident">Task::PauseResume</span>)
+                .<span class="ident">msg</span>(<span class="ident">Message::new</span>(<span class="ident">Text::from</span>(
                     <span class="string">&quot;Whew, that took a while! (Hopefully not though...)&quot;</span>,
                 )))
                 .<span class="ident">msg</span>(
-                    <span class="ident">Message</span>::<span class="ident">new</span>(<span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                    <span class="ident">Message::new</span>(<span class="ident">Text::from_multiline</span>(<span class="macro">vec!</span>[
                         <span class="string">&quot;You might&#39;ve figured it out already,&quot;</span>,
                         <span class="string">&quot;But you&#39;ll be pausing/resuming time VERY frequently&quot;</span>,
                     ]))
                     .<span class="ident">arrow</span>(<span class="ident">time</span>.<span class="ident">panel</span>.<span class="ident">center_of</span>(<span class="string">&quot;pause&quot;</span>))
                     .<span class="ident">icon</span>(<span class="string">&quot;system/assets/speed/pause.svg&quot;</span>),
                 )
-                .<span class="ident">msg</span>(<span class="ident">Message</span>::<span class="ident">new</span>(<span class="ident">Text</span>::<span class="ident">from</span>(
+                .<span class="ident">msg</span>(<span class="ident">Message::new</span>(<span class="ident">Text::from</span>(
                     <span class="string">&quot;Just reassure me and pause/resume time a few times, alright?&quot;</span>,
                 ))),
         );
 
         <span class="ident">state</span>.<span class="ident">stages</span>.<span class="ident">push</span>(
-            <span class="ident">Stage</span>::<span class="ident">new</span>(<span class="ident">Task</span>::<span class="ident">Escort</span>)
+            <span class="ident">Stage::new</span>(<span class="ident">Task::Escort</span>)
                 <span class="comment">// Don&#39;t center on where the agents are, be a little offset</span>
                 .<span class="ident">warp_to</span>(
-                    <span class="ident">ID</span>::<span class="ident">Building</span>(<span class="ident">map</span>.<span class="ident">find_b_by_osm_id</span>(<span class="ident">bldg</span>(<span class="number">217699780</span>)).<span class="ident">unwrap</span>()),
+                    <span class="ident">ID::Building</span>(<span class="ident">map</span>.<span class="ident">find_b_by_osm_id</span>(<span class="ident">bldg</span>(<span class="number">217699780</span>)).<span class="ident">unwrap</span>()),
                     <span class="prelude-val">Some</span>(<span class="number">10.0</span>),
                 )
-                .<span class="ident">custom_spawn</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">app</span><span class="op">|</span> {
+                .<span class="ident">custom_spawn</span>(<span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">app</span><span class="op">|</span> {
                     <span class="comment">// Seed a specific target car, and fill up the target building&#39;s private</span>
                     <span class="comment">// parking to force the target to park on-street.</span>
                     <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>;
                     <span class="kw">let</span> <span class="ident">goal_bldg</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">find_b_by_osm_id</span>(<span class="ident">bldg</span>(<span class="number">217701875</span>)).<span class="ident">unwrap</span>();
                     <span class="kw">let</span> <span class="ident">start_lane</span> <span class="op">=</span> {
                         <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(
-                            <span class="ident">map</span>.<span class="ident">find_r_by_osm_id</span>(<span class="ident">OriginalRoad</span>::<span class="ident">new</span>(
+                            <span class="ident">map</span>.<span class="ident">find_r_by_osm_id</span>(<span class="ident">OriginalRoad::new</span>(
                                 <span class="number">158782224</span>,
                                 (<span class="number">1709145066</span>, <span class="number">53128052</span>),
                             ))
                             .<span class="ident">unwrap</span>(),
                         );
-                        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">r</span>.<span class="ident">lanes_ltr</span>().<span class="ident">len</span>(), <span class="number">6</span>);
+                        <span class="macro">assert_eq!</span>(<span class="ident">r</span>.<span class="ident">lanes_ltr</span>().<span class="ident">len</span>(), <span class="number">6</span>);
                         <span class="ident">r</span>.<span class="ident">lanes_ltr</span>()[<span class="number">2</span>].<span class="number">0</span>
                     };
                     <span class="kw">let</span> <span class="ident">lane_near_bldg</span> <span class="op">=</span> {
                         <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(
-                            <span class="ident">map</span>.<span class="ident">find_r_by_osm_id</span>(<span class="ident">OriginalRoad</span>::<span class="ident">new</span>(<span class="number">6484869</span>, (<span class="number">53163501</span>, <span class="number">53069236</span>)))
+                            <span class="ident">map</span>.<span class="ident">find_r_by_osm_id</span>(<span class="ident">OriginalRoad::new</span>(<span class="number">6484869</span>, (<span class="number">53163501</span>, <span class="number">53069236</span>)))
                                 .<span class="ident">unwrap</span>(),
                         );
-                        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">r</span>.<span class="ident">lanes_ltr</span>().<span class="ident">len</span>(), <span class="number">6</span>);
+                        <span class="macro">assert_eq!</span>(<span class="ident">r</span>.<span class="ident">lanes_ltr</span>().<span class="ident">len</span>(), <span class="number">6</span>);
                         <span class="ident">r</span>.<span class="ident">lanes_ltr</span>()[<span class="number">3</span>].<span class="number">0</span>
                     };
 
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">scenario</span> <span class="op">=</span> <span class="ident">Scenario</span>::<span class="ident">empty</span>(<span class="ident">map</span>, <span class="string">&quot;prank&quot;</span>);
+                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">scenario</span> <span class="op">=</span> <span class="ident">Scenario::empty</span>(<span class="ident">map</span>, <span class="string">&quot;prank&quot;</span>);
                     <span class="ident">scenario</span>.<span class="ident">people</span>.<span class="ident">push</span>(<span class="ident">PersonSpec</span> {
                         <span class="ident">orig_id</span>: <span class="prelude-val">None</span>,
-                        <span class="ident">trips</span>: <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">IndividTrip</span>::<span class="ident">new</span>(
-                            <span class="ident">Time</span>::<span class="ident">START_OF_DAY</span>,
-                            <span class="ident">TripPurpose</span>::<span class="ident">Shopping</span>,
-                            <span class="ident">TripEndpoint</span>::<span class="ident">SuddenlyAppear</span>(<span class="ident">Position</span>::<span class="ident">new</span>(
+                        <span class="ident">trips</span>: <span class="macro">vec!</span>[<span class="ident">IndividTrip::new</span>(
+                            <span class="ident">Time::START_OF_DAY</span>,
+                            <span class="ident">TripPurpose::Shopping</span>,
+                            <span class="ident">TripEndpoint::SuddenlyAppear</span>(<span class="ident">Position::new</span>(
                                 <span class="ident">start_lane</span>,
                                 <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">start_lane</span>).<span class="ident">length</span>() <span class="op">*</span> <span class="number">0.8</span>,
                             )),
-                            <span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="ident">goal_bldg</span>),
-                            <span class="ident">TripMode</span>::<span class="ident">Drive</span>,
+                            <span class="ident">TripEndpoint::Bldg</span>(<span class="ident">goal_bldg</span>),
+                            <span class="ident">TripMode::Drive</span>,
                         )],
                     });
                     <span class="comment">// Will definitely get there first</span>
                     <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">goal_bldg</span>).<span class="ident">num_parking_spots</span>() {
                         <span class="ident">scenario</span>.<span class="ident">people</span>.<span class="ident">push</span>(<span class="ident">PersonSpec</span> {
                             <span class="ident">orig_id</span>: <span class="prelude-val">None</span>,
-                            <span class="ident">trips</span>: <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">IndividTrip</span>::<span class="ident">new</span>(
-                                <span class="ident">Time</span>::<span class="ident">START_OF_DAY</span>,
-                                <span class="ident">TripPurpose</span>::<span class="ident">Shopping</span>,
-                                <span class="ident">TripEndpoint</span>::<span class="ident">SuddenlyAppear</span>(<span class="ident">Position</span>::<span class="ident">new</span>(
+                            <span class="ident">trips</span>: <span class="macro">vec!</span>[<span class="ident">IndividTrip::new</span>(
+                                <span class="ident">Time::START_OF_DAY</span>,
+                                <span class="ident">TripPurpose::Shopping</span>,
+                                <span class="ident">TripEndpoint::SuddenlyAppear</span>(<span class="ident">Position::new</span>(
                                     <span class="ident">lane_near_bldg</span>,
                                     <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">lane_near_bldg</span>).<span class="ident">length</span>() <span class="op">/</span> <span class="number">2.0</span>,
                                 )),
-                                <span class="ident">TripEndpoint</span>::<span class="ident">Bldg</span>(<span class="ident">goal_bldg</span>),
-                                <span class="ident">TripMode</span>::<span class="ident">Drive</span>,
+                                <span class="ident">TripEndpoint::Bldg</span>(<span class="ident">goal_bldg</span>),
+                                <span class="ident">TripMode::Drive</span>,
                             )],
                         });
                     }
@@ -2545,7 +2545,7 @@
                         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>,
                         <span class="ident">map</span>,
                         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rng</span>,
-                        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>::<span class="ident">new</span>(<span class="string">&quot;spawn trip&quot;</span>),
+                        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer::new</span>(<span class="string">&quot;spawn trip&quot;</span>),
                     );
                     <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">tiny_step</span>(<span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim_cb</span>);
 
@@ -2553,29 +2553,29 @@
                     <span class="ident">spawn_agents_around</span>(
                         <span class="ident">app</span>.<span class="ident">primary</span>
                             .<span class="ident">map</span>
-                            .<span class="ident">find_i_by_osm_id</span>(<span class="ident">osm</span>::<span class="ident">NodeID</span>(<span class="number">1709145066</span>))
+                            .<span class="ident">find_i_by_osm_id</span>(<span class="ident">osm::NodeID</span>(<span class="number">1709145066</span>))
                             .<span class="ident">unwrap</span>(),
                         <span class="ident">app</span>,
                     );
                 }))
-                .<span class="ident">msg</span>(<span class="ident">Message</span>::<span class="ident">new</span>(<span class="ident">Text</span>::<span class="ident">from</span>(
+                .<span class="ident">msg</span>(<span class="ident">Message::new</span>(<span class="ident">Text::from</span>(
                     <span class="string">&quot;Alright alright, no need to wear out your spacebar.&quot;</span>,
                 )))
-                .<span class="ident">msg</span>(<span class="ident">Message</span>::<span class="ident">new</span>(<span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                .<span class="ident">msg</span>(<span class="ident">Message::new</span>(<span class="ident">Text::from_multiline</span>(<span class="macro">vec!</span>[
                     <span class="string">&quot;Oh look, some people appeared!&quot;</span>,
                     <span class="string">&quot;We&#39;ve got pedestrians, bikes, and cars moving around now.&quot;</span>,
                 ])))
                 .<span class="ident">msg</span>(
-                    <span class="ident">Message</span>::<span class="ident">new</span>(<span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                    <span class="ident">Message::new</span>(<span class="ident">Text::from_multiline</span>(<span class="macro">vec!</span>[
                         <span class="string">&quot;Why don&#39;t you follow this car to their destination,&quot;</span>,
                         <span class="string">&quot;see where they park, and then play a little... prank?&quot;</span>,
                     ]))
-                    .<span class="ident">dynamic_arrow</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">g</span>, <span class="ident">app</span><span class="op">|</span> {
+                    .<span class="ident">dynamic_arrow</span>(<span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">g</span>, <span class="ident">app</span><span class="op">|</span> {
                         <span class="ident">g</span>.<span class="ident">canvas</span>
                             .<span class="ident">map_to_screen</span>(
                                 <span class="ident">app</span>.<span class="ident">primary</span>
                                     .<span class="ident">sim</span>
-                                    .<span class="ident">canonical_pt_for_agent</span>(<span class="ident">AgentID</span>::<span class="ident">Car</span>(<span class="ident">ESCORT</span>), <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>)
+                                    .<span class="ident">canonical_pt_for_agent</span>(<span class="ident">AgentID::Car</span>(<span class="ident">ESCORT</span>), <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>)
                                     .<span class="ident">unwrap</span>(),
                             )
                             .<span class="ident">to_pt</span>()
@@ -2583,7 +2583,7 @@
                     .<span class="ident">left_aligned</span>(),
                 )
                 .<span class="ident">msg</span>(
-                    <span class="ident">Message</span>::<span class="ident">new</span>(<span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                    <span class="ident">Message::new</span>(<span class="ident">Text::from_multiline</span>(<span class="macro">vec!</span>[
                         <span class="string">&quot;You don&#39;t have to manually chase them; just click to follow.&quot;</span>,
                         <span class="string">&quot;&quot;</span>,
                         <span class="string">&quot;(If you do lose track of them, just reset)&quot;</span>,
@@ -2594,24 +2594,24 @@
         );
 
         <span class="ident">state</span>.<span class="ident">stages</span>.<span class="ident">push</span>(
-            <span class="ident">Stage</span>::<span class="ident">new</span>(<span class="ident">Task</span>::<span class="ident">LowParking</span>)
+            <span class="ident">Stage::new</span>(<span class="ident">Task::LowParking</span>)
                 <span class="comment">// TODO Actually, we ideally just want a bunch of parked cars, not all these trips</span>
                 .<span class="ident">scenario</span>(<span class="ident">ScenarioGenerator</span> {
                     <span class="ident">scenario_name</span>: <span class="string">&quot;low parking&quot;</span>.<span class="ident">to_string</span>(),
-                    <span class="ident">only_seed_buses</span>: <span class="prelude-val">Some</span>(<span class="ident">BTreeSet</span>::<span class="ident">new</span>()),
-                    <span class="ident">spawn_over_time</span>: <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">SpawnOverTime</span> {
+                    <span class="ident">only_seed_buses</span>: <span class="prelude-val">Some</span>(<span class="ident">BTreeSet::new</span>()),
+                    <span class="ident">spawn_over_time</span>: <span class="macro">vec!</span>[<span class="ident">SpawnOverTime</span> {
                         <span class="ident">num_agents</span>: <span class="number">1000</span>,
-                        <span class="ident">start_time</span>: <span class="ident">Time</span>::<span class="ident">START_OF_DAY</span>,
-                        <span class="ident">stop_time</span>: <span class="ident">Time</span>::<span class="ident">START_OF_DAY</span> <span class="op">+</span> <span class="ident">Duration</span>::<span class="ident">hours</span>(<span class="number">3</span>),
+                        <span class="ident">start_time</span>: <span class="ident">Time::START_OF_DAY</span>,
+                        <span class="ident">stop_time</span>: <span class="ident">Time::START_OF_DAY</span> <span class="op">+</span> <span class="ident">Duration::hours</span>(<span class="number">3</span>),
                         <span class="ident">goal</span>: <span class="prelude-val">None</span>,
                         <span class="ident">percent_driving</span>: <span class="number">1.0</span>,
                         <span class="ident">percent_biking</span>: <span class="number">0.0</span>,
                         <span class="ident">percent_use_transit</span>: <span class="number">0.0</span>,
                     }],
-                    <span class="ident">border_spawn_over_time</span>: <span class="ident">Vec</span>::<span class="ident">new</span>(),
+                    <span class="ident">border_spawn_over_time</span>: <span class="ident">Vec::new</span>(),
                 })
                 .<span class="ident">msg</span>(
-                    <span class="ident">Message</span>::<span class="ident">new</span>(<span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                    <span class="ident">Message::new</span>(<span class="ident">Text::from_multiline</span>(<span class="macro">vec!</span>[
                         <span class="string">&quot;What an immature prank. You should re-evaluate your life decisions.&quot;</span>,
                         <span class="string">&quot;&quot;</span>,
                         <span class="string">&quot;The map is quite large, so to help you orient, the minimap shows you an \
@@ -2622,7 +2622,7 @@
                     .<span class="ident">left_aligned</span>(),
                 )
                 .<span class="ident">msg</span>(
-                    <span class="ident">Message</span>::<span class="ident">new</span>(<span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                    <span class="ident">Message::new</span>(<span class="ident">Text::from_multiline</span>(<span class="macro">vec!</span>[
                         <span class="string">&quot;You can apply different layers to the map, to find things like:&quot;</span>,
                         <span class="string">&quot;&quot;</span>,
                         <span class="string">&quot;- roads with high traffic&quot;</span>,
@@ -2633,7 +2633,7 @@
                     .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/layers.svg&quot;</span>)
                     .<span class="ident">left_aligned</span>(),
                 )
-                .<span class="ident">msg</span>(<span class="ident">Message</span>::<span class="ident">new</span>(<span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                .<span class="ident">msg</span>(<span class="ident">Message::new</span>(<span class="ident">Text::from_multiline</span>(<span class="macro">vec!</span>[
                     <span class="string">&quot;Let&#39;s try these out.&quot;</span>,
                     <span class="string">&quot;There are lots of cars parked everywhere. Can you find a road that&#39;s almost \
                      out of parking spots?&quot;</span>,
@@ -2644,10 +2644,10 @@
         <span class="kw">let</span> <span class="ident">bike_lane_focus_pt</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">find_b_by_osm_id</span>(<span class="ident">bldg</span>(<span class="number">217699496</span>)).<span class="ident">unwrap</span>();
 
         <span class="ident">state</span>.<span class="ident">stages</span>.<span class="ident">push</span>(
-            <span class="ident">Stage</span>::<span class="ident">new</span>(<span class="ident">Task</span>::<span class="ident">WatchBikes</span>)
-                .<span class="ident">warp_to</span>(<span class="ident">ID</span>::<span class="ident">Building</span>(<span class="ident">bike_lane_focus_pt</span>), <span class="prelude-val">None</span>)
+            <span class="ident">Stage::new</span>(<span class="ident">Task::WatchBikes</span>)
+                .<span class="ident">warp_to</span>(<span class="ident">ID::Building</span>(<span class="ident">bike_lane_focus_pt</span>), <span class="prelude-val">None</span>)
                 .<span class="ident">scenario</span>(<span class="ident">bike_lane_scenario</span>.<span class="ident">clone</span>())
-                .<span class="ident">msg</span>(<span class="ident">Message</span>::<span class="ident">new</span>(<span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                .<span class="ident">msg</span>(<span class="ident">Message::new</span>(<span class="ident">Text::from_multiline</span>(<span class="macro">vec!</span>[
                     <span class="string">&quot;Well done!&quot;</span>,
                     <span class="string">&quot;&quot;</span>,
                     <span class="string">&quot;Something&#39;s about to happen over here. Follow along and figure out what the \
@@ -2657,26 +2657,26 @@
 
         <span class="kw">let</span> <span class="ident">top_right</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">make_top_right</span>(<span class="ident">ctx</span>, <span class="bool-val">true</span>);
         <span class="ident">state</span>.<span class="ident">stages</span>.<span class="ident">push</span>(
-            <span class="ident">Stage</span>::<span class="ident">new</span>(<span class="ident">Task</span>::<span class="ident">FixBikes</span>)
+            <span class="ident">Stage::new</span>(<span class="ident">Task::FixBikes</span>)
                 .<span class="ident">scenario</span>(<span class="ident">bike_lane_scenario</span>)
-                .<span class="ident">warp_to</span>(<span class="ident">ID</span>::<span class="ident">Building</span>(<span class="ident">bike_lane_focus_pt</span>), <span class="prelude-val">None</span>)
-                .<span class="ident">msg</span>(<span class="ident">Message</span>::<span class="ident">new</span>(<span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                .<span class="ident">warp_to</span>(<span class="ident">ID::Building</span>(<span class="ident">bike_lane_focus_pt</span>), <span class="prelude-val">None</span>)
+                .<span class="ident">msg</span>(<span class="ident">Message::new</span>(<span class="ident">Text::from_multiline</span>(<span class="macro">vec!</span>[
                     <span class="string">&quot;Looks like lots of cars and bikes trying to go to a house by the playfield.&quot;</span>,
                     <span class="string">&quot;&quot;</span>,
                     <span class="string">&quot;When lots of cars and bikes share the same lane, cars are delayed (assuming \
                      there&#39;s no room to pass) and the cyclist probably feels unsafe too.&quot;</span>,
                 ])))
-                .<span class="ident">msg</span>(<span class="ident">Message</span>::<span class="ident">new</span>(<span class="ident">Text</span>::<span class="ident">from</span>(
+                .<span class="ident">msg</span>(<span class="ident">Message::new</span>(<span class="ident">Text::from</span>(
                     <span class="string">&quot;Luckily, you have the power to modify lanes! What if you could transform the \
                      parking lanes that aren&#39;t being used much into bike lanes?&quot;</span>,
                 )))
                 .<span class="ident">msg</span>(
-                    <span class="ident">Message</span>::<span class="ident">new</span>(<span class="ident">Text</span>::<span class="ident">from</span>(
+                    <span class="ident">Message::new</span>(<span class="ident">Text::from</span>(
                         <span class="string">&quot;To edit lanes, click &#39;edit map&#39; and then select a lane.&quot;</span>,
                     ))
                     .<span class="ident">arrow</span>(<span class="ident">top_right</span>.<span class="ident">center_of</span>(<span class="string">&quot;edit map&quot;</span>)),
                 )
-                .<span class="ident">msg</span>(<span class="ident">Message</span>::<span class="ident">new</span>(<span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                .<span class="ident">msg</span>(<span class="ident">Message::new</span>(<span class="ident">Text::from_multiline</span>(<span class="macro">vec!</span>[
                     <span class="string">&quot;When you finish making edits, time will jump to the beginning of the next \
                      day. You can&#39;t make most changes in the middle of the day.&quot;</span>,
                     <span class="string">&quot;&quot;</span>,
@@ -2688,8 +2688,8 @@
                 ])))
                 .<span class="ident">msg</span>(
                     <span class="comment">// TODO Deliberately vague with the measurement.</span>
-                    <span class="ident">Message</span>::<span class="ident">new</span>(<span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                        <span class="macro">format</span><span class="macro">!</span>(
+                    <span class="ident">Message::new</span>(<span class="ident">Text::from_multiline</span>(<span class="macro">vec!</span>[
+                        <span class="macro">format!</span>(
                             <span class="string">&quot;So adjust lanes and speed up the slowest trip by at least {}.&quot;</span>,
                             <span class="ident">CAR_BIKE_CONTENTION_GOAL</span>
                         ),
@@ -2703,7 +2703,7 @@
         );
 
         <span class="ident">state</span>.<span class="ident">stages</span>.<span class="ident">push</span>(
-            <span class="ident">Stage</span>::<span class="ident">new</span>(<span class="ident">Task</span>::<span class="ident">Done</span>).<span class="ident">msg</span>(<span class="ident">Message</span>::<span class="ident">new</span>(<span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
+            <span class="ident">Stage::new</span>(<span class="ident">Task::Done</span>).<span class="ident">msg</span>(<span class="ident">Message::new</span>(<span class="ident">Text::from_multiline</span>(<span class="macro">vec!</span>[
                 <span class="string">&quot;You&#39;re ready for the hard stuff now.&quot;</span>,
                 <span class="string">&quot;&quot;</span>,
                 <span class="string">&quot;- Try out some challenges&quot;</span>,
@@ -2725,53 +2725,53 @@
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">scenarios_to_prebake</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ScenarioGenerator</span><span class="op">&gt;</span> {
-        <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">make_bike_lane_scenario</span>(<span class="ident">map</span>)]
+        <span class="macro">vec!</span>[<span class="ident">make_bike_lane_scenario</span>(<span class="ident">map</span>)]
     }
 }
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">actions</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">id</span>: <span class="ident">ID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Key</span>, <span class="ident">String</span>)<span class="op">&gt;</span> {
     <span class="kw">match</span> (<span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">tutorial</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>().<span class="ident">interaction</span>(), <span class="ident">id</span>) {
-        (<span class="ident">Task</span>::<span class="ident">LowParking</span>, <span class="ident">ID</span>::<span class="ident">Lane</span>(<span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> {
-            <span class="macro">vec</span><span class="macro">!</span>[(<span class="ident">Key</span>::<span class="ident">C</span>, <span class="string">&quot;check the parking occupancy&quot;</span>.<span class="ident">to_string</span>())]
+        (<span class="ident">Task::LowParking</span>, <span class="ident">ID::Lane</span>(<span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="macro">vec!</span>[(<span class="ident">Key::C</span>, <span class="string">&quot;check the parking occupancy&quot;</span>.<span class="ident">to_string</span>())]
         }
-        (<span class="ident">Task</span>::<span class="ident">Escort</span>, <span class="ident">ID</span>::<span class="ident">Car</span>(<span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec</span><span class="macro">!</span>[(<span class="ident">Key</span>::<span class="ident">C</span>, <span class="string">&quot;draw WASH ME&quot;</span>.<span class="ident">to_string</span>())],
-        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Vec</span>::<span class="ident">new</span>(),
+        (<span class="ident">Task::Escort</span>, <span class="ident">ID::Car</span>(<span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">vec!</span>[(<span class="ident">Key::C</span>, <span class="string">&quot;draw WASH ME&quot;</span>.<span class="ident">to_string</span>())],
+        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Vec::new</span>(),
     }
 }
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">execute</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>, <span class="ident">id</span>: <span class="ident">ID</span>, <span class="ident">action</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tut</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">tutorial</span>.<span class="ident">as_mut</span>().<span class="ident">unwrap</span>();
     <span class="kw">let</span> <span class="ident">response</span> <span class="op">=</span> <span class="kw">match</span> (<span class="ident">id</span>, <span class="ident">action</span>) {
-        (<span class="ident">ID</span>::<span class="ident">Car</span>(<span class="ident">c</span>), <span class="string">&quot;draw WASH ME&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        (<span class="ident">ID::Car</span>(<span class="ident">c</span>), <span class="string">&quot;draw WASH ME&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
             <span class="kw">let</span> <span class="ident">is_parked</span> <span class="op">=</span> <span class="ident">app</span>
                 .<span class="ident">primary</span>
                 .<span class="ident">sim</span>
-                .<span class="ident">agent_to_trip</span>(<span class="ident">AgentID</span>::<span class="ident">Car</span>(<span class="ident">ESCORT</span>))
+                .<span class="ident">agent_to_trip</span>(<span class="ident">AgentID::Car</span>(<span class="ident">ESCORT</span>))
                 .<span class="ident">is_none</span>();
             <span class="kw">if</span> <span class="ident">c</span> <span class="op">=</span><span class="op">=</span> <span class="ident">ESCORT</span> {
                 <span class="kw">if</span> <span class="ident">is_parked</span> {
                     <span class="ident">tut</span>.<span class="ident">prank_done</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                    <span class="ident">PopupMsg</span>::<span class="ident">new_state</span>(
+                    <span class="ident">PopupMsg::new_state</span>(
                         <span class="ident">ctx</span>,
                         <span class="string">&quot;Prank in progress&quot;</span>,
-                        <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;You quickly scribble on the window...&quot;</span>],
+                        <span class="macro">vec!</span>[<span class="string">&quot;You quickly scribble on the window...&quot;</span>],
                     )
                 } <span class="kw">else</span> {
-                    <span class="ident">PopupMsg</span>::<span class="ident">new_state</span>(
+                    <span class="ident">PopupMsg::new_state</span>(
                         <span class="ident">ctx</span>,
                         <span class="string">&quot;Not yet!&quot;</span>,
-                        <span class="macro">vec</span><span class="macro">!</span>[
+                        <span class="macro">vec!</span>[
                             <span class="string">&quot;You&#39;re going to run up to an occupied car and draw on their windows?&quot;</span>,
                             <span class="string">&quot;Sounds like we should be friends.&quot;</span>,
                             <span class="string">&quot;But, er, wait for the car to park. (You can speed up time!)&quot;</span>,
                         ],
                     )
                 }
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">c</span>.<span class="ident">vehicle_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">VehicleType</span>::<span class="ident">Bike</span> {
-                <span class="ident">PopupMsg</span>::<span class="ident">new_state</span>(
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">c</span>.<span class="ident">vehicle_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">VehicleType::Bike</span> {
+                <span class="ident">PopupMsg::new_state</span>(
                     <span class="ident">ctx</span>,
                     <span class="string">&quot;That&#39;s a bike&quot;</span>,
-                    <span class="macro">vec</span><span class="macro">!</span>[
+                    <span class="macro">vec!</span>[
                         <span class="string">&quot;Achievement unlocked: You attempted to draw WASH ME on a cyclist.&quot;</span>,
                         <span class="string">&quot;This game is PG-13 or something, so I can&#39;t really describe what happens \
                          next.&quot;</span>,
@@ -2779,10 +2779,10 @@
                     ],
                 )
             } <span class="kw">else</span> {
-                <span class="ident">PopupMsg</span>::<span class="ident">new_state</span>(
+                <span class="ident">PopupMsg::new_state</span>(
                     <span class="ident">ctx</span>,
                     <span class="string">&quot;Wrong car&quot;</span>,
-                    <span class="macro">vec</span><span class="macro">!</span>[
+                    <span class="macro">vec!</span>[
                         <span class="string">&quot;You&#39;re looking at the wrong car.&quot;</span>,
                         <span class="string">&quot;Use the &#39;reset to midnight&#39; (key binding &#39;X&#39;) to start over, if you lost \
                          the car to follow.&quot;</span>,
@@ -2790,40 +2790,40 @@
                 )
             }
         }
-        (<span class="ident">ID</span>::<span class="ident">Lane</span>(<span class="ident">l</span>), <span class="string">&quot;check the parking occupancy&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        (<span class="ident">ID::Lane</span>(<span class="ident">l</span>), <span class="string">&quot;check the parking occupancy&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
             <span class="kw">let</span> <span class="ident">lane</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>);
             <span class="kw">if</span> <span class="ident">lane</span>.<span class="ident">is_parking</span>() {
                 <span class="kw">let</span> <span class="ident">percent</span> <span class="op">=</span> (<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_free_onstreet_spots</span>(<span class="ident">l</span>).<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">f64</span>)
                     <span class="op">/</span> (<span class="ident">lane</span>.<span class="ident">number_parking_spots</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_config</span>()) <span class="kw">as</span> <span class="ident">f64</span>);
                 <span class="kw">if</span> <span class="ident">percent</span> <span class="op">&gt;</span> <span class="number">0.1</span> {
-                    <span class="ident">PopupMsg</span>::<span class="ident">new_state</span>(
+                    <span class="ident">PopupMsg::new_state</span>(
                         <span class="ident">ctx</span>,
                         <span class="string">&quot;Not quite&quot;</span>,
-                        <span class="macro">vec</span><span class="macro">!</span>[
-                            <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;This lane has {:.0}% spots free&quot;</span>, <span class="ident">percent</span> <span class="op">*</span> <span class="number">100.0</span>),
+                        <span class="macro">vec!</span>[
+                            <span class="macro">format!</span>(<span class="string">&quot;This lane has {:.0}% spots free&quot;</span>, <span class="ident">percent</span> <span class="op">*</span> <span class="number">100.0</span>),
                             <span class="string">&quot;Try using the &#39;parking occupancy&#39; layer from the minimap controls&quot;</span>
                                 .<span class="ident">to_string</span>(),
                         ],
                     )
                 } <span class="kw">else</span> {
                     <span class="ident">tut</span>.<span class="ident">parking_found</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                    <span class="ident">PopupMsg</span>::<span class="ident">new_state</span>(
+                    <span class="ident">PopupMsg::new_state</span>(
                         <span class="ident">ctx</span>,
                         <span class="string">&quot;Noice&quot;</span>,
-                        <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;Yup, parallel parking would be tough here!&quot;</span>],
+                        <span class="macro">vec!</span>[<span class="string">&quot;Yup, parallel parking would be tough here!&quot;</span>],
                     )
                 }
             } <span class="kw">else</span> {
-                <span class="ident">PopupMsg</span>::<span class="ident">new_state</span>(<span class="ident">ctx</span>, <span class="string">&quot;Uhh..&quot;</span>, <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;That&#39;s not even a parking lane&quot;</span>])
+                <span class="ident">PopupMsg::new_state</span>(<span class="ident">ctx</span>, <span class="string">&quot;Uhh..&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;That&#39;s not even a parking lane&quot;</span>])
             }
         }
-        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
     };
-    <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">response</span>)
+    <span class="ident">Transition::Push</span>(<span class="ident">response</span>)
 }
 
 <span class="kw">fn</span> <span class="ident">intro_story</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="ident">CutsceneBuilder</span>::<span class="ident">new</span>(<span class="string">&quot;Introduction&quot;</span>)
+    <span class="ident">CutsceneBuilder::new</span>(<span class="string">&quot;Introduction&quot;</span>)
         .<span class="ident">boss</span>(
             <span class="string">&quot;Argh, the mayor&#39;s on my case again about the West Seattle bridge. This day couldn&#39;t \
              get any worse.&quot;</span>,
@@ -2855,17 +2855,17 @@
         )
         .<span class="ident">build</span>(
             <span class="ident">ctx</span>,
-            <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">ctx</span><span class="op">|</span> {
-                <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="string">&quot;Use the tutorial to learn the basic controls.&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>))
+            <span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">ctx</span><span class="op">|</span> {
+                <span class="ident">Text::from</span>(<span class="ident">Line</span>(<span class="string">&quot;Use the tutorial to learn the basic controls.&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color::BLACK</span>))
                     .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
             }),
         )
 }
 
 <span class="comment">// Assumes ways</span>
-<span class="kw">fn</span> <span class="ident">bldg</span>(<span class="ident">id</span>: <span class="ident">i64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">osm</span>::<span class="ident">OsmID</span> {
-    <span class="ident">osm</span>::<span class="ident">OsmID</span>::<span class="ident">Way</span>(<span class="ident">osm</span>::<span class="ident">WayID</span>(<span class="ident">id</span>))
+<span class="kw">fn</span> <span class="ident">bldg</span>(<span class="ident">id</span>: <span class="ident">i64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">osm::OsmID</span> {
+    <span class="ident">osm::OsmID::Way</span>(<span class="ident">osm::WayID</span>(<span class="ident">id</span>))
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="game" data-search-js="../../../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="game" data-search-index-js="../../../../search-index.js" data-search-js="../../../../search.js"></div>
     <script src="../../../../main.js"></script><script src="../../../../source-script.js"></script><script src="../../../../source-files.js"></script></body></html>

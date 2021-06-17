@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `importer/src/bin/generate_houses.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>generate_houses.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../generate_houses/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../generate_houses/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -222,25 +222,25 @@
 <span class="doccomment">//! with the results if the number of houses is at least `--num_required`. This can be used to</span>
 <span class="doccomment">//! autodetect if a map probably already has houses filled out in OSM.</span>
 
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
+<span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 
-<span class="kw">use</span> <span class="ident">aabb_quadtree</span>::<span class="ident">QuadTree</span>;
+<span class="kw">use</span> <span class="ident">aabb_quadtree::QuadTree</span>;
 <span class="kw">use</span> <span class="ident">geojson</span>::{<span class="ident">Feature</span>, <span class="ident">FeatureCollection</span>, <span class="ident">GeoJson</span>};
 <span class="kw">use</span> <span class="ident">rand</span>::{<span class="ident">Rng</span>, <span class="ident">SeedableRng</span>};
-<span class="kw">use</span> <span class="ident">rand_xorshift</span>::<span class="ident">XorShiftRng</span>;
+<span class="kw">use</span> <span class="ident">rand_xorshift::XorShiftRng</span>;
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">CmdArgs</span>, <span class="ident">Timer</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Polygon</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">osm</span>, <span class="ident">Map</span>};
 
 <span class="kw">fn</span> <span class="ident">main</span>() {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">timer</span> <span class="op">=</span> <span class="ident">Timer</span>::<span class="ident">new</span>(<span class="string">&quot;generate houses&quot;</span>);
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">args</span> <span class="op">=</span> <span class="ident">CmdArgs</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">timer</span> <span class="op">=</span> <span class="ident">Timer::new</span>(<span class="string">&quot;generate houses&quot;</span>);
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">args</span> <span class="op">=</span> <span class="ident">CmdArgs::new</span>();
     <span class="kw">let</span> <span class="ident">num_required</span> <span class="op">=</span> <span class="ident">args</span>.<span class="ident">required</span>(<span class="string">&quot;--num_required&quot;</span>).<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
     <span class="kw">let</span> <span class="ident">out</span> <span class="op">=</span> <span class="ident">args</span>.<span class="ident">required</span>(<span class="string">&quot;--out&quot;</span>);
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="ident">XorShiftRng</span>::<span class="ident">seed_from_u64</span>(<span class="ident">args</span>.<span class="ident">required</span>(<span class="string">&quot;--rng_seed&quot;</span>).<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>());
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="ident">XorShiftRng::seed_from_u64</span>(<span class="ident">args</span>.<span class="ident">required</span>(<span class="string">&quot;--rng_seed&quot;</span>).<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>());
     <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">path</span>) <span class="op">=</span> <span class="ident">args</span>.<span class="ident">optional</span>(<span class="string">&quot;--map&quot;</span>) {
-        <span class="ident">Map</span>::<span class="ident">load_synchronously</span>(<span class="ident">path</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>)
+        <span class="ident">Map::load_synchronously</span>(<span class="ident">path</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>)
     } <span class="kw">else</span> {
         <span class="ident">import_map</span>(
             <span class="ident">args</span>.<span class="ident">required</span>(<span class="string">&quot;--osm&quot;</span>),
@@ -253,14 +253,14 @@
 
     <span class="kw">let</span> <span class="ident">houses</span> <span class="op">=</span> <span class="ident">generate_buildings_on_empty_residential_roads</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rng</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>);
     <span class="kw">if</span> <span class="ident">houses</span>.<span class="ident">len</span>() <span class="op">&lt;</span><span class="op">=</span> <span class="ident">num_required</span> {
-        <span class="macro">panic</span><span class="macro">!</span>(
+        <span class="macro">panic!</span>(
             <span class="string">&quot;Only generated {} houses, but wanted at least {}&quot;</span>,
             <span class="ident">houses</span>.<span class="ident">len</span>(),
             <span class="ident">num_required</span>
         );
     }
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">features</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">features</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
     <span class="kw">for</span> <span class="ident">poly</span> <span class="kw">in</span> <span class="ident">houses</span> {
         <span class="ident">features</span>.<span class="ident">push</span>(<span class="ident">Feature</span> {
             <span class="ident">bbox</span>: <span class="prelude-val">None</span>,
@@ -270,12 +270,12 @@
             <span class="ident">foreign_members</span>: <span class="prelude-val">None</span>,
         });
     }
-    <span class="kw">let</span> <span class="ident">geojson</span> <span class="op">=</span> <span class="ident">GeoJson</span>::<span class="ident">from</span>(<span class="ident">FeatureCollection</span> {
+    <span class="kw">let</span> <span class="ident">geojson</span> <span class="op">=</span> <span class="ident">GeoJson::from</span>(<span class="ident">FeatureCollection</span> {
         <span class="ident">bbox</span>: <span class="prelude-val">None</span>,
         <span class="ident">features</span>,
         <span class="ident">foreign_members</span>: <span class="prelude-val">None</span>,
     });
-    <span class="ident">abstio</span>::<span class="ident">write_json</span>(<span class="ident">out</span>, <span class="kw-2">&amp;</span><span class="ident">geojson</span>);
+    <span class="ident">abstio::write_json</span>(<span class="ident">out</span>, <span class="kw-2">&amp;</span><span class="ident">geojson</span>);
 }
 
 <span class="kw">fn</span> <span class="ident">generate_buildings_on_empty_residential_roads</span>(
@@ -284,17 +284,17 @@
     <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span> {
     <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;initially place buildings&quot;</span>);
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lanes_with_buildings</span> <span class="op">=</span> <span class="ident">HashSet</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lanes_with_buildings</span> <span class="op">=</span> <span class="ident">HashSet::new</span>();
     <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_buildings</span>() {
         <span class="ident">lanes_with_buildings</span>.<span class="ident">insert</span>(<span class="ident">b</span>.<span class="ident">sidewalk</span>());
     }
 
     <span class="comment">// Find all sidewalks belonging to residential roads that have no buildings</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">empty_sidewalks</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">empty_sidewalks</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
     <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_lanes</span>().<span class="ident">values</span>() {
         <span class="kw">if</span> <span class="ident">l</span>.<span class="ident">is_sidewalk</span>()
             <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">lanes_with_buildings</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">l</span>.<span class="ident">id</span>)
-            <span class="op">&amp;&amp;</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">l</span>.<span class="ident">parent</span>).<span class="ident">osm_tags</span>.<span class="ident">is</span>(<span class="ident">osm</span>::<span class="ident">HIGHWAY</span>, <span class="string">&quot;residential&quot;</span>)
+            <span class="op">&amp;&amp;</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">l</span>.<span class="ident">parent</span>).<span class="ident">osm_tags</span>.<span class="ident">is</span>(<span class="ident">osm::HIGHWAY</span>, <span class="string">&quot;residential&quot;</span>)
         {
             <span class="ident">empty_sidewalks</span>.<span class="ident">push</span>(<span class="ident">l</span>.<span class="ident">id</span>);
         }
@@ -302,7 +302,7 @@
 
     <span class="comment">// Walk along each sidewalk, trying to place some simple houses with a bit of setback from the</span>
     <span class="comment">// road.</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">houses</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">houses</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
     <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="ident">empty_sidewalks</span> {
         <span class="kw">let</span> <span class="ident">lane</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">dist_along</span> <span class="op">=</span> <span class="ident">rand_dist</span>(<span class="ident">rng</span>, <span class="number">1.0</span>, <span class="number">5.0</span>);
@@ -313,29 +313,29 @@
 
             <span class="comment">// Make it so that the front of the house is always set back a fixed amount. So account</span>
             <span class="comment">// for the chosen &quot;height&quot;.</span>
-            <span class="kw">let</span> <span class="ident">setback</span> <span class="op">=</span> <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">10.0</span>) <span class="op">+</span> <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="ident">height</span> <span class="op">/</span> <span class="number">2.0</span>);
+            <span class="kw">let</span> <span class="ident">setback</span> <span class="op">=</span> <span class="ident">Distance::meters</span>(<span class="number">10.0</span>) <span class="op">+</span> <span class="ident">Distance::meters</span>(<span class="ident">height</span> <span class="op">/</span> <span class="number">2.0</span>);
             <span class="kw">let</span> <span class="ident">center</span> <span class="op">=</span> <span class="ident">sidewalk_pt</span>.<span class="ident">project_away</span>(<span class="ident">setback</span>, <span class="ident">angle</span>.<span class="ident">rotate_degs</span>(<span class="op">-</span><span class="number">90.0</span>));
 
             <span class="ident">houses</span>.<span class="ident">push</span>(
-                <span class="ident">Polygon</span>::<span class="ident">rectangle</span>(<span class="ident">width</span>, <span class="ident">height</span>)
+                <span class="ident">Polygon::rectangle</span>(<span class="ident">width</span>, <span class="ident">height</span>)
                     .<span class="ident">rotate</span>(<span class="ident">angle</span>)
                     .<span class="ident">translate</span>(<span class="ident">center</span>.<span class="ident">x</span>() <span class="op">-</span> <span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>, <span class="ident">center</span>.<span class="ident">y</span>() <span class="op">-</span> <span class="ident">height</span> <span class="op">/</span> <span class="number">2.0</span>),
             );
 
-            <span class="ident">dist_along</span> <span class="op">+</span><span class="op">=</span> <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="ident">width</span>.<span class="ident">max</span>(<span class="ident">height</span>)) <span class="op">+</span> <span class="ident">rand_dist</span>(<span class="ident">rng</span>, <span class="number">2.0</span>, <span class="number">4.0</span>);
+            <span class="ident">dist_along</span> <span class="op">+</span><span class="op">=</span> <span class="ident">Distance::meters</span>(<span class="ident">width</span>.<span class="ident">max</span>(<span class="ident">height</span>)) <span class="op">+</span> <span class="ident">rand_dist</span>(<span class="ident">rng</span>, <span class="number">2.0</span>, <span class="number">4.0</span>);
         }
     }
     <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;initially place buildings&quot;</span>);
 
     <span class="comment">// Remove buildings that hit each other. Build up the quadtree of finalized houses as we go,</span>
     <span class="comment">// using index as the ID.</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">non_overlapping</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">quadtree</span> <span class="op">=</span> <span class="ident">QuadTree</span>::<span class="ident">default</span>(<span class="ident">map</span>.<span class="ident">get_bounds</span>().<span class="ident">as_bbox</span>());
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">non_overlapping</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">quadtree</span> <span class="op">=</span> <span class="ident">QuadTree::default</span>(<span class="ident">map</span>.<span class="ident">get_bounds</span>().<span class="ident">as_bbox</span>());
     <span class="ident">timer</span>.<span class="ident">start_iter</span>(<span class="string">&quot;prune buildings overlapping each other&quot;</span>, <span class="ident">houses</span>.<span class="ident">len</span>());
     <span class="lifetime">&#39;HOUSE</span>: <span class="kw">for</span> <span class="ident">poly</span> <span class="kw">in</span> <span class="ident">houses</span> {
         <span class="ident">timer</span>.<span class="ident">next</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">search</span> <span class="op">=</span> <span class="ident">poly</span>.<span class="ident">get_bounds</span>();
-        <span class="ident">search</span>.<span class="ident">add_buffer</span>(<span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">1.0</span>));
+        <span class="ident">search</span>.<span class="ident">add_buffer</span>(<span class="ident">Distance::meters</span>(<span class="number">1.0</span>));
         <span class="kw">for</span> (<span class="ident">idx</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="ident">quadtree</span>.<span class="ident">query</span>(<span class="ident">search</span>.<span class="ident">as_bbox</span>()) {
             <span class="kw">if</span> <span class="ident">poly</span>.<span class="ident">intersects</span>(<span class="kw-2">&amp;</span><span class="ident">non_overlapping</span>[<span class="kw-2">*</span><span class="ident">idx</span>]) {
                 <span class="kw">continue</span> <span class="lifetime">&#39;HOUSE</span>;
@@ -347,8 +347,8 @@
 
     <span class="comment">// Create a different quadtree, just containing static things in the map that we don&#39;t want</span>
     <span class="comment">// new buildings to hit. The index is just into a list of polygons.</span>
-    <span class="ident">quadtree</span> <span class="op">=</span> <span class="ident">QuadTree</span>::<span class="ident">default</span>(<span class="ident">map</span>.<span class="ident">get_bounds</span>().<span class="ident">as_bbox</span>());
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">static_polygons</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+    <span class="ident">quadtree</span> <span class="op">=</span> <span class="ident">QuadTree::default</span>(<span class="ident">map</span>.<span class="ident">get_bounds</span>().<span class="ident">as_bbox</span>());
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">static_polygons</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
     <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_roads</span>() {
         <span class="kw">let</span> <span class="ident">poly</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">get_thick_polygon</span>(<span class="ident">map</span>);
         <span class="ident">quadtree</span>.<span class="ident">insert_with_box</span>(<span class="ident">static_polygons</span>.<span class="ident">len</span>(), <span class="ident">poly</span>.<span class="ident">get_bounds</span>().<span class="ident">as_bbox</span>());
@@ -371,7 +371,7 @@
         <span class="ident">static_polygons</span>.<span class="ident">push</span>(<span class="ident">a</span>.<span class="ident">polygon</span>.<span class="ident">clone</span>());
     }
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">survivors</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">survivors</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
     <span class="ident">timer</span>.<span class="ident">start_iter</span>(
         <span class="string">&quot;prune buildings overlapping the basemap&quot;</span>,
         <span class="ident">non_overlapping</span>.<span class="ident">len</span>(),
@@ -389,8 +389,8 @@
 }
 
 <span class="kw">fn</span> <span class="ident">rand_dist</span>(<span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">XorShiftRng</span>, <span class="ident">low</span>: <span class="ident">f64</span>, <span class="ident">high</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Distance</span> {
-    <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">high</span> <span class="op">&gt;</span> <span class="ident">low</span>);
-    <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="ident">rng</span>.<span class="ident">gen_range</span>(<span class="ident">low</span>..<span class="ident">high</span>))
+    <span class="macro">assert!</span>(<span class="ident">high</span> <span class="op">&gt;</span> <span class="ident">low</span>);
+    <span class="ident">Distance::meters</span>(<span class="ident">rng</span>.<span class="ident">gen_range</span>(<span class="ident">low</span>..<span class="ident">high</span>))
 }
 
 <span class="kw">fn</span> <span class="ident">import_map</span>(
@@ -399,34 +399,34 @@
     <span class="ident">drive_on_right</span>: <span class="ident">bool</span>,
     <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Map</span> {
-    <span class="kw">let</span> <span class="ident">raw</span> <span class="op">=</span> <span class="ident">convert_osm</span>::<span class="ident">convert</span>(
-        <span class="ident">convert_osm</span>::<span class="ident">Options</span> {
+    <span class="kw">let</span> <span class="ident">raw</span> <span class="op">=</span> <span class="ident">convert_osm::convert</span>(
+        <span class="ident">convert_osm::Options</span> {
             <span class="ident">osm_input</span>,
-            <span class="ident">name</span>: <span class="ident">abstio</span>::<span class="ident">MapName</span>::<span class="ident">new</span>(<span class="string">&quot;zz&quot;</span>, <span class="string">&quot;oneshot&quot;</span>, <span class="string">&quot;procgen&quot;</span>),
+            <span class="ident">name</span>: <span class="ident">abstio::MapName::new</span>(<span class="string">&quot;zz&quot;</span>, <span class="string">&quot;oneshot&quot;</span>, <span class="string">&quot;procgen&quot;</span>),
 
             <span class="ident">clip</span>,
-            <span class="ident">map_config</span>: <span class="ident">map_model</span>::<span class="ident">MapConfig</span> {
+            <span class="ident">map_config</span>: <span class="ident">map_model::MapConfig</span> {
                 <span class="ident">driving_side</span>: <span class="kw">if</span> <span class="ident">drive_on_right</span> {
-                    <span class="ident">map_model</span>::<span class="ident">DrivingSide</span>::<span class="ident">Right</span>
+                    <span class="ident">map_model::DrivingSide::Right</span>
                 } <span class="kw">else</span> {
-                    <span class="ident">map_model</span>::<span class="ident">DrivingSide</span>::<span class="ident">Left</span>
+                    <span class="ident">map_model::DrivingSide::Left</span>
                 },
                 <span class="ident">bikes_can_use_bus_lanes</span>: <span class="bool-val">true</span>,
                 <span class="ident">inferred_sidewalks</span>: <span class="bool-val">true</span>,
-                <span class="ident">street_parking_spot_length</span>: <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">8.0</span>),
+                <span class="ident">street_parking_spot_length</span>: <span class="ident">Distance::meters</span>(<span class="number">8.0</span>),
             },
 
-            <span class="ident">onstreet_parking</span>: <span class="ident">convert_osm</span>::<span class="ident">OnstreetParking</span>::<span class="ident">JustOSM</span>,
-            <span class="ident">public_offstreet_parking</span>: <span class="ident">convert_osm</span>::<span class="ident">PublicOffstreetParking</span>::<span class="prelude-val">None</span>,
-            <span class="ident">private_offstreet_parking</span>: <span class="ident">convert_osm</span>::<span class="ident">PrivateOffstreetParking</span>::<span class="ident">FixedPerBldg</span>(<span class="number">1</span>),
+            <span class="ident">onstreet_parking</span>: <span class="ident">convert_osm::OnstreetParking::JustOSM</span>,
+            <span class="ident">public_offstreet_parking</span>: <span class="ident">convert_osm::PublicOffstreetParking::None</span>,
+            <span class="ident">private_offstreet_parking</span>: <span class="ident">convert_osm::PrivateOffstreetParking::FixedPerBldg</span>(<span class="number">1</span>),
             <span class="ident">include_railroads</span>: <span class="bool-val">true</span>,
             <span class="ident">extra_buildings</span>: <span class="prelude-val">None</span>,
         },
         <span class="ident">timer</span>,
     );
-    <span class="ident">map_model</span>::<span class="ident">Map</span>::<span class="ident">create_from_raw</span>(
+    <span class="ident">map_model::Map::create_from_raw</span>(
         <span class="ident">raw</span>,
-        <span class="ident">map_model</span>::<span class="ident">RawToMapOptions</span> {
+        <span class="ident">map_model::RawToMapOptions</span> {
             <span class="ident">build_ch</span>: <span class="bool-val">false</span>,
             <span class="ident">consolidate_all_intersections</span>: <span class="bool-val">false</span>,
             <span class="ident">keep_bldg_tags</span>: <span class="bool-val">false</span>,
@@ -435,5 +435,5 @@
     )
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="generate_houses" data-search-js="../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="generate_houses" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script></body></html>

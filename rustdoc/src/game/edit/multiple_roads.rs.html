@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `game/src/edit/multiple_roads.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>multiple_roads.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../game/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../game/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -239,20 +239,20 @@
 <span id="236">236</span>
 <span id="237">237</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
+<span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 
-<span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Distance</span>;
-<span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">tools</span>::<span class="ident">PopupMsg</span>;
-<span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">ID</span>;
+<span class="kw">use</span> <span class="ident">geom::Distance</span>;
+<span class="kw">use</span> <span class="ident">map_gui::tools::PopupMsg</span>;
+<span class="kw">use</span> <span class="ident">map_gui::ID</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">EditRoad</span>, <span class="ident">MapEdits</span>, <span class="ident">RoadID</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>,
     <span class="ident">State</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">Transition</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">edit</span>::<span class="ident">apply_map_edits</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::app::App</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::app::Transition</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::edit::apply_map_edits</span>;
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SelectSegments</span> {
     <span class="ident">new_state</span>: <span class="ident">EditRoad</span>,
@@ -279,7 +279,7 @@
         <span class="comment">// so no need to exclude it.</span>
         <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>;
         <span class="kw">let</span> <span class="ident">base_name</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">base_road</span>).<span class="ident">get_name</span>(<span class="prelude-val">None</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">candidates</span> <span class="op">=</span> <span class="ident">HashSet</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">candidates</span> <span class="op">=</span> <span class="ident">HashSet::new</span>();
         <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_roads</span>() {
             <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_r_edit</span>(<span class="ident">r</span>.<span class="ident">id</span>) <span class="op">=</span><span class="op">=</span> <span class="ident">orig_state</span> <span class="op">&amp;&amp;</span> <span class="ident">r</span>.<span class="ident">get_name</span>(<span class="prelude-val">None</span>) <span class="op">=</span><span class="op">=</span> <span class="ident">base_name</span> {
                 <span class="ident">candidates</span>.<span class="ident">insert</span>(<span class="ident">r</span>.<span class="ident">id</span>);
@@ -287,10 +287,10 @@
         }
 
         <span class="kw">if</span> <span class="ident">candidates</span>.<span class="ident">is_empty</span>() {
-            <span class="kw">return</span> <span class="ident">PopupMsg</span>::<span class="ident">new_state</span>(
+            <span class="kw">return</span> <span class="ident">PopupMsg::new_state</span>(
                 <span class="ident">ctx</span>,
                 <span class="string">&quot;Error&quot;</span>,
-                <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;No other roads resemble the one you changed&quot;</span>],
+                <span class="macro">vec!</span>[<span class="string">&quot;No other roads resemble the one you changed&quot;</span>],
             );
         }
 
@@ -302,19 +302,19 @@
             <span class="ident">base_edits</span>,
 
             <span class="ident">current</span>,
-            <span class="ident">draw</span>: <span class="ident">Drawable</span>::<span class="ident">empty</span>(<span class="ident">ctx</span>),
-            <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">empty</span>(<span class="ident">ctx</span>),
+            <span class="ident">draw</span>: <span class="ident">Drawable::empty</span>(<span class="ident">ctx</span>),
+            <span class="ident">panel</span>: <span class="ident">Panel::empty</span>(<span class="ident">ctx</span>),
             <span class="ident">selected</span>: <span class="prelude-val">None</span>,
         };
         <span class="ident">state</span>.<span class="ident">recalculate</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
-        <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">state</span>)
+        <span class="ident">Box::new</span>(<span class="ident">state</span>)
     }
 
     <span class="kw">fn</span> <span class="ident">recalculate</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
         <span class="comment">// Update the drawn view</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
         <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>;
-        <span class="kw">let</span> <span class="ident">color</span> <span class="op">=</span> <span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#204AA1&quot;</span>);
+        <span class="kw">let</span> <span class="ident">color</span> <span class="op">=</span> <span class="ident">Color::hex</span>(<span class="string">&quot;#204AA1&quot;</span>);
         <span class="comment">// Some alpha is always useful, in case the player wants to peek at the lanes beneath</span>
         <span class="ident">batch</span>.<span class="ident">push</span>(
             <span class="ident">color</span>.<span class="ident">alpha</span>(<span class="number">0.8</span>),
@@ -324,7 +324,7 @@
             <span class="kw">let</span> <span class="ident">polygon</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>).<span class="ident">get_thick_polygon</span>(<span class="ident">map</span>);
             <span class="kw">if</span> <span class="self">self</span>.<span class="ident">current</span>.<span class="ident">contains</span>(<span class="ident">r</span>) {
                 <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">color</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>), <span class="ident">polygon</span>);
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">poly</span>) <span class="op">=</span> <span class="ident">polygon</span>.<span class="ident">to_outline</span>(<span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">3.0</span>)) {
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">poly</span>) <span class="op">=</span> <span class="ident">polygon</span>.<span class="ident">to_outline</span>(<span class="ident">Distance::meters</span>(<span class="number">3.0</span>)) {
                 <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">color</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>), <span class="ident">poly</span>);
             }
             <span class="comment">// If the road shape is for some reason too weird to produce the outline, just don&#39;t</span>
@@ -333,18 +333,18 @@
         <span class="self">self</span>.<span class="ident">draw</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">batch</span>);
 
         <span class="comment">// Update the panel</span>
-        <span class="self">self</span>.<span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel</span>::<span class="ident">new_builder</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
+        <span class="self">self</span>.<span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
             <span class="ident">Line</span>(<span class="string">&quot;Apply changes to similar roads&quot;</span>)
                 .<span class="ident">small_heading</span>()
                 .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-            <span class="macro">format</span><span class="macro">!</span>(
+            <span class="macro">format!</span>(
                 <span class="string">&quot;{} / {} roads similar to #{} are selected&quot;</span>,
                 <span class="self">self</span>.<span class="ident">current</span>.<span class="ident">len</span>(),
                 <span class="self">self</span>.<span class="ident">candidates</span>.<span class="ident">len</span>(),
                 <span class="self">self</span>.<span class="ident">base_road</span>.<span class="number">0</span>
             )
             .<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
-            <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
                 <span class="string">&quot;Click to select/unselect&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
                     .<span class="ident">btn_plain</span>
@@ -357,30 +357,30 @@
                     .<span class="ident">disabled</span>(<span class="self">self</span>.<span class="ident">current</span>.<span class="ident">is_empty</span>())
                     .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
             ]),
-            <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
                     .<span class="ident">btn_solid_primary</span>
-                    .<span class="ident">text</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Apply changes to {} roads&quot;</span>, <span class="self">self</span>.<span class="ident">current</span>.<span class="ident">len</span>()))
-                    .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Enter</span>)
+                    .<span class="ident">text</span>(<span class="macro">format!</span>(<span class="string">&quot;Apply changes to {} roads&quot;</span>, <span class="self">self</span>.<span class="ident">current</span>.<span class="ident">len</span>()))
+                    .<span class="ident">hotkey</span>(<span class="ident">Key::Enter</span>)
                     .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;Apply&quot;</span>),
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
                     .<span class="ident">btn_plain</span>
                     .<span class="ident">text</span>(<span class="string">&quot;Cancel&quot;</span>)
-                    .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Escape</span>)
+                    .<span class="ident">hotkey</span>(<span class="ident">Key::Escape</span>)
                     .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
             ]),
         ]))
-        .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment</span>::<span class="ident">Center</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Top</span>)
+        .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::Center</span>, <span class="ident">VerticalAlignment::Top</span>)
         .<span class="ident">build</span>(<span class="ident">ctx</span>);
     }
 }
 
 <span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">SelectSegments</span> {
     <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
             <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
                 <span class="string">&quot;Apply&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">mem</span>::<span class="ident">take</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">base_edits</span>);
+                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">std::mem::take</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">base_edits</span>);
                     <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">current</span> {
                         <span class="ident">edits</span>
                             .<span class="ident">commands</span>
@@ -389,12 +389,12 @@
                             }));
                     }
                     <span class="ident">apply_map_edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">edits</span>);
-                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Multi</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                        <span class="ident">Transition</span>::<span class="ident">Pop</span>,
-                        <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">PopupMsg</span>::<span class="ident">new_state</span>(
+                    <span class="kw">return</span> <span class="ident">Transition::Multi</span>(<span class="macro">vec!</span>[
+                        <span class="ident">Transition::Pop</span>,
+                        <span class="ident">Transition::Replace</span>(<span class="ident">PopupMsg::new_state</span>(
                             <span class="ident">ctx</span>,
                             <span class="string">&quot;Success&quot;</span>,
-                            <span class="macro">vec</span><span class="macro">!</span>[<span class="macro">format</span><span class="macro">!</span>(
+                            <span class="macro">vec!</span>[<span class="macro">format!</span>(
                                 <span class="string">&quot;Changed {} other roads to match&quot;</span>,
                                 <span class="self">self</span>.<span class="ident">current</span>.<span class="ident">len</span>()
                             )],
@@ -410,9 +410,9 @@
                     <span class="self">self</span>.<span class="ident">recalculate</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
                 }
                 <span class="string">&quot;Cancel&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Pop</span>;
+                    <span class="kw">return</span> <span class="ident">Transition::Pop</span>;
                 }
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
             }
         }
 
@@ -420,8 +420,8 @@
             <span class="self">self</span>.<span class="ident">selected</span> <span class="op">=</span> <span class="prelude-val">None</span>;
             <span class="ident">ctx</span>.<span class="ident">show_cursor</span>();
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">r</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">app</span>.<span class="ident">mouseover_unzoomed_roads_and_intersections</span>(<span class="ident">ctx</span>) {
-                <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">Road</span>(<span class="ident">r</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">r</span>),
-                <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">Lane</span>(<span class="ident">l</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">parent</span>),
+                <span class="prelude-val">Some</span>(<span class="ident">ID::Road</span>(<span class="ident">r</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">r</span>),
+                <span class="prelude-val">Some</span>(<span class="ident">ID::Lane</span>(<span class="ident">l</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">parent</span>),
                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
             } {
                 <span class="kw">if</span> <span class="self">self</span>.<span class="ident">candidates</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">r</span>) {
@@ -443,7 +443,7 @@
             }
         }
 
-        <span class="ident">Transition</span>::<span class="ident">Keep</span>
+        <span class="ident">Transition::Keep</span>
     }
 
     <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
@@ -458,9 +458,9 @@
             } <span class="kw">else</span> {
                 <span class="prelude-val">None</span>
             } {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
                 <span class="ident">batch</span>.<span class="ident">append</span>(
-                    <span class="ident">GeomBatch</span>::<span class="ident">load_svg</span>(<span class="ident">g</span>, <span class="ident">cursor</span>)
+                    <span class="ident">GeomBatch::load_svg</span>(<span class="ident">g</span>, <span class="ident">cursor</span>)
                         .<span class="ident">scale</span>(<span class="number">2.0</span>)
                         .<span class="ident">centered_on</span>(<span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor</span>().<span class="ident">to_pt</span>()),
                 );
@@ -477,5 +477,5 @@
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="game" data-search-js="../../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="game" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
     <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script></body></html>

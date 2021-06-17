@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry_demo/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../widgetry_demo/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../widgetry_demo/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -624,10 +624,10 @@
 <span id="621">621</span>
 <span id="622">622</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashSet</span>;
+<span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 
-<span class="kw">use</span> <span class="ident">rand</span>::<span class="ident">SeedableRng</span>;
-<span class="kw">use</span> <span class="ident">rand_xorshift</span>::<span class="ident">XorShiftRng</span>;
+<span class="kw">use</span> <span class="ident">rand::SeedableRng</span>;
+<span class="kw">use</span> <span class="ident">rand_xorshift::XorShiftRng</span>;
 
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">Duration</span>, <span class="ident">Percent</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
@@ -639,26 +639,26 @@
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">main</span>() {
     <span class="comment">// Use this to initialize logging.</span>
-    <span class="ident">abstutil</span>::<span class="ident">CmdArgs</span>::<span class="ident">new</span>().<span class="ident">done</span>();
+    <span class="ident">abstutil::CmdArgs::new</span>().<span class="ident">done</span>();
 
-    <span class="kw">let</span> <span class="ident">settings</span> <span class="op">=</span> <span class="ident">Settings</span>::<span class="ident">new</span>(<span class="string">&quot;widgetry demo&quot;</span>);
+    <span class="kw">let</span> <span class="ident">settings</span> <span class="op">=</span> <span class="ident">Settings::new</span>(<span class="string">&quot;widgetry demo&quot;</span>);
     <span class="ident">run</span>(<span class="ident">settings</span>);
 }
 
 <span class="kw">fn</span> <span class="ident">run</span>(<span class="kw-2">mut</span> <span class="ident">settings</span>: <span class="ident">Settings</span>) {
-    <span class="ident">settings</span> <span class="op">=</span> <span class="ident">settings</span>.<span class="ident">read_svg</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">abstio</span>::<span class="ident">slurp_bytes</span>));
+    <span class="ident">settings</span> <span class="op">=</span> <span class="ident">settings</span>.<span class="ident">read_svg</span>(<span class="ident">Box::new</span>(<span class="ident">abstio::slurp_bytes</span>));
     <span class="comment">// Control flow surrendered here. App implements State, which has an event handler and a draw</span>
     <span class="comment">// callback.</span>
     <span class="comment">//</span>
     <span class="comment">// TODO The demo loads a .svg file, so to make it work on both native and web, for now we use</span>
     <span class="comment">// read_svg. But we should have a more minimal example of how to do that here.</span>
-    <span class="ident">widgetry</span>::<span class="ident">run</span>(<span class="ident">settings</span>, <span class="op">|</span><span class="ident">ctx</span><span class="op">|</span> {
+    <span class="ident">widgetry::run</span>(<span class="ident">settings</span>, <span class="op">|</span><span class="ident">ctx</span><span class="op">|</span> {
         <span class="comment">// TODO: remove Style::pregame and make light_bg the default.</span>
-        <span class="ident">ctx</span>.<span class="ident">set_style</span>(<span class="ident">widgetry</span>::<span class="ident">Style</span>::<span class="ident">light_bg</span>());
+        <span class="ident">ctx</span>.<span class="ident">set_style</span>(<span class="ident">widgetry::Style::light_bg</span>());
         <span class="comment">// TODO: Add a toggle to switch theme in demo (and recreate UI in that new theme)</span>
         <span class="comment">// ctx.set_style(widgetry::Style::dark_bg());</span>
 
-        (<span class="ident">App</span> {}, <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">Demo</span>::<span class="ident">new</span>(<span class="ident">ctx</span>))])
+        (<span class="ident">App</span> {}, <span class="macro">vec!</span>[<span class="ident">Box::new</span>(<span class="ident">Demo::new</span>(<span class="ident">ctx</span>))])
     });
 }
 
@@ -682,20 +682,20 @@
             <span class="ident">controls</span>: <span class="ident">make_controls</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tabs</span>),
             <span class="ident">timeseries_panel</span>: <span class="prelude-val">None</span>,
             <span class="ident">scrollable_canvas</span>: <span class="ident">setup_scrollable_canvas</span>(<span class="ident">ctx</span>),
-            <span class="ident">texture_demo</span>: <span class="ident">setup_texture_demo</span>(<span class="ident">ctx</span>, <span class="ident">Texture</span>::<span class="ident">SAND</span>, <span class="ident">Texture</span>::<span class="ident">CACTUS</span>),
-            <span class="ident">elapsed</span>: <span class="ident">Duration</span>::<span class="ident">ZERO</span>,
+            <span class="ident">texture_demo</span>: <span class="ident">setup_texture_demo</span>(<span class="ident">ctx</span>, <span class="ident">Texture::SAND</span>, <span class="ident">Texture::CACTUS</span>),
+            <span class="ident">elapsed</span>: <span class="ident">Duration::ZERO</span>,
             <span class="ident">tabs</span>,
         }
     }
 
     <span class="kw">fn</span> <span class="ident">make_timeseries_panel</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Panel</span> {
         <span class="comment">// Make a table with 3 columns.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">col1</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Line</span>(<span class="string">&quot;Time&quot;</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>)];
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">col</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Line</span>(<span class="string">&quot;Linear&quot;</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>)];
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">col3</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">Line</span>(<span class="string">&quot;Quadratic&quot;</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>)];
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">col1</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">Line</span>(<span class="string">&quot;Time&quot;</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>)];
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">col</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">Line</span>(<span class="string">&quot;Linear&quot;</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>)];
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">col3</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">Line</span>(<span class="string">&quot;Quadratic&quot;</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>)];
         <span class="kw">for</span> <span class="ident">s</span> <span class="kw">in</span> <span class="number">0</span>..(<span class="self">self</span>.<span class="ident">elapsed</span>.<span class="ident">inner_seconds</span>() <span class="kw">as</span> <span class="ident">usize</span>) {
             <span class="ident">col1</span>.<span class="ident">push</span>(
-                <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="ident">s</span> <span class="kw">as</span> <span class="ident">f64</span>)))
+                <span class="ident">Line</span>(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">Duration::seconds</span>(<span class="ident">s</span> <span class="kw">as</span> <span class="ident">f64</span>)))
                     .<span class="ident">secondary</span>()
                     .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
             );
@@ -703,38 +703,38 @@
             <span class="ident">col3</span>.<span class="ident">push</span>(<span class="ident">Line</span>(<span class="ident">s</span>.<span class="ident">pow</span>(<span class="number">2</span>).<span class="ident">to_string</span>()).<span class="ident">secondary</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>));
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">c</span> <span class="op">=</span> <span class="ident">Panel</span>::<span class="ident">new_builder</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">c</span> <span class="op">=</span> <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
+            <span class="ident">Text::from_multiline</span>(<span class="macro">vec!</span>[
                 <span class="ident">Line</span>(<span class="string">&quot;Here&#39;s a bunch of text to force some scrolling.&quot;</span>).<span class="ident">small_heading</span>(),
                 <span class="ident">Line</span>(
                     <span class="string">&quot;Bug: scrolling by clicking and dragging doesn&#39;t work while the stopwatch is \
                      running.&quot;</span>,
                 )
-                .<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">RED</span>),
+                .<span class="ident">fg</span>(<span class="ident">Color::RED</span>),
             ])
             .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-            <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
                 <span class="comment">// Examples of styling widgets</span>
-                <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="ident">col1</span>).<span class="ident">outline</span>((<span class="number">2.0</span>, <span class="ident">Color</span>::<span class="ident">BLACK</span>)).<span class="ident">padding</span>(<span class="number">5</span>),
-                <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="ident">col</span>).<span class="ident">outline</span>((<span class="number">5.0</span>, <span class="ident">Color</span>::<span class="ident">BLACK</span>)).<span class="ident">padding</span>(<span class="number">5</span>),
-                <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="ident">col3</span>).<span class="ident">outline</span>((<span class="number">5.0</span>, <span class="ident">Color</span>::<span class="ident">BLUE</span>)).<span class="ident">padding</span>(<span class="number">5</span>),
+                <span class="ident">Widget::col</span>(<span class="ident">col1</span>).<span class="ident">outline</span>((<span class="number">2.0</span>, <span class="ident">Color::BLACK</span>)).<span class="ident">padding</span>(<span class="number">5</span>),
+                <span class="ident">Widget::col</span>(<span class="ident">col</span>).<span class="ident">outline</span>((<span class="number">5.0</span>, <span class="ident">Color::BLACK</span>)).<span class="ident">padding</span>(<span class="number">5</span>),
+                <span class="ident">Widget::col</span>(<span class="ident">col3</span>).<span class="ident">outline</span>((<span class="number">5.0</span>, <span class="ident">Color::BLUE</span>)).<span class="ident">padding</span>(<span class="number">5</span>),
             ]),
-            <span class="ident">LinePlot</span>::<span class="ident">new_widget</span>(
+            <span class="ident">LinePlot::new_widget</span>(
                 <span class="ident">ctx</span>,
-                <span class="macro">vec</span><span class="macro">!</span>[
+                <span class="macro">vec!</span>[
                     <span class="ident">Series</span> {
                         <span class="ident">label</span>: <span class="string">&quot;Linear&quot;</span>.<span class="ident">to_string</span>(),
-                        <span class="ident">color</span>: <span class="ident">Color</span>::<span class="ident">GREEN</span>,
+                        <span class="ident">color</span>: <span class="ident">Color::GREEN</span>,
                         <span class="comment">// These points are (x axis = Time, y axis = usize)</span>
                         <span class="ident">pts</span>: (<span class="number">0</span>..(<span class="self">self</span>.<span class="ident">elapsed</span>.<span class="ident">inner_seconds</span>() <span class="kw">as</span> <span class="ident">usize</span>))
-                            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> (<span class="ident">Time</span>::<span class="ident">START_OF_DAY</span> <span class="op">+</span> <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="ident">s</span> <span class="kw">as</span> <span class="ident">f64</span>), <span class="ident">s</span>))
+                            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> (<span class="ident">Time::START_OF_DAY</span> <span class="op">+</span> <span class="ident">Duration::seconds</span>(<span class="ident">s</span> <span class="kw">as</span> <span class="ident">f64</span>), <span class="ident">s</span>))
                             .<span class="ident">collect</span>(),
                     },
                     <span class="ident">Series</span> {
                         <span class="ident">label</span>: <span class="string">&quot;Quadratic&quot;</span>.<span class="ident">to_string</span>(),
-                        <span class="ident">color</span>: <span class="ident">Color</span>::<span class="ident">BLUE</span>,
+                        <span class="ident">color</span>: <span class="ident">Color::BLUE</span>,
                         <span class="ident">pts</span>: (<span class="number">0</span>..(<span class="self">self</span>.<span class="ident">elapsed</span>.<span class="ident">inner_seconds</span>() <span class="kw">as</span> <span class="ident">usize</span>))
-                            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> (<span class="ident">Time</span>::<span class="ident">START_OF_DAY</span> <span class="op">+</span> <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="ident">s</span> <span class="kw">as</span> <span class="ident">f64</span>), <span class="ident">s</span>.<span class="ident">pow</span>(<span class="number">2</span>)))
+                            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> (<span class="ident">Time::START_OF_DAY</span> <span class="op">+</span> <span class="ident">Duration::seconds</span>(<span class="ident">s</span> <span class="kw">as</span> <span class="ident">f64</span>), <span class="ident">s</span>.<span class="ident">pow</span>(<span class="number">2</span>)))
                             .<span class="ident">collect</span>(),
                     },
                 ],
@@ -742,17 +742,17 @@
                     <span class="ident">filterable</span>: <span class="bool-val">false</span>,
                     <span class="comment">// Without this, the plot doesn&#39;t stretch to cover times in between whole</span>
                     <span class="comment">// seconds.</span>
-                    <span class="ident">max_x</span>: <span class="prelude-val">Some</span>(<span class="ident">Time</span>::<span class="ident">START_OF_DAY</span> <span class="op">+</span> <span class="self">self</span>.<span class="ident">elapsed</span>),
+                    <span class="ident">max_x</span>: <span class="prelude-val">Some</span>(<span class="ident">Time::START_OF_DAY</span> <span class="op">+</span> <span class="self">self</span>.<span class="ident">elapsed</span>),
                     <span class="ident">max_y</span>: <span class="prelude-val">None</span>,
-                    <span class="ident">disabled</span>: <span class="ident">HashSet</span>::<span class="ident">new</span>(),
+                    <span class="ident">disabled</span>: <span class="ident">HashSet::new</span>(),
                 },
             ),
         ]))
         <span class="comment">// Don&#39;t let the panel exceed this percentage of the window. Scrollbars appear</span>
         <span class="comment">// automatically if needed.</span>
-        .<span class="ident">max_size</span>(<span class="ident">Percent</span>::<span class="ident">int</span>(<span class="number">30</span>), <span class="ident">Percent</span>::<span class="ident">int</span>(<span class="number">40</span>))
+        .<span class="ident">max_size</span>(<span class="ident">Percent::int</span>(<span class="number">30</span>), <span class="ident">Percent::int</span>(<span class="number">40</span>))
         <span class="comment">// We take up 30% width, and we want to leave 10% window width as buffer.</span>
-        .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment</span>::<span class="ident">Percent</span>(<span class="number">0.6</span>), <span class="ident">VerticalAlignment</span>::<span class="ident">Center</span>)
+        .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::Percent</span>(<span class="number">0.6</span>), <span class="ident">VerticalAlignment::Center</span>)
         .<span class="ident">build</span>(<span class="ident">ctx</span>);
 
         <span class="comment">// Since we&#39;re creating an entirely new panel when the time changes, we need to preserve</span>
@@ -768,7 +768,7 @@
         <span class="self">self</span>.<span class="ident">controls</span>.<span class="ident">replace</span>(
             <span class="ident">ctx</span>,
             <span class="string">&quot;stopwatch&quot;</span>,
-            <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Stopwatch: {}&quot;</span>, <span class="self">self</span>.<span class="ident">elapsed</span>).<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
+            <span class="macro">format!</span>(<span class="string">&quot;Stopwatch: {}&quot;</span>, <span class="self">self</span>.<span class="ident">elapsed</span>).<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
         );
     }
 }
@@ -779,12 +779,12 @@
         <span class="ident">ctx</span>.<span class="ident">canvas_movement</span>();
 
         <span class="comment">// This dispatches event handling to all of the widgets inside.</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">controls</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">controls</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
             <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
                 <span class="comment">// These outcomes should probably be a custom enum per Panel, to be more</span>
                 <span class="comment">// typesafe.</span>
                 <span class="string">&quot;reset the stopwatch&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="self">self</span>.<span class="ident">elapsed</span> <span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">ZERO</span>;
+                    <span class="self">self</span>.<span class="ident">elapsed</span> <span class="op">=</span> <span class="ident">Duration::ZERO</span>;
                     <span class="self">self</span>.<span class="ident">redraw_stopwatch</span>(<span class="ident">ctx</span>);
                 }
                 <span class="string">&quot;generate new faces&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
@@ -805,9 +805,9 @@
                     <span class="kw">if</span> <span class="self">self</span>.<span class="ident">tabs</span>.<span class="ident">handle_action</span>(<span class="ident">ctx</span>, <span class="ident">action</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">controls</span>) {
                         <span class="comment">// if true, tabs has handled the action</span>
                     } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">action</span>.<span class="ident">contains</span>(<span class="string">&quot;btn_&quot;</span>) {
-                        <span class="ident">log</span>::<span class="macro">info</span><span class="macro">!</span>(<span class="string">&quot;clicked button: {:?}&quot;</span>, <span class="ident">action</span>);
+                        <span class="macro">log::info!</span>(<span class="string">&quot;clicked button: {:?}&quot;</span>, <span class="ident">action</span>);
                     } <span class="kw">else</span> {
-                        <span class="macro">unimplemented</span><span class="macro">!</span>(<span class="string">&quot;clicked: {:?}&quot;</span>, <span class="ident">x</span>);
+                        <span class="macro">unimplemented!</span>(<span class="string">&quot;clicked: {:?}&quot;</span>, <span class="ident">x</span>);
                     }
                 }
             }
@@ -838,22 +838,22 @@
         }
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">p</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">timeseries_panel</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="kw">_</span>) <span class="op">=</span> <span class="ident">p</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-                <span class="macro">unreachable</span><span class="macro">!</span>()
+            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome::Clicked</span>(<span class="kw">_</span>) <span class="op">=</span> <span class="ident">p</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
+                <span class="macro">unreachable!</span>()
             }
         }
 
         <span class="comment">// If we&#39;re paused, only call event() again when there&#39;s some kind of input. If not, also</span>
         <span class="comment">// sprinkle in periodic update events as time passes.</span>
         <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">controls</span>.<span class="ident">is_checked</span>(<span class="string">&quot;paused&quot;</span>) {
-            <span class="ident">ctx</span>.<span class="ident">request_update</span>(<span class="ident">UpdateType</span>::<span class="ident">Game</span>);
+            <span class="ident">ctx</span>.<span class="ident">request_update</span>(<span class="ident">UpdateType::Game</span>);
         }
 
-        <span class="ident">Transition</span>::<span class="ident">Keep</span>
+        <span class="ident">Transition::Keep</span>
     }
 
     <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
-        <span class="ident">g</span>.<span class="ident">clear</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>);
+        <span class="ident">g</span>.<span class="ident">clear</span>(<span class="ident">Color::BLACK</span>);
 
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">controls</span>.<span class="ident">is_checked</span>(<span class="string">&quot;Draw scrollable canvas&quot;</span>) {
             <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">scrollable_canvas</span>);
@@ -870,28 +870,28 @@
 }
 
 <span class="kw">fn</span> <span class="ident">setup_texture_demo</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">bg_texture</span>: <span class="ident">Texture</span>, <span class="ident">fg_texture</span>: <span class="ident">Texture</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Drawable</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rect</span> <span class="op">=</span> <span class="ident">Polygon</span>::<span class="ident">rectangle</span>(<span class="number">100.0</span>, <span class="number">100.0</span>);
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rect</span> <span class="op">=</span> <span class="ident">Polygon::rectangle</span>(<span class="number">100.0</span>, <span class="number">100.0</span>);
     <span class="ident">rect</span> <span class="op">=</span> <span class="ident">rect</span>.<span class="ident">translate</span>(<span class="number">200.0</span>, <span class="number">900.0</span>);
     <span class="comment">// Texture::NOOP should always be pure white, since all &quot;non-textured&quot; colors are multiplied by</span>
     <span class="comment">// Texture::NOOP (Texture::NOOP.0 == 0)</span>
-    <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Texture</span>::<span class="ident">NOOP</span>, <span class="ident">rect</span>);
+    <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Texture::NOOP</span>, <span class="ident">rect</span>);
 
-    <span class="kw">let</span> <span class="ident">triangle</span> <span class="op">=</span> <span class="ident">geom</span>::<span class="ident">Triangle</span> {
-        <span class="ident">pt1</span>: <span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="number">0.0</span>, <span class="number">100.0</span>),
-        <span class="ident">pt2</span>: <span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="number">50.0</span>, <span class="number">0.0</span>),
-        <span class="ident">pt3</span>: <span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="number">100.0</span>, <span class="number">100.0</span>),
+    <span class="kw">let</span> <span class="ident">triangle</span> <span class="op">=</span> <span class="ident">geom::Triangle</span> {
+        <span class="ident">pt1</span>: <span class="ident">Pt2D::new</span>(<span class="number">0.0</span>, <span class="number">100.0</span>),
+        <span class="ident">pt2</span>: <span class="ident">Pt2D::new</span>(<span class="number">50.0</span>, <span class="number">0.0</span>),
+        <span class="ident">pt3</span>: <span class="ident">Pt2D::new</span>(<span class="number">100.0</span>, <span class="number">100.0</span>),
     };
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">triangle_poly</span> <span class="op">=</span> <span class="ident">Polygon</span>::<span class="ident">from_triangle</span>(<span class="kw-2">&amp;</span><span class="ident">triangle</span>);
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">triangle_poly</span> <span class="op">=</span> <span class="ident">Polygon::from_triangle</span>(<span class="kw-2">&amp;</span><span class="ident">triangle</span>);
     <span class="ident">triangle_poly</span> <span class="op">=</span> <span class="ident">triangle_poly</span>.<span class="ident">translate</span>(<span class="number">400.0</span>, <span class="number">900.0</span>);
     <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">bg_texture</span>, <span class="ident">triangle_poly</span>);
 
-    <span class="kw">let</span> <span class="ident">circle</span> <span class="op">=</span> <span class="ident">geom</span>::<span class="ident">Circle</span>::<span class="ident">new</span>(<span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="number">50.0</span>, <span class="number">50.0</span>), <span class="ident">geom</span>::<span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">50.0</span>));
+    <span class="kw">let</span> <span class="ident">circle</span> <span class="op">=</span> <span class="ident">geom::Circle::new</span>(<span class="ident">Pt2D::new</span>(<span class="number">50.0</span>, <span class="number">50.0</span>), <span class="ident">geom::Distance::meters</span>(<span class="number">50.0</span>));
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">circle_poly</span> <span class="op">=</span> <span class="ident">circle</span>.<span class="ident">to_polygon</span>();
     <span class="ident">circle_poly</span> <span class="op">=</span> <span class="ident">circle_poly</span>.<span class="ident">translate</span>(<span class="number">600.0</span>, <span class="number">900.0</span>);
     <span class="ident">batch</span>.<span class="ident">push</span>(
-        <span class="ident">Fill</span>::<span class="ident">ColoredTexture</span>(<span class="ident">Color</span>::<span class="ident">RED</span>, <span class="ident">bg_texture</span>),
+        <span class="ident">Fill::ColoredTexture</span>(<span class="ident">Color::RED</span>, <span class="ident">bg_texture</span>),
         <span class="ident">circle_poly</span>.<span class="ident">clone</span>(),
     );
     <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">fg_texture</span>, <span class="ident">circle_poly</span>);
@@ -902,32 +902,32 @@
 <span class="comment">// This prepares a bunch of geometry (colored polygons) and uploads it to the GPU once. Then it can</span>
 <span class="comment">// be redrawn cheaply later.</span>
 <span class="kw">fn</span> <span class="ident">setup_scrollable_canvas</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Drawable</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
     <span class="ident">batch</span>.<span class="ident">push</span>(
-        <span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#4E30A6&quot;</span>),
-        <span class="ident">Polygon</span>::<span class="ident">rounded_rectangle</span>(<span class="number">5000.0</span>, <span class="number">5000.0</span>, <span class="number">25.0</span>),
+        <span class="ident">Color::hex</span>(<span class="string">&quot;#4E30A6&quot;</span>),
+        <span class="ident">Polygon::rounded_rectangle</span>(<span class="number">5000.0</span>, <span class="number">5000.0</span>, <span class="number">25.0</span>),
     );
     <span class="comment">// SVG support using lyon and usvg. Map-space means don&#39;t scale for high DPI monitors.</span>
     <span class="ident">batch</span>
-        .<span class="ident">append</span>(<span class="ident">GeomBatch</span>::<span class="ident">load_svg</span>(<span class="ident">ctx</span>, <span class="string">&quot;system/assets/pregame/logo.svg&quot;</span>).<span class="ident">translate</span>(<span class="number">300.0</span>, <span class="number">300.0</span>));
+        .<span class="ident">append</span>(<span class="ident">GeomBatch::load_svg</span>(<span class="ident">ctx</span>, <span class="string">&quot;system/assets/pregame/logo.svg&quot;</span>).<span class="ident">translate</span>(<span class="number">300.0</span>, <span class="number">300.0</span>));
     <span class="comment">// Text rendering also goes through lyon and usvg.</span>
     <span class="ident">batch</span>.<span class="ident">append</span>(
-        <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="string">&quot;Awesome vector text thanks to usvg and lyon&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#DF8C3D&quot;</span>)))
+        <span class="ident">Text::from</span>(<span class="ident">Line</span>(<span class="string">&quot;Awesome vector text thanks to usvg and lyon&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color::hex</span>(<span class="string">&quot;#DF8C3D&quot;</span>)))
             .<span class="ident">render_autocropped</span>(<span class="ident">ctx</span>)
             .<span class="ident">scale</span>(<span class="number">2.0</span>)
-            .<span class="ident">centered_on</span>(<span class="ident">Pt2D</span>::<span class="ident">new</span>(<span class="number">600.0</span>, <span class="number">500.0</span>))
-            .<span class="ident">rotate</span>(<span class="ident">Angle</span>::<span class="ident">degrees</span>(<span class="op">-</span><span class="number">30.0</span>)),
+            .<span class="ident">centered_on</span>(<span class="ident">Pt2D::new</span>(<span class="number">600.0</span>, <span class="number">500.0</span>))
+            .<span class="ident">rotate</span>(<span class="ident">Angle::degrees</span>(<span class="op">-</span><span class="number">30.0</span>)),
     );
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="kw">if</span> <span class="macro">cfg</span><span class="macro">!</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>) {
-        <span class="ident">XorShiftRng</span>::<span class="ident">seed_from_u64</span>(<span class="number">0</span>)
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="kw">if</span> <span class="macro">cfg!</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>) {
+        <span class="ident">XorShiftRng::seed_from_u64</span>(<span class="number">0</span>)
     } <span class="kw">else</span> {
-        <span class="ident">XorShiftRng</span>::<span class="ident">from_entropy</span>()
+        <span class="ident">XorShiftRng::from_entropy</span>()
     };
     <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">10</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">svg_data</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
-        <span class="ident">svg_face</span>::<span class="ident">generate_face</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">svg_data</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rng</span>).<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">face</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">load_svg_bytes_uncached</span>(<span class="kw-2">&amp;</span><span class="ident">svg_data</span>).<span class="ident">autocrop</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">svg_data</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+        <span class="ident">svg_face::generate_face</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">svg_data</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rng</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">face</span> <span class="op">=</span> <span class="ident">GeomBatch::load_svg_bytes_uncached</span>(<span class="kw-2">&amp;</span><span class="ident">svg_data</span>).<span class="ident">autocrop</span>();
         <span class="kw">let</span> <span class="ident">dims</span> <span class="op">=</span> <span class="ident">face</span>.<span class="ident">get_dims</span>();
         <span class="ident">batch</span>.<span class="ident">append</span>(
             <span class="ident">face</span>.<span class="ident">scale</span>((<span class="number">200.0</span> <span class="op">/</span> <span class="ident">dims</span>.<span class="ident">width</span>).<span class="ident">min</span>(<span class="number">200.0</span> <span class="op">/</span> <span class="ident">dims</span>.<span class="ident">height</span>))
@@ -943,27 +943,27 @@
 <span class="kw">fn</span> <span class="ident">make_tabs</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TabController</span> {
     <span class="kw">let</span> <span class="ident">style</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">style</span>();
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tabs</span> <span class="op">=</span> <span class="ident">TabController</span>::<span class="ident">new</span>(<span class="string">&quot;demo_tabs&quot;</span>);
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tabs</span> <span class="op">=</span> <span class="ident">TabController::new</span>(<span class="string">&quot;demo_tabs&quot;</span>);
 
     <span class="kw">let</span> <span class="ident">gallery_bar_item</span> <span class="op">=</span> <span class="ident">style</span>.<span class="ident">btn_tab</span>.<span class="ident">text</span>(<span class="string">&quot;Component Gallery&quot;</span>);
-    <span class="kw">let</span> <span class="ident">gallery_content</span> <span class="op">=</span> <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
-        <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="string">&quot;Text&quot;</span>).<span class="ident">big_heading_styled</span>().<span class="ident">size</span>(<span class="number">18</span>)).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-        <span class="ident">Text</span>::<span class="ident">from_all</span>(<span class="macro">vec</span><span class="macro">!</span>[
+    <span class="kw">let</span> <span class="ident">gallery_content</span> <span class="op">=</span> <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
+        <span class="ident">Text::from</span>(<span class="ident">Line</span>(<span class="string">&quot;Text&quot;</span>).<span class="ident">big_heading_styled</span>().<span class="ident">size</span>(<span class="number">18</span>)).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+        <span class="ident">Text::from_all</span>(<span class="macro">vec!</span>[
             <span class="ident">Line</span>(<span class="string">&quot;You can &quot;</span>),
             <span class="ident">Line</span>(<span class="string">&quot;change fonts &quot;</span>).<span class="ident">big_heading_plain</span>(),
-            <span class="ident">Line</span>(<span class="string">&quot;on the same &quot;</span>).<span class="ident">small</span>().<span class="ident">fg</span>(<span class="ident">Color</span>::<span class="ident">BLUE</span>),
+            <span class="ident">Line</span>(<span class="string">&quot;on the same &quot;</span>).<span class="ident">small</span>().<span class="ident">fg</span>(<span class="ident">Color::BLUE</span>),
             <span class="ident">Line</span>(<span class="string">&quot;line!&quot;</span>).<span class="ident">small_heading</span>(),
         ])
-        .<span class="ident">bg</span>(<span class="ident">Color</span>::<span class="ident">GREEN</span>)
+        .<span class="ident">bg</span>(<span class="ident">Color::GREEN</span>)
         .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
         <span class="comment">// Button Style Gallery</span>
-        <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="string">&quot;Buttons&quot;</span>).<span class="ident">big_heading_styled</span>().<span class="ident">size</span>(<span class="number">18</span>)).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-        <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+        <span class="ident">Text::from</span>(<span class="ident">Line</span>(<span class="string">&quot;Buttons&quot;</span>).<span class="ident">big_heading_styled</span>().<span class="ident">size</span>(<span class="number">18</span>)).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+        <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
             <span class="ident">style</span>
                 .<span class="ident">btn_solid_primary</span>
                 .<span class="ident">text</span>(<span class="string">&quot;Primary&quot;</span>)
                 .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;btn_solid_primary_text&quot;</span>),
-            <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
                 <span class="ident">style</span>
                     .<span class="ident">btn_solid_primary</span>
                     .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/map.svg&quot;</span>)
@@ -978,12 +978,12 @@
                 .<span class="ident">icon_text</span>(<span class="string">&quot;system/assets/tools/location.svg&quot;</span>, <span class="string">&quot;Primary&quot;</span>)
                 .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;btn_solid_primary_icon_text&quot;</span>),
         ]),
-        <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+        <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
             <span class="ident">style</span>
                 .<span class="ident">btn_outline</span>
                 .<span class="ident">text</span>(<span class="string">&quot;Secondary&quot;</span>)
                 .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;btn_outline_text&quot;</span>),
-            <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
                 <span class="ident">style</span>
                     .<span class="ident">btn_outline</span>
                     .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/map.svg&quot;</span>)
@@ -998,10 +998,10 @@
                 .<span class="ident">icon_text</span>(<span class="string">&quot;system/assets/tools/home.svg&quot;</span>, <span class="string">&quot;Secondary&quot;</span>)
                 .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;btn_outline.icon_text&quot;</span>),
         ]),
-        <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">style</span>
+        <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[<span class="ident">style</span>
             .<span class="ident">btn_popup_icon_text</span>(<span class="string">&quot;system/assets/tools/map.svg&quot;</span>, <span class="string">&quot;Popup&quot;</span>)
             .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;btn_popup_icon_text&quot;</span>)]),
-        <span class="ident">Text</span>::<span class="ident">from_multiline</span>(<span class="macro">vec</span><span class="macro">!</span>[
+        <span class="ident">Text::from_multiline</span>(<span class="macro">vec!</span>[
             <span class="ident">Line</span>(<span class="string">&quot;Images&quot;</span>).<span class="ident">big_heading_styled</span>().<span class="ident">size</span>(<span class="number">18</span>),
             <span class="ident">Line</span>(
                 <span class="string">&quot;Images can be colored, scaled, and stretched. They can have a background and \
@@ -1009,49 +1009,49 @@
             ),
         ])
         .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-        <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">Image</span>::<span class="ident">from_path</span>(<span class="string">&quot;system/assets/tools/home.svg&quot;</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-            <span class="ident">Image</span>::<span class="ident">from_path</span>(<span class="string">&quot;system/assets/tools/home.svg&quot;</span>)
-                .<span class="ident">color</span>(<span class="ident">Color</span>::<span class="ident">ORANGE</span>)
-                .<span class="ident">bg_color</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>)
+        <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
+            <span class="ident">Image::from_path</span>(<span class="string">&quot;system/assets/tools/home.svg&quot;</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+            <span class="ident">Image::from_path</span>(<span class="string">&quot;system/assets/tools/home.svg&quot;</span>)
+                .<span class="ident">color</span>(<span class="ident">Color::ORANGE</span>)
+                .<span class="ident">bg_color</span>(<span class="ident">Color::BLACK</span>)
                 .<span class="ident">dims</span>(<span class="number">50.0</span>)
                 .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-            <span class="ident">Image</span>::<span class="ident">from_path</span>(<span class="string">&quot;system/assets/tools/home.svg&quot;</span>)
-                .<span class="ident">color</span>(<span class="ident">Color</span>::<span class="ident">RED</span>)
-                .<span class="ident">bg_color</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>)
+            <span class="ident">Image::from_path</span>(<span class="string">&quot;system/assets/tools/home.svg&quot;</span>)
+                .<span class="ident">color</span>(<span class="ident">Color::RED</span>)
+                .<span class="ident">bg_color</span>(<span class="ident">Color::BLACK</span>)
                 .<span class="ident">padding</span>(<span class="number">20</span>)
-                .<span class="ident">dims</span>(<span class="ident">ScreenDims</span>::<span class="ident">new</span>(<span class="number">50.0</span>, <span class="number">100.0</span>))
-                .<span class="ident">content_mode</span>(<span class="ident">ContentMode</span>::<span class="ident">ScaleAspectFit</span>)
+                .<span class="ident">dims</span>(<span class="ident">ScreenDims::new</span>(<span class="number">50.0</span>, <span class="number">100.0</span>))
+                .<span class="ident">content_mode</span>(<span class="ident">ContentMode::ScaleAspectFit</span>)
                 .<span class="ident">tooltip</span>(
                     <span class="string">&quot;With ScaleAspectFit content grows, without distorting its aspect ratio, \
                      until it reaches its padding bounds.&quot;</span>,
                 )
                 .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-            <span class="ident">Image</span>::<span class="ident">from_path</span>(<span class="string">&quot;system/assets/tools/home.svg&quot;</span>)
-                .<span class="ident">color</span>(<span class="ident">Color</span>::<span class="ident">GREEN</span>)
-                .<span class="ident">bg_color</span>(<span class="ident">Color</span>::<span class="ident">PURPLE</span>)
+            <span class="ident">Image::from_path</span>(<span class="string">&quot;system/assets/tools/home.svg&quot;</span>)
+                .<span class="ident">color</span>(<span class="ident">Color::GREEN</span>)
+                .<span class="ident">bg_color</span>(<span class="ident">Color::PURPLE</span>)
                 .<span class="ident">padding</span>(<span class="number">20</span>)
-                .<span class="ident">dims</span>(<span class="ident">ScreenDims</span>::<span class="ident">new</span>(<span class="number">50.0</span>, <span class="number">100.0</span>))
-                .<span class="ident">content_mode</span>(<span class="ident">ContentMode</span>::<span class="ident">ScaleToFill</span>)
+                .<span class="ident">dims</span>(<span class="ident">ScreenDims::new</span>(<span class="number">50.0</span>, <span class="number">100.0</span>))
+                .<span class="ident">content_mode</span>(<span class="ident">ContentMode::ScaleToFill</span>)
                 .<span class="ident">tooltip</span>(<span class="string">&quot;With ScaleToFill content can stretches to fill its size (less padding)&quot;</span>)
                 .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-            <span class="ident">Image</span>::<span class="ident">from_path</span>(<span class="string">&quot;system/assets/tools/home.svg&quot;</span>)
-                .<span class="ident">color</span>(<span class="ident">Color</span>::<span class="ident">BLUE</span>)
-                .<span class="ident">bg_color</span>(<span class="ident">Color</span>::<span class="ident">YELLOW</span>)
+            <span class="ident">Image::from_path</span>(<span class="string">&quot;system/assets/tools/home.svg&quot;</span>)
+                .<span class="ident">color</span>(<span class="ident">Color::BLUE</span>)
+                .<span class="ident">bg_color</span>(<span class="ident">Color::YELLOW</span>)
                 .<span class="ident">padding</span>(<span class="number">20</span>)
-                .<span class="ident">dims</span>(<span class="ident">ScreenDims</span>::<span class="ident">new</span>(<span class="number">50.0</span>, <span class="number">100.0</span>))
-                .<span class="ident">content_mode</span>(<span class="ident">ContentMode</span>::<span class="ident">ScaleAspectFill</span>)
+                .<span class="ident">dims</span>(<span class="ident">ScreenDims::new</span>(<span class="number">50.0</span>, <span class="number">100.0</span>))
+                .<span class="ident">content_mode</span>(<span class="ident">ContentMode::ScaleAspectFill</span>)
                 .<span class="ident">tooltip</span>(<span class="string">&quot;With ScaleAspectFill content can exceed its visible bounds&quot;</span>)
                 .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
         ]),
-        <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="string">&quot;Spinner&quot;</span>).<span class="ident">big_heading_styled</span>().<span class="ident">size</span>(<span class="number">18</span>)).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-        <span class="ident">widgetry</span>::<span class="ident">Spinner</span>::<span class="ident">widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;spinner&quot;</span>, (<span class="number">0</span>, <span class="number">11</span>), <span class="number">1</span>, <span class="number">1</span>),
+        <span class="ident">Text::from</span>(<span class="ident">Line</span>(<span class="string">&quot;Spinner&quot;</span>).<span class="ident">big_heading_styled</span>().<span class="ident">size</span>(<span class="number">18</span>)).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+        <span class="ident">widgetry::Spinner::widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;spinner&quot;</span>, (<span class="number">0</span>, <span class="number">11</span>), <span class="number">1</span>, <span class="number">1</span>),
     ]);
     <span class="ident">tabs</span>.<span class="ident">push_tab</span>(<span class="ident">gallery_bar_item</span>, <span class="ident">gallery_content</span>);
 
     <span class="kw">let</span> <span class="ident">qa_bar_item</span> <span class="op">=</span> <span class="ident">style</span>.<span class="ident">btn_tab</span>.<span class="ident">text</span>(<span class="string">&quot;Conformance Checks&quot;</span>);
-    <span class="kw">let</span> <span class="ident">qa_content</span> <span class="op">=</span> <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
-        <span class="ident">Text</span>::<span class="ident">from</span>(
+    <span class="kw">let</span> <span class="ident">qa_content</span> <span class="op">=</span> <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
+        <span class="ident">Text::from</span>(
             <span class="ident">Line</span>(<span class="string">&quot;Controls should be same height&quot;</span>)
                 .<span class="ident">big_heading_styled</span>()
                 .<span class="ident">size</span>(<span class="number">18</span>),
@@ -1062,10 +1062,10 @@
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">id</span> <span class="op">=</span> <span class="number">0</span>;
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">next_id</span> <span class="op">=</span> <span class="op">|</span><span class="op">|</span> {
                 <span class="ident">id</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-                <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;btn_height_check_{}&quot;</span>, <span class="ident">id</span>)
+                <span class="macro">format!</span>(<span class="string">&quot;btn_height_check_{}&quot;</span>, <span class="ident">id</span>)
             };
-            <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                <span class="ident">Widget</span>::<span class="ident">col</span>(
+            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
+                <span class="ident">Widget::col</span>(
                     (<span class="number">0</span>..<span class="ident">row_height</span>)
                         .<span class="ident">map</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> {
                             <span class="ident">style</span>
@@ -1075,12 +1075,12 @@
                         })
                         .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>(),
                 ),
-                <span class="ident">Widget</span>::<span class="ident">col</span>(
+                <span class="ident">Widget::col</span>(
                     (<span class="number">0</span>..<span class="ident">row_height</span>)
                         .<span class="ident">map</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">style</span>.<span class="ident">btn_outline</span>.<span class="ident">text</span>(<span class="string">&quot;text&quot;</span>).<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">next_id</span>()))
                         .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>(),
                 ),
-                <span class="ident">Widget</span>::<span class="ident">col</span>(
+                <span class="ident">Widget::col</span>(
                     (<span class="number">0</span>..<span class="ident">row_height</span>)
                         .<span class="ident">map</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> {
                             <span class="ident">style</span>
@@ -1090,7 +1090,7 @@
                         })
                         .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>(),
                 ),
-                <span class="ident">Widget</span>::<span class="ident">col</span>(
+                <span class="ident">Widget::col</span>(
                     (<span class="number">0</span>..<span class="ident">row_height</span>)
                         .<span class="ident">map</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> {
                             <span class="ident">style</span>
@@ -1099,7 +1099,7 @@
                         })
                         .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>(),
                 ),
-                <span class="ident">Widget</span>::<span class="ident">col</span>(
+                <span class="ident">Widget::col</span>(
                     (<span class="number">0</span>..<span class="ident">row_height</span>)
                         .<span class="ident">map</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> {
                             <span class="ident">style</span>
@@ -1109,16 +1109,16 @@
                         })
                         .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>(),
                 ),
-                <span class="ident">Widget</span>::<span class="ident">col</span>(
+                <span class="ident">Widget::col</span>(
                     (<span class="number">0</span>..<span class="ident">row_height</span>)
                         .<span class="ident">map</span>(<span class="op">|</span><span class="ident">i</span><span class="op">|</span> {
-                            <span class="ident">widgetry</span>::<span class="ident">Spinner</span>::<span class="ident">widget</span>(<span class="ident">ctx</span>, <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;spinner {}&quot;</span>, <span class="ident">i</span>), (<span class="number">0</span>, <span class="number">11</span>), <span class="number">1</span>, <span class="number">1</span>)
+                            <span class="ident">widgetry::Spinner::widget</span>(<span class="ident">ctx</span>, <span class="macro">format!</span>(<span class="string">&quot;spinner {}&quot;</span>, <span class="ident">i</span>), (<span class="number">0</span>, <span class="number">11</span>), <span class="number">1</span>, <span class="number">1</span>)
                         })
                         .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>(),
                 ),
-                <span class="ident">Widget</span>::<span class="ident">col</span>(
+                <span class="ident">Widget::col</span>(
                     (<span class="number">0</span>..<span class="ident">row_height</span>)
-                        .<span class="ident">map</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">widgetry</span>::<span class="ident">Toggle</span>::<span class="ident">checkbox</span>(<span class="ident">ctx</span>, <span class="string">&quot;checkbox&quot;</span>, <span class="prelude-val">None</span>, <span class="bool-val">true</span>))
+                        .<span class="ident">map</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">widgetry::Toggle::checkbox</span>(<span class="ident">ctx</span>, <span class="string">&quot;checkbox&quot;</span>, <span class="prelude-val">None</span>, <span class="bool-val">true</span>))
                         .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>(),
                 ),
             ])
@@ -1131,49 +1131,49 @@
 }
 
 <span class="kw">fn</span> <span class="ident">make_controls</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">tabs</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">TabController</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Panel</span> {
-    <span class="ident">Panel</span>::<span class="ident">new_builder</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
-        <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">Line</span>(<span class="string">&quot;widgetry demo&quot;</span>).<span class="ident">big_heading_styled</span>()).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-        <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">Text</span>::<span class="ident">from</span>(
+    <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
+        <span class="ident">Text::from</span>(<span class="ident">Line</span>(<span class="string">&quot;widgetry demo&quot;</span>).<span class="ident">big_heading_styled</span>()).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+        <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
+            <span class="ident">Text::from</span>(
                 <span class="string">&quot;Click and drag the background to pan, use touchpad or scroll wheel to zoom&quot;</span>,
             )
             .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-            <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
                     .<span class="ident">btn_outline</span>
                     .<span class="ident">text</span>(<span class="string">&quot;New faces&quot;</span>)
-                    .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">F</span>)
+                    .<span class="ident">hotkey</span>(<span class="ident">Key::F</span>)
                     .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;generate new faces&quot;</span>),
-                <span class="ident">Toggle</span>::<span class="ident">switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;Draw scrollable canvas&quot;</span>, <span class="prelude-val">None</span>, <span class="bool-val">true</span>),
-                <span class="ident">Toggle</span>::<span class="ident">switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;Show timeseries&quot;</span>, <span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">T</span>), <span class="bool-val">false</span>),
+                <span class="ident">Toggle::switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;Draw scrollable canvas&quot;</span>, <span class="prelude-val">None</span>, <span class="bool-val">true</span>),
+                <span class="ident">Toggle::switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;Show timeseries&quot;</span>, <span class="ident">lctrl</span>(<span class="ident">Key::T</span>), <span class="bool-val">false</span>),
             ]),
             <span class="string">&quot;Stopwatch: ...&quot;</span>
                 .<span class="ident">text_widget</span>(<span class="ident">ctx</span>)
                 .<span class="ident">named</span>(<span class="string">&quot;stopwatch&quot;</span>)
                 .<span class="ident">margin_above</span>(<span class="number">30</span>),
-            <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                <span class="ident">Toggle</span>::<span class="ident">new_widget</span>(
+            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
+                <span class="ident">Toggle::new_widget</span>(
                     <span class="bool-val">false</span>,
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
                         .<span class="ident">btn_outline</span>
                         .<span class="ident">text</span>(<span class="string">&quot;Pause&quot;</span>)
-                        .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Space</span>)
+                        .<span class="ident">hotkey</span>(<span class="ident">Key::Space</span>)
                         .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;pause the stopwatch&quot;</span>),
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
                         .<span class="ident">btn_outline</span>
                         .<span class="ident">text</span>(<span class="string">&quot;Resume&quot;</span>)
-                        .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Space</span>)
+                        .<span class="ident">hotkey</span>(<span class="ident">Key::Space</span>)
                         .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;resume the stopwatch&quot;</span>),
                 )
                 .<span class="ident">named</span>(<span class="string">&quot;paused&quot;</span>),
-                <span class="ident">PersistentSplit</span>::<span class="ident">widget</span>(
+                <span class="ident">PersistentSplit::widget</span>(
                     <span class="ident">ctx</span>,
                     <span class="string">&quot;adjust timer&quot;</span>,
-                    <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="number">20.0</span>),
+                    <span class="ident">Duration::seconds</span>(<span class="number">20.0</span>),
                     <span class="prelude-val">None</span>,
-                    <span class="macro">vec</span><span class="macro">!</span>[
-                        <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;+20s&quot;</span>, <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="number">20.0</span>)),
-                        <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;-10s&quot;</span>, <span class="ident">Duration</span>::<span class="ident">seconds</span>(<span class="op">-</span><span class="number">10.0</span>)),
+                    <span class="macro">vec!</span>[
+                        <span class="ident">Choice::new</span>(<span class="string">&quot;+20s&quot;</span>, <span class="ident">Duration::seconds</span>(<span class="number">20.0</span>)),
+                        <span class="ident">Choice::new</span>(<span class="string">&quot;-10s&quot;</span>, <span class="ident">Duration::seconds</span>(<span class="op">-</span><span class="number">10.0</span>)),
                     ],
                 ),
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
@@ -1182,38 +1182,38 @@
                     .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;reset the stopwatch&quot;</span>),
             ])
             .<span class="ident">evenly_spaced</span>(),
-            <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                <span class="ident">Widget</span>::<span class="ident">dropdown</span>(
+            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
+                <span class="ident">Widget::dropdown</span>(
                     <span class="ident">ctx</span>,
                     <span class="string">&quot;alignment&quot;</span>,
-                    (<span class="ident">HorizontalAlignment</span>::<span class="ident">Center</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Top</span>),
-                    <span class="macro">vec</span><span class="macro">!</span>[
-                        <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;Top&quot;</span>, (<span class="ident">HorizontalAlignment</span>::<span class="ident">Center</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Top</span>)),
-                        <span class="ident">Choice</span>::<span class="ident">new</span>(
+                    (<span class="ident">HorizontalAlignment::Center</span>, <span class="ident">VerticalAlignment::Top</span>),
+                    <span class="macro">vec!</span>[
+                        <span class="ident">Choice::new</span>(<span class="string">&quot;Top&quot;</span>, (<span class="ident">HorizontalAlignment::Center</span>, <span class="ident">VerticalAlignment::Top</span>)),
+                        <span class="ident">Choice::new</span>(
                             <span class="string">&quot;Left&quot;</span>,
-                            (<span class="ident">HorizontalAlignment</span>::<span class="ident">Left</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Center</span>),
+                            (<span class="ident">HorizontalAlignment::Left</span>, <span class="ident">VerticalAlignment::Center</span>),
                         ),
-                        <span class="ident">Choice</span>::<span class="ident">new</span>(
+                        <span class="ident">Choice::new</span>(
                             <span class="string">&quot;Bottom&quot;</span>,
-                            (<span class="ident">HorizontalAlignment</span>::<span class="ident">Center</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Bottom</span>),
+                            (<span class="ident">HorizontalAlignment::Center</span>, <span class="ident">VerticalAlignment::Bottom</span>),
                         ),
-                        <span class="ident">Choice</span>::<span class="ident">new</span>(
+                        <span class="ident">Choice::new</span>(
                             <span class="string">&quot;Right&quot;</span>,
-                            (<span class="ident">HorizontalAlignment</span>::<span class="ident">Right</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Center</span>),
+                            (<span class="ident">HorizontalAlignment::Right</span>, <span class="ident">VerticalAlignment::Center</span>),
                         ),
-                        <span class="ident">Choice</span>::<span class="ident">new</span>(
+                        <span class="ident">Choice::new</span>(
                             <span class="string">&quot;Center&quot;</span>,
-                            (<span class="ident">HorizontalAlignment</span>::<span class="ident">Center</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Center</span>),
+                            (<span class="ident">HorizontalAlignment::Center</span>, <span class="ident">VerticalAlignment::Center</span>),
                         ),
                     ],
                 ),
-                <span class="ident">Widget</span>::<span class="ident">dropdown</span>(
+                <span class="ident">Widget::dropdown</span>(
                     <span class="ident">ctx</span>,
                     <span class="string">&quot;texture&quot;</span>,
-                    (<span class="ident">Texture</span>::<span class="ident">SAND</span>, <span class="ident">Texture</span>::<span class="ident">CACTUS</span>),
-                    <span class="macro">vec</span><span class="macro">!</span>[
-                        <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;Cold&quot;</span>, (<span class="ident">Texture</span>::<span class="ident">SNOW</span>, <span class="ident">Texture</span>::<span class="ident">SNOW_PERSON</span>)),
-                        <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;Hot&quot;</span>, (<span class="ident">Texture</span>::<span class="ident">SAND</span>, <span class="ident">Texture</span>::<span class="ident">CACTUS</span>)),
+                    (<span class="ident">Texture::SAND</span>, <span class="ident">Texture::CACTUS</span>),
+                    <span class="macro">vec!</span>[
+                        <span class="ident">Choice::new</span>(<span class="string">&quot;Cold&quot;</span>, (<span class="ident">Texture::SNOW</span>, <span class="ident">Texture::SNOW_PERSON</span>)),
+                        <span class="ident">Choice::new</span>(<span class="string">&quot;Hot&quot;</span>, (<span class="ident">Texture::SAND</span>, <span class="ident">Texture::CACTUS</span>)),
                     ],
                 ),
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
@@ -1226,26 +1226,26 @@
         .<span class="ident">section</span>(<span class="ident">ctx</span>),
         <span class="ident">tabs</span>.<span class="ident">build_widget</span>(<span class="ident">ctx</span>),
     ])) <span class="comment">// end panel</span>
-    .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment</span>::<span class="ident">Center</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Top</span>)
+    .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::Center</span>, <span class="ident">VerticalAlignment::Top</span>)
     .<span class="ident">build</span>(<span class="ident">ctx</span>)
 }
 
 <span class="comment">// Boilerplate for web support</span>
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident">wasm_bindgen</span>::<span class="ident">prelude</span>::<span class="kw-2">*</span>;
+<span class="kw">use</span> <span class="ident">wasm_bindgen::prelude</span>::<span class="kw-2">*</span>;
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>)]</span>
 <span class="attribute">#[<span class="ident">wasm_bindgen</span>(<span class="ident">js_name</span> <span class="op">=</span> <span class="string">&quot;run&quot;</span>)]</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">run_wasm</span>(<span class="ident">root_dom_id</span>: <span class="ident">String</span>, <span class="ident">assets_base_url</span>: <span class="ident">String</span>, <span class="ident">assets_are_gzipped</span>: <span class="ident">bool</span>) {
     <span class="comment">// Use this to initialize logging.</span>
-    <span class="ident">abstutil</span>::<span class="ident">CmdArgs</span>::<span class="ident">new</span>().<span class="ident">done</span>();
-    <span class="kw">let</span> <span class="ident">settings</span> <span class="op">=</span> <span class="ident">Settings</span>::<span class="ident">new</span>(<span class="string">&quot;widgetry demo&quot;</span>)
+    <span class="ident">abstutil::CmdArgs::new</span>().<span class="ident">done</span>();
+    <span class="kw">let</span> <span class="ident">settings</span> <span class="op">=</span> <span class="ident">Settings::new</span>(<span class="string">&quot;widgetry demo&quot;</span>)
         .<span class="ident">root_dom_element_id</span>(<span class="ident">root_dom_id</span>)
         .<span class="ident">assets_base_url</span>(<span class="ident">assets_base_url</span>)
         .<span class="ident">assets_are_gzipped</span>(<span class="ident">assets_are_gzipped</span>);
     <span class="ident">run</span>(<span class="ident">settings</span>);
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="widgetry_demo" data-search-js="../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="widgetry_demo" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script></body></html>

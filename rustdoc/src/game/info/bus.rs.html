@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `game/src/info/bus.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>bus.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../game/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../game/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -428,26 +428,26 @@
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">Counter</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Time</span>};
-<span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">tools</span>::<span class="ident">ColorNetwork</span>;
-<span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">ID</span>;
+<span class="kw">use</span> <span class="ident">map_gui::tools::ColorNetwork</span>;
+<span class="kw">use</span> <span class="ident">map_gui::ID</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">BusRoute</span>, <span class="ident">BusRouteID</span>, <span class="ident">BusStopID</span>, <span class="ident">PathStep</span>};
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">AgentID</span>, <span class="ident">CarID</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">EventCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">RewriteColor</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Widget</span>};
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">info</span>::{<span class="ident">header_btns</span>, <span class="ident">make_tabs</span>, <span class="ident">Details</span>, <span class="ident">Tab</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::app::App</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::info</span>::{<span class="ident">header_btns</span>, <span class="ident">make_tabs</span>, <span class="ident">Details</span>, <span class="ident">Tab</span>};
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">stop</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">details</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Details</span>, <span class="ident">id</span>: <span class="ident">BusStopID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
-    <span class="kw">let</span> <span class="ident">header</span> <span class="op">=</span> <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+    <span class="kw">let</span> <span class="ident">header</span> <span class="op">=</span> <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
         <span class="ident">Line</span>(<span class="string">&quot;Bus stop&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
         <span class="ident">header_btns</span>(<span class="ident">ctx</span>),
     ]);
 
-    <span class="ident">Widget</span>::<span class="ident">custom_col</span>(<span class="macro">vec</span><span class="macro">!</span>[<span class="ident">header</span>, <span class="ident">stop_body</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">details</span>, <span class="ident">id</span>).<span class="ident">tab_body</span>(<span class="ident">ctx</span>)])
+    <span class="ident">Widget::custom_col</span>(<span class="macro">vec!</span>[<span class="ident">header</span>, <span class="ident">stop_body</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">details</span>, <span class="ident">id</span>).<span class="ident">tab_body</span>(<span class="ident">ctx</span>)])
 }
 
 <span class="kw">fn</span> <span class="ident">stop_body</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">details</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Details</span>, <span class="ident">id</span>: <span class="ident">BusStopID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rows</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[];
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rows</span> <span class="op">=</span> <span class="macro">vec!</span>[];
 
     <span class="kw">let</span> <span class="ident">bs</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_bs</span>(<span class="ident">id</span>);
     <span class="kw">let</span> <span class="ident">sim</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>;
@@ -457,32 +457,32 @@
     <span class="kw">let</span> <span class="ident">all_arrivals</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">sim</span>.<span class="ident">get_analytics</span>().<span class="ident">bus_arrivals</span>;
     <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_routes_serving_stop</span>(<span class="ident">id</span>) {
         <span class="comment">// Full names can overlap, so include the ID</span>
-        <span class="kw">let</span> <span class="ident">label</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} ({})&quot;</span>, <span class="ident">r</span>.<span class="ident">full_name</span>, <span class="ident">r</span>.<span class="ident">id</span>);
+        <span class="kw">let</span> <span class="ident">label</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{} ({})&quot;</span>, <span class="ident">r</span>.<span class="ident">full_name</span>, <span class="ident">r</span>.<span class="ident">id</span>);
         <span class="ident">rows</span>.<span class="ident">push</span>(
             <span class="ident">ctx</span>.<span class="ident">style</span>()
                 .<span class="ident">btn_outline</span>
-                .<span class="ident">text</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Route {}&quot;</span>, <span class="ident">r</span>.<span class="ident">short_name</span>))
+                .<span class="ident">text</span>(<span class="macro">format!</span>(<span class="string">&quot;Route {}&quot;</span>, <span class="ident">r</span>.<span class="ident">short_name</span>))
                 .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">label</span>),
         );
-        <span class="ident">details</span>.<span class="ident">hyperlinks</span>.<span class="ident">insert</span>(<span class="ident">label</span>, <span class="ident">Tab</span>::<span class="ident">BusRoute</span>(<span class="ident">r</span>.<span class="ident">id</span>));
+        <span class="ident">details</span>.<span class="ident">hyperlinks</span>.<span class="ident">insert</span>(<span class="ident">label</span>, <span class="ident">Tab::BusRoute</span>(<span class="ident">r</span>.<span class="ident">id</span>));
 
         <span class="kw">let</span> <span class="ident">arrivals</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Time</span>, <span class="ident">CarID</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">all_arrivals</span>
             .<span class="ident">iter</span>()
             .<span class="ident">filter</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">route</span>, <span class="ident">stop</span>)<span class="op">|</span> <span class="ident">r</span>.<span class="ident">id</span> <span class="op">=</span><span class="op">=</span> <span class="kw-2">*</span><span class="ident">route</span> <span class="op">&amp;&amp;</span> <span class="ident">id</span> <span class="op">=</span><span class="op">=</span> <span class="kw-2">*</span><span class="ident">stop</span>)
             .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">t</span>, <span class="ident">car</span>, <span class="kw">_</span>, <span class="kw">_</span>)<span class="op">|</span> (<span class="kw-2">*</span><span class="ident">t</span>, <span class="kw-2">*</span><span class="ident">car</span>))
             .<span class="ident">collect</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::new</span>();
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">t</span>, <span class="kw">_</span>)) <span class="op">=</span> <span class="ident">arrivals</span>.<span class="ident">last</span>() {
             <span class="comment">// TODO Button to jump to the bus</span>
-            <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;  Last bus arrived {} ago&quot;</span>, <span class="ident">sim</span>.<span class="ident">time</span>() <span class="op">-</span> <span class="kw-2">*</span><span class="ident">t</span>)).<span class="ident">secondary</span>());
+            <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">Line</span>(<span class="macro">format!</span>(<span class="string">&quot;  Last bus arrived {} ago&quot;</span>, <span class="ident">sim</span>.<span class="ident">time</span>() <span class="op">-</span> <span class="kw-2">*</span><span class="ident">t</span>)).<span class="ident">secondary</span>());
         } <span class="kw">else</span> {
             <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">Line</span>(<span class="string">&quot;  No arrivals yet&quot;</span>).<span class="ident">secondary</span>());
         }
         <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">txt</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>));
     }
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">boardings</span>: <span class="ident">Counter</span><span class="op">&lt;</span><span class="ident">BusRouteID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Counter</span>::<span class="ident">new</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">alightings</span>: <span class="ident">Counter</span><span class="op">&lt;</span><span class="ident">BusRouteID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Counter</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">boardings</span>: <span class="ident">Counter</span><span class="op">&lt;</span><span class="ident">BusRouteID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Counter::new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">alightings</span>: <span class="ident">Counter</span><span class="op">&lt;</span><span class="ident">BusRouteID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Counter::new</span>();
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">list</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_analytics</span>().<span class="ident">passengers_boarding</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>) {
         <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">r</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="ident">list</span> {
             <span class="ident">boardings</span>.<span class="ident">inc</span>(<span class="kw-2">*</span><span class="ident">r</span>);
@@ -499,10 +499,10 @@
             <span class="ident">alightings</span>.<span class="ident">inc</span>(<span class="kw-2">*</span><span class="ident">r</span>);
         }
     }
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::new</span>();
     <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="string">&quot;Total&quot;</span>);
     <span class="ident">txt</span>.<span class="ident">append</span>(
-        <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(
+        <span class="ident">Line</span>(<span class="macro">format!</span>(
             <span class="string">&quot;: {} boardings, {} alightings&quot;</span>,
             <span class="ident">prettyprint_usize</span>(<span class="ident">boardings</span>.<span class="ident">sum</span>()),
             <span class="ident">prettyprint_usize</span>(<span class="ident">alightings</span>.<span class="ident">sum</span>())
@@ -510,9 +510,9 @@
         .<span class="ident">secondary</span>(),
     );
     <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_routes_serving_stop</span>(<span class="ident">id</span>) {
-        <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Route {}&quot;</span>, <span class="ident">r</span>.<span class="ident">short_name</span>));
+        <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="macro">format!</span>(<span class="string">&quot;Route {}&quot;</span>, <span class="ident">r</span>.<span class="ident">short_name</span>));
         <span class="ident">txt</span>.<span class="ident">append</span>(
-            <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(
+            <span class="ident">Line</span>(<span class="macro">format!</span>(
                 <span class="string">&quot;: {} boardings, {} alightings&quot;</span>,
                 <span class="ident">prettyprint_usize</span>(<span class="ident">boardings</span>.<span class="ident">get</span>(<span class="ident">r</span>.<span class="ident">id</span>)),
                 <span class="ident">prettyprint_usize</span>(<span class="ident">alightings</span>.<span class="ident">get</span>(<span class="ident">r</span>.<span class="ident">id</span>))
@@ -525,21 +525,21 @@
     <span class="comment">// Draw where the bus/train stops</span>
     <span class="ident">details</span>.<span class="ident">zoomed</span>.<span class="ident">push</span>(
         <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">bus_body</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>),
-        <span class="ident">Circle</span>::<span class="ident">new</span>(<span class="ident">bs</span>.<span class="ident">driving_pos</span>.<span class="ident">pt</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>), <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">2.5</span>)).<span class="ident">to_polygon</span>(),
+        <span class="ident">Circle::new</span>(<span class="ident">bs</span>.<span class="ident">driving_pos</span>.<span class="ident">pt</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>), <span class="ident">Distance::meters</span>(<span class="number">2.5</span>)).<span class="ident">to_polygon</span>(),
     );
 
-    <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="ident">rows</span>)
+    <span class="ident">Widget::col</span>(<span class="ident">rows</span>)
 }
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">bus_status</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">details</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Details</span>, <span class="ident">id</span>: <span class="ident">CarID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
-    <span class="ident">Widget</span>::<span class="ident">custom_col</span>(<span class="macro">vec</span><span class="macro">!</span>[
-        <span class="ident">bus_header</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">details</span>, <span class="ident">id</span>, <span class="ident">Tab</span>::<span class="ident">BusStatus</span>(<span class="ident">id</span>)),
+    <span class="ident">Widget::custom_col</span>(<span class="macro">vec!</span>[
+        <span class="ident">bus_header</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">details</span>, <span class="ident">id</span>, <span class="ident">Tab::BusStatus</span>(<span class="ident">id</span>)),
         <span class="ident">bus_status_body</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">details</span>, <span class="ident">id</span>).<span class="ident">tab_body</span>(<span class="ident">ctx</span>),
     ])
 }
 
 <span class="kw">fn</span> <span class="ident">bus_status_body</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">details</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Details</span>, <span class="ident">id</span>: <span class="ident">CarID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rows</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[];
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rows</span> <span class="op">=</span> <span class="macro">vec!</span>[];
 
     <span class="kw">let</span> <span class="ident">route</span> <span class="op">=</span> <span class="ident">app</span>
         .<span class="ident">primary</span>
@@ -549,23 +549,23 @@
     <span class="ident">rows</span>.<span class="ident">push</span>(
         <span class="ident">ctx</span>.<span class="ident">style</span>()
             .<span class="ident">btn_outline</span>
-            .<span class="ident">text</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Serves route {}&quot;</span>, <span class="ident">route</span>.<span class="ident">short_name</span>))
+            .<span class="ident">text</span>(<span class="macro">format!</span>(<span class="string">&quot;Serves route {}&quot;</span>, <span class="ident">route</span>.<span class="ident">short_name</span>))
             .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
     );
     <span class="ident">details</span>.<span class="ident">hyperlinks</span>.<span class="ident">insert</span>(
-        <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Serves route {}&quot;</span>, <span class="ident">route</span>.<span class="ident">short_name</span>),
-        <span class="ident">Tab</span>::<span class="ident">BusRoute</span>(<span class="ident">route</span>.<span class="ident">id</span>),
+        <span class="macro">format!</span>(<span class="string">&quot;Serves route {}&quot;</span>, <span class="ident">route</span>.<span class="ident">short_name</span>),
+        <span class="ident">Tab::BusRoute</span>(<span class="ident">route</span>.<span class="ident">id</span>),
     );
 
     <span class="ident">rows</span>.<span class="ident">push</span>(
-        <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(
+        <span class="ident">Line</span>(<span class="macro">format!</span>(
             <span class="string">&quot;Currently has {} passengers&quot;</span>,
             <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">num_transit_passengers</span>(<span class="ident">id</span>),
         ))
         .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
     );
 
-    <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="ident">rows</span>)
+    <span class="ident">Widget::col</span>(<span class="ident">rows</span>)
 }
 
 <span class="kw">fn</span> <span class="ident">bus_header</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">details</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Details</span>, <span class="ident">id</span>: <span class="ident">CarID</span>, <span class="ident">tab</span>: <span class="ident">Tab</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
@@ -574,14 +574,14 @@
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt</span>) <span class="op">=</span> <span class="ident">app</span>
         .<span class="ident">primary</span>
         .<span class="ident">sim</span>
-        .<span class="ident">canonical_pt_for_agent</span>(<span class="ident">AgentID</span>::<span class="ident">Car</span>(<span class="ident">id</span>), <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>)
+        .<span class="ident">canonical_pt_for_agent</span>(<span class="ident">AgentID::Car</span>(<span class="ident">id</span>), <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>)
     {
         <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">center_on_map_pt</span>(<span class="ident">pt</span>);
     }
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rows</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[];
-    <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-        <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rows</span> <span class="op">=</span> <span class="macro">vec!</span>[];
+    <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
+        <span class="ident">Line</span>(<span class="macro">format!</span>(
             <span class="string">&quot;{} (route {})&quot;</span>,
             <span class="ident">id</span>,
             <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_br</span>(<span class="ident">route</span>).<span class="ident">short_name</span>
@@ -594,10 +594,10 @@
         <span class="ident">ctx</span>,
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">details</span>.<span class="ident">hyperlinks</span>,
         <span class="ident">tab</span>,
-        <span class="macro">vec</span><span class="macro">!</span>[(<span class="string">&quot;Status&quot;</span>, <span class="ident">Tab</span>::<span class="ident">BusStatus</span>(<span class="ident">id</span>))],
+        <span class="macro">vec!</span>[(<span class="string">&quot;Status&quot;</span>, <span class="ident">Tab::BusStatus</span>(<span class="ident">id</span>))],
     ));
 
-    <span class="ident">Widget</span>::<span class="ident">custom_col</span>(<span class="ident">rows</span>)
+    <span class="ident">Widget::custom_col</span>(<span class="ident">rows</span>)
 }
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">route</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">details</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Details</span>, <span class="ident">id</span>: <span class="ident">BusRouteID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
@@ -605,27 +605,27 @@
         <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>;
         <span class="kw">let</span> <span class="ident">route</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_br</span>(<span class="ident">id</span>);
 
-        <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Route {}&quot;</span>, <span class="ident">route</span>.<span class="ident">short_name</span>))
+        <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
+            <span class="ident">Line</span>(<span class="macro">format!</span>(<span class="string">&quot;Route {}&quot;</span>, <span class="ident">route</span>.<span class="ident">short_name</span>))
                 .<span class="ident">small_heading</span>()
                 .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
             <span class="ident">header_btns</span>(<span class="ident">ctx</span>),
         ])
     };
 
-    <span class="ident">Widget</span>::<span class="ident">custom_col</span>(<span class="macro">vec</span><span class="macro">!</span>[
+    <span class="ident">Widget::custom_col</span>(<span class="macro">vec!</span>[
         <span class="ident">header</span>,
         <span class="ident">route_body</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">details</span>, <span class="ident">id</span>).<span class="ident">tab_body</span>(<span class="ident">ctx</span>),
     ])
 }
 
 <span class="kw">fn</span> <span class="ident">route_body</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">details</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Details</span>, <span class="ident">id</span>: <span class="ident">BusRouteID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rows</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[];
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rows</span> <span class="op">=</span> <span class="macro">vec!</span>[];
 
     <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>;
     <span class="kw">let</span> <span class="ident">route</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_br</span>(<span class="ident">id</span>);
     <span class="ident">rows</span>.<span class="ident">push</span>(
-        <span class="ident">Text</span>::<span class="ident">from</span>(<span class="kw-2">&amp;</span><span class="ident">route</span>.<span class="ident">full_name</span>)
+        <span class="ident">Text::from</span>(<span class="kw-2">&amp;</span><span class="ident">route</span>.<span class="ident">full_name</span>)
             .<span class="ident">wrap_to_pct</span>(<span class="ident">ctx</span>, <span class="number">20</span>)
             .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
     );
@@ -635,27 +635,27 @@
             <span class="ident">ctx</span>.<span class="ident">style</span>()
                 .<span class="ident">btn_outline</span>
                 .<span class="ident">text</span>(<span class="string">&quot;Open OSM relation&quot;</span>)
-                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;open {}&quot;</span>, <span class="ident">route</span>.<span class="ident">osm_rel_id</span>)),
+                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="macro">format!</span>(<span class="string">&quot;open {}&quot;</span>, <span class="ident">route</span>.<span class="ident">osm_rel_id</span>)),
         );
     }
 
     <span class="kw">let</span> <span class="ident">buses</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">status_of_buses</span>(<span class="ident">id</span>, <span class="ident">map</span>);
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bus_locations</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bus_locations</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
     <span class="kw">if</span> <span class="ident">buses</span>.<span class="ident">is_empty</span>() {
-        <span class="ident">rows</span>.<span class="ident">push</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;No {} running&quot;</span>, <span class="ident">route</span>.<span class="ident">plural_noun</span>()).<span class="ident">text_widget</span>(<span class="ident">ctx</span>));
+        <span class="ident">rows</span>.<span class="ident">push</span>(<span class="macro">format!</span>(<span class="string">&quot;No {} running&quot;</span>, <span class="ident">route</span>.<span class="ident">plural_noun</span>()).<span class="ident">text_widget</span>(<span class="ident">ctx</span>));
     } <span class="kw">else</span> {
         <span class="kw">for</span> (<span class="ident">bus</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">pt</span>) <span class="kw">in</span> <span class="ident">buses</span> {
             <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline</span>.<span class="ident">text</span>(<span class="ident">bus</span>.<span class="ident">to_string</span>()).<span class="ident">build_def</span>(<span class="ident">ctx</span>));
             <span class="ident">details</span>
                 .<span class="ident">hyperlinks</span>
-                .<span class="ident">insert</span>(<span class="ident">bus</span>.<span class="ident">to_string</span>(), <span class="ident">Tab</span>::<span class="ident">BusStatus</span>(<span class="ident">bus</span>));
+                .<span class="ident">insert</span>(<span class="ident">bus</span>.<span class="ident">to_string</span>(), <span class="ident">Tab::BusStatus</span>(<span class="ident">bus</span>));
             <span class="ident">bus_locations</span>.<span class="ident">push</span>(<span class="ident">pt</span>);
         }
     }
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">boardings</span>: <span class="ident">Counter</span><span class="op">&lt;</span><span class="ident">BusStopID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Counter</span>::<span class="ident">new</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">alightings</span>: <span class="ident">Counter</span><span class="op">&lt;</span><span class="ident">BusStopID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Counter</span>::<span class="ident">new</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">waiting</span>: <span class="ident">Counter</span><span class="op">&lt;</span><span class="ident">BusStopID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Counter</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">boardings</span>: <span class="ident">Counter</span><span class="op">&lt;</span><span class="ident">BusStopID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Counter::new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">alightings</span>: <span class="ident">Counter</span><span class="op">&lt;</span><span class="ident">BusStopID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Counter::new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">waiting</span>: <span class="ident">Counter</span><span class="op">&lt;</span><span class="ident">BusStopID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Counter::new</span>();
     <span class="kw">for</span> <span class="ident">bs</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">route</span>.<span class="ident">stops</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">list</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_analytics</span>().<span class="ident">passengers_boarding</span>.<span class="ident">get</span>(<span class="ident">bs</span>) {
             <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">r</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="ident">list</span> {
@@ -680,9 +680,9 @@
     }
 
     <span class="ident">rows</span>.<span class="ident">push</span>(
-        <span class="ident">Text</span>::<span class="ident">from_all</span>(<span class="macro">vec</span><span class="macro">!</span>[
+        <span class="ident">Text::from_all</span>(<span class="macro">vec!</span>[
             <span class="ident">Line</span>(<span class="string">&quot;Total&quot;</span>),
-            <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(
+            <span class="ident">Line</span>(<span class="macro">format!</span>(
                 <span class="string">&quot;: {} boardings, {} alightings, {} currently waiting&quot;</span>,
                 <span class="ident">prettyprint_usize</span>(<span class="ident">boardings</span>.<span class="ident">sum</span>()),
                 <span class="ident">prettyprint_usize</span>(<span class="ident">alightings</span>.<span class="ident">sum</span>()),
@@ -693,31 +693,31 @@
         .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
     );
 
-    <span class="ident">rows</span>.<span class="ident">push</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} stops&quot;</span>, <span class="ident">route</span>.<span class="ident">stops</span>.<span class="ident">len</span>()).<span class="ident">text_widget</span>(<span class="ident">ctx</span>));
+    <span class="ident">rows</span>.<span class="ident">push</span>(<span class="macro">format!</span>(<span class="string">&quot;{} stops&quot;</span>, <span class="ident">route</span>.<span class="ident">stops</span>.<span class="ident">len</span>()).<span class="ident">text_widget</span>(<span class="ident">ctx</span>));
     {
         <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">route</span>.<span class="ident">start</span>).<span class="ident">src_i</span>);
-        <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Starts at {}&quot;</span>, <span class="ident">i</span>.<span class="ident">name</span>(<span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">language</span>.<span class="ident">as_ref</span>(), <span class="ident">map</span>));
-        <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+        <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;Starts at {}&quot;</span>, <span class="ident">i</span>.<span class="ident">name</span>(<span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">language</span>.<span class="ident">as_ref</span>(), <span class="ident">map</span>));
+        <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
             <span class="ident">ctx</span>.<span class="ident">style</span>()
                 .<span class="ident">btn_plain</span>
                 .<span class="ident">icon</span>(<span class="string">&quot;system/assets/timeline/start_pos.svg&quot;</span>)
-                .<span class="ident">image_color</span>(<span class="ident">RewriteColor</span>::<span class="ident">NoOp</span>, <span class="ident">ControlState</span>::<span class="ident">Default</span>)
+                .<span class="ident">image_color</span>(<span class="ident">RewriteColor::NoOp</span>, <span class="ident">ControlState::Default</span>)
                 .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">name</span>),
             <span class="ident">name</span>.<span class="ident">clone</span>().<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
         ]));
-        <span class="ident">details</span>.<span class="ident">warpers</span>.<span class="ident">insert</span>(<span class="ident">name</span>, <span class="ident">ID</span>::<span class="ident">Intersection</span>(<span class="ident">i</span>.<span class="ident">id</span>));
+        <span class="ident">details</span>.<span class="ident">warpers</span>.<span class="ident">insert</span>(<span class="ident">name</span>, <span class="ident">ID::Intersection</span>(<span class="ident">i</span>.<span class="ident">id</span>));
     }
     <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">bs</span>) <span class="kw">in</span> <span class="ident">route</span>.<span class="ident">stops</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
         <span class="kw">let</span> <span class="ident">bs</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_bs</span>(<span class="kw-2">*</span><span class="ident">bs</span>);
-        <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Stop {}: {}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>, <span class="ident">bs</span>.<span class="ident">name</span>);
-        <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+        <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;Stop {}: {}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>, <span class="ident">bs</span>.<span class="ident">name</span>);
+        <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
             <span class="ident">ctx</span>.<span class="ident">style</span>()
                 .<span class="ident">btn_plain</span>
                 .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/pin.svg&quot;</span>)
                 .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">name</span>),
-            <span class="ident">Text</span>::<span class="ident">from_all</span>(<span class="macro">vec</span><span class="macro">!</span>[
+            <span class="ident">Text::from_all</span>(<span class="macro">vec!</span>[
                 <span class="ident">Line</span>(<span class="kw-2">&amp;</span><span class="ident">bs</span>.<span class="ident">name</span>),
-                <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(
+                <span class="ident">Line</span>(<span class="macro">format!</span>(
                     <span class="string">&quot;: {} boardings, {} alightings, {} currently waiting&quot;</span>,
                     <span class="ident">prettyprint_usize</span>(<span class="ident">boardings</span>.<span class="ident">get</span>(<span class="ident">bs</span>.<span class="ident">id</span>)),
                     <span class="ident">prettyprint_usize</span>(<span class="ident">alightings</span>.<span class="ident">get</span>(<span class="ident">bs</span>.<span class="ident">id</span>)),
@@ -727,20 +727,20 @@
             ])
             .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
         ]));
-        <span class="ident">details</span>.<span class="ident">warpers</span>.<span class="ident">insert</span>(<span class="ident">name</span>, <span class="ident">ID</span>::<span class="ident">BusStop</span>(<span class="ident">bs</span>.<span class="ident">id</span>));
+        <span class="ident">details</span>.<span class="ident">warpers</span>.<span class="ident">insert</span>(<span class="ident">name</span>, <span class="ident">ID::BusStop</span>(<span class="ident">bs</span>.<span class="ident">id</span>));
     }
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">l</span>) <span class="op">=</span> <span class="ident">route</span>.<span class="ident">end_border</span> {
         <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">dst_i</span>);
-        <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Ends at {}&quot;</span>, <span class="ident">i</span>.<span class="ident">name</span>(<span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">language</span>.<span class="ident">as_ref</span>(), <span class="ident">map</span>));
-        <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+        <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;Ends at {}&quot;</span>, <span class="ident">i</span>.<span class="ident">name</span>(<span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">language</span>.<span class="ident">as_ref</span>(), <span class="ident">map</span>));
+        <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
             <span class="ident">ctx</span>.<span class="ident">style</span>()
                 .<span class="ident">btn_plain</span>
                 .<span class="ident">icon</span>(<span class="string">&quot;system/assets/timeline/goal_pos.svg&quot;</span>)
-                .<span class="ident">image_color</span>(<span class="ident">RewriteColor</span>::<span class="ident">NoOp</span>, <span class="ident">ControlState</span>::<span class="ident">Default</span>)
+                .<span class="ident">image_color</span>(<span class="ident">RewriteColor::NoOp</span>, <span class="ident">ControlState::Default</span>)
                 .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">name</span>),
             <span class="ident">name</span>.<span class="ident">clone</span>().<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
         ]));
-        <span class="ident">details</span>.<span class="ident">warpers</span>.<span class="ident">insert</span>(<span class="ident">name</span>, <span class="ident">ID</span>::<span class="ident">Intersection</span>(<span class="ident">i</span>.<span class="ident">id</span>));
+        <span class="ident">details</span>.<span class="ident">warpers</span>.<span class="ident">insert</span>(<span class="ident">name</span>, <span class="ident">ID::Intersection</span>(<span class="ident">i</span>.<span class="ident">id</span>));
     }
 
     <span class="comment">// TODO Soon it&#39;ll be time to split into tabs</span>
@@ -749,18 +749,18 @@
             <span class="ident">ctx</span>.<span class="ident">style</span>()
                 .<span class="ident">btn_outline</span>
                 .<span class="ident">text</span>(<span class="string">&quot;Edit schedule&quot;</span>)
-                .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">E</span>)
-                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;edit {}&quot;</span>, <span class="ident">route</span>.<span class="ident">id</span>)),
+                .<span class="ident">hotkey</span>(<span class="ident">Key::E</span>)
+                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="macro">format!</span>(<span class="string">&quot;edit {}&quot;</span>, <span class="ident">route</span>.<span class="ident">id</span>)),
         );
         <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">describe_schedule</span>(<span class="ident">route</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>));
     }
 
     <span class="comment">// Draw the route, label stops, and show location of buses</span>
     {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">colorer</span> <span class="op">=</span> <span class="ident">ColorNetwork</span>::<span class="ident">new</span>(<span class="ident">app</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">colorer</span> <span class="op">=</span> <span class="ident">ColorNetwork::new</span>(<span class="ident">app</span>);
         <span class="kw">for</span> <span class="ident">req</span> <span class="kw">in</span> <span class="ident">route</span>.<span class="ident">all_steps</span>(<span class="ident">map</span>) {
             <span class="kw">for</span> <span class="ident">step</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>).<span class="ident">unwrap</span>().<span class="ident">get_steps</span>() {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">PathStep</span>::<span class="ident">Lane</span>(<span class="ident">l</span>) <span class="op">=</span> <span class="ident">step</span> {
+                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">PathStep::Lane</span>(<span class="ident">l</span>) <span class="op">=</span> <span class="ident">step</span> {
                     <span class="ident">colorer</span>.<span class="ident">add_l</span>(<span class="kw-2">*</span><span class="ident">l</span>, <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">unzoomed_bus</span>);
                 }
             }
@@ -770,25 +770,25 @@
 
         <span class="kw">for</span> <span class="ident">pt</span> <span class="kw">in</span> <span class="ident">bus_locations</span> {
             <span class="ident">details</span>.<span class="ident">unzoomed</span>.<span class="ident">push</span>(
-                <span class="ident">Color</span>::<span class="ident">BLUE</span>,
-                <span class="ident">Circle</span>::<span class="ident">new</span>(<span class="ident">pt</span>, <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">20.0</span>)).<span class="ident">to_polygon</span>(),
+                <span class="ident">Color::BLUE</span>,
+                <span class="ident">Circle::new</span>(<span class="ident">pt</span>, <span class="ident">Distance::meters</span>(<span class="number">20.0</span>)).<span class="ident">to_polygon</span>(),
             );
             <span class="ident">details</span>.<span class="ident">zoomed</span>.<span class="ident">push</span>(
-                <span class="ident">Color</span>::<span class="ident">BLUE</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>),
-                <span class="ident">Circle</span>::<span class="ident">new</span>(<span class="ident">pt</span>, <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">5.0</span>)).<span class="ident">to_polygon</span>(),
+                <span class="ident">Color::BLUE</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>),
+                <span class="ident">Circle::new</span>(<span class="ident">pt</span>, <span class="ident">Distance::meters</span>(<span class="number">5.0</span>)).<span class="ident">to_polygon</span>(),
             );
         }
 
         <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">bs</span>) <span class="kw">in</span> <span class="ident">route</span>.<span class="ident">stops</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
             <span class="kw">let</span> <span class="ident">bs</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_bs</span>(<span class="kw-2">*</span><span class="ident">bs</span>);
             <span class="ident">details</span>.<span class="ident">unzoomed</span>.<span class="ident">append</span>(
-                <span class="ident">Text</span>::<span class="ident">from</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}) {}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>, <span class="ident">bs</span>.<span class="ident">name</span>))
+                <span class="ident">Text::from</span>(<span class="macro">format!</span>(<span class="string">&quot;{}) {}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>, <span class="ident">bs</span>.<span class="ident">name</span>))
                     .<span class="ident">with_bg</span>()
                     .<span class="ident">render_autocropped</span>(<span class="ident">ctx</span>)
                     .<span class="ident">centered_on</span>(<span class="ident">bs</span>.<span class="ident">sidewalk_pos</span>.<span class="ident">pt</span>(<span class="ident">map</span>)),
             );
             <span class="ident">details</span>.<span class="ident">zoomed</span>.<span class="ident">append</span>(
-                <span class="ident">Text</span>::<span class="ident">from</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}) {}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>, <span class="ident">bs</span>.<span class="ident">name</span>))
+                <span class="ident">Text::from</span>(<span class="macro">format!</span>(<span class="string">&quot;{}) {}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>, <span class="ident">bs</span>.<span class="ident">name</span>))
                     .<span class="ident">with_bg</span>()
                     .<span class="ident">render_autocropped</span>(<span class="ident">ctx</span>)
                     .<span class="ident">scale</span>(<span class="number">0.1</span>)
@@ -797,13 +797,13 @@
         }
     }
 
-    <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="ident">rows</span>)
+    <span class="ident">Widget::col</span>(<span class="ident">rows</span>)
 }
 
 <span class="comment">// TODO Unit test</span>
 <span class="kw">fn</span> <span class="ident">describe_schedule</span>(<span class="ident">route</span>: <span class="kw-2">&amp;</span><span class="ident">BusRoute</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Text</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">new</span>();
-    <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="macro">format</span><span class="macro">!</span>(
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::new</span>();
+    <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="macro">format!</span>(
         <span class="string">&quot;{} {}s run this route daily&quot;</span>,
         <span class="ident">route</span>.<span class="ident">spawn_times</span>.<span class="ident">len</span>(),
         <span class="ident">route</span>.<span class="ident">plural_noun</span>()
@@ -820,7 +820,7 @@
                 <span class="kw">if</span> <span class="prelude-val">Some</span>(<span class="ident">new_dt</span>) <span class="op">=</span><span class="op">=</span> <span class="ident">dt</span> {
                     <span class="ident">last</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">t</span>);
                 } <span class="kw">else</span> {
-                    <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="macro">format</span><span class="macro">!</span>(
+                    <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="macro">format!</span>(
                         <span class="string">&quot;Every {} from {} to {}&quot;</span>,
                         <span class="ident">dt</span>.<span class="ident">unwrap</span>(),
                         <span class="ident">start</span>.<span class="ident">ampm_tostring</span>(),
@@ -836,7 +836,7 @@
             }
         }
         <span class="comment">// Handle end</span>
-        <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="macro">format</span><span class="macro">!</span>(
+        <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="macro">format!</span>(
             <span class="string">&quot;Every {} from {} to {}&quot;</span>,
             <span class="ident">dt</span>.<span class="ident">unwrap</span>(),
             <span class="ident">start</span>.<span class="ident">ampm_tostring</span>(),
@@ -851,5 +851,5 @@
     <span class="ident">txt</span>
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="game" data-search-js="../../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="game" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
     <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script></body></html>

@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `game/src/info/intersection.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>intersection.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../game/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../game/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -480,37 +480,37 @@
 <span id="477">477</span>
 <span id="478">478</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
+<span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 
-<span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">prettyprint_usize</span>;
+<span class="kw">use</span> <span class="ident">abstutil::prettyprint_usize</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">ArrowCap</span>, <span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>, <span class="ident">Time</span>};
-<span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">options</span>::<span class="ident">TrafficSignalStyle</span>;
-<span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">render</span>::<span class="ident">traffic_signal</span>::<span class="ident">draw_signal_stage</span>;
+<span class="kw">use</span> <span class="ident">map_gui::options::TrafficSignalStyle</span>;
+<span class="kw">use</span> <span class="ident">map_gui::render::traffic_signal::draw_signal_stage</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">IntersectionID</span>, <span class="ident">IntersectionType</span>, <span class="ident">StageType</span>};
-<span class="kw">use</span> <span class="ident">sim</span>::<span class="ident">AgentType</span>;
+<span class="kw">use</span> <span class="ident">sim::AgentType</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">Color</span>, <span class="ident">DrawWithTooltips</span>, <span class="ident">EventCtx</span>, <span class="ident">FanChart</span>, <span class="ident">GeomBatch</span>, <span class="ident">Line</span>, <span class="ident">PlotOptions</span>, <span class="ident">ScatterPlot</span>, <span class="ident">Series</span>,
     <span class="ident">Text</span>, <span class="ident">Toggle</span>, <span class="ident">Widget</span>,
 };
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">app</span>::<span class="ident">App</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">common</span>::<span class="ident">color_for_agent_type</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">info</span>::{<span class="ident">header_btns</span>, <span class="ident">make_tabs</span>, <span class="ident">throughput</span>, <span class="ident">DataOptions</span>, <span class="ident">Details</span>, <span class="ident">Tab</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::app::App</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::common::color_for_agent_type</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::info</span>::{<span class="ident">header_btns</span>, <span class="ident">make_tabs</span>, <span class="ident">throughput</span>, <span class="ident">DataOptions</span>, <span class="ident">Details</span>, <span class="ident">Tab</span>};
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">info</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">details</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Details</span>, <span class="ident">id</span>: <span class="ident">IntersectionID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
-    <span class="ident">Widget</span>::<span class="ident">custom_col</span>(<span class="macro">vec</span><span class="macro">!</span>[
-        <span class="ident">header</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">details</span>, <span class="ident">id</span>, <span class="ident">Tab</span>::<span class="ident">IntersectionInfo</span>(<span class="ident">id</span>)),
+    <span class="ident">Widget::custom_col</span>(<span class="macro">vec!</span>[
+        <span class="ident">header</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">details</span>, <span class="ident">id</span>, <span class="ident">Tab::IntersectionInfo</span>(<span class="ident">id</span>)),
         <span class="ident">info_body</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>).<span class="ident">tab_body</span>(<span class="ident">ctx</span>),
     ])
 }
 
 <span class="kw">fn</span> <span class="ident">info_body</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">id</span>: <span class="ident">IntersectionID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rows</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[];
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rows</span> <span class="op">=</span> <span class="macro">vec!</span>[];
 
     <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">id</span>);
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">from</span>(<span class="string">&quot;Connecting&quot;</span>);
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">road_names</span> <span class="op">=</span> <span class="ident">BTreeSet</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::from</span>(<span class="string">&quot;Connecting&quot;</span>);
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">road_names</span> <span class="op">=</span> <span class="ident">BTreeSet::new</span>();
     <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">i</span>.<span class="ident">roads</span> {
         <span class="ident">road_names</span>.<span class="ident">insert</span>(
             <span class="ident">app</span>.<span class="ident">primary</span>
@@ -520,7 +520,7 @@
         );
     }
     <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">road_names</span> {
-        <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;  {}&quot;</span>, <span class="ident">r</span>));
+        <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="macro">format!</span>(<span class="string">&quot;  {}&quot;</span>, <span class="ident">r</span>));
     }
     <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">txt</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>));
 
@@ -529,11 +529,11 @@
             <span class="ident">ctx</span>.<span class="ident">style</span>()
                 .<span class="ident">btn_outline</span>
                 .<span class="ident">text</span>(<span class="string">&quot;Open OSM node&quot;</span>)
-                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;open {}&quot;</span>, <span class="ident">i</span>.<span class="ident">orig_id</span>)),
+                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="macro">format!</span>(<span class="string">&quot;open {}&quot;</span>, <span class="ident">i</span>.<span class="ident">orig_id</span>)),
         );
     }
 
-    <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="ident">rows</span>)
+    <span class="ident">Widget::col</span>(<span class="ident">rows</span>)
 }
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">traffic</span>(
@@ -543,23 +543,23 @@
     <span class="ident">id</span>: <span class="ident">IntersectionID</span>,
     <span class="ident">opts</span>: <span class="kw-2">&amp;</span><span class="ident">DataOptions</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
-    <span class="ident">Widget</span>::<span class="ident">custom_col</span>(<span class="macro">vec</span><span class="macro">!</span>[
+    <span class="ident">Widget::custom_col</span>(<span class="macro">vec!</span>[
         <span class="ident">header</span>(
             <span class="ident">ctx</span>,
             <span class="ident">app</span>,
             <span class="ident">details</span>,
             <span class="ident">id</span>,
-            <span class="ident">Tab</span>::<span class="ident">IntersectionTraffic</span>(<span class="ident">id</span>, <span class="ident">opts</span>.<span class="ident">clone</span>()),
+            <span class="ident">Tab::IntersectionTraffic</span>(<span class="ident">id</span>, <span class="ident">opts</span>.<span class="ident">clone</span>()),
         ),
         <span class="ident">traffic_body</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>, <span class="ident">opts</span>).<span class="ident">tab_body</span>(<span class="ident">ctx</span>),
     ])
 }
 
 <span class="kw">fn</span> <span class="ident">traffic_body</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">id</span>: <span class="ident">IntersectionID</span>, <span class="ident">opts</span>: <span class="kw-2">&amp;</span><span class="ident">DataOptions</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rows</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[];
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rows</span> <span class="op">=</span> <span class="macro">vec!</span>[];
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::new</span>();
 
-    <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="macro">format</span><span class="macro">!</span>(
+    <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="macro">format!</span>(
         <span class="string">&quot;Since midnight: {} commuters and vehicles crossed&quot;</span>,
         <span class="ident">prettyprint_usize</span>(
             <span class="ident">app</span>.<span class="ident">primary</span>
@@ -592,7 +592,7 @@
         <span class="ident">opts</span>,
     ));
 
-    <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="ident">rows</span>)
+    <span class="ident">Widget::col</span>(<span class="ident">rows</span>)
 }
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">delay</span>(
@@ -603,13 +603,13 @@
     <span class="ident">opts</span>: <span class="kw-2">&amp;</span><span class="ident">DataOptions</span>,
     <span class="ident">fan_chart</span>: <span class="ident">bool</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
-    <span class="ident">Widget</span>::<span class="ident">custom_col</span>(<span class="macro">vec</span><span class="macro">!</span>[
+    <span class="ident">Widget::custom_col</span>(<span class="macro">vec!</span>[
         <span class="ident">header</span>(
             <span class="ident">ctx</span>,
             <span class="ident">app</span>,
             <span class="ident">details</span>,
             <span class="ident">id</span>,
-            <span class="ident">Tab</span>::<span class="ident">IntersectionDelay</span>(<span class="ident">id</span>, <span class="ident">opts</span>.<span class="ident">clone</span>(), <span class="ident">fan_chart</span>),
+            <span class="ident">Tab::IntersectionDelay</span>(<span class="ident">id</span>, <span class="ident">opts</span>.<span class="ident">clone</span>(), <span class="ident">fan_chart</span>),
         ),
         <span class="ident">delay_body</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>, <span class="ident">opts</span>, <span class="ident">fan_chart</span>).<span class="ident">tab_body</span>(<span class="ident">ctx</span>),
     ])
@@ -622,12 +622,12 @@
     <span class="ident">opts</span>: <span class="kw-2">&amp;</span><span class="ident">DataOptions</span>,
     <span class="ident">fan_chart</span>: <span class="ident">bool</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rows</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[];
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rows</span> <span class="op">=</span> <span class="macro">vec!</span>[];
     <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">id</span>);
 
-    <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">i</span>.<span class="ident">is_traffic_signal</span>());
+    <span class="macro">assert!</span>(<span class="ident">i</span>.<span class="ident">is_traffic_signal</span>());
     <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">opts</span>.<span class="ident">to_controls</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
-    <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Toggle</span>::<span class="ident">choice</span>(
+    <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Toggle::choice</span>(
         <span class="ident">ctx</span>,
         <span class="string">&quot;fan chart / scatter plot&quot;</span>,
         <span class="string">&quot;fan chart&quot;</span>,
@@ -638,7 +638,7 @@
 
     <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">delay_plot</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>, <span class="ident">opts</span>, <span class="ident">fan_chart</span>));
 
-    <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="ident">rows</span>)
+    <span class="ident">Widget::col</span>(<span class="ident">rows</span>)
 }
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">current_demand</span>(
@@ -647,16 +647,16 @@
     <span class="ident">details</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Details</span>,
     <span class="ident">id</span>: <span class="ident">IntersectionID</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
-    <span class="ident">Widget</span>::<span class="ident">custom_col</span>(<span class="macro">vec</span><span class="macro">!</span>[
-        <span class="ident">header</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">details</span>, <span class="ident">id</span>, <span class="ident">Tab</span>::<span class="ident">IntersectionDemand</span>(<span class="ident">id</span>)),
+    <span class="ident">Widget::custom_col</span>(<span class="macro">vec!</span>[
+        <span class="ident">header</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">details</span>, <span class="ident">id</span>, <span class="ident">Tab::IntersectionDemand</span>(<span class="ident">id</span>)),
         <span class="ident">current_demand_body</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>).<span class="ident">tab_body</span>(<span class="ident">ctx</span>),
     ])
 }
 
 <span class="kw">fn</span> <span class="ident">current_demand_body</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">id</span>: <span class="ident">IntersectionID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rows</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[];
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rows</span> <span class="op">=</span> <span class="macro">vec!</span>[];
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">total_demand</span> <span class="op">=</span> <span class="number">0</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">demand_per_movement</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span><span class="ident">PolyLine</span>, <span class="ident">usize</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">demand_per_movement</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span><span class="ident">PolyLine</span>, <span class="ident">usize</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
     <span class="kw">for</span> <span class="ident">m</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_traffic_signal</span>(<span class="ident">id</span>).<span class="ident">movements</span>.<span class="ident">values</span>() {
         <span class="kw">let</span> <span class="ident">demand</span> <span class="op">=</span> <span class="ident">app</span>
             .<span class="ident">primary</span>
@@ -672,7 +672,7 @@
         }
     }
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
     <span class="kw">let</span> <span class="ident">polygon</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">id</span>).<span class="ident">polygon</span>.<span class="ident">clone</span>();
     <span class="kw">let</span> <span class="ident">bounds</span> <span class="op">=</span> <span class="ident">polygon</span>.<span class="ident">get_bounds</span>();
     <span class="comment">// Pick a zoom so that we fit a fixed width in pixels</span>
@@ -682,28 +682,28 @@
         <span class="ident">polygon</span>.<span class="ident">translate</span>(<span class="op">-</span><span class="ident">bounds</span>.<span class="ident">min_x</span>, <span class="op">-</span><span class="ident">bounds</span>.<span class="ident">min_y</span>).<span class="ident">scale</span>(<span class="ident">zoom</span>),
     );
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tooltips</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Polygon</span>, <span class="ident">Text</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">outlines</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tooltips</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Polygon</span>, <span class="ident">Text</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">outlines</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
     <span class="kw">for</span> (<span class="ident">pl</span>, <span class="ident">demand</span>) <span class="kw">in</span> <span class="ident">demand_per_movement</span> {
         <span class="kw">let</span> <span class="ident">percent</span> <span class="op">=</span> (<span class="ident">demand</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> (<span class="ident">total_demand</span> <span class="kw">as</span> <span class="ident">f64</span>);
         <span class="kw">let</span> <span class="ident">arrow</span> <span class="op">=</span> <span class="ident">pl</span>
-            .<span class="ident">make_arrow</span>(<span class="ident">percent</span> <span class="op">*</span> <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">3.0</span>), <span class="ident">ArrowCap</span>::<span class="ident">Triangle</span>)
+            .<span class="ident">make_arrow</span>(<span class="ident">percent</span> <span class="op">*</span> <span class="ident">Distance::meters</span>(<span class="number">3.0</span>), <span class="ident">ArrowCap::Triangle</span>)
             .<span class="ident">translate</span>(<span class="op">-</span><span class="ident">bounds</span>.<span class="ident">min_x</span>, <span class="op">-</span><span class="ident">bounds</span>.<span class="ident">min_y</span>)
             .<span class="ident">scale</span>(<span class="ident">zoom</span>);
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">p</span>) <span class="op">=</span> <span class="ident">arrow</span>.<span class="ident">to_outline</span>(<span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">1.0</span>)) {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">p</span>) <span class="op">=</span> <span class="ident">arrow</span>.<span class="ident">to_outline</span>(<span class="ident">Distance::meters</span>(<span class="number">1.0</span>)) {
             <span class="ident">outlines</span>.<span class="ident">push</span>(<span class="ident">p</span>);
         }
-        <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#A3A3A3&quot;</span>), <span class="ident">arrow</span>.<span class="ident">clone</span>());
-        <span class="ident">tooltips</span>.<span class="ident">push</span>((<span class="ident">arrow</span>, <span class="ident">Text</span>::<span class="ident">from</span>(<span class="ident">prettyprint_usize</span>(<span class="ident">demand</span>))));
+        <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color::hex</span>(<span class="string">&quot;#A3A3A3&quot;</span>), <span class="ident">arrow</span>.<span class="ident">clone</span>());
+        <span class="ident">tooltips</span>.<span class="ident">push</span>((<span class="ident">arrow</span>, <span class="ident">Text::from</span>(<span class="ident">prettyprint_usize</span>(<span class="ident">demand</span>))));
     }
-    <span class="ident">batch</span>.<span class="ident">extend</span>(<span class="ident">Color</span>::<span class="ident">WHITE</span>, <span class="ident">outlines</span>);
+    <span class="ident">batch</span>.<span class="ident">extend</span>(<span class="ident">Color::WHITE</span>, <span class="ident">outlines</span>);
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">from</span>(<span class="macro">format</span><span class="macro">!</span>(
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::from</span>(<span class="macro">format!</span>(
         <span class="string">&quot;Active agent demand at {}&quot;</span>,
         <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>().<span class="ident">ampm_tostring</span>()
     ));
     <span class="ident">txt</span>.<span class="ident">add_line</span>(
-        <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(
+        <span class="ident">Line</span>(<span class="macro">format!</span>(
             <span class="string">&quot;Includes all {} active agents anywhere on the map&quot;</span>,
             <span class="ident">prettyprint_usize</span>(<span class="ident">total_demand</span>)
         ))
@@ -711,18 +711,18 @@
     );
 
     <span class="ident">rows</span>.<span class="ident">push</span>(
-        <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
+        <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
             <span class="ident">txt</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-            <span class="ident">DrawWithTooltips</span>::<span class="ident">new_widget</span>(
+            <span class="ident">DrawWithTooltips::new_widget</span>(
                 <span class="ident">ctx</span>,
                 <span class="ident">batch</span>,
                 <span class="ident">tooltips</span>,
-                <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">arrow</span><span class="op">|</span> {
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[(<span class="ident">Color</span>::<span class="ident">hex</span>(<span class="string">&quot;#EE702E&quot;</span>), <span class="ident">arrow</span>.<span class="ident">clone</span>())];
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">p</span>) <span class="op">=</span> <span class="ident">arrow</span>.<span class="ident">to_outline</span>(<span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">1.0</span>)) {
-                        <span class="ident">list</span>.<span class="ident">push</span>((<span class="ident">Color</span>::<span class="ident">WHITE</span>, <span class="ident">p</span>));
+                <span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">arrow</span><span class="op">|</span> {
+                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="macro">vec!</span>[(<span class="ident">Color::hex</span>(<span class="string">&quot;#EE702E&quot;</span>), <span class="ident">arrow</span>.<span class="ident">clone</span>())];
+                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">p</span>) <span class="op">=</span> <span class="ident">arrow</span>.<span class="ident">to_outline</span>(<span class="ident">Distance::meters</span>(<span class="number">1.0</span>)) {
+                        <span class="ident">list</span>.<span class="ident">push</span>((<span class="ident">Color::WHITE</span>, <span class="ident">p</span>));
                     }
-                    <span class="ident">GeomBatch</span>::<span class="ident">from</span>(<span class="ident">list</span>)
+                    <span class="ident">GeomBatch::from</span>(<span class="ident">list</span>)
                 }),
             ),
         ])
@@ -741,11 +741,11 @@
             <span class="ident">ctx</span>.<span class="ident">style</span>()
                 .<span class="ident">btn_outline</span>
                 .<span class="ident">text</span>(<span class="string">&quot;Where are these agents headed?&quot;</span>)
-                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;routes across {}&quot;</span>, <span class="ident">id</span>)),
+                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="macro">format!</span>(<span class="string">&quot;routes across {}&quot;</span>, <span class="ident">id</span>)),
         );
     }
 
-    <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="ident">rows</span>)
+    <span class="ident">Widget::col</span>(<span class="ident">rows</span>)
 }
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">arrivals</span>(
@@ -755,13 +755,13 @@
     <span class="ident">id</span>: <span class="ident">IntersectionID</span>,
     <span class="ident">opts</span>: <span class="kw-2">&amp;</span><span class="ident">DataOptions</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
-    <span class="ident">Widget</span>::<span class="ident">custom_col</span>(<span class="macro">vec</span><span class="macro">!</span>[
+    <span class="ident">Widget::custom_col</span>(<span class="macro">vec!</span>[
         <span class="ident">header</span>(
             <span class="ident">ctx</span>,
             <span class="ident">app</span>,
             <span class="ident">details</span>,
             <span class="ident">id</span>,
-            <span class="ident">Tab</span>::<span class="ident">IntersectionArrivals</span>(<span class="ident">id</span>, <span class="ident">opts</span>.<span class="ident">clone</span>()),
+            <span class="ident">Tab::IntersectionArrivals</span>(<span class="ident">id</span>, <span class="ident">opts</span>.<span class="ident">clone</span>()),
         ),
         <span class="ident">throughput</span>(
             <span class="ident">ctx</span>,
@@ -780,33 +780,33 @@
     <span class="ident">details</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Details</span>,
     <span class="ident">id</span>: <span class="ident">IntersectionID</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
-    <span class="ident">Widget</span>::<span class="ident">custom_col</span>(<span class="macro">vec</span><span class="macro">!</span>[
-        <span class="ident">header</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">details</span>, <span class="ident">id</span>, <span class="ident">Tab</span>::<span class="ident">IntersectionTrafficSignal</span>(<span class="ident">id</span>)),
+    <span class="ident">Widget::custom_col</span>(<span class="macro">vec!</span>[
+        <span class="ident">header</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">details</span>, <span class="ident">id</span>, <span class="ident">Tab::IntersectionTrafficSignal</span>(<span class="ident">id</span>)),
         <span class="ident">traffic_signal_body</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>).<span class="ident">tab_body</span>(<span class="ident">ctx</span>),
     ])
 }
 
 <span class="kw">fn</span> <span class="ident">traffic_signal_body</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">id</span>: <span class="ident">IntersectionID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rows</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[];
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rows</span> <span class="op">=</span> <span class="macro">vec!</span>[];
     <span class="comment">// Slightly inaccurate -- the turn rendering may slightly exceed the intersection polygon --</span>
     <span class="comment">// but this is close enough.</span>
     <span class="kw">let</span> <span class="ident">bounds</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">id</span>).<span class="ident">polygon</span>.<span class="ident">get_bounds</span>();
     <span class="comment">// Pick a zoom so that we fit a fixed width in pixels</span>
     <span class="kw">let</span> <span class="ident">zoom</span> <span class="op">=</span> <span class="number">150.0</span> <span class="op">/</span> <span class="ident">bounds</span>.<span class="ident">width</span>();
-    <span class="kw">let</span> <span class="ident">bbox</span> <span class="op">=</span> <span class="ident">Polygon</span>::<span class="ident">rectangle</span>(<span class="ident">zoom</span> <span class="op">*</span> <span class="ident">bounds</span>.<span class="ident">width</span>(), <span class="ident">zoom</span> <span class="op">*</span> <span class="ident">bounds</span>.<span class="ident">height</span>());
+    <span class="kw">let</span> <span class="ident">bbox</span> <span class="op">=</span> <span class="ident">Polygon::rectangle</span>(<span class="ident">zoom</span> <span class="op">*</span> <span class="ident">bounds</span>.<span class="ident">width</span>(), <span class="ident">zoom</span> <span class="op">*</span> <span class="ident">bounds</span>.<span class="ident">height</span>());
 
     <span class="kw">let</span> <span class="ident">signal</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_traffic_signal</span>(<span class="ident">id</span>);
     {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">new</span>();
-        <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} stages&quot;</span>, <span class="ident">signal</span>.<span class="ident">stages</span>.<span class="ident">len</span>())).<span class="ident">small_heading</span>());
-        <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Signal offset: {}&quot;</span>, <span class="ident">signal</span>.<span class="ident">offset</span>));
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::new</span>();
+        <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">Line</span>(<span class="macro">format!</span>(<span class="string">&quot;{} stages&quot;</span>, <span class="ident">signal</span>.<span class="ident">stages</span>.<span class="ident">len</span>())).<span class="ident">small_heading</span>());
+        <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="macro">format!</span>(<span class="string">&quot;Signal offset: {}&quot;</span>, <span class="ident">signal</span>.<span class="ident">offset</span>));
         {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">total</span> <span class="op">=</span> <span class="ident">Duration</span>::<span class="ident">ZERO</span>;
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">total</span> <span class="op">=</span> <span class="ident">Duration::ZERO</span>;
             <span class="kw">for</span> <span class="ident">s</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">signal</span>.<span class="ident">stages</span> {
                 <span class="ident">total</span> <span class="op">+</span><span class="op">=</span> <span class="ident">s</span>.<span class="ident">stage_type</span>.<span class="ident">simple_duration</span>();
             }
             <span class="comment">// TODO Say &quot;normally&quot; or something?</span>
-            <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;One cycle lasts {}&quot;</span>, <span class="ident">total</span>));
+            <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="macro">format!</span>(<span class="string">&quot;One cycle lasts {}&quot;</span>, <span class="ident">total</span>));
         }
         <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">txt</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>));
     }
@@ -814,8 +814,8 @@
     <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">stage</span>) <span class="kw">in</span> <span class="ident">signal</span>.<span class="ident">stages</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
         <span class="ident">rows</span>.<span class="ident">push</span>(
             <span class="kw">match</span> <span class="ident">stage</span>.<span class="ident">stage_type</span> {
-                <span class="ident">StageType</span>::<span class="ident">Fixed</span>(<span class="ident">d</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Stage {}: {}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>, <span class="ident">d</span>)),
-                <span class="ident">StageType</span>::<span class="ident">Variable</span>(<span class="ident">min</span>, <span class="ident">delay</span>, <span class="ident">additional</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(
+                <span class="ident">StageType::Fixed</span>(<span class="ident">d</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Line</span>(<span class="macro">format!</span>(<span class="string">&quot;Stage {}: {}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>, <span class="ident">d</span>)),
+                <span class="ident">StageType::Variable</span>(<span class="ident">min</span>, <span class="ident">delay</span>, <span class="ident">additional</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Line</span>(<span class="macro">format!</span>(
                     <span class="string">&quot;Stage {}: {}, {}, {} (variable)&quot;</span>,
                     <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>,
                     <span class="ident">min</span>,
@@ -827,7 +827,7 @@
         );
 
         {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">orig_batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">orig_batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
             <span class="ident">draw_signal_stage</span>(
                 <span class="ident">ctx</span>.<span class="ident">prerender</span>,
                 <span class="ident">stage</span>,
@@ -836,11 +836,11 @@
                 <span class="prelude-val">None</span>,
                 <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">orig_batch</span>,
                 <span class="ident">app</span>,
-                <span class="ident">TrafficSignalStyle</span>::<span class="ident">Yuwen</span>,
+                <span class="ident">TrafficSignalStyle::Yuwen</span>,
             );
 
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">normal</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
-            <span class="ident">normal</span>.<span class="ident">push</span>(<span class="ident">Color</span>::<span class="ident">BLACK</span>, <span class="ident">bbox</span>.<span class="ident">clone</span>());
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">normal</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
+            <span class="ident">normal</span>.<span class="ident">push</span>(<span class="ident">Color::BLACK</span>, <span class="ident">bbox</span>.<span class="ident">clone</span>());
             <span class="ident">normal</span>.<span class="ident">append</span>(
                 <span class="ident">orig_batch</span>
                     .<span class="ident">translate</span>(<span class="op">-</span><span class="ident">bounds</span>.<span class="ident">min_x</span>, <span class="op">-</span><span class="ident">bounds</span>.<span class="ident">min_y</span>)
@@ -851,7 +851,7 @@
         }
     }
 
-    <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="ident">rows</span>)
+    <span class="ident">Widget::col</span>(<span class="ident">rows</span>)
 }
 
 <span class="kw">fn</span> <span class="ident">delay_plot</span>(
@@ -866,9 +866,9 @@
     } <span class="kw">else</span> {
         <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_analytics</span>()
     };
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">by_type</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">AgentType</span>, <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Time</span>, <span class="ident">Duration</span>)<span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">AgentType</span>::<span class="ident">all</span>()
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">by_type</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">AgentType</span>, <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Time</span>, <span class="ident">Duration</span>)<span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">AgentType::all</span>()
         .<span class="ident">into_iter</span>()
-        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">t</span><span class="op">|</span> (<span class="ident">t</span>, <span class="ident">Vec</span>::<span class="ident">new</span>()))
+        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">t</span><span class="op">|</span> (<span class="ident">t</span>, <span class="ident">Vec::new</span>()))
         .<span class="ident">collect</span>();
     <span class="kw">let</span> <span class="ident">limit</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">opts</span>.<span class="ident">show_end_of_day</span> {
         <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_end_of_day</span>()
@@ -897,14 +897,14 @@
         <span class="ident">max_y</span>: <span class="prelude-val">None</span>,
         <span class="ident">disabled</span>: <span class="ident">opts</span>.<span class="ident">disabled_series</span>(),
     };
-    <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
+    <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
         <span class="ident">Line</span>(<span class="string">&quot;Delay through intersection&quot;</span>)
             .<span class="ident">small_heading</span>()
             .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
         <span class="kw">if</span> <span class="ident">fan_chart</span> {
-            <span class="ident">FanChart</span>::<span class="ident">new_widget</span>(<span class="ident">ctx</span>, <span class="ident">series</span>, <span class="ident">plot_opts</span>)
+            <span class="ident">FanChart::new_widget</span>(<span class="ident">ctx</span>, <span class="ident">series</span>, <span class="ident">plot_opts</span>)
         } <span class="kw">else</span> {
-            <span class="ident">ScatterPlot</span>::<span class="ident">new_widget</span>(<span class="ident">ctx</span>, <span class="ident">series</span>, <span class="ident">plot_opts</span>)
+            <span class="ident">ScatterPlot::new_widget</span>(<span class="ident">ctx</span>, <span class="ident">series</span>, <span class="ident">plot_opts</span>)
         },
     ])
     .<span class="ident">padding</span>(<span class="number">10</span>)
@@ -919,45 +919,45 @@
     <span class="ident">id</span>: <span class="ident">IntersectionID</span>,
     <span class="ident">tab</span>: <span class="ident">Tab</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rows</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[];
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rows</span> <span class="op">=</span> <span class="macro">vec!</span>[];
 
     <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">id</span>);
 
     <span class="kw">let</span> <span class="ident">label</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">i</span>.<span class="ident">intersection_type</span> {
-        <span class="ident">IntersectionType</span>::<span class="ident">StopSign</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} (Stop signs)&quot;</span>, <span class="ident">id</span>),
-        <span class="ident">IntersectionType</span>::<span class="ident">TrafficSignal</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} (Traffic signals)&quot;</span>, <span class="ident">id</span>),
-        <span class="ident">IntersectionType</span>::<span class="ident">Border</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Border #{}&quot;</span>, <span class="ident">id</span>.<span class="number">0</span>),
-        <span class="ident">IntersectionType</span>::<span class="ident">Construction</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} (under construction)&quot;</span>, <span class="ident">id</span>),
+        <span class="ident">IntersectionType::StopSign</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">format!</span>(<span class="string">&quot;{} (Stop signs)&quot;</span>, <span class="ident">id</span>),
+        <span class="ident">IntersectionType::TrafficSignal</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">format!</span>(<span class="string">&quot;{} (Traffic signals)&quot;</span>, <span class="ident">id</span>),
+        <span class="ident">IntersectionType::Border</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">format!</span>(<span class="string">&quot;Border #{}&quot;</span>, <span class="ident">id</span>.<span class="number">0</span>),
+        <span class="ident">IntersectionType::Construction</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">format!</span>(<span class="string">&quot;{} (under construction)&quot;</span>, <span class="ident">id</span>),
     };
-    <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+    <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
         <span class="ident">Line</span>(<span class="ident">label</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
         <span class="ident">header_btns</span>(<span class="ident">ctx</span>),
     ]));
 
     <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">make_tabs</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">details</span>.<span class="ident">hyperlinks</span>, <span class="ident">tab</span>, {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tabs</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
-            (<span class="string">&quot;Info&quot;</span>, <span class="ident">Tab</span>::<span class="ident">IntersectionInfo</span>(<span class="ident">id</span>)),
-            (<span class="string">&quot;Traffic&quot;</span>, <span class="ident">Tab</span>::<span class="ident">IntersectionTraffic</span>(<span class="ident">id</span>, <span class="ident">DataOptions</span>::<span class="ident">new</span>())),
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tabs</span> <span class="op">=</span> <span class="macro">vec!</span>[
+            (<span class="string">&quot;Info&quot;</span>, <span class="ident">Tab::IntersectionInfo</span>(<span class="ident">id</span>)),
+            (<span class="string">&quot;Traffic&quot;</span>, <span class="ident">Tab::IntersectionTraffic</span>(<span class="ident">id</span>, <span class="ident">DataOptions::new</span>())),
         ];
         <span class="kw">if</span> <span class="ident">i</span>.<span class="ident">is_traffic_signal</span>() {
             <span class="ident">tabs</span>.<span class="ident">push</span>((
                 <span class="string">&quot;Delay&quot;</span>,
-                <span class="ident">Tab</span>::<span class="ident">IntersectionDelay</span>(<span class="ident">id</span>, <span class="ident">DataOptions</span>::<span class="ident">new</span>(), <span class="bool-val">false</span>),
+                <span class="ident">Tab::IntersectionDelay</span>(<span class="ident">id</span>, <span class="ident">DataOptions::new</span>(), <span class="bool-val">false</span>),
             ));
-            <span class="ident">tabs</span>.<span class="ident">push</span>((<span class="string">&quot;Current demand&quot;</span>, <span class="ident">Tab</span>::<span class="ident">IntersectionDemand</span>(<span class="ident">id</span>)));
-            <span class="ident">tabs</span>.<span class="ident">push</span>((<span class="string">&quot;Signal&quot;</span>, <span class="ident">Tab</span>::<span class="ident">IntersectionTrafficSignal</span>(<span class="ident">id</span>)));
+            <span class="ident">tabs</span>.<span class="ident">push</span>((<span class="string">&quot;Current demand&quot;</span>, <span class="ident">Tab::IntersectionDemand</span>(<span class="ident">id</span>)));
+            <span class="ident">tabs</span>.<span class="ident">push</span>((<span class="string">&quot;Signal&quot;</span>, <span class="ident">Tab::IntersectionTrafficSignal</span>(<span class="ident">id</span>)));
         }
         <span class="kw">if</span> <span class="ident">i</span>.<span class="ident">is_incoming_border</span>() {
             <span class="ident">tabs</span>.<span class="ident">push</span>((
                 <span class="string">&quot;Arrivals&quot;</span>,
-                <span class="ident">Tab</span>::<span class="ident">IntersectionArrivals</span>(<span class="ident">id</span>, <span class="ident">DataOptions</span>::<span class="ident">new</span>()),
+                <span class="ident">Tab::IntersectionArrivals</span>(<span class="ident">id</span>, <span class="ident">DataOptions::new</span>()),
             ));
         }
         <span class="ident">tabs</span>
     }));
 
-    <span class="ident">Widget</span>::<span class="ident">custom_col</span>(<span class="ident">rows</span>)
+    <span class="ident">Widget::custom_col</span>(<span class="ident">rows</span>)
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="game" data-search-js="../../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="game" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
     <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script></body></html>

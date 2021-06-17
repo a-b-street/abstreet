@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_gui/src/tools/importer.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>importer.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../map_gui/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../map_gui/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -173,19 +173,19 @@
 <span id="170">170</span>
 <span id="171">171</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">io</span>::<span class="ident">Write</span>;
+<span class="kw">use</span> <span class="ident">std::io::Write</span>;
 
-<span class="kw">use</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span>;
+<span class="kw">use</span> <span class="ident">anyhow::Result</span>;
 <span class="kw">use</span> <span class="ident">clipboard</span>::{<span class="ident">ClipboardContext</span>, <span class="ident">ClipboardProvider</span>};
 
-<span class="kw">use</span> <span class="ident">abstio</span>::<span class="ident">MapName</span>;
+<span class="kw">use</span> <span class="ident">abstio::MapName</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">TextExt</span>, <span class="ident">Toggle</span>, <span class="ident">Transition</span>, <span class="ident">Widget</span>,
 };
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">load</span>::<span class="ident">MapLoader</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">tools</span>::{<span class="ident">find_exe</span>, <span class="ident">open_browser</span>, <span class="ident">PopupMsg</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">AppLike</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::load::MapLoader</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::tools</span>::{<span class="ident">find_exe</span>, <span class="ident">open_browser</span>, <span class="ident">PopupMsg</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::AppLike</span>;
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ImportCity</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">AppLike</span><span class="op">&gt;</span> {
     <span class="ident">panel</span>: <span class="ident">Panel</span>,
@@ -198,13 +198,13 @@
         <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
         <span class="ident">on_load</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel</span>::<span class="ident">new_builder</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
-            <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+        <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
+            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
                 <span class="ident">Line</span>(<span class="string">&quot;Import a new city&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                 <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
             ]),
-            <span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+            <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
+                <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
                     <span class="string">&quot;Step 1)&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
                         .<span class="ident">btn_plain</span>
@@ -212,21 +212,21 @@
                         .<span class="ident">label_underlined_text</span>(<span class="string">&quot;Go to geojson.io&quot;</span>)
                         .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                 ]),
-                <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
                     <span class="string">&quot;Step 2)&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">margin_right</span>(<span class="number">16</span>),
                     <span class="string">&quot;Draw a polygon boundary where you want to import&quot;</span>
                         .<span class="ident">text_widget</span>(<span class="ident">ctx</span>)
                         .<span class="ident">margin_below</span>(<span class="number">16</span>),
                 ])
                 .<span class="ident">margin_below</span>(<span class="number">16</span>),
-                <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
                     <span class="string">&quot;Step 3)&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">margin_right</span>(<span class="number">16</span>),
                     <span class="string">&quot;Copy the JSON text on the right into your clipboard&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
                 ])
                 .<span class="ident">margin_below</span>(<span class="number">16</span>),
-                <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
                     <span class="string">&quot;Step 4)&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
-                    <span class="ident">Toggle</span>::<span class="ident">choice</span>(
+                    <span class="ident">Toggle::choice</span>(
                         <span class="ident">ctx</span>,
                         <span class="string">&quot;left handed driving&quot;</span>,
                         <span class="string">&quot;drive on the left&quot;</span>,
@@ -235,7 +235,7 @@
                         <span class="bool-val">false</span>,
                     ),
                 ]),
-                <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
                     <span class="string">&quot;Step 5)&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
                         .<span class="ident">btn_solid_primary</span>
@@ -252,7 +252,7 @@
             .<span class="ident">section</span>(<span class="ident">ctx</span>),
         ]))
         .<span class="ident">build</span>(<span class="ident">ctx</span>);
-        <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">ImportCity</span> {
+        <span class="ident">Box::new</span>(<span class="ident">ImportCity</span> {
             <span class="ident">panel</span>,
             <span class="ident">on_load</span>: <span class="prelude-val">Some</span>(<span class="ident">on_load</span>),
         })
@@ -262,60 +262,60 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">AppLike</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ImportCity</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
-                <span class="string">&quot;close&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition</span>::<span class="ident">Pop</span>,
+            <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
+                <span class="string">&quot;close&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition::Pop</span>,
                 <span class="string">&quot;Alternate instructions&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="ident">open_browser</span>(<span class="string">&quot;https://a-b-street.github.io/docs/user/new_city.html&quot;</span>);
-                    <span class="ident">Transition</span>::<span class="ident">Keep</span>
+                    <span class="ident">Transition::Keep</span>
                 }
                 <span class="string">&quot;Go to geojson.io&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="ident">open_browser</span>(<span class="string">&quot;http://geojson.io&quot;</span>);
-                    <span class="ident">Transition</span>::<span class="ident">Keep</span>
+                    <span class="ident">Transition::Keep</span>
                 }
                 <span class="string">&quot;Import the area from your clipboard&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">args</span> <span class="op">=</span>
-                        <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">find_exe</span>(<span class="string">&quot;one_step_import&quot;</span>), <span class="string">&quot;boundary.geojson&quot;</span>.<span class="ident">to_string</span>()];
+                        <span class="macro">vec!</span>[<span class="ident">find_exe</span>(<span class="string">&quot;one_step_import&quot;</span>), <span class="string">&quot;boundary.geojson&quot;</span>.<span class="ident">to_string</span>()];
                     <span class="kw">if</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;left handed driving&quot;</span>) {
                         <span class="ident">args</span>.<span class="ident">push</span>(<span class="string">&quot;--drive_on_left&quot;</span>.<span class="ident">to_string</span>());
                     }
                     <span class="kw">match</span> <span class="ident">grab_geojson_from_clipboard</span>() {
-                        <span class="prelude-val">Ok</span>(()) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="kw">crate</span>::<span class="ident">tools</span>::<span class="ident">RunCommand</span>::<span class="ident">new_state</span>(
+                        <span class="prelude-val">Ok</span>(()) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition::Push</span>(<span class="kw">crate</span><span class="ident">::tools::RunCommand::new_state</span>(
                             <span class="ident">ctx</span>,
                             <span class="ident">app</span>,
                             <span class="ident">args</span>,
-                            <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">success</span>, <span class="kw-2">mut</span> <span class="ident">lines</span><span class="op">|</span> {
+                            <span class="ident">Box::new</span>(<span class="op">|</span><span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">success</span>, <span class="kw-2">mut</span> <span class="ident">lines</span><span class="op">|</span> {
                                 <span class="kw">if</span> <span class="ident">success</span> {
-                                    <span class="ident">abstio</span>::<span class="ident">delete_file</span>(<span class="string">&quot;boundary.geojson&quot;</span>);
+                                    <span class="ident">abstio::delete_file</span>(<span class="string">&quot;boundary.geojson&quot;</span>);
 
-                                    <span class="ident">Transition</span>::<span class="ident">ReplaceWithData</span>(<span class="ident">Box</span>::<span class="ident">new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
+                                    <span class="ident">Transition::ReplaceWithData</span>(<span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
                                         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">import</span> <span class="op">=</span>
                                             <span class="ident">state</span>.<span class="ident">downcast</span>::<span class="op">&lt;</span><span class="ident">ImportCity</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span>().<span class="ident">ok</span>().<span class="ident">unwrap</span>();
                                         <span class="kw">let</span> <span class="ident">on_load</span> <span class="op">=</span> <span class="ident">import</span>.<span class="ident">on_load</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>();
                                         <span class="comment">// one_step_import prints the name of the map as the last</span>
                                         <span class="comment">// line.</span>
                                         <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span>
-                                            <span class="ident">MapName</span>::<span class="ident">new</span>(<span class="string">&quot;zz&quot;</span>, <span class="string">&quot;oneshot&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">lines</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>());
-                                        <span class="macro">vec</span><span class="macro">!</span>[<span class="ident">MapLoader</span>::<span class="ident">new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">name</span>, <span class="ident">on_load</span>)]
+                                            <span class="ident">MapName::new</span>(<span class="string">&quot;zz&quot;</span>, <span class="string">&quot;oneshot&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">lines</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>());
+                                        <span class="macro">vec!</span>[<span class="ident">MapLoader::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">name</span>, <span class="ident">on_load</span>)]
                                     }))
                                 } <span class="kw">else</span> {
                                     <span class="comment">// The popup already explained the failure</span>
-                                    <span class="ident">Transition</span>::<span class="ident">Keep</span>
+                                    <span class="ident">Transition::Keep</span>
                                 }
                             }),
                         )),
-                        <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">PopupMsg</span>::<span class="ident">new_state</span>(
+                        <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition::Push</span>(<span class="ident">PopupMsg::new_state</span>(
                             <span class="ident">ctx</span>,
                             <span class="string">&quot;Error&quot;</span>,
-                            <span class="macro">vec</span><span class="macro">!</span>[
+                            <span class="macro">vec!</span>[
                                 <span class="string">&quot;Couldn&#39;t get GeoJSON from your clipboard&quot;</span>.<span class="ident">to_string</span>(),
                                 <span class="ident">err</span>.<span class="ident">to_string</span>(),
                             ],
                         )),
                     }
                 }
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
             },
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition</span>::<span class="ident">Keep</span>,
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition::Keep</span>,
         }
     }
 
@@ -326,24 +326,24 @@
 
 <span class="kw">fn</span> <span class="ident">grab_geojson_from_clipboard</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
     <span class="comment">// TODO The clipboard crate uses old nightly Errors. Converting to anyhow is weird.</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ctx</span>: <span class="ident">ClipboardContext</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">ClipboardProvider</span>::<span class="ident">new</span>() {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ctx</span>: <span class="ident">ClipboardContext</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">ClipboardProvider::new</span>() {
         <span class="prelude-val">Ok</span>(<span class="ident">ctx</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ctx</span>,
-        <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">bail</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">err</span>),
+        <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">bail!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">err</span>),
     };
     <span class="kw">let</span> <span class="ident">contents</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">ctx</span>.<span class="ident">get_contents</span>() {
         <span class="prelude-val">Ok</span>(<span class="ident">contents</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">contents</span>,
-        <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">bail</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">err</span>),
+        <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">bail!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">err</span>),
     };
-    <span class="kw">if</span> <span class="ident">contents</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">geojson</span>::<span class="ident">GeoJson</span><span class="op">&gt;</span>().<span class="ident">is_err</span>() {
-        <span class="macro">bail</span><span class="macro">!</span>(
+    <span class="kw">if</span> <span class="ident">contents</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">geojson::GeoJson</span><span class="op">&gt;</span>().<span class="ident">is_err</span>() {
+        <span class="macro">bail!</span>(
             <span class="string">&quot;Your clipboard doesn&#39;t seem to have GeoJSON. Got: {}&quot;</span>,
             <span class="ident">contents</span>
         );
     }
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">f</span> <span class="op">=</span> <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">File</span>::<span class="ident">create</span>(<span class="string">&quot;boundary.geojson&quot;</span>)<span class="question-mark">?</span>;
-    <span class="macro">write</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">contents</span>)<span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">f</span> <span class="op">=</span> <span class="ident">std::fs::File::create</span>(<span class="string">&quot;boundary.geojson&quot;</span>)<span class="question-mark">?</span>;
+    <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">contents</span>)<span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(())
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_gui" data-search-js="../../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_gui" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
     <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script></body></html>

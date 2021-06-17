@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `parking_mapper/src/mapper.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mapper.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../parking_mapper/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../parking_mapper/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -678,16 +678,16 @@
 <span id="675">675</span>
 <span id="676">676</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashSet</span>};
+<span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashSet</span>};
 
-<span class="kw">use</span> <span class="ident">anyhow</span>::<span class="prelude-ty">Result</span>;
+<span class="kw">use</span> <span class="ident">anyhow::Result</span>;
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">Timer</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">FindClosest</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>};
-<span class="kw">use</span> <span class="ident">map_gui</span>::<span class="ident">tools</span>::{<span class="ident">nice_map_name</span>, <span class="ident">open_browser</span>, <span class="ident">CityPicker</span>, <span class="ident">ColorLegend</span>, <span class="ident">PopupMsg</span>};
+<span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">nice_map_name</span>, <span class="ident">open_browser</span>, <span class="ident">CityPicker</span>, <span class="ident">ColorLegend</span>, <span class="ident">PopupMsg</span>};
 <span class="kw">use</span> <span class="ident">map_gui</span>::{<span class="ident">SimpleApp</span>, <span class="ident">ID</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">osm</span>, <span class="ident">RoadID</span>};
-<span class="kw">use</span> <span class="ident">osm</span>::<span class="ident">WayID</span>;
+<span class="kw">use</span> <span class="ident">osm::WayID</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">lctrl</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>,
     <span class="ident">Menu</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Toggle</span>, <span class="ident">Transition</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
@@ -724,7 +724,7 @@
 
 <span class="kw">impl</span> <span class="ident">ParkingMapper</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="ident">ParkingMapper</span>::<span class="ident">make</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">Show</span>::<span class="ident">ToDo</span>, <span class="ident">BTreeMap</span>::<span class="ident">new</span>())
+        <span class="ident">ParkingMapper::make</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">Show::ToDo</span>, <span class="ident">BTreeMap::new</span>())
     }
 
     <span class="kw">fn</span> <span class="ident">make</span>(
@@ -736,39 +736,39 @@
         <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">map</span>;
 
         <span class="kw">let</span> <span class="ident">color</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">show</span> {
-            <span class="ident">Show</span>::<span class="ident">ToDo</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Color</span>::<span class="ident">RED</span>,
-            <span class="ident">Show</span>::<span class="ident">Done</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Color</span>::<span class="ident">BLUE</span>,
-            <span class="ident">Show</span>::<span class="ident">DividedHighways</span> <span class="op">|</span> <span class="ident">Show</span>::<span class="ident">UnmappedDividedHighways</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Color</span>::<span class="ident">RED</span>,
-            <span class="ident">Show</span>::<span class="ident">OverlappingStuff</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Color</span>::<span class="ident">RED</span>,
+            <span class="ident">Show::ToDo</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Color::RED</span>,
+            <span class="ident">Show::Done</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Color::BLUE</span>,
+            <span class="ident">Show::DividedHighways</span> <span class="op">|</span> <span class="ident">Show::UnmappedDividedHighways</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Color::RED</span>,
+            <span class="ident">Show::OverlappingStuff</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Color::RED</span>,
         }
         .<span class="ident">alpha</span>(<span class="number">0.5</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">done</span> <span class="op">=</span> <span class="ident">HashSet</span>::<span class="ident">new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">todo</span> <span class="op">=</span> <span class="ident">HashSet</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">done</span> <span class="op">=</span> <span class="ident">HashSet::new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">todo</span> <span class="op">=</span> <span class="ident">HashSet::new</span>();
         <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_roads</span>() {
             <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">is_light_rail</span>() {
                 <span class="kw">continue</span>;
             }
-            <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">osm_tags</span>.<span class="ident">contains_key</span>(<span class="ident">osm</span>::<span class="ident">INFERRED_PARKING</span>)
+            <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">osm_tags</span>.<span class="ident">contains_key</span>(<span class="ident">osm::INFERRED_PARKING</span>)
                 <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">data</span>.<span class="ident">contains_key</span>(<span class="kw-2">&amp;</span><span class="ident">r</span>.<span class="ident">orig_id</span>.<span class="ident">osm_way_id</span>)
             {
                 <span class="ident">todo</span>.<span class="ident">insert</span>(<span class="ident">r</span>.<span class="ident">orig_id</span>.<span class="ident">osm_way_id</span>);
-                <span class="kw">if</span> <span class="ident">show</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Show</span>::<span class="ident">ToDo</span> {
+                <span class="kw">if</span> <span class="ident">show</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Show::ToDo</span> {
                     <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">color</span>, <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>.<span class="ident">id</span>).<span class="ident">get_thick_polygon</span>(<span class="ident">map</span>));
                 }
             } <span class="kw">else</span> {
                 <span class="ident">done</span>.<span class="ident">insert</span>(<span class="ident">r</span>.<span class="ident">orig_id</span>.<span class="ident">osm_way_id</span>);
-                <span class="kw">if</span> <span class="ident">show</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Show</span>::<span class="ident">Done</span> {
+                <span class="kw">if</span> <span class="ident">show</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Show::Done</span> {
                     <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">color</span>, <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>.<span class="ident">id</span>).<span class="ident">get_thick_polygon</span>(<span class="ident">map</span>));
                 }
             }
         }
-        <span class="kw">if</span> <span class="ident">show</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Show</span>::<span class="ident">DividedHighways</span> {
+        <span class="kw">if</span> <span class="ident">show</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Show::DividedHighways</span> {
             <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">find_divided_highways</span>(<span class="ident">app</span>) {
                 <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">color</span>, <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>).<span class="ident">get_thick_polygon</span>(<span class="ident">map</span>));
             }
         }
-        <span class="kw">if</span> <span class="ident">show</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Show</span>::<span class="ident">UnmappedDividedHighways</span> {
+        <span class="kw">if</span> <span class="ident">show</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Show::UnmappedDividedHighways</span> {
             <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">find_divided_highways</span>(<span class="ident">app</span>) {
                 <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>);
                 <span class="kw">if</span> <span class="op">!</span><span class="ident">r</span>.<span class="ident">osm_tags</span>.<span class="ident">is</span>(<span class="string">&quot;dual_carriageway&quot;</span>, <span class="string">&quot;yes&quot;</span>) {
@@ -776,7 +776,7 @@
                 }
             }
         }
-        <span class="kw">if</span> <span class="ident">show</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Show</span>::<span class="ident">OverlappingStuff</span> {
+        <span class="kw">if</span> <span class="ident">show</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Show::OverlappingStuff</span> {
             <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(
                 <span class="string">&quot;find buildings and parking lots overlapping roads&quot;</span>,
                 <span class="op">|</span><span class="kw">_</span>, <span class="kw-2">mut</span> <span class="ident">timer</span><span class="op">|</span> {
@@ -791,74 +791,74 @@
         <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_intersections</span>() {
             <span class="kw">let</span> <span class="ident">is_todo</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">roads</span>.<span class="ident">iter</span>().<span class="ident">any</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> {
                 <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">id</span>);
-                <span class="ident">r</span>.<span class="ident">osm_tags</span>.<span class="ident">contains_key</span>(<span class="ident">osm</span>::<span class="ident">INFERRED_PARKING</span>)
+                <span class="ident">r</span>.<span class="ident">osm_tags</span>.<span class="ident">contains_key</span>(<span class="ident">osm::INFERRED_PARKING</span>)
                     <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">data</span>.<span class="ident">contains_key</span>(<span class="kw-2">&amp;</span><span class="ident">r</span>.<span class="ident">orig_id</span>.<span class="ident">osm_way_id</span>)
             });
-            <span class="kw">if</span> <span class="macro">matches</span><span class="macro">!</span>((<span class="ident">show</span>, <span class="ident">is_todo</span>), (<span class="ident">Show</span>::<span class="ident">ToDo</span>, <span class="bool-val">true</span>) <span class="op">|</span> (<span class="ident">Show</span>::<span class="ident">Done</span>, <span class="bool-val">false</span>)) {
+            <span class="kw">if</span> <span class="macro">matches!</span>((<span class="ident">show</span>, <span class="ident">is_todo</span>), (<span class="ident">Show::ToDo</span>, <span class="bool-val">true</span>) <span class="op">|</span> (<span class="ident">Show::Done</span>, <span class="bool-val">false</span>)) {
                 <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">color</span>, <span class="ident">i</span>.<span class="ident">polygon</span>.<span class="ident">clone</span>());
             }
         }
 
-        <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">ParkingMapper</span> {
+        <span class="ident">Box::new</span>(<span class="ident">ParkingMapper</span> {
             <span class="ident">draw_layer</span>: <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">batch</span>),
             <span class="ident">show</span>,
-            <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new_builder</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
+            <span class="ident">panel</span>: <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
                 <span class="ident">Line</span>(<span class="string">&quot;Parking mapper&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
                     .<span class="ident">btn_popup_icon_text</span>(
                         <span class="string">&quot;system/assets/tools/map.svg&quot;</span>,
                         <span class="ident">nice_map_name</span>(<span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_name</span>()),
                     )
-                    .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key</span>::<span class="ident">L</span>))
+                    .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key::L</span>))
                     .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;change map&quot;</span>),
-                <span class="macro">format</span><span class="macro">!</span>(
+                <span class="macro">format!</span>(
                     <span class="string">&quot;{} / {} ways done (you&#39;ve mapped {})&quot;</span>,
                     <span class="ident">prettyprint_usize</span>(<span class="ident">done</span>.<span class="ident">len</span>()),
                     <span class="ident">prettyprint_usize</span>(<span class="ident">done</span>.<span class="ident">len</span>() <span class="op">+</span> <span class="ident">todo</span>.<span class="ident">len</span>()),
                     <span class="ident">data</span>.<span class="ident">len</span>()
                 )
                 .<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
-                <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                    <span class="ident">Widget</span>::<span class="ident">dropdown</span>(
+                <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
+                    <span class="ident">Widget::dropdown</span>(
                         <span class="ident">ctx</span>,
                         <span class="string">&quot;Show&quot;</span>,
                         <span class="ident">show</span>,
-                        <span class="macro">vec</span><span class="macro">!</span>[
-                            <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;missing tags&quot;</span>, <span class="ident">Show</span>::<span class="ident">ToDo</span>),
-                            <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;already mapped&quot;</span>, <span class="ident">Show</span>::<span class="ident">Done</span>),
-                            <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;divided highways&quot;</span>, <span class="ident">Show</span>::<span class="ident">DividedHighways</span>).<span class="ident">tooltip</span>(
+                        <span class="macro">vec!</span>[
+                            <span class="ident">Choice::new</span>(<span class="string">&quot;missing tags&quot;</span>, <span class="ident">Show::ToDo</span>),
+                            <span class="ident">Choice::new</span>(<span class="string">&quot;already mapped&quot;</span>, <span class="ident">Show::Done</span>),
+                            <span class="ident">Choice::new</span>(<span class="string">&quot;divided highways&quot;</span>, <span class="ident">Show::DividedHighways</span>).<span class="ident">tooltip</span>(
                                 <span class="string">&quot;Roads divided in OSM often have the wrong number of lanes tagged&quot;</span>,
                             ),
-                            <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;unmapped divided highways&quot;</span>, <span class="ident">Show</span>::<span class="ident">UnmappedDividedHighways</span>),
-                            <span class="ident">Choice</span>::<span class="ident">new</span>(
+                            <span class="ident">Choice::new</span>(<span class="string">&quot;unmapped divided highways&quot;</span>, <span class="ident">Show::UnmappedDividedHighways</span>),
+                            <span class="ident">Choice::new</span>(
                                 <span class="string">&quot;buildings and parking lots overlapping roads&quot;</span>,
-                                <span class="ident">Show</span>::<span class="ident">OverlappingStuff</span>,
+                                <span class="ident">Show::OverlappingStuff</span>,
                             )
                             .<span class="ident">tooltip</span>(<span class="string">&quot;Roads often have the wrong number of lanes tagged&quot;</span>),
                         ],
                     ),
-                    <span class="ident">ColorLegend</span>::<span class="ident">row</span>(
+                    <span class="ident">ColorLegend::row</span>(
                         <span class="ident">ctx</span>,
                         <span class="ident">color</span>,
                         <span class="kw">match</span> <span class="ident">show</span> {
-                            <span class="ident">Show</span>::<span class="ident">ToDo</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;TODO&quot;</span>,
-                            <span class="ident">Show</span>::<span class="ident">Done</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;done&quot;</span>,
-                            <span class="ident">Show</span>::<span class="ident">DividedHighways</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;divided highways&quot;</span>,
-                            <span class="ident">Show</span>::<span class="ident">UnmappedDividedHighways</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;unmapped divided highways&quot;</span>,
-                            <span class="ident">Show</span>::<span class="ident">OverlappingStuff</span> <span class="op">=</span><span class="op">&gt;</span> {
+                            <span class="ident">Show::ToDo</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;TODO&quot;</span>,
+                            <span class="ident">Show::Done</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;done&quot;</span>,
+                            <span class="ident">Show::DividedHighways</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;divided highways&quot;</span>,
+                            <span class="ident">Show::UnmappedDividedHighways</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;unmapped divided highways&quot;</span>,
+                            <span class="ident">Show::OverlappingStuff</span> <span class="op">=</span><span class="op">&gt;</span> {
                                 <span class="string">&quot;buildings and parking lots overlapping roads&quot;</span>
                             }
                         },
                     ),
                 ]),
-                <span class="ident">Toggle</span>::<span class="ident">checkbox</span>(<span class="ident">ctx</span>, <span class="string">&quot;max 3 days parking (default in Seattle)&quot;</span>, <span class="prelude-val">None</span>, <span class="bool-val">false</span>),
+                <span class="ident">Toggle::checkbox</span>(<span class="ident">ctx</span>, <span class="string">&quot;max 3 days parking (default in Seattle)&quot;</span>, <span class="prelude-val">None</span>, <span class="bool-val">false</span>),
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
                     .<span class="ident">btn_outline</span>
                     .<span class="ident">text</span>(<span class="string">&quot;Generate OsmChange file&quot;</span>)
                     .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                 <span class="string">&quot;Select a road&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;info&quot;</span>),
             ]))
-            .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment</span>::<span class="ident">Right</span>, <span class="ident">VerticalAlignment</span>::<span class="ident">Top</span>)
+            .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::Right</span>, <span class="ident">VerticalAlignment::Top</span>)
             .<span class="ident">build</span>(<span class="ident">ctx</span>),
             <span class="ident">selected</span>: <span class="prelude-val">None</span>,
             <span class="ident">data</span>,
@@ -873,8 +873,8 @@
         <span class="ident">ctx</span>.<span class="ident">canvas_movement</span>();
         <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">redo_mouseover</span>() {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">maybe_r</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">app</span>.<span class="ident">mouseover_unzoomed_roads_and_intersections</span>(<span class="ident">ctx</span>) {
-                <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">Road</span>(<span class="ident">r</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">r</span>),
-                <span class="prelude-val">Some</span>(<span class="ident">ID</span>::<span class="ident">Lane</span>(<span class="ident">l</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">parent</span>),
+                <span class="prelude-val">Some</span>(<span class="ident">ID::Road</span>(<span class="ident">r</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">r</span>),
+                <span class="prelude-val">Some</span>(<span class="ident">ID::Lane</span>(<span class="ident">l</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">parent</span>),
                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
             };
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">r</span>) <span class="op">=</span> <span class="ident">maybe_r</span> {
@@ -892,32 +892,32 @@
                     <span class="comment">// Select all roads part of this way</span>
                     <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">id</span>);
                     <span class="kw">let</span> <span class="ident">way</span> <span class="op">=</span> <span class="ident">road</span>.<span class="ident">orig_id</span>.<span class="ident">osm_way_id</span>;
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ids</span> <span class="op">=</span> <span class="ident">HashSet</span>::<span class="ident">new</span>();
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
+                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ids</span> <span class="op">=</span> <span class="ident">HashSet::new</span>();
+                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
                     <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_roads</span>() {
                         <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">orig_id</span>.<span class="ident">osm_way_id</span> <span class="op">=</span><span class="op">=</span> <span class="ident">way</span> {
                             <span class="ident">ids</span>.<span class="ident">insert</span>(<span class="ident">r</span>.<span class="ident">id</span>);
-                            <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color</span>::<span class="ident">CYAN</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>), <span class="ident">r</span>.<span class="ident">get_thick_polygon</span>(<span class="ident">map</span>));
+                            <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color::CYAN</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>), <span class="ident">r</span>.<span class="ident">get_thick_polygon</span>(<span class="ident">map</span>));
                         }
                     }
 
                     <span class="self">self</span>.<span class="ident">selected</span> <span class="op">=</span> <span class="prelude-val">Some</span>((<span class="ident">ids</span>, <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">batch</span>)));
 
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text</span>::<span class="ident">new</span>();
-                    <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;Click to map parking for OSM way {}&quot;</span>, <span class="ident">way</span>));
-                    <span class="ident">txt</span>.<span class="ident">add_appended</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::new</span>();
+                    <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="macro">format!</span>(<span class="string">&quot;Click to map parking for OSM way {}&quot;</span>, <span class="ident">way</span>));
+                    <span class="ident">txt</span>.<span class="ident">add_appended</span>(<span class="macro">vec!</span>[
                         <span class="ident">Line</span>(<span class="string">&quot;Shortcut: press &quot;</span>),
-                        <span class="ident">Key</span>::<span class="ident">N</span>.<span class="ident">txt</span>(<span class="ident">ctx</span>),
+                        <span class="ident">Key::N</span>.<span class="ident">txt</span>(<span class="ident">ctx</span>),
                         <span class="ident">Line</span>(<span class="string">&quot; to indicate no parking&quot;</span>),
                     ]);
-                    <span class="ident">txt</span>.<span class="ident">add_appended</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                    <span class="ident">txt</span>.<span class="ident">add_appended</span>(<span class="macro">vec!</span>[
                         <span class="ident">Line</span>(<span class="string">&quot;Press &quot;</span>),
-                        <span class="ident">Key</span>::<span class="ident">S</span>.<span class="ident">txt</span>(<span class="ident">ctx</span>),
+                        <span class="ident">Key::S</span>.<span class="ident">txt</span>(<span class="ident">ctx</span>),
                         <span class="ident">Line</span>(<span class="string">&quot; to open Bing StreetSide here&quot;</span>),
                     ]);
-                    <span class="ident">txt</span>.<span class="ident">add_appended</span>(<span class="macro">vec</span><span class="macro">!</span>[
+                    <span class="ident">txt</span>.<span class="ident">add_appended</span>(<span class="macro">vec!</span>[
                         <span class="ident">Line</span>(<span class="string">&quot;Press &quot;</span>),
-                        <span class="ident">Key</span>::<span class="ident">E</span>.<span class="ident">txt</span>(<span class="ident">ctx</span>),
+                        <span class="ident">Key::E</span>.<span class="ident">txt</span>(<span class="ident">ctx</span>),
                         <span class="ident">Line</span>(<span class="string">&quot; to edit OpenStreetMap for this way&quot;</span>),
                     ]);
                     <span class="kw">for</span> (<span class="ident">k</span>, <span class="ident">v</span>) <span class="kw">in</span> <span class="ident">road</span>.<span class="ident">osm_tags</span>.<span class="ident">inner</span>() {
@@ -925,15 +925,15 @@
                             <span class="kw">continue</span>;
                         }
                         <span class="kw">if</span> <span class="ident">k</span>.<span class="ident">contains</span>(<span class="string">&quot;parking&quot;</span>) {
-                            <span class="kw">if</span> <span class="op">!</span><span class="ident">road</span>.<span class="ident">osm_tags</span>.<span class="ident">contains_key</span>(<span class="ident">osm</span>::<span class="ident">INFERRED_PARKING</span>) {
-                                <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} = {}&quot;</span>, <span class="ident">k</span>, <span class="ident">v</span>));
+                            <span class="kw">if</span> <span class="op">!</span><span class="ident">road</span>.<span class="ident">osm_tags</span>.<span class="ident">contains_key</span>(<span class="ident">osm::INFERRED_PARKING</span>) {
+                                <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="macro">format!</span>(<span class="string">&quot;{} = {}&quot;</span>, <span class="ident">k</span>, <span class="ident">v</span>));
                             }
                         } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">k</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;sidewalk&quot;</span> {
-                            <span class="kw">if</span> <span class="op">!</span><span class="ident">road</span>.<span class="ident">osm_tags</span>.<span class="ident">contains_key</span>(<span class="ident">osm</span>::<span class="ident">INFERRED_SIDEWALKS</span>) {
-                                <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} = {}&quot;</span>, <span class="ident">k</span>, <span class="ident">v</span>)).<span class="ident">secondary</span>());
+                            <span class="kw">if</span> <span class="op">!</span><span class="ident">road</span>.<span class="ident">osm_tags</span>.<span class="ident">contains_key</span>(<span class="ident">osm::INFERRED_SIDEWALKS</span>) {
+                                <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">Line</span>(<span class="macro">format!</span>(<span class="string">&quot;{} = {}&quot;</span>, <span class="ident">k</span>, <span class="ident">v</span>)).<span class="ident">secondary</span>());
                             }
                         } <span class="kw">else</span> {
-                            <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">Line</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{} = {}&quot;</span>, <span class="ident">k</span>, <span class="ident">v</span>)).<span class="ident">secondary</span>());
+                            <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">Line</span>(<span class="macro">format!</span>(<span class="string">&quot;{} = {}&quot;</span>, <span class="ident">k</span>, <span class="ident">v</span>)).<span class="ident">secondary</span>());
                         }
                     }
                     <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;info&quot;</span>, <span class="ident">txt</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>));
@@ -945,7 +945,7 @@
             }
         }
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">selected</span>.<span class="ident">is_some</span>() <span class="op">&amp;&amp;</span> <span class="ident">ctx</span>.<span class="ident">normal_left_click</span>() {
-            <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">ChangeWay</span>::<span class="ident">new_state</span>(
+            <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">ChangeWay::new_state</span>(
                 <span class="ident">ctx</span>,
                 <span class="ident">app</span>,
                 <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">selected</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>().<span class="number">0</span>,
@@ -953,19 +953,19 @@
                 <span class="self">self</span>.<span class="ident">data</span>.<span class="ident">clone</span>(),
             ));
         }
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">selected</span>.<span class="ident">is_some</span>() <span class="op">&amp;&amp;</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key</span>::<span class="ident">N</span>) {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">selected</span>.<span class="ident">is_some</span>() <span class="op">&amp;&amp;</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key::N</span>) {
             <span class="kw">let</span> <span class="ident">osm_way_id</span> <span class="op">=</span> <span class="ident">map</span>
                 .<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="self">self</span>.<span class="ident">selected</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>().<span class="number">0</span>.<span class="ident">iter</span>().<span class="ident">next</span>().<span class="ident">unwrap</span>())
                 .<span class="ident">orig_id</span>
                 .<span class="ident">osm_way_id</span>;
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">new_data</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">data</span>.<span class="ident">clone</span>();
-            <span class="ident">new_data</span>.<span class="ident">insert</span>(<span class="ident">osm_way_id</span>, <span class="ident">Value</span>::<span class="ident">NoStopping</span>);
-            <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">ParkingMapper</span>::<span class="ident">make</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">show</span>, <span class="ident">new_data</span>));
+            <span class="ident">new_data</span>.<span class="ident">insert</span>(<span class="ident">osm_way_id</span>, <span class="ident">Value::NoStopping</span>);
+            <span class="kw">return</span> <span class="ident">Transition::Replace</span>(<span class="ident">ParkingMapper::make</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">show</span>, <span class="ident">new_data</span>));
         }
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">selected</span>.<span class="ident">is_some</span>() <span class="op">&amp;&amp;</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key</span>::<span class="ident">S</span>) {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">selected</span>.<span class="ident">is_some</span>() <span class="op">&amp;&amp;</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key::S</span>) {
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt</span>) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_map_space</span>() {
                 <span class="kw">let</span> <span class="ident">gps</span> <span class="op">=</span> <span class="ident">pt</span>.<span class="ident">to_gps</span>(<span class="ident">map</span>.<span class="ident">get_gps_bounds</span>());
-                <span class="ident">open_browser</span>(<span class="macro">format</span><span class="macro">!</span>(
+                <span class="ident">open_browser</span>(<span class="macro">format!</span>(
                     <span class="string">&quot;https://www.bing.com/maps?cp={}~{}&amp;style=x&quot;</span>,
                     <span class="ident">gps</span>.<span class="ident">y</span>(),
                     <span class="ident">gps</span>.<span class="ident">x</span>()
@@ -973,8 +973,8 @@
             }
         }
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="kw-2">ref</span> <span class="ident">roads</span>, <span class="kw">_</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">selected</span> {
-            <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key</span>::<span class="ident">E</span>) {
-                <span class="ident">open_browser</span>(<span class="macro">format</span><span class="macro">!</span>(
+            <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key::E</span>) {
+                <span class="ident">open_browser</span>(<span class="macro">format!</span>(
                     <span class="string">&quot;https://www.openstreetmap.org/edit?way={}&quot;</span>,
                     <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">roads</span>.<span class="ident">iter</span>().<span class="ident">next</span>().<span class="ident">unwrap</span>())
                         .<span class="ident">orig_id</span>
@@ -985,13 +985,13 @@
         }
 
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
+            <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
                 <span class="string">&quot;Generate OsmChange file&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">if</span> <span class="self">self</span>.<span class="ident">data</span>.<span class="ident">is_empty</span>() {
-                        <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">PopupMsg</span>::<span class="ident">new_state</span>(
+                        <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">PopupMsg::new_state</span>(
                             <span class="ident">ctx</span>,
                             <span class="string">&quot;No changes yet&quot;</span>,
-                            <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;Map some parking first&quot;</span>],
+                            <span class="macro">vec!</span>[<span class="string">&quot;Map some parking first&quot;</span>],
                         ));
                     }
                     <span class="kw">return</span> <span class="kw">match</span> <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;generate OsmChange file&quot;</span>, <span class="op">|</span><span class="kw">_</span>, <span class="ident">timer</span><span class="op">|</span> {
@@ -1002,39 +1002,39 @@
                             <span class="ident">timer</span>,
                         )
                     }) {
-                        <span class="prelude-val">Ok</span>(()) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">PopupMsg</span>::<span class="ident">new_state</span>(
+                        <span class="prelude-val">Ok</span>(()) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition::Push</span>(<span class="ident">PopupMsg::new_state</span>(
                             <span class="ident">ctx</span>,
                             <span class="string">&quot;Diff generated&quot;</span>,
-                            <span class="macro">vec</span><span class="macro">!</span>[<span class="string">&quot;diff.osc created. Load it in JOSM, verify, and upload!&quot;</span>],
+                            <span class="macro">vec!</span>[<span class="string">&quot;diff.osc created. Load it in JOSM, verify, and upload!&quot;</span>],
                         )),
-                        <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">PopupMsg</span>::<span class="ident">new_state</span>(
+                        <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition::Push</span>(<span class="ident">PopupMsg::new_state</span>(
                             <span class="ident">ctx</span>,
                             <span class="string">&quot;Error&quot;</span>,
-                            <span class="macro">vec</span><span class="macro">!</span>[<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">err</span>)],
+                            <span class="macro">vec!</span>[<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">err</span>)],
                         )),
                     };
                 }
                 <span class="string">&quot;change map&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Push</span>(<span class="ident">CityPicker</span>::<span class="ident">new_state</span>(
+                    <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">CityPicker::new_state</span>(
                         <span class="ident">ctx</span>,
                         <span class="ident">app</span>,
-                        <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
-                            <span class="ident">Transition</span>::<span class="ident">Multi</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                                <span class="ident">Transition</span>::<span class="ident">Pop</span>,
-                                <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">ParkingMapper</span>::<span class="ident">make</span>(
+                        <span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
+                            <span class="ident">Transition::Multi</span>(<span class="macro">vec!</span>[
+                                <span class="ident">Transition::Pop</span>,
+                                <span class="ident">Transition::Replace</span>(<span class="ident">ParkingMapper::make</span>(
                                     <span class="ident">ctx</span>,
                                     <span class="ident">app</span>,
-                                    <span class="ident">Show</span>::<span class="ident">ToDo</span>,
-                                    <span class="ident">BTreeMap</span>::<span class="ident">new</span>(),
+                                    <span class="ident">Show::ToDo</span>,
+                                    <span class="ident">BTreeMap::new</span>(),
                                 )),
                             ])
                         }),
                     ));
                 }
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
             },
-            <span class="ident">Outcome</span>::<span class="ident">Changed</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">ParkingMapper</span>::<span class="ident">make</span>(
+            <span class="ident">Outcome::Changed</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">return</span> <span class="ident">Transition::Replace</span>(<span class="ident">ParkingMapper::make</span>(
                     <span class="ident">ctx</span>,
                     <span class="ident">app</span>,
                     <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">dropdown_value</span>(<span class="string">&quot;Show&quot;</span>),
@@ -1044,7 +1044,7 @@
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
         }
 
-        <span class="ident">Transition</span>::<span class="ident">Keep</span>
+        <span class="ident">Transition::Keep</span>
     }
 
     <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
@@ -1078,44 +1078,44 @@
             .<span class="ident">orig_id</span>
             .<span class="ident">osm_way_id</span>;
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch</span>::<span class="ident">new</span>();
-        <span class="kw">let</span> <span class="ident">thickness</span> <span class="op">=</span> <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">2.0</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
+        <span class="kw">let</span> <span class="ident">thickness</span> <span class="op">=</span> <span class="ident">Distance::meters</span>(<span class="number">2.0</span>);
         <span class="kw">for</span> <span class="ident">id</span> <span class="kw">in</span> <span class="ident">selected</span> {
             <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">id</span>);
             <span class="ident">batch</span>.<span class="ident">push</span>(
-                <span class="ident">Color</span>::<span class="ident">GREEN</span>,
+                <span class="ident">Color::GREEN</span>,
                 <span class="ident">r</span>.<span class="ident">center_pts</span>
                     .<span class="ident">must_shift_right</span>(<span class="ident">r</span>.<span class="ident">get_half_width</span>(<span class="ident">map</span>))
                     .<span class="ident">make_polygons</span>(<span class="ident">thickness</span>),
             );
             <span class="ident">batch</span>.<span class="ident">push</span>(
-                <span class="ident">Color</span>::<span class="ident">BLUE</span>,
+                <span class="ident">Color::BLUE</span>,
                 <span class="ident">r</span>.<span class="ident">center_pts</span>
                     .<span class="ident">must_shift_left</span>(<span class="ident">r</span>.<span class="ident">get_half_width</span>(<span class="ident">map</span>))
                     .<span class="ident">make_polygons</span>(<span class="ident">thickness</span>),
             );
         }
 
-        <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">ChangeWay</span> {
-            <span class="ident">panel</span>: <span class="ident">Panel</span>::<span class="ident">new_builder</span>(<span class="ident">Widget</span>::<span class="ident">col</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                <span class="ident">Widget</span>::<span class="ident">row</span>(<span class="macro">vec</span><span class="macro">!</span>[
+        <span class="ident">Box::new</span>(<span class="ident">ChangeWay</span> {
+            <span class="ident">panel</span>: <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
+                <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
                     <span class="ident">Line</span>(<span class="string">&quot;What kind of parking does this road have?&quot;</span>)
                         .<span class="ident">small_heading</span>()
                         .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                     <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
                 ]),
-                <span class="ident">Menu</span>::<span class="ident">widget</span>(
+                <span class="ident">Menu::widget</span>(
                     <span class="ident">ctx</span>,
-                    <span class="macro">vec</span><span class="macro">!</span>[
-                        <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;none -- no stopping or parking&quot;</span>, <span class="ident">Value</span>::<span class="ident">NoStopping</span>),
-                        <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;both sides&quot;</span>, <span class="ident">Value</span>::<span class="ident">BothSides</span>),
-                        <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;just on the green side&quot;</span>, <span class="ident">Value</span>::<span class="ident">RightOnly</span>),
-                        <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;just on the blue side&quot;</span>, <span class="ident">Value</span>::<span class="ident">LeftOnly</span>),
-                        <span class="ident">Choice</span>::<span class="ident">new</span>(
+                    <span class="macro">vec!</span>[
+                        <span class="ident">Choice::new</span>(<span class="string">&quot;none -- no stopping or parking&quot;</span>, <span class="ident">Value::NoStopping</span>),
+                        <span class="ident">Choice::new</span>(<span class="string">&quot;both sides&quot;</span>, <span class="ident">Value::BothSides</span>),
+                        <span class="ident">Choice::new</span>(<span class="string">&quot;just on the green side&quot;</span>, <span class="ident">Value::RightOnly</span>),
+                        <span class="ident">Choice::new</span>(<span class="string">&quot;just on the blue side&quot;</span>, <span class="ident">Value::LeftOnly</span>),
+                        <span class="ident">Choice::new</span>(
                             <span class="string">&quot;it changes at some point along the road&quot;</span>,
-                            <span class="ident">Value</span>::<span class="ident">Complicated</span>,
+                            <span class="ident">Value::Complicated</span>,
                         ),
-                        <span class="ident">Choice</span>::<span class="ident">new</span>(<span class="string">&quot;loading zone on one or both sides&quot;</span>, <span class="ident">Value</span>::<span class="ident">Complicated</span>),
+                        <span class="ident">Choice::new</span>(<span class="string">&quot;loading zone on one or both sides&quot;</span>, <span class="ident">Value::Complicated</span>),
                     ],
                 )
                 .<span class="ident">named</span>(<span class="string">&quot;menu&quot;</span>),
@@ -1133,24 +1133,24 @@
     <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> {
         <span class="ident">ctx</span>.<span class="ident">canvas_movement</span>();
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="ident">Outcome</span>::<span class="ident">Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
-                <span class="string">&quot;close&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition</span>::<span class="ident">Pop</span>,
+            <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
+                <span class="string">&quot;close&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition::Pop</span>,
                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">take_menu_choice</span>::<span class="op">&lt;</span><span class="ident">Value</span><span class="op">&gt;</span>(<span class="string">&quot;menu&quot;</span>);
-                    <span class="kw">if</span> <span class="ident">value</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Value</span>::<span class="ident">Complicated</span> {
-                        <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">PopupMsg</span>::<span class="ident">new_state</span>(
+                    <span class="kw">if</span> <span class="ident">value</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Value::Complicated</span> {
+                        <span class="ident">Transition::Replace</span>(<span class="ident">PopupMsg::new_state</span>(
                             <span class="ident">ctx</span>,
                             <span class="string">&quot;Complicated road&quot;</span>,
-                            <span class="macro">vec</span><span class="macro">!</span>[
+                            <span class="macro">vec!</span>[
                                 <span class="string">&quot;You&#39;ll have to manually split the way in ID or JOSM and apply \
                                  the appropriate parking tags to each section.&quot;</span>,
                             ],
                         ))
                     } <span class="kw">else</span> {
                         <span class="self">self</span>.<span class="ident">data</span>.<span class="ident">insert</span>(<span class="self">self</span>.<span class="ident">osm_way_id</span>, <span class="ident">value</span>);
-                        <span class="ident">Transition</span>::<span class="ident">Multi</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                            <span class="ident">Transition</span>::<span class="ident">Pop</span>,
-                            <span class="ident">Transition</span>::<span class="ident">Replace</span>(<span class="ident">ParkingMapper</span>::<span class="ident">make</span>(
+                        <span class="ident">Transition::Multi</span>(<span class="macro">vec!</span>[
+                            <span class="ident">Transition::Pop</span>,
+                            <span class="ident">Transition::Replace</span>(<span class="ident">ParkingMapper::make</span>(
                                 <span class="ident">ctx</span>,
                                 <span class="ident">app</span>,
                                 <span class="self">self</span>.<span class="ident">show</span>,
@@ -1162,9 +1162,9 @@
             },
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">normal_left_click</span>() <span class="op">&amp;&amp;</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_screen_space</span>().<span class="ident">is_none</span>() {
-                    <span class="kw">return</span> <span class="ident">Transition</span>::<span class="ident">Pop</span>;
+                    <span class="kw">return</span> <span class="ident">Transition::Pop</span>;
                 }
-                <span class="ident">Transition</span>::<span class="ident">Keep</span>
+                <span class="ident">Transition::Keep</span>
             }
         }
     }
@@ -1176,27 +1176,27 @@
 }
 
 <span class="kw">fn</span> <span class="ident">generate_osmc</span>(<span class="ident">data</span>: <span class="kw-2">&amp;</span><span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">WayID</span>, <span class="ident">Value</span><span class="op">&gt;</span>, <span class="ident">in_seattle</span>: <span class="ident">bool</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-    <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">File</span>;
-    <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">io</span>::<span class="ident">Write</span>;
+    <span class="kw">use</span> <span class="ident">std::fs::File</span>;
+    <span class="kw">use</span> <span class="ident">std::io::Write</span>;
 
-    <span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Tags</span>;
+    <span class="kw">use</span> <span class="ident">abstutil::Tags</span>;
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">modified_ways</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">modified_ways</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
     <span class="ident">timer</span>.<span class="ident">start_iter</span>(<span class="string">&quot;fetch latest OSM data per modified way&quot;</span>, <span class="ident">data</span>.<span class="ident">len</span>());
     <span class="kw">for</span> (<span class="ident">way</span>, <span class="ident">value</span>) <span class="kw">in</span> <span class="ident">data</span> {
         <span class="ident">timer</span>.<span class="ident">next</span>();
-        <span class="kw">if</span> <span class="ident">value</span> <span class="op">=</span><span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">Value</span>::<span class="ident">Complicated</span> {
+        <span class="kw">if</span> <span class="ident">value</span> <span class="op">=</span><span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">Value::Complicated</span> {
             <span class="kw">continue</span>;
         }
 
-        <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;https://api.openstreetmap.org/api/0.6/way/{}&quot;</span>, <span class="ident">way</span>.<span class="number">0</span>);
-        <span class="macro">info</span><span class="macro">!</span>(<span class="string">&quot;Fetching {}&quot;</span>, <span class="ident">url</span>);
-        <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="ident">reqwest</span>::<span class="ident">blocking</span>::<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">url</span>)<span class="question-mark">?</span>.<span class="ident">text</span>()<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tree</span> <span class="op">=</span> <span class="ident">xmltree</span>::<span class="ident">Element</span>::<span class="ident">parse</span>(<span class="ident">resp</span>.<span class="ident">as_bytes</span>())<span class="question-mark">?</span>
+        <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;https://api.openstreetmap.org/api/0.6/way/{}&quot;</span>, <span class="ident">way</span>.<span class="number">0</span>);
+        <span class="macro">info!</span>(<span class="string">&quot;Fetching {}&quot;</span>, <span class="ident">url</span>);
+        <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="ident">reqwest::blocking::get</span>(<span class="kw-2">&amp;</span><span class="ident">url</span>)<span class="question-mark">?</span>.<span class="ident">text</span>()<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tree</span> <span class="op">=</span> <span class="ident">xmltree::Element::parse</span>(<span class="ident">resp</span>.<span class="ident">as_bytes</span>())<span class="question-mark">?</span>
             .<span class="ident">take_child</span>(<span class="string">&quot;way&quot;</span>)
             .<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">osm_tags</span> <span class="op">=</span> <span class="ident">Tags</span>::<span class="ident">empty</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">other_children</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">osm_tags</span> <span class="op">=</span> <span class="ident">Tags::empty</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">other_children</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
         <span class="kw">for</span> <span class="ident">node</span> <span class="kw">in</span> <span class="ident">tree</span>.<span class="ident">children</span>.<span class="ident">drain</span>(..) {
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">elem</span>) <span class="op">=</span> <span class="ident">node</span>.<span class="ident">as_element</span>() {
                 <span class="kw">if</span> <span class="ident">elem</span>.<span class="ident">name</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;tag&quot;</span> {
@@ -1208,42 +1208,42 @@
         }
 
         <span class="comment">// Fill out the tags.</span>
-        <span class="ident">osm_tags</span>.<span class="ident">remove</span>(<span class="ident">osm</span>::<span class="ident">PARKING_LEFT</span>);
-        <span class="ident">osm_tags</span>.<span class="ident">remove</span>(<span class="ident">osm</span>::<span class="ident">PARKING_RIGHT</span>);
-        <span class="ident">osm_tags</span>.<span class="ident">remove</span>(<span class="ident">osm</span>::<span class="ident">PARKING_BOTH</span>);
+        <span class="ident">osm_tags</span>.<span class="ident">remove</span>(<span class="ident">osm::PARKING_LEFT</span>);
+        <span class="ident">osm_tags</span>.<span class="ident">remove</span>(<span class="ident">osm::PARKING_RIGHT</span>);
+        <span class="ident">osm_tags</span>.<span class="ident">remove</span>(<span class="ident">osm::PARKING_BOTH</span>);
         <span class="kw">match</span> <span class="ident">value</span> {
-            <span class="ident">Value</span>::<span class="ident">BothSides</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="ident">osm_tags</span>.<span class="ident">insert</span>(<span class="ident">osm</span>::<span class="ident">PARKING_BOTH</span>, <span class="string">&quot;parallel&quot;</span>);
+            <span class="ident">Value::BothSides</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">osm_tags</span>.<span class="ident">insert</span>(<span class="ident">osm::PARKING_BOTH</span>, <span class="string">&quot;parallel&quot;</span>);
                 <span class="kw">if</span> <span class="ident">in_seattle</span> {
                     <span class="ident">osm_tags</span>.<span class="ident">insert</span>(<span class="string">&quot;parking:condition:both:maxstay&quot;</span>, <span class="string">&quot;3 days&quot;</span>);
                 }
             }
-            <span class="ident">Value</span>::<span class="ident">NoStopping</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="ident">osm_tags</span>.<span class="ident">insert</span>(<span class="ident">osm</span>::<span class="ident">PARKING_BOTH</span>, <span class="string">&quot;no_stopping&quot;</span>);
+            <span class="ident">Value::NoStopping</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">osm_tags</span>.<span class="ident">insert</span>(<span class="ident">osm::PARKING_BOTH</span>, <span class="string">&quot;no_stopping&quot;</span>);
             }
-            <span class="ident">Value</span>::<span class="ident">RightOnly</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="ident">osm_tags</span>.<span class="ident">insert</span>(<span class="ident">osm</span>::<span class="ident">PARKING_RIGHT</span>, <span class="string">&quot;parallel&quot;</span>);
-                <span class="ident">osm_tags</span>.<span class="ident">insert</span>(<span class="ident">osm</span>::<span class="ident">PARKING_LEFT</span>, <span class="string">&quot;no_stopping&quot;</span>);
+            <span class="ident">Value::RightOnly</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">osm_tags</span>.<span class="ident">insert</span>(<span class="ident">osm::PARKING_RIGHT</span>, <span class="string">&quot;parallel&quot;</span>);
+                <span class="ident">osm_tags</span>.<span class="ident">insert</span>(<span class="ident">osm::PARKING_LEFT</span>, <span class="string">&quot;no_stopping&quot;</span>);
                 <span class="kw">if</span> <span class="ident">in_seattle</span> {
                     <span class="ident">osm_tags</span>.<span class="ident">insert</span>(<span class="string">&quot;parking:condition:right:maxstay&quot;</span>, <span class="string">&quot;3 days&quot;</span>);
                 }
             }
-            <span class="ident">Value</span>::<span class="ident">LeftOnly</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="ident">osm_tags</span>.<span class="ident">insert</span>(<span class="ident">osm</span>::<span class="ident">PARKING_LEFT</span>, <span class="string">&quot;parallel&quot;</span>);
-                <span class="ident">osm_tags</span>.<span class="ident">insert</span>(<span class="ident">osm</span>::<span class="ident">PARKING_RIGHT</span>, <span class="string">&quot;no_stopping&quot;</span>);
+            <span class="ident">Value::LeftOnly</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">osm_tags</span>.<span class="ident">insert</span>(<span class="ident">osm::PARKING_LEFT</span>, <span class="string">&quot;parallel&quot;</span>);
+                <span class="ident">osm_tags</span>.<span class="ident">insert</span>(<span class="ident">osm::PARKING_RIGHT</span>, <span class="string">&quot;no_stopping&quot;</span>);
                 <span class="kw">if</span> <span class="ident">in_seattle</span> {
                     <span class="ident">osm_tags</span>.<span class="ident">insert</span>(<span class="string">&quot;parking:condition:left:maxstay&quot;</span>, <span class="string">&quot;3 days&quot;</span>);
                 }
             }
-            <span class="ident">Value</span>::<span class="ident">Complicated</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+            <span class="ident">Value::Complicated</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
         }
 
         <span class="ident">tree</span>.<span class="ident">children</span> <span class="op">=</span> <span class="ident">other_children</span>;
         <span class="kw">for</span> (<span class="ident">k</span>, <span class="ident">v</span>) <span class="kw">in</span> <span class="ident">osm_tags</span>.<span class="ident">inner</span>() {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">new_elem</span> <span class="op">=</span> <span class="ident">xmltree</span>::<span class="ident">Element</span>::<span class="ident">new</span>(<span class="string">&quot;tag&quot;</span>);
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">new_elem</span> <span class="op">=</span> <span class="ident">xmltree::Element::new</span>(<span class="string">&quot;tag&quot;</span>);
             <span class="ident">new_elem</span>.<span class="ident">attributes</span>.<span class="ident">insert</span>(<span class="string">&quot;k&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">k</span>.<span class="ident">to_string</span>());
             <span class="ident">new_elem</span>.<span class="ident">attributes</span>.<span class="ident">insert</span>(<span class="string">&quot;v&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">v</span>.<span class="ident">to_string</span>());
-            <span class="ident">tree</span>.<span class="ident">children</span>.<span class="ident">push</span>(<span class="ident">xmltree</span>::<span class="ident">XMLNode</span>::<span class="ident">Element</span>(<span class="ident">new_elem</span>));
+            <span class="ident">tree</span>.<span class="ident">children</span>.<span class="ident">push</span>(<span class="ident">xmltree::XMLNode::Element</span>(<span class="ident">new_elem</span>));
         }
 
         <span class="ident">tree</span>.<span class="ident">attributes</span>.<span class="ident">remove</span>(<span class="string">&quot;timestamp&quot;</span>);
@@ -1252,29 +1252,29 @@
         <span class="ident">tree</span>.<span class="ident">attributes</span>.<span class="ident">remove</span>(<span class="string">&quot;uid&quot;</span>);
         <span class="ident">tree</span>.<span class="ident">attributes</span>.<span class="ident">remove</span>(<span class="string">&quot;visible&quot;</span>);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bytes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bytes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
         <span class="ident">tree</span>.<span class="ident">write</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bytes</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">out</span> <span class="op">=</span> <span class="ident">String</span>::<span class="ident">from_utf8</span>(<span class="ident">bytes</span>)<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">out</span> <span class="op">=</span> <span class="ident">String::from_utf8</span>(<span class="ident">bytes</span>)<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">stripped</span> <span class="op">=</span> <span class="ident">out</span>.<span class="ident">trim_start_matches</span>(<span class="string">&quot;&lt;?xml version=\&quot;1.0\&quot; encoding=\&quot;UTF-8\&quot;?&gt;&quot;</span>);
         <span class="ident">modified_ways</span>.<span class="ident">push</span>(<span class="ident">stripped</span>.<span class="ident">to_string</span>());
     }
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">f</span> <span class="op">=</span> <span class="ident">File</span>::<span class="ident">create</span>(<span class="string">&quot;diff.osc&quot;</span>)<span class="question-mark">?</span>;
-    <span class="macro">writeln</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;&lt;osmChange version=\&quot;0.6\&quot; generator=\&quot;abst\&quot;&gt;&lt;modify&gt;&quot;</span>)<span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">f</span> <span class="op">=</span> <span class="ident">File::create</span>(<span class="string">&quot;diff.osc&quot;</span>)<span class="question-mark">?</span>;
+    <span class="macro">writeln!</span>(<span class="ident">f</span>, <span class="string">&quot;&lt;osmChange version=\&quot;0.6\&quot; generator=\&quot;abst\&quot;&gt;&lt;modify&gt;&quot;</span>)<span class="question-mark">?</span>;
     <span class="kw">for</span> <span class="ident">w</span> <span class="kw">in</span> <span class="ident">modified_ways</span> {
-        <span class="macro">writeln</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;  {}&quot;</span>, <span class="ident">w</span>)<span class="question-mark">?</span>;
+        <span class="macro">writeln!</span>(<span class="ident">f</span>, <span class="string">&quot;  {}&quot;</span>, <span class="ident">w</span>)<span class="question-mark">?</span>;
     }
-    <span class="macro">writeln</span><span class="macro">!</span>(<span class="ident">f</span>, <span class="string">&quot;&lt;/modify&gt;&lt;/osmChange&gt;&quot;</span>)<span class="question-mark">?</span>;
-    <span class="macro">info</span><span class="macro">!</span>(<span class="string">&quot;Wrote diff.osc&quot;</span>);
+    <span class="macro">writeln!</span>(<span class="ident">f</span>, <span class="string">&quot;&lt;/modify&gt;&lt;/osmChange&gt;&quot;</span>)<span class="question-mark">?</span>;
+    <span class="macro">info!</span>(<span class="string">&quot;Wrote diff.osc&quot;</span>);
     <span class="prelude-val">Ok</span>(())
 }
 
 <span class="kw">fn</span> <span class="ident">find_divided_highways</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">map</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">closest</span>: <span class="ident">FindClosest</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">FindClosest</span>::<span class="ident">new</span>(<span class="ident">map</span>.<span class="ident">get_bounds</span>());
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">closest</span>: <span class="ident">FindClosest</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">FindClosest::new</span>(<span class="ident">map</span>.<span class="ident">get_bounds</span>());
     <span class="comment">// TODO Consider not even filtering by oneway. I keep finding mistakes where people split a</span>
     <span class="comment">// road, but didn&#39;t mark one side oneway!</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">oneways</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">oneways</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
     <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_roads</span>() {
         <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">osm_tags</span>.<span class="ident">contains_key</span>(<span class="string">&quot;oneway&quot;</span>) {
             <span class="ident">closest</span>.<span class="ident">add</span>(<span class="ident">r</span>.<span class="ident">id</span>, <span class="ident">r</span>.<span class="ident">center_pts</span>.<span class="ident">points</span>());
@@ -1282,20 +1282,20 @@
         }
     }
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">found</span> <span class="op">=</span> <span class="ident">HashSet</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">found</span> <span class="op">=</span> <span class="ident">HashSet::new</span>();
     <span class="kw">for</span> <span class="ident">r1</span> <span class="kw">in</span> <span class="ident">oneways</span> {
         <span class="kw">let</span> <span class="ident">r1</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r1</span>);
         <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="ident">dist</span> <span class="kw">in</span> <span class="kw-2">&amp;</span>[
-            <span class="ident">Distance</span>::<span class="ident">ZERO</span>,
+            <span class="ident">Distance::ZERO</span>,
             <span class="ident">r1</span>.<span class="ident">center_pts</span>.<span class="ident">length</span>() <span class="op">/</span> <span class="number">2.0</span>,
             <span class="ident">r1</span>.<span class="ident">center_pts</span>.<span class="ident">length</span>(),
         ] {
             <span class="kw">let</span> (<span class="ident">pt</span>, <span class="ident">angle</span>) <span class="op">=</span> <span class="ident">r1</span>.<span class="ident">center_pts</span>.<span class="ident">must_dist_along</span>(<span class="ident">dist</span>);
-            <span class="kw">for</span> (<span class="ident">r2</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="ident">closest</span>.<span class="ident">all_close_pts</span>(<span class="ident">pt</span>, <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">250.0</span>)) {
+            <span class="kw">for</span> (<span class="ident">r2</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="ident">closest</span>.<span class="ident">all_close_pts</span>(<span class="ident">pt</span>, <span class="ident">Distance::meters</span>(<span class="number">250.0</span>)) {
                 <span class="kw">if</span> <span class="ident">r1</span>.<span class="ident">id</span> <span class="op">!</span><span class="op">=</span> <span class="ident">r2</span>
-                    <span class="op">&amp;&amp;</span> <span class="ident">PolyLine</span>::<span class="ident">must_new</span>(<span class="macro">vec</span><span class="macro">!</span>[
-                        <span class="ident">pt</span>.<span class="ident">project_away</span>(<span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">100.0</span>), <span class="ident">angle</span>.<span class="ident">rotate_degs</span>(<span class="number">90.0</span>)),
-                        <span class="ident">pt</span>.<span class="ident">project_away</span>(<span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">100.0</span>), <span class="ident">angle</span>.<span class="ident">rotate_degs</span>(<span class="op">-</span><span class="number">90.0</span>)),
+                    <span class="op">&amp;&amp;</span> <span class="ident">PolyLine::must_new</span>(<span class="macro">vec!</span>[
+                        <span class="ident">pt</span>.<span class="ident">project_away</span>(<span class="ident">Distance::meters</span>(<span class="number">100.0</span>), <span class="ident">angle</span>.<span class="ident">rotate_degs</span>(<span class="number">90.0</span>)),
+                        <span class="ident">pt</span>.<span class="ident">project_away</span>(<span class="ident">Distance::meters</span>(<span class="number">100.0</span>), <span class="ident">angle</span>.<span class="ident">rotate_degs</span>(<span class="op">-</span><span class="number">90.0</span>)),
                     ])
                     .<span class="ident">intersection</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r2</span>).<span class="ident">center_pts</span>)
                     .<span class="ident">is_some</span>()
@@ -1314,7 +1314,7 @@
 <span class="comment">// TODO Lots of false positives here... why?</span>
 <span class="kw">fn</span> <span class="ident">find_overlapping_stuff</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">map</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">closest</span>: <span class="ident">FindClosest</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">FindClosest</span>::<span class="ident">new</span>(<span class="ident">map</span>.<span class="ident">get_bounds</span>());
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">closest</span>: <span class="ident">FindClosest</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">FindClosest::new</span>(<span class="ident">map</span>.<span class="ident">get_bounds</span>());
     <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_roads</span>() {
         <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">osm_tags</span>.<span class="ident">contains_key</span>(<span class="string">&quot;tunnel&quot;</span>) {
             <span class="kw">continue</span>;
@@ -1322,12 +1322,12 @@
         <span class="ident">closest</span>.<span class="ident">add</span>(<span class="ident">r</span>.<span class="ident">id</span>, <span class="ident">r</span>.<span class="ident">center_pts</span>.<span class="ident">points</span>());
     }
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">polygons</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">polygons</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
 
     <span class="ident">timer</span>.<span class="ident">start_iter</span>(<span class="string">&quot;check buildings&quot;</span>, <span class="ident">map</span>.<span class="ident">all_buildings</span>().<span class="ident">len</span>());
     <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_buildings</span>() {
         <span class="ident">timer</span>.<span class="ident">next</span>();
-        <span class="kw">for</span> (<span class="ident">r</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="ident">closest</span>.<span class="ident">all_close_pts</span>(<span class="ident">b</span>.<span class="ident">label_center</span>, <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">500.0</span>)) {
+        <span class="kw">for</span> (<span class="ident">r</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="ident">closest</span>.<span class="ident">all_close_pts</span>(<span class="ident">b</span>.<span class="ident">label_center</span>, <span class="ident">Distance::meters</span>(<span class="number">500.0</span>)) {
             <span class="kw">if</span> <span class="op">!</span><span class="ident">b</span>
                 .<span class="ident">polygon</span>
                 .<span class="ident">intersection</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>).<span class="ident">get_thick_polygon</span>(<span class="ident">map</span>))
@@ -1341,7 +1341,7 @@
     <span class="ident">timer</span>.<span class="ident">start_iter</span>(<span class="string">&quot;check parking lots&quot;</span>, <span class="ident">map</span>.<span class="ident">all_parking_lots</span>().<span class="ident">len</span>());
     <span class="kw">for</span> <span class="ident">pl</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_parking_lots</span>() {
         <span class="ident">timer</span>.<span class="ident">next</span>();
-        <span class="kw">for</span> (<span class="ident">r</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="ident">closest</span>.<span class="ident">all_close_pts</span>(<span class="ident">pl</span>.<span class="ident">polygon</span>.<span class="ident">center</span>(), <span class="ident">Distance</span>::<span class="ident">meters</span>(<span class="number">500.0</span>)) {
+        <span class="kw">for</span> (<span class="ident">r</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="ident">closest</span>.<span class="ident">all_close_pts</span>(<span class="ident">pl</span>.<span class="ident">polygon</span>.<span class="ident">center</span>(), <span class="ident">Distance::meters</span>(<span class="number">500.0</span>)) {
             <span class="kw">if</span> <span class="op">!</span><span class="ident">pl</span>
                 .<span class="ident">polygon</span>
                 .<span class="ident">intersection</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>).<span class="ident">get_thick_polygon</span>(<span class="ident">map</span>))
@@ -1355,5 +1355,5 @@
     <span class="ident">polygons</span>
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="parking_mapper" data-search-js="../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="parking_mapper" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script></body></html>

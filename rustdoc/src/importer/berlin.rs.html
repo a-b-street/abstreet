@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `importer/src/berlin.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>berlin.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../importer/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../importer/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -123,20 +123,20 @@
 <span id="120">120</span>
 <span id="121">121</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">File</span>;
+<span class="kw">use</span> <span class="ident">std::fs::File</span>;
 
-<span class="kw">use</span> <span class="ident">rand</span>::<span class="ident">SeedableRng</span>;
-<span class="kw">use</span> <span class="ident">rand_xorshift</span>::<span class="ident">XorShiftRng</span>;
-<span class="kw">use</span> <span class="ident">serde</span>::<span class="ident">Deserialize</span>;
+<span class="kw">use</span> <span class="ident">rand::SeedableRng</span>;
+<span class="kw">use</span> <span class="ident">rand_xorshift::XorShiftRng</span>;
+<span class="kw">use</span> <span class="ident">serde::Deserialize</span>;
 
-<span class="kw">use</span> <span class="ident">abstutil</span>::<span class="ident">Timer</span>;
-<span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">Ring</span>;
-<span class="kw">use</span> <span class="ident">kml</span>::<span class="ident">ExtraShapes</span>;
-<span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">raw</span>::<span class="ident">RawMap</span>;
-<span class="kw">use</span> <span class="ident">map_model</span>::<span class="ident">BuildingType</span>;
+<span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
+<span class="kw">use</span> <span class="ident">geom::Ring</span>;
+<span class="kw">use</span> <span class="ident">kml::ExtraShapes</span>;
+<span class="kw">use</span> <span class="ident">map_model::raw::RawMap</span>;
+<span class="kw">use</span> <span class="ident">map_model::BuildingType</span>;
 
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">configuration</span>::<span class="ident">ImporterConfiguration</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">utils</span>::{<span class="ident">download</span>, <span class="ident">download_kml</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::configuration::ImporterConfiguration</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::utils</span>::{<span class="ident">download</span>, <span class="ident">download_kml</span>};
 
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">import_extra_data</span>(
     <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">RawMap</span>,
@@ -172,10 +172,10 @@
 
 <span class="comment">// Modify the filtered KML of planning areas with the number of residents from a different dataset.</span>
 <span class="kw">fn</span> <span class="ident">correlate_population</span>(<span class="ident">kml_path</span>: <span class="ident">String</span>, <span class="ident">csv_path</span>: <span class="ident">String</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">shapes</span> <span class="op">=</span> <span class="ident">abstio</span>::<span class="ident">read_binary</span>::<span class="op">&lt;</span><span class="ident">ExtraShapes</span><span class="op">&gt;</span>(<span class="ident">kml_path</span>.<span class="ident">clone</span>(), <span class="ident">timer</span>);
-    <span class="kw">for</span> <span class="ident">rec</span> <span class="kw">in</span> <span class="ident">csv</span>::<span class="ident">ReaderBuilder</span>::<span class="ident">new</span>()
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">shapes</span> <span class="op">=</span> <span class="ident">abstio::read_binary</span>::<span class="op">&lt;</span><span class="ident">ExtraShapes</span><span class="op">&gt;</span>(<span class="ident">kml_path</span>.<span class="ident">clone</span>(), <span class="ident">timer</span>);
+    <span class="kw">for</span> <span class="ident">rec</span> <span class="kw">in</span> <span class="ident">csv::ReaderBuilder::new</span>()
         .<span class="ident">delimiter</span>(<span class="string">b&#39;;&#39;</span>)
-        .<span class="ident">from_reader</span>(<span class="ident">File</span>::<span class="ident">open</span>(<span class="ident">csv_path</span>).<span class="ident">unwrap</span>())
+        .<span class="ident">from_reader</span>(<span class="ident">File::open</span>(<span class="ident">csv_path</span>).<span class="ident">unwrap</span>())
         .<span class="ident">deserialize</span>()
     {
         <span class="kw">let</span> <span class="ident">rec</span>: <span class="ident">Record</span> <span class="op">=</span> <span class="ident">rec</span>.<span class="ident">unwrap</span>();
@@ -188,7 +188,7 @@
             }
         }
     }
-    <span class="ident">abstio</span>::<span class="ident">write_binary</span>(<span class="ident">kml_path</span>, <span class="kw-2">&amp;</span><span class="ident">shapes</span>);
+    <span class="ident">abstio::write_binary</span>(<span class="ident">kml_path</span>, <span class="kw-2">&amp;</span><span class="ident">shapes</span>);
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Deserialize</span>)]</span>
@@ -201,8 +201,8 @@
     <span class="ident">e_e</span>: <span class="ident">String</span>,
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">distribute_residents</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">map_model</span>::<span class="ident">Map</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) {
-    <span class="kw">for</span> <span class="ident">shape</span> <span class="kw">in</span> <span class="ident">abstio</span>::<span class="ident">read_binary</span>::<span class="op">&lt;</span><span class="ident">ExtraShapes</span><span class="op">&gt;</span>(
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">distribute_residents</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">map_model::Map</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) {
+    <span class="kw">for</span> <span class="ident">shape</span> <span class="kw">in</span> <span class="ident">abstio::read_binary</span>::<span class="op">&lt;</span><span class="ident">ExtraShapes</span><span class="op">&gt;</span>(
         <span class="string">&quot;data/input/de/berlin/planning_areas.bin&quot;</span>.<span class="ident">to_string</span>(),
         <span class="ident">timer</span>,
     )
@@ -215,28 +215,28 @@
         {
             <span class="kw">continue</span>;
         }
-        <span class="kw">let</span> <span class="ident">region</span> <span class="op">=</span> <span class="ident">Ring</span>::<span class="ident">must_new</span>(<span class="ident">pts</span>).<span class="ident">into_polygon</span>();
+        <span class="kw">let</span> <span class="ident">region</span> <span class="op">=</span> <span class="ident">Ring::must_new</span>(<span class="ident">pts</span>).<span class="ident">into_polygon</span>();
         <span class="comment">// Deterministically seed using the planning area&#39;s ID.</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span>
-            <span class="ident">XorShiftRng</span>::<span class="ident">seed_from_u64</span>(<span class="ident">shape</span>.<span class="ident">attributes</span>[<span class="string">&quot;spatial_name&quot;</span>].<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>());
+            <span class="ident">XorShiftRng::seed_from_u64</span>(<span class="ident">shape</span>.<span class="ident">attributes</span>[<span class="string">&quot;spatial_name&quot;</span>].<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>());
 
-        <span class="kw">for</span> (<span class="ident">home</span>, <span class="ident">n</span>) <span class="kw">in</span> <span class="ident">popdat</span>::<span class="ident">distribute_population_to_homes</span>(
-            <span class="ident">geo</span>::<span class="ident">Polygon</span>::<span class="ident">from</span>(<span class="ident">region</span>),
+        <span class="kw">for</span> (<span class="ident">home</span>, <span class="ident">n</span>) <span class="kw">in</span> <span class="ident">popdat::distribute_population_to_homes</span>(
+            <span class="ident">geo::Polygon::from</span>(<span class="ident">region</span>),
             <span class="ident">shape</span>.<span class="ident">attributes</span>[<span class="string">&quot;num_residents&quot;</span>].<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>(),
             <span class="ident">map</span>,
             <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rng</span>,
         ) {
             <span class="kw">let</span> <span class="ident">bldg_type</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">home</span>).<span class="ident">bldg_type</span> {
-                <span class="ident">BuildingType</span>::<span class="ident">Residential</span> {
+                <span class="ident">BuildingType::Residential</span> {
                     <span class="ident">num_housing_units</span>, ..
-                } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">BuildingType</span>::<span class="ident">Residential</span> {
+                } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">BuildingType::Residential</span> {
                     <span class="ident">num_housing_units</span>,
                     <span class="ident">num_residents</span>: <span class="ident">n</span>,
                 },
-                <span class="ident">BuildingType</span>::<span class="ident">ResidentialCommercial</span>(<span class="kw">_</span>, <span class="ident">worker_cap</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="ident">BuildingType</span>::<span class="ident">ResidentialCommercial</span>(<span class="ident">n</span>, <span class="ident">worker_cap</span>)
+                <span class="ident">BuildingType::ResidentialCommercial</span>(<span class="kw">_</span>, <span class="ident">worker_cap</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="ident">BuildingType::ResidentialCommercial</span>(<span class="ident">n</span>, <span class="ident">worker_cap</span>)
                 }
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>(),
+                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
             };
             <span class="ident">map</span>.<span class="ident">hack_override_bldg_type</span>(<span class="ident">home</span>, <span class="ident">bldg_type</span>);
         }
@@ -245,5 +245,5 @@
     <span class="ident">map</span>.<span class="ident">save</span>();
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="importer" data-search-js="../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="importer" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script></body></html>

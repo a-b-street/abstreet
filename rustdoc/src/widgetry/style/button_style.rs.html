@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/style/button_style.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>button_style.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../widgetry/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
+<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../widgetry/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
                 <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
@@ -140,7 +140,7 @@
 <span id="137">137</span>
 <span id="138">138</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">geom</span>::<span class="ident">CornerRadii</span>;
+<span class="kw">use</span> <span class="ident">geom::CornerRadii</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">include_labeled_bytes</span>, <span class="ident">ButtonBuilder</span>, <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">EventCtx</span>, <span class="ident">Key</span>, <span class="ident">OutlineStyle</span>,
@@ -159,17 +159,17 @@
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span><span class="op">&gt;</span> <span class="ident">ButtonStyle</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">btn</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">base</span> <span class="op">=</span> <span class="ident">ButtonBuilder</span>::<span class="ident">new</span>()
-            .<span class="ident">label_color</span>(<span class="self">self</span>.<span class="ident">fg</span>, <span class="ident">ControlState</span>::<span class="ident">Default</span>)
-            .<span class="ident">label_color</span>(<span class="self">self</span>.<span class="ident">fg_disabled</span>, <span class="ident">ControlState</span>::<span class="ident">Disabled</span>)
-            .<span class="ident">image_color</span>(<span class="self">self</span>.<span class="ident">fg</span>, <span class="ident">ControlState</span>::<span class="ident">Default</span>)
-            .<span class="ident">image_color</span>(<span class="self">self</span>.<span class="ident">fg_disabled</span>, <span class="ident">ControlState</span>::<span class="ident">Disabled</span>)
-            .<span class="ident">bg_color</span>(<span class="self">self</span>.<span class="ident">bg</span>, <span class="ident">ControlState</span>::<span class="ident">Default</span>)
-            .<span class="ident">bg_color</span>(<span class="self">self</span>.<span class="ident">bg_hover</span>, <span class="ident">ControlState</span>::<span class="ident">Hovered</span>)
-            .<span class="ident">bg_color</span>(<span class="self">self</span>.<span class="ident">bg_disabled</span>, <span class="ident">ControlState</span>::<span class="ident">Disabled</span>);
+        <span class="kw">let</span> <span class="ident">base</span> <span class="op">=</span> <span class="ident">ButtonBuilder::new</span>()
+            .<span class="ident">label_color</span>(<span class="self">self</span>.<span class="ident">fg</span>, <span class="ident">ControlState::Default</span>)
+            .<span class="ident">label_color</span>(<span class="self">self</span>.<span class="ident">fg_disabled</span>, <span class="ident">ControlState::Disabled</span>)
+            .<span class="ident">image_color</span>(<span class="self">self</span>.<span class="ident">fg</span>, <span class="ident">ControlState::Default</span>)
+            .<span class="ident">image_color</span>(<span class="self">self</span>.<span class="ident">fg_disabled</span>, <span class="ident">ControlState::Disabled</span>)
+            .<span class="ident">bg_color</span>(<span class="self">self</span>.<span class="ident">bg</span>, <span class="ident">ControlState::Default</span>)
+            .<span class="ident">bg_color</span>(<span class="self">self</span>.<span class="ident">bg_hover</span>, <span class="ident">ControlState::Hovered</span>)
+            .<span class="ident">bg_color</span>(<span class="self">self</span>.<span class="ident">bg_disabled</span>, <span class="ident">ControlState::Disabled</span>);
 
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">outline</span>.<span class="number">0</span> <span class="op">&gt;</span> <span class="number">0.0</span> {
-            <span class="ident">base</span>.<span class="ident">outline</span>(<span class="self">self</span>.<span class="ident">outline</span>, <span class="ident">ControlState</span>::<span class="ident">Default</span>)
+            <span class="ident">base</span>.<span class="ident">outline</span>(<span class="self">self</span>.<span class="ident">outline</span>, <span class="ident">ControlState::Default</span>)
         } <span class="kw">else</span> {
             <span class="ident">base</span>
         }
@@ -195,11 +195,11 @@
         <span class="self">self</span>.<span class="ident">btn</span>()
             .<span class="ident">label_text</span>(<span class="ident">text</span>)
             .<span class="ident">image_path</span>(<span class="ident">image_path</span>)
-            .<span class="ident">image_dims</span>(<span class="ident">ScreenDims</span>::<span class="ident">square</span>(<span class="number">18.0</span>))
+            .<span class="ident">image_dims</span>(<span class="ident">ScreenDims::square</span>(<span class="number">18.0</span>))
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dropdown</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">icon_bytes</span>(<span class="macro">include_labeled_bytes</span><span class="macro">!</span>(<span class="string">&quot;../../icons/arrow_drop_down.svg&quot;</span>))
+        <span class="self">self</span>.<span class="ident">icon_bytes</span>(<span class="macro">include_labeled_bytes!</span>(<span class="string">&quot;../../icons/arrow_drop_down.svg&quot;</span>))
             .<span class="ident">image_dims</span>(<span class="number">12.0</span>)
             .<span class="ident">stack_spacing</span>(<span class="number">12.0</span>)
             .<span class="ident">label_first</span>()
@@ -214,7 +214,7 @@
     <span class="doccomment">/// title: name of previous screen, which you&#39;ll return to</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">btn_back</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">title</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">btn_plain</span>
-            .<span class="ident">icon_bytes</span>(<span class="macro">include_labeled_bytes</span><span class="macro">!</span>(<span class="string">&quot;../../icons/nav_back.svg&quot;</span>))
+            .<span class="ident">icon_bytes</span>(<span class="macro">include_labeled_bytes!</span>(<span class="string">&quot;../../icons/nav_back.svg&quot;</span>))
             .<span class="ident">label_text</span>(<span class="ident">title</span>)
             .<span class="ident">padding_left</span>(<span class="number">8.0</span>)
             .<span class="ident">font_size</span>(<span class="number">30</span>)
@@ -223,20 +223,20 @@
     <span class="doccomment">/// A right facing caret, like &quot;&gt;&quot;, suitable for paging to the &quot;next&quot; set of results</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">btn_next</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">btn_plain</span>
-            .<span class="ident">icon_bytes</span>(<span class="macro">include_labeled_bytes</span><span class="macro">!</span>(<span class="string">&quot;../../icons/next.svg&quot;</span>))
+            .<span class="ident">icon_bytes</span>(<span class="macro">include_labeled_bytes!</span>(<span class="string">&quot;../../icons/next.svg&quot;</span>))
     }
 
     <span class="doccomment">/// A left facing caret, like &quot;&lt;&quot;, suitable for paging to the &quot;next&quot; set of results</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">btn_prev</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">btn_plain</span>
-            .<span class="ident">icon_bytes</span>(<span class="macro">include_labeled_bytes</span><span class="macro">!</span>(<span class="string">&quot;../../icons/prev.svg&quot;</span>))
+            .<span class="ident">icon_bytes</span>(<span class="macro">include_labeled_bytes!</span>(<span class="string">&quot;../../icons/prev.svg&quot;</span>))
     }
 
     <span class="doccomment">/// An &quot;X&quot; button to close the current state. Bound to the escape key.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">btn_close</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">btn_plain</span>
-            .<span class="ident">icon_bytes</span>(<span class="macro">include_labeled_bytes</span><span class="macro">!</span>(<span class="string">&quot;../../icons/close.svg&quot;</span>))
-            .<span class="ident">hotkey</span>(<span class="ident">Key</span>::<span class="ident">Escape</span>)
+            .<span class="ident">icon_bytes</span>(<span class="macro">include_labeled_bytes!</span>(<span class="string">&quot;../../icons/close.svg&quot;</span>))
+            .<span class="ident">hotkey</span>(<span class="ident">Key::Escape</span>)
     }
 
     <span class="doccomment">/// An &quot;X&quot; button to close the current state. Bound to the escape key and aligned to the right,</span>
@@ -253,9 +253,9 @@
             .<span class="ident">label_text</span>(<span class="ident">text</span>)
             .<span class="ident">image_path</span>(<span class="ident">icon_path</span>)
             .<span class="ident">image_dims</span>(<span class="number">25.0</span>)
-            .<span class="ident">image_color</span>(<span class="self">self</span>.<span class="ident">btn_solid</span>.<span class="ident">fg</span>, <span class="ident">ControlState</span>::<span class="ident">Default</span>)
-            .<span class="ident">image_bg_color</span>(<span class="self">self</span>.<span class="ident">btn_solid</span>.<span class="ident">bg</span>, <span class="ident">ControlState</span>::<span class="ident">Default</span>)
-            .<span class="ident">image_bg_color</span>(<span class="self">self</span>.<span class="ident">btn_solid</span>.<span class="ident">bg_hover</span>, <span class="ident">ControlState</span>::<span class="ident">Hovered</span>)
+            .<span class="ident">image_color</span>(<span class="self">self</span>.<span class="ident">btn_solid</span>.<span class="ident">fg</span>, <span class="ident">ControlState::Default</span>)
+            .<span class="ident">image_bg_color</span>(<span class="self">self</span>.<span class="ident">btn_solid</span>.<span class="ident">bg</span>, <span class="ident">ControlState::Default</span>)
+            .<span class="ident">image_bg_color</span>(<span class="self">self</span>.<span class="ident">btn_solid</span>.<span class="ident">bg_hover</span>, <span class="ident">ControlState::Hovered</span>)
             <span class="comment">// Move the padding from the *entire button* to just the image, so we get a colored</span>
             <span class="comment">// padded area around the image.</span>
             .<span class="ident">padding</span>(<span class="number">0</span>)
@@ -279,5 +279,5 @@
     <span class="ident">builder</span>.<span class="ident">padding</span>(<span class="number">8.0</span>).<span class="ident">image_dims</span>(<span class="number">25.0</span>)
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="widgetry" data-search-js="../../../search-index.js"></div>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="widgetry" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
     <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script></body></html>
