@@ -313,7 +313,12 @@ impl Queue {
         assert!(self.laggy_head.is_none());
         let car = match self.members.pop_front() {
             Some(Queued::Vehicle(c)) => c,
-            _ => unreachable!(),
+            x => {
+                panic!(
+                    "First member of {} is {:?}, not an active vehicle",
+                    self.id, x
+                );
+            }
         };
         self.laggy_head = Some(car);
         car
