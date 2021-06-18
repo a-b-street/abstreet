@@ -10,7 +10,7 @@ use map_model::raw::{RawArea, RawBuilding, RawMap, RawParkingLot, RawRoad, Restr
 use map_model::{osm, Amenity, AreaType, Direction, DrivingSide, NamePerLanguage};
 
 use crate::osm_geom::{get_multipolygon_members, glue_multipolygon, multipoly_geometry};
-use crate::{transit, Options};
+use crate::Options;
 
 pub struct OsmExtract {
     /// Unsplit roads
@@ -275,9 +275,6 @@ pub fn extract_osm(map: &mut RawMap, opts: &Options, timer: &mut Timer) -> OsmEx
                     osm_tags: rel.tags.clone(),
                 });
             }
-        } else if rel.tags.is("type", "route") {
-            map.bus_routes
-                .extend(transit::extract_route(id, rel, &doc, &map.boundary_polygon));
         } else if rel.tags.is("type", "multipolygon") && rel.tags.contains_key("amenity") {
             let amenity = Amenity {
                 names: NamePerLanguage::new(&rel.tags).unwrap_or_else(NamePerLanguage::unnamed),

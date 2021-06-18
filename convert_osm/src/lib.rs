@@ -37,6 +37,8 @@ pub struct Options {
     pub include_railroads: bool,
     /// If provided, read polygons from this GeoJSON file and add them to the RawMap as buildings.
     pub extra_buildings: Option<String>,
+    /// The path to an unzipped GTFS directory for public transit routes
+    pub gtfs: Option<String>,
 }
 
 /// What roads will have on-street parking lanes? Data from
@@ -91,21 +93,6 @@ pub fn convert(opts: Options, timer: &mut abstutil::Timer) -> RawMap {
     // doing the parking hint matching.
     map.roads.retain(|r, _| r.i1 != r.i2);
 
-    let all_routes = map.bus_routes.drain(..).collect::<Vec<_>>();
-    let mut routes = Vec::new();
-    for route in all_routes {
-        let name = format!("{} ({})", route.osm_rel_id, route.full_name);
-        match transit::snap_bus_stops(route, &mut map, &pt_to_road) {
-            Ok(r) => {
-                routes.push(r);
-            }
-            Err(err) => {
-                error!("Skipping {}: {}", name, err);
-            }
-        }
-    }
-    map.bus_routes = routes;
-
     use_amenities(&mut map, amenities, timer);
 
     parking::apply_parking(&mut map, &opts, timer);
@@ -121,6 +108,10 @@ pub fn convert(opts: Options, timer: &mut abstutil::Timer) -> RawMap {
     }
 
     snappy::snap_cycleways(&map, timer);
+
+    if let Some(ref path) = opts.gtfs {
+        transit::import_gtfs(&mut map, path).unwrap();
+    }
 
     map.config = opts.map_config;
     map

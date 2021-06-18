@@ -225,10 +225,6 @@ impl Job {
                         "distribute residents from planning areas for {}",
                         name.describe()
                     ));
-                } else if name.city == CityName::seattle() {
-                    timer.start(format!("add GTFS schedules for {}", name.describe()));
-                    seattle::add_gtfs_schedules(&mut map);
-                    timer.stop(format!("add GTFS schedules for {}", name.describe()));
                 }
 
                 Some(map)
@@ -326,6 +322,7 @@ fn oneshot(osm_path: String, clip: Option<String>, drive_on_right: bool, opts: R
             private_offstreet_parking: convert_osm::PrivateOffstreetParking::FixedPerBldg(1),
             include_railroads: true,
             extra_buildings: None,
+            gtfs: None,
         },
         &mut timer,
     );

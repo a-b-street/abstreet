@@ -11,6 +11,8 @@ use crate::{
     BusRoute, BusRouteID, BusStop, BusStopID, LaneID, LaneType, Map, PathConstraints, Position,
 };
 
+// TODO Maybe some of this is useful, maybe not
+
 /// Construct the final model of bus/train stops and routes. This is quite broken currently, so not
 /// going to describe how it works.
 pub fn make_stops_and_routes(map: &mut Map, raw_routes: &[RawBusRoute], timer: &mut Timer) {

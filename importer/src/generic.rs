@@ -29,6 +29,7 @@ pub struct GenericCityImporter {
     pub include_railroads: bool,
     /// If provided, read polygons from this GeoJSON file and add them to the RawMap as buildings.
     pub extra_buildings: Option<String>,
+    pub gtfs: Option<String>,
 }
 
 impl GenericCityImporter {
@@ -64,6 +65,8 @@ impl GenericCityImporter {
             config,
         );
 
+        // TODO Download from the GTFS url, stick it in name.city.input_path("gtfs")
+
         let map = convert_osm::convert(
             convert_osm::Options {
                 osm_input: name.city.input_path(format!("osm/{}.osm", name.map)),
@@ -79,6 +82,7 @@ impl GenericCityImporter {
                 private_offstreet_parking: self.private_offstreet_parking.clone(),
                 include_railroads: self.include_railroads,
                 extra_buildings: self.extra_buildings.clone(),
+                gtfs: self.gtfs.clone(),
             },
             timer,
         );
