@@ -7,7 +7,7 @@ use std::collections::{BTreeMap, BTreeSet, HashSet};
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
 
-use abstutil::{retain_btreemap, retain_btreeset, Timer};
+use abstutil::Timer;
 use geom::{Distance, HashablePt2D, Line, Speed, Time};
 
 pub use self::perma::PermanentMapEdits;
@@ -205,13 +205,12 @@ impl MapEdits {
             }
         }
 
-        retain_btreeset(&mut self.changed_roads, |r| {
+        self.changed_roads.retain(|r| {
             map.get_r_edit(*r) != EditRoad::get_orig_from_osm(map.get_r(*r), &map.config)
         });
-        retain_btreemap(&mut self.original_intersections, |i, orig| {
-            map.get_i_edit(*i) != orig.clone()
-        });
-        retain_btreeset(&mut self.changed_routes, |br| {
+        self.original_intersections
+            .retain(|i, orig| map.get_i_edit(*i) != orig.clone());
+        self.changed_routes.retain(|br| {
             let r = map.get_br(*br);
             r.spawn_times != r.orig_spawn_times
         });
@@ -317,7 +316,7 @@ impl EditCmd {
                 road.access_restrictions = new.access_restrictions.clone();
 
                 effects.changed_roads.insert(road.id);
-                for &i in &[road.src_i, road.dst_i] {
+                for i in [road.src_i, road.dst_i] {
                     effects.changed_intersections.insert(i);
                     let i = &mut map.intersections[i.0];
                     i.outgoing_lanes.clear();
@@ -847,7 +846,9 @@ impl Map {
         }
 
         // Some of these might've been added, then later deleted.
-        retain_btreeset(&mut effects.added_turns, |t| self.maybe_get_t(*t).is_some());
+        effects
+            .added_turns
+            .retain(|t| self.maybe_get_t(*t).is_some());
 
         let mut more_changed_intersections = Vec::new();
         for t in effects

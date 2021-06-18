@@ -39,7 +39,7 @@ pub fn prebake_all() {
         prebake(&map, scenario, None, &mut timer);
     }
 
-    for &scenario_name in &["base", "go_active", "base_with_bg", "go_active_with_bg"] {
+    for scenario_name in ["base", "go_active", "base_with_bg", "go_active_with_bg"] {
         let map = map_model::Map::load_synchronously(
             MapName::new("gb", "poundbury", "center").path(),
             &mut timer,

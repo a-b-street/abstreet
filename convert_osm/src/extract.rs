@@ -3,7 +3,7 @@ use std::collections::{BTreeSet, HashMap};
 use osm::{NodeID, OsmID, RelationID, WayID};
 
 use abstio::MapName;
-use abstutil::{retain_btreemap, Tags, Timer};
+use abstutil::{Tags, Timer};
 use geom::{Distance, FindClosest, HashablePt2D, Polygon, Pt2D, Ring};
 use kml::{ExtraShape, ExtraShapes};
 use map_model::raw::{RawArea, RawBuilding, RawMap, RawParkingLot, RawRoad, RestrictionType};
@@ -340,9 +340,8 @@ pub fn extract_osm(map: &mut RawMap, opts: &Options, timer: &mut Timer) -> OsmEx
     timer.start_iter("match buildings to memorial areas", memorial_areas.len());
     for area in memorial_areas {
         timer.next();
-        retain_btreemap(&mut map.buildings, |_, b| {
-            !area.contains_pt(b.polygon.center())
-        });
+        map.buildings
+            .retain(|_, b| !area.contains_pt(b.polygon.center()));
     }
 
     timer.start_iter("match buildings to amenity areas", amenity_areas.len());
@@ -540,7 +539,7 @@ fn is_bldg(tags: &Tags) -> bool {
 
 fn get_bldg_amenities(tags: &Tags) -> Vec<Amenity> {
     let mut amenities = Vec::new();
-    for &key in &["amenity", "shop", "craft", "office", "tourism", "leisure"] {
+    for key in ["amenity", "shop", "craft", "office", "tourism", "leisure"] {
         if let Some(amenity) = tags.get(key) {
             amenities.push(Amenity {
                 names: NamePerLanguage::new(tags).unwrap_or_else(NamePerLanguage::unnamed),

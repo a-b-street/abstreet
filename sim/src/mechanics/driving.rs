@@ -163,7 +163,7 @@ impl DrivingSimState {
                     .router
                     .get_path()
                     .get_blocked_starts()
-                    .into_iter()
+                    .iter()
                     .zip(blocked_start_indices)
                 {
                     self.queues

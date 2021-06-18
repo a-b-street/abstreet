@@ -108,12 +108,12 @@ impl State<App> for PolygonDebugger {
                 );
             }
             Item::Triangle(ref tri) => {
-                for pt in &[tri.pt1, tri.pt2, tri.pt3] {
+                for pt in [tri.pt1, tri.pt2, tri.pt3] {
                     batch.append(
                         Text::from(self.idx.to_string())
                             .bg(app.cs.panel_bg)
                             .render(g)
-                            .centered_on(g.canvas.map_to_screen(*pt).to_pt()),
+                            .centered_on(g.canvas.map_to_screen(pt).to_pt()),
                     );
                 }
                 g.draw_polygon(app.cs.selected, Polygon::from_triangle(tri));

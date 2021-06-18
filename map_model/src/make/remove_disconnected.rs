@@ -1,6 +1,6 @@
 use std::collections::BTreeSet;
 
-use abstutil::{retain_btreemap, MultiMap, Timer};
+use abstutil::{MultiMap, Timer};
 
 use crate::osm;
 use crate::raw::{OriginalRoad, RawMap};
@@ -59,11 +59,10 @@ pub fn remove_disconnected_roads(map: &mut RawMap, timer: &mut Timer) {
 
     // Also remove cul-de-sacs here. TODO Support them properly, but for now, they mess up parking
     // hint matching (loop PolyLine) and pathfinding later.
-    retain_btreemap(&mut map.roads, |id, _| id.i1 != id.i2);
+    map.roads.retain(|id, _| id.i1 != id.i2);
 
     // Remove intersections without any roads
-    retain_btreemap(&mut map.intersections, |id, _| {
-        !next_roads.get(*id).is_empty()
-    });
+    map.intersections
+        .retain(|id, _| !next_roads.get(*id).is_empty());
     timer.stop("removing disconnected roads");
 }

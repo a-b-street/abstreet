@@ -6,8 +6,7 @@ use rand_xorshift::XorShiftRng;
 use serde::{Deserialize, Serialize};
 
 use abstutil::{
-    deserialize_btreemap, deserialize_multimap, retain_btreemap, serialize_btreemap,
-    serialize_multimap, MultiMap,
+    deserialize_btreemap, deserialize_multimap, serialize_btreemap, serialize_multimap, MultiMap,
 };
 use geom::{Distance, PolyLine, Pt2D};
 use map_model::{
@@ -224,7 +223,7 @@ impl ParkingSim for NormalParkingSimState {
         }
 
         let mut moving_into_deleted_spot = Vec::new();
-        retain_btreemap(&mut self.reserved_spots, |spot, car| {
+        self.reserved_spots.retain(|spot, car| {
             if avail_after.contains(spot) {
                 true
             } else {
@@ -289,7 +288,7 @@ impl ParkingSim for NormalParkingSimState {
     }
 
     fn unreserve_spot(&mut self, car: CarID) {
-        retain_btreemap(&mut self.reserved_spots, |_, c| car != *c);
+        self.reserved_spots.retain(|_, c| car != *c);
     }
 
     fn remove_parked_car(&mut self, p: ParkedCar) {
@@ -843,7 +842,7 @@ impl ParkingSim for InfiniteParkingSimState {
     }
 
     fn unreserve_spot(&mut self, car: CarID) {
-        retain_btreemap(&mut self.reserved_spots, |_, c| car != *c);
+        self.reserved_spots.retain(|_, c| car != *c);
     }
 
     fn remove_parked_car(&mut self, p: ParkedCar) {

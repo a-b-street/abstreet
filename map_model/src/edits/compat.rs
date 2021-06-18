@@ -362,7 +362,7 @@ fn fix_lane_widths(value: &mut Value, map: &Map) -> Result<()> {
             let road = map.get_r(map.find_r_by_osm_id(road_id)?);
             let cmd = cmd.as_object_mut().unwrap();
 
-            for &key in &["old", "new"] {
+            for key in ["old", "new"] {
                 let mut lanes_ltr = Vec::new();
                 for (idx, mut pair) in cmd[key]["lanes_ltr"]
                     .as_array_mut()

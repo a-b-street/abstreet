@@ -67,7 +67,7 @@ impl SidewalkPathfinder {
             // Regardless of whether the road has sidewalks/shoulders on one or both sides, add
             // both. These could change later, and we want the node IDs to match up.
             for dr in r.id.both_directions() {
-                for &endpt in &[true, false] {
+                for endpt in [true, false] {
                     nodes.get_or_insert(WalkingNode::SidewalkEndpoint(dr, endpt));
                 }
             }
@@ -283,8 +283,8 @@ fn transit_input_graph(
     for stop in map.all_bus_stops().values() {
         let ride_bus = nodes.get(WalkingNode::RideBus(stop.id));
         let lane = map.get_l(stop.sidewalk_pos.lane());
-        for endpt in &[true, false] {
-            let dist = if *endpt {
+        for endpt in [true, false] {
+            let dist = if endpt {
                 lane.length() - stop.sidewalk_pos.dist_along()
             } else {
                 stop.sidewalk_pos.dist_along()
@@ -300,7 +300,7 @@ fn transit_input_graph(
             let penalty = Duration::seconds(10.0);
             let sidewalk = nodes.get(WalkingNode::SidewalkEndpoint(
                 lane.get_directed_parent(),
-                *endpt,
+                endpt,
             ));
             input_graph.add_edge(sidewalk, ride_bus, round(cost + penalty));
             input_graph.add_edge(ride_bus, sidewalk, round(cost + penalty));

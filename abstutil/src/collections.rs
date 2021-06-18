@@ -176,33 +176,6 @@ pub fn wraparound_get<T>(vec: &[T], idx: isize) -> &T {
     &vec[idx as usize]
 }
 
-pub fn retain_btreemap<K: Ord + Clone, V, F: FnMut(&K, &V) -> bool>(
-    map: &mut BTreeMap<K, V>,
-    mut keep: F,
-) {
-    let mut remove_keys: Vec<K> = Vec::new();
-    for (k, v) in map.iter() {
-        if !keep(k, v) {
-            remove_keys.push(k.clone());
-        }
-    }
-    for k in remove_keys {
-        map.remove(&k);
-    }
-}
-
-pub fn retain_btreeset<K: Ord + Clone, F: FnMut(&K) -> bool>(set: &mut BTreeSet<K>, mut keep: F) {
-    let mut remove: Vec<K> = Vec::new();
-    for k in set.iter() {
-        if !keep(k) {
-            remove.push(k.clone());
-        }
-    }
-    for k in remove {
-        set.remove(&k);
-    }
-}
-
 pub fn contains_duplicates<T: Ord>(vec: &[T]) -> bool {
     let mut set = BTreeSet::new();
     for item in vec {

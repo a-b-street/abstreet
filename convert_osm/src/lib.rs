@@ -89,7 +89,7 @@ pub fn convert(opts: Options, timer: &mut abstutil::Timer) -> RawMap {
 
     // Need to do a first pass of removing cul-de-sacs here, or we wind up with loop PolyLines when
     // doing the parking hint matching.
-    abstutil::retain_btreemap(&mut map.roads, |r, _| r.i1 != r.i2);
+    map.roads.retain(|r, _| r.i1 != r.i2);
 
     let all_routes = map.bus_routes.drain(..).collect::<Vec<_>>();
     let mut routes = Vec::new();

@@ -317,9 +317,9 @@ impl Lane {
                 .collect();
             let mut implied = BTreeSet::new();
             implied.insert(TurnType::Straight);
-            for tt in &[TurnType::Left, TurnType::Right] {
-                if !all_explicit_types.contains(tt) {
-                    implied.insert(*tt);
+            for tt in [TurnType::Left, TurnType::Right] {
+                if !all_explicit_types.contains(&tt) {
+                    implied.insert(tt);
                 }
             }
             return Some(implied);

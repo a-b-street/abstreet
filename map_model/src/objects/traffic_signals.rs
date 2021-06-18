@@ -4,7 +4,7 @@ use std::convert::TryFrom;
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
 
-use abstutil::{deserialize_btreemap, retain_btreeset, serialize_btreemap};
+use abstutil::{deserialize_btreemap, serialize_btreemap};
 use geom::{Distance, Duration, Speed};
 
 use crate::make::traffic_signals::get_possible_policies;
@@ -192,9 +192,9 @@ impl ControlTrafficSignal {
             }
 
             // Crosswalks are only in protected_movements.
-            retain_btreeset(&mut stage.protected_movements, |m| {
-                self.movements[m].turn_type != TurnType::Crosswalk
-            });
+            stage
+                .protected_movements
+                .retain(|m| self.movements[m].turn_type != TurnType::Crosswalk);
             if promote_yield_to_protected {
                 // Blindly try to promote yield movements to protected, now that crosswalks are
                 // gone.

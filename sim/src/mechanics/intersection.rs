@@ -2,9 +2,7 @@ use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 
 use serde::{Deserialize, Serialize};
 
-use abstutil::{
-    deserialize_btreemap, prettyprint_usize, retain_btreeset, serialize_btreemap, FixedMap,
-};
+use abstutil::{deserialize_btreemap, prettyprint_usize, serialize_btreemap, FixedMap};
 use geom::{Duration, Time};
 use map_model::{
     ControlStopSign, ControlTrafficSignal, Intersection, IntersectionID, LaneID, Map, StageType,
@@ -148,9 +146,7 @@ impl IntersectionSimState {
         }
         if self.break_turn_conflict_cycles {
             if let AgentID::Car(car) = agent {
-                // TODO when drain_filter() is no longer experimental, use it instead of
-                // retain_btreeset()
-                retain_btreeset(&mut self.blocked_by, |(_, c)| *c != car);
+                self.blocked_by.retain(|(_, c)| *c != car);
             }
         }
 
@@ -169,7 +165,7 @@ impl IntersectionSimState {
         state.waiting.remove(&Request { agent, turn });
         if self.break_turn_conflict_cycles {
             if let AgentID::Car(car) = agent {
-                retain_btreeset(&mut self.blocked_by, |(c1, c2)| *c1 != car && *c2 != car);
+                self.blocked_by.retain(|(c1, c2)| *c1 != car && *c2 != car);
             }
         }
     }
@@ -187,7 +183,7 @@ impl IntersectionSimState {
     /// Vanished at border, stopped biking, etc -- a vehicle disappeared, and didn't have one last
     /// turn.
     pub fn vehicle_gone(&mut self, car: CarID) {
-        retain_btreeset(&mut self.blocked_by, |(c1, c2)| *c1 != car && *c2 != car);
+        self.blocked_by.retain(|(c1, c2)| *c1 != car && *c2 != car);
     }
 
     pub fn agent_deleted_mid_turn(&mut self, agent: AgentID, turn: TurnID) {
@@ -197,7 +193,7 @@ impl IntersectionSimState {
         // This agent might have a few more nearby turns reserved, because they're part of an
         // uber-turn. It's a blunt response to just clear them all out, but it should be correct.
         for state in self.state.values_mut() {
-            retain_btreeset(&mut state.reserved, |req| req.agent != agent);
+            state.reserved.retain(|req| req.agent != agent);
         }
     }
 
@@ -563,7 +559,7 @@ impl IntersectionSimState {
         state.accepted.insert(req);
         if self.break_turn_conflict_cycles {
             if let AgentID::Car(car) = agent {
-                retain_btreeset(&mut self.blocked_by, |(c, _)| *c != car);
+                self.blocked_by.retain(|(c, _)| *c != car);
             }
         }
         true

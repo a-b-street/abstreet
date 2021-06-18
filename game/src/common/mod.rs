@@ -404,7 +404,7 @@ pub fn intersections_from_roads(roads: &BTreeSet<RoadID>, map: &Map) -> BTreeSet
     let mut results = BTreeSet::new();
     for r in roads {
         let r = map.get_r(*r);
-        for &i in &[r.src_i, r.dst_i] {
+        for i in [r.src_i, r.dst_i] {
             if results.contains(&i) {
                 continue;
             }

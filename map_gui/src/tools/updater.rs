@@ -24,9 +24,9 @@ fn size_of_city(map: &MapName) -> u64 {
     data_packs.runtime.insert(map.to_data_pack_name());
     let mut manifest = Manifest::load().filter(data_packs);
     // Don't download files that already exist
-    abstutil::retain_btreemap(&mut manifest.entries, |path, _| {
-        !abstio::file_exists(&abstio::path(path.strip_prefix("data/").unwrap()))
-    });
+    manifest
+        .entries
+        .retain(|path, _| !abstio::file_exists(&abstio::path(path.strip_prefix("data/").unwrap())));
     let mut bytes = 0;
     for (_, entry) in manifest.entries {
         bytes += entry.compressed_size_bytes;
@@ -118,9 +118,9 @@ async fn download_cities(
     data_packs.runtime.extend(cities);
     let mut manifest = Manifest::load().filter(data_packs);
     // Don't download files that already exist
-    abstutil::retain_btreemap(&mut manifest.entries, |path, _| {
-        !abstio::file_exists(&abstio::path(path.strip_prefix("data/").unwrap()))
-    });
+    manifest
+        .entries
+        .retain(|path, _| !abstio::file_exists(&abstio::path(path.strip_prefix("data/").unwrap())));
 
     let version = if cfg!(feature = "release_s3") {
         NEXT_RELEASE

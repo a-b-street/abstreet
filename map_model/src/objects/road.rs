@@ -197,7 +197,7 @@ impl Road {
     /// lane must belong to this road. Offset 0 is the centermost lane on each side of a road, then
     /// it counts up from there. Note this is a different offset than `offset`!
     pub(crate) fn dir_and_offset(&self, lane: LaneID) -> (Direction, usize) {
-        for &dir in &[Direction::Fwd, Direction::Back] {
+        for dir in [Direction::Fwd, Direction::Back] {
             if let Some(idx) = self.children(dir).iter().position(|pair| pair.0 == lane) {
                 return (dir, idx);
             }
@@ -587,10 +587,8 @@ impl Road {
                     return results;
                 }
                 results.push(l);
-            } else {
-                if l == l1 || l == l2 {
-                    found_start = true;
-                }
+            } else if l == l1 || l == l2 {
+                found_start = true;
             }
         }
         panic!("{} doesn't contain both {} and {}", self.id, l1, l2);

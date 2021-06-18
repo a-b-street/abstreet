@@ -191,7 +191,7 @@ impl Sim {
     }
 
     pub fn lookup_car_id(&self, idx: usize) -> Option<CarID> {
-        for vt in &[
+        for vehicle_type in [
             VehicleType::Car,
             VehicleType::Bike,
             VehicleType::Bus,
@@ -199,7 +199,7 @@ impl Sim {
         ] {
             let id = CarID {
                 id: idx,
-                vehicle_type: *vt,
+                vehicle_type,
             };
             if self.driving.does_car_exist(id) {
                 return Some(id);

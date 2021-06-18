@@ -4026,19 +4026,19 @@
       "compressed_size_bytes": 13854060
     },
     "data/system/us/seattle/scenarios/arboretum/weekday.bin": {
-      "checksum": "5627c881ca901c5e9b2d6844a580db5c",
+      "checksum": "c9f1745377eef8a75be653521025d80e",
       "uncompressed_size_bytes": 3058672,
-      "compressed_size_bytes": 644755
+      "compressed_size_bytes": 644645
     },
     "data/system/us/seattle/scenarios/ballard/weekday.bin": {
-      "checksum": "0ed4d041258209f29d63dbf2274dfba4",
+      "checksum": "6c3abd9097e2960603ea29e8a692b253",
       "uncompressed_size_bytes": 25188998,
-      "compressed_size_bytes": 5749653
+      "compressed_size_bytes": 5747999
     },
     "data/system/us/seattle/scenarios/downtown/weekday.bin": {
-      "checksum": "2bb62d52a120a7f547e05ababb5818bd",
+      "checksum": "cb285dfa3ddca52ff89e7ceceb4ec647",
       "uncompressed_size_bytes": 44699950,
-      "compressed_size_bytes": 9985013
+      "compressed_size_bytes": 9982239
     },
     "data/system/us/seattle/scenarios/huge_seattle/weekday.bin": {
       "checksum": "5c713c7dee20f3a92e9a250ec16cc9c7",
@@ -4046,64 +4046,64 @@
       "compressed_size_bytes": 32294288
     },
     "data/system/us/seattle/scenarios/lakeslice/weekday.bin": {
-      "checksum": "2f7ccc3c9b5090cf2ad85f90ece1c603",
+      "checksum": "87c3b6f137b6d8104e88b4cdde635137",
       "uncompressed_size_bytes": 10556012,
-      "compressed_size_bytes": 2336685
+      "compressed_size_bytes": 2335552
     },
     "data/system/us/seattle/scenarios/montlake/weekday.bin": {
-      "checksum": "09942ed66d97d5634eb40c875fd07c04",
+      "checksum": "fd874d5f29a13faca7a98d63ab854547",
       "uncompressed_size_bytes": 1481819,
-      "compressed_size_bytes": 310765
+      "compressed_size_bytes": 310714
     },
     "data/system/us/seattle/scenarios/north_seattle/weekday.bin": {
-      "checksum": "6603f589968ea3af101ccbf83c4eff63",
+      "checksum": "d39b67d39ea028f58a5a2326a425a314",
       "uncompressed_size_bytes": 28754091,
-      "compressed_size_bytes": 6600947
+      "compressed_size_bytes": 6598909
     },
     "data/system/us/seattle/scenarios/phinney/weekday.bin": {
-      "checksum": "9a5e0898e57f2fa19512e8867a6c57fb",
+      "checksum": "73c03d544b3a9a0aec3cfaeff5c4d6da",
       "uncompressed_size_bytes": 5543509,
-      "compressed_size_bytes": 1232712
+      "compressed_size_bytes": 1232575
     },
     "data/system/us/seattle/scenarios/qa/weekday.bin": {
-      "checksum": "b29b4b66ae279872b627c9d167e007e8",
+      "checksum": "b0483c06a7eaf16c9907c7a01880c1c8",
       "uncompressed_size_bytes": 2168953,
-      "compressed_size_bytes": 458148
+      "compressed_size_bytes": 458057
     },
     "data/system/us/seattle/scenarios/rainier_valley/weekday.bin": {
-      "checksum": "926a2b5ebe1efd921dd7ce96220a3b3b",
+      "checksum": "9e1383509524c206f1c7ddee7c30b1c0",
       "uncompressed_size_bytes": 2718388,
-      "compressed_size_bytes": 557157
+      "compressed_size_bytes": 557046
     },
     "data/system/us/seattle/scenarios/slu/weekday.bin": {
-      "checksum": "5582acc4eacbc917f6099375f95a7998",
+      "checksum": "895a8950b20b5b9eb7f9aa7b4dd4142d",
       "uncompressed_size_bytes": 4395240,
-      "compressed_size_bytes": 901407
+      "compressed_size_bytes": 901198
     },
     "data/system/us/seattle/scenarios/south_seattle/weekday.bin": {
-      "checksum": "ae4d0f7d27affe0af1f769b543ec4574",
+      "checksum": "60cd28011ba2e761203661412fdf35b4",
       "uncompressed_size_bytes": 32245806,
-      "compressed_size_bytes": 7243873
+      "compressed_size_bytes": 7242417
     },
     "data/system/us/seattle/scenarios/udistrict/weekday.bin": {
-      "checksum": "ea55772178ff1f421466589736b58c9d",
+      "checksum": "930de1e5d57db0571d7c32e4f7dd854f",
       "uncompressed_size_bytes": 10697010,
-      "compressed_size_bytes": 2271300
+      "compressed_size_bytes": 2270488
     },
     "data/system/us/seattle/scenarios/udistrict_ravenna/weekday.bin": {
-      "checksum": "cf359bd36c5090a961e478fa51e45304",
+      "checksum": "383f1e39a8cb2f8a014e1b04f85b0460",
       "uncompressed_size_bytes": 5878130,
-      "compressed_size_bytes": 1258527
+      "compressed_size_bytes": 1258076
     },
     "data/system/us/seattle/scenarios/wallingford/weekday.bin": {
-      "checksum": "882423430f2114cf4707ee85c70a1993",
+      "checksum": "1e65aa17e9f24b5d94b94991c5eb7bcf",
       "uncompressed_size_bytes": 5365863,
-      "compressed_size_bytes": 1158165
+      "compressed_size_bytes": 1157774
     },
     "data/system/us/seattle/scenarios/west_seattle/weekday.bin": {
-      "checksum": "d0352c5d19d6e64c12cc051d2a018ae5",
+      "checksum": "aa41ba05ad1295689957cb4d413667b2",
       "uncompressed_size_bytes": 24095818,
-      "compressed_size_bytes": 5441095
+      "compressed_size_bytes": 5440217
     }
   }
 }

@@ -587,8 +587,8 @@ impl Triangle {
             / (((y2 - y3) * (x1 - x3) + (x3 - x2) * (y1 - y3)) + epsilon);
         let l2 = 1.0 - l0 - l1;
 
-        for x in &[l0, l1, l2] {
-            if *x >= 1.0 || *x <= 0.0 {
+        for x in [l0, l1, l2] {
+            if x >= 1.0 || x <= 0.0 {
                 return false;
             }
         }

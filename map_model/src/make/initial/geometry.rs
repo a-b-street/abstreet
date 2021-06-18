@@ -439,9 +439,9 @@ fn on_off_ramp(
     // Find where the thin hits the thick farthest along.
     // (trimmed thin center, trimmed thick center, the thick road we hit)
     let mut best_hit: Option<(PolyLine, PolyLine, OriginalRoad)> = None;
-    for &thin_pl in &[&thin.left, &thin.right] {
-        for &thick in &[&thick1, &thick2] {
-            for &thick_pl in &[&thick.left, &thick.right] {
+    for thin_pl in [&thin.left, &thin.right] {
+        for thick in [&thick1, &thick2] {
+            for thick_pl in [&thick.left, &thick.right] {
                 if thin_pl == thick_pl {
                     // How? Just bail.
                     return None;
@@ -550,7 +550,7 @@ fn on_off_ramp(
 
     // Now build the actual polygon
     let mut endpoints = Vec::new();
-    for &id in &[thin.id, thick1.id, thick2.id] {
+    for id in [thin.id, thick1.id, thick2.id] {
         let r = &roads[&id];
         // Shift those final centers out again to find the main endpoints for the polygon.
         if r.dst_i == i {

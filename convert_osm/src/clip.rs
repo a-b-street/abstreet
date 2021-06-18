@@ -1,6 +1,6 @@
 use std::collections::BTreeMap;
 
-use abstutil::{retain_btreemap, Timer};
+use abstutil::Timer;
 use geom::{Distance, PolyLine, Ring};
 use map_model::raw::{OriginalRoad, RawMap};
 use map_model::{osm, IntersectionType};
@@ -9,13 +9,13 @@ use map_model::{osm, IntersectionType};
 pub fn clip_map(map: &mut RawMap, timer: &mut Timer) {
     timer.start("clipping map to boundary");
 
-    // So we can use retain_btreemap without borrowing issues
+    // So we can use retain without borrowing issues
     let boundary_polygon = map.boundary_polygon.clone();
     let boundary_ring = Ring::must_new(boundary_polygon.points().clone());
 
     // This is kind of indirect and slow, but first pass -- just remove roads that start or end
     // outside the boundary polygon.
-    retain_btreemap(&mut map.roads, |_, r| {
+    map.roads.retain(|_, r| {
         let first_in = boundary_polygon.contains_pt(r.center_points[0]);
         let last_in = boundary_polygon.contains_pt(*r.center_points.last().unwrap());
         let light_rail_ok = if r.is_light_rail() {
@@ -141,7 +141,7 @@ pub fn clip_map(map: &mut RawMap, timer: &mut Timer) {
         );
     }
 
-    retain_btreemap(&mut map.buildings, |_, b| {
+    map.buildings.retain(|_, b| {
         b.polygon
             .points()
             .iter()

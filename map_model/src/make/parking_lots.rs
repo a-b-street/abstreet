@@ -186,7 +186,7 @@ fn infer_spots(lot_polygon: &Polygon, aisles: &[Vec<Pt2D>]) -> Vec<(Pt2D, Angle)
         let aisle_thickness = NORMAL_LANE_THICKNESS / 2.0;
         let pl = PolyLine::unchecked_new(aisle.clone());
 
-        for &rotate in &[90.0, -90.0] {
+        for rotate in [90.0, -90.0] {
             // Blindly generate all of the lines
             let lines = {
                 let mut lines = Vec::new();

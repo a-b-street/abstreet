@@ -93,8 +93,8 @@ impl CrossStreet {
         for r in &first {
             let road = map.get_r(*r);
             batch.push(Color::RED, road.get_thick_polygon(map));
-            for i in &[road.src_i, road.dst_i] {
-                for cross in &map.get_i(*i).roads {
+            for i in [road.src_i, road.dst_i] {
+                for cross in &map.get_i(i).roads {
                     cross_streets.insert(*cross);
                 }
             }
@@ -158,7 +158,7 @@ impl<A: AppLike + 'static> State<A> for CrossStreet {
             let mut found = None;
             'OUTER: for r1 in &self.first {
                 let r1 = map.get_r(*r1);
-                for &i in &[r1.src_i, r1.dst_i] {
+                for i in [r1.src_i, r1.dst_i] {
                     if map.get_i(i).roads.iter().any(|r2| roads.contains(r2)) {
                         found = Some(i);
                         break 'OUTER;
