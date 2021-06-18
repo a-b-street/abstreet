@@ -737,7 +737,7 @@
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">lookup_car_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">idx</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">CarID</span><span class="op">&gt;</span> {
-        <span class="kw">for</span> <span class="ident">vt</span> <span class="kw">in</span> <span class="kw-2">&amp;</span>[
+        <span class="kw">for</span> <span class="ident">vehicle_type</span> <span class="kw">in</span> [
             <span class="ident">VehicleType::Car</span>,
             <span class="ident">VehicleType::Bike</span>,
             <span class="ident">VehicleType::Bus</span>,
@@ -745,7 +745,7 @@
         ] {
             <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">CarID</span> {
                 <span class="ident">id</span>: <span class="ident">idx</span>,
-                <span class="ident">vehicle_type</span>: <span class="kw-2">*</span><span class="ident">vt</span>,
+                <span class="ident">vehicle_type</span>,
             };
             <span class="kw">if</span> <span class="self">self</span>.<span class="ident">driving</span>.<span class="ident">does_car_exist</span>(<span class="ident">id</span>) {
                 <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">id</span>);

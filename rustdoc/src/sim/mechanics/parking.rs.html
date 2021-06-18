@@ -1054,7 +1054,6 @@
 <span id="1051">1051</span>
 <span id="1052">1052</span>
 <span id="1053">1053</span>
-<span id="1054">1054</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">hash_map::Entry</span>, <span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">BinaryHeap</span>, <span class="ident">HashMap</span>};
 
@@ -1064,8 +1063,7 @@
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::{
-    <span class="ident">deserialize_btreemap</span>, <span class="ident">deserialize_multimap</span>, <span class="ident">retain_btreemap</span>, <span class="ident">serialize_btreemap</span>,
-    <span class="ident">serialize_multimap</span>, <span class="ident">MultiMap</span>,
+    <span class="ident">deserialize_btreemap</span>, <span class="ident">deserialize_multimap</span>, <span class="ident">serialize_btreemap</span>, <span class="ident">serialize_multimap</span>, <span class="ident">MultiMap</span>,
 };
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">PolyLine</span>, <span class="ident">Pt2D</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{
@@ -1282,7 +1280,7 @@
         }
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">moving_into_deleted_spot</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="ident">retain_btreemap</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">reserved_spots</span>, <span class="op">|</span><span class="ident">spot</span>, <span class="ident">car</span><span class="op">|</span> {
+        <span class="self">self</span>.<span class="ident">reserved_spots</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="ident">spot</span>, <span class="ident">car</span><span class="op">|</span> {
             <span class="kw">if</span> <span class="ident">avail_after</span>.<span class="ident">contains</span>(<span class="ident">spot</span>) {
                 <span class="bool-val">true</span>
             } <span class="kw">else</span> {
@@ -1347,7 +1345,7 @@
     }
 
     <span class="kw">fn</span> <span class="ident">unreserve_spot</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">car</span>: <span class="ident">CarID</span>) {
-        <span class="ident">retain_btreemap</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">reserved_spots</span>, <span class="op">|</span><span class="kw">_</span>, <span class="ident">c</span><span class="op">|</span> <span class="ident">car</span> <span class="op">!</span><span class="op">=</span> <span class="kw-2">*</span><span class="ident">c</span>);
+        <span class="self">self</span>.<span class="ident">reserved_spots</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="kw">_</span>, <span class="ident">c</span><span class="op">|</span> <span class="ident">car</span> <span class="op">!</span><span class="op">=</span> <span class="kw-2">*</span><span class="ident">c</span>);
     }
 
     <span class="kw">fn</span> <span class="ident">remove_parked_car</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">p</span>: <span class="ident">ParkedCar</span>) {
@@ -1901,7 +1899,7 @@
     }
 
     <span class="kw">fn</span> <span class="ident">unreserve_spot</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">car</span>: <span class="ident">CarID</span>) {
-        <span class="ident">retain_btreemap</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">reserved_spots</span>, <span class="op">|</span><span class="kw">_</span>, <span class="ident">c</span><span class="op">|</span> <span class="ident">car</span> <span class="op">!</span><span class="op">=</span> <span class="kw-2">*</span><span class="ident">c</span>);
+        <span class="self">self</span>.<span class="ident">reserved_spots</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="kw">_</span>, <span class="ident">c</span><span class="op">|</span> <span class="ident">car</span> <span class="op">!</span><span class="op">=</span> <span class="kw-2">*</span><span class="ident">c</span>);
     }
 
     <span class="kw">fn</span> <span class="ident">remove_parked_car</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">p</span>: <span class="ident">ParkedCar</span>) {

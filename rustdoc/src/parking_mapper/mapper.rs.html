@@ -1285,7 +1285,7 @@
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">found</span> <span class="op">=</span> <span class="ident">HashSet::new</span>();
     <span class="kw">for</span> <span class="ident">r1</span> <span class="kw">in</span> <span class="ident">oneways</span> {
         <span class="kw">let</span> <span class="ident">r1</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r1</span>);
-        <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="ident">dist</span> <span class="kw">in</span> <span class="kw-2">&amp;</span>[
+        <span class="kw">for</span> <span class="ident">dist</span> <span class="kw">in</span> [
             <span class="ident">Distance::ZERO</span>,
             <span class="ident">r1</span>.<span class="ident">center_pts</span>.<span class="ident">length</span>() <span class="op">/</span> <span class="number">2.0</span>,
             <span class="ident">r1</span>.<span class="ident">center_pts</span>.<span class="ident">length</span>(),

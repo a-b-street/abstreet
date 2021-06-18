@@ -353,7 +353,7 @@
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">output</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
     <span class="kw">for</span> <span class="ident">rec</span> <span class="kw">in</span> <span class="ident">csv::Reader::from_reader</span>(<span class="ident">File::open</span>(<span class="ident">path</span>)<span class="question-mark">?</span>).<span class="ident">deserialize</span>() {
         <span class="kw">let</span> <span class="ident">rec</span>: <span class="ident">Record</span> <span class="op">=</span> <span class="ident">rec</span><span class="question-mark">?</span>;
-        <span class="kw">for</span> <span class="kw-2">&amp;</span>(<span class="ident">mode</span>, <span class="ident">number_commuters</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span>[
+        <span class="kw">for</span> (<span class="ident">mode</span>, <span class="ident">number_commuters</span>) <span class="kw">in</span> [
             (<span class="ident">TripMode::Drive</span>, <span class="ident">rec</span>.<span class="ident">num_drivers</span>),
             (<span class="ident">TripMode::Bike</span>, <span class="ident">rec</span>.<span class="ident">num_bikers</span>),
             (<span class="ident">TripMode::Walk</span>, <span class="ident">rec</span>.<span class="ident">num_pedestrians</span>),

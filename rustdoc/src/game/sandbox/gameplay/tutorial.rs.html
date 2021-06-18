@@ -1924,7 +1924,7 @@
             <span class="ident">Task::Camera</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Put out the fire at the fire station&quot;</span>,
             <span class="ident">Task::InspectObjects</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::from</span>(<span class="string">&quot;Find one of each:&quot;</span>);
-                <span class="kw">for</span> <span class="kw-2">&amp;</span>(<span class="ident">name</span>, <span class="ident">done</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span>[
+                <span class="kw">for</span> (<span class="ident">name</span>, <span class="ident">done</span>) <span class="kw">in</span> [
                     (<span class="string">&quot;bike lane&quot;</span>, <span class="ident">state</span>.<span class="ident">inspected_bike_lane</span>),
                     (<span class="string">&quot;building&quot;</span>, <span class="ident">state</span>.<span class="ident">inspected_building</span>),
                     (<span class="string">&quot;intersection with stop sign&quot;</span>, <span class="ident">state</span>.<span class="ident">inspected_stop_sign</span>),

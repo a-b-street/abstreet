@@ -578,7 +578,7 @@
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">deserialize_btreemap</span>, <span class="ident">retain_btreeset</span>, <span class="ident">serialize_btreemap</span>};
+<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">deserialize_btreemap</span>, <span class="ident">serialize_btreemap</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Speed</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::make::traffic_signals::get_possible_policies</span>;
@@ -766,9 +766,9 @@
             }
 
             <span class="comment">// Crosswalks are only in protected_movements.</span>
-            <span class="ident">retain_btreeset</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">stage</span>.<span class="ident">protected_movements</span>, <span class="op">|</span><span class="ident">m</span><span class="op">|</span> {
-                <span class="self">self</span>.<span class="ident">movements</span>[<span class="ident">m</span>].<span class="ident">turn_type</span> <span class="op">!</span><span class="op">=</span> <span class="ident">TurnType::Crosswalk</span>
-            });
+            <span class="ident">stage</span>
+                .<span class="ident">protected_movements</span>
+                .<span class="ident">retain</span>(<span class="op">|</span><span class="ident">m</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">movements</span>[<span class="ident">m</span>].<span class="ident">turn_type</span> <span class="op">!</span><span class="op">=</span> <span class="ident">TurnType::Crosswalk</span>);
             <span class="kw">if</span> <span class="ident">promote_yield_to_protected</span> {
                 <span class="comment">// Blindly try to promote yield movements to protected, now that crosswalks are</span>
                 <span class="comment">// gone.</span>

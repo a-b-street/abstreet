@@ -241,7 +241,7 @@
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std::collections::BTreeMap</span>;
 
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">retain_btreemap</span>, <span class="ident">Timer</span>};
+<span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">PolyLine</span>, <span class="ident">Ring</span>};
 <span class="kw">use</span> <span class="ident">map_model::raw</span>::{<span class="ident">OriginalRoad</span>, <span class="ident">RawMap</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">osm</span>, <span class="ident">IntersectionType</span>};
@@ -250,13 +250,13 @@
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clip_map</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">RawMap</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) {
     <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;clipping map to boundary&quot;</span>);
 
-    <span class="comment">// So we can use retain_btreemap without borrowing issues</span>
+    <span class="comment">// So we can use retain without borrowing issues</span>
     <span class="kw">let</span> <span class="ident">boundary_polygon</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">boundary_polygon</span>.<span class="ident">clone</span>();
     <span class="kw">let</span> <span class="ident">boundary_ring</span> <span class="op">=</span> <span class="ident">Ring::must_new</span>(<span class="ident">boundary_polygon</span>.<span class="ident">points</span>().<span class="ident">clone</span>());
 
     <span class="comment">// This is kind of indirect and slow, but first pass -- just remove roads that start or end</span>
     <span class="comment">// outside the boundary polygon.</span>
-    <span class="ident">retain_btreemap</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">map</span>.<span class="ident">roads</span>, <span class="op">|</span><span class="kw">_</span>, <span class="ident">r</span><span class="op">|</span> {
+    <span class="ident">map</span>.<span class="ident">roads</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="kw">_</span>, <span class="ident">r</span><span class="op">|</span> {
         <span class="kw">let</span> <span class="ident">first_in</span> <span class="op">=</span> <span class="ident">boundary_polygon</span>.<span class="ident">contains_pt</span>(<span class="ident">r</span>.<span class="ident">center_points</span>[<span class="number">0</span>]);
         <span class="kw">let</span> <span class="ident">last_in</span> <span class="op">=</span> <span class="ident">boundary_polygon</span>.<span class="ident">contains_pt</span>(<span class="kw-2">*</span><span class="ident">r</span>.<span class="ident">center_points</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>());
         <span class="kw">let</span> <span class="ident">light_rail_ok</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">is_light_rail</span>() {
@@ -382,7 +382,7 @@
         );
     }
 
-    <span class="ident">retain_btreemap</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">map</span>.<span class="ident">buildings</span>, <span class="op">|</span><span class="kw">_</span>, <span class="ident">b</span><span class="op">|</span> {
+    <span class="ident">map</span>.<span class="ident">buildings</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="kw">_</span>, <span class="ident">b</span><span class="op">|</span> {
         <span class="ident">b</span>.<span class="ident">polygon</span>
             .<span class="ident">points</span>()
             .<span class="ident">iter</span>()

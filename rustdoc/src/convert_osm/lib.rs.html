@@ -264,7 +264,7 @@
 
     <span class="comment">// Need to do a first pass of removing cul-de-sacs here, or we wind up with loop PolyLines when</span>
     <span class="comment">// doing the parking hint matching.</span>
-    <span class="ident">abstutil::retain_btreemap</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">map</span>.<span class="ident">roads</span>, <span class="op">|</span><span class="ident">r</span>, <span class="kw">_</span><span class="op">|</span> <span class="ident">r</span>.<span class="ident">i1</span> <span class="op">!</span><span class="op">=</span> <span class="ident">r</span>.<span class="ident">i2</span>);
+    <span class="ident">map</span>.<span class="ident">roads</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="ident">r</span>, <span class="kw">_</span><span class="op">|</span> <span class="ident">r</span>.<span class="ident">i1</span> <span class="op">!</span><span class="op">=</span> <span class="ident">r</span>.<span class="ident">i2</span>);
 
     <span class="kw">let</span> <span class="ident">all_routes</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">bus_routes</span>.<span class="ident">drain</span>(..).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">routes</span> <span class="op">=</span> <span class="ident">Vec::new</span>();

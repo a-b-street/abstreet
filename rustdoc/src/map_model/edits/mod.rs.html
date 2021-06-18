@@ -905,6 +905,7 @@
 <span id="902">902</span>
 <span id="903">903</span>
 <span id="904">904</span>
+<span id="905">905</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Once a Map exists, the player can edit it in the UI (producing `MapEdits` in-memory), then save</span>
 <span class="doccomment">//! the changes to a file (as `PermanentMapEdits`). See</span>
@@ -915,7 +916,7 @@
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">retain_btreemap</span>, <span class="ident">retain_btreeset</span>, <span class="ident">Timer</span>};
+<span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">HashablePt2D</span>, <span class="ident">Line</span>, <span class="ident">Speed</span>, <span class="ident">Time</span>};
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::perma::PermanentMapEdits</span>;
@@ -1113,13 +1114,12 @@
             }
         }
 
-        <span class="ident">retain_btreeset</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">changed_roads</span>, <span class="op">|</span><span class="ident">r</span><span class="op">|</span> {
+        <span class="self">self</span>.<span class="ident">changed_roads</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> {
             <span class="ident">map</span>.<span class="ident">get_r_edit</span>(<span class="kw-2">*</span><span class="ident">r</span>) <span class="op">!</span><span class="op">=</span> <span class="ident">EditRoad::get_orig_from_osm</span>(<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>), <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">config</span>)
         });
-        <span class="ident">retain_btreemap</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">original_intersections</span>, <span class="op">|</span><span class="ident">i</span>, <span class="ident">orig</span><span class="op">|</span> {
-            <span class="ident">map</span>.<span class="ident">get_i_edit</span>(<span class="kw-2">*</span><span class="ident">i</span>) <span class="op">!</span><span class="op">=</span> <span class="ident">orig</span>.<span class="ident">clone</span>()
-        });
-        <span class="ident">retain_btreeset</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">changed_routes</span>, <span class="op">|</span><span class="ident">br</span><span class="op">|</span> {
+        <span class="self">self</span>.<span class="ident">original_intersections</span>
+            .<span class="ident">retain</span>(<span class="op">|</span><span class="ident">i</span>, <span class="ident">orig</span><span class="op">|</span> <span class="ident">map</span>.<span class="ident">get_i_edit</span>(<span class="kw-2">*</span><span class="ident">i</span>) <span class="op">!</span><span class="op">=</span> <span class="ident">orig</span>.<span class="ident">clone</span>());
+        <span class="self">self</span>.<span class="ident">changed_routes</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="ident">br</span><span class="op">|</span> {
             <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_br</span>(<span class="kw-2">*</span><span class="ident">br</span>);
             <span class="ident">r</span>.<span class="ident">spawn_times</span> <span class="op">!</span><span class="op">=</span> <span class="ident">r</span>.<span class="ident">orig_spawn_times</span>
         });
@@ -1225,7 +1225,7 @@
                 <span class="ident">road</span>.<span class="ident">access_restrictions</span> <span class="op">=</span> <span class="ident">new</span>.<span class="ident">access_restrictions</span>.<span class="ident">clone</span>();
 
                 <span class="ident">effects</span>.<span class="ident">changed_roads</span>.<span class="ident">insert</span>(<span class="ident">road</span>.<span class="ident">id</span>);
-                <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="ident">i</span> <span class="kw">in</span> <span class="kw-2">&amp;</span>[<span class="ident">road</span>.<span class="ident">src_i</span>, <span class="ident">road</span>.<span class="ident">dst_i</span>] {
+                <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> [<span class="ident">road</span>.<span class="ident">src_i</span>, <span class="ident">road</span>.<span class="ident">dst_i</span>] {
                     <span class="ident">effects</span>.<span class="ident">changed_intersections</span>.<span class="ident">insert</span>(<span class="ident">i</span>);
                     <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">map</span>.<span class="ident">intersections</span>[<span class="ident">i</span>.<span class="number">0</span>];
                     <span class="ident">i</span>.<span class="ident">outgoing_lanes</span>.<span class="ident">clear</span>();
@@ -1755,7 +1755,9 @@
         }
 
         <span class="comment">// Some of these might&#39;ve been added, then later deleted.</span>
-        <span class="ident">retain_btreeset</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">effects</span>.<span class="ident">added_turns</span>, <span class="op">|</span><span class="ident">t</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">maybe_get_t</span>(<span class="kw-2">*</span><span class="ident">t</span>).<span class="ident">is_some</span>());
+        <span class="ident">effects</span>
+            .<span class="ident">added_turns</span>
+            .<span class="ident">retain</span>(<span class="op">|</span><span class="ident">t</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">maybe_get_t</span>(<span class="kw-2">*</span><span class="ident">t</span>).<span class="ident">is_some</span>());
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">more_changed_intersections</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
         <span class="kw">for</span> <span class="ident">t</span> <span class="kw">in</span> <span class="ident">effects</span>

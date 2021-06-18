@@ -69,11 +69,10 @@
 <span id="66">66</span>
 <span id="67">67</span>
 <span id="68">68</span>
-<span id="69">69</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
 
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">retain_btreemap</span>, <span class="ident">MultiMap</span>, <span class="ident">Timer</span>};
+<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">MultiMap</span>, <span class="ident">Timer</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::osm</span>;
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::raw</span>::{<span class="ident">OriginalRoad</span>, <span class="ident">RawMap</span>};
@@ -132,12 +131,11 @@
 
     <span class="comment">// Also remove cul-de-sacs here. TODO Support them properly, but for now, they mess up parking</span>
     <span class="comment">// hint matching (loop PolyLine) and pathfinding later.</span>
-    <span class="ident">retain_btreemap</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">map</span>.<span class="ident">roads</span>, <span class="op">|</span><span class="ident">id</span>, <span class="kw">_</span><span class="op">|</span> <span class="ident">id</span>.<span class="ident">i1</span> <span class="op">!</span><span class="op">=</span> <span class="ident">id</span>.<span class="ident">i2</span>);
+    <span class="ident">map</span>.<span class="ident">roads</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="ident">id</span>, <span class="kw">_</span><span class="op">|</span> <span class="ident">id</span>.<span class="ident">i1</span> <span class="op">!</span><span class="op">=</span> <span class="ident">id</span>.<span class="ident">i2</span>);
 
     <span class="comment">// Remove intersections without any roads</span>
-    <span class="ident">retain_btreemap</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">map</span>.<span class="ident">intersections</span>, <span class="op">|</span><span class="ident">id</span>, <span class="kw">_</span><span class="op">|</span> {
-        <span class="op">!</span><span class="ident">next_roads</span>.<span class="ident">get</span>(<span class="kw-2">*</span><span class="ident">id</span>).<span class="ident">is_empty</span>()
-    });
+    <span class="ident">map</span>.<span class="ident">intersections</span>
+        .<span class="ident">retain</span>(<span class="op">|</span><span class="ident">id</span>, <span class="kw">_</span><span class="op">|</span> <span class="op">!</span><span class="ident">next_roads</span>.<span class="ident">get</span>(<span class="kw-2">*</span><span class="ident">id</span>).<span class="ident">is_empty</span>());
     <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;removing disconnected roads&quot;</span>);
 }
 </pre></div>

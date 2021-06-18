@@ -1076,9 +1076,9 @@
     <span class="comment">// Find where the thin hits the thick farthest along.</span>
     <span class="comment">// (trimmed thin center, trimmed thick center, the thick road we hit)</span>
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">best_hit</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">PolyLine</span>, <span class="ident">PolyLine</span>, <span class="ident">OriginalRoad</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-    <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="ident">thin_pl</span> <span class="kw">in</span> <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="ident">thin</span>.<span class="ident">left</span>, <span class="kw-2">&amp;</span><span class="ident">thin</span>.<span class="ident">right</span>] {
-        <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="ident">thick</span> <span class="kw">in</span> <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="ident">thick1</span>, <span class="kw-2">&amp;</span><span class="ident">thick2</span>] {
-            <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="ident">thick_pl</span> <span class="kw">in</span> <span class="kw-2">&amp;</span>[<span class="kw-2">&amp;</span><span class="ident">thick</span>.<span class="ident">left</span>, <span class="kw-2">&amp;</span><span class="ident">thick</span>.<span class="ident">right</span>] {
+    <span class="kw">for</span> <span class="ident">thin_pl</span> <span class="kw">in</span> [<span class="kw-2">&amp;</span><span class="ident">thin</span>.<span class="ident">left</span>, <span class="kw-2">&amp;</span><span class="ident">thin</span>.<span class="ident">right</span>] {
+        <span class="kw">for</span> <span class="ident">thick</span> <span class="kw">in</span> [<span class="kw-2">&amp;</span><span class="ident">thick1</span>, <span class="kw-2">&amp;</span><span class="ident">thick2</span>] {
+            <span class="kw">for</span> <span class="ident">thick_pl</span> <span class="kw">in</span> [<span class="kw-2">&amp;</span><span class="ident">thick</span>.<span class="ident">left</span>, <span class="kw-2">&amp;</span><span class="ident">thick</span>.<span class="ident">right</span>] {
                 <span class="kw">if</span> <span class="ident">thin_pl</span> <span class="op">=</span><span class="op">=</span> <span class="ident">thick_pl</span> {
                     <span class="comment">// How? Just bail.</span>
                     <span class="kw">return</span> <span class="prelude-val">None</span>;
@@ -1187,7 +1187,7 @@
 
     <span class="comment">// Now build the actual polygon</span>
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">endpoints</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-    <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="ident">id</span> <span class="kw">in</span> <span class="kw-2">&amp;</span>[<span class="ident">thin</span>.<span class="ident">id</span>, <span class="ident">thick1</span>.<span class="ident">id</span>, <span class="ident">thick2</span>.<span class="ident">id</span>] {
+    <span class="kw">for</span> <span class="ident">id</span> <span class="kw">in</span> [<span class="ident">thin</span>.<span class="ident">id</span>, <span class="ident">thick1</span>.<span class="ident">id</span>, <span class="ident">thick2</span>.<span class="ident">id</span>] {
         <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">roads</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>];
         <span class="comment">// Shift those final centers out again to find the main endpoints for the polygon.</span>
         <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">dst_i</span> <span class="op">=</span><span class="op">=</span> <span class="ident">i</span> {

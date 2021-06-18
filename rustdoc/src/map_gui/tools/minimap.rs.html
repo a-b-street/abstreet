@@ -778,7 +778,7 @@
             <span class="comment">// If either corner of the cursor is out of bounds on the minimap, recenter.</span>
             <span class="comment">// TODO This means clicking the pan buttons while along the boundary won&#39;t work.</span>
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ok</span> <span class="op">=</span> <span class="bool-val">true</span>;
-            <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="ident">pt</span> <span class="kw">in</span> <span class="kw-2">&amp;</span>[
+            <span class="kw">for</span> <span class="ident">pt</span> <span class="kw">in</span> [
                 <span class="ident">ScreenPt::new</span>(<span class="number">0.0</span>, <span class="number">0.0</span>),
                 <span class="ident">ScreenPt::new</span>(<span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_width</span>, <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_height</span>),
             ] {

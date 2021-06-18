@@ -1258,8 +1258,8 @@
             <span class="op">/</span> (((<span class="ident">y2</span> <span class="op">-</span> <span class="ident">y3</span>) <span class="op">*</span> (<span class="ident">x1</span> <span class="op">-</span> <span class="ident">x3</span>) <span class="op">+</span> (<span class="ident">x3</span> <span class="op">-</span> <span class="ident">x2</span>) <span class="op">*</span> (<span class="ident">y1</span> <span class="op">-</span> <span class="ident">y3</span>)) <span class="op">+</span> <span class="ident">epsilon</span>);
         <span class="kw">let</span> <span class="ident">l2</span> <span class="op">=</span> <span class="number">1.0</span> <span class="op">-</span> <span class="ident">l0</span> <span class="op">-</span> <span class="ident">l1</span>;
 
-        <span class="kw">for</span> <span class="ident">x</span> <span class="kw">in</span> <span class="kw-2">&amp;</span>[<span class="ident">l0</span>, <span class="ident">l1</span>, <span class="ident">l2</span>] {
-            <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">x</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">1.0</span> <span class="op">|</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">x</span> <span class="op">&lt;</span><span class="op">=</span> <span class="number">0.0</span> {
+        <span class="kw">for</span> <span class="ident">x</span> <span class="kw">in</span> [<span class="ident">l0</span>, <span class="ident">l1</span>, <span class="ident">l2</span>] {
+            <span class="kw">if</span> <span class="ident">x</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">1.0</span> <span class="op">|</span><span class="op">|</span> <span class="ident">x</span> <span class="op">&lt;</span><span class="op">=</span> <span class="number">0.0</span> {
                 <span class="kw">return</span> <span class="bool-val">false</span>;
             }
         }
