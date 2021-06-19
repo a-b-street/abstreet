@@ -18,9 +18,13 @@ use crate::{CarID, VehicleType, FOLLOWING_DISTANCE};
 /// - a "laggy head" is a vehicle whose front is now past the end of this queue, but whose back may
 ///   still be partially in the queue. The position of the first car in the queue is still bounded
 ///   by the laggy head's back.
-/// - a "blockage" is due to a vehicle exiting a driveway and immediately cutting across a few
-///   lanes. The blockage is "static" -- it occupies a fixed interval of distance in the queue. When
+/// - a "static blockage" is due to a vehicle exiting a driveway and immediately cutting across a
+///   few lanes. The "static" part means it occupies a fixed interval of distance in the queue. When
 ///   the vehicle is finished exiting the driveway, this blockage is removed.
+/// - a "dynamic blockage" is due to a vehicle changing lanes in the middle of the queue. The exact
+///   position of the blockage in this queue is unknown (it depends on the target queue). The
+///   blockage just occupies the length of the vehicle and keeps following whatever's in front of
+///   it.
 /// - "active cars" are the main members of the queue -- everything except for laggy heads and
 ///   blockages.
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -47,11 +51,16 @@ pub enum Queued {
     Vehicle(CarID),
     /// Something occupying a fixed interval of distance on the queue
     StaticBlockage {
-        /// This is currently only due to a vehicle exiting a driveway and cutting across a few
-        /// lanes
+        /// This vehicle is exiting a driveway and cutting across a few lanes
         cause: CarID,
         front: Distance,
         back: Distance,
+    },
+    /// This follows whatever's in front of it
+    DynamicBlockage {
+        /// This vehicle is in the middle of changing lanes
+        cause: CarID,
+        vehicle_len: Distance,
     },
 }
 
@@ -247,6 +256,17 @@ impl Queue {
                     front,
                     back,
                 },
+                Queued::DynamicBlockage { vehicle_len, .. } => QueueEntry {
+                    member: queued,
+                    // This is a reasonable guess, because a vehicle only starts changing lanes if
+                    // there's something slower in front of it. So we assume that slow vehicle
+                    // continues to exist for the 1 second that lane-changing takes. If for some
+                    // reason that slower leader vanishes, this bound could jump up, which just
+                    // causes anything following the lane-changing vehicle to be able to go a
+                    // little faster.
+                    front: bound,
+                    back: bound + vehicle_len,
+                },
             };
 
             if let Some(ref mut intermediate_results) = intermediate_results {
@@ -265,6 +285,7 @@ impl Queue {
         match previous.member {
             Queued::Vehicle(car) => Some((car, previous.front)),
             Queued::StaticBlockage { .. } => None,
+            Queued::DynamicBlockage { .. } => None,
         }
     }
 
@@ -427,7 +448,7 @@ impl Queue {
                     }
                     leader = Some(*car);
                 }
-                Queued::StaticBlockage { .. } => {
+                Queued::StaticBlockage { .. } | Queued::DynamicBlockage { .. } => {
                     leader = None;
                 }
             }
@@ -437,7 +458,13 @@ impl Queue {
 
     /// Record that a car is blocking a static portion of the queue (from front to back). Must use
     /// the index from can_block_from_driveway.
-    pub fn add_blockage(&mut self, cause: CarID, front: Distance, back: Distance, idx: usize) {
+    pub fn add_static_blockage(
+        &mut self,
+        cause: CarID,
+        front: Distance,
+        back: Distance,
+        idx: usize,
+    ) {
         assert!(front > back);
         let vehicle_len = front - back;
         self.members
@@ -446,12 +473,37 @@ impl Queue {
     }
 
     /// Record that a car is no longer blocking a static portion of the queue.
-    pub fn clear_blockage(&mut self, caused_by: CarID, idx: usize) {
+    pub fn clear_static_blockage(&mut self, caused_by: CarID, idx: usize) {
         let blockage = self.members.remove(idx).unwrap();
         match blockage {
             Queued::StaticBlockage { front, back, cause } => {
                 assert_eq!(caused_by, cause);
                 let vehicle_len = front - back;
+                self.reserved_length -= vehicle_len + FOLLOWING_DISTANCE;
+            }
+            _ => unreachable!(),
+        }
+    }
+
+    /// Record that a car is starting to change lanes away from this queue.
+    pub fn replace_car_with_dynamic_blockage(&mut self, car: &Car, idx: usize) {
+        self.remove_car_from_idx(car.vehicle.id, idx);
+        self.members.insert(
+            idx,
+            Queued::DynamicBlockage {
+                cause: car.vehicle.id,
+                vehicle_len: car.vehicle.length,
+            },
+        );
+        // We don't need to touch reserved_length -- it's still vehicle_len + FOLLOWING_DISTANCE
+    }
+
+    /// Record that a car is no longer blocking a dynamic portion of the queue.
+    pub fn clear_dynamic_blockage(&mut self, caused_by: CarID, idx: usize) {
+        let blockage = self.members.remove(idx).unwrap();
+        match blockage {
+            Queued::DynamicBlockage { cause, vehicle_len } => {
+                assert_eq!(caused_by, cause);
                 self.reserved_length -= vehicle_len + FOLLOWING_DISTANCE;
             }
             _ => unreachable!(),
@@ -481,6 +533,7 @@ impl Queue {
             .filter_map(|x| match x {
                 Queued::Vehicle(c) => Some(*c),
                 Queued::StaticBlockage { .. } => None,
+                Queued::DynamicBlockage { .. } => None,
             })
             .collect()
     }
@@ -554,6 +607,9 @@ fn dump_cars(dists: &[QueueEntry], cars: &FixedMap<CarID, Car>, id: Traversable,
             },
             Queued::StaticBlockage { cause, .. } => {
                 println!("  Static blockage by {}", cause);
+            }
+            Queued::DynamicBlockage { cause, vehicle_len } => {
+                println!("  Dynamic blockage of length {} by {}", vehicle_len, cause);
             }
         }
     }
