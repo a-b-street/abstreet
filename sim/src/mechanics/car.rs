@@ -3,7 +3,7 @@ use std::collections::{BTreeSet, VecDeque};
 use serde::{Deserialize, Serialize};
 
 use geom::{Distance, Duration, PolyLine, Time, EPSILON_DIST};
-use map_model::{Direction, Map, Traversable};
+use map_model::{Direction, LaneID, Map, Traversable};
 
 use crate::{
     CarID, CarStatus, DistanceInterval, DrawCarInput, ParkingSpot, PersonID, Router, TimeInterval,
@@ -133,6 +133,33 @@ impl Car {
         };
 
         let body = match self.state {
+            CarState::ChangingLanes {
+                from,
+                to,
+                ref lc_time,
+                ..
+            } => {
+                let percent_time = 1.0 - lc_time.percent(now);
+                // TODO Can probably simplify this! Lifted from the parking case
+                let r = map.get_parent(from);
+                // The car's body is already at 'to', so shift back
+                let mut diff = (r.offset(to) as isize) - (r.offset(from) as isize);
+                if map.get_l(from).dir == Direction::Fwd {
+                    diff *= -1;
+                }
+                // TODO Careful with this width math
+                let width = map.get_l(from).width * (diff as f64) * percent_time;
+                match raw_body.shift_right(width) {
+                    Ok(pl) => pl,
+                    Err(err) => {
+                        println!(
+                            "Body for lane-changing {} at {} broken: {}",
+                            self.vehicle.id, now, err
+                        );
+                        raw_body
+                    }
+                }
+            }
             CarState::Unparking(_, ref spot, ref time_int)
             | CarState::Parking(_, ref spot, ref time_int) => {
                 let (percent_time, is_parking) = match self.state {
@@ -232,6 +259,7 @@ impl Car {
                 CarState::Queued { .. } => CarStatus::Moving,
                 CarState::WaitingToAdvance { .. } => CarStatus::Moving,
                 CarState::Crossing(_, _) => CarStatus::Moving,
+                CarState::ChangingLanes { .. } => CarStatus::Moving,
                 CarState::Unparking(_, _, _) => CarStatus::Moving,
                 CarState::Parking(_, _, _) => CarStatus::Moving,
                 // Changing color for idling buses is helpful
@@ -272,8 +300,18 @@ impl Car {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub(crate) enum CarState {
     Crossing(TimeInterval, DistanceInterval),
+    ChangingLanes {
+        from: LaneID,
+        to: LaneID,
+        // For the most part, act just like a Crossing state with these intervals
+        new_time: TimeInterval,
+        new_dist: DistanceInterval,
+        // How long does the lane-changing itself last? This must end before new_time_int does.
+        lc_time: TimeInterval,
+    },
     Queued {
         blocked_since: Time,
+        want_to_change_lanes: Option<LaneID>,
     },
     WaitingToAdvance {
         blocked_since: Time,
@@ -290,6 +328,8 @@ impl CarState {
             CarState::Crossing(ref time_int, _) => time_int.end,
             CarState::Queued { .. } => unreachable!(),
             CarState::WaitingToAdvance { .. } => unreachable!(),
+            // Note this state lasts for lc_time, NOT for new_time.
+            CarState::ChangingLanes { ref lc_time, .. } => lc_time.end,
             CarState::Unparking(_, _, ref time_int) => time_int.end,
             CarState::Parking(_, _, ref time_int) => time_int.end,
             CarState::IdlingAtStop(_, ref time_int) => time_int.end,
@@ -298,9 +338,8 @@ impl CarState {
 
     pub fn time_spent_waiting(&self, now: Time) -> Duration {
         match self {
-            CarState::Queued { blocked_since } | CarState::WaitingToAdvance { blocked_since } => {
-                now - *blocked_since
-            }
+            CarState::Queued { blocked_since, .. }
+            | CarState::WaitingToAdvance { blocked_since } => now - *blocked_since,
             _ => Duration::ZERO,
         }
     }

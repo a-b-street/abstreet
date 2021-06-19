@@ -9,7 +9,7 @@ use map_model::{Map, Position, Traversable};
 use crate::mechanics::car::{Car, CarState};
 use crate::{CarID, VehicleType, FOLLOWING_DISTANCE};
 
-/// A Queue of vehicles on a single lane or turn. No over-taking or lane-changing. This is where
+/// A Queue of vehicles on a single lane or turn. This is where
 /// https://a-b-street.github.io/docs/tech/trafficsim/discrete_event.html#exact-positions is
 /// implemented.
 ///
@@ -224,6 +224,14 @@ impl Queue {
                             // calculate this before moving this car from Crossing to another state.
                             dist_int.lerp(time_int.percent_clamp_end(now)).min(bound)
                         }
+                        CarState::ChangingLanes {
+                            ref new_time,
+                            ref new_dist,
+                            ..
+                        } => {
+                            // Same as the Crossing logic
+                            new_dist.lerp(new_time.percent_clamp_end(now)).min(bound)
+                        }
                         CarState::Unparking(front, _, _) => front,
                         CarState::Parking(front, _, _) => front,
                         CarState::IdlingAtStop(front, _) => front,
@@ -283,8 +291,19 @@ impl Queue {
         // Nope, there's not actually room at the front right now.
         // (This is overly conservative; we could figure out exactly where the laggy head is and
         // maybe allow it.)
-        if self.laggy_head.is_some() && idx == 0 {
-            return None;
+        if idx == 0 {
+            if let Some(c) = self.laggy_head {
+                // We don't know exactly where the laggy head is. So assume the worst case; that
+                // they've just barely started the turn, and we have to use the same
+                // too-close-to-leader math.
+                //
+                // TODO We can be more precise! We already call get_car_positions, and that
+                // calculates exactly where the laggy head is. We just need to plumb that bound
+                // back here.
+                if self.geom_len - cars[&c].vehicle.length - FOLLOWING_DISTANCE < start_dist {
+                    return None;
+                }
+            }
         }
 
         // Are we too close to the leader?
@@ -505,6 +524,16 @@ fn dump_cars(dists: &[QueueEntry], cars: &FixedMap<CarID, Car>, id: Traversable,
                     println!(
                         "  Going {} .. {} during {} .. {}",
                         dist_int.start, dist_int.end, time_int.start, time_int.end
+                    );
+                }
+                CarState::ChangingLanes {
+                    ref new_time,
+                    ref new_dist,
+                    ..
+                } => {
+                    println!(
+                        "  Going {} .. {} during {} .. {}, also in the middle of lane-changing",
+                        new_dist.start, new_dist.end, new_time.start, new_time.end
                     );
                 }
                 CarState::Queued { .. } => {

@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 use abstutil::{deserialize_hashmap, serialize_hashmap, FixedMap, IndexableKey};
 use geom::{Distance, Duration, PolyLine, Time};
-use map_model::{IntersectionID, LaneID, Map, Path, Position, Traversable};
+use map_model::{DrivingSide, IntersectionID, LaneID, Map, Path, Position, Traversable};
 
 use crate::mechanics::car::{Car, CarState};
 use crate::mechanics::queue::{Queue, QueueEntry, Queued};
@@ -17,6 +17,7 @@ use crate::{
 };
 
 const TIME_TO_WAIT_AT_BUS_STOP: Duration = Duration::const_seconds(10.0);
+const TIME_TO_CHANGE_LANES: Duration = Duration::const_seconds(1.0);
 
 // TODO Do something else.
 pub const BLIND_RETRY_TO_CREEP_FORWARDS: Duration = Duration::const_seconds(0.1);
@@ -133,7 +134,10 @@ impl DrivingSimState {
                 vehicle: params.vehicle,
                 router: params.router,
                 // Temporary
-                state: CarState::Queued { blocked_since: now },
+                state: CarState::Queued {
+                    blocked_since: now,
+                    want_to_change_lanes: None,
+                },
                 last_steps: VecDeque::new(),
                 started_at: now,
                 total_blocked_time: Duration::ZERO,
@@ -320,7 +324,10 @@ impl DrivingSimState {
     ) -> bool {
         match car.state {
             CarState::Crossing(_, _) => {
-                car.state = CarState::Queued { blocked_since: now };
+                car.state = CarState::Queued {
+                    blocked_since: now,
+                    want_to_change_lanes: None,
+                };
                 if car.router.last_step() {
                     // Immediately run update_car_with_distances.
                     return true;
@@ -350,6 +357,17 @@ impl DrivingSimState {
                             self.cars[&slow_leader].trip_and_person.unwrap().0,
                             Problem::OvertakeDesired(queue.id),
                         ));
+                    }
+
+                    if let Some(target_lane) = self.pick_overtaking_lane(car, ctx.map) {
+                        // We need the current position of the car to see if lane-changing is
+                        // actually feasible right now, so record our intention and trigger
+                        // update_car_with_distances.
+                        car.state = CarState::Queued {
+                            blocked_since: now,
+                            want_to_change_lanes: Some(target_lane),
+                        };
+                        return true;
                     }
                 }
             }
@@ -478,6 +496,33 @@ impl DrivingSimState {
                     .unwrap()
                     .push_car_onto_end(car.vehicle.id);
             }
+            CarState::ChangingLanes {
+                from,
+                new_time,
+                new_dist,
+                ..
+            } => {
+                // The car is already in the target queue. Just set them in the crossing state; we
+                // already calculated the intervals for it.
+                car.state = CarState::Crossing(new_time, new_dist);
+                ctx.scheduler
+                    .push(car.state.get_end_time(), Command::UpdateCar(car.vehicle.id));
+
+                // And remove the blockage from the old queue. Similar to the note in this function
+                // for Unparking, we calculate distances in that OTHER queue.
+                let dists = self.queues[&Traversable::Lane(from)].get_car_positions(
+                    now,
+                    &self.cars,
+                    &self.queues,
+                );
+                let idx = dists.iter().position(|entry| matches!(entry.member, Queued::StaticBlockage { cause, ..} if cause == car.vehicle.id)).unwrap();
+                self.update_follower(idx, &dists, now, ctx);
+
+                self.queues
+                    .get_mut(&Traversable::Lane(from))
+                    .unwrap()
+                    .clear_blockage(car.vehicle.id, idx);
+            }
             CarState::Queued { .. } => unreachable!(),
             CarState::Parking(_, _, _) => unreachable!(),
             CarState::IdlingAtStop(_, _) => unreachable!(),
@@ -502,8 +547,19 @@ impl DrivingSimState {
         match car.state {
             CarState::Crossing(_, _)
             | CarState::Unparking(_, _, _)
-            | CarState::WaitingToAdvance { .. } => unreachable!(),
-            CarState::Queued { blocked_since } => {
+            | CarState::WaitingToAdvance { .. }
+            | CarState::ChangingLanes { .. } => unreachable!(),
+            CarState::Queued {
+                blocked_since,
+                want_to_change_lanes,
+            } => {
+                // Two totally different reasons we'll wind up here: we want to lane-change, and
+                // we're on our last step.
+                if let Some(target_lane) = want_to_change_lanes {
+                    self.try_start_lc(car, our_dist, idx, target_lane, now, ctx);
+                    return true;
+                }
+
                 match car.router.maybe_handle_end(
                     our_dist,
                     &car.vehicle,
@@ -758,7 +814,7 @@ impl DrivingSimState {
             // car's back is still sticking out. Need to still be bound by them, even though they
             // don't exist! If the leader just parked, then we're fine.
             match follower.state {
-                CarState::Queued { blocked_since } => {
+                CarState::Queued { blocked_since, .. } => {
                     // TODO If they're on their last step, they might be ending early and not right
                     // behind us? !follower.router.last_step()
 
@@ -779,6 +835,33 @@ impl DrivingSimState {
                         follower.state.get_end_time(),
                         Command::UpdateCar(follower_id),
                     );
+                }
+                CarState::ChangingLanes {
+                    from, to, lc_time, ..
+                } => {
+                    // This is a fun case -- something stopped blocking somebody that was in the
+                    // process of lane-changing! Similar to the Crossing case above, we just have
+                    // to update the distance/time intervals, but otherwise leave them in the
+                    // middle of their lane-changing. It's guaranteed that lc_time will continue to
+                    // finish before the new time interval, because there's no possible way
+                    // recalculating this crossing state here will speed things up from the
+                    // original estimate.
+                    let (new_time, new_dist) = match follower.crossing_state_with_end_dist(
+                        DistanceInterval::new_driving(follower_dist, ctx.map.get_l(to).length()),
+                        now,
+                        ctx.map,
+                    ) {
+                        CarState::Crossing(time, dist) => (time, dist),
+                        _ => unreachable!(),
+                    };
+                    assert!(new_time.end >= lc_time.end);
+                    follower.state = CarState::ChangingLanes {
+                        from,
+                        to,
+                        new_time,
+                        new_dist,
+                        lc_time,
+                    };
                 }
                 // They weren't blocked
                 CarState::Unparking(_, _, _)
@@ -895,7 +978,7 @@ impl DrivingSimState {
                         let mut follower = self.cars.get_mut(follower_id).unwrap();
 
                         match follower.state {
-                            CarState::Queued { blocked_since } => {
+                            CarState::Queued { blocked_since, .. } => {
                                 // If they're on their last step, they might be ending early and not
                                 // right behind us.
                                 if !follower.router.last_step() {
@@ -919,6 +1002,7 @@ impl DrivingSimState {
                             // They weren't blocked. Note that there's no way the Crossing state could
                             // jump forwards here; the leader vanished from the end of the traversable.
                             CarState::Crossing(_, _)
+                            | CarState::ChangingLanes { .. }
                             | CarState::Unparking(_, _, _)
                             | CarState::Parking(_, _, _)
                             | CarState::IdlingAtStop(_, _) => {}
@@ -930,6 +1014,143 @@ impl DrivingSimState {
                 // car was previously completely blocking them.
                 assert!(old_queue.get_active_cars().is_empty());
             }
+        }
+    }
+
+    /// If the car wants to over-take somebody, what adjacent lane should they use?
+    /// - The lane must be in the same direction as the current; no support for crossing the road's
+    ///   yellow line yet.
+    /// - Prefer passing on the left (for DrivingSide::Right)
+    /// For now, just pick one candidate lane, even if both might be usable.
+    fn pick_overtaking_lane(&self, car: &Car, map: &Map) -> Option<LaneID> {
+        // Don't overtake in the middle of a turn!
+        let current_lane = map.get_l(car.router.head().maybe_lane()?);
+        let road = map.get_r(current_lane.parent);
+        let idx = road.offset(current_lane.id);
+        let lanes_ltr = road.lanes_ltr();
+
+        let mut candidates = Vec::new();
+        if idx != 0 {
+            candidates.push(lanes_ltr[idx - 1].0);
+        }
+        if idx != lanes_ltr.len() - 1 {
+            candidates.push(lanes_ltr[idx + 1].0);
+        }
+        if map.get_config().driving_side == DrivingSide::Left {
+            candidates.reverse();
+        }
+
+        for l in candidates {
+            let target_lane = map.get_l(l);
+            // Must be the same direction -- no crossing into oncoming traffic yet
+            if current_lane.dir != target_lane.dir {
+                continue;
+            }
+            // The lane types can differ, as long as the vehicle can use the target. Imagine
+            // overtaking a slower cyclist in a bike lane using the rest of the road.
+            if !car
+                .vehicle
+                .vehicle_type
+                .to_constraints()
+                .can_use(target_lane, map)
+            {
+                continue;
+            }
+            // Is this other lane compatible with the path? We won't make any attempts to return to the
+            // original lane after changing.
+            if !car
+                .router
+                .can_lanechange(current_lane.id, target_lane.id, map)
+            {
+                continue;
+            }
+            return Some(target_lane.id);
+        }
+
+        None
+    }
+
+    fn try_start_lc(
+        &mut self,
+        car: &mut Car,
+        front_current_queue: Distance,
+        idx_in_current_queue: usize,
+        target_lane: LaneID,
+        now: Time,
+        ctx: &mut Ctx,
+    ) {
+        // If the lanes are very different lengths and we're too close to the end at the target,
+        // not going to work.
+        if front_current_queue >= ctx.map.get_l(target_lane).length() {
+            return;
+        }
+        let current_lane = car.router.head().as_lane();
+        let front_target_queue = Position::new(current_lane, front_current_queue)
+            .equiv_pos(target_lane, ctx.map)
+            .dist_along();
+
+        // Calculate the crossing state in the target queue. Pass in the DistanceInterval
+        // explicitly, because we haven't modified the route yet.
+        let (new_time, new_dist) = match car.crossing_state_with_end_dist(
+            DistanceInterval::new_driving(front_target_queue, ctx.map.get_l(target_lane).length()),
+            now,
+            ctx.map,
+        ) {
+            CarState::Crossing(time, dist) => (time, dist),
+            _ => unreachable!(),
+        };
+
+        // Do we have enough time to finish the lane-change, assuming that we go as fast as
+        // possible in the target?
+        let lc_time = TimeInterval::new(now, now + TIME_TO_CHANGE_LANES);
+        if lc_time.end >= new_time.end {
+            return;
+        }
+
+        // Is there room for us to sliiiide on over into that lane's DMs?
+        if let Some(idx_in_target_queue) = self.queues[&Traversable::Lane(target_lane)]
+            .get_idx_to_insert_car(
+                front_target_queue,
+                car.vehicle.length,
+                now,
+                &self.cars,
+                &self.queues,
+            )
+        {
+            // In the current queue, replace with a static blockage that just stays exactly where
+            // the car currently is.
+            {
+                let queue = self.queues.get_mut(&car.router.head()).unwrap();
+                queue.remove_car_from_idx(car.vehicle.id, idx_in_current_queue);
+                queue.free_reserved_space(car);
+                queue.add_blockage(
+                    car.vehicle.id,
+                    front_current_queue,
+                    front_current_queue - car.vehicle.length,
+                    // The same index should work
+                    idx_in_current_queue,
+                );
+            }
+
+            // Change the path
+            car.router.confirm_lanechange(target_lane, ctx.map);
+
+            // Insert into the new queue
+            self.queues
+                .get_mut(&car.router.head())
+                .unwrap()
+                .insert_car_at_idx(idx_in_target_queue, car);
+
+            // Put into the new state
+            car.state = CarState::ChangingLanes {
+                from: current_lane,
+                to: target_lane,
+                new_time,
+                new_dist,
+                lc_time,
+            };
+            ctx.scheduler
+                .push(car.state.get_end_time(), Command::UpdateCar(car.vehicle.id));
         }
     }
 
