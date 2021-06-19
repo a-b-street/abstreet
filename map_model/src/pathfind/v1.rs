@@ -269,7 +269,6 @@ impl Path {
     /// Trusting the caller to do this in valid ways.
     pub fn modify_step(&mut self, idx: usize, step: PathStep, map: &Map) {
         assert!(self.currently_inside_ut.is_none());
-        assert!(idx != 0);
         // We're assuming this step was in the middle of the path, meaning we were planning to
         // travel its full length
         self.total_length -= self.steps[idx].as_traversable().get_polyline(map).length();

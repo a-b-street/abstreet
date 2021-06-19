@@ -203,6 +203,8 @@ impl Router {
         trip_and_person: Option<(TripID, PersonID)>,
         events: &mut Vec<Event>,
     ) -> Option<ActionAtEnd> {
+        assert!(self.path.is_last_step());
+
         match self.goal {
             Goal::EndAtBorder { end_dist, i } => {
                 if end_dist == front {
@@ -466,6 +468,37 @@ impl Router {
                 break;
             }
         }
+    }
+
+    pub fn can_lanechange(&self, from: LaneID, to: LaneID, map: &Map) -> bool {
+        let steps = self.path.get_steps();
+        if steps.len() < 3 {
+            return false;
+        }
+        assert_eq!(PathStep::Lane(from), steps[0]);
+        let current_turn = match steps[1] {
+            PathStep::Turn(t) => t,
+            _ => unreachable!(),
+        };
+        let next_lane = current_turn.dst;
+        assert_eq!(PathStep::Lane(next_lane), steps[2]);
+        map.maybe_get_t(TurnID {
+            parent: current_turn.parent,
+            src: to,
+            dst: next_lane,
+        })
+        .is_some()
+    }
+
+    pub fn confirm_lanechange(&mut self, to: LaneID, map: &Map) {
+        // No assertions, blind trust!
+        self.path.modify_step(0, PathStep::Lane(to), map);
+        let mut turn = match self.path.get_steps()[1] {
+            PathStep::Turn(t) => t,
+            _ => unreachable!(),
+        };
+        turn.src = to;
+        self.path.modify_step(1, PathStep::Turn(turn), map);
     }
 
     pub fn is_parking(&self) -> bool {
