@@ -752,6 +752,48 @@ impl PolyLine {
         }
     }
 
+    /// Same as get_slice_ending_at, but returns None if the point isn't on the polyline.
+    // TODO Switch everything to this, after better understanding why this is happening at all.
+    pub fn safe_get_slice_ending_at(&self, pt: Pt2D) -> Option<PolyLine> {
+        if self.first_pt() == pt {
+            return None;
+        }
+
+        if let Some(idx) = self.lines().position(|l| l.contains_pt(pt)) {
+            let mut pts = self.pts.clone();
+            pts.truncate(idx + 1);
+            // Make sure the last line isn't too tiny
+            if *pts.last().unwrap() == pt {
+                pts.pop();
+            }
+            pts.push(pt);
+            if pts.len() == 1 {
+                return None;
+            }
+            Some(PolyLine::must_new(pts))
+        } else {
+            None
+        }
+    }
+
+    /// Same as get_slice_starting_at, but returns None if the point isn't on the polyline.
+    pub fn safe_get_slice_starting_at(&self, pt: Pt2D) -> Option<PolyLine> {
+        if self.last_pt() == pt {
+            return None;
+        }
+
+        if let Some(idx) = self.lines().position(|l| l.contains_pt(pt)) {
+            let mut pts = self.pts.clone();
+            pts = pts.split_off(idx + 1);
+            if pt != pts[0] {
+                pts.insert(0, pt);
+            }
+            Some(PolyLine::must_new(pts))
+        } else {
+            None
+        }
+    }
+
     pub fn dist_along_of_point(&self, pt: Pt2D) -> Option<(Distance, Angle)> {
         let mut dist_along = Distance::ZERO;
         for l in self.lines() {
