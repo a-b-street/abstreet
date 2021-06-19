@@ -173,7 +173,7 @@ impl DrivingSimState {
                     self.queues
                         .get_mut(&Traversable::Lane(pos.lane()))
                         .unwrap()
-                        .add_blockage(
+                        .add_static_blockage(
                             car.vehicle.id,
                             start_dist,
                             start_dist - car.vehicle.length,
@@ -388,7 +388,7 @@ impl DrivingSimState {
                     self.queues
                         .get_mut(&Traversable::Lane(pos.lane()))
                         .unwrap()
-                        .clear_blockage(car.vehicle.id, idx);
+                        .clear_static_blockage(car.vehicle.id, idx);
                 }
 
                 if car.router.last_step() {
@@ -515,13 +515,13 @@ impl DrivingSimState {
                     &self.cars,
                     &self.queues,
                 );
-                let idx = dists.iter().position(|entry| matches!(entry.member, Queued::StaticBlockage { cause, ..} if cause == car.vehicle.id)).unwrap();
+                let idx = dists.iter().position(|entry| matches!(entry.member, Queued::DynamicBlockage { cause, ..} if cause == car.vehicle.id)).unwrap();
                 self.update_follower(idx, &dists, now, ctx);
 
                 self.queues
                     .get_mut(&Traversable::Lane(from))
                     .unwrap()
-                    .clear_blockage(car.vehicle.id, idx);
+                    .clear_dynamic_blockage(car.vehicle.id, idx);
             }
             CarState::Queued { .. } => unreachable!(),
             CarState::Parking(_, _, _) => unreachable!(),
@@ -1117,20 +1117,11 @@ impl DrivingSimState {
                 &self.queues,
             )
         {
-            // In the current queue, replace with a static blockage that just stays exactly where
-            // the car currently is.
-            {
-                let queue = self.queues.get_mut(&car.router.head()).unwrap();
-                queue.remove_car_from_idx(car.vehicle.id, idx_in_current_queue);
-                queue.free_reserved_space(car);
-                queue.add_blockage(
-                    car.vehicle.id,
-                    front_current_queue,
-                    front_current_queue - car.vehicle.length,
-                    // The same index should work
-                    idx_in_current_queue,
-                );
-            }
+            // Exit the old queue (leaving a dynamic blockage in place)
+            self.queues
+                .get_mut(&car.router.head())
+                .unwrap()
+                .replace_car_with_dynamic_blockage(car, idx_in_current_queue);
 
             // Change the path
             car.router.confirm_lanechange(target_lane, ctx.map);
