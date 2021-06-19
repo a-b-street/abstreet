@@ -308,13 +308,52 @@
 <span id="305">305</span>
 <span id="306">306</span>
 <span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
+<span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeSet</span>, <span class="ident">VecDeque</span>};
 
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">PolyLine</span>, <span class="ident">Time</span>, <span class="ident">EPSILON_DIST</span>};
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">Direction</span>, <span class="ident">Map</span>, <span class="ident">Traversable</span>};
+<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">Direction</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">Traversable</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">CarID</span>, <span class="ident">CarStatus</span>, <span class="ident">DistanceInterval</span>, <span class="ident">DrawCarInput</span>, <span class="ident">ParkingSpot</span>, <span class="ident">PersonID</span>, <span class="ident">Router</span>, <span class="ident">TimeInterval</span>,
@@ -444,6 +483,33 @@
         };
 
         <span class="kw">let</span> <span class="ident">body</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">state</span> {
+            <span class="ident">CarState::ChangingLanes</span> {
+                <span class="ident">from</span>,
+                <span class="ident">to</span>,
+                <span class="kw-2">ref</span> <span class="ident">lc_time</span>,
+                ..
+            } <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">let</span> <span class="ident">percent_time</span> <span class="op">=</span> <span class="number">1.0</span> <span class="op">-</span> <span class="ident">lc_time</span>.<span class="ident">percent</span>(<span class="ident">now</span>);
+                <span class="comment">// TODO Can probably simplify this! Lifted from the parking case</span>
+                <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_parent</span>(<span class="ident">from</span>);
+                <span class="comment">// The car&#39;s body is already at &#39;to&#39;, so shift back</span>
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">diff</span> <span class="op">=</span> (<span class="ident">r</span>.<span class="ident">offset</span>(<span class="ident">to</span>) <span class="kw">as</span> <span class="ident">isize</span>) <span class="op">-</span> (<span class="ident">r</span>.<span class="ident">offset</span>(<span class="ident">from</span>) <span class="kw">as</span> <span class="ident">isize</span>);
+                <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">from</span>).<span class="ident">dir</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Direction::Fwd</span> {
+                    <span class="ident">diff</span> <span class="kw-2">*</span><span class="op">=</span> <span class="op">-</span><span class="number">1</span>;
+                }
+                <span class="comment">// TODO Careful with this width math</span>
+                <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">from</span>).<span class="ident">width</span> <span class="op">*</span> (<span class="ident">diff</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">*</span> <span class="ident">percent_time</span>;
+                <span class="kw">match</span> <span class="ident">raw_body</span>.<span class="ident">shift_right</span>(<span class="ident">width</span>) {
+                    <span class="prelude-val">Ok</span>(<span class="ident">pl</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">pl</span>,
+                    <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="macro">println!</span>(
+                            <span class="string">&quot;Body for lane-changing {} at {} broken: {}&quot;</span>,
+                            <span class="self">self</span>.<span class="ident">vehicle</span>.<span class="ident">id</span>, <span class="ident">now</span>, <span class="ident">err</span>
+                        );
+                        <span class="ident">raw_body</span>
+                    }
+                }
+            }
             <span class="ident">CarState::Unparking</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">spot</span>, <span class="kw-2">ref</span> <span class="ident">time_int</span>)
             <span class="op">|</span> <span class="ident">CarState::Parking</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">spot</span>, <span class="kw-2">ref</span> <span class="ident">time_int</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> (<span class="ident">percent_time</span>, <span class="ident">is_parking</span>) <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">state</span> {
@@ -543,6 +609,7 @@
                 <span class="ident">CarState::Queued</span> { .. } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">CarStatus::Moving</span>,
                 <span class="ident">CarState::WaitingToAdvance</span> { .. } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">CarStatus::Moving</span>,
                 <span class="ident">CarState::Crossing</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">CarStatus::Moving</span>,
+                <span class="ident">CarState::ChangingLanes</span> { .. } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">CarStatus::Moving</span>,
                 <span class="ident">CarState::Unparking</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">CarStatus::Moving</span>,
                 <span class="ident">CarState::Parking</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">CarStatus::Moving</span>,
                 <span class="comment">// Changing color for idling buses is helpful</span>
@@ -583,8 +650,18 @@
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum</span> <span class="ident">CarState</span> {
     <span class="ident">Crossing</span>(<span class="ident">TimeInterval</span>, <span class="ident">DistanceInterval</span>),
+    <span class="ident">ChangingLanes</span> {
+        <span class="ident">from</span>: <span class="ident">LaneID</span>,
+        <span class="ident">to</span>: <span class="ident">LaneID</span>,
+        <span class="comment">// For the most part, act just like a Crossing state with these intervals</span>
+        <span class="ident">new_time</span>: <span class="ident">TimeInterval</span>,
+        <span class="ident">new_dist</span>: <span class="ident">DistanceInterval</span>,
+        <span class="comment">// How long does the lane-changing itself last? This must end before new_time_int does.</span>
+        <span class="ident">lc_time</span>: <span class="ident">TimeInterval</span>,
+    },
     <span class="ident">Queued</span> {
         <span class="ident">blocked_since</span>: <span class="ident">Time</span>,
+        <span class="ident">want_to_change_lanes</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">LaneID</span><span class="op">&gt;</span>,
     },
     <span class="ident">WaitingToAdvance</span> {
         <span class="ident">blocked_since</span>: <span class="ident">Time</span>,
@@ -601,6 +678,8 @@
             <span class="ident">CarState::Crossing</span>(<span class="kw-2">ref</span> <span class="ident">time_int</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">time_int</span>.<span class="ident">end</span>,
             <span class="ident">CarState::Queued</span> { .. } <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
             <span class="ident">CarState::WaitingToAdvance</span> { .. } <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
+            <span class="comment">// Note this state lasts for lc_time, NOT for new_time.</span>
+            <span class="ident">CarState::ChangingLanes</span> { <span class="kw-2">ref</span> <span class="ident">lc_time</span>, .. } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">lc_time</span>.<span class="ident">end</span>,
             <span class="ident">CarState::Unparking</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">time_int</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">time_int</span>.<span class="ident">end</span>,
             <span class="ident">CarState::Parking</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">time_int</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">time_int</span>.<span class="ident">end</span>,
             <span class="ident">CarState::IdlingAtStop</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">time_int</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">time_int</span>.<span class="ident">end</span>,
@@ -609,9 +688,8 @@
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">time_spent_waiting</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">now</span>: <span class="ident">Time</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Duration</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">CarState::Queued</span> { <span class="ident">blocked_since</span> } <span class="op">|</span> <span class="ident">CarState::WaitingToAdvance</span> { <span class="ident">blocked_since</span> } <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="ident">now</span> <span class="op">-</span> <span class="kw-2">*</span><span class="ident">blocked_since</span>
-            }
+            <span class="ident">CarState::Queued</span> { <span class="ident">blocked_since</span>, .. }
+            <span class="op">|</span> <span class="ident">CarState::WaitingToAdvance</span> { <span class="ident">blocked_since</span> } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">now</span> <span class="op">-</span> <span class="kw-2">*</span><span class="ident">blocked_since</span>,
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Duration::ZERO</span>,
         }
     }

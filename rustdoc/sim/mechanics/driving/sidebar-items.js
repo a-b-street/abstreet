@@ -1,1 +1,1 @@
-initSidebarItems({"constant":[["BLIND_RETRY_TO_CREEP_FORWARDS",""],["BLIND_RETRY_TO_REACH_END_DIST",""],["TIME_TO_WAIT_AT_BUS_STOP",""]],"struct":[["DrivingSimState","Simulates vehicles!"]]});
+initSidebarItems({"constant":[["BLIND_RETRY_TO_CREEP_FORWARDS",""],["BLIND_RETRY_TO_REACH_END_DIST",""],["TIME_TO_CHANGE_LANES",""],["TIME_TO_WAIT_AT_BUS_STOP",""]],"struct":[["DrivingSimState","Simulates vehicles!"]]});
