@@ -2000,6 +2000,11 @@
       "uncompressed_size_bytes": 36639177,
       "compressed_size_bytes": 3496546
     },
+    "data/input/us/seattle/osm/greenlake.osm": {
+      "checksum": "0cc15340d2fe720d636dde41b1df12f8",
+      "uncompressed_size_bytes": 16583528,
+      "compressed_size_bytes": 1373037
+    },
     "data/input/us/seattle/osm/huge_seattle.osm": {
       "checksum": "3e9ea7bb282f7104e3fba8a906af5cba",
       "uncompressed_size_bytes": 469402968,
@@ -2099,6 +2104,11 @@
       "checksum": "e66b2eaf23c6084ef8b4992169b35ba7",
       "uncompressed_size_bytes": 8719935,
       "compressed_size_bytes": 2087558
+    },
+    "data/input/us/seattle/raw_maps/greenlake.bin": {
+      "checksum": "ec5b91dd0ae9dd219bfab7cc247819a8",
+      "uncompressed_size_bytes": 4765154,
+      "compressed_size_bytes": 1063655
     },
     "data/input/us/seattle/raw_maps/huge_seattle.bin": {
       "checksum": "c68943204704221ade9675a6656aeeae",
@@ -3906,9 +3916,9 @@
       "compressed_size_bytes": 7308701
     },
     "data/system/us/seattle/city.bin": {
-      "checksum": "d4d459d6c8763f299aa8b57352a08e66",
-      "uncompressed_size_bytes": 1788244,
-      "compressed_size_bytes": 928893
+      "checksum": "f8ad11b9d088c42d023421107cfaff84",
+      "uncompressed_size_bytes": 1788439,
+      "compressed_size_bytes": 928989
     },
     "data/system/us/seattle/maps/arboretum.bin": {
       "checksum": "10b71d9f82debb8641f1636d0097e494",
@@ -3924,6 +3934,11 @@
       "checksum": "965c52bde6ad26f83d009e71a8a8598f",
       "uncompressed_size_bytes": 28092358,
       "compressed_size_bytes": 9860507
+    },
+    "data/system/us/seattle/maps/greenlake.bin": {
+      "checksum": "adf52930a87adb772336d916049ffdad",
+      "uncompressed_size_bytes": 10301855,
+      "compressed_size_bytes": 3579503
     },
     "data/system/us/seattle/maps/huge_seattle.bin": {
       "checksum": "70a8f6b43a067c9e3fb22a4013f2bd84",
@@ -4039,6 +4054,11 @@
       "checksum": "cb285dfa3ddca52ff89e7ceceb4ec647",
       "uncompressed_size_bytes": 44699950,
       "compressed_size_bytes": 9982239
+    },
+    "data/system/us/seattle/scenarios/greenlake/weekday.bin": {
+      "checksum": "783d33f6a03ea4a35f338ff0915ed1a8",
+      "uncompressed_size_bytes": 5511534,
+      "compressed_size_bytes": 1213815
     },
     "data/system/us/seattle/scenarios/huge_seattle/weekday.bin": {
       "checksum": "5c713c7dee20f3a92e9a250ec16cc9c7",

@@ -199,6 +199,7 @@ pub fn nice_map_name(name: &MapName) -> &str {
             ("seattle", "arboretum") => "Arboretum",
             ("seattle", "ballard") => "Ballard",
             ("seattle", "downtown") => "Downtown Seattle",
+            ("seattle", "greenlake") => "Green Lake",
             ("seattle", "huge_seattle") => "Seattle (entire area)",
             ("seattle", "lakeslice") => "Lake Washington corridor",
             ("seattle", "montlake") => "Montlake and Eastlake",
