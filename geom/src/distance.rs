@@ -80,11 +80,12 @@ impl Distance {
         self.0 * 3.28084
     }
 
-    /// Describes the distance according to formatting rules.
+    /// Describes the distance according to formatting rules. Rounds to 1 decimal place for both
+    /// small (feet and meters) and large (miles and kilometers) units.
     pub fn to_string(self, fmt: &UnitFmt) -> String {
         if fmt.metric {
             if self.0 < 1000.0 {
-                format!("{}m", self.0.round())
+                format!("{}m", (self.0 * 10.0).round() / 10.0)
             } else {
                 let km = self.0 / 1000.0;
                 format!("{}km", (km * 10.0).round() / 10.0)
@@ -95,7 +96,7 @@ impl Distance {
             if miles >= 0.1 {
                 format!("{} miles", (miles * 10.0).round() / 10.0)
             } else {
-                format!("{} ft", feet.round())
+                format!("{} ft", (feet * 10.0).round() / 10.0)
             }
         }
     }
