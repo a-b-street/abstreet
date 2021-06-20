@@ -148,6 +148,7 @@ impl State<App> for SelectSegments {
                             }));
                     }
                     apply_map_edits(ctx, app, edits);
+                    app.primary.current_selection = None;
                     return Transition::Multi(vec![
                         Transition::Pop,
                         Transition::Replace(PopupMsg::new_state(
