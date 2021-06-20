@@ -345,12 +345,12 @@
                 <span class="kw">let</span> <span class="ident">num_current</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">id</span>).<span class="ident">lanes_ltr</span>().<span class="ident">len</span>();
                 <span class="comment">// The basemap changed -- it&#39;d be pretty hard to understand the original</span>
                 <span class="comment">// intent of the edit.</span>
-                <span class="kw">if</span> <span class="ident">num_current</span> <span class="op">!</span><span class="op">=</span> <span class="ident">new</span>.<span class="ident">lanes_ltr</span>.<span class="ident">len</span>() {
+                <span class="kw">if</span> <span class="ident">num_current</span> <span class="op">!</span><span class="op">=</span> <span class="ident">old</span>.<span class="ident">lanes_ltr</span>.<span class="ident">len</span>() {
                     <span class="macro">bail!</span>(
                         <span class="string">&quot;number of lanes in {} is {} now, but {} in the edits&quot;</span>,
                         <span class="ident">r</span>,
                         <span class="ident">num_current</span>,
-                        <span class="ident">new</span>.<span class="ident">lanes_ltr</span>.<span class="ident">len</span>()
+                        <span class="ident">old</span>.<span class="ident">lanes_ltr</span>.<span class="ident">len</span>()
                     );
                 }
                 <span class="prelude-val">Ok</span>(<span class="ident">EditCmd::ChangeRoad</span> { <span class="ident">r</span>: <span class="ident">id</span>, <span class="ident">new</span>, <span class="ident">old</span> })
