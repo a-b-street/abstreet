@@ -1,3 +1,6 @@
+//! After a single road has been edited, these states let the changes be copied to all similar road
+//! segments. Note that only lane configuration is copied, not speed limit or access restrictions.
+
 use std::collections::HashSet;
 
 use geom::Distance;
@@ -34,13 +37,15 @@ impl SelectSegments {
         new_state: EditRoad,
         base_edits: MapEdits,
     ) -> Box<dyn State<App>> {
-        // Find all road segments matching the original state and name. base_road has already changed to new_state,
-        // so no need to exclude it.
+        // Find all road segments matching the original state and name. base_road has already
+        // changed to new_state, so no need to exclude it.
         let map = &app.primary.map;
         let base_name = map.get_r(base_road).get_name(None);
         let mut candidates = HashSet::new();
         for r in map.all_roads() {
-            if map.get_r_edit(r.id) == orig_state && r.get_name(None) == base_name {
+            if map.get_r_edit(r.id).lanes_ltr == orig_state.lanes_ltr
+                && r.get_name(None) == base_name
+            {
                 candidates.insert(r.id);
             }
         }
@@ -103,6 +108,7 @@ impl SelectSegments {
                 self.base_road.0
             )
             .text_widget(ctx),
+            // TODO Explain that this is only for lane configuration, NOT speed limit
             Widget::row(vec![
                 "Click to select/unselect".text_widget(ctx).centered_vert(),
                 ctx.style()
@@ -144,7 +150,7 @@ impl State<App> for SelectSegments {
                         edits
                             .commands
                             .push(app.primary.map.edit_road_cmd(*r, |new| {
-                                *new = self.new_state.clone();
+                                new.lanes_ltr = self.new_state.lanes_ltr.clone();
                             }));
                     }
                     apply_map_edits(ctx, app, edits);
