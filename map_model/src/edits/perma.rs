@@ -95,12 +95,12 @@ impl PermanentEditCmd {
                 let num_current = map.get_r(id).lanes_ltr().len();
                 // The basemap changed -- it'd be pretty hard to understand the original
                 // intent of the edit.
-                if num_current != new.lanes_ltr.len() {
+                if num_current != old.lanes_ltr.len() {
                     bail!(
                         "number of lanes in {} is {} now, but {} in the edits",
                         r,
                         num_current,
-                        new.lanes_ltr.len()
+                        old.lanes_ltr.len()
                     );
                 }
                 Ok(EditCmd::ChangeRoad { r: id, new, old })
