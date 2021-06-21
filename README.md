@@ -50,12 +50,11 @@ Measure the effects:
 ## Roadmap and contributing
 
 See the [roadmap](https://a-b-street.github.io/docs/project/roadmap.html) for
-current work, including ways to help. If you want to bring this to your city or
-if you're skilled in design, traffic simulation, data visualization, or
-civic/government outreach, please contact Dustin Carlino at
-<dabreegster@gmail.com>. Follow [r/abstreet](https://www.reddit.com/r/abstreet/)
-for weekly updates or [@CarlinoDustin](https://twitter.com/CarlinoDustin) for
-occasional videos of recent progress.
+current work, and all of the ways to
+[contribute](https://a-b-street.github.io/docs//project/contributing.html).
+Follow [r/abstreet](https://www.reddit.com/r/abstreet/) for weekly updates or
+[@CarlinoDustin](https://twitter.com/CarlinoDustin) for occasional videos of
+recent progress.
 
 ## Project mission
 
