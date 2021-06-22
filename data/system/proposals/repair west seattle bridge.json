@@ -681,63 +681,6 @@
     {
       "ChangeRoad": {
         "r": {
-          "osm_way_id": 49891362,
-          "i1": 4270691576,
-          "i2": 634092841
-        },
-        "new": {
-          "lanes_ltr": [
-            {
-              "lt": "Driving",
-              "dir": "Fwd",
-              "width": 2.5
-            },
-            {
-              "lt": "Driving",
-              "dir": "Fwd",
-              "width": 2.5
-            },
-            {
-              "lt": "Driving",
-              "dir": "Fwd",
-              "width": 2.5
-            }
-          ],
-          "speed_limit": 17.8816,
-          "access_restrictions": {
-            "allow_through_traffic": 31,
-            "cap_vehicles_per_hour": null
-          }
-        },
-        "old": {
-          "lanes_ltr": [
-            {
-              "lt": "Construction",
-              "dir": "Fwd",
-              "width": 2.5
-            },
-            {
-              "lt": "Construction",
-              "dir": "Fwd",
-              "width": 2.5
-            },
-            {
-              "lt": "Construction",
-              "dir": "Fwd",
-              "width": 2.5
-            }
-          ],
-          "speed_limit": 17.8816,
-          "access_restrictions": {
-            "allow_through_traffic": 31,
-            "cap_vehicles_per_hour": null
-          }
-        }
-      }
-    },
-    {
-      "ChangeRoad": {
-        "r": {
           "osm_way_id": 49891366,
           "i1": 634092902,
           "i2": 60562869

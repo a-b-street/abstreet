@@ -212,18 +212,21 @@ pub fn get_lane_specs_ltr(tags: &Tags, cfg: &MapConfig) -> Vec<LaneSpec> {
             }
         }
         if tags.is_any("cycleway:left", vec!["lane", "opposite_track", "track"]) {
-            if oneway {
-                if cfg.driving_side == DrivingSide::Right {
+            if cfg.driving_side == DrivingSide::Right {
+                if tags.is("cycleway:left:oneway", "no") || tags.is("oneway:bicycle", "no") {
+                    back_side.push(fwd(LaneType::Biking));
+                    back_side.push(back(LaneType::Biking));
+                } else if oneway {
                     fwd_side.insert(0, fwd(LaneType::Biking));
                 } else {
-                    fwd_side.push(fwd(LaneType::Biking));
-                }
-                if tags.is("oneway:bicycle", "no") {
                     back_side.push(back(LaneType::Biking));
                 }
-            } else if cfg.driving_side == DrivingSide::Right {
-                back_side.push(back(LaneType::Biking));
             } else {
+                // TODO This should mimic the logic for right-handed driving, but I need test cases
+                // first to do this sanely
+                if tags.is("cycleway:left:oneway", "no") || tags.is("oneway:bicycle", "no") {
+                    fwd_side.push(back(LaneType::Biking));
+                }
                 fwd_side.push(fwd(LaneType::Biking));
             }
         }
@@ -373,6 +376,21 @@ mod tests {
                     "sidewalk=both",
                     "cycleway:left=track",
                     "oneway:bicycle=no",
+                ],
+                DrivingSide::Right,
+                "sbbds",
+                "vv^^^",
+            ),
+            (
+                // A slight variation of the above, using cycleway:left:oneway=no, which should be
+                // equivalent
+                "https://www.openstreetmap.org/way/8591383",
+                vec![
+                    "lanes=1",
+                    "oneway=yes",
+                    "sidewalk=both",
+                    "cycleway:left=track",
+                    "cycleway:left:oneway=no",
                 ],
                 DrivingSide::Right,
                 "sbbds",
