@@ -529,6 +529,24 @@
 <span id="526">526</span>
 <span id="527">527</span>
 <span id="528">528</span>
+<span id="529">529</span>
+<span id="530">530</span>
+<span id="531">531</span>
+<span id="532">532</span>
+<span id="533">533</span>
+<span id="534">534</span>
+<span id="535">535</span>
+<span id="536">536</span>
+<span id="537">537</span>
+<span id="538">538</span>
+<span id="539">539</span>
+<span id="540">540</span>
+<span id="541">541</span>
+<span id="542">542</span>
+<span id="543">543</span>
+<span id="544">544</span>
+<span id="545">545</span>
+<span id="546">546</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">/// Purely from OSM tags, determine the lanes that a road segment has.</span>
 <span class="kw">use</span> <span class="ident">std::iter</span>;
@@ -744,18 +762,21 @@
             }
         }
         <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">is_any</span>(<span class="string">&quot;cycleway:left&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;lane&quot;</span>, <span class="string">&quot;opposite_track&quot;</span>, <span class="string">&quot;track&quot;</span>]) {
-            <span class="kw">if</span> <span class="ident">oneway</span> {
-                <span class="kw">if</span> <span class="ident">cfg</span>.<span class="ident">driving_side</span> <span class="op">=</span><span class="op">=</span> <span class="ident">DrivingSide::Right</span> {
+            <span class="kw">if</span> <span class="ident">cfg</span>.<span class="ident">driving_side</span> <span class="op">=</span><span class="op">=</span> <span class="ident">DrivingSide::Right</span> {
+                <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">is</span>(<span class="string">&quot;cycleway:left:oneway&quot;</span>, <span class="string">&quot;no&quot;</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">tags</span>.<span class="ident">is</span>(<span class="string">&quot;oneway:bicycle&quot;</span>, <span class="string">&quot;no&quot;</span>) {
+                    <span class="ident">back_side</span>.<span class="ident">push</span>(<span class="ident">fwd</span>(<span class="ident">LaneType::Biking</span>));
+                    <span class="ident">back_side</span>.<span class="ident">push</span>(<span class="ident">back</span>(<span class="ident">LaneType::Biking</span>));
+                } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">oneway</span> {
                     <span class="ident">fwd_side</span>.<span class="ident">insert</span>(<span class="number">0</span>, <span class="ident">fwd</span>(<span class="ident">LaneType::Biking</span>));
                 } <span class="kw">else</span> {
-                    <span class="ident">fwd_side</span>.<span class="ident">push</span>(<span class="ident">fwd</span>(<span class="ident">LaneType::Biking</span>));
-                }
-                <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">is</span>(<span class="string">&quot;oneway:bicycle&quot;</span>, <span class="string">&quot;no&quot;</span>) {
                     <span class="ident">back_side</span>.<span class="ident">push</span>(<span class="ident">back</span>(<span class="ident">LaneType::Biking</span>));
                 }
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">cfg</span>.<span class="ident">driving_side</span> <span class="op">=</span><span class="op">=</span> <span class="ident">DrivingSide::Right</span> {
-                <span class="ident">back_side</span>.<span class="ident">push</span>(<span class="ident">back</span>(<span class="ident">LaneType::Biking</span>));
             } <span class="kw">else</span> {
+                <span class="comment">// TODO This should mimic the logic for right-handed driving, but I need test cases</span>
+                <span class="comment">// first to do this sanely</span>
+                <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">is</span>(<span class="string">&quot;cycleway:left:oneway&quot;</span>, <span class="string">&quot;no&quot;</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">tags</span>.<span class="ident">is</span>(<span class="string">&quot;oneway:bicycle&quot;</span>, <span class="string">&quot;no&quot;</span>) {
+                    <span class="ident">fwd_side</span>.<span class="ident">push</span>(<span class="ident">back</span>(<span class="ident">LaneType::Biking</span>));
+                }
                 <span class="ident">fwd_side</span>.<span class="ident">push</span>(<span class="ident">fwd</span>(<span class="ident">LaneType::Biking</span>));
             }
         }
@@ -905,6 +926,21 @@
                     <span class="string">&quot;sidewalk=both&quot;</span>,
                     <span class="string">&quot;cycleway:left=track&quot;</span>,
                     <span class="string">&quot;oneway:bicycle=no&quot;</span>,
+                ],
+                <span class="ident">DrivingSide::Right</span>,
+                <span class="string">&quot;sbbds&quot;</span>,
+                <span class="string">&quot;vv^^^&quot;</span>,
+            ),
+            (
+                <span class="comment">// A slight variation of the above, using cycleway:left:oneway=no, which should be</span>
+                <span class="comment">// equivalent</span>
+                <span class="string">&quot;https://www.openstreetmap.org/way/8591383&quot;</span>,
+                <span class="macro">vec!</span>[
+                    <span class="string">&quot;lanes=1&quot;</span>,
+                    <span class="string">&quot;oneway=yes&quot;</span>,
+                    <span class="string">&quot;sidewalk=both&quot;</span>,
+                    <span class="string">&quot;cycleway:left=track&quot;</span>,
+                    <span class="string">&quot;cycleway:left:oneway=no&quot;</span>,
                 ],
                 <span class="ident">DrivingSide::Right</span>,
                 <span class="string">&quot;sbbds&quot;</span>,
