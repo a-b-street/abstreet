@@ -265,7 +265,7 @@ impl Queue {
                     // causes anything following the lane-changing vehicle to be able to go a
                     // little faster.
                     front: bound,
-                    back: bound + vehicle_len,
+                    back: bound - vehicle_len,
                 },
             };
 
