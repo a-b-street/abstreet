@@ -22,11 +22,12 @@ pub async fn download(config: &ImporterConfiguration, output: String, url: &str)
     println!("- Missing {}, so downloading {}", output, url);
     abstio::download_to_file(url, tmp).await.unwrap();
 
-    // Argh the Dropbox URL is .zip?dl=0
-    if url.contains(".zip") {
+    if url.ends_with(".zip") {
         let unzip_to = if output.ends_with('/') {
             output
         } else {
+            // TODO In this case, there's no guarantee there's only one unzipped file and the name
+            // matches!
             Path::new(&output).parent().unwrap().display().to_string()
         };
         println!("- Unzipping into {}", unzip_to);

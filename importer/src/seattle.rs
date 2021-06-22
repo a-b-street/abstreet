@@ -23,11 +23,22 @@ async fn input(config: &ImporterConfiguration, timer: &mut Timer<'_>) {
         "http://download.geofabrik.de/north-america/us/washington-latest.osm.pbf",
     )
     .await;
-    // Soundcast data comes from https://github.com/psrc/soundcast/releases
+    // Soundcast data was originally retrieved from staff at PSRC via a download link that didn't
+    // last long. From that original 2014 .zip (possibly still available from
+    // https://github.com/psrc/soundcast/releases), two files were extracted --
+    // parcels_urbansim.txt and trips_2014.csv. Those are now stored in S3. It's a bit weird for
+    // the importer pipeline to depend on something in data/input in S3, but this should let
+    // anybody run the full pipeline.
     download(
         config,
         city.input_path("parcels_urbansim.txt"),
-        "https://www.dropbox.com/s/t9oug9lwhdwfc04/psrc_2014.zip?dl=0",
+        "http://abstreet.s3-website.us-east-2.amazonaws.com/dev/data/input/us/seattle/parcels_urbansim.txt.gz",
+    )
+    .await;
+    download(
+        config,
+        city.input_path("trips_2014.csv"),
+        "http://abstreet.s3-website.us-east-2.amazonaws.com/dev/data/input/us/seattle/trips_2014.csv.gz",
     )
     .await;
 
