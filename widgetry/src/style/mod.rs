@@ -164,7 +164,7 @@ impl Style {
             icon_fg: hex("#4C4C4C"),
             primary_fg: AB_ORANGE_1,
             text_primary_color: hex("#4C4C4C"),
-            text_secondary_color: hex("#4C4C4C").shade(0.2),
+            text_secondary_color: hex("#4C4C4C").tint(0.2),
             text_hotkey_color: AB_ORANGE_1,
             text_tooltip_color: Color::WHITE,
             text_destructive_color: hex("#FF5E5E"),

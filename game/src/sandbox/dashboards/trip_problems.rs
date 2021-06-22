@@ -1,10 +1,11 @@
+use std::cmp::Ordering;
 use std::fmt::Display;
 
 use abstutil::{abbreviated_format, prettyprint_usize};
-use geom::{Angle, Duration, Polygon, Pt2D, Time};
+use geom::{Angle, Distance, Duration, Line, Polygon, Pt2D, Time};
 use map_gui::tools::ColorScale;
 use sim::{Problem, TripMode};
-use widgetry::{Color, DrawWithTooltips, GeomBatch, GeomBatchStack, Text, Widget};
+use widgetry::{Color, DrawWithTooltips, GeomBatch, GeomBatchStack, StackAlignment, Text, Widget};
 
 use crate::{App, EventCtx};
 
@@ -124,6 +125,15 @@ pub fn problem_matrix(ctx: &mut EventCtx, app: &App, trips: &[(Duration, isize)]
                 std::cmp::Ordering::Less => &app.cs.good_to_bad_green,
                 std::cmp::Ordering::Greater => &app.cs.good_to_bad_red,
             }),
+            fmt_y_axis: Box::new(|lower_bound: isize, upper_bound: isize| -> Text {
+                if lower_bound + 1 == upper_bound {
+                    Text::from(lower_bound.abs().to_string())
+                } else if lower_bound.is_negative() {
+                    Text::from(format!("{}-{}", upper_bound.abs() + 1, lower_bound.abs()))
+                } else {
+                    Text::from(format!("{}-{}", lower_bound.abs(), upper_bound.abs() - 1))
+                }
+            }),
             tooltip_for_bucket: Box::new(|(t1, t2), (problems1, problems2), count| {
                 let trip_string = if count == 1 {
                     "1 trip".to_string()
@@ -219,7 +229,7 @@ impl<X: Copy + PartialOrd + Display, Y: Copy + PartialOrd + Display> Matrix<X, Y
     }
 
     fn draw(self, ctx: &mut EventCtx, app: &App, opts: MatrixOptions<X, Y>) -> Widget {
-        let mut batch = GeomBatch::new();
+        let mut grid_batch = GeomBatch::new();
         let mut tooltips = Vec::new();
         let cell_width = opts.total_width / (self.buckets_x.len() as f64);
         let cell_height = opts.total_height / (self.buckets_y.len() as f64);
@@ -243,8 +253,8 @@ impl<X: Copy + PartialOrd + Display, Y: Copy + PartialOrd + Display> Matrix<X, Y
                 let x1 = cell_width * (x as f64);
                 let y1 = cell_height * (y as f64);
                 let rect = cell.clone().translate(x1, y1);
-                batch.push(color, rect.clone());
-                batch.append(
+                grid_batch.push(color, rect.clone());
+                grid_batch.append(
                     Text::from(if count == 0 && is_middle_ybucket {
                         "-".to_string()
                     } else {
@@ -282,29 +292,111 @@ impl<X: Copy + PartialOrd + Display, Y: Copy + PartialOrd + Display> Matrix<X, Y
                 }
             }
         }
+        {
+            let bottom = cell_height * (self.buckets_y.len() - 1) as f64;
+            let right = cell_width * (self.buckets_x.len() - 1) as f64;
 
-        // Axis Labels
-        let mut y_axis_label = Text::from("More Problems <--------> Fewer Problems")
-            .change_fg(ctx.style().text_secondary_color)
-            .render(ctx)
-            .rotate(Angle::degrees(-90.0));
-        y_axis_label.autocrop_dims = true;
-        y_axis_label = y_axis_label.autocrop();
+            let border_lines = vec![
+                Line::new(Pt2D::zero(), Pt2D::new(right, 0.0)).unwrap(),
+                Line::new(Pt2D::new(right, 0.0), Pt2D::new(right, bottom)).unwrap(),
+                Line::new(Pt2D::new(right, bottom), Pt2D::new(0.0, bottom)).unwrap(),
+                Line::new(Pt2D::new(0.0, bottom), Pt2D::zero()).unwrap(),
+            ];
+            for line in border_lines {
+                let border_poly = line.make_polygons(Distance::meters(3.0));
+                grid_batch.push(ctx.style().text_secondary_color, border_poly);
+            }
+        }
 
-        let x_axis_label = Text::from("       Short Trips <--------> Long Trips")
-            .change_fg(ctx.style().text_secondary_color)
-            .render(ctx);
+        // Draw the axes
+        let y_axis_batch = {
+            let mut y_axis_scale = GeomBatch::new();
+            for y in 0..self.buckets_y.len() - 1 {
+                let x1 = 0.0;
+                let mut y1 = cell_height * y as f64;
 
-        let vmargin = 32.0;
+                let middle_bucket = self.buckets_y.len() / 2 - 1;
+                let y_offset = match y.cmp(&middle_bucket) {
+                    Ordering::Less => cell_height,
+                    Ordering::Greater => 0.0,
+                    Ordering::Equal => cell_height / 2.0,
+                };
+
+                let y_label = (opts.fmt_y_axis)(self.buckets_y[y], self.buckets_y[y + 1])
+                    .change_fg(ctx.style().text_secondary_color)
+                    .render(ctx)
+                    .centered_on(Pt2D::new(x1 + cell_width / 2.0, y1 + 0.5 * cell_height));
+                y_axis_scale.append(y_label);
+
+                if y != middle_bucket {
+                    y1 += y_offset;
+                    let tick_length = 8.0;
+                    let tick_thickness = 2.0;
+                    let start = Pt2D::new(x1 + cell_width - tick_length, y1 - tick_thickness / 2.0);
+                    let line = Line::new(start, start.offset(tick_length, 0.0))
+                        .unwrap()
+                        .make_polygons(Distance::meters(tick_thickness));
+                    y_axis_scale.push(ctx.style().text_secondary_color, line);
+                }
+            }
+            let mut y_axis_label = Text::from("More Problems <--------> Fewer Problems")
+                .change_fg(ctx.style().text_secondary_color)
+                .render(ctx)
+                .rotate(Angle::degrees(-90.0));
+
+            y_axis_label.autocrop_dims = true;
+            y_axis_label = y_axis_label.autocrop();
+
+            y_axis_label = y_axis_label.centered_on(Pt2D::new(
+                8.0,
+                cell_height * (self.buckets_y.len() as f64 / 2.0 - 1.0),
+            ));
+
+            GeomBatchStack::horizontal(vec![y_axis_label, y_axis_scale]).batch()
+        };
+
+        let x_axis_batch = {
+            let mut x_axis_scale = GeomBatch::new();
+            for x in 1..self.buckets_x.len() - 1 {
+                let x1 = cell_width * x as f64;
+                let y1 = 0.0;
+
+                x_axis_scale.append(
+                    Text::from(format!("{}", self.buckets_x[x]))
+                        .change_fg(ctx.style().text_secondary_color)
+                        .render(ctx)
+                        .centered_on(Pt2D::new(x1, y1 + cell_height / 2.0)),
+                );
+                let tick_length = 8.0;
+                let tick_thickness = 2.0;
+                let start = Pt2D::new(x1, y1 - 2.0);
+                let line = Line::new(start, start.offset(0.0, tick_length))
+                    .unwrap()
+                    .make_polygons(Distance::meters(tick_thickness));
+                x_axis_scale.push(ctx.style().text_secondary_color, line);
+            }
+            let x_axis_label = Text::from("Short Trips <--------> Long Trips")
+                .change_fg(ctx.style().text_secondary_color)
+                .render(ctx)
+                .centered_on(Pt2D::new(
+                    cell_width * ((self.buckets_x.len() as f64) / 2.0 - 0.5),
+                    cell_height,
+                ));
+
+            x_axis_scale.append(x_axis_label);
+
+            x_axis_scale
+        };
+
         for (polygon, _) in tooltips.iter_mut() {
-            let mut translated =
-                polygon.translate(vmargin + y_axis_label.get_bounds().width(), 0.0);
+            let mut translated = polygon.translate(y_axis_batch.get_bounds().width(), 0.0);
             std::mem::swap(&mut translated, polygon);
         }
-        let mut row = GeomBatchStack::horizontal(vec![y_axis_label, batch]);
-        row.set_spacing(vmargin);
-        let mut chart = GeomBatchStack::vertical(vec![row.batch(), x_axis_label]);
-        chart.set_spacing(16);
+        let mut col = GeomBatchStack::vertical(vec![grid_batch, x_axis_batch]);
+        col.set_alignment(StackAlignment::Left);
+
+        let mut chart = GeomBatchStack::horizontal(vec![y_axis_batch, col.batch()]);
+        chart.set_alignment(StackAlignment::Top);
 
         DrawWithTooltips::new_widget(ctx, chart.batch(), tooltips, Box::new(|_| GeomBatch::new()))
     }
@@ -313,6 +405,8 @@ impl<X: Copy + PartialOrd + Display, Y: Copy + PartialOrd + Display> Matrix<X, Y
 struct MatrixOptions<X, Y> {
     total_width: f64,
     total_height: f64,
+    // (lower_bound, upper_bound) -> Cell Label
+    fmt_y_axis: Box<dyn Fn(Y, Y) -> Text>,
     color_scale_for_bucket: Box<dyn Fn(&App, X, Y) -> &ColorScale>,
     tooltip_for_bucket: Box<dyn Fn((Option<X>, Option<X>), (Y, Y), usize) -> Text>,
 }

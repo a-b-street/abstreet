@@ -10,7 +10,8 @@ pub enum Axis {
 pub enum Alignment {
     Center,
     Top,
-    // TODO: Bottom, Left, Right
+    Left,
+    // TODO: Bottom, Right
 }
 
 /// Similar to [`Widget::row`]/[`Widget::column`], but for [`GeomBatch`]s instead of [`Widget`]s,
@@ -102,9 +103,13 @@ impl GeomBatchStack {
                     (max_bound_for_axis.height() - bounds.height()) / 2.0
                 }
                 (Alignment::Top, Axis::Vertical) => {
-                    unreachable!("cannot top-align a vertical stack")
+                    panic!("cannot top-align items in a vertical stack")
                 }
                 (Alignment::Top, Axis::Horizontal) => 0.0,
+                (Alignment::Left, Axis::Horizontal) => {
+                    panic!("cannot left-align items in a horizontal stack")
+                }
+                (Alignment::Left, Axis::Vertical) => 0.0,
             };
 
             let (dx, dy) = match self.axis {

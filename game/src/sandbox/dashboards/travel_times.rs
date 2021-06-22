@@ -503,12 +503,16 @@ fn contingency_table(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
         .container(),
         Line("Total Time Saved (faster)")
             .secondary()
-            .into_widget(ctx),
-        DrawWithTooltips::new_widget(ctx, batch, tooltips, Box::new(|_| GeomBatch::new())),
+            .into_widget(ctx)
+            .centered_horiz(),
+        DrawWithTooltips::new_widget(ctx, batch, tooltips, Box::new(|_| GeomBatch::new()))
+            .centered_horiz(),
         Line("Total Time Lost (slower)")
             .secondary()
-            .into_widget(ctx),
+            .into_widget(ctx)
+            .centered_horiz(),
     ])
+    .centered()
 }
 
 pub struct Filter {
