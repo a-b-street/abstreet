@@ -325,6 +325,17 @@
 <span id="322">322</span>
 <span id="323">323</span>
 <span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashSet</span>};
 <span class="kw">use</span> <span class="ident">std::fs::File</span>;
@@ -351,11 +362,22 @@
         <span class="string">&quot;http://download.geofabrik.de/north-america/us/washington-latest.osm.pbf&quot;</span>,
     )
     .<span class="kw">await</span>;
-    <span class="comment">// Soundcast data comes from https://github.com/psrc/soundcast/releases</span>
+    <span class="comment">// Soundcast data was originally retrieved from staff at PSRC via a download link that didn&#39;t</span>
+    <span class="comment">// last long. From that original 2014 .zip (possibly still available from</span>
+    <span class="comment">// https://github.com/psrc/soundcast/releases), two files were extracted --</span>
+    <span class="comment">// parcels_urbansim.txt and trips_2014.csv. Those are now stored in S3. It&#39;s a bit weird for</span>
+    <span class="comment">// the importer pipeline to depend on something in data/input in S3, but this should let</span>
+    <span class="comment">// anybody run the full pipeline.</span>
     <span class="ident">download</span>(
         <span class="ident">config</span>,
         <span class="ident">city</span>.<span class="ident">input_path</span>(<span class="string">&quot;parcels_urbansim.txt&quot;</span>),
-        <span class="string">&quot;https://www.dropbox.com/s/t9oug9lwhdwfc04/psrc_2014.zip?dl=0&quot;</span>,
+        <span class="string">&quot;http://abstreet.s3-website.us-east-2.amazonaws.com/dev/data/input/us/seattle/parcels_urbansim.txt.gz&quot;</span>,
+    )
+    .<span class="kw">await</span>;
+    <span class="ident">download</span>(
+        <span class="ident">config</span>,
+        <span class="ident">city</span>.<span class="ident">input_path</span>(<span class="string">&quot;trips_2014.csv&quot;</span>),
+        <span class="string">&quot;http://abstreet.s3-website.us-east-2.amazonaws.com/dev/data/input/us/seattle/trips_2014.csv.gz&quot;</span>,
     )
     .<span class="kw">await</span>;
 

@@ -139,6 +139,7 @@
 <span id="136">136</span>
 <span id="137">137</span>
 <span id="138">138</span>
+<span id="139">139</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std::path::Path</span>;
 <span class="kw">use</span> <span class="ident">std::process::Command</span>;
@@ -164,11 +165,12 @@
     <span class="macro">println!</span>(<span class="string">&quot;- Missing {}, so downloading {}&quot;</span>, <span class="ident">output</span>, <span class="ident">url</span>);
     <span class="ident">abstio::download_to_file</span>(<span class="ident">url</span>, <span class="ident">tmp</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
 
-    <span class="comment">// Argh the Dropbox URL is .zip?dl=0</span>
-    <span class="kw">if</span> <span class="ident">url</span>.<span class="ident">contains</span>(<span class="string">&quot;.zip&quot;</span>) {
+    <span class="kw">if</span> <span class="ident">url</span>.<span class="ident">ends_with</span>(<span class="string">&quot;.zip&quot;</span>) {
         <span class="kw">let</span> <span class="ident">unzip_to</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">output</span>.<span class="ident">ends_with</span>(<span class="string">&#39;/&#39;</span>) {
             <span class="ident">output</span>
         } <span class="kw">else</span> {
+            <span class="comment">// TODO In this case, there&#39;s no guarantee there&#39;s only one unzipped file and the name</span>
+            <span class="comment">// matches!</span>
             <span class="ident">Path::new</span>(<span class="kw-2">&amp;</span><span class="ident">output</span>).<span class="ident">parent</span>().<span class="ident">unwrap</span>().<span class="ident">display</span>().<span class="ident">to_string</span>()
         };
         <span class="macro">println!</span>(<span class="string">&quot;- Unzipping into {}&quot;</span>, <span class="ident">unzip_to</span>);
