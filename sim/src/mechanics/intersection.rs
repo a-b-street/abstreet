@@ -1092,6 +1092,16 @@ fn allow_block_the_box(i: &Intersection) -> bool {
     {
         return true;
     }
+    // greenlake
+    if id == 3937908476
+        || id == 3393025729
+        || id == 53077575
+        || id == 4274575662
+        || id == 4274575663
+        || id == 2928623198
+    {
+        return true;
+    }
     // poundbury
     if id == 18030505 || id == 2124133018 || id == 30024649 {
         return true;

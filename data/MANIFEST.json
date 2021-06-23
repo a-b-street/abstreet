@@ -2106,9 +2106,9 @@
       "compressed_size_bytes": 2099300
     },
     "data/input/us/seattle/raw_maps/greenlake.bin": {
-      "checksum": "4dd4de315313005f430bc6d33e18ec6e",
+      "checksum": "f0ee6deadfd9a9c5a6bb64178cfe298b",
       "uncompressed_size_bytes": 4783720,
-      "compressed_size_bytes": 1070713
+      "compressed_size_bytes": 1070710
     },
     "data/input/us/seattle/raw_maps/huge_seattle.bin": {
       "checksum": "1291724f417ba60f96453664584ef801",
@@ -3936,9 +3936,9 @@
       "compressed_size_bytes": 9891199
     },
     "data/system/us/seattle/maps/greenlake.bin": {
-      "checksum": "bf0e390545bd251fdd0b920b182192f1",
+      "checksum": "969d748816e07e090cdd3d38ae14b3c0",
       "uncompressed_size_bytes": 10336191,
-      "compressed_size_bytes": 3598568
+      "compressed_size_bytes": 3596065
     },
     "data/system/us/seattle/maps/huge_seattle.bin": {
       "checksum": "f60d0095b1982bf9d1d3677cc1f71fbb",
@@ -4009,6 +4009,11 @@
       "checksum": "39582e43f8f52d221abbdc3473d4041a",
       "uncompressed_size_bytes": 26191974,
       "compressed_size_bytes": 9643132
+    },
+    "data/system/us/seattle/prebaked_results/greenlake/weekday.bin": {
+      "checksum": "4a460febe36d6fc4b7eebc410791bb63",
+      "uncompressed_size_bytes": 40227278,
+      "compressed_size_bytes": 14918328
     },
     "data/system/us/seattle/prebaked_results/lakeslice/weekday.bin": {
       "checksum": "f61967db398072ff348ec149e8d4305d",
