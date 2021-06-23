@@ -570,14 +570,22 @@ impl InfoPanel {
                     }
 
                     // We need to first rewind the simulation
-                    (
-                        false,
-                        Some(Transition::Replace(SandboxMode::async_new(
-                            app,
-                            ctx_actions.gameplay_mode(),
-                            Box::new(move |_, _| vec![jump_to_time]),
-                        ))),
-                    )
+                    let rewind_sim = Transition::Replace(SandboxMode::async_new(
+                        app,
+                        ctx_actions.gameplay_mode(),
+                        Box::new(move |_, _| vec![jump_to_time]),
+                    ));
+
+                    // Before we rewind and wind up calling launch_info_panel, we may need to use
+                    // an extra state to load the unedited map for comparing routes. It's easier to
+                    // explicitly do this "outside" of SandboxMode::async_new.
+                    if app.has_prebaked().is_some() {
+                        if let Some(t) = app.primary.calculate_unedited_map(ctx) {
+                            return (false, Some(Transition::Multi(vec![rewind_sim, t])));
+                        }
+                    }
+
+                    (false, Some(rewind_sim))
                 } else if let Some(url) = action.strip_prefix("open ") {
                     open_browser(url);
                     (false, None)
