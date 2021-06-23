@@ -424,6 +424,13 @@
 <span id="421">421</span>
 <span id="422">422</span>
 <span id="423">423</span>
+<span id="424">424</span>
+<span id="425">425</span>
+<span id="426">426</span>
+<span id="427">427</span>
+<span id="428">428</span>
+<span id="429">429</span>
+<span id="430">430</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
@@ -691,16 +698,23 @@
                             ],
                         ),
                     ]),
-                    <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                        <span class="string">&quot;Language&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
-                        <span class="ident">Widget::dropdown</span>(<span class="ident">ctx</span>, <span class="string">&quot;language&quot;</span>, <span class="ident">app</span>.<span class="ident">opts</span>().<span class="ident">language</span>.<span class="ident">clone</span>(), {
-                            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">choices</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">Choice::new</span>(<span class="string">&quot;Map native language&quot;</span>, <span class="prelude-val">None</span>)];
-                            <span class="kw">for</span> <span class="ident">lang</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">map</span>().<span class="ident">get_languages</span>() {
-                                <span class="ident">choices</span>.<span class="ident">push</span>(<span class="ident">Choice::new</span>(<span class="ident">lang</span>, <span class="prelude-val">Some</span>(<span class="ident">lang</span>.<span class="ident">to_string</span>())));
+                    <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[<span class="string">&quot;Language&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>), {
+                        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">default</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">opts</span>().<span class="ident">language</span>.<span class="ident">clone</span>();
+                        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">have_default</span> <span class="op">=</span> <span class="bool-val">false</span>;
+                        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">choices</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">Choice::new</span>(<span class="string">&quot;Map native language&quot;</span>, <span class="prelude-val">None</span>)];
+                        <span class="kw">for</span> <span class="ident">lang</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">map</span>().<span class="ident">get_languages</span>() {
+                            <span class="kw">if</span> <span class="ident">default</span> <span class="op">=</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">lang</span>.<span class="ident">to_string</span>()) {
+                                <span class="ident">have_default</span> <span class="op">=</span> <span class="bool-val">true</span>;
                             }
-                            <span class="ident">choices</span>
-                        }),
-                    ]),
+                            <span class="ident">choices</span>.<span class="ident">push</span>(<span class="ident">Choice::new</span>(<span class="ident">lang</span>, <span class="prelude-val">Some</span>(<span class="ident">lang</span>.<span class="ident">to_string</span>())));
+                        }
+                        <span class="comment">// We might be switching from a map that has more languages than this</span>
+                        <span class="comment">// map</span>
+                        <span class="kw">if</span> <span class="op">!</span><span class="ident">have_default</span> {
+                            <span class="ident">default</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+                        }
+                        <span class="ident">Widget::dropdown</span>(<span class="ident">ctx</span>, <span class="string">&quot;language&quot;</span>, <span class="ident">default</span>, <span class="ident">choices</span>)
+                    }]),
                     <span class="ident">Toggle::choice</span>(
                         <span class="ident">ctx</span>,
                         <span class="string">&quot;metric / imperial units&quot;</span>,
