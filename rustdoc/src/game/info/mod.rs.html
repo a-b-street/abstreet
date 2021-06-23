@@ -842,6 +842,14 @@
 <span id="839">839</span>
 <span id="840">840</span>
 <span id="841">841</span>
+<span id="842">842</span>
+<span id="843">843</span>
+<span id="844">844</span>
+<span id="845">845</span>
+<span id="846">846</span>
+<span id="847">847</span>
+<span id="848">848</span>
+<span id="849">849</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
@@ -1415,14 +1423,22 @@
                     }
 
                     <span class="comment">// We need to first rewind the simulation</span>
-                    (
-                        <span class="bool-val">false</span>,
-                        <span class="prelude-val">Some</span>(<span class="ident">Transition::Replace</span>(<span class="ident">SandboxMode::async_new</span>(
-                            <span class="ident">app</span>,
-                            <span class="ident">ctx_actions</span>.<span class="ident">gameplay_mode</span>(),
-                            <span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="kw">_</span>, <span class="kw">_</span><span class="op">|</span> <span class="macro">vec!</span>[<span class="ident">jump_to_time</span>]),
-                        ))),
-                    )
+                    <span class="kw">let</span> <span class="ident">rewind_sim</span> <span class="op">=</span> <span class="ident">Transition::Replace</span>(<span class="ident">SandboxMode::async_new</span>(
+                        <span class="ident">app</span>,
+                        <span class="ident">ctx_actions</span>.<span class="ident">gameplay_mode</span>(),
+                        <span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="kw">_</span>, <span class="kw">_</span><span class="op">|</span> <span class="macro">vec!</span>[<span class="ident">jump_to_time</span>]),
+                    ));
+
+                    <span class="comment">// Before we rewind and wind up calling launch_info_panel, we may need to use</span>
+                    <span class="comment">// an extra state to load the unedited map for comparing routes. It&#39;s easier to</span>
+                    <span class="comment">// explicitly do this &quot;outside&quot; of SandboxMode::async_new.</span>
+                    <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">has_prebaked</span>().<span class="ident">is_some</span>() {
+                        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">calculate_unedited_map</span>(<span class="ident">ctx</span>) {
+                            <span class="kw">return</span> (<span class="bool-val">false</span>, <span class="prelude-val">Some</span>(<span class="ident">Transition::Multi</span>(<span class="macro">vec!</span>[<span class="ident">rewind_sim</span>, <span class="ident">t</span>])));
+                        }
+                    }
+
+                    (<span class="bool-val">false</span>, <span class="prelude-val">Some</span>(<span class="ident">rewind_sim</span>))
                 } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">url</span>) <span class="op">=</span> <span class="ident">action</span>.<span class="ident">strip_prefix</span>(<span class="string">&quot;open &quot;</span>) {
                     <span class="ident">open_browser</span>(<span class="ident">url</span>);
                     (<span class="bool-val">false</span>, <span class="prelude-val">None</span>)
