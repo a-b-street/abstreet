@@ -96,7 +96,7 @@ impl ControlStopSign {
         // Degenerate roads and deadends don't need any stop signs. But be careful with
         // roundabouts; we want it to be lower priority to enter a roundabout than continue through
         // it.
-        if ss.roads.len() <= 1
+        if ss.roads.len() <= 2
             && ss
                 .roads
                 .keys()

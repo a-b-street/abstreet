@@ -562,6 +562,7 @@ fn get_area_type(tags: &Tags) -> Option<AreaType> {
         "landuse",
         vec![
             "cemetery",
+            "flowerbed",
             "forest",
             "grass",
             "meadow",
