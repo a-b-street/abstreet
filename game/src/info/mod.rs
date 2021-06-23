@@ -3,9 +3,12 @@ use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 pub use trip::OpenTrip;
 
 use geom::{Circle, Distance, Polygon, Time};
+use map_gui::load::FileLoader;
 use map_gui::tools::open_browser;
 use map_gui::ID;
-use map_model::{AreaID, BuildingID, BusRouteID, BusStopID, IntersectionID, LaneID, ParkingLotID};
+use map_model::{
+    AreaID, BuildingID, BusRouteID, BusStopID, IntersectionID, LaneID, Map, ParkingLotID,
+};
 use sim::{
     AgentID, AgentType, Analytics, CarID, ParkingSpot, PedestrianID, PersonID, PersonState, TripID,
     VehicleType,
@@ -580,7 +583,7 @@ impl InfoPanel {
                     // an extra state to load the unedited map for comparing routes. It's easier to
                     // explicitly do this "outside" of SandboxMode::async_new.
                     if app.has_prebaked().is_some() {
-                        if let Some(t) = app.primary.calculate_unedited_map(ctx) {
+                        if let Some(t) = calculate_unedited_map(ctx, app) {
                             return (false, Some(Transition::Multi(vec![rewind_sim, t])));
                         }
                     }
@@ -846,4 +849,31 @@ impl DataOptions {
             .map(|a| a.noun().to_string())
             .collect()
     }
+}
+
+/// If needed, makes sure the unedited_map is populated. Callers can then do
+/// `app.primary.unedited_map.borrow().unwrap_or(&app.primary.map)` if this returns None. If a
+/// transition is returned, that must be executed first.
+// TODO I'd like to return &Map or something here, but can't get the borrow checker to work.
+fn calculate_unedited_map(ctx: &mut EventCtx, app: &App) -> Option<Transition> {
+    if app.primary.map.get_edits().commands.is_empty()
+        || app.primary.unedited_map.borrow().is_some()
+    {
+        return None;
+    }
+
+    // TODO Why can't we just clone the map and revert the edits? Cloning the map is hard,
+    // because of some ThreadLocals used for pathfinding...
+    Some(Transition::Push(FileLoader::<App, Map>::new_state(
+        ctx,
+        app.primary.map.get_name().path(),
+        Box::new(|_, app, _, map| {
+            // TODO Handle failure how? Popup is temporary, it would keep trying to
+            // load it.
+            let map = map.unwrap();
+            *app.primary.unedited_map.borrow_mut() = Some(map);
+            // The pop exits the file loader
+            Transition::Pop
+        }),
+    )))
 }

@@ -9,7 +9,6 @@ use abstio::MapName;
 use abstutil::Timer;
 use geom::{Bounds, Circle, Distance, Duration, Polygon, Pt2D, Time};
 use map_gui::colors::ColorScheme;
-use map_gui::load::FileLoader;
 use map_gui::options::Options;
 use map_gui::render::{unzoomed_agent_radius, AgentCache, DrawMap, DrawOptions, Renderable};
 use map_gui::tools::CameraState;
@@ -695,31 +694,6 @@ impl PerMap {
             &mut self.sim,
             Sim::new(&self.map, self.current_flags.sim_flags.opts.clone()),
         )
-    }
-
-    /// If needed, makes sure the unedited_map is populated. Callers can then do
-    /// `self.unedited_map.borrow().unwrap_or(&self.map)` if this returns None. If a transition is
-    /// returned, that must be executed first.
-    // TODO I'd like to return &Map or something here, but can't get the borrow checker to work.
-    pub fn calculate_unedited_map(&self, ctx: &mut EventCtx) -> Option<Transition> {
-        if self.map.get_edits().commands.is_empty() || self.unedited_map.borrow().is_some() {
-            return None;
-        }
-
-        // TODO Why can't we just clone the map and revert the edits? Cloning the map is hard,
-        // because of some ThreadLocals used for pathfinding...
-        Some(Transition::Push(FileLoader::<App, Map>::new_state(
-            ctx,
-            self.map.get_name().path(),
-            Box::new(|_, app, _, map| {
-                // TODO Handle failure how? Popup is temporary, it would keep trying to
-                // load it.
-                let map = map.unwrap();
-                *app.primary.unedited_map.borrow_mut() = Some(map);
-                // The pop exits the file loader
-                Transition::Pop
-            }),
-        )))
     }
 
     pub fn canonical_point(&self, id: ID) -> Option<Pt2D> {
