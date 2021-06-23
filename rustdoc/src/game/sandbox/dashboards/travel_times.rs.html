@@ -593,6 +593,10 @@
 <span id="590">590</span>
 <span id="591">591</span>
 <span id="592">592</span>
+<span id="593">593</span>
+<span id="594">594</span>
+<span id="595">595</span>
+<span id="596">596</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
 <span class="kw">use</span> <span class="ident">std::fs::File</span>;
@@ -1099,12 +1103,16 @@
         .<span class="ident">container</span>(),
         <span class="ident">Line</span>(<span class="string">&quot;Total Time Saved (faster)&quot;</span>)
             .<span class="ident">secondary</span>()
-            .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-        <span class="ident">DrawWithTooltips::new_widget</span>(<span class="ident">ctx</span>, <span class="ident">batch</span>, <span class="ident">tooltips</span>, <span class="ident">Box::new</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">GeomBatch::new</span>())),
+            .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
+            .<span class="ident">centered_horiz</span>(),
+        <span class="ident">DrawWithTooltips::new_widget</span>(<span class="ident">ctx</span>, <span class="ident">batch</span>, <span class="ident">tooltips</span>, <span class="ident">Box::new</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">GeomBatch::new</span>()))
+            .<span class="ident">centered_horiz</span>(),
         <span class="ident">Line</span>(<span class="string">&quot;Total Time Lost (slower)&quot;</span>)
             .<span class="ident">secondary</span>()
-            .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+            .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
+            .<span class="ident">centered_horiz</span>(),
     ])
+    .<span class="ident">centered</span>()
 }
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Filter</span> {

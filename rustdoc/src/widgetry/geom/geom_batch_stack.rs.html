@@ -126,6 +126,11 @@
 <span id="123">123</span>
 <span id="124">124</span>
 <span id="125">125</span>
+<span id="126">126</span>
+<span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::GeomBatch</span>;
 
@@ -139,7 +144,8 @@
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Alignment</span> {
     <span class="ident">Center</span>,
     <span class="ident">Top</span>,
-    <span class="comment">// TODO: Bottom, Left, Right</span>
+    <span class="ident">Left</span>,
+    <span class="comment">// TODO: Bottom, Right</span>
 }
 
 <span class="doccomment">/// Similar to [`Widget::row`]/[`Widget::column`], but for [`GeomBatch`]s instead of [`Widget`]s,</span>
@@ -231,9 +237,13 @@
                     (<span class="ident">max_bound_for_axis</span>.<span class="ident">height</span>() <span class="op">-</span> <span class="ident">bounds</span>.<span class="ident">height</span>()) <span class="op">/</span> <span class="number">2.0</span>
                 }
                 (<span class="ident">Alignment::Top</span>, <span class="ident">Axis::Vertical</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="macro">unreachable!</span>(<span class="string">&quot;cannot top-align a vertical stack&quot;</span>)
+                    <span class="macro">panic!</span>(<span class="string">&quot;cannot top-align items in a vertical stack&quot;</span>)
                 }
                 (<span class="ident">Alignment::Top</span>, <span class="ident">Axis::Horizontal</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="number">0.0</span>,
+                (<span class="ident">Alignment::Left</span>, <span class="ident">Axis::Horizontal</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="macro">panic!</span>(<span class="string">&quot;cannot left-align items in a horizontal stack&quot;</span>)
+                }
+                (<span class="ident">Alignment::Left</span>, <span class="ident">Axis::Vertical</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="number">0.0</span>,
             };
 
             <span class="kw">let</span> (<span class="ident">dx</span>, <span class="ident">dy</span>) <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">axis</span> {
