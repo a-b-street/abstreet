@@ -1032,7 +1032,7 @@
     }
 
     <span class="doccomment">/// Return a penalty for entering this queue, as opposed to some adjacent ones. Used for</span>
-    <span class="doccomment">/// lane-changing.</span>
+    <span class="doccomment">/// lane-changing. (number of vehicles, is there a bike here)</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">target_lane_penalty</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">usize</span>, <span class="ident">usize</span>) {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">num_vehicles</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">members</span>.<span class="ident">len</span>();
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">laggy_head</span>.<span class="ident">is_some</span>() {

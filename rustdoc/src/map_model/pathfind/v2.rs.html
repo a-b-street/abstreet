@@ -440,10 +440,10 @@
 
                 <span class="comment">// Normally opportunistic lane-changing adjusts the path live, but that doesn&#39;t work</span>
                 <span class="comment">// near uber-turns. So still use some of the penalties here.</span>
-                <span class="kw">let</span> (<span class="ident">lt</span>, <span class="ident">lc</span>, <span class="ident">slow_lane</span>) <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_t</span>(<span class="kw-2">*</span><span class="ident">t</span>).<span class="ident">penalty</span>(<span class="ident">map</span>);
+                <span class="kw">let</span> (<span class="ident">lt</span>, <span class="ident">lc</span>, <span class="ident">slow_lane</span>) <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_t</span>(<span class="kw-2">*</span><span class="ident">t</span>).<span class="ident">penalty</span>(<span class="self">self</span>.<span class="ident">req</span>.<span class="ident">constraints</span>, <span class="ident">map</span>);
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">extra_penalty</span> <span class="op">=</span> <span class="ident">lt</span> <span class="op">+</span> <span class="ident">lc</span>;
                 <span class="kw">if</span> <span class="self">self</span>.<span class="ident">req</span>.<span class="ident">constraints</span> <span class="op">=</span><span class="op">=</span> <span class="ident">PathConstraints::Bike</span> {
-                    <span class="ident">extra_penalty</span> <span class="op">=</span> <span class="ident">slow_lane</span>;
+                    <span class="ident">extra_penalty</span> <span class="op">+</span><span class="op">=</span> <span class="ident">slow_lane</span>;
                 }
                 <span class="comment">// Always treat every lane/turn as at least cost 1; otherwise A* can&#39;t understand</span>
                 <span class="comment">// that a final path with 10 steps costs more than one with 5. The</span>

@@ -892,9 +892,10 @@
             <span class="kw">let</span> <span class="ident">orig_target_lane</span> <span class="op">=</span> <span class="ident">current_turn</span>.<span class="ident">dst</span>;
             <span class="kw">let</span> <span class="ident">parent</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_parent</span>(<span class="ident">orig_target_lane</span>);
             <span class="kw">let</span> <span class="ident">next_parent</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">next_lane</span>).<span class="ident">src_i</span>;
+            <span class="kw">let</span> <span class="ident">constraints</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">owner</span>.<span class="ident">vehicle_type</span>.<span class="ident">to_constraints</span>();
 
             <span class="kw">let</span> <span class="ident">compute_cost</span> <span class="op">=</span> <span class="op">|</span><span class="ident">turn1</span>: <span class="kw-2">&amp;</span><span class="ident">Turn</span>, <span class="ident">lane</span>: <span class="ident">LaneID</span><span class="op">|</span> {
-                <span class="kw">let</span> (<span class="ident">lt</span>, <span class="ident">lc</span>, <span class="kw-2">mut</span> <span class="ident">slow_lane</span>) <span class="op">=</span> <span class="ident">turn1</span>.<span class="ident">penalty</span>(<span class="ident">map</span>);
+                <span class="kw">let</span> (<span class="ident">lt</span>, <span class="ident">lc</span>, <span class="kw-2">mut</span> <span class="ident">slow_lane</span>) <span class="op">=</span> <span class="ident">turn1</span>.<span class="ident">penalty</span>(<span class="ident">constraints</span>, <span class="ident">map</span>);
                 <span class="kw">let</span> (<span class="ident">vehicles</span>, <span class="kw-2">mut</span> <span class="ident">bike</span>) <span class="op">=</span> <span class="ident">queues</span>[<span class="kw-2">&amp;</span><span class="ident">Traversable::Lane</span>(<span class="ident">lane</span>)].<span class="ident">target_lane_penalty</span>();
 
                 <span class="comment">// The magic happens here. We have different penalties:</span>
@@ -923,7 +924,6 @@
 
             <span class="comment">// Look for other candidates, and assign a cost to each.</span>
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">original_cost</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-            <span class="kw">let</span> <span class="ident">constraints</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">owner</span>.<span class="ident">vehicle_type</span>.<span class="ident">to_constraints</span>();
             <span class="kw">let</span> <span class="ident">dir</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">orig_target_lane</span>).<span class="ident">dir</span>;
             <span class="kw">let</span> <span class="ident">best</span> <span class="op">=</span> <span class="ident">parent</span>
                 .<span class="ident">lanes_ltr</span>()
