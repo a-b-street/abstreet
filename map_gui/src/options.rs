@@ -264,16 +264,23 @@ impl OptionsPanel {
                             ],
                         ),
                     ]),
-                    Widget::row(vec![
-                        "Language".text_widget(ctx),
-                        Widget::dropdown(ctx, "language", app.opts().language.clone(), {
-                            let mut choices = vec![Choice::new("Map native language", None)];
-                            for lang in app.map().get_languages() {
-                                choices.push(Choice::new(lang, Some(lang.to_string())));
+                    Widget::row(vec!["Language".text_widget(ctx), {
+                        let mut default = app.opts().language.clone();
+                        let mut have_default = false;
+                        let mut choices = vec![Choice::new("Map native language", None)];
+                        for lang in app.map().get_languages() {
+                            if default == Some(lang.to_string()) {
+                                have_default = true;
                             }
-                            choices
-                        }),
-                    ]),
+                            choices.push(Choice::new(lang, Some(lang.to_string())));
+                        }
+                        // We might be switching from a map that has more languages than this
+                        // map
+                        if !have_default {
+                            default = None;
+                        }
+                        Widget::dropdown(ctx, "language", default, choices)
+                    }]),
                     Toggle::choice(
                         ctx,
                         "metric / imperial units",
