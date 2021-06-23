@@ -1079,6 +1079,11 @@ impl DrivingSimState {
         now: Time,
         ctx: &mut Ctx,
     ) {
+        // If we are a laggy head somewhere else (our back is still sticking into another lane or
+        // turn), don't start lane-changing!
+        if !car.last_steps.is_empty() {
+            return;
+        }
         // If the lanes are very different lengths and we're too close to the end at the target,
         // not going to work.
         if front_current_queue >= ctx.map.get_l(target_lane).length() {
@@ -1117,6 +1122,14 @@ impl DrivingSimState {
                 &self.queues,
             )
         {
+            // TODO Can downgrade this to an alert or debug once active work has settled down
+            info!(
+                "{} is starting to change lanes from {} to {}",
+                car.vehicle.id,
+                car.router.head(),
+                target_lane
+            );
+
             // Exit the old queue (leaving a dynamic blockage in place)
             self.queues
                 .get_mut(&car.router.head())
