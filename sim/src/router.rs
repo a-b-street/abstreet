@@ -369,9 +369,10 @@ impl Router {
             let orig_target_lane = current_turn.dst;
             let parent = map.get_parent(orig_target_lane);
             let next_parent = map.get_l(next_lane).src_i;
+            let constraints = self.owner.vehicle_type.to_constraints();
 
             let compute_cost = |turn1: &Turn, lane: LaneID| {
-                let (lt, lc, mut slow_lane) = turn1.penalty(map);
+                let (lt, lc, mut slow_lane) = turn1.penalty(constraints, map);
                 let (vehicles, mut bike) = queues[&Traversable::Lane(lane)].target_lane_penalty();
 
                 // The magic happens here. We have different penalties:
@@ -400,7 +401,6 @@ impl Router {
 
             // Look for other candidates, and assign a cost to each.
             let mut original_cost = None;
-            let constraints = self.owner.vehicle_type.to_constraints();
             let dir = map.get_l(orig_target_lane).dir;
             let best = parent
                 .lanes_ltr()

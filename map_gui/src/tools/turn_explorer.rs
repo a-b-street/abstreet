@@ -1,5 +1,5 @@
 use geom::{ArrowCap, Distance};
-use map_model::{LaneID, TurnType};
+use map_model::{LaneID, PathConstraints, TurnType};
 use widgetry::{
     Color, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
     Panel, State, Text, TextExt, Transition, VerticalAlignment, Widget,
@@ -172,14 +172,13 @@ impl TurnExplorer {
                 ));
             }
         } else {
-            let (lt, lc, slow_lane) = turns[idx - 1].penalty(app.map());
+            let (lt, lc, slow_lane) = turns[idx - 1].penalty(PathConstraints::Car, app.map());
             let (vehicles, bike) = app
                 .sim()
                 .target_lane_penalty(app.map().get_l(turns[idx - 1].id.dst));
             col.push(
                 format!(
-                    "Penalties: {} for lane types, {} for lane changing, {} for keeping to the \
-                     slow lane, {} for vehicles, {} for slow bikes",
+                    "Penalties: {} for lane types (assuming a car), {} for lane changing, {} for keeping to the slow lane, {} for vehicles, {} for slow bikes",
                     lt, lc, slow_lane, vehicles, bike
                 )
                 .text_widget(ctx),

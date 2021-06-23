@@ -160,10 +160,10 @@ impl PathV2 {
 
                 // Normally opportunistic lane-changing adjusts the path live, but that doesn't work
                 // near uber-turns. So still use some of the penalties here.
-                let (lt, lc, slow_lane) = map.get_t(*t).penalty(map);
+                let (lt, lc, slow_lane) = map.get_t(*t).penalty(self.req.constraints, map);
                 let mut extra_penalty = lt + lc;
                 if self.req.constraints == PathConstraints::Bike {
-                    extra_penalty = slow_lane;
+                    extra_penalty += slow_lane;
                 }
                 // Always treat every lane/turn as at least cost 1; otherwise A* can't understand
                 // that a final path with 10 steps costs more than one with 5. The

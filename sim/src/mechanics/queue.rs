@@ -411,7 +411,7 @@ impl Queue {
     }
 
     /// Return a penalty for entering this queue, as opposed to some adjacent ones. Used for
-    /// lane-changing.
+    /// lane-changing. (number of vehicles, is there a bike here)
     pub fn target_lane_penalty(&self) -> (usize, usize) {
         let mut num_vehicles = self.members.len();
         if self.laggy_head.is_some() {

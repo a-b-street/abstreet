@@ -8,7 +8,9 @@ use abstutil::MultiMap;
 use geom::{Angle, Distance, PolyLine, Pt2D};
 
 use crate::raw::RestrictionType;
-use crate::{DirectedRoadID, Direction, Intersection, IntersectionID, LaneID, Map};
+use crate::{
+    DirectedRoadID, Direction, Intersection, IntersectionID, LaneID, Map, PathConstraints,
+};
 
 /// Turns are uniquely identified by their (src, dst) lanes and their parent intersection.
 /// Intersection is needed to distinguish crosswalks that exist at two ends of a sidewalk.
@@ -103,8 +105,9 @@ impl Turn {
     }
 
     // TODO Maybe precompute this.
-    /// penalties for (lane types, lane-changing, slow lane)
-    pub fn penalty(&self, map: &Map) -> (usize, usize, usize) {
+    /// Penalties for (lane types, lane-changing, slow lane). The penalty may depend on the vehicle
+    /// performing the turn. Lower means preferable.
+    pub fn penalty(&self, constraints: PathConstraints, map: &Map) -> (usize, usize, usize) {
         let from = map.get_l(self.id.src);
         let to = map.get_l(self.id.dst);
 
@@ -153,12 +156,29 @@ impl Turn {
         // this.
         let lc_cost = ((from_idx as isize) - (to_idx as isize)).abs() as usize;
 
-        // Always prefer a dedicated bike or bus lane. This takes care of entering one from a
-        // driving lane and staying on one.
-        // It may seem weird to have a cost for cars just sticking to driving lanes, but this cost
-        // is relative to all available options. All choices for a car are the same, so it doesn't
-        // matter.
-        let lt_cost = if to.is_biking() || to.is_bus() { 0 } else { 1 };
+        // If we're a bike, prefer bike lanes, then bus lanes. If we're a bus, prefer bus lanes.
+        // Otherwise, avoid special lanes, even if we're allowed to use them sometimes because they
+        // happen to double as turn lanes.
+        let lt_cost = if constraints == PathConstraints::Bike {
+            if to.is_biking() {
+                0
+            } else if to.is_bus() {
+                1
+            } else {
+                2
+            }
+        } else if constraints == PathConstraints::Bus {
+            if to.is_bus() {
+                0
+            } else {
+                1
+            }
+        } else if to.is_bus() {
+            // Cars should stay out of bus lanes unless it's required to make a turn
+            3
+        } else {
+            0
+        };
 
         // Keep right (in the US)
         let slow_lane = if to_idx > 1 { 1 } else { 0 };
