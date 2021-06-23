@@ -859,32 +859,6 @@
 <span id="856">856</span>
 <span id="857">857</span>
 <span id="858">858</span>
-<span id="859">859</span>
-<span id="860">860</span>
-<span id="861">861</span>
-<span id="862">862</span>
-<span id="863">863</span>
-<span id="864">864</span>
-<span id="865">865</span>
-<span id="866">866</span>
-<span id="867">867</span>
-<span id="868">868</span>
-<span id="869">869</span>
-<span id="870">870</span>
-<span id="871">871</span>
-<span id="872">872</span>
-<span id="873">873</span>
-<span id="874">874</span>
-<span id="875">875</span>
-<span id="876">876</span>
-<span id="877">877</span>
-<span id="878">878</span>
-<span id="879">879</span>
-<span id="880">880</span>
-<span id="881">881</span>
-<span id="882">882</span>
-<span id="883">883</span>
-<span id="884">884</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std::cell::RefCell</span>;
 <span class="kw">use</span> <span class="ident">std::collections::BTreeMap</span>;
@@ -897,7 +871,6 @@
 <span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Bounds</span>, <span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">map_gui::colors::ColorScheme</span>;
-<span class="kw">use</span> <span class="ident">map_gui::load::FileLoader</span>;
 <span class="kw">use</span> <span class="ident">map_gui::options::Options</span>;
 <span class="kw">use</span> <span class="ident">map_gui::render</span>::{<span class="ident">unzoomed_agent_radius</span>, <span class="ident">AgentCache</span>, <span class="ident">DrawMap</span>, <span class="ident">DrawOptions</span>, <span class="ident">Renderable</span>};
 <span class="kw">use</span> <span class="ident">map_gui::tools::CameraState</span>;
@@ -1583,31 +1556,6 @@
             <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">sim</span>,
             <span class="ident">Sim::new</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">map</span>, <span class="self">self</span>.<span class="ident">current_flags</span>.<span class="ident">sim_flags</span>.<span class="ident">opts</span>.<span class="ident">clone</span>()),
         )
-    }
-
-    <span class="doccomment">/// If needed, makes sure the unedited_map is populated. Callers can then do</span>
-    <span class="doccomment">/// `self.unedited_map.borrow().unwrap_or(&amp;self.map)` if this returns None. If a transition is</span>
-    <span class="doccomment">/// returned, that must be executed first.</span>
-    <span class="comment">// TODO I&#39;d like to return &amp;Map or something here, but can&#39;t get the borrow checker to work.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">calculate_unedited_map</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Transition</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">commands</span>.<span class="ident">is_empty</span>() <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">unedited_map</span>.<span class="ident">borrow</span>().<span class="ident">is_some</span>() {
-            <span class="kw">return</span> <span class="prelude-val">None</span>;
-        }
-
-        <span class="comment">// TODO Why can&#39;t we just clone the map and revert the edits? Cloning the map is hard,</span>
-        <span class="comment">// because of some ThreadLocals used for pathfinding...</span>
-        <span class="prelude-val">Some</span>(<span class="ident">Transition::Push</span>(<span class="ident">FileLoader</span>::<span class="op">&lt;</span><span class="ident">App</span>, <span class="ident">Map</span><span class="op">&gt;</span><span class="ident">::new_state</span>(
-            <span class="ident">ctx</span>,
-            <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">path</span>(),
-            <span class="ident">Box::new</span>(<span class="op">|</span><span class="kw">_</span>, <span class="ident">app</span>, <span class="kw">_</span>, <span class="ident">map</span><span class="op">|</span> {
-                <span class="comment">// TODO Handle failure how? Popup is temporary, it would keep trying to</span>
-                <span class="comment">// load it.</span>
-                <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">unwrap</span>();
-                <span class="kw-2">*</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">unedited_map</span>.<span class="ident">borrow_mut</span>() <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">map</span>);
-                <span class="comment">// The pop exits the file loader</span>
-                <span class="ident">Transition::Pop</span>
-            }),
-        )))
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">canonical_point</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">ID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span> {

@@ -815,7 +815,7 @@
                         <span class="ident">Color::YELLOW</span>,
                         <span class="ident">open_trips</span>
                             .<span class="ident">get_mut</span>(<span class="ident">t</span>)
-                            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">open_trip</span><span class="op">|</span> <span class="ident">trip::future</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">*</span><span class="ident">t</span>, <span class="ident">open_trip</span>, <span class="ident">details</span>)),
+                            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">open_trip</span><span class="op">|</span> <span class="ident">trip::future</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>, <span class="kw-2">*</span><span class="ident">t</span>, <span class="ident">open_trip</span>, <span class="ident">details</span>)),
                     )
                 } <span class="kw">else</span> {
                     (
@@ -823,7 +823,7 @@
                         <span class="ident">Color::hex</span>(<span class="string">&quot;#4CA7E9&quot;</span>),
                         <span class="ident">open_trips</span>
                             .<span class="ident">get_mut</span>(<span class="ident">t</span>)
-                            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">open_trip</span><span class="op">|</span> <span class="ident">trip::future</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">*</span><span class="ident">t</span>, <span class="ident">open_trip</span>, <span class="ident">details</span>)),
+                            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">open_trip</span><span class="op">|</span> <span class="ident">trip::future</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>, <span class="kw-2">*</span><span class="ident">t</span>, <span class="ident">open_trip</span>, <span class="ident">details</span>)),
                     )
                 }
             }
