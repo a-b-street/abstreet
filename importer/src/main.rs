@@ -226,9 +226,15 @@ impl Job {
                         name.describe()
                     ));
                 } else if name.city == CityName::seattle() {
-                    timer.start(format!("add GTFS schedules for {}", name.describe()));
-                    seattle::add_gtfs_schedules(&mut map);
-                    timer.stop(format!("add GTFS schedules for {}", name.describe()));
+                    // TODO Slightly misleading, but hijack --skip_ch to also skip GTFS. The
+                    // intention of --skip_ch is usually to quickly iterate on the map importer,
+                    // not in release mode. This import is broken/unused right now anyway and takes
+                    // way too much time in debug mode.
+                    if opts.build_ch {
+                        timer.start(format!("add GTFS schedules for {}", name.describe()));
+                        seattle::add_gtfs_schedules(&mut map);
+                        timer.stop(format!("add GTFS schedules for {}", name.describe()));
+                    }
                 }
 
                 Some(map)
