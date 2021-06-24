@@ -10,6 +10,10 @@ use crate::{
 
 /// Generate Crosswalk and SharedSidewalkCorner (places where two sidewalks directly meet) turns
 pub fn make_walking_turns(map: &Map, i: &Intersection) -> Vec<Turn> {
+    if i.merged {
+        return make_walking_turns_v2(map, i);
+    }
+
     if i.is_footway(map) {
         return make_footway_turns(map, i);
     }
@@ -185,8 +189,15 @@ pub fn filter_turns(mut input: Vec<Turn>, map: &Map, i: &Intersection) -> Vec<Tu
     input
 }
 
-// TODO Need to filter out extraneous crosswalks. Why weren't they being created before?
-pub fn _make_walking_turns_v2(map: &Map, i: &Intersection) -> Vec<Turn> {
+/// A complete rewrite of make_walking_turns, which looks at all sidewalks (or lack thereof) in
+/// counter-clockwise order around an intersection. Based on adjacency, create a
+/// SharedSidewalkCorner or a Crosswalk.
+///
+/// TODO This is only used for consolidated intersections right now. Cut over to this completely
+/// after fixing problems like:
+/// - too many crosswalks at the Boyer roundabout
+/// - one centered crosswalk for degenerate intersections
+fn make_walking_turns_v2(map: &Map, i: &Intersection) -> Vec<Turn> {
     let driving_side = map.config.driving_side;
     let all_roads = map.all_roads();
     let all_lanes = map.all_lanes();
@@ -236,7 +247,7 @@ pub fn _make_walking_turns_v2(map: &Map, i: &Intersection) -> Vec<Turn> {
     let mut adj = true;
     for l in lanes.iter().skip(1).chain(lanes.iter()) {
         if i.id.0 == 284 {
-            println!(
+            debug!(
                 "looking at {:?}. from is {:?}, first_from is {}, adj is {}",
                 l.map(|l| l.id),
                 from.map(|l| l.id),

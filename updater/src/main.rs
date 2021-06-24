@@ -60,12 +60,14 @@ async fn main() {
         let minimal = args.enabled("--minimal");
         // If true, only update files from the manifest. Leave extra files alone.
         let dont_delete = args.enabled("--dont_delete");
+        // "Download" from my local S3 source-of-truth
+        let dl_from_local = args.enabled("--dl_from_local");
         args.done();
-        download_updates(version, minimal, !dont_delete).await;
+        download_updates(version, minimal, !dont_delete, dl_from_local).await;
     }
 }
 
-async fn download_updates(version: String, minimal: bool, delete_local: bool) {
+async fn download_updates(version: String, minimal: bool, delete_local: bool, dl_from_local: bool) {
     let data_packs = DataPacks::load_or_create();
     let truth = Manifest::load().filter(data_packs);
     let local = generate_manifest(&truth);
@@ -90,7 +92,7 @@ async fn download_updates(version: String, minimal: bool, delete_local: bool) {
             }
 
             std::fs::create_dir_all(std::path::Path::new(&path).parent().unwrap()).unwrap();
-            match download_file(&version, &path).await {
+            match download_file(&version, &path, dl_from_local).await {
                 Ok(bytes) => {
                     println!(
                         "> decompress {}, which is {} bytes compressed",
@@ -354,9 +356,8 @@ fn rm(path: &str) {
     }
 }
 
-async fn download_file(version: &str, path: &str) -> Result<Vec<u8>> {
-    // Manually enable to "download" from my local copy
-    if false {
+async fn download_file(version: &str, path: &str, dl_from_local: bool) -> Result<Vec<u8>> {
+    if dl_from_local {
         return abstio::slurp_file(format!(
             "/home/dabreegster/s3_abst_data/{}/{}.gz",
             version, path
