@@ -165,10 +165,20 @@ impl Job {
             .collect()
         };
 
+        // When regenerating everything, huge_seattle gets created twice! This is expensive enough
+        // to hack in a way to avoid the work.
+        let mut built_raw_huge_seattle = false;
+        let mut built_map_huge_seattle = false;
         let (maybe_popdat, maybe_huge_map, maybe_zoning_parcels) = if self.scenario
             && self.city == CityName::seattle()
         {
-            let (popdat, huge_map) = seattle::ensure_popdat_exists(timer, config).await;
+            let (popdat, huge_map) = seattle::ensure_popdat_exists(
+                timer,
+                config,
+                &mut built_raw_huge_seattle,
+                &mut built_map_huge_seattle,
+            )
+            .await;
             // Just assume --raw has been called...
             let shapes: kml::ExtraShapes =
                 abstio::read_binary(CityName::seattle().input_path("zoning_parcels.bin"), timer);
@@ -181,7 +191,9 @@ impl Job {
             if self.osm_to_raw {
                 // Still special-cased
                 if self.city == CityName::seattle() {
-                    seattle::osm_to_raw(&name, timer, config).await;
+                    if !built_raw_huge_seattle || name != "huge_seattle" {
+                        seattle::osm_to_raw(&name, timer, config).await;
+                    }
                 } else {
                     let raw = match abstio::maybe_read_json::<generic::GenericCityImporter>(
                         format!(
@@ -212,7 +224,12 @@ impl Job {
             let name = MapName::from_city(&self.city, &name);
 
             let mut maybe_map = if self.raw_to_map {
-                let mut map = utils::raw_to_map(&name, opts.clone(), timer);
+                let mut map = if built_map_huge_seattle && name == MapName::seattle("huge_seattle")
+                {
+                    map_model::Map::load_synchronously(name.path(), timer)
+                } else {
+                    utils::raw_to_map(&name, opts.clone(), timer)
+                };
 
                 // Another strange step in the pipeline.
                 if name == MapName::new("de", "berlin", "center") {

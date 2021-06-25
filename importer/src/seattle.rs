@@ -168,6 +168,8 @@ pub async fn osm_to_raw(name: &str, timer: &mut Timer<'_>, config: &ImporterConf
 pub async fn ensure_popdat_exists(
     timer: &mut Timer<'_>,
     config: &ImporterConfiguration,
+    build_raw_huge_seattle: &mut bool,
+    build_map_huge_seattle: &mut bool,
 ) -> (crate::soundcast::PopDat, map_model::Map) {
     let huge_name = MapName::seattle("huge_seattle");
 
@@ -181,10 +183,12 @@ pub async fn ensure_popdat_exists(
 
     if !abstio::file_exists(abstio::path_raw_map(&huge_name)) {
         osm_to_raw("huge_seattle", timer, config).await;
+        *build_raw_huge_seattle = true;
     }
     let huge_map = if abstio::file_exists(huge_name.path()) {
         map_model::Map::load_synchronously(huge_name.path(), timer)
     } else {
+        *build_map_huge_seattle = true;
         crate::utils::raw_to_map(&huge_name, map_model::RawToMapOptions::default(), timer)
     };
 
