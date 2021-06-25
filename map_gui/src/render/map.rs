@@ -151,7 +151,11 @@ impl DrawMap {
                 quadtree.insert_with_box(obj.get_id(), obj.get_outline(map).get_bounds().as_bbox());
             quadtree_ids.insert(obj.get_id(), item_id);
         }
-        for obj in lanes.values() {
+        // Since lanes is a HashMap, iteration order is nondeterministic. When lanes happen to
+        // cover each other up, this leads to nondeterministic drawing order! This manifests quite
+        // prominently in screenshot diff tests.
+        for l in map.all_lanes().keys() {
+            let obj = &lanes[l];
             let item_id =
                 quadtree.insert_with_box(obj.get_id(), obj.get_outline(map).get_bounds().as_bbox());
             quadtree_ids.insert(obj.get_id(), item_id);
