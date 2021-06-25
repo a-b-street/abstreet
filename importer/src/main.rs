@@ -172,6 +172,7 @@ impl Job {
         let (maybe_popdat, maybe_huge_map, maybe_zoning_parcels) = if self.scenario
             && self.city == CityName::seattle()
         {
+            timer.start("ensure_popdat_exists");
             let (popdat, huge_map) = seattle::ensure_popdat_exists(
                 timer,
                 config,
@@ -182,17 +183,20 @@ impl Job {
             // Just assume --raw has been called...
             let shapes: kml::ExtraShapes =
                 abstio::read_binary(CityName::seattle().input_path("zoning_parcels.bin"), timer);
+            timer.stop("ensure_popdat_exists");
             (Some(popdat), Some(huge_map), Some(shapes))
         } else {
             (None, None, None)
         };
 
         for name in names {
+            let name = MapName::from_city(&self.city, &name);
+            timer.start(name.describe());
             if self.osm_to_raw {
                 // Still special-cased
-                if self.city == CityName::seattle() {
-                    if !built_raw_huge_seattle || name != "huge_seattle" {
-                        seattle::osm_to_raw(&name, timer, config).await;
+                if name.city == CityName::seattle() {
+                    if !built_raw_huge_seattle || name.map != "huge_seattle" {
+                        seattle::osm_to_raw(&name.map, timer, config).await;
                     }
                 } else {
                     let raw = match abstio::maybe_read_json::<generic::GenericCityImporter>(
@@ -202,26 +206,21 @@ impl Job {
                         ),
                         timer,
                     ) {
-                        Ok(city_cfg) => {
-                            city_cfg
-                                .osm_to_raw(MapName::from_city(&self.city, &name), timer, config)
-                                .await
-                        }
+                        Ok(city_cfg) => city_cfg.osm_to_raw(name.clone(), timer, config).await,
                         Err(err) => {
-                            panic!("Can't import city {}: {}", self.city.describe(), err);
+                            panic!("Can't import {}: {}", name.describe(), err);
                         }
                     };
 
-                    if self.city == CityName::new("de", "berlin") {
+                    if name.city == CityName::new("de", "berlin") {
                         berlin::import_extra_data(&raw, config, timer).await;
-                    } else if self.city == CityName::new("gb", "leeds") && name == "huge" {
+                    } else if name == MapName::new("gb", "leeds", "huge") {
                         uk::import_collision_data(&raw, config, timer).await;
-                    } else if self.city == CityName::new("gb", "london") {
+                    } else if name.city == CityName::new("gb", "london") {
                         uk::import_collision_data(&raw, config, timer).await;
                     }
                 }
             }
-            let name = MapName::from_city(&self.city, &name);
 
             let mut maybe_map = if self.raw_to_map {
                 let mut map = if built_map_huge_seattle && name == MapName::seattle("huge_seattle")
@@ -299,6 +298,7 @@ impl Job {
                         .unwrap();
                 }
             }
+            timer.stop(name.describe());
         }
 
         if self.city_overview {
