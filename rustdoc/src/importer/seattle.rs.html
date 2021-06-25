@@ -337,6 +337,10 @@
 <span id="334">334</span>
 <span id="335">335</span>
 <span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashSet</span>};
 <span class="kw">use</span> <span class="ident">std::fs::File</span>;
@@ -508,6 +512,8 @@
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">ensure_popdat_exists</span>(
     <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
     <span class="ident">config</span>: <span class="kw-2">&amp;</span><span class="ident">ImporterConfiguration</span>,
+    <span class="ident">build_raw_huge_seattle</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bool</span>,
+    <span class="ident">build_map_huge_seattle</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bool</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> (<span class="kw">crate</span><span class="ident">::soundcast::PopDat</span>, <span class="ident">map_model::Map</span>) {
     <span class="kw">let</span> <span class="ident">huge_name</span> <span class="op">=</span> <span class="ident">MapName::seattle</span>(<span class="string">&quot;huge_seattle&quot;</span>);
 
@@ -521,10 +527,12 @@
 
     <span class="kw">if</span> <span class="op">!</span><span class="ident">abstio::file_exists</span>(<span class="ident">abstio::path_raw_map</span>(<span class="kw-2">&amp;</span><span class="ident">huge_name</span>)) {
         <span class="ident">osm_to_raw</span>(<span class="string">&quot;huge_seattle&quot;</span>, <span class="ident">timer</span>, <span class="ident">config</span>).<span class="kw">await</span>;
+        <span class="kw-2">*</span><span class="ident">build_raw_huge_seattle</span> <span class="op">=</span> <span class="bool-val">true</span>;
     }
     <span class="kw">let</span> <span class="ident">huge_map</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">abstio::file_exists</span>(<span class="ident">huge_name</span>.<span class="ident">path</span>()) {
         <span class="ident">map_model::Map::load_synchronously</span>(<span class="ident">huge_name</span>.<span class="ident">path</span>(), <span class="ident">timer</span>)
     } <span class="kw">else</span> {
+        <span class="kw-2">*</span><span class="ident">build_map_huge_seattle</span> <span class="op">=</span> <span class="bool-val">true</span>;
         <span class="kw">crate</span><span class="ident">::utils::raw_to_map</span>(<span class="kw-2">&amp;</span><span class="ident">huge_name</span>, <span class="ident">map_model::RawToMapOptions::default</span>(), <span class="ident">timer</span>)
     };
 
