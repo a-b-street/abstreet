@@ -45,11 +45,9 @@ impl<A: AppLike + 'static> CityPicker<A> {
                 city_name.country, city_name.city
             )),
             Box::new(move |ctx, app, _, maybe_city| {
+                // If city.bin exists, use it to draw the district map.
                 let mut batch = GeomBatch::new();
                 let mut districts = Vec::new();
-                let mut this_city =
-                    vec![format!("More districts in {}", city_name.describe()).text_widget(ctx)];
-
                 if let Ok(city) = maybe_city {
                     let bounds = city.boundary.get_bounds();
 
@@ -62,49 +60,33 @@ impl<A: AppLike + 'static> CityPicker<A> {
                     }
 
                     // If somebody has just generated a new map somewhere with an existing
-                    // city.bin, but hasn't updated city.bin yet, that new map will be invisible.
-                    let mut buttons = Vec::new();
+                    // city.bin, but hasn't updated city.bin yet, that new map will be invisible on
+                    // the city-wide diagram.
                     for (name, polygon) in city.districts {
-                        let color = app.cs().rotating_color_agents(districts.len());
-
-                        let btn = ctx
-                            .style()
-                            .btn_outline
-                            .text(nice_map_name(&name))
-                            .no_tooltip();
-
-                        let action = name.path();
-                        if &name == app.map().get_name() {
-                            let btn = btn.disabled(true);
-                            buttons.push((name.clone(), btn.build_widget(ctx, &action)));
-                        } else {
-                            buttons.push((name.clone(), btn.build_widget(ctx, &action)));
+                        if &name != app.map().get_name() {
+                            let color = app.cs().rotating_color_agents(districts.len());
                             batch.push(color, polygon.to_outline(Distance::meters(200.0)).unwrap());
                             districts.push((name, color, polygon.scale(zoom)));
                         }
                     }
                     batch = batch.scale(zoom);
+                }
 
-                    // city.districts are sorted in an order necessary for z-ordering (larger
-                    // districts last), but we want the buttons listed on the side to be
-                    // alphabetical.
-                    buttons.sort_by_key(|(name, _)| name.clone());
-                    for (_, btn) in buttons {
-                        this_city.push(btn);
-                    }
-                } else {
-                    // If this city overview doesn't exist, just list files.
-                    // If we have the city.bin, then we ought to have all the files locally.
-                    for name in MapName::list_all_maps_in_city_locally(&city_name) {
-                        this_city.push(
-                            ctx.style()
-                                .btn_outline
-                                .text(nice_map_name(&name))
-                                .no_tooltip()
-                                .disabled(&name == app.map().get_name())
-                                .build_widget(ctx, &name.path()),
-                        );
-                    }
+                // Use the filesystem to list the buttons on the side.
+                // (There's no point in listing these from city.bin if it exists -- if somebody
+                // imports a new map in an existing city, it could be out of sync anyway.)
+                let mut this_city =
+                    vec![format!("More districts in {}", city_name.describe()).text_widget(ctx)];
+                // TODO On native, merge local filesystem and manifest
+                for name in MapName::list_all_maps_in_city_locally(&city_name) {
+                    this_city.push(
+                        ctx.style()
+                            .btn_outline
+                            .text(nice_map_name(&name))
+                            .no_tooltip()
+                            .disabled(&name == app.map().get_name())
+                            .build_widget(ctx, &name.path()),
+                    );
                 }
 
                 let mut other_places = vec![Line("Other places").into_widget(ctx)];
@@ -516,6 +498,7 @@ impl<A: AppLike + 'static> State<A> for CitiesInCountryPicker<A> {
 
 fn cities_per_country() -> BTreeMap<String, Vec<CityName>> {
     let mut per_country = BTreeMap::new();
+    // TODO Filesystem + manifest, merged
     for city in CityName::list_all_cities_from_manifest(&Manifest::load()) {
         per_country
             .entry(city.country.clone())
