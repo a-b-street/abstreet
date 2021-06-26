@@ -1,5 +1,9 @@
 //! Generate paths for different A/B Street files
 
+// TODO There's some repeated code here for listing files locally/from the manifest/merged. Maybe
+// have a Source enum and simplify the API. But we would either have to call Manifest::load
+// constantly, or plumb it around with a borrow? Or maybe even owned.
+
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
 
@@ -106,7 +110,7 @@ impl CityName {
     }
 
     /// Returns all city names based on the manifest of available files.
-    pub fn list_all_cities_from_manifest(manifest: &Manifest) -> Vec<CityName> {
+    fn list_all_cities_from_manifest(manifest: &Manifest) -> Vec<CityName> {
         let mut cities = Vec::new();
         for path in manifest.entries.keys() {
             if let Some(city) = Manifest::path_to_city(path) {
@@ -116,6 +120,15 @@ impl CityName {
         // The paths in the manifest are ordered, so the same cities will be adjacent.
         cities.dedup();
         cities
+    }
+
+    /// Returns all city names either available locally or based on the manifest of available files.
+    pub fn list_all_cities_merged(manifest: &Manifest) -> Vec<CityName> {
+        let mut all = CityName::list_all_cities_locally();
+        all.extend(CityName::list_all_cities_from_manifest(manifest));
+        all.sort();
+        all.dedup();
+        all
     }
 
     /// Returns all city names based on importer config.
@@ -224,7 +237,7 @@ impl MapName {
     }
 
     /// Returns all maps from one city that're available locally.
-    pub fn list_all_maps_in_city_locally(city: &CityName) -> Vec<MapName> {
+    fn list_all_maps_in_city_locally(city: &CityName) -> Vec<MapName> {
         let mut names = Vec::new();
         for map in list_all_objects(path(format!("system/{}/{}/maps", city.country, city.city))) {
             names.push(MapName {
@@ -245,7 +258,7 @@ impl MapName {
     }
 
     /// Returns all maps from all cities based on the manifest of available files.
-    pub fn list_all_maps_from_manifest(manifest: &Manifest) -> Vec<MapName> {
+    fn list_all_maps_from_manifest(manifest: &Manifest) -> Vec<MapName> {
         let mut names = Vec::new();
         for path in manifest.entries.keys() {
             if let Some(name) = MapName::from_path(path) {
@@ -255,20 +268,31 @@ impl MapName {
         names
     }
 
+    /// Returns all maps from all cities either available locally or based on the manifest of available files.
+    pub fn list_all_maps_merged(manifest: &Manifest) -> Vec<MapName> {
+        let mut all = MapName::list_all_maps_locally();
+        all.extend(MapName::list_all_maps_from_manifest(manifest));
+        all.sort();
+        all.dedup();
+        all
+    }
+
     /// Returns all maps from one city based on the manifest of available files.
-    pub fn list_all_maps_in_city_from_manifest(
-        city: &CityName,
-        manifest: &Manifest,
-    ) -> Vec<MapName> {
-        let mut names = Vec::new();
-        for path in manifest.entries.keys() {
-            if let Some(name) = MapName::from_path(path) {
-                if &name.city == city {
-                    names.push(name);
-                }
-            }
-        }
-        names
+    fn list_all_maps_in_city_from_manifest(city: &CityName, manifest: &Manifest) -> Vec<MapName> {
+        MapName::list_all_maps_from_manifest(manifest)
+            .into_iter()
+            .filter(|name| &name.city == city)
+            .collect()
+    }
+
+    /// Returns all maps from one city that're available either locally or according to the
+    /// manifest.
+    pub fn list_all_maps_in_city_merged(city: &CityName, manifest: &Manifest) -> Vec<MapName> {
+        let mut all = MapName::list_all_maps_in_city_locally(city);
+        all.extend(MapName::list_all_maps_in_city_from_manifest(city, manifest));
+        all.sort();
+        all.dedup();
+        all
     }
 
     /// Returns the string to opt into runtime or input files for DataPacks.

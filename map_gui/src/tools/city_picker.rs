@@ -77,8 +77,7 @@ impl<A: AppLike + 'static> CityPicker<A> {
                 // imports a new map in an existing city, it could be out of sync anyway.)
                 let mut this_city =
                     vec![format!("More districts in {}", city_name.describe()).text_widget(ctx)];
-                // TODO On native, merge local filesystem and manifest
-                for name in MapName::list_all_maps_in_city_locally(&city_name) {
+                for name in MapName::list_all_maps_in_city_merged(&city_name, &Manifest::load()) {
                     this_city.push(
                         ctx.style()
                             .btn_outline
@@ -280,7 +279,7 @@ impl<A: AppLike + 'static> AllCityPicker<A> {
         let mut autocomplete_entries = Vec::new();
         let mut buttons = Vec::new();
 
-        for name in MapName::list_all_maps_from_manifest(&Manifest::load()) {
+        for name in MapName::list_all_maps_merged(&Manifest::load()) {
             buttons.push(
                 ctx.style()
                     .btn_outline
@@ -452,8 +451,7 @@ impl<A: AppLike + 'static> State<A> for CitiesInCountryPicker<A> {
                 }
                 path => {
                     let city = CityName::parse(path).unwrap();
-                    let mut maps =
-                        MapName::list_all_maps_in_city_from_manifest(&city, &Manifest::load());
+                    let mut maps = MapName::list_all_maps_in_city_merged(&city, &Manifest::load());
                     if maps.len() == 1 {
                         return chose_city(ctx, app, maps.pop().unwrap(), &mut self.on_load);
                     }
@@ -498,8 +496,7 @@ impl<A: AppLike + 'static> State<A> for CitiesInCountryPicker<A> {
 
 fn cities_per_country() -> BTreeMap<String, Vec<CityName>> {
     let mut per_country = BTreeMap::new();
-    // TODO Filesystem + manifest, merged
-    for city in CityName::list_all_cities_from_manifest(&Manifest::load()) {
+    for city in CityName::list_all_cities_merged(&Manifest::load()) {
         per_country
             .entry(city.country.clone())
             .or_insert_with(Vec::new)
