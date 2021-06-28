@@ -17,3 +17,7 @@ instant = "0.1.7"
 ordered-float = { version = "2.4.0", features=["serde"] }
 polylabel = "2.4"
 serde = "1.0.123"
+
+[dev-dependencies]
+rand = "0.8.3"
+rand_xorshift = "0.3.0"

@@ -2,11 +2,13 @@ use std::{cmp, f64, fmt, ops};
 
 use serde::{Deserialize, Serialize};
 
-use crate::{trim_f64, Duration, Speed, UnitFmt};
+use crate::{deserialize_f64, serialize_f64, trim_f64, Duration, Speed, UnitFmt};
 
 /// A distance, in meters. Can be negative.
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd, Serialize, Deserialize)]
-pub struct Distance(f64);
+pub struct Distance(
+    #[serde(serialize_with = "serialize_f64", deserialize_with = "deserialize_f64")] f64,
+);
 
 // By construction, Distance is a finite f64 with trimmed precision.
 impl Eq for Distance {}

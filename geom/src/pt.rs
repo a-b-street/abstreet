@@ -3,12 +3,16 @@ use std::fmt;
 use ordered_float::NotNan;
 use serde::{Deserialize, Serialize};
 
-use crate::{trim_f64, Angle, Distance, GPSBounds, LonLat, EPSILON_DIST};
+use crate::{
+    deserialize_f64, serialize_f64, trim_f64, Angle, Distance, GPSBounds, LonLat, EPSILON_DIST,
+};
 
 /// This represents world-space in meters.
 #[derive(Clone, Copy, Debug, Serialize, Deserialize)]
 pub struct Pt2D {
+    #[serde(serialize_with = "serialize_f64", deserialize_with = "deserialize_f64")]
     x: f64,
+    #[serde(serialize_with = "serialize_f64", deserialize_with = "deserialize_f64")]
     y: f64,
 }
 

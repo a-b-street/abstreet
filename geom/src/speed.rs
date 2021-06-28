@@ -2,11 +2,13 @@ use std::{cmp, ops};
 
 use serde::{Deserialize, Serialize};
 
-use crate::{trim_f64, Distance, Duration, UnitFmt};
+use crate::{deserialize_f64, serialize_f64, trim_f64, Distance, Duration, UnitFmt};
 
 /// In meters per second. Can be negative.
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd, Serialize, Deserialize)]
-pub struct Speed(f64);
+pub struct Speed(
+    #[serde(serialize_with = "serialize_f64", deserialize_with = "deserialize_f64")] f64,
+);
 
 // By construction, Speed is a finite f64 with trimmed precision.
 impl Eq for Speed {}

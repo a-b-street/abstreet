@@ -43,6 +43,11 @@ pub fn serialized_size_bytes<T: Serialize>(obj: &T) -> usize {
     bincode::serialized_size(obj).unwrap() as usize
 }
 
+/// Transforms an object to bincoded bytes.
+pub fn to_binary<T: Serialize>(obj: &T) -> Vec<u8> {
+    bincode::serialize(obj).unwrap()
+}
+
 /// Serializes a BTreeMap as a list of tuples. Necessary when the keys are structs; see
 /// https://github.com/serde-rs/json/issues/402.
 pub fn serialize_btreemap<S: Serializer, K: Serialize, V: Serialize>(
