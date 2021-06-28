@@ -1403,6 +1403,8 @@ dependencies = [
  "instant",
  "ordered-float",
  "polylabel",
+ "rand",
+ "rand_xorshift",
  "serde",
 ]
 

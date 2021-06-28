@@ -3,7 +3,7 @@
 #[macro_use]
 extern crate anyhow;
 
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 pub use crate::angle::Angle;
 pub use crate::bounds::{Bounds, GPSBounds};
@@ -49,6 +49,20 @@ pub fn trim_f64(x: f64) -> f64 {
     (x * 10_000.0).round() / 10_000.0
 }
 
+/// Serializes a trimmed `f64` as an `i32` to save space.
+fn serialize_f64<S: Serializer>(x: &f64, s: S) -> Result<S::Ok, S::Error> {
+    // So a trimmed f64's range becomes 2**31 / 10,000 =~ 214,000, which is plenty
+    // We don't need to round() here; trim_f64 already handles that.
+    let int = (x * 10_000.0) as i32;
+    int.serialize(s)
+}
+
+/// Deserializes a trimmed `f64` from an `i32`.
+fn deserialize_f64<'de, D: Deserializer<'de>>(d: D) -> Result<f64, D::Error> {
+    let x = <i32>::deserialize(d)?;
+    Ok(x as f64 / 10_000.0)
+}
+
 /// Specifies how to stringify different geom objects.
 #[derive(Clone, Serialize, Deserialize)]
 pub struct UnitFmt {
@@ -90,5 +104,37 @@ impl std::convert::From<f64> for CornerRadii {
 impl std::default::Default for CornerRadii {
     fn default() -> Self {
         Self::zero()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use rand::{Rng, SeedableRng};
+
+    #[test]
+    fn f64_trimming() {
+        // Roundtrip a bunch of random f64's
+        let mut rng = rand_xorshift::XorShiftRng::seed_from_u64(42);
+        for _ in 0..1_000 {
+            let input = rng.gen_range(-214_000.00..214_000.0);
+            let trimmed = trim_f64(input);
+            println!("{} -> {}", input, trimmed);
+            let json_roundtrip: f64 =
+                abstutil::from_json(abstutil::to_json(&trimmed).as_bytes()).unwrap();
+            let bincode_roundtrip: f64 =
+                abstutil::from_binary(&abstutil::to_binary(&trimmed)).unwrap();
+            assert_eq!(json_roundtrip, trimmed);
+            assert_eq!(bincode_roundtrip, trimmed);
+        }
+
+        // Hardcode a particular case, where we can hand-verify that it trims to 4 decimal places
+        let input = 1.2345678;
+        let trimmed = trim_f64(input);
+        let json_roundtrip: f64 =
+            abstutil::from_json(abstutil::to_json(&trimmed).as_bytes()).unwrap();
+        let bincode_roundtrip: f64 = abstutil::from_binary(&abstutil::to_binary(&trimmed)).unwrap();
+        assert_eq!(json_roundtrip, 1.2346);
+        assert_eq!(bincode_roundtrip, 1.2346);
     }
 }
