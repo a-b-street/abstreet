@@ -193,6 +193,7 @@ pub fn nice_map_name(name: &MapName) -> &str {
             ("mt_vernon", "downtown") => "Mt. Vernon",
             ("nyc", "lower_manhattan") => "Lower Manhattan",
             ("nyc", "midtown_manhattan") => "Midtown Manhattan",
+            ("nyc", "downtown_brooklyn") => "Downtown Brooklyn",
             ("phoenix", "gilbert") => "Gilbert",
             ("phoenix", "tempe") => "Tempe",
             ("providence", "downtown") => "Providence",
