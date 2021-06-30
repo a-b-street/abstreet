@@ -211,18 +211,26 @@
 <span id="208">208</span>
 <span id="209">209</span>
 <span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std::fmt</span>;
 
 <span class="kw">use</span> <span class="ident">ordered_float::NotNan</span>;
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">trim_f64</span>, <span class="ident">Angle</span>, <span class="ident">Distance</span>, <span class="ident">GPSBounds</span>, <span class="ident">LonLat</span>, <span class="ident">EPSILON_DIST</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{
+    <span class="ident">deserialize_f64</span>, <span class="ident">serialize_f64</span>, <span class="ident">trim_f64</span>, <span class="ident">Angle</span>, <span class="ident">Distance</span>, <span class="ident">GPSBounds</span>, <span class="ident">LonLat</span>, <span class="ident">EPSILON_DIST</span>,
+};
 
 <span class="doccomment">/// This represents world-space in meters.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Pt2D</span> {
+    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">serialize_with</span> <span class="op">=</span> <span class="string">&quot;serialize_f64&quot;</span>, <span class="ident">deserialize_with</span> <span class="op">=</span> <span class="string">&quot;deserialize_f64&quot;</span>)]</span>
     <span class="ident">x</span>: <span class="ident">f64</span>,
+    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">serialize_with</span> <span class="op">=</span> <span class="string">&quot;serialize_f64&quot;</span>, <span class="ident">deserialize_with</span> <span class="op">=</span> <span class="string">&quot;deserialize_f64&quot;</span>)]</span>
     <span class="ident">y</span>: <span class="ident">f64</span>,
 }
 

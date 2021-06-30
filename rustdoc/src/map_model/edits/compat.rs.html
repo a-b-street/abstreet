@@ -448,6 +448,45 @@
 <span id="445">445</span>
 <span id="446">446</span>
 <span id="447">447</span>
+<span id="448">448</span>
+<span id="449">449</span>
+<span id="450">450</span>
+<span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
+<span id="459">459</span>
+<span id="460">460</span>
+<span id="461">461</span>
+<span id="462">462</span>
+<span id="463">463</span>
+<span id="464">464</span>
+<span id="465">465</span>
+<span id="466">466</span>
+<span id="467">467</span>
+<span id="468">468</span>
+<span id="469">469</span>
+<span id="470">470</span>
+<span id="471">471</span>
+<span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
+<span id="476">476</span>
+<span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
+<span id="482">482</span>
+<span id="483">483</span>
+<span id="484">484</span>
+<span id="485">485</span>
+<span id="486">486</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std::collections::BTreeMap</span>;
 
@@ -547,6 +586,13 @@
             .<span class="ident">as_object_mut</span>()
             .<span class="ident">unwrap</span>()
             .<span class="ident">insert</span>(<span class="string">&quot;version&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">Value::Number</span>(<span class="number">9</span>.<span class="ident">into</span>()));
+    }
+    <span class="kw">if</span> <span class="ident">value</span>[<span class="string">&quot;version&quot;</span>] <span class="op">=</span><span class="op">=</span> <span class="ident">Value::Number</span>(<span class="number">9</span>.<span class="ident">into</span>()) {
+        <span class="ident">fix_f64s</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">value</span>);
+        <span class="ident">value</span>
+            .<span class="ident">as_object_mut</span>()
+            .<span class="ident">unwrap</span>()
+            .<span class="ident">insert</span>(<span class="string">&quot;version&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">Value::Number</span>(<span class="number">10</span>.<span class="ident">into</span>()));
     }
 
     <span class="ident">abstutil::from_json</span>(<span class="kw-2">&amp;</span><span class="ident">value</span>.<span class="ident">to_string</span>().<span class="ident">into_bytes</span>())
@@ -837,6 +883,38 @@
         }
     }
     <span class="prelude-val">Ok</span>(())
+}
+
+<span class="comment">// f9c503ba4422ff51b609a7dc68855e8049bc9fd3 started encoding all f64&#39;s as rounded integers</span>
+<span class="kw">fn</span> <span class="ident">fix_f64s</span>(<span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Value</span>) {
+    <span class="ident">walk</span>(<span class="ident">value</span>, <span class="kw-2">&amp;</span><span class="op">|</span><span class="ident">map</span><span class="op">|</span> {
+        <span class="comment">// There&#39;s one Distance and one Speed field to re-encode</span>
+        <span class="kw">for</span> <span class="ident">key</span> <span class="kw">in</span> [<span class="string">&quot;width&quot;</span>, <span class="string">&quot;speed_limit&quot;</span>] {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">value</span>) <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_mut</span>(<span class="ident">key</span>) {
+                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Value::Number</span>(<span class="ident">num</span>) <span class="op">=</span> <span class="ident">value</span> {
+                    <span class="kw">if</span> <span class="ident">num</span>.<span class="ident">is_f64</span>() {
+                        <span class="kw">let</span> <span class="ident">encoded</span> <span class="op">=</span> (<span class="ident">num</span>.<span class="ident">as_f64</span>().<span class="ident">unwrap</span>() <span class="op">*</span> <span class="number">10_000.0</span>) <span class="kw">as</span> <span class="ident">i32</span>;
+                        <span class="kw-2">*</span><span class="ident">value</span> <span class="op">=</span> <span class="ident">Value::Number</span>(<span class="ident">encoded</span>.<span class="ident">into</span>());
+                    }
+                }
+            }
+        }
+        <span class="comment">// ChangeRouteSchedule has an &#39;old&#39; and &#39;new&#39; Vec&lt;Time&gt;</span>
+        <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">contains_key</span>(<span class="string">&quot;osm_rel_id&quot;</span>) {
+            <span class="kw">for</span> <span class="ident">key</span> <span class="kw">in</span> [<span class="string">&quot;old&quot;</span>, <span class="string">&quot;new&quot;</span>] {
+                <span class="kw">for</span> <span class="ident">value</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">get_mut</span>(<span class="ident">key</span>).<span class="ident">unwrap</span>().<span class="ident">as_array_mut</span>().<span class="ident">unwrap</span>() {
+                    <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Value::Number</span>(<span class="ident">num</span>) <span class="op">=</span> <span class="ident">value</span> {
+                        <span class="kw">if</span> <span class="ident">num</span>.<span class="ident">is_f64</span>() {
+                            <span class="kw">let</span> <span class="ident">encoded</span> <span class="op">=</span> (<span class="ident">num</span>.<span class="ident">as_f64</span>().<span class="ident">unwrap</span>() <span class="op">*</span> <span class="number">10_000.0</span>) <span class="kw">as</span> <span class="ident">i32</span>;
+                            <span class="kw-2">*</span><span class="ident">value</span> <span class="op">=</span> <span class="ident">Value::Number</span>(<span class="ident">encoded</span>.<span class="ident">into</span>());
+                        }
+                    }
+                }
+            }
+        }
+
+        <span class="bool-val">false</span>
+    })
 }
 
 <span class="comment">// These&#39;re old structs used in fix_old_lane_cmds.</span>

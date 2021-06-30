@@ -949,6 +949,10 @@
 <span id="946">946</span>
 <span id="947">947</span>
 <span id="948">948</span>
+<span id="949">949</span>
+<span id="950">950</span>
+<span id="951">951</span>
+<span id="952">952</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 <span class="kw">use</span> <span class="ident">std::fmt</span>;
@@ -1125,11 +1129,12 @@
         <span class="self">self</span>.<span class="ident">extend</span>(<span class="ident">other</span>).<span class="ident">unwrap</span>()
     }
 
-    <span class="doccomment">/// Extends `self` by a single point. Assumes the last point and this new point are different</span>
-    <span class="doccomment">/// and panics otherwise. Doesn&#39;t clean up any intermediate points.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">must_push</span>(<span class="self">self</span>, <span class="ident">pt</span>: <span class="ident">Pt2D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PolyLine</span> {
-        <span class="kw">let</span> <span class="ident">new</span> <span class="op">=</span> <span class="ident">PolyLine::must_new</span>(<span class="macro">vec!</span>[<span class="self">self</span>.<span class="ident">last_pt</span>(), <span class="ident">pt</span>]);
-        <span class="self">self</span>.<span class="ident">must_extend</span>(<span class="ident">new</span>)
+    <span class="doccomment">/// Extends `self` by a single point. If the new point is close enough to the last, dedupes.</span>
+    <span class="doccomment">/// Doesn&#39;t clean up any intermediate points.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">optionally_push</span>(<span class="self">self</span>, <span class="ident">pt</span>: <span class="ident">Pt2D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PolyLine</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">into_points</span>();
+        <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">pt</span>);
+        <span class="ident">PolyLine::deduping_new</span>(<span class="ident">pts</span>).<span class="ident">unwrap</span>()
     }
 
     <span class="doccomment">/// Like `extend`, but handles the last and first point not matching by inserting that point.</span>
@@ -1283,6 +1288,9 @@
         }
         <span class="kw">if</span> <span class="ident">dist_along</span> <span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">length</span>() {
             <span class="macro">bail!</span>(<span class="string">&quot;dist_along {} is longer than {}&quot;</span>, <span class="ident">dist_along</span>, <span class="self">self</span>.<span class="ident">length</span>());
+        }
+        <span class="kw">if</span> <span class="ident">dist_along</span> <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">length</span>() {
+            <span class="kw">return</span> <span class="prelude-val">Ok</span>((<span class="self">self</span>.<span class="ident">last_pt</span>(), <span class="self">self</span>.<span class="ident">last_line</span>().<span class="ident">angle</span>()));
         }
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">dist_left</span> <span class="op">=</span> <span class="ident">dist_along</span>;

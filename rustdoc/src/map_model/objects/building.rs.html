@@ -556,7 +556,7 @@
             .<span class="ident">sidewalk_pos</span>
             .<span class="ident">equiv_pos</span>(<span class="ident">lane</span>, <span class="ident">map</span>)
             .<span class="ident">buffer_dist</span>(<span class="ident">Distance::meters</span>(<span class="number">7.0</span>), <span class="ident">map</span>)<span class="question-mark">?</span>;
-        <span class="prelude-val">Some</span>((<span class="ident">pos</span>, <span class="self">self</span>.<span class="ident">driveway_geom</span>.<span class="ident">clone</span>().<span class="ident">must_push</span>(<span class="ident">pos</span>.<span class="ident">pt</span>(<span class="ident">map</span>))))
+        <span class="prelude-val">Some</span>((<span class="ident">pos</span>, <span class="self">self</span>.<span class="ident">driveway_geom</span>.<span class="ident">clone</span>().<span class="ident">optionally_push</span>(<span class="ident">pos</span>.<span class="ident">pt</span>(<span class="ident">map</span>))))
     }
 
     <span class="doccomment">/// Returns (biking position, sidewalk position). Could fail if the biking graph is</span>
