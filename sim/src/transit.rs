@@ -102,11 +102,11 @@ impl TransitSimState {
                     });
                     continue;
                 }
-                let req = PathRequest {
-                    start: stop1.driving_pos,
-                    end: map.get_bs(bus_route.stops[idx + 1]).driving_pos,
-                    constraints: bus_route.route_type,
-                };
+                let req = PathRequest::vehicle(
+                    stop1.driving_pos,
+                    map.get_bs(bus_route.stops[idx + 1]).driving_pos,
+                    bus_route.route_type,
+                );
                 match map.pathfind(req) {
                     Ok(path) => {
                         if path.is_empty() {
@@ -123,18 +123,18 @@ impl TransitSimState {
                     }
                 }
             }
-            let start_req = PathRequest {
-                start: Position::start(bus_route.start),
-                end: map.get_bs(bus_route.stops[0]).driving_pos,
-                constraints: bus_route.route_type,
-            };
+            let start_req = PathRequest::vehicle(
+                Position::start(bus_route.start),
+                map.get_bs(bus_route.stops[0]).driving_pos,
+                bus_route.route_type,
+            );
             let start = map.pathfind(start_req).expect("no route to first stop");
             let end_at_border = if let Some(l) = bus_route.end_border {
-                let req = PathRequest {
-                    start: map.get_bs(*bus_route.stops.last().unwrap()).driving_pos,
-                    end: Position::end(l, map),
-                    constraints: bus_route.route_type,
-                };
+                let req = PathRequest::vehicle(
+                    map.get_bs(*bus_route.stops.last().unwrap()).driving_pos,
+                    Position::end(l, map),
+                    bus_route.route_type,
+                );
                 let path = map
                     .pathfind(req)
                     .expect("no route from last stop to border");
@@ -222,9 +222,9 @@ impl TransitSimState {
                         self.events.push(Event::TripPhaseStarting(
                             trip,
                             person,
-                            Some(PathRequest {
-                                start: ctx.map.get_bs(stop1).driving_pos,
-                                end: if let Some(stop2) = maybe_stop2 {
+                            Some(PathRequest::vehicle(
+                                ctx.map.get_bs(stop1).driving_pos,
+                                if let Some(stop2) = maybe_stop2 {
                                     ctx.map.get_bs(stop2).driving_pos
                                 } else {
                                     self.routes[&route]
@@ -234,8 +234,8 @@ impl TransitSimState {
                                         .get_req()
                                         .end
                                 },
-                                constraints: bus.car.vehicle_type.to_constraints(),
-                            }),
+                                bus.car.vehicle_type.to_constraints(),
+                            )),
                             TripPhaseType::RidingBus(route, stop1, bus.car),
                         ));
                         bus.passengers.push((person, maybe_stop2));
@@ -325,15 +325,15 @@ impl TransitSimState {
                         self.events.push(Event::TripPhaseStarting(
                             trip,
                             person,
-                            Some(PathRequest {
-                                start: map.get_bs(stop1).driving_pos,
-                                end: if let Some(stop2) = maybe_stop2 {
+                            Some(PathRequest::vehicle(
+                                map.get_bs(stop1).driving_pos,
+                                if let Some(stop2) = maybe_stop2 {
                                     map.get_bs(stop2).driving_pos
                                 } else {
                                     route.end_at_border.as_ref().unwrap().get_req().end
                                 },
-                                constraints: bus.vehicle_type.to_constraints(),
-                            }),
+                                bus.vehicle_type.to_constraints(),
+                            )),
                             TripPhaseType::RidingBus(route_id, stop1, *bus),
                         ));
                         return Some(*bus);

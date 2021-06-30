@@ -314,14 +314,19 @@ impl TripEndpoint {
         mode: TripMode,
         map: &Map,
     ) -> Option<PathRequest> {
-        Some(PathRequest {
-            start: from.pos(mode, true, map)?,
-            end: to.pos(mode, false, map)?,
-            constraints: match mode {
-                TripMode::Walk | TripMode::Transit => PathConstraints::Pedestrian,
-                TripMode::Drive => PathConstraints::Car,
-                TripMode::Bike => PathConstraints::Bike,
-            },
+        let start = from.pos(mode, true, map)?;
+        let end = to.pos(mode, false, map)?;
+        Some(match mode {
+            TripMode::Walk | TripMode::Transit => PathRequest::walking(start, end),
+            TripMode::Bike => PathRequest::vehicle(start, end, PathConstraints::Bike),
+            // Only cars leaving from a building might turn out from the driveway in a special way
+            TripMode::Drive => {
+                if matches!(from, TripEndpoint::Bldg(_)) {
+                    PathRequest::leave_from_driveway(start, end, PathConstraints::Car, map)
+                } else {
+                    PathRequest::vehicle(start, end, PathConstraints::Car)
+                }
+            }
         })
     }
 

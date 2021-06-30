@@ -201,11 +201,8 @@ impl TripManager {
                 } else {
                     PathConstraints::Car
                 };
-                let req = PathRequest {
-                    start: start_pos,
-                    end: goal.goal_pos(constraints, ctx.map).unwrap(),
-                    constraints,
-                };
+                let req =
+                    PathRequest::walking(start_pos, goal.goal_pos(constraints, ctx.map).unwrap());
                 let person = person.id;
 
                 match self.maybe_spawn_car(ctx, now, trip, req, vehicle.id) {
@@ -240,11 +237,7 @@ impl TripManager {
                     let start = SidewalkSpot::building(start_bldg, ctx.map);
                     let walking_goal =
                         SidewalkSpot::parking_spot(parked_car.spot, ctx.map, ctx.parking);
-                    let req = PathRequest {
-                        start: start.sidewalk_pos,
-                        end: walking_goal.sidewalk_pos,
-                        constraints: PathConstraints::Pedestrian,
-                    };
+                    let req = PathRequest::walking(start.sidewalk_pos, walking_goal.sidewalk_pos);
                     match ctx.map.pathfind(req) {
                         Ok(path) => {
                             ctx.scheduler.push(
@@ -312,11 +305,7 @@ impl TripManager {
                 );
                 person.state = PersonState::Trip(trip);
 
-                let req = PathRequest {
-                    start: start.sidewalk_pos,
-                    end: goal.sidewalk_pos,
-                    constraints: PathConstraints::Pedestrian,
-                };
+                let req = PathRequest::walking(start.sidewalk_pos, goal.sidewalk_pos);
                 match ctx.map.pathfind(req) {
                     Ok(path) => {
                         ctx.scheduler.push(
@@ -342,11 +331,10 @@ impl TripManager {
                 person.state = PersonState::Trip(trip);
 
                 if let Some(walk_to) = SidewalkSpot::bike_rack(start, ctx.map) {
-                    let req = PathRequest {
-                        start: SidewalkSpot::building(start, ctx.map).sidewalk_pos,
-                        end: walk_to.sidewalk_pos,
-                        constraints: PathConstraints::Pedestrian,
-                    };
+                    let req = PathRequest::walking(
+                        SidewalkSpot::building(start, ctx.map).sidewalk_pos,
+                        walk_to.sidewalk_pos,
+                    );
                     match ctx.map.pathfind(req) {
                         Ok(path) => {
                             // Where we start biking may have slightly changed due to live map
@@ -420,11 +408,7 @@ impl TripManager {
                 person.state = PersonState::Trip(trip);
 
                 let walk_to = SidewalkSpot::bus_stop(stop1, ctx.map);
-                let req = PathRequest {
-                    start: start.sidewalk_pos,
-                    end: walk_to.sidewalk_pos,
-                    constraints: PathConstraints::Pedestrian,
-                };
+                let req = PathRequest::walking(start.sidewalk_pos, walk_to.sidewalk_pos);
                 match ctx.map.pathfind(req) {
                     Ok(path) => {
                         ctx.scheduler.push(
@@ -540,26 +524,37 @@ impl TripManager {
             _ => unreachable!(),
         };
 
-        let mut start =
+        let base_start =
             ctx.parking
                 .spot_to_driving_pos(parked_car.spot, &parked_car.vehicle, ctx.map);
-        match spot {
-            ParkingSpot::Onstreet(_, _) => {}
+        let end = drive_to.goal_pos(PathConstraints::Car, ctx.map).unwrap();
+        let req = match spot {
+            ParkingSpot::Onstreet(_, _) => {
+                PathRequest::vehicle(base_start, end, PathConstraints::Car)
+            }
             ParkingSpot::Offstreet(b, _) => {
                 self.events
                     .push(Event::PersonEntersBuilding(trip.person, b));
                 // Actually, to unpark, the car's front should be where it'll wind up at the end.
-                start = Position::new(start.lane(), start.dist_along() + parked_car.vehicle.length);
+                PathRequest::leave_from_driveway(
+                    Position::new(
+                        base_start.lane(),
+                        base_start.dist_along() + parked_car.vehicle.length,
+                    ),
+                    end,
+                    PathConstraints::Car,
+                    ctx.map,
+                )
             }
-            ParkingSpot::Lot(_, _) => {
-                start = Position::new(start.lane(), start.dist_along() + parked_car.vehicle.length);
-            }
-        }
-        let end = drive_to.goal_pos(PathConstraints::Car, ctx.map).unwrap();
-        let req = PathRequest {
-            start,
-            end,
-            constraints: PathConstraints::Car,
+            ParkingSpot::Lot(_, _) => PathRequest::leave_from_driveway(
+                Position::new(
+                    base_start.lane(),
+                    base_start.dist_along() + parked_car.vehicle.length,
+                ),
+                end,
+                PathConstraints::Car,
+                ctx.map,
+            ),
         };
 
         let person = trip.person;
@@ -623,11 +618,7 @@ impl TripManager {
             );
             return;
         };
-        let req = PathRequest {
-            start: driving_pos,
-            end,
-            constraints: PathConstraints::Bike,
-        };
+        let req = PathRequest::vehicle(driving_pos, end, PathConstraints::Bike);
         let maybe_router = if req.start.lane() == req.end.lane() {
             // TODO Convert to a walking trip! Ideally, do this earlier and convert the trip to
             // walking, like schedule_trip does
@@ -957,11 +948,7 @@ impl TripManager {
             _ => unreachable!(),
         };
 
-        let req = PathRequest {
-            start: start.sidewalk_pos,
-            end: walk_to.sidewalk_pos,
-            constraints: PathConstraints::Pedestrian,
-        };
+        let req = PathRequest::walking(start.sidewalk_pos, walk_to.sidewalk_pos);
         match ctx.map.pathfind(req) {
             Ok(path) => {
                 let person = &self.people[trip.person.0];

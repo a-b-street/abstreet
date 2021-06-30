@@ -74,11 +74,7 @@ impl Router {
         let lane = map.get_l(start.lane());
         Router {
             path: Path::one_step(
-                PathRequest {
-                    start,
-                    end: Position::end(lane.id, map),
-                    constraints: PathConstraints::Bus,
-                },
+                PathRequest::vehicle(start, Position::end(lane.id, map), PathConstraints::Bus),
                 map,
             ),
             goal: Goal::EndAtBorder {
@@ -265,11 +261,11 @@ impl Router {
                             events.push(Event::TripPhaseStarting(
                                 t,
                                 p,
-                                Some(PathRequest {
-                                    start: Position::new(current_lane, front),
-                                    end: new_pos,
-                                    constraints: PathConstraints::Car,
-                                }),
+                                Some(PathRequest::vehicle(
+                                    Position::new(current_lane, front),
+                                    new_pos,
+                                    PathConstraints::Car,
+                                )),
                                 TripPhaseType::Parking,
                             ));
                         }
@@ -291,11 +287,11 @@ impl Router {
                                 events.push(Event::TripPhaseStarting(
                                     t,
                                     p,
-                                    Some(PathRequest {
-                                        start: Position::new(current_lane, front),
-                                        end: new_pos,
-                                        constraints: PathConstraints::Car,
-                                    }),
+                                    Some(PathRequest::vehicle(
+                                        Position::new(current_lane, front),
+                                        new_pos,
+                                        PathConstraints::Car,
+                                    )),
                                     TripPhaseType::Parking,
                                 ));
                             }

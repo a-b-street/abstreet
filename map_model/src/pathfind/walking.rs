@@ -313,11 +313,7 @@ fn transit_input_graph(
         // TODO Also plug in border starts
         for pair in route.stops.windows(2) {
             let (stop1, stop2) = (map.get_bs(pair[0]), map.get_bs(pair[1]));
-            let req = PathRequest {
-                start: stop1.driving_pos,
-                end: stop2.driving_pos,
-                constraints: route.route_type,
-            };
+            let req = PathRequest::vehicle(stop1.driving_pos, stop2.driving_pos, route.route_type);
             let maybe_driving_cost = match route.route_type {
                 PathConstraints::Bus => bus_graph.pathfind(req, map).map(|p| p.get_cost()),
                 // We always use Dijkstra for trains
@@ -342,11 +338,8 @@ fn transit_input_graph(
 
         if let Some(l) = route.end_border {
             let stop1 = map.get_bs(*route.stops.last().unwrap());
-            let req = PathRequest {
-                start: stop1.driving_pos,
-                end: Position::end(l, map),
-                constraints: route.route_type,
-            };
+            let req =
+                PathRequest::vehicle(stop1.driving_pos, Position::end(l, map), route.route_type);
             let maybe_driving_cost = match route.route_type {
                 PathConstraints::Bus => bus_graph.pathfind(req, map).map(|p| p.get_cost()),
                 // We always use Dijkstra for trains

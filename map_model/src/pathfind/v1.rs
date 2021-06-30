@@ -473,11 +473,54 @@ impl PathRequest {
             // train to travel between buildings.
             PathConstraints::Bus | PathConstraints::Train => unimplemented!(),
         };
-        Some(PathRequest {
+        if constraints == PathConstraints::Car {
+            Some(PathRequest::leave_from_driveway(
+                start,
+                end,
+                constraints,
+                map,
+            ))
+        } else {
+            Some(PathRequest {
+                start,
+                end,
+                constraints,
+            })
+        }
+    }
+
+    /// The caller must pass in two valid sidewalk positions. This isn't verified.
+    pub fn walking(start: Position, end: Position) -> PathRequest {
+        PathRequest {
+            start,
+            end,
+            constraints: PathConstraints::Pedestrian,
+        }
+    }
+
+    /// The caller must pass in two valid positions for the vehicle type. This isn't verified. No
+    /// off-side turns from driveways happen; the exact start position is used.
+    pub fn vehicle(start: Position, end: Position, constraints: PathConstraints) -> PathRequest {
+        PathRequest {
             start,
             end,
             constraints,
-        })
+        }
+    }
+
+    /// The caller must pass in two valid positions for the vehicle type. This isn't verified.
+    /// TODO The vehicle may cut exit the driveway onto the off-side of the road.
+    pub fn leave_from_driveway(
+        start: Position,
+        end: Position,
+        constraints: PathConstraints,
+        _: &Map,
+    ) -> PathRequest {
+        PathRequest {
+            start,
+            end,
+            constraints,
+        }
     }
 }
 

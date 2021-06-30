@@ -370,11 +370,7 @@ impl Efficiency {
                 .sim
                 .all_parked_car_positions(map)
                 .into_iter()
-                .map(|(start, end)| PathRequest {
-                    start,
-                    end,
-                    constraints: PathConstraints::Pedestrian,
-                })
+                .map(|(start, end)| PathRequest::walking(start, end))
                 .collect();
             timer.stop("gather requests");
             for (car_pt, time) in timer

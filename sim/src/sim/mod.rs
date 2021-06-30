@@ -306,12 +306,7 @@ impl Sim {
 
         let start = SidewalkSpot::building(b, map).sidewalk_pos;
         let end = SidewalkSpot::parking_spot(spot, map, &self.parking).sidewalk_pos;
-        map.pathfind(PathRequest {
-            start,
-            end,
-            constraints: PathConstraints::Pedestrian,
-        })
-        .ok()
+        map.pathfind(PathRequest::walking(start, end)).ok()
     }
 
     pub(crate) fn new_person(

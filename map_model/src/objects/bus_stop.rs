@@ -71,24 +71,24 @@ pub struct BusRoute {
 
 impl BusRoute {
     pub fn all_steps(&self, map: &Map) -> Vec<PathRequest> {
-        let mut steps = vec![PathRequest {
-            start: Position::start(self.start),
-            end: map.get_bs(self.stops[0]).driving_pos,
-            constraints: self.route_type,
-        }];
+        let mut steps = vec![PathRequest::vehicle(
+            Position::start(self.start),
+            map.get_bs(self.stops[0]).driving_pos,
+            self.route_type,
+        )];
         for pair in self.stops.windows(2) {
-            steps.push(PathRequest {
-                start: map.get_bs(pair[0]).driving_pos,
-                end: map.get_bs(pair[1]).driving_pos,
-                constraints: self.route_type,
-            });
+            steps.push(PathRequest::vehicle(
+                map.get_bs(pair[0]).driving_pos,
+                map.get_bs(pair[1]).driving_pos,
+                self.route_type,
+            ));
         }
         if let Some(end) = self.end_border {
-            steps.push(PathRequest {
-                start: map.get_bs(*self.stops.last().unwrap()).driving_pos,
-                end: Position::end(end, map),
-                constraints: self.route_type,
-            });
+            steps.push(PathRequest::vehicle(
+                map.get_bs(*self.stops.last().unwrap()).driving_pos,
+                Position::end(end, map),
+                self.route_type,
+            ));
         }
         steps
     }
