@@ -4030,6 +4030,11 @@
       "uncompressed_size_bytes": 8272562,
       "compressed_size_bytes": 3263246
     },
+    "data/system/us/seattle/prebaked_results/phinney/weekday.bin": {
+      "checksum": "639cf97d18fcd40865e70bf103204407",
+      "uncompressed_size_bytes": 33058275,
+      "compressed_size_bytes": 14401994
+    },
     "data/system/us/seattle/prebaked_results/qa/weekday.bin": {
       "checksum": "ae11b490a693f43839b03e9e3578504d",
       "uncompressed_size_bytes": 8568927,
