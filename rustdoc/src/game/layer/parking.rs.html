@@ -424,10 +424,6 @@
 <span id="421">421</span>
 <span id="422">422</span>
 <span id="423">423</span>
-<span id="424">424</span>
-<span id="425">425</span>
-<span id="426">426</span>
-<span id="427">427</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
 
@@ -801,11 +797,7 @@
                 .<span class="ident">sim</span>
                 .<span class="ident">all_parked_car_positions</span>(<span class="ident">map</span>)
                 .<span class="ident">into_iter</span>()
-                .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">start</span>, <span class="ident">end</span>)<span class="op">|</span> <span class="ident">PathRequest</span> {
-                    <span class="ident">start</span>,
-                    <span class="ident">end</span>,
-                    <span class="ident">constraints</span>: <span class="ident">PathConstraints::Pedestrian</span>,
-                })
+                .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">start</span>, <span class="ident">end</span>)<span class="op">|</span> <span class="ident">PathRequest::walking</span>(<span class="ident">start</span>, <span class="ident">end</span>))
                 .<span class="ident">collect</span>();
             <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;gather requests&quot;</span>);
             <span class="kw">for</span> (<span class="ident">car_pt</span>, <span class="ident">time</span>) <span class="kw">in</span> <span class="ident">timer</span>

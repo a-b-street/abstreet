@@ -516,10 +516,6 @@
 <span id="513">513</span>
 <span id="514">514</span>
 <span id="515">515</span>
-<span id="516">516</span>
-<span id="517">517</span>
-<span id="518">518</span>
-<span id="519">519</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! For vehicles only, not pedestrians. Follows a Path from map_model, but can opportunistically</span>
 <span class="doccomment">//! lane-change to avoid a slow lane, can can handle re-planning to look for available parking.</span>
@@ -597,11 +593,7 @@
         <span class="kw">let</span> <span class="ident">lane</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">start</span>.<span class="ident">lane</span>());
         <span class="ident">Router</span> {
             <span class="ident">path</span>: <span class="ident">Path::one_step</span>(
-                <span class="ident">PathRequest</span> {
-                    <span class="ident">start</span>,
-                    <span class="ident">end</span>: <span class="ident">Position::end</span>(<span class="ident">lane</span>.<span class="ident">id</span>, <span class="ident">map</span>),
-                    <span class="ident">constraints</span>: <span class="ident">PathConstraints::Bus</span>,
-                },
+                <span class="ident">PathRequest::vehicle</span>(<span class="ident">start</span>, <span class="ident">Position::end</span>(<span class="ident">lane</span>.<span class="ident">id</span>, <span class="ident">map</span>), <span class="ident">PathConstraints::Bus</span>),
                 <span class="ident">map</span>,
             ),
             <span class="ident">goal</span>: <span class="ident">Goal::EndAtBorder</span> {
@@ -788,11 +780,11 @@
                             <span class="ident">events</span>.<span class="ident">push</span>(<span class="ident">Event::TripPhaseStarting</span>(
                                 <span class="ident">t</span>,
                                 <span class="ident">p</span>,
-                                <span class="prelude-val">Some</span>(<span class="ident">PathRequest</span> {
-                                    <span class="ident">start</span>: <span class="ident">Position::new</span>(<span class="ident">current_lane</span>, <span class="ident">front</span>),
-                                    <span class="ident">end</span>: <span class="ident">new_pos</span>,
-                                    <span class="ident">constraints</span>: <span class="ident">PathConstraints::Car</span>,
-                                }),
+                                <span class="prelude-val">Some</span>(<span class="ident">PathRequest::vehicle</span>(
+                                    <span class="ident">Position::new</span>(<span class="ident">current_lane</span>, <span class="ident">front</span>),
+                                    <span class="ident">new_pos</span>,
+                                    <span class="ident">PathConstraints::Car</span>,
+                                )),
                                 <span class="ident">TripPhaseType::Parking</span>,
                             ));
                         }
@@ -814,11 +806,11 @@
                                 <span class="ident">events</span>.<span class="ident">push</span>(<span class="ident">Event::TripPhaseStarting</span>(
                                     <span class="ident">t</span>,
                                     <span class="ident">p</span>,
-                                    <span class="prelude-val">Some</span>(<span class="ident">PathRequest</span> {
-                                        <span class="ident">start</span>: <span class="ident">Position::new</span>(<span class="ident">current_lane</span>, <span class="ident">front</span>),
-                                        <span class="ident">end</span>: <span class="ident">new_pos</span>,
-                                        <span class="ident">constraints</span>: <span class="ident">PathConstraints::Car</span>,
-                                    }),
+                                    <span class="prelude-val">Some</span>(<span class="ident">PathRequest::vehicle</span>(
+                                        <span class="ident">Position::new</span>(<span class="ident">current_lane</span>, <span class="ident">front</span>),
+                                        <span class="ident">new_pos</span>,
+                                        <span class="ident">PathConstraints::Car</span>,
+                                    )),
                                     <span class="ident">TripPhaseType::Parking</span>,
                                 ));
                             }

@@ -1037,11 +1037,6 @@
 <span id="1034">1034</span>
 <span id="1035">1035</span>
 <span id="1036">1036</span>
-<span id="1037">1037</span>
-<span id="1038">1038</span>
-<span id="1039">1039</span>
-<span id="1040">1040</span>
-<span id="1041">1041</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// This file has a jumbled mess of queries, setup, and mutating methods.</span>
 
@@ -1351,12 +1346,7 @@
 
         <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="ident">SidewalkSpot::building</span>(<span class="ident">b</span>, <span class="ident">map</span>).<span class="ident">sidewalk_pos</span>;
         <span class="kw">let</span> <span class="ident">end</span> <span class="op">=</span> <span class="ident">SidewalkSpot::parking_spot</span>(<span class="ident">spot</span>, <span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">parking</span>).<span class="ident">sidewalk_pos</span>;
-        <span class="ident">map</span>.<span class="ident">pathfind</span>(<span class="ident">PathRequest</span> {
-            <span class="ident">start</span>,
-            <span class="ident">end</span>,
-            <span class="ident">constraints</span>: <span class="ident">PathConstraints::Pedestrian</span>,
-        })
-        .<span class="ident">ok</span>()
+        <span class="ident">map</span>.<span class="ident">pathfind</span>(<span class="ident">PathRequest::walking</span>(<span class="ident">start</span>, <span class="ident">end</span>)).<span class="ident">ok</span>()
     }
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new_person</span>(

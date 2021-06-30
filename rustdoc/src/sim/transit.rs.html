@@ -556,11 +556,11 @@
                     });
                     <span class="kw">continue</span>;
                 }
-                <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">PathRequest</span> {
-                    <span class="ident">start</span>: <span class="ident">stop1</span>.<span class="ident">driving_pos</span>,
-                    <span class="ident">end</span>: <span class="ident">map</span>.<span class="ident">get_bs</span>(<span class="ident">bus_route</span>.<span class="ident">stops</span>[<span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>]).<span class="ident">driving_pos</span>,
-                    <span class="ident">constraints</span>: <span class="ident">bus_route</span>.<span class="ident">route_type</span>,
-                };
+                <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">PathRequest::vehicle</span>(
+                    <span class="ident">stop1</span>.<span class="ident">driving_pos</span>,
+                    <span class="ident">map</span>.<span class="ident">get_bs</span>(<span class="ident">bus_route</span>.<span class="ident">stops</span>[<span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>]).<span class="ident">driving_pos</span>,
+                    <span class="ident">bus_route</span>.<span class="ident">route_type</span>,
+                );
                 <span class="kw">match</span> <span class="ident">map</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>) {
                     <span class="prelude-val">Ok</span>(<span class="ident">path</span>) <span class="op">=</span><span class="op">&gt;</span> {
                         <span class="kw">if</span> <span class="ident">path</span>.<span class="ident">is_empty</span>() {
@@ -577,18 +577,18 @@
                     }
                 }
             }
-            <span class="kw">let</span> <span class="ident">start_req</span> <span class="op">=</span> <span class="ident">PathRequest</span> {
-                <span class="ident">start</span>: <span class="ident">Position::start</span>(<span class="ident">bus_route</span>.<span class="ident">start</span>),
-                <span class="ident">end</span>: <span class="ident">map</span>.<span class="ident">get_bs</span>(<span class="ident">bus_route</span>.<span class="ident">stops</span>[<span class="number">0</span>]).<span class="ident">driving_pos</span>,
-                <span class="ident">constraints</span>: <span class="ident">bus_route</span>.<span class="ident">route_type</span>,
-            };
+            <span class="kw">let</span> <span class="ident">start_req</span> <span class="op">=</span> <span class="ident">PathRequest::vehicle</span>(
+                <span class="ident">Position::start</span>(<span class="ident">bus_route</span>.<span class="ident">start</span>),
+                <span class="ident">map</span>.<span class="ident">get_bs</span>(<span class="ident">bus_route</span>.<span class="ident">stops</span>[<span class="number">0</span>]).<span class="ident">driving_pos</span>,
+                <span class="ident">bus_route</span>.<span class="ident">route_type</span>,
+            );
             <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">pathfind</span>(<span class="ident">start_req</span>).<span class="ident">expect</span>(<span class="string">&quot;no route to first stop&quot;</span>);
             <span class="kw">let</span> <span class="ident">end_at_border</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">l</span>) <span class="op">=</span> <span class="ident">bus_route</span>.<span class="ident">end_border</span> {
-                <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">PathRequest</span> {
-                    <span class="ident">start</span>: <span class="ident">map</span>.<span class="ident">get_bs</span>(<span class="kw-2">*</span><span class="ident">bus_route</span>.<span class="ident">stops</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>()).<span class="ident">driving_pos</span>,
-                    <span class="ident">end</span>: <span class="ident">Position::end</span>(<span class="ident">l</span>, <span class="ident">map</span>),
-                    <span class="ident">constraints</span>: <span class="ident">bus_route</span>.<span class="ident">route_type</span>,
-                };
+                <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">PathRequest::vehicle</span>(
+                    <span class="ident">map</span>.<span class="ident">get_bs</span>(<span class="kw-2">*</span><span class="ident">bus_route</span>.<span class="ident">stops</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>()).<span class="ident">driving_pos</span>,
+                    <span class="ident">Position::end</span>(<span class="ident">l</span>, <span class="ident">map</span>),
+                    <span class="ident">bus_route</span>.<span class="ident">route_type</span>,
+                );
                 <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">map</span>
                     .<span class="ident">pathfind</span>(<span class="ident">req</span>)
                     .<span class="ident">expect</span>(<span class="string">&quot;no route from last stop to border&quot;</span>);
@@ -676,9 +676,9 @@
                         <span class="self">self</span>.<span class="ident">events</span>.<span class="ident">push</span>(<span class="ident">Event::TripPhaseStarting</span>(
                             <span class="ident">trip</span>,
                             <span class="ident">person</span>,
-                            <span class="prelude-val">Some</span>(<span class="ident">PathRequest</span> {
-                                <span class="ident">start</span>: <span class="ident">ctx</span>.<span class="ident">map</span>.<span class="ident">get_bs</span>(<span class="ident">stop1</span>).<span class="ident">driving_pos</span>,
-                                <span class="ident">end</span>: <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">stop2</span>) <span class="op">=</span> <span class="ident">maybe_stop2</span> {
+                            <span class="prelude-val">Some</span>(<span class="ident">PathRequest::vehicle</span>(
+                                <span class="ident">ctx</span>.<span class="ident">map</span>.<span class="ident">get_bs</span>(<span class="ident">stop1</span>).<span class="ident">driving_pos</span>,
+                                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">stop2</span>) <span class="op">=</span> <span class="ident">maybe_stop2</span> {
                                     <span class="ident">ctx</span>.<span class="ident">map</span>.<span class="ident">get_bs</span>(<span class="ident">stop2</span>).<span class="ident">driving_pos</span>
                                 } <span class="kw">else</span> {
                                     <span class="self">self</span>.<span class="ident">routes</span>[<span class="kw-2">&amp;</span><span class="ident">route</span>]
@@ -688,8 +688,8 @@
                                         .<span class="ident">get_req</span>()
                                         .<span class="ident">end</span>
                                 },
-                                <span class="ident">constraints</span>: <span class="ident">bus</span>.<span class="ident">car</span>.<span class="ident">vehicle_type</span>.<span class="ident">to_constraints</span>(),
-                            }),
+                                <span class="ident">bus</span>.<span class="ident">car</span>.<span class="ident">vehicle_type</span>.<span class="ident">to_constraints</span>(),
+                            )),
                             <span class="ident">TripPhaseType::RidingBus</span>(<span class="ident">route</span>, <span class="ident">stop1</span>, <span class="ident">bus</span>.<span class="ident">car</span>),
                         ));
                         <span class="ident">bus</span>.<span class="ident">passengers</span>.<span class="ident">push</span>((<span class="ident">person</span>, <span class="ident">maybe_stop2</span>));
@@ -779,15 +779,15 @@
                         <span class="self">self</span>.<span class="ident">events</span>.<span class="ident">push</span>(<span class="ident">Event::TripPhaseStarting</span>(
                             <span class="ident">trip</span>,
                             <span class="ident">person</span>,
-                            <span class="prelude-val">Some</span>(<span class="ident">PathRequest</span> {
-                                <span class="ident">start</span>: <span class="ident">map</span>.<span class="ident">get_bs</span>(<span class="ident">stop1</span>).<span class="ident">driving_pos</span>,
-                                <span class="ident">end</span>: <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">stop2</span>) <span class="op">=</span> <span class="ident">maybe_stop2</span> {
+                            <span class="prelude-val">Some</span>(<span class="ident">PathRequest::vehicle</span>(
+                                <span class="ident">map</span>.<span class="ident">get_bs</span>(<span class="ident">stop1</span>).<span class="ident">driving_pos</span>,
+                                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">stop2</span>) <span class="op">=</span> <span class="ident">maybe_stop2</span> {
                                     <span class="ident">map</span>.<span class="ident">get_bs</span>(<span class="ident">stop2</span>).<span class="ident">driving_pos</span>
                                 } <span class="kw">else</span> {
                                     <span class="ident">route</span>.<span class="ident">end_at_border</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>().<span class="ident">get_req</span>().<span class="ident">end</span>
                                 },
-                                <span class="ident">constraints</span>: <span class="ident">bus</span>.<span class="ident">vehicle_type</span>.<span class="ident">to_constraints</span>(),
-                            }),
+                                <span class="ident">bus</span>.<span class="ident">vehicle_type</span>.<span class="ident">to_constraints</span>(),
+                            )),
                             <span class="ident">TripPhaseType::RidingBus</span>(<span class="ident">route_id</span>, <span class="ident">stop1</span>, <span class="kw-2">*</span><span class="ident">bus</span>),
                         ));
                         <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">bus</span>);

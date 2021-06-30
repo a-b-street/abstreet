@@ -462,13 +462,6 @@
 <span id="459">459</span>
 <span id="460">460</span>
 <span id="461">461</span>
-<span id="462">462</span>
-<span id="463">463</span>
-<span id="464">464</span>
-<span id="465">465</span>
-<span id="466">466</span>
-<span id="467">467</span>
-<span id="468">468</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Pathfinding for pedestrians using contraction hierarchies, as well as figuring out if somebody</span>
 <span class="doccomment">//! should use public transit.</span>
@@ -785,11 +778,7 @@
         <span class="comment">// TODO Also plug in border starts</span>
         <span class="kw">for</span> <span class="ident">pair</span> <span class="kw">in</span> <span class="ident">route</span>.<span class="ident">stops</span>.<span class="ident">windows</span>(<span class="number">2</span>) {
             <span class="kw">let</span> (<span class="ident">stop1</span>, <span class="ident">stop2</span>) <span class="op">=</span> (<span class="ident">map</span>.<span class="ident">get_bs</span>(<span class="ident">pair</span>[<span class="number">0</span>]), <span class="ident">map</span>.<span class="ident">get_bs</span>(<span class="ident">pair</span>[<span class="number">1</span>]));
-            <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">PathRequest</span> {
-                <span class="ident">start</span>: <span class="ident">stop1</span>.<span class="ident">driving_pos</span>,
-                <span class="ident">end</span>: <span class="ident">stop2</span>.<span class="ident">driving_pos</span>,
-                <span class="ident">constraints</span>: <span class="ident">route</span>.<span class="ident">route_type</span>,
-            };
+            <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">PathRequest::vehicle</span>(<span class="ident">stop1</span>.<span class="ident">driving_pos</span>, <span class="ident">stop2</span>.<span class="ident">driving_pos</span>, <span class="ident">route</span>.<span class="ident">route_type</span>);
             <span class="kw">let</span> <span class="ident">maybe_driving_cost</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">route</span>.<span class="ident">route_type</span> {
                 <span class="ident">PathConstraints::Bus</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">bus_graph</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>, <span class="ident">map</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">p</span>.<span class="ident">get_cost</span>()),
                 <span class="comment">// We always use Dijkstra for trains</span>
@@ -814,11 +803,8 @@
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">l</span>) <span class="op">=</span> <span class="ident">route</span>.<span class="ident">end_border</span> {
             <span class="kw">let</span> <span class="ident">stop1</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_bs</span>(<span class="kw-2">*</span><span class="ident">route</span>.<span class="ident">stops</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>());
-            <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">PathRequest</span> {
-                <span class="ident">start</span>: <span class="ident">stop1</span>.<span class="ident">driving_pos</span>,
-                <span class="ident">end</span>: <span class="ident">Position::end</span>(<span class="ident">l</span>, <span class="ident">map</span>),
-                <span class="ident">constraints</span>: <span class="ident">route</span>.<span class="ident">route_type</span>,
-            };
+            <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span>
+                <span class="ident">PathRequest::vehicle</span>(<span class="ident">stop1</span>.<span class="ident">driving_pos</span>, <span class="ident">Position::end</span>(<span class="ident">l</span>, <span class="ident">map</span>), <span class="ident">route</span>.<span class="ident">route_type</span>);
             <span class="kw">let</span> <span class="ident">maybe_driving_cost</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">route</span>.<span class="ident">route_type</span> {
                 <span class="ident">PathConstraints::Bus</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">bus_graph</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>, <span class="ident">map</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">p</span>.<span class="ident">get_cost</span>()),
                 <span class="comment">// We always use Dijkstra for trains</span>

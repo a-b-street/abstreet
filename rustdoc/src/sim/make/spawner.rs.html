@@ -408,6 +408,11 @@
 <span id="405">405</span>
 <span id="406">406</span>
 <span id="407">407</span>
+<span id="408">408</span>
+<span id="409">409</span>
+<span id="410">410</span>
+<span id="411">411</span>
+<span id="412">412</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Intermediate structures used to instantiate a Scenario. Badly needs simplification:</span>
 <span class="doccomment">//! https://github.com/a-b-street/abstreet/issues/258</span>
@@ -725,14 +730,19 @@
         <span class="ident">mode</span>: <span class="ident">TripMode</span>,
         <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathRequest</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Some</span>(<span class="ident">PathRequest</span> {
-            <span class="ident">start</span>: <span class="ident">from</span>.<span class="ident">pos</span>(<span class="ident">mode</span>, <span class="bool-val">true</span>, <span class="ident">map</span>)<span class="question-mark">?</span>,
-            <span class="ident">end</span>: <span class="ident">to</span>.<span class="ident">pos</span>(<span class="ident">mode</span>, <span class="bool-val">false</span>, <span class="ident">map</span>)<span class="question-mark">?</span>,
-            <span class="ident">constraints</span>: <span class="kw">match</span> <span class="ident">mode</span> {
-                <span class="ident">TripMode::Walk</span> <span class="op">|</span> <span class="ident">TripMode::Transit</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">PathConstraints::Pedestrian</span>,
-                <span class="ident">TripMode::Drive</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">PathConstraints::Car</span>,
-                <span class="ident">TripMode::Bike</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">PathConstraints::Bike</span>,
-            },
+        <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="ident">from</span>.<span class="ident">pos</span>(<span class="ident">mode</span>, <span class="bool-val">true</span>, <span class="ident">map</span>)<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="ident">end</span> <span class="op">=</span> <span class="ident">to</span>.<span class="ident">pos</span>(<span class="ident">mode</span>, <span class="bool-val">false</span>, <span class="ident">map</span>)<span class="question-mark">?</span>;
+        <span class="prelude-val">Some</span>(<span class="kw">match</span> <span class="ident">mode</span> {
+            <span class="ident">TripMode::Walk</span> <span class="op">|</span> <span class="ident">TripMode::Transit</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">PathRequest::walking</span>(<span class="ident">start</span>, <span class="ident">end</span>),
+            <span class="ident">TripMode::Bike</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">PathRequest::vehicle</span>(<span class="ident">start</span>, <span class="ident">end</span>, <span class="ident">PathConstraints::Bike</span>),
+            <span class="comment">// Only cars leaving from a building might turn out from the driveway in a special way</span>
+            <span class="ident">TripMode::Drive</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">if</span> <span class="macro">matches!</span>(<span class="ident">from</span>, <span class="ident">TripEndpoint::Bldg</span>(<span class="kw">_</span>)) {
+                    <span class="ident">PathRequest::leave_from_driveway</span>(<span class="ident">start</span>, <span class="ident">end</span>, <span class="ident">PathConstraints::Car</span>, <span class="ident">map</span>)
+                } <span class="kw">else</span> {
+                    <span class="ident">PathRequest::vehicle</span>(<span class="ident">start</span>, <span class="ident">end</span>, <span class="ident">PathConstraints::Car</span>)
+                }
+            }
         })
     }
 
