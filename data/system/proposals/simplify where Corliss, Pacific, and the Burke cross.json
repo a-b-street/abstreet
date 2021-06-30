@@ -7,7 +7,7 @@
     "map": "udistrict"
   },
   "edits_name": "simplify where Corliss, Pacific, and the Burke cross",
-  "version": 9,
+  "version": 10,
   "commands": [
     {
       "ChangeRoad": {
@@ -21,15 +21,15 @@
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Sidewalk",
               "dir": "Fwd",
-              "width": 1.5
+              "width": 15000
             }
           ],
-          "speed_limit": 11.176,
+          "speed_limit": 111760,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -40,15 +40,15 @@
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 24384
             },
             {
               "lt": "Sidewalk",
               "dir": "Fwd",
-              "width": 1.5
+              "width": 15000
             }
           ],
-          "speed_limit": 11.176,
+          "speed_limit": 111760,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -68,15 +68,15 @@
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Sidewalk",
               "dir": "Fwd",
-              "width": 1.5
+              "width": 15000
             }
           ],
-          "speed_limit": 11.176,
+          "speed_limit": 111760,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -87,15 +87,15 @@
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 24384
             },
             {
               "lt": "Sidewalk",
               "dir": "Fwd",
-              "width": 1.5
+              "width": 15000
             }
           ],
-          "speed_limit": 11.176,
+          "speed_limit": 111760,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null

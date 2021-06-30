@@ -7,7 +7,7 @@
     "map": "west_seattle"
   },
   "edits_name": "repair west seattle bridge",
-  "version": 9,
+  "version": 10,
   "commands": [
     {
       "ChangeRoad": {
@@ -21,15 +21,15 @@
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -40,15 +40,15 @@
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -68,10 +68,10 @@
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -82,10 +82,10 @@
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -105,10 +105,10 @@
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -119,10 +119,10 @@
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -142,10 +142,10 @@
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -156,10 +156,10 @@
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -179,10 +179,10 @@
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -193,10 +193,10 @@
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -216,10 +216,10 @@
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -230,10 +230,10 @@
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -253,10 +253,10 @@
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -267,10 +267,10 @@
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -290,15 +290,15 @@
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -309,15 +309,15 @@
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -337,15 +337,15 @@
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -356,15 +356,15 @@
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -384,10 +384,10 @@
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -398,10 +398,10 @@
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -421,15 +421,15 @@
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -440,15 +440,15 @@
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -468,10 +468,10 @@
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -482,10 +482,10 @@
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -505,10 +505,10 @@
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -519,10 +519,10 @@
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -542,10 +542,10 @@
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -556,10 +556,10 @@
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -579,10 +579,10 @@
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -593,10 +593,10 @@
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -616,10 +616,10 @@
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -630,10 +630,10 @@
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -653,10 +653,10 @@
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -667,10 +667,10 @@
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -690,10 +690,10 @@
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -704,10 +704,10 @@
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -727,10 +727,10 @@
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -741,10 +741,10 @@
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -764,10 +764,10 @@
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -778,10 +778,10 @@
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -801,15 +801,15 @@
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -820,15 +820,15 @@
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -848,10 +848,10 @@
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -862,10 +862,10 @@
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -885,15 +885,15 @@
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 13.4112,
+          "speed_limit": 134112,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -904,15 +904,15 @@
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 13.4112,
+          "speed_limit": 134112,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -932,15 +932,15 @@
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -951,15 +951,15 @@
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -979,15 +979,15 @@
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 20.1168,
+          "speed_limit": 201168,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -998,15 +998,15 @@
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 20.1168,
+          "speed_limit": 201168,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -1026,15 +1026,15 @@
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 20.1168,
+          "speed_limit": 201168,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -1045,15 +1045,15 @@
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 20.1168,
+          "speed_limit": 201168,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -1073,20 +1073,20 @@
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 20.1168,
+          "speed_limit": 201168,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -1097,20 +1097,20 @@
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 20.1168,
+          "speed_limit": 201168,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -1130,20 +1130,20 @@
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 20.1168,
+          "speed_limit": 201168,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -1154,20 +1154,20 @@
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 20.1168,
+          "speed_limit": 201168,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -1187,10 +1187,10 @@
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -1201,10 +1201,10 @@
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -1224,20 +1224,20 @@
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 20.1168,
+          "speed_limit": 201168,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -1248,20 +1248,20 @@
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 20.1168,
+          "speed_limit": 201168,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -1281,20 +1281,20 @@
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 20.1168,
+          "speed_limit": 201168,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -1305,20 +1305,20 @@
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 20.1168,
+          "speed_limit": 201168,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -1338,20 +1338,20 @@
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 20.1168,
+          "speed_limit": 201168,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -1362,20 +1362,20 @@
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 20.1168,
+          "speed_limit": 201168,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -1395,20 +1395,20 @@
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 20.1168,
+          "speed_limit": 201168,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -1419,20 +1419,20 @@
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 20.1168,
+          "speed_limit": 201168,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -1452,15 +1452,15 @@
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 20.1168,
+          "speed_limit": 201168,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -1471,15 +1471,15 @@
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 20.1168,
+          "speed_limit": 201168,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -1499,25 +1499,25 @@
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 13.4112,
+          "speed_limit": 134112,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -1528,25 +1528,25 @@
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 13.4112,
+          "speed_limit": 134112,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -1566,25 +1566,25 @@
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 13.4112,
+          "speed_limit": 134112,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -1595,25 +1595,25 @@
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 13.4112,
+          "speed_limit": 134112,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -1633,10 +1633,10 @@
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -1647,10 +1647,10 @@
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -1670,10 +1670,10 @@
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -1684,10 +1684,10 @@
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -1707,25 +1707,25 @@
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 20.1168,
+          "speed_limit": 201168,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -1736,25 +1736,25 @@
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 20.1168,
+          "speed_limit": 201168,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -1774,10 +1774,10 @@
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -1788,10 +1788,10 @@
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -1811,10 +1811,10 @@
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -1825,10 +1825,10 @@
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -1848,20 +1848,20 @@
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 20.1168,
+          "speed_limit": 201168,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -1872,20 +1872,20 @@
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 20.1168,
+          "speed_limit": 201168,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -1905,10 +1905,10 @@
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -1919,10 +1919,10 @@
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -1942,10 +1942,10 @@
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -1956,10 +1956,10 @@
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -1979,15 +1979,15 @@
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -1998,15 +1998,15 @@
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -2026,10 +2026,10 @@
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -2040,10 +2040,10 @@
             {
               "lt": "Construction",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null

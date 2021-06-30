@@ -4,7 +4,7 @@
     "driving_side": "Right",
     "bikes_can_use_bus_lanes": true,
     "inferred_sidewalks": true,
-    "street_parking_spot_length": 6.5
+    "street_parking_spot_length": 65000
   },
   "onstreet_parking": "JustOSM",
   "public_offstreet_parking": "None",
