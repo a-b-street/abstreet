@@ -138,7 +138,7 @@ impl MapEdits {
             map_name: map.get_name().clone(),
             edits_name: self.edits_name.clone(),
             // Increase this every time there's a schema change
-            version: 9,
+            version: 10,
             proposal_description: self.proposal_description.clone(),
             proposal_link: self.proposal_link.clone(),
             commands: self.commands.iter().map(|cmd| cmd.to_perma(map)).collect(),

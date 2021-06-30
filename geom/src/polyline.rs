@@ -173,11 +173,12 @@ impl PolyLine {
         self.extend(other).unwrap()
     }
 
-    /// Extends `self` by a single point. Assumes the last point and this new point are different
-    /// and panics otherwise. Doesn't clean up any intermediate points.
-    pub fn must_push(self, pt: Pt2D) -> PolyLine {
-        let new = PolyLine::must_new(vec![self.last_pt(), pt]);
-        self.must_extend(new)
+    /// Extends `self` by a single point. If the new point is close enough to the last, dedupes.
+    /// Doesn't clean up any intermediate points.
+    pub fn optionally_push(self, pt: Pt2D) -> PolyLine {
+        let mut pts = self.into_points();
+        pts.push(pt);
+        PolyLine::deduping_new(pts).unwrap()
     }
 
     /// Like `extend`, but handles the last and first point not matching by inserting that point.
@@ -331,6 +332,9 @@ impl PolyLine {
         }
         if dist_along > self.length() {
             bail!("dist_along {} is longer than {}", dist_along, self.length());
+        }
+        if dist_along == self.length() {
+            return Ok((self.last_pt(), self.last_line().angle()));
         }
 
         let mut dist_left = dist_along;

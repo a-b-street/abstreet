@@ -97,6 +97,13 @@ pub fn upgrade(mut value: Value, map: &Map) -> Result<PermanentMapEdits> {
             .unwrap()
             .insert("version".to_string(), Value::Number(9.into()));
     }
+    if value["version"] == Value::Number(9.into()) {
+        fix_f64s(&mut value);
+        value
+            .as_object_mut()
+            .unwrap()
+            .insert("version".to_string(), Value::Number(10.into()));
+    }
 
     abstutil::from_json(&value.to_string().into_bytes())
 }
@@ -386,6 +393,38 @@ fn fix_lane_widths(value: &mut Value, map: &Map) -> Result<()> {
         }
     }
     Ok(())
+}
+
+// f9c503ba4422ff51b609a7dc68855e8049bc9fd3 started encoding all f64's as rounded integers
+fn fix_f64s(value: &mut Value) {
+    walk(value, &|map| {
+        // There's one Distance and one Speed field to re-encode
+        for key in ["width", "speed_limit"] {
+            if let Some(value) = map.get_mut(key) {
+                if let Value::Number(num) = value {
+                    if num.is_f64() {
+                        let encoded = (num.as_f64().unwrap() * 10_000.0) as i32;
+                        *value = Value::Number(encoded.into());
+                    }
+                }
+            }
+        }
+        // ChangeRouteSchedule has an 'old' and 'new' Vec<Time>
+        if map.contains_key("osm_rel_id") {
+            for key in ["old", "new"] {
+                for value in map.get_mut(key).unwrap().as_array_mut().unwrap() {
+                    if let Value::Number(num) = value {
+                        if num.is_f64() {
+                            let encoded = (num.as_f64().unwrap() * 10_000.0) as i32;
+                            *value = Value::Number(encoded.into());
+                        }
+                    }
+                }
+            }
+        }
+
+        false
+    })
 }
 
 // These're old structs used in fix_old_lane_cmds.

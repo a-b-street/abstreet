@@ -7,7 +7,7 @@
     "map": "center"
   },
   "edits_name": "poundbury one-ways",
-  "version": 9,
+  "version": 10,
   "commands": [
     {
       "ChangeRoad": {
@@ -21,25 +21,25 @@
             {
               "lt": "Sidewalk",
               "dir": "Fwd",
-              "width": 1.5
+              "width": 15000
             },
             {
               "lt": "Driving",
               "dir": "Back",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Biking",
               "dir": "Back",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Sidewalk",
               "dir": "Back",
-              "width": 1.5
+              "width": 15000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -50,25 +50,25 @@
             {
               "lt": "Sidewalk",
               "dir": "Fwd",
-              "width": 1.5
+              "width": 15000
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 24384
             },
             {
               "lt": "Driving",
               "dir": "Back",
-              "width": 2.5
+              "width": 24384
             },
             {
               "lt": "Sidewalk",
               "dir": "Back",
-              "width": 1.5
+              "width": 15000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -88,25 +88,25 @@
             {
               "lt": "Sidewalk",
               "dir": "Fwd",
-              "width": 1.5
+              "width": 15000
             },
             {
               "lt": "Biking",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Sidewalk",
               "dir": "Back",
-              "width": 1.5
+              "width": 15000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -117,25 +117,25 @@
             {
               "lt": "Sidewalk",
               "dir": "Fwd",
-              "width": 1.5
+              "width": 15000
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 24384
             },
             {
               "lt": "Driving",
               "dir": "Back",
-              "width": 2.5
+              "width": 24384
             },
             {
               "lt": "Sidewalk",
               "dir": "Back",
-              "width": 1.5
+              "width": 15000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -155,25 +155,25 @@
             {
               "lt": "Sidewalk",
               "dir": "Fwd",
-              "width": 1.5
+              "width": 15000
             },
             {
               "lt": "Biking",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Sidewalk",
               "dir": "Back",
-              "width": 1.5
+              "width": 15000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -184,25 +184,25 @@
             {
               "lt": "Sidewalk",
               "dir": "Fwd",
-              "width": 1.5
+              "width": 15000
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 24384
             },
             {
               "lt": "Driving",
               "dir": "Back",
-              "width": 2.5
+              "width": 24384
             },
             {
               "lt": "Sidewalk",
               "dir": "Back",
-              "width": 1.5
+              "width": 15000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -222,25 +222,25 @@
             {
               "lt": "Sidewalk",
               "dir": "Fwd",
-              "width": 1.5
+              "width": 15000
             },
             {
               "lt": "Biking",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Sidewalk",
               "dir": "Back",
-              "width": 1.5
+              "width": 15000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -251,25 +251,25 @@
             {
               "lt": "Sidewalk",
               "dir": "Fwd",
-              "width": 1.5
+              "width": 15000
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 24384
             },
             {
               "lt": "Driving",
               "dir": "Back",
-              "width": 2.5
+              "width": 24384
             },
             {
               "lt": "Sidewalk",
               "dir": "Back",
-              "width": 1.5
+              "width": 15000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -289,25 +289,25 @@
             {
               "lt": "Sidewalk",
               "dir": "Fwd",
-              "width": 1.5
+              "width": 15000
             },
             {
               "lt": "Biking",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Sidewalk",
               "dir": "Back",
-              "width": 1.5
+              "width": 15000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -318,25 +318,25 @@
             {
               "lt": "Sidewalk",
               "dir": "Fwd",
-              "width": 1.5
+              "width": 15000
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 24384
             },
             {
               "lt": "Driving",
               "dir": "Back",
-              "width": 2.5
+              "width": 24384
             },
             {
               "lt": "Sidewalk",
               "dir": "Back",
-              "width": 1.5
+              "width": 15000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -356,25 +356,25 @@
             {
               "lt": "Sidewalk",
               "dir": "Fwd",
-              "width": 1.5
+              "width": 15000
             },
             {
               "lt": "Biking",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Sidewalk",
               "dir": "Back",
-              "width": 1.5
+              "width": 15000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -385,25 +385,25 @@
             {
               "lt": "Sidewalk",
               "dir": "Fwd",
-              "width": 1.5
+              "width": 15000
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 24384
             },
             {
               "lt": "Driving",
               "dir": "Back",
-              "width": 2.5
+              "width": 24384
             },
             {
               "lt": "Sidewalk",
               "dir": "Back",
-              "width": 1.5
+              "width": 15000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -423,25 +423,25 @@
             {
               "lt": "Sidewalk",
               "dir": "Fwd",
-              "width": 1.5
+              "width": 15000
             },
             {
               "lt": "Biking",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Sidewalk",
               "dir": "Back",
-              "width": 1.5
+              "width": 15000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -452,25 +452,25 @@
             {
               "lt": "Sidewalk",
               "dir": "Fwd",
-              "width": 1.5
+              "width": 15000
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 24384
             },
             {
               "lt": "Driving",
               "dir": "Back",
-              "width": 2.5
+              "width": 24384
             },
             {
               "lt": "Sidewalk",
               "dir": "Back",
-              "width": 1.5
+              "width": 15000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -490,25 +490,25 @@
             {
               "lt": "Sidewalk",
               "dir": "Fwd",
-              "width": 1.5
+              "width": 15000
             },
             {
               "lt": "Biking",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Sidewalk",
               "dir": "Back",
-              "width": 1.5
+              "width": 15000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -519,25 +519,25 @@
             {
               "lt": "Sidewalk",
               "dir": "Fwd",
-              "width": 1.5
+              "width": 15000
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 24384
             },
             {
               "lt": "Driving",
               "dir": "Back",
-              "width": 2.5
+              "width": 24384
             },
             {
               "lt": "Sidewalk",
               "dir": "Back",
-              "width": 1.5
+              "width": 15000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -557,25 +557,25 @@
             {
               "lt": "Sidewalk",
               "dir": "Fwd",
-              "width": 1.5
+              "width": 15000
             },
             {
               "lt": "Biking",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Sidewalk",
               "dir": "Back",
-              "width": 1.5
+              "width": 15000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -586,25 +586,25 @@
             {
               "lt": "Sidewalk",
               "dir": "Fwd",
-              "width": 1.5
+              "width": 15000
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 24384
             },
             {
               "lt": "Driving",
               "dir": "Back",
-              "width": 2.5
+              "width": 24384
             },
             {
               "lt": "Sidewalk",
               "dir": "Back",
-              "width": 1.5
+              "width": 15000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -624,25 +624,25 @@
             {
               "lt": "Sidewalk",
               "dir": "Fwd",
-              "width": 1.5
+              "width": 15000
             },
             {
               "lt": "Biking",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Sidewalk",
               "dir": "Back",
-              "width": 1.5
+              "width": 15000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -653,25 +653,25 @@
             {
               "lt": "Sidewalk",
               "dir": "Fwd",
-              "width": 1.5
+              "width": 15000
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 24384
             },
             {
               "lt": "Driving",
               "dir": "Back",
-              "width": 2.5
+              "width": 24384
             },
             {
               "lt": "Sidewalk",
               "dir": "Back",
-              "width": 1.5
+              "width": 15000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -691,25 +691,25 @@
             {
               "lt": "Sidewalk",
               "dir": "Fwd",
-              "width": 1.5
+              "width": 15000
             },
             {
               "lt": "Driving",
               "dir": "Back",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Biking",
               "dir": "Back",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Sidewalk",
               "dir": "Back",
-              "width": 1.5
+              "width": 15000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -720,25 +720,25 @@
             {
               "lt": "Sidewalk",
               "dir": "Fwd",
-              "width": 1.5
+              "width": 15000
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 24384
             },
             {
               "lt": "Driving",
               "dir": "Back",
-              "width": 2.5
+              "width": 24384
             },
             {
               "lt": "Sidewalk",
               "dir": "Back",
-              "width": 1.5
+              "width": 15000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -758,25 +758,25 @@
             {
               "lt": "Sidewalk",
               "dir": "Fwd",
-              "width": 1.5
+              "width": 15000
             },
             {
               "lt": "Driving",
               "dir": "Back",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Biking",
               "dir": "Back",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Sidewalk",
               "dir": "Back",
-              "width": 1.5
+              "width": 15000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -787,25 +787,25 @@
             {
               "lt": "Sidewalk",
               "dir": "Fwd",
-              "width": 1.5
+              "width": 15000
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 24384
             },
             {
               "lt": "Driving",
               "dir": "Back",
-              "width": 2.5
+              "width": 24384
             },
             {
               "lt": "Sidewalk",
               "dir": "Back",
-              "width": 1.5
+              "width": 15000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -825,25 +825,25 @@
             {
               "lt": "Sidewalk",
               "dir": "Fwd",
-              "width": 1.5
+              "width": 15000
             },
             {
               "lt": "Driving",
               "dir": "Back",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Biking",
               "dir": "Back",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Sidewalk",
               "dir": "Back",
-              "width": 1.5
+              "width": 15000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -854,25 +854,25 @@
             {
               "lt": "Sidewalk",
               "dir": "Fwd",
-              "width": 1.5
+              "width": 15000
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 24384
             },
             {
               "lt": "Driving",
               "dir": "Back",
-              "width": 2.5
+              "width": 24384
             },
             {
               "lt": "Sidewalk",
               "dir": "Back",
-              "width": 1.5
+              "width": 15000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -892,25 +892,25 @@
             {
               "lt": "Sidewalk",
               "dir": "Fwd",
-              "width": 1.5
+              "width": 15000
             },
             {
               "lt": "Biking",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Sidewalk",
               "dir": "Back",
-              "width": 1.5
+              "width": 15000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -921,25 +921,25 @@
             {
               "lt": "Sidewalk",
               "dir": "Fwd",
-              "width": 1.5
+              "width": 15000
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 24384
             },
             {
               "lt": "Driving",
               "dir": "Back",
-              "width": 2.5
+              "width": 24384
             },
             {
               "lt": "Sidewalk",
               "dir": "Back",
-              "width": 1.5
+              "width": 15000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -959,25 +959,25 @@
             {
               "lt": "Sidewalk",
               "dir": "Fwd",
-              "width": 1.5
+              "width": 15000
             },
             {
               "lt": "Biking",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Sidewalk",
               "dir": "Back",
-              "width": 1.5
+              "width": 15000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -988,25 +988,25 @@
             {
               "lt": "Sidewalk",
               "dir": "Fwd",
-              "width": 1.5
+              "width": 15000
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 24384
             },
             {
               "lt": "Driving",
               "dir": "Back",
-              "width": 2.5
+              "width": 24384
             },
             {
               "lt": "Sidewalk",
               "dir": "Back",
-              "width": 1.5
+              "width": 15000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -1026,25 +1026,25 @@
             {
               "lt": "Sidewalk",
               "dir": "Fwd",
-              "width": 1.5
+              "width": 15000
             },
             {
               "lt": "Biking",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Sidewalk",
               "dir": "Back",
-              "width": 1.5
+              "width": 15000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -1055,25 +1055,25 @@
             {
               "lt": "Sidewalk",
               "dir": "Fwd",
-              "width": 1.5
+              "width": 15000
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 24384
             },
             {
               "lt": "Driving",
               "dir": "Back",
-              "width": 2.5
+              "width": 24384
             },
             {
               "lt": "Sidewalk",
               "dir": "Back",
-              "width": 1.5
+              "width": 15000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -1093,25 +1093,25 @@
             {
               "lt": "Sidewalk",
               "dir": "Fwd",
-              "width": 1.5
+              "width": 15000
             },
             {
               "lt": "Biking",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Sidewalk",
               "dir": "Back",
-              "width": 1.5
+              "width": 15000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -1122,25 +1122,25 @@
             {
               "lt": "Sidewalk",
               "dir": "Fwd",
-              "width": 1.5
+              "width": 15000
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 24384
             },
             {
               "lt": "Driving",
               "dir": "Back",
-              "width": 2.5
+              "width": 24384
             },
             {
               "lt": "Sidewalk",
               "dir": "Back",
-              "width": 1.5
+              "width": 15000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -1160,25 +1160,25 @@
             {
               "lt": "Sidewalk",
               "dir": "Fwd",
-              "width": 1.5
+              "width": 15000
             },
             {
               "lt": "Biking",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Sidewalk",
               "dir": "Back",
-              "width": 1.5
+              "width": 15000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -1189,25 +1189,25 @@
             {
               "lt": "Sidewalk",
               "dir": "Fwd",
-              "width": 1.5
+              "width": 15000
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 24384
             },
             {
               "lt": "Driving",
               "dir": "Back",
-              "width": 2.5
+              "width": 24384
             },
             {
               "lt": "Sidewalk",
               "dir": "Back",
-              "width": 1.5
+              "width": 15000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -1227,25 +1227,25 @@
             {
               "lt": "Sidewalk",
               "dir": "Fwd",
-              "width": 1.5
+              "width": 15000
             },
             {
               "lt": "Biking",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Sidewalk",
               "dir": "Back",
-              "width": 1.5
+              "width": 15000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -1256,25 +1256,25 @@
             {
               "lt": "Sidewalk",
               "dir": "Fwd",
-              "width": 1.5
+              "width": 15000
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 24384
             },
             {
               "lt": "Driving",
               "dir": "Back",
-              "width": 2.5
+              "width": 24384
             },
             {
               "lt": "Sidewalk",
               "dir": "Back",
-              "width": 1.5
+              "width": 15000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -1294,25 +1294,25 @@
             {
               "lt": "Sidewalk",
               "dir": "Fwd",
-              "width": 1.5
+              "width": 15000
             },
             {
               "lt": "Biking",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Sidewalk",
               "dir": "Back",
-              "width": 1.5
+              "width": 15000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -1323,25 +1323,25 @@
             {
               "lt": "Sidewalk",
               "dir": "Fwd",
-              "width": 1.5
+              "width": 15000
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 24384
             },
             {
               "lt": "Driving",
               "dir": "Back",
-              "width": 2.5
+              "width": 24384
             },
             {
               "lt": "Sidewalk",
               "dir": "Back",
-              "width": 1.5
+              "width": 15000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -1361,25 +1361,25 @@
             {
               "lt": "Sidewalk",
               "dir": "Fwd",
-              "width": 1.5
+              "width": 15000
             },
             {
               "lt": "Biking",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Sidewalk",
               "dir": "Back",
-              "width": 1.5
+              "width": 15000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -1390,25 +1390,25 @@
             {
               "lt": "Sidewalk",
               "dir": "Fwd",
-              "width": 1.5
+              "width": 15000
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 24384
             },
             {
               "lt": "Driving",
               "dir": "Back",
-              "width": 2.5
+              "width": 24384
             },
             {
               "lt": "Sidewalk",
               "dir": "Back",
-              "width": 1.5
+              "width": 15000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -1428,25 +1428,25 @@
             {
               "lt": "Sidewalk",
               "dir": "Fwd",
-              "width": 1.5
+              "width": 15000
             },
             {
               "lt": "Biking",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Sidewalk",
               "dir": "Back",
-              "width": 1.5
+              "width": 15000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -1457,25 +1457,25 @@
             {
               "lt": "Sidewalk",
               "dir": "Fwd",
-              "width": 1.5
+              "width": 15000
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 24384
             },
             {
               "lt": "Driving",
               "dir": "Back",
-              "width": 2.5
+              "width": 24384
             },
             {
               "lt": "Sidewalk",
               "dir": "Back",
-              "width": 1.5
+              "width": 15000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -1495,25 +1495,25 @@
             {
               "lt": "Sidewalk",
               "dir": "Fwd",
-              "width": 1.5
+              "width": 15000
             },
             {
               "lt": "Biking",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Sidewalk",
               "dir": "Back",
-              "width": 1.5
+              "width": 15000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -1524,25 +1524,25 @@
             {
               "lt": "Sidewalk",
               "dir": "Fwd",
-              "width": 1.5
+              "width": 15000
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 24384
             },
             {
               "lt": "Driving",
               "dir": "Back",
-              "width": 2.5
+              "width": 24384
             },
             {
               "lt": "Sidewalk",
               "dir": "Back",
-              "width": 1.5
+              "width": 15000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -1562,25 +1562,25 @@
             {
               "lt": "Sidewalk",
               "dir": "Fwd",
-              "width": 1.5
+              "width": 15000
             },
             {
               "lt": "Biking",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 25000
             },
             {
               "lt": "Sidewalk",
               "dir": "Back",
-              "width": 1.5
+              "width": 15000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null
@@ -1591,25 +1591,25 @@
             {
               "lt": "Sidewalk",
               "dir": "Fwd",
-              "width": 1.5
+              "width": 15000
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 2.5
+              "width": 24384
             },
             {
               "lt": "Driving",
               "dir": "Back",
-              "width": 2.5
+              "width": 24384
             },
             {
               "lt": "Sidewalk",
               "dir": "Back",
-              "width": 1.5
+              "width": 15000
             }
           ],
-          "speed_limit": 17.8816,
+          "speed_limit": 178816,
           "access_restrictions": {
             "allow_through_traffic": 31,
             "cap_vehicles_per_hour": null

@@ -160,7 +160,7 @@ impl Building {
             .sidewalk_pos
             .equiv_pos(lane, map)
             .buffer_dist(Distance::meters(7.0), map)?;
-        Some((pos, self.driveway_geom.clone().must_push(pos.pt(map))))
+        Some((pos, self.driveway_geom.clone().optionally_push(pos.pt(map))))
     }
 
     /// Returns (biking position, sidewalk position). Could fail if the biking graph is
