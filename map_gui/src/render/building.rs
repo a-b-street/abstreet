@@ -214,18 +214,19 @@ impl DrawBuilding {
                 )
                 .map(|(pl, _)| pl)
                 .unwrap_or_else(|_| orig_pl.clone());
-
-            batch.push(
-                if opts.color_scheme == ColorSchemeChoice::NightMode {
-                    Color::hex("#4B4B4B")
-                } else {
-                    cs.zoomed_road_surface(
-                        LaneType::Sidewalk,
-                        map.get_parent(bldg.sidewalk()).get_rank(),
-                    )
-                },
-                driveway.make_polygons(NORMAL_LANE_THICKNESS),
-            );
+            if driveway.length() > Distance::meters(0.1) {
+                batch.push(
+                    if opts.color_scheme == ColorSchemeChoice::NightMode {
+                        Color::hex("#4B4B4B")
+                    } else {
+                        cs.zoomed_road_surface(
+                            LaneType::Sidewalk,
+                            map.get_parent(bldg.sidewalk()).get_rank(),
+                        )
+                    },
+                    driveway.make_polygons(NORMAL_LANE_THICKNESS),
+                );
+            }
         }
     }
 
