@@ -1810,30 +1810,40 @@
       "uncompressed_size_bytes": 6946110,
       "compressed_size_bytes": 1489785
     },
+    "data/input/us/nyc/osm/downtown_brooklyn.osm": {
+      "checksum": "db4c8aa8107df3fe12ca4f2bda4bfe10",
+      "uncompressed_size_bytes": 30719645,
+      "compressed_size_bytes": 2993099
+    },
     "data/input/us/nyc/osm/lower_manhattan.osm": {
-      "checksum": "09bf8cdb40474741b58e74f4c486a69e",
-      "uncompressed_size_bytes": 34156510,
-      "compressed_size_bytes": 3333635
+      "checksum": "c4bdf4c021dc1dc75702f46620f01e11",
+      "uncompressed_size_bytes": 37465104,
+      "compressed_size_bytes": 3672733
     },
     "data/input/us/nyc/osm/midtown_manhattan.osm": {
-      "checksum": "d90c3be90e26add046724e76b7b3503b",
-      "uncompressed_size_bytes": 44314663,
-      "compressed_size_bytes": 4201620
+      "checksum": "09b8dec58ea0168e2eb676cfccdec839",
+      "uncompressed_size_bytes": 47101206,
+      "compressed_size_bytes": 4497612
     },
     "data/input/us/nyc/osm/new-york-latest.osm.pbf": {
-      "checksum": "facc38237e51d386617203060c812a5c",
-      "uncompressed_size_bytes": 277455662,
-      "compressed_size_bytes": 277054703
+      "checksum": "6c2112cbf476a4f46e348d93177d8367",
+      "uncompressed_size_bytes": 374674101,
+      "compressed_size_bytes": 374254938
+    },
+    "data/input/us/nyc/raw_maps/downtown_brooklyn.bin": {
+      "checksum": "18788a2a7d5bc57f0799a7c38fe0926c",
+      "uncompressed_size_bytes": 9878173,
+      "compressed_size_bytes": 1878081
     },
     "data/input/us/nyc/raw_maps/lower_manhattan.bin": {
-      "checksum": "b3f5d65c1a0a06610e396b4e355f9c95",
-      "uncompressed_size_bytes": 8516701,
-      "compressed_size_bytes": 1841943
+      "checksum": "4c9eb0d12b35eb383b900aea704a7757",
+      "uncompressed_size_bytes": 8865030,
+      "compressed_size_bytes": 1945186
     },
     "data/input/us/nyc/raw_maps/midtown_manhattan.bin": {
-      "checksum": "b487fe5d81ea34124d1cb94127a9cd7e",
-      "uncompressed_size_bytes": 8663226,
-      "compressed_size_bytes": 1768716
+      "checksum": "8dc44468a89e436c2bed9c035d32b8d5",
+      "uncompressed_size_bytes": 8992517,
+      "compressed_size_bytes": 1857100
     },
     "data/input/us/phoenix/osm/arizona-latest.osm.pbf": {
       "checksum": "7ca801721f2f13ee6bb3d7f894a60d05",
@@ -3886,19 +3896,24 @@
       "compressed_size_bytes": 8115435
     },
     "data/system/us/nyc/city.bin": {
-      "checksum": "631b9f50c1af1e2d5dca27a34fc34b70",
-      "uncompressed_size_bytes": 608892,
-      "compressed_size_bytes": 318515
+      "checksum": "93f972082d026257625bd7bc10a45b63",
+      "uncompressed_size_bytes": 892706,
+      "compressed_size_bytes": 477936
+    },
+    "data/system/us/nyc/maps/downtown_brooklyn.bin": {
+      "checksum": "053183cbc7923c6e71044cb4b354b3e1",
+      "uncompressed_size_bytes": 13166945,
+      "compressed_size_bytes": 4582825
     },
     "data/system/us/nyc/maps/lower_manhattan.bin": {
-      "checksum": "6f03fc090c32f1d6fa863ecba58154c1",
-      "uncompressed_size_bytes": 16124690,
-      "compressed_size_bytes": 5563476
+      "checksum": "0dd4e3cfdb34e99b9c13e9f835ac29c4",
+      "uncompressed_size_bytes": 16651311,
+      "compressed_size_bytes": 5770304
     },
     "data/system/us/nyc/maps/midtown_manhattan.bin": {
-      "checksum": "8559551b47526094dbecf25507344b77",
-      "uncompressed_size_bytes": 14448450,
-      "compressed_size_bytes": 4794986
+      "checksum": "dc4608da06c219f0b24039ae2962d86c",
+      "uncompressed_size_bytes": 15169304,
+      "compressed_size_bytes": 5042109
     },
     "data/system/us/phoenix/maps/gilbert.bin": {
       "checksum": "815dcfbec929b805b0d00bdd2e0c6379",
