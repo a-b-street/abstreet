@@ -287,6 +287,7 @@
 <span id="284">284</span>
 <span id="285">285</span>
 <span id="286">286</span>
+<span id="287">287</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std::cell::RefCell</span>;
 
@@ -504,18 +505,19 @@
                 )
                 .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">pl</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">pl</span>)
                 .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">orig_pl</span>.<span class="ident">clone</span>());
-
-            <span class="ident">batch</span>.<span class="ident">push</span>(
-                <span class="kw">if</span> <span class="ident">opts</span>.<span class="ident">color_scheme</span> <span class="op">=</span><span class="op">=</span> <span class="ident">ColorSchemeChoice::NightMode</span> {
-                    <span class="ident">Color::hex</span>(<span class="string">&quot;#4B4B4B&quot;</span>)
-                } <span class="kw">else</span> {
-                    <span class="ident">cs</span>.<span class="ident">zoomed_road_surface</span>(
-                        <span class="ident">LaneType::Sidewalk</span>,
-                        <span class="ident">map</span>.<span class="ident">get_parent</span>(<span class="ident">bldg</span>.<span class="ident">sidewalk</span>()).<span class="ident">get_rank</span>(),
-                    )
-                },
-                <span class="ident">driveway</span>.<span class="ident">make_polygons</span>(<span class="ident">NORMAL_LANE_THICKNESS</span>),
-            );
+            <span class="kw">if</span> <span class="ident">driveway</span>.<span class="ident">length</span>() <span class="op">&gt;</span> <span class="ident">Distance::meters</span>(<span class="number">0.1</span>) {
+                <span class="ident">batch</span>.<span class="ident">push</span>(
+                    <span class="kw">if</span> <span class="ident">opts</span>.<span class="ident">color_scheme</span> <span class="op">=</span><span class="op">=</span> <span class="ident">ColorSchemeChoice::NightMode</span> {
+                        <span class="ident">Color::hex</span>(<span class="string">&quot;#4B4B4B&quot;</span>)
+                    } <span class="kw">else</span> {
+                        <span class="ident">cs</span>.<span class="ident">zoomed_road_surface</span>(
+                            <span class="ident">LaneType::Sidewalk</span>,
+                            <span class="ident">map</span>.<span class="ident">get_parent</span>(<span class="ident">bldg</span>.<span class="ident">sidewalk</span>()).<span class="ident">get_rank</span>(),
+                        )
+                    },
+                    <span class="ident">driveway</span>.<span class="ident">make_polygons</span>(<span class="ident">NORMAL_LANE_THICKNESS</span>),
+                );
+            }
         }
     }
 
