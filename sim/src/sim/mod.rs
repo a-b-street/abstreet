@@ -202,10 +202,11 @@ impl SimOptions {
 // Setup
 impl Sim {
     pub fn new(map: &Map, opts: SimOptions) -> Sim {
+        let mut timer = Timer::new("create blank sim");
         let mut scheduler = Scheduler::new();
         Sim {
             driving: DrivingSimState::new(map, &opts),
-            parking: ParkingSimState::new(map, opts.infinite_parking),
+            parking: ParkingSimState::new(map, opts.infinite_parking, &mut timer),
             walking: WalkingSimState::new(),
             intersections: IntersectionSimState::new(map, &mut scheduler, &opts),
             transit: TransitSimState::new(map),
@@ -841,10 +842,10 @@ impl Sim {
 
     /// Respond to arbitrary map edits without resetting the simulation. Returns the number of
     /// (trips cancelled, parked cars displaced).
-    pub fn handle_live_edits(&mut self, map: &Map) -> (usize, usize) {
+    pub fn handle_live_edits(&mut self, map: &Map, timer: &mut Timer) -> (usize, usize) {
         self.edits_name = map.get_edits().edits_name.clone();
 
-        let (affected, num_parked_cars) = self.find_trips_affected_by_live_edits(map);
+        let (affected, num_parked_cars) = self.find_trips_affected_by_live_edits(map, timer);
         let num_trips_cancelled = affected.len();
         let affected_agents: BTreeSet<AgentID> = affected.iter().map(|(a, _)| *a).collect();
 
@@ -899,6 +900,7 @@ impl Sim {
     fn find_trips_affected_by_live_edits(
         &mut self,
         map: &Map,
+        timer: &mut Timer,
     ) -> (BTreeSet<(AgentID, TripID)>, usize) {
         let mut affected: BTreeSet<(AgentID, TripID)> = BTreeSet::new();
 
@@ -939,7 +941,8 @@ impl Sim {
         }
 
         let num_evicted = {
-            let (evicted_cars, cars_parking_in_the_void) = self.parking.handle_live_edits(map);
+            let (evicted_cars, cars_parking_in_the_void) =
+                self.parking.handle_live_edits(map, timer);
             let num_evicted = evicted_cars.len();
             affected.extend(self.walking.find_trips_to_parking(evicted_cars));
             for car in cars_parking_in_the_void {

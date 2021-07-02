@@ -100,7 +100,10 @@ impl EditMode {
                 app.primary
                     .sim
                     .handle_live_edited_traffic_signals(&app.primary.map);
-                let (trips, parked_cars) = app.primary.sim.handle_live_edits(&app.primary.map);
+                let (trips, parked_cars) = app
+                    .primary
+                    .sim
+                    .handle_live_edits(&app.primary.map, &mut timer);
                 if trips == 0 && parked_cars == 0 {
                     Transition::Pop
                 } else {

@@ -7,6 +7,7 @@ use serde::{Deserialize, Serialize};
 
 use abstutil::{
     deserialize_btreemap, deserialize_multimap, serialize_btreemap, serialize_multimap, MultiMap,
+    Timer,
 };
 use geom::{Distance, PolyLine, Pt2D};
 use map_model::{
@@ -24,7 +25,7 @@ use crate::{CarID, CarStatus, DrawCarInput, Event, ParkedCar, ParkingSpot, Perso
 pub trait ParkingSim {
     /// Returns any cars that got very abruptly evicted from existence, and also cars actively
     /// moving into a deleted spot.
-    fn handle_live_edits(&mut self, map: &Map) -> (Vec<ParkedCar>, Vec<CarID>);
+    fn handle_live_edits(&mut self, map: &Map, timer: &mut Timer) -> (Vec<ParkedCar>, Vec<CarID>);
     fn get_free_onstreet_spots(&self, l: LaneID) -> Vec<ParkingSpot>;
     fn get_free_offstreet_spots(&self, b: BuildingID) -> Vec<ParkingSpot>;
     fn get_free_lot_spots(&self, pl: ParkingLotID) -> Vec<ParkingSpot>;
@@ -86,11 +87,11 @@ pub enum ParkingSimState {
 impl ParkingSimState {
     /// Counterintuitive: any spots located in blackholes are just not represented here. If somebody
     /// tries to drive from a blackholed spot, they couldn't reach most places.
-    pub fn new(map: &Map, infinite: bool) -> ParkingSimState {
+    pub fn new(map: &Map, infinite: bool, timer: &mut Timer) -> ParkingSimState {
         if infinite {
             ParkingSimState::Infinite(InfiniteParkingSimState::new(map))
         } else {
-            ParkingSimState::Normal(NormalParkingSimState::new(map))
+            ParkingSimState::Normal(NormalParkingSimState::new(map, timer))
         }
     }
 
@@ -150,7 +151,7 @@ pub struct NormalParkingSimState {
 }
 
 impl NormalParkingSimState {
-    fn new(map: &Map) -> NormalParkingSimState {
+    fn new(map: &Map, timer: &mut Timer) -> NormalParkingSimState {
         let mut sim = NormalParkingSimState {
             parked_cars: BTreeMap::new(),
             occupants: BTreeMap::new(),
@@ -171,18 +172,36 @@ impl NormalParkingSimState {
                 sim.onstreet_lanes.insert(lane.parking_lane, lane);
             }
         }
-        for b in map.all_buildings() {
-            if let Some((pos, _)) = b.driving_connection(map) {
-                if !map.get_l(pos.lane()).driving_blackhole {
-                    let num_spots = b.num_parking_spots();
-                    if num_spots > 0 {
-                        sim.num_spots_per_offstreet.insert(b.id, num_spots);
-                        sim.driving_to_offstreet
-                            .insert(pos.lane(), (b.id, pos.dist_along()));
+        // This is slow on huge maps
+        for (b, pos, num_spots) in timer
+            .parallelize(
+                "setup offstreet parking",
+                map.all_buildings().iter().collect(),
+                |b| {
+                    if let Some((pos, _)) = b.driving_connection(map) {
+                        if !map.get_l(pos.lane()).driving_blackhole {
+                            let num_spots = b.num_parking_spots();
+                            if num_spots > 0 {
+                                Some((b.id, pos, num_spots))
+                            } else {
+                                None
+                            }
+                        } else {
+                            None
+                        }
+                    } else {
+                        None
                     }
-                }
-            }
+                },
+            )
+            .into_iter()
+            .flatten()
+        {
+            sim.num_spots_per_offstreet.insert(b, num_spots);
+            sim.driving_to_offstreet
+                .insert(pos.lane(), (b, pos.dist_along()));
         }
+
         for pl in map.all_parking_lots() {
             if !map.get_l(pl.driving_pos.lane()).driving_blackhole {
                 sim.num_spots_per_lot.insert(pl.id, pl.capacity());
@@ -195,9 +214,9 @@ impl NormalParkingSimState {
 }
 
 impl ParkingSim for NormalParkingSimState {
-    fn handle_live_edits(&mut self, map: &Map) -> (Vec<ParkedCar>, Vec<CarID>) {
+    fn handle_live_edits(&mut self, map: &Map, timer: &mut Timer) -> (Vec<ParkedCar>, Vec<CarID>) {
         let (filled_before, _) = self.get_all_parking_spots();
-        let new = NormalParkingSimState::new(map);
+        let new = NormalParkingSimState::new(map, timer);
         let (_, avail_after) = new.get_all_parking_spots();
         let avail_after: BTreeSet<ParkingSpot> = avail_after.into_iter().collect();
 
@@ -814,7 +833,7 @@ impl InfiniteParkingSimState {
 }
 
 impl ParkingSim for InfiniteParkingSimState {
-    fn handle_live_edits(&mut self, map: &Map) -> (Vec<ParkedCar>, Vec<CarID>) {
+    fn handle_live_edits(&mut self, map: &Map, _: &mut Timer) -> (Vec<ParkedCar>, Vec<CarID>) {
         // Can live edits possibly affect anything?
         let new = InfiniteParkingSimState::new(map);
         self.driving_to_offstreet = new.driving_to_offstreet;
