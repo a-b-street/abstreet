@@ -12,12 +12,12 @@ pedestrians. It works anywhere in the world, thanks to
   [Linux](https://github.com/a-b-street/abstreet/releases/download/v0.2.48/abstreet_linux_v0_2_48.zip),
   [FreeBSD](https://www.freshports.org/games/abstreet/),
   [your web browser](http://abstreet.s3-website.us-east-2.amazonaws.com/0.2.48/abstreet.html),
-  or [read all instructions](https://a-b-street.github.io/docs/howto/index.html)
+  or [read all instructions](https://a-b-street.github.io/docs/user/index.html)
   (new releases every Sunday)
-- [build from source](https://a-b-street.github.io/docs/dev/index.html) (new
-  changes daily)
+- [build from source](https://a-b-street.github.io/docs/tech/dev/index.html)
+  (new changes daily)
 - Try the Dec 2020 surprise:
-  [15-minute Santa](https://a-b-street.github.io/docs/side_projects/santa.html)
+  [15-minute Santa](https://a-b-street.github.io/docs/software/santa.html)
 
 ## Show, don't tell
 
