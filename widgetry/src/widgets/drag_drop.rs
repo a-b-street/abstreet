@@ -68,23 +68,25 @@ impl DragDrop {
                 cursor_at,
                 new_idx,
             } => {
-                let mut members = self.members.iter().collect::<Vec<_>>();
-                // TODO Swap isn't what we want... we want to remove the old thing and insert at
-                // the new position
-                members.swap(orig_idx, new_idx);
+                let mut members = self.members.clone();
 
                 let mut stack = GeomBatchStack::horizontal(Vec::new());
-                let mut width = 0.0;
-                for (idx, (batch, _)) in members.into_iter().enumerate() {
-                    let mut batch = batch.clone();
-                    if new_idx == idx {
-                        batch =
-                            batch.translate(cursor_at.x - drag_from.x - width, cursor_at.y - drag_from.y);
-                        batch = batch.color(RewriteColor::ChangeAlpha(0.5));
-                    } else if idx < new_idx {
-                        // TODO Not correct
-                        width += batch.get_dims().width;
+
+                let mut width = members.get(orig_idx).unwrap().0.get_dims().width;
+                for (idx, (mut batch, _)) in members.into_iter().enumerate() {
+                    // the target we're dragging
+                    if idx == orig_idx {
+                        batch = batch
+                            .translate(cursor_at.x - drag_from.x, cursor_at.y - drag_from.y)
+                            .color(RewriteColor::ChangeAlpha(0.5));
+                    } else if idx <= new_idx && idx > orig_idx {
+                        // move thing left when target is newly greater than us
+                        batch = batch.translate(-width, 0.0);
+                    } if idx >= new_idx && idx < orig_idx {
+                        // move thing right if thing is newly less than us
+                        batch = batch.translate(width, 0.0);
                     }
+
                     stack.push(batch);
                 }
                 stack.batch()
@@ -163,7 +165,10 @@ impl WidgetImpl for DragDrop {
                     if orig_idx != new_idx {
                         output.outcome =
                             Outcome::DragDropReordered(self.label.clone(), orig_idx, new_idx);
-                        self.members.swap(orig_idx, new_idx);
+                        if orig_idx != new_idx {
+                            let item = self.members.remove(orig_idx);
+                            self.members.insert(new_idx, item);
+                        }
                     }
                 }
             }
