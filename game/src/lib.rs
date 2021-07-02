@@ -306,6 +306,13 @@ fn finish_app_setup(
             abstio::path_edits(app.primary.map.get_name(), &edits_name),
             &mut timer,
         )
+        .or_else(|_| {
+            map_model::MapEdits::load(
+                &app.primary.map,
+                abstio::path(format!("system/proposals/{}.json", edits_name)),
+                &mut timer,
+            )
+        })
         .unwrap();
         crate::edit::apply_map_edits(ctx, app, edits);
         app.primary
