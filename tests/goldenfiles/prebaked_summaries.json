@@ -1,0 +1,37 @@
+[
+  {
+    "map": "arboretum (in seattle (us))",
+    "finished_trips": 76618,
+    "cancelled_trips": 0
+  },
+  {
+    "map": "greenlake (in seattle (us))",
+    "finished_trips": 136849,
+    "cancelled_trips": 29
+  },
+  {
+    "map": "montlake (in seattle (us))",
+    "finished_trips": 36724,
+    "cancelled_trips": 72
+  },
+  {
+    "map": "lakeslice (in seattle (us))",
+    "finished_trips": 260975,
+    "cancelled_trips": 4841
+  },
+  {
+    "map": "phinney (in seattle (us))",
+    "finished_trips": 138499,
+    "cancelled_trips": 0
+  },
+  {
+    "map": "qa (in seattle (us))",
+    "finished_trips": 53866,
+    "cancelled_trips": 0
+  },
+  {
+    "map": "rainier_valley (in seattle (us))",
+    "finished_trips": 68100,
+    "cancelled_trips": 0
+  }
+]

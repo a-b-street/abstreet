@@ -1,3 +1,5 @@
+use serde::Serialize;
+
 use abstio::MapName;
 use abstutil::{prettyprint_usize, Timer};
 use geom::{Duration, Time};
@@ -20,10 +22,12 @@ pub fn prebake_all() {
                 &mut SimFlags::for_test("prebaked").make_rng(),
                 &mut timer,
             );
+            // Don't record a summary for this
             prebake(&map, scenario, None, &mut timer);
         }
     }
 
+    let mut summaries = Vec::new();
     for name in vec![
         MapName::seattle("arboretum"),
         MapName::seattle("greenlake"),
@@ -37,7 +41,7 @@ pub fn prebake_all() {
         let map = map_model::Map::load_synchronously(name.path(), &mut timer);
         let scenario: Scenario =
             abstio::read_binary(abstio::path_scenario(map.get_name(), "weekday"), &mut timer);
-        prebake(&map, scenario, None, &mut timer);
+        summaries.push(prebake(&map, scenario, None, &mut timer));
     }
 
     // TODO Upstream actdev scenarios use an old JSON format; fix them, then reimport these
@@ -55,12 +59,24 @@ pub fn prebake_all() {
             let mut opts = SimOptions::new("prebaked");
             opts.alerts = AlertHandler::Silence;
             opts.infinite_parking = true;
-            prebake(&map, scenario, Some(opts), &mut timer);
+            summaries.push(prebake(&map, scenario, Some(opts), &mut timer));
         }
     }
+
+    // Assume this is being run from the 'game' directory. This other tests directory is the most
+    // appropriate place to keep this.
+    abstio::write_json(
+        "../tests/goldenfiles/prebaked_summaries.json".to_string(),
+        &summaries,
+    );
 }
 
-fn prebake(map: &Map, scenario: Scenario, opts: Option<SimOptions>, timer: &mut Timer) {
+fn prebake(
+    map: &Map,
+    scenario: Scenario,
+    opts: Option<SimOptions>,
+    timer: &mut Timer,
+) -> PrebakeSummary {
     timer.start(format!(
         "prebake for {} / {}",
         scenario.map_name.describe(),
@@ -104,4 +120,26 @@ fn prebake(map: &Map, scenario: Scenario, opts: Option<SimOptions>, timer: &mut 
         scenario.map_name.describe(),
         scenario.scenario_name
     ));
+
+    let mut finished_trips = 0;
+    let mut cancelled_trips = 0;
+    for (_, _, _, maybe_duration) in &sim.get_analytics().finished_trips {
+        if maybe_duration.is_some() {
+            finished_trips += 1;
+        } else {
+            cancelled_trips += 1;
+        }
+    }
+    PrebakeSummary {
+        map: scenario.map_name.describe(),
+        finished_trips,
+        cancelled_trips,
+    }
+}
+
+#[derive(Serialize)]
+struct PrebakeSummary {
+    map: String,
+    finished_trips: usize,
+    cancelled_trips: usize,
 }
