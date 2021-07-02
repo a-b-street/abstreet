@@ -19,7 +19,7 @@ pub enum Alignment {
 ///
 /// You can add items incrementally, change `spacing` and `axis`, and call `batch` at the end to
 /// apply these rules to produce an aggeregate `GeomBatch`.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct GeomBatchStack {
     batches: Vec<GeomBatch>,
     axis: Axis,
@@ -53,6 +53,14 @@ impl GeomBatchStack {
             axis: Axis::Vertical,
             ..Default::default()
         }
+    }
+
+    pub fn get(&self, index: usize) -> Option<&GeomBatch> {
+        self.batches.get(index)
+    }
+
+    pub fn get_mut(&mut self, index: usize) -> Option<&mut GeomBatch> {
+        self.batches.get_mut(index)
     }
 
     pub fn push(&mut self, geom_batch: GeomBatch) {
