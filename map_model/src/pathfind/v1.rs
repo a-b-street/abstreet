@@ -433,6 +433,9 @@ pub struct PathRequest {
     pub start: Position,
     pub end: Position,
     pub constraints: PathConstraints,
+    // If present, also consider this start position, adding an extra cost to use it. When a Path
+    // is returned, 'start' might be switched to use this one instead, reflecting the choice made.
+    pub(crate) alt_start: Option<(Position, Duration)>,
 }
 
 impl fmt::Display for PathRequest {
@@ -485,6 +488,7 @@ impl PathRequest {
                 start,
                 end,
                 constraints,
+                alt_start: None,
             })
         }
     }
@@ -495,6 +499,7 @@ impl PathRequest {
             start,
             end,
             constraints: PathConstraints::Pedestrian,
+            alt_start: None,
         }
     }
 
@@ -505,6 +510,7 @@ impl PathRequest {
             start,
             end,
             constraints,
+            alt_start: None,
         }
     }
 
@@ -514,12 +520,35 @@ impl PathRequest {
         start: Position,
         end: Position,
         constraints: PathConstraints,
-        _: &Map,
+        map: &Map,
     ) -> PathRequest {
+        let alt_start = (|| {
+            let start_lane = map.get_l(start.lane());
+            let road = map.get_r(start_lane.parent);
+            // If start and end road match, don't exit offside
+            // TODO Sometimes this is valid! Just not if we're trying to go behind ourselves
+            if road.id == map.get_l(end.lane()).parent {
+                return None;
+            }
+            let offside_dir = start_lane.dir.opposite();
+            let alt_lane = road.find_closest_lane(
+                start_lane.id,
+                |l| l.dir == offside_dir && constraints.can_use(l, map),
+                map,
+            )?;
+            // TODO Do we need buffer_dist like driving_connection does?
+            let pos = start.equiv_pos(alt_lane, map);
+            let number_lanes_between =
+                ((road.offset(start_lane.id) as f64) - (road.offset(alt_lane) as f64)).abs();
+            // TODO Tune the cost of cutting across lanes
+            let cost = Duration::seconds(10.0) * number_lanes_between;
+            Some((pos, cost))
+        })();
         PathRequest {
             start,
             end,
             constraints,
+            alt_start,
         }
     }
 }

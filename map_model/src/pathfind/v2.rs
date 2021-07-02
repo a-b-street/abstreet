@@ -99,6 +99,22 @@ impl PathV2 {
             return self.into_v1_walking(map);
         }
 
+        // If we had two possible start positions, figure out which one we wound up using
+        if let Some((pos, _)) = self.req.alt_start {
+            if let PathStepV2::Along(dr) = self.steps[0] {
+                if map.get_l(self.req.start.lane()).get_directed_parent() == dr {
+                    // We used the original side, fine. No need to preserve this.
+                    self.req.alt_start = None;
+                } else {
+                    assert_eq!(map.get_l(pos.lane()).get_directed_parent(), dr);
+                    self.req.start = pos;
+                    self.req.alt_start = None;
+                }
+            } else {
+                unreachable!()
+            }
+        }
+
         // This is a somewhat brute-force method: run Dijkstra's algorithm on a graph of lanes and
         // turns, but only build the graph along the path of roads we've already found. This handles
         // arbitrary lookahead needed, and forces use of the original start/end lanes requested.

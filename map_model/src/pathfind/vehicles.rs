@@ -98,11 +98,23 @@ impl VehiclePathfinder {
             .path_calc
             .get_or(|| RefCell::new(fast_paths::create_calculator(&self.graph)))
             .borrow_mut();
-        let raw_path = calc.calc_path(
-            &self.graph,
+        let mut starts = vec![(
             self.nodes.get(Node::Road(
                 map.get_l(req.start.lane()).get_directed_parent(),
             )),
+            0,
+        )];
+        if let Some((pos, cost)) = req.alt_start {
+            starts.push((
+                self.nodes.get(Node::Road(
+                    map.get_l(pos.lane()).get_directed_parent(),
+                )),
+                round(cost),
+            ));
+        }
+        let raw_path = calc.calc_path_multiple_endpoints(
+            &self.graph,
+            starts,
             self.nodes
                 .get(Node::Road(map.get_l(req.end.lane()).get_directed_parent())),
         )?;
