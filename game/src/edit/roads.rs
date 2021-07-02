@@ -262,17 +262,9 @@ impl State<App> for RoadEditor {
             Outcome::Changed(x) => match x.as_ref() {
                 "speed limit" => {
                     let speed_limit = self.main_panel.dropdown_value("speed limit");
-                    let mut edits = app.primary.map.get_edits().clone();
-                    edits
-                        .commands
-                        .push(app.primary.map.edit_road_cmd(self.r, |new| {
-                            new.speed_limit = speed_limit;
-                        }));
-                    apply_map_edits(ctx, app, edits);
-                    self.redo_stack.clear();
-
-                    // Lane IDs don't change
-                    self.recalc_all_panels(ctx, app);
+                    return self.modify_current_lane(ctx, app, Some(0), |new, _| {
+                        new.speed_limit = speed_limit;
+                    });
                 }
                 "width" => {
                     let width = self.main_panel.dropdown_value("width");
