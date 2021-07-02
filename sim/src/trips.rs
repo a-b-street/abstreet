@@ -201,8 +201,11 @@ impl TripManager {
                 } else {
                     PathConstraints::Car
                 };
-                let req =
-                    PathRequest::walking(start_pos, goal.goal_pos(constraints, ctx.map).unwrap());
+                let req = PathRequest::vehicle(
+                    start_pos,
+                    goal.goal_pos(constraints, ctx.map).unwrap(),
+                    constraints,
+                );
                 let person = person.id;
 
                 match self.maybe_spawn_car(ctx, now, trip, req, vehicle.id) {

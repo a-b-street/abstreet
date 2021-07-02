@@ -685,7 +685,9 @@ fn make_topcenter(ctx: &mut EventCtx, app: &App) -> Panel {
 pub fn apply_map_edits(ctx: &mut EventCtx, app: &mut App, edits: MapEdits) {
     let mut timer = Timer::new("apply map edits");
 
+    timer.start("edit map");
     let effects = app.primary.map.must_apply_edits(edits);
+    timer.stop("edit map");
 
     if !effects.changed_roads.is_empty() || !effects.changed_intersections.is_empty() {
         app.primary
@@ -715,11 +717,13 @@ pub fn apply_map_edits(ctx: &mut EventCtx, app: &mut App, edits: MapEdits) {
             .recreate_intersection(i, &app.primary.map);
     }
 
+    timer.start("resnap buildings");
     if effects.resnapped_buildings {
         app.primary
             .draw_map
             .recreate_building_driveways(ctx, &app.primary.map, &app.cs, &app.opts);
     }
+    timer.stop("resnap buildings");
     for pl in effects.changed_parking_lots {
         app.primary.draw_map.get_pl(pl).clear_rendering();
     }
