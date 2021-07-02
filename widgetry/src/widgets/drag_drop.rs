@@ -50,17 +50,17 @@ impl DragDrop {
 
 impl DragDrop {
     fn recalc_draw(&mut self, ctx: &EventCtx) {
-        let batch = match self.state {
+        let (dims, batch) = match self.state {
             State::Idle { hovering } => {
                 let mut stack = GeomBatchStack::horizontal(Vec::new());
-                for (idx, (batch, _)) in self.members.iter().enumerate() {
-                    let mut batch = batch.clone();
+                for (idx, (mut batch, _)) in self.members.clone().into_iter().enumerate() {
                     if hovering == Some(idx) {
                         batch = batch.color(RewriteColor::ChangeAlpha(0.5));
                     }
                     stack.push(batch);
                 }
-                stack.batch()
+                let batch = stack.batch();
+                (batch.get_dims(), batch)
             }
             State::Dragging {
                 orig_idx,
@@ -68,31 +68,44 @@ impl DragDrop {
                 cursor_at,
                 new_idx,
             } => {
-                let mut members = self.members.clone();
+                let members = self.members.clone();
 
                 let mut stack = GeomBatchStack::horizontal(Vec::new());
+                let width = members.get(orig_idx).unwrap().0.get_dims().width;
 
-                let mut width = members.get(orig_idx).unwrap().0.get_dims().width;
                 for (idx, (mut batch, _)) in members.into_iter().enumerate() {
                     // the target we're dragging
                     if idx == orig_idx {
-                        batch = batch
-                            .translate(cursor_at.x - drag_from.x, cursor_at.y - drag_from.y)
-                            .color(RewriteColor::ChangeAlpha(0.5));
+                        batch = batch.color(RewriteColor::ChangeAlpha(0.5));
                     } else if idx <= new_idx && idx > orig_idx {
-                        // move thing left when target is newly greater than us
+                        // move batch to the left if target is newly greater than us
                         batch = batch.translate(-width, 0.0);
-                    } if idx >= new_idx && idx < orig_idx {
-                        // move thing right if thing is newly less than us
+                    } else if idx >= new_idx && idx < orig_idx {
+                        // move batch to the right if target is newly less than us
                         batch = batch.translate(width, 0.0);
                     }
 
                     stack.push(batch);
                 }
-                stack.batch()
+
+                // PERF: avoid this clone by implementing a non-consuming `stack.get_dims()`.
+                // At the moment it seems like not a big deal to just clone the thing
+                let dims = stack.clone().batch().get_dims();
+
+                // The dragged batch follows the cursor, but don't translate it until we've captured
+                // the pre-existing `dims`, otherwise the dragged position will be included in the
+                // overall dims of this widget, causing other screen content to shift around as we
+                // drag.
+                let mut dragged_batch = std::mem::take(stack.get_mut(orig_idx).unwrap());
+                dragged_batch = dragged_batch
+                    .translate(cursor_at.x - drag_from.x, cursor_at.y - drag_from.y)
+                    .set_z_offset(-0.1);
+                *stack.get_mut(orig_idx).unwrap() = dragged_batch;
+
+                (dims, stack.batch())
             }
         };
-        self.dims = batch.get_dims();
+        self.dims = dims;
         self.draw = batch.upload(ctx);
     }
 
