@@ -781,14 +781,6 @@
 <span id="778">778</span>
 <span id="779">779</span>
 <span id="780">780</span>
-<span id="781">781</span>
-<span id="782">782</span>
-<span id="783">783</span>
-<span id="784">784</span>
-<span id="785">785</span>
-<span id="786">786</span>
-<span id="787">787</span>
-<span id="788">788</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">CornerRadii</span>, <span class="ident">Distance</span>};
 <span class="kw">use</span> <span class="ident">map_gui::render</span>::{<span class="ident">Renderable</span>, <span class="ident">OUTLINE_THICKNESS</span>};
@@ -1054,17 +1046,9 @@
             <span class="ident">Outcome::Changed</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
                 <span class="string">&quot;speed limit&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">let</span> <span class="ident">speed_limit</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">main_panel</span>.<span class="ident">dropdown_value</span>(<span class="string">&quot;speed limit&quot;</span>);
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">clone</span>();
-                    <span class="ident">edits</span>
-                        .<span class="ident">commands</span>
-                        .<span class="ident">push</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">edit_road_cmd</span>(<span class="self">self</span>.<span class="ident">r</span>, <span class="op">|</span><span class="ident">new</span><span class="op">|</span> {
-                            <span class="ident">new</span>.<span class="ident">speed_limit</span> <span class="op">=</span> <span class="ident">speed_limit</span>;
-                        }));
-                    <span class="ident">apply_map_edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">edits</span>);
-                    <span class="self">self</span>.<span class="ident">redo_stack</span>.<span class="ident">clear</span>();
-
-                    <span class="comment">// Lane IDs don&#39;t change</span>
-                    <span class="self">self</span>.<span class="ident">recalc_all_panels</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+                    <span class="kw">return</span> <span class="self">self</span>.<span class="ident">modify_current_lane</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="prelude-val">Some</span>(<span class="number">0</span>), <span class="op">|</span><span class="ident">new</span>, <span class="kw">_</span><span class="op">|</span> {
+                        <span class="ident">new</span>.<span class="ident">speed_limit</span> <span class="op">=</span> <span class="ident">speed_limit</span>;
+                    });
                 }
                 <span class="string">&quot;width&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">main_panel</span>.<span class="ident">dropdown_value</span>(<span class="string">&quot;width&quot;</span>);

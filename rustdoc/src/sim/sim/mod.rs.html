@@ -1037,6 +1037,9 @@
 <span id="1034">1034</span>
 <span id="1035">1035</span>
 <span id="1036">1036</span>
+<span id="1037">1037</span>
+<span id="1038">1038</span>
+<span id="1039">1039</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// This file has a jumbled mess of queries, setup, and mutating methods.</span>
 
@@ -1242,10 +1245,11 @@
 <span class="comment">// Setup</span>
 <span class="kw">impl</span> <span class="ident">Sim</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">opts</span>: <span class="ident">SimOptions</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Sim</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">timer</span> <span class="op">=</span> <span class="ident">Timer::new</span>(<span class="string">&quot;create blank sim&quot;</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">scheduler</span> <span class="op">=</span> <span class="ident">Scheduler::new</span>();
         <span class="ident">Sim</span> {
             <span class="ident">driving</span>: <span class="ident">DrivingSimState::new</span>(<span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="ident">opts</span>),
-            <span class="ident">parking</span>: <span class="ident">ParkingSimState::new</span>(<span class="ident">map</span>, <span class="ident">opts</span>.<span class="ident">infinite_parking</span>),
+            <span class="ident">parking</span>: <span class="ident">ParkingSimState::new</span>(<span class="ident">map</span>, <span class="ident">opts</span>.<span class="ident">infinite_parking</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>),
             <span class="ident">walking</span>: <span class="ident">WalkingSimState::new</span>(),
             <span class="ident">intersections</span>: <span class="ident">IntersectionSimState::new</span>(<span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">scheduler</span>, <span class="kw-2">&amp;</span><span class="ident">opts</span>),
             <span class="ident">transit</span>: <span class="ident">TransitSimState::new</span>(<span class="ident">map</span>),
@@ -1881,10 +1885,10 @@
 
     <span class="doccomment">/// Respond to arbitrary map edits without resetting the simulation. Returns the number of</span>
     <span class="doccomment">/// (trips cancelled, parked cars displaced).</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">handle_live_edits</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">usize</span>, <span class="ident">usize</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">handle_live_edits</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">usize</span>, <span class="ident">usize</span>) {
         <span class="self">self</span>.<span class="ident">edits_name</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">edits_name</span>.<span class="ident">clone</span>();
 
-        <span class="kw">let</span> (<span class="ident">affected</span>, <span class="ident">num_parked_cars</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">find_trips_affected_by_live_edits</span>(<span class="ident">map</span>);
+        <span class="kw">let</span> (<span class="ident">affected</span>, <span class="ident">num_parked_cars</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">find_trips_affected_by_live_edits</span>(<span class="ident">map</span>, <span class="ident">timer</span>);
         <span class="kw">let</span> <span class="ident">num_trips_cancelled</span> <span class="op">=</span> <span class="ident">affected</span>.<span class="ident">len</span>();
         <span class="kw">let</span> <span class="ident">affected_agents</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">AgentID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">affected</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">a</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="kw-2">*</span><span class="ident">a</span>).<span class="ident">collect</span>();
 
@@ -1939,6 +1943,7 @@
     <span class="kw">fn</span> <span class="ident">find_trips_affected_by_live_edits</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
         <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
+        <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">BTreeSet</span><span class="op">&lt;</span>(<span class="ident">AgentID</span>, <span class="ident">TripID</span>)<span class="op">&gt;</span>, <span class="ident">usize</span>) {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">affected</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span>(<span class="ident">AgentID</span>, <span class="ident">TripID</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">BTreeSet::new</span>();
 
@@ -1979,7 +1984,8 @@
         }
 
         <span class="kw">let</span> <span class="ident">num_evicted</span> <span class="op">=</span> {
-            <span class="kw">let</span> (<span class="ident">evicted_cars</span>, <span class="ident">cars_parking_in_the_void</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">parking</span>.<span class="ident">handle_live_edits</span>(<span class="ident">map</span>);
+            <span class="kw">let</span> (<span class="ident">evicted_cars</span>, <span class="ident">cars_parking_in_the_void</span>) <span class="op">=</span>
+                <span class="self">self</span>.<span class="ident">parking</span>.<span class="ident">handle_live_edits</span>(<span class="ident">map</span>, <span class="ident">timer</span>);
             <span class="kw">let</span> <span class="ident">num_evicted</span> <span class="op">=</span> <span class="ident">evicted_cars</span>.<span class="ident">len</span>();
             <span class="ident">affected</span>.<span class="ident">extend</span>(<span class="self">self</span>.<span class="ident">walking</span>.<span class="ident">find_trips_to_parking</span>(<span class="ident">evicted_cars</span>));
             <span class="kw">for</span> <span class="ident">car</span> <span class="kw">in</span> <span class="ident">cars_parking_in_the_void</span> {
