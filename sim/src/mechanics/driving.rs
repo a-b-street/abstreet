@@ -116,17 +116,25 @@ impl DrivingSimState {
             }
         }
 
-        // First handle any of the intermediate queues, failing fast.
-        let mut blocked_start_indices = Vec::new();
-        for pos in params.router.get_path().get_blocked_starts() {
-            if let Some(idx) = self.queues[&Traversable::Lane(pos.lane())].can_block_from_driveway(
-                pos,
+        // First handle any of the intermediate queues, failing fast. Record the position of the
+        // blockage's front and the index in that queue.
+        let mut blocked_starts: Vec<(Position, usize)> = Vec::new();
+        for lane in params.router.get_path().get_blocked_starts() {
+            let pos = params
+                .router
+                .get_path()
+                .get_req()
+                .start
+                .equiv_pos(lane, ctx.map);
+            if let Some(idx) = self.queues[&Traversable::Lane(lane)].can_block_from_driveway(
+                // This is before adjusting for the length of the vehicle exiting the driveway
+                &pos,
                 params.vehicle.length,
                 now,
                 &self.cars,
                 &self.queues,
             ) {
-                blocked_start_indices.push(idx);
+                blocked_starts.push((pos, idx));
             } else {
                 return Some(params);
             }
@@ -170,7 +178,7 @@ impl DrivingSimState {
                         //
                         // TODO Actually, revisit ~instantaneous unparking in infinite mode. Were
                         // we making gridlock progress somewhere because of this?
-                        if car.router.get_path().get_blocked_starts().is_empty() {
+                        if blocked_starts.is_empty() {
                             self.time_to_unpark_offstreet
                         } else {
                             Duration::seconds(5.0)
@@ -180,20 +188,14 @@ impl DrivingSimState {
                 car.state =
                     CarState::Unparking(start_dist, p.spot, TimeInterval::new(now, now + delay));
 
-                for (pos, idx) in car
-                    .router
-                    .get_path()
-                    .get_blocked_starts()
-                    .iter()
-                    .zip(blocked_start_indices)
-                {
+                for (pos, idx) in blocked_starts {
                     self.queues
                         .get_mut(&Traversable::Lane(pos.lane()))
                         .unwrap()
                         .add_static_blockage(
                             car.vehicle.id,
-                            start_dist,
-                            start_dist - car.vehicle.length,
+                            pos.dist_along(),
+                            pos.dist_along() - car.vehicle.length,
                             idx,
                         );
                 }
@@ -389,12 +391,12 @@ impl DrivingSimState {
                 }
             }
             CarState::Unparking(front, _, _) => {
-                for pos in car.router.get_path().get_blocked_starts() {
+                for lane in car.router.get_path().get_blocked_starts() {
                     // Calculate the exact positions along this blocked queue (which is ***NOT***
                     // the same queue that the unparking car is in!). Use that to update the
                     // follower. Note that it's fine that the current car isn't currently in
                     // self.cars; the static blockage doesn't need it.
-                    let dists = self.queues[&Traversable::Lane(pos.lane())].get_car_positions(
+                    let dists = self.queues[&Traversable::Lane(lane)].get_car_positions(
                         now,
                         &self.cars,
                         &self.queues,
@@ -403,7 +405,7 @@ impl DrivingSimState {
                     self.update_follower(idx, &dists, now, ctx);
 
                     self.queues
-                        .get_mut(&Traversable::Lane(pos.lane()))
+                        .get_mut(&Traversable::Lane(lane))
                         .unwrap()
                         .clear_static_blockage(car.vehicle.id, idx);
                 }

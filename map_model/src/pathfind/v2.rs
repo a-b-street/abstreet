@@ -100,6 +100,7 @@ impl PathV2 {
         }
 
         // If we had two possible start positions, figure out which one we wound up using
+        let orig_start_lane = self.req.start.lane();
         if let Some((pos, _)) = self.req.alt_start {
             if let PathStepV2::Along(dr) = self.steps[0] {
                 if map.get_l(self.req.start.lane()).get_directed_parent() == dr {
@@ -210,15 +211,15 @@ impl PathV2 {
                 }
                 steps.push(PathStep::Lane(self.req.end.lane()));
                 let mut blocked_starts = Vec::new();
-                if steps[0] != PathStep::Lane(self.req.start.lane()) {
+                if steps[0] != PathStep::Lane(orig_start_lane) {
                     let actual_start = match steps[0] {
                         PathStep::Lane(l) => l,
                         _ => unreachable!(),
                     };
-                    blocked_starts.push(self.req.start);
-                    for l in start_road.get_lanes_between(start_lane, actual_start) {
-                        blocked_starts.push(self.req.start.equiv_pos(l, map));
-                    }
+                    blocked_starts.push(orig_start_lane);
+                    blocked_starts
+                        .extend(start_road.get_lanes_between(orig_start_lane, actual_start));
+                    // Sometimes a no-op for exiting off-side
                     self.req.start = self.req.start.equiv_pos(actual_start, map);
                 }
                 let uber_turns = find_uber_turns(&steps, map, self.uber_turns);
