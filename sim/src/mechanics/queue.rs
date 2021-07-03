@@ -511,7 +511,8 @@ impl Queue {
     }
 
     /// True if a static blockage can be inserted into the queue without anything already there
-    /// intersecting it. Returns the index if so.
+    /// intersecting it. Returns the index if so. The position represents the front of the
+    /// blockage.
     pub fn can_block_from_driveway(
         &self,
         pos: &Position,

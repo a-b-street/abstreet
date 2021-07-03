@@ -98,7 +98,7 @@ pub struct Path {
     // Is the current_step in the middle of an UberTurn?
     currently_inside_ut: Option<UberTurn>,
 
-    blocked_starts: Vec<Position>,
+    blocked_starts: Vec<LaneID>,
 }
 
 impl Path {
@@ -107,7 +107,7 @@ impl Path {
         steps: Vec<PathStep>,
         orig_req: PathRequest,
         uber_turns: Vec<UberTurn>,
-        blocked_starts: Vec<Position>,
+        blocked_starts: Vec<LaneID>,
     ) -> Path {
         // Haven't seen problems here in a very long time. Noticeably saves some time to skip.
         if false {
@@ -422,9 +422,9 @@ impl Path {
     }
 
     /// If the agent following this path will initially block some intermediate lanes as they move
-    /// between a driveway and `get_req().start`, then record those equivalent positions here.
-    pub fn get_blocked_starts(&self) -> &Vec<Position> {
-        &self.blocked_starts
+    /// between a driveway and `get_req().start`, then record them here.
+    pub fn get_blocked_starts(&self) -> Vec<LaneID> {
+        self.blocked_starts.clone()
     }
 }
 
