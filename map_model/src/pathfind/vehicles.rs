@@ -106,9 +106,8 @@ impl VehiclePathfinder {
         )];
         if let Some((pos, cost)) = req.alt_start {
             starts.push((
-                self.nodes.get(Node::Road(
-                    map.get_l(pos.lane()).get_directed_parent(),
-                )),
+                self.nodes
+                    .get(Node::Road(map.get_l(pos.lane()).get_directed_parent())),
                 round(cost),
             ));
         }

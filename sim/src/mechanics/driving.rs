@@ -97,7 +97,24 @@ impl DrivingSimState {
         ctx: &mut Ctx,
     ) -> Option<CreateCar> {
         let first_lane = params.router.head().as_lane();
-        let start_dist = params.router.get_path().get_req().start.dist_along();
+        let mut start_dist = params.router.get_path().get_req().start.dist_along();
+        if let Some(ref p) = params.maybe_parked_car {
+            // If we're exiting a driveway, make the front of the vehicle wind up in the correct
+            // spot after the driveway. We could attempt to do this when we create the PathRequest,
+            // but it's complicated to adjust the position correctly, and this is the only place
+            // that needs to know.
+            if !matches!(p.spot, ParkingSpot::Onstreet(_, _)) {
+                start_dist += params.vehicle.length;
+                // TODO Should we also adjust the request?
+                if start_dist > ctx.map.get_l(first_lane).length() {
+                    // I'm not sure if this can happen in practice; we'll find out if so.
+                    panic!(
+                        "At {}, {} needs to exit a driveway at {} on {}, but they overflow",
+                        now, params.vehicle.id, start_dist, first_lane
+                    );
+                }
+            }
+        }
 
         // First handle any of the intermediate queues, failing fast.
         let mut blocked_start_indices = Vec::new();

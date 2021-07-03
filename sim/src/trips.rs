@@ -538,26 +538,11 @@ impl TripManager {
             ParkingSpot::Offstreet(b, _) => {
                 self.events
                     .push(Event::PersonEntersBuilding(trip.person, b));
-                // Actually, to unpark, the car's front should be where it'll wind up at the end.
-                PathRequest::leave_from_driveway(
-                    Position::new(
-                        base_start.lane(),
-                        base_start.dist_along() + parked_car.vehicle.length,
-                    ),
-                    end,
-                    PathConstraints::Car,
-                    ctx.map,
-                )
+                PathRequest::leave_from_driveway(base_start, end, PathConstraints::Car, ctx.map)
             }
-            ParkingSpot::Lot(_, _) => PathRequest::leave_from_driveway(
-                Position::new(
-                    base_start.lane(),
-                    base_start.dist_along() + parked_car.vehicle.length,
-                ),
-                end,
-                PathConstraints::Car,
-                ctx.map,
-            ),
+            ParkingSpot::Lot(_, _) => {
+                PathRequest::leave_from_driveway(base_start, end, PathConstraints::Car, ctx.map)
+            }
         };
 
         let person = trip.person;
