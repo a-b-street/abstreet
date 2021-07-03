@@ -1,5 +1,5 @@
 use map_gui::ID;
-use map_model::Map;
+use map_model::{Map, Position};
 use sim::{AgentID, Sim};
 use widgetry::{GfxCtx, Key, Text};
 
@@ -20,6 +20,12 @@ impl ObjectDebugger {
                     "cam_x = {}, cam_y = {}",
                     g.canvas.cam_x, g.canvas.cam_y
                 ));
+                if let Some(ID::Lane(l)) = app.primary.current_selection {
+                    let pl = &app.primary.map.get_l(l).lane_center_pts;
+                    if let Some((dist, _)) = pl.dist_along_of_point(pl.project_pt(pt)) {
+                        txt.add_line(Position::new(l, dist).to_string());
+                    }
+                }
                 g.draw_mouse_tooltip(txt);
             }
         }
