@@ -1147,7 +1147,7 @@
         <span class="ident">details</span>,
         <span class="ident">phases</span>,
         <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>,
-        <span class="prelude-val">Some</span>(<span class="ident">props</span>.<span class="ident">dist_crossed</span> <span class="op">/</span> <span class="ident">props</span>.<span class="ident">total_dist</span>),
+        <span class="prelude-val">Some</span>(<span class="ident">props</span>.<span class="ident">dist_crossed</span>.<span class="ident">safe_percent</span>(<span class="ident">props</span>.<span class="ident">total_dist</span>)),
     ));
     <span class="ident">Widget::col</span>(<span class="ident">col</span>)
 }

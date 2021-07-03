@@ -1572,6 +1572,8 @@
 <span id="1569">1569</span>
 <span id="1570">1570</span>
 <span id="1571">1571</span>
+<span id="1572">1572</span>
+<span id="1573">1573</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>, <span class="ident">VecDeque</span>};
 
@@ -2698,12 +2700,14 @@
             )
         {
             <span class="comment">// TODO Can downgrade this to an alert or debug once active work has settled down</span>
-            <span class="macro">info!</span>(
-                <span class="string">&quot;{} is starting to change lanes from {} to {}&quot;</span>,
-                <span class="ident">car</span>.<span class="ident">vehicle</span>.<span class="ident">id</span>,
-                <span class="ident">car</span>.<span class="ident">router</span>.<span class="ident">head</span>(),
-                <span class="ident">target_lane</span>
-            );
+            <span class="kw">if</span> <span class="bool-val">false</span> {
+                <span class="macro">info!</span>(
+                    <span class="string">&quot;{} is starting to change lanes from {} to {}&quot;</span>,
+                    <span class="ident">car</span>.<span class="ident">vehicle</span>.<span class="ident">id</span>,
+                    <span class="ident">car</span>.<span class="ident">router</span>.<span class="ident">head</span>(),
+                    <span class="ident">target_lane</span>
+                );
+            }
 
             <span class="comment">// Exit the old queue (leaving a dynamic blockage in place)</span>
             <span class="self">self</span>.<span class="ident">queues</span>

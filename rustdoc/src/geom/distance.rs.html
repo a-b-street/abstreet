@@ -216,6 +216,15 @@
 <span id="213">213</span>
 <span id="214">214</span>
 <span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">cmp</span>, <span class="ident">f64</span>, <span class="ident">fmt</span>, <span class="ident">ops</span>};
 
@@ -320,6 +329,15 @@
                 <span class="macro">format!</span>(<span class="string">&quot;{} ft&quot;</span>, (<span class="ident">feet</span> <span class="op">*</span> <span class="number">10.0</span>).<span class="ident">round</span>() <span class="op">/</span> <span class="number">10.0</span>)
             }
         }
+    }
+
+    <span class="doccomment">/// Calculates a percentage, usually in [0.0, 1.0], of self / other. If the denominator is</span>
+    <span class="doccomment">/// zero, returns 0%.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">safe_percent</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">Distance</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">f64</span> {
+        <span class="kw">if</span> <span class="ident">other</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Distance::ZERO</span> {
+            <span class="kw">return</span> <span class="number">0.0</span>;
+        }
+        <span class="self">self</span> <span class="op">/</span> <span class="ident">other</span>
     }
 }
 
