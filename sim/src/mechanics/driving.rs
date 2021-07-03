@@ -1123,12 +1123,14 @@ impl DrivingSimState {
             )
         {
             // TODO Can downgrade this to an alert or debug once active work has settled down
-            info!(
-                "{} is starting to change lanes from {} to {}",
-                car.vehicle.id,
-                car.router.head(),
-                target_lane
-            );
+            if false {
+                info!(
+                    "{} is starting to change lanes from {} to {}",
+                    car.vehicle.id,
+                    car.router.head(),
+                    target_lane
+                );
+            }
 
             // Exit the old queue (leaving a dynamic blockage in place)
             self.queues

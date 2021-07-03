@@ -102,6 +102,15 @@ impl Distance {
             }
         }
     }
+
+    /// Calculates a percentage, usually in [0.0, 1.0], of self / other. If the denominator is
+    /// zero, returns 0%.
+    pub fn safe_percent(self, other: Distance) -> f64 {
+        if other == Distance::ZERO {
+            return 0.0;
+        }
+        self / other
+    }
 }
 
 impl fmt::Display for Distance {

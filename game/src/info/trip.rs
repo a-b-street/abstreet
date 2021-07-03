@@ -143,7 +143,7 @@ pub fn ongoing(
         details,
         phases,
         &app.primary.map,
-        Some(props.dist_crossed / props.total_dist),
+        Some(props.dist_crossed.safe_percent(props.total_dist)),
     ));
     Widget::col(col)
 }
