@@ -10,10 +10,10 @@ use crate::mechanics::car::{Car, CarState};
 use crate::mechanics::queue::{Queue, QueueEntry, Queued};
 use crate::sim::Ctx;
 use crate::{
-    ActionAtEnd, AgentID, AgentProperties, CarID, Command, CreateCar, DelayCause, DistanceInterval,
-    DrawCarInput, Event, IntersectionSimState, ParkedCar, ParkingSim, ParkingSpot, PersonID,
-    Problem, SimOptions, TimeInterval, TransitSimState, TripID, TripManager, UnzoomedAgent,
-    Vehicle, VehicleType, WalkingSimState, FOLLOWING_DISTANCE,
+    ActionAtEnd, AgentID, AgentProperties, CarID, CarStatus, Command, CreateCar, DelayCause,
+    DistanceInterval, DrawCarInput, Event, IntersectionSimState, ParkedCar, ParkingSim,
+    ParkingSpot, PersonID, Problem, SimOptions, TimeInterval, TransitSimState, TripID, TripManager,
+    UnzoomedAgent, Vehicle, VehicleType, WalkingSimState, FOLLOWING_DISTANCE,
 };
 
 const TIME_TO_WAIT_AT_BUS_STOP: Duration = Duration::const_seconds(10.0);
@@ -1322,11 +1322,46 @@ impl DrivingSimState {
             Some(q) => q
                 .get_car_positions(now, &self.cars, &self.queues)
                 .into_iter()
-                .filter_map(|entry| {
-                    if let Queued::Vehicle(id) = entry.member {
+                .filter_map(|entry| match entry.member {
+                    Queued::Vehicle(id) => {
                         Some(self.cars[&id].get_draw_car(entry.front, now, map, transit))
-                    } else {
-                        None
+                    }
+                    // Manually enable to debug exiting driveways and lane-changing
+                    Queued::StaticBlockage { cause, front, back } => {
+                        if false {
+                            Some(DrawCarInput {
+                                id: cause,
+                                waiting_for_turn: None,
+                                status: CarStatus::Parked,
+                                show_parking_intent: false,
+                                on,
+                                partly_on: Vec::new(),
+                                label: Some("block".to_string()),
+                                person: None,
+                                body: on.get_polyline(map).exact_slice(back, front),
+                            })
+                        } else {
+                            None
+                        }
+                    }
+                    Queued::DynamicBlockage { cause, vehicle_len } => {
+                        if false {
+                            Some(DrawCarInput {
+                                id: cause,
+                                waiting_for_turn: None,
+                                status: CarStatus::Parked,
+                                show_parking_intent: false,
+                                on,
+                                partly_on: Vec::new(),
+                                label: Some("block".to_string()),
+                                person: None,
+                                body: on
+                                    .get_polyline(map)
+                                    .exact_slice(entry.front - vehicle_len, entry.front),
+                            })
+                        } else {
+                            None
+                        }
                     }
                 })
                 .collect(),
