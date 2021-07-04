@@ -92,9 +92,15 @@
 <span id="89">89</span>
 <span id="90">90</span>
 <span id="91">91</span>
+<span id="92">92</span>
+<span id="93">93</span>
+<span id="94">94</span>
+<span id="95">95</span>
+<span id="96">96</span>
+<span id="97">97</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">map_gui::ID</span>;
-<span class="kw">use</span> <span class="ident">map_model::Map</span>;
+<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">Map</span>, <span class="ident">Position</span>};
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">AgentID</span>, <span class="ident">Sim</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Text</span>};
 
@@ -115,6 +121,12 @@
                     <span class="string">&quot;cam_x = {}, cam_y = {}&quot;</span>,
                     <span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">cam_x</span>, <span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">cam_y</span>
                 ));
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ID::Lane</span>(<span class="ident">l</span>)) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> {
+                    <span class="kw">let</span> <span class="ident">pl</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">lane_center_pts</span>;
+                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">dist</span>, <span class="kw">_</span>)) <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">dist_along_of_point</span>(<span class="ident">pl</span>.<span class="ident">project_pt</span>(<span class="ident">pt</span>)) {
+                        <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">Position::new</span>(<span class="ident">l</span>, <span class="ident">dist</span>).<span class="ident">to_string</span>());
+                    }
+                }
                 <span class="ident">g</span>.<span class="ident">draw_mouse_tooltip</span>(<span class="ident">txt</span>);
             }
         }

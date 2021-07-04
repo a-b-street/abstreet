@@ -347,6 +347,15 @@
 <span id="344">344</span>
 <span id="345">345</span>
 <span id="346">346</span>
+<span id="347">347</span>
+<span id="348">348</span>
+<span id="349">349</span>
+<span id="350">350</span>
+<span id="351">351</span>
+<span id="352">352</span>
+<span id="353">353</span>
+<span id="354">354</span>
+<span id="355">355</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeSet</span>, <span class="ident">VecDeque</span>};
 
@@ -510,10 +519,14 @@
                     }
                 }
             }
-            <span class="ident">CarState::Unparking</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">spot</span>, <span class="kw-2">ref</span> <span class="ident">time_int</span>)
+            <span class="ident">CarState::Unparking</span> {
+                <span class="kw-2">ref</span> <span class="ident">spot</span>,
+                <span class="kw-2">ref</span> <span class="ident">time_int</span>,
+                ..
+            }
             <span class="op">|</span> <span class="ident">CarState::Parking</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">spot</span>, <span class="kw-2">ref</span> <span class="ident">time_int</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> (<span class="ident">percent_time</span>, <span class="ident">is_parking</span>) <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">state</span> {
-                    <span class="ident">CarState::Unparking</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> (<span class="number">1.0</span> <span class="op">-</span> <span class="ident">time_int</span>.<span class="ident">percent</span>(<span class="ident">now</span>), <span class="bool-val">false</span>),
+                    <span class="ident">CarState::Unparking</span> { .. } <span class="op">=</span><span class="op">&gt;</span> (<span class="number">1.0</span> <span class="op">-</span> <span class="ident">time_int</span>.<span class="ident">percent</span>(<span class="ident">now</span>), <span class="bool-val">false</span>),
                     <span class="ident">CarState::Parking</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> (<span class="ident">time_int</span>.<span class="ident">percent</span>(<span class="ident">now</span>), <span class="bool-val">true</span>),
                     <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
                 };
@@ -610,14 +623,14 @@
                 <span class="ident">CarState::WaitingToAdvance</span> { .. } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">CarStatus::Moving</span>,
                 <span class="ident">CarState::Crossing</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">CarStatus::Moving</span>,
                 <span class="ident">CarState::ChangingLanes</span> { .. } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">CarStatus::Moving</span>,
-                <span class="ident">CarState::Unparking</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">CarStatus::Moving</span>,
+                <span class="ident">CarState::Unparking</span> { .. } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">CarStatus::Moving</span>,
                 <span class="ident">CarState::Parking</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">CarStatus::Moving</span>,
                 <span class="comment">// Changing color for idling buses is helpful</span>
                 <span class="ident">CarState::IdlingAtStop</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">CarStatus::Parked</span>,
             },
             <span class="ident">show_parking_intent</span>: <span class="macro">matches!</span>(
                 (<span class="self">self</span>.<span class="ident">is_parking</span>(), <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">state</span>),
-                (<span class="bool-val">true</span>, <span class="kw">_</span>) <span class="op">|</span> (<span class="kw">_</span>, <span class="ident">CarState::Unparking</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>))
+                (<span class="bool-val">true</span>, <span class="kw">_</span>) <span class="op">|</span> (<span class="kw">_</span>, <span class="ident">CarState::Unparking</span> { .. })
             ),
             <span class="ident">on</span>: <span class="self">self</span>.<span class="ident">router</span>.<span class="ident">head</span>(),
             <span class="ident">partly_on</span>,
@@ -667,7 +680,12 @@
         <span class="ident">blocked_since</span>: <span class="ident">Time</span>,
     },
     <span class="doccomment">/// Where&#39;s the front of the car while this is happening?</span>
-    <span class="ident">Unparking</span>(<span class="ident">Distance</span>, <span class="ident">ParkingSpot</span>, <span class="ident">TimeInterval</span>),
+    <span class="ident">Unparking</span> {
+        <span class="ident">front</span>: <span class="ident">Distance</span>,
+        <span class="ident">spot</span>: <span class="ident">ParkingSpot</span>,
+        <span class="ident">time_int</span>: <span class="ident">TimeInterval</span>,
+        <span class="ident">blocked_starts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LaneID</span><span class="op">&gt;</span>,
+    },
     <span class="ident">Parking</span>(<span class="ident">Distance</span>, <span class="ident">ParkingSpot</span>, <span class="ident">TimeInterval</span>),
     <span class="ident">IdlingAtStop</span>(<span class="ident">Distance</span>, <span class="ident">TimeInterval</span>),
 }
@@ -680,7 +698,7 @@
             <span class="ident">CarState::WaitingToAdvance</span> { .. } <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
             <span class="comment">// Note this state lasts for lc_time, NOT for new_time.</span>
             <span class="ident">CarState::ChangingLanes</span> { <span class="kw-2">ref</span> <span class="ident">lc_time</span>, .. } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">lc_time</span>.<span class="ident">end</span>,
-            <span class="ident">CarState::Unparking</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">time_int</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">time_int</span>.<span class="ident">end</span>,
+            <span class="ident">CarState::Unparking</span> { <span class="kw-2">ref</span> <span class="ident">time_int</span>, .. } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">time_int</span>.<span class="ident">end</span>,
             <span class="ident">CarState::Parking</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">time_int</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">time_int</span>.<span class="ident">end</span>,
             <span class="ident">CarState::IdlingAtStop</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">time_int</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">time_int</span>.<span class="ident">end</span>,
         }

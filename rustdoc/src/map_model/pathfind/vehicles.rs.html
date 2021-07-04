@@ -300,6 +300,20 @@
 <span id="297">297</span>
 <span id="298">298</span>
 <span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Pathfinding for cars, bikes, buses, and trains using contraction hierarchies</span>
 
@@ -401,13 +415,27 @@
             .<span class="ident">path_calc</span>
             .<span class="ident">get_or</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">RefCell::new</span>(<span class="ident">fast_paths::create_calculator</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">graph</span>)))
             .<span class="ident">borrow_mut</span>();
-        <span class="kw">let</span> <span class="ident">raw_path</span> <span class="op">=</span> <span class="ident">calc</span>.<span class="ident">calc_path</span>(
-            <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">graph</span>,
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">starts</span> <span class="op">=</span> <span class="macro">vec!</span>[(
             <span class="self">self</span>.<span class="ident">nodes</span>.<span class="ident">get</span>(<span class="ident">Node::Road</span>(
                 <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">req</span>.<span class="ident">start</span>.<span class="ident">lane</span>()).<span class="ident">get_directed_parent</span>(),
             )),
-            <span class="self">self</span>.<span class="ident">nodes</span>
-                .<span class="ident">get</span>(<span class="ident">Node::Road</span>(<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">req</span>.<span class="ident">end</span>.<span class="ident">lane</span>()).<span class="ident">get_directed_parent</span>())),
+            <span class="number">0</span>,
+        )];
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">pos</span>, <span class="ident">cost</span>)) <span class="op">=</span> <span class="ident">req</span>.<span class="ident">alt_start</span> {
+            <span class="ident">starts</span>.<span class="ident">push</span>((
+                <span class="self">self</span>.<span class="ident">nodes</span>
+                    .<span class="ident">get</span>(<span class="ident">Node::Road</span>(<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">pos</span>.<span class="ident">lane</span>()).<span class="ident">get_directed_parent</span>())),
+                <span class="ident">round</span>(<span class="ident">cost</span>),
+            ));
+        }
+        <span class="kw">let</span> <span class="ident">raw_path</span> <span class="op">=</span> <span class="ident">calc</span>.<span class="ident">calc_path_multiple_sources_and_targets</span>(
+            <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">graph</span>,
+            <span class="ident">starts</span>,
+            <span class="macro">vec!</span>[(
+                <span class="self">self</span>.<span class="ident">nodes</span>
+                    .<span class="ident">get</span>(<span class="ident">Node::Road</span>(<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">req</span>.<span class="ident">end</span>.<span class="ident">lane</span>()).<span class="ident">get_directed_parent</span>())),
+                <span class="number">0</span>,
+            )],
         )<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">road_steps</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">uber_turns</span> <span class="op">=</span> <span class="ident">Vec::new</span>();

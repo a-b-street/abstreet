@@ -1574,6 +1574,88 @@
 <span id="1571">1571</span>
 <span id="1572">1572</span>
 <span id="1573">1573</span>
+<span id="1574">1574</span>
+<span id="1575">1575</span>
+<span id="1576">1576</span>
+<span id="1577">1577</span>
+<span id="1578">1578</span>
+<span id="1579">1579</span>
+<span id="1580">1580</span>
+<span id="1581">1581</span>
+<span id="1582">1582</span>
+<span id="1583">1583</span>
+<span id="1584">1584</span>
+<span id="1585">1585</span>
+<span id="1586">1586</span>
+<span id="1587">1587</span>
+<span id="1588">1588</span>
+<span id="1589">1589</span>
+<span id="1590">1590</span>
+<span id="1591">1591</span>
+<span id="1592">1592</span>
+<span id="1593">1593</span>
+<span id="1594">1594</span>
+<span id="1595">1595</span>
+<span id="1596">1596</span>
+<span id="1597">1597</span>
+<span id="1598">1598</span>
+<span id="1599">1599</span>
+<span id="1600">1600</span>
+<span id="1601">1601</span>
+<span id="1602">1602</span>
+<span id="1603">1603</span>
+<span id="1604">1604</span>
+<span id="1605">1605</span>
+<span id="1606">1606</span>
+<span id="1607">1607</span>
+<span id="1608">1608</span>
+<span id="1609">1609</span>
+<span id="1610">1610</span>
+<span id="1611">1611</span>
+<span id="1612">1612</span>
+<span id="1613">1613</span>
+<span id="1614">1614</span>
+<span id="1615">1615</span>
+<span id="1616">1616</span>
+<span id="1617">1617</span>
+<span id="1618">1618</span>
+<span id="1619">1619</span>
+<span id="1620">1620</span>
+<span id="1621">1621</span>
+<span id="1622">1622</span>
+<span id="1623">1623</span>
+<span id="1624">1624</span>
+<span id="1625">1625</span>
+<span id="1626">1626</span>
+<span id="1627">1627</span>
+<span id="1628">1628</span>
+<span id="1629">1629</span>
+<span id="1630">1630</span>
+<span id="1631">1631</span>
+<span id="1632">1632</span>
+<span id="1633">1633</span>
+<span id="1634">1634</span>
+<span id="1635">1635</span>
+<span id="1636">1636</span>
+<span id="1637">1637</span>
+<span id="1638">1638</span>
+<span id="1639">1639</span>
+<span id="1640">1640</span>
+<span id="1641">1641</span>
+<span id="1642">1642</span>
+<span id="1643">1643</span>
+<span id="1644">1644</span>
+<span id="1645">1645</span>
+<span id="1646">1646</span>
+<span id="1647">1647</span>
+<span id="1648">1648</span>
+<span id="1649">1649</span>
+<span id="1650">1650</span>
+<span id="1651">1651</span>
+<span id="1652">1652</span>
+<span id="1653">1653</span>
+<span id="1654">1654</span>
+<span id="1655">1655</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>, <span class="ident">VecDeque</span>};
 
@@ -1587,10 +1669,10 @@
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::mechanics::queue</span>::{<span class="ident">Queue</span>, <span class="ident">QueueEntry</span>, <span class="ident">Queued</span>};
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::sim::Ctx</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">ActionAtEnd</span>, <span class="ident">AgentID</span>, <span class="ident">AgentProperties</span>, <span class="ident">CarID</span>, <span class="ident">Command</span>, <span class="ident">CreateCar</span>, <span class="ident">DelayCause</span>, <span class="ident">DistanceInterval</span>,
-    <span class="ident">DrawCarInput</span>, <span class="ident">Event</span>, <span class="ident">IntersectionSimState</span>, <span class="ident">ParkedCar</span>, <span class="ident">ParkingSim</span>, <span class="ident">ParkingSpot</span>, <span class="ident">PersonID</span>,
-    <span class="ident">Problem</span>, <span class="ident">SimOptions</span>, <span class="ident">TimeInterval</span>, <span class="ident">TransitSimState</span>, <span class="ident">TripID</span>, <span class="ident">TripManager</span>, <span class="ident">UnzoomedAgent</span>,
-    <span class="ident">Vehicle</span>, <span class="ident">VehicleType</span>, <span class="ident">WalkingSimState</span>, <span class="ident">FOLLOWING_DISTANCE</span>,
+    <span class="ident">ActionAtEnd</span>, <span class="ident">AgentID</span>, <span class="ident">AgentProperties</span>, <span class="ident">CarID</span>, <span class="ident">CarStatus</span>, <span class="ident">Command</span>, <span class="ident">CreateCar</span>, <span class="ident">DelayCause</span>,
+    <span class="ident">DistanceInterval</span>, <span class="ident">DrawCarInput</span>, <span class="ident">Event</span>, <span class="ident">IntersectionSimState</span>, <span class="ident">ParkedCar</span>, <span class="ident">ParkingSim</span>,
+    <span class="ident">ParkingSpot</span>, <span class="ident">PersonID</span>, <span class="ident">Problem</span>, <span class="ident">SimOptions</span>, <span class="ident">TimeInterval</span>, <span class="ident">TransitSimState</span>, <span class="ident">TripID</span>, <span class="ident">TripManager</span>,
+    <span class="ident">UnzoomedAgent</span>, <span class="ident">Vehicle</span>, <span class="ident">VehicleType</span>, <span class="ident">WalkingSimState</span>, <span class="ident">FOLLOWING_DISTANCE</span>, <span class="ident">MAX_CAR_LENGTH</span>,
 };
 
 <span class="kw">const</span> <span class="ident">TIME_TO_WAIT_AT_BUS_STOP</span>: <span class="ident">Duration</span> <span class="op">=</span> <span class="ident">Duration::const_seconds</span>(<span class="number">10.0</span>);
@@ -1674,19 +1756,62 @@
         <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Ctx</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">CreateCar</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">first_lane</span> <span class="op">=</span> <span class="ident">params</span>.<span class="ident">router</span>.<span class="ident">head</span>().<span class="ident">as_lane</span>();
-        <span class="kw">let</span> <span class="ident">start_dist</span> <span class="op">=</span> <span class="ident">params</span>.<span class="ident">router</span>.<span class="ident">get_path</span>().<span class="ident">get_req</span>().<span class="ident">start</span>.<span class="ident">dist_along</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">start_dist</span> <span class="op">=</span> <span class="ident">params</span>.<span class="ident">router</span>.<span class="ident">get_path</span>().<span class="ident">get_req</span>().<span class="ident">start</span>.<span class="ident">dist_along</span>();
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">p</span>) <span class="op">=</span> <span class="ident">params</span>.<span class="ident">maybe_parked_car</span> {
+            <span class="comment">// If we&#39;re exiting a driveway, make the front of the vehicle wind up in the correct</span>
+            <span class="comment">// spot after the driveway. We could attempt to do this when we create the PathRequest,</span>
+            <span class="comment">// but it&#39;s complicated to adjust the position correctly, and this is the only place</span>
+            <span class="comment">// that needs to know.</span>
+            <span class="kw">if</span> <span class="op">!</span><span class="macro">matches!</span>(<span class="ident">p</span>.<span class="ident">spot</span>, <span class="ident">ParkingSpot::Onstreet</span>(<span class="kw">_</span>, <span class="kw">_</span>)) {
+                <span class="ident">start_dist</span> <span class="op">+</span><span class="op">=</span> <span class="ident">params</span>.<span class="ident">vehicle</span>.<span class="ident">length</span>;
+                <span class="comment">// TODO Should we also adjust the request?</span>
+                <span class="kw">if</span> <span class="ident">start_dist</span> <span class="op">&gt;</span> <span class="ident">ctx</span>.<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">first_lane</span>).<span class="ident">length</span>() {
+                    <span class="comment">// I&#39;m not sure if this can happen in practice; we&#39;ll find out if so.</span>
+                    <span class="macro">panic!</span>(
+                        <span class="string">&quot;At {}, {} needs to exit a driveway at {} on {}, but they overflow&quot;</span>,
+                        <span class="ident">now</span>, <span class="ident">params</span>.<span class="ident">vehicle</span>.<span class="ident">id</span>, <span class="ident">start_dist</span>, <span class="ident">first_lane</span>
+                    );
+                }
+            }
+        }
 
-        <span class="comment">// First handle any of the intermediate queues, failing fast.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">blocked_start_indices</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">for</span> <span class="ident">pos</span> <span class="kw">in</span> <span class="ident">params</span>.<span class="ident">router</span>.<span class="ident">get_path</span>().<span class="ident">get_blocked_starts</span>() {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">idx</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">queues</span>[<span class="kw-2">&amp;</span><span class="ident">Traversable::Lane</span>(<span class="ident">pos</span>.<span class="ident">lane</span>())].<span class="ident">can_block_from_driveway</span>(
-                <span class="ident">pos</span>,
+        <span class="comment">// First handle any of the intermediate queues, failing fast. Record the position of the</span>
+        <span class="comment">// blockage&#39;s front and the index in that queue.</span>
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">blocked_starts</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Position</span>, <span class="ident">usize</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+        <span class="kw">for</span> <span class="ident">lane</span> <span class="kw">in</span> <span class="ident">params</span>.<span class="ident">router</span>.<span class="ident">get_path</span>().<span class="ident">get_blocked_starts</span>() {
+            <span class="comment">// This buffer makes sure other vehicles can enter the queue behind a blockage very</span>
+            <span class="comment">// close to the start of the lane and not spillover.</span>
+            <span class="kw">let</span> <span class="ident">pos</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">params</span>
+                .<span class="ident">router</span>
+                .<span class="ident">get_path</span>()
+                .<span class="ident">get_req</span>()
+                .<span class="ident">start</span>
+                .<span class="ident">equiv_pos</span>(<span class="ident">lane</span>, <span class="ident">ctx</span>.<span class="ident">map</span>)
+                .<span class="ident">buffer_dist</span>(<span class="ident">MAX_CAR_LENGTH</span> <span class="op">+</span> <span class="ident">FOLLOWING_DISTANCE</span>, <span class="ident">ctx</span>.<span class="ident">map</span>)
+            {
+                <span class="prelude-val">Some</span>(<span class="ident">pos</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">pos</span>,
+                <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="comment">// TODO Loss of some simulation realism. We could also ban this upfront in</span>
+                    <span class="comment">// leave_from_driveway by requiring a minimum lane length on all intermediate</span>
+                    <span class="comment">// lanes...</span>
+                    <span class="macro">warn!</span>(<span class="string">&quot;Not inserting a static blockage on {} at {} for {} to spawn, because the lane is too short&quot;</span>, <span class="ident">lane</span>, <span class="ident">now</span>, <span class="ident">params</span>.<span class="ident">vehicle</span>.<span class="ident">id</span>);
+                    <span class="kw">continue</span>;
+                }
+            };
+            <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">queues</span>.<span class="ident">contains_key</span>(<span class="kw-2">&amp;</span><span class="ident">Traversable::Lane</span>(<span class="ident">lane</span>)) {
+                <span class="comment">// TODO This is probably a center turn lane, or maybe some kind of exotic center</span>
+                <span class="comment">// parking. Just skip over it, until we properly model them.</span>
+                <span class="kw">continue</span>;
+            }
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">idx</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">queues</span>[<span class="kw-2">&amp;</span><span class="ident">Traversable::Lane</span>(<span class="ident">lane</span>)].<span class="ident">can_block_from_driveway</span>(
+                <span class="comment">// This is before adjusting for the length of the vehicle exiting the driveway</span>
+                <span class="kw-2">&amp;</span><span class="ident">pos</span>,
                 <span class="ident">params</span>.<span class="ident">vehicle</span>.<span class="ident">length</span>,
                 <span class="ident">now</span>,
                 <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">cars</span>,
                 <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">queues</span>,
             ) {
-                <span class="ident">blocked_start_indices</span>.<span class="ident">push</span>(<span class="ident">idx</span>);
+                <span class="ident">blocked_starts</span>.<span class="ident">push</span>((<span class="ident">pos</span>, <span class="ident">idx</span>));
             } <span class="kw">else</span> {
                 <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">params</span>);
             }
@@ -1730,33 +1855,33 @@
                         <span class="comment">//</span>
                         <span class="comment">// TODO Actually, revisit ~instantaneous unparking in infinite mode. Were</span>
                         <span class="comment">// we making gridlock progress somewhere because of this?</span>
-                        <span class="kw">if</span> <span class="ident">car</span>.<span class="ident">router</span>.<span class="ident">get_path</span>().<span class="ident">get_blocked_starts</span>().<span class="ident">is_empty</span>() {
+                        <span class="kw">if</span> <span class="ident">blocked_starts</span>.<span class="ident">is_empty</span>() {
                             <span class="self">self</span>.<span class="ident">time_to_unpark_offstreet</span>
                         } <span class="kw">else</span> {
                             <span class="ident">Duration::seconds</span>(<span class="number">5.0</span>)
                         }
                     }
                 };
-                <span class="ident">car</span>.<span class="ident">state</span> <span class="op">=</span>
-                    <span class="ident">CarState::Unparking</span>(<span class="ident">start_dist</span>, <span class="ident">p</span>.<span class="ident">spot</span>, <span class="ident">TimeInterval::new</span>(<span class="ident">now</span>, <span class="ident">now</span> <span class="op">+</span> <span class="ident">delay</span>));
-
-                <span class="kw">for</span> (<span class="ident">pos</span>, <span class="ident">idx</span>) <span class="kw">in</span> <span class="ident">car</span>
-                    .<span class="ident">router</span>
-                    .<span class="ident">get_path</span>()
-                    .<span class="ident">get_blocked_starts</span>()
-                    .<span class="ident">iter</span>()
-                    .<span class="ident">zip</span>(<span class="ident">blocked_start_indices</span>)
-                {
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lanes</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+                <span class="kw">for</span> (<span class="ident">pos</span>, <span class="ident">idx</span>) <span class="kw">in</span> <span class="ident">blocked_starts</span> {
                     <span class="self">self</span>.<span class="ident">queues</span>
                         .<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">Traversable::Lane</span>(<span class="ident">pos</span>.<span class="ident">lane</span>()))
                         .<span class="ident">unwrap</span>()
                         .<span class="ident">add_static_blockage</span>(
                             <span class="ident">car</span>.<span class="ident">vehicle</span>.<span class="ident">id</span>,
-                            <span class="ident">start_dist</span>,
-                            <span class="ident">start_dist</span> <span class="op">-</span> <span class="ident">car</span>.<span class="ident">vehicle</span>.<span class="ident">length</span>,
+                            <span class="ident">pos</span>.<span class="ident">dist_along</span>(),
+                            <span class="ident">pos</span>.<span class="ident">dist_along</span>() <span class="op">-</span> <span class="ident">car</span>.<span class="ident">vehicle</span>.<span class="ident">length</span>,
                             <span class="ident">idx</span>,
                         );
+                    <span class="ident">lanes</span>.<span class="ident">push</span>(<span class="ident">pos</span>.<span class="ident">lane</span>());
                 }
+
+                <span class="ident">car</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">CarState::Unparking</span> {
+                    <span class="ident">front</span>: <span class="ident">start_dist</span>,
+                    <span class="ident">spot</span>: <span class="ident">p</span>.<span class="ident">spot</span>,
+                    <span class="ident">time_int</span>: <span class="ident">TimeInterval::new</span>(<span class="ident">now</span>, <span class="ident">now</span> <span class="op">+</span> <span class="ident">delay</span>),
+                    <span class="ident">blocked_starts</span>: <span class="ident">lanes</span>,
+                };
             } <span class="kw">else</span> {
                 <span class="comment">// Have to do this early</span>
                 <span class="kw">if</span> <span class="ident">car</span>.<span class="ident">router</span>.<span class="ident">last_step</span>() {
@@ -1948,13 +2073,17 @@
                     }
                 }
             }
-            <span class="ident">CarState::Unparking</span>(<span class="ident">front</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">for</span> <span class="ident">pos</span> <span class="kw">in</span> <span class="ident">car</span>.<span class="ident">router</span>.<span class="ident">get_path</span>().<span class="ident">get_blocked_starts</span>() {
+            <span class="ident">CarState::Unparking</span> {
+                <span class="ident">front</span>,
+                <span class="kw-2">ref</span> <span class="ident">blocked_starts</span>,
+                ..
+            } <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">for</span> <span class="ident">lane</span> <span class="kw">in</span> <span class="ident">blocked_starts</span> {
                     <span class="comment">// Calculate the exact positions along this blocked queue (which is ***NOT***</span>
                     <span class="comment">// the same queue that the unparking car is in!). Use that to update the</span>
                     <span class="comment">// follower. Note that it&#39;s fine that the current car isn&#39;t currently in</span>
                     <span class="comment">// self.cars; the static blockage doesn&#39;t need it.</span>
-                    <span class="kw">let</span> <span class="ident">dists</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">queues</span>[<span class="kw-2">&amp;</span><span class="ident">Traversable::Lane</span>(<span class="ident">pos</span>.<span class="ident">lane</span>())].<span class="ident">get_car_positions</span>(
+                    <span class="kw">let</span> <span class="ident">dists</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">queues</span>[<span class="kw-2">&amp;</span><span class="ident">Traversable::Lane</span>(<span class="kw-2">*</span><span class="ident">lane</span>)].<span class="ident">get_car_positions</span>(
                         <span class="ident">now</span>,
                         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">cars</span>,
                         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">queues</span>,
@@ -1963,7 +2092,7 @@
                     <span class="self">self</span>.<span class="ident">update_follower</span>(<span class="ident">idx</span>, <span class="kw-2">&amp;</span><span class="ident">dists</span>, <span class="ident">now</span>, <span class="ident">ctx</span>);
 
                     <span class="self">self</span>.<span class="ident">queues</span>
-                        .<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">Traversable::Lane</span>(<span class="ident">pos</span>.<span class="ident">lane</span>()))
+                        .<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">Traversable::Lane</span>(<span class="kw-2">*</span><span class="ident">lane</span>))
                         .<span class="ident">unwrap</span>()
                         .<span class="ident">clear_static_blockage</span>(<span class="ident">car</span>.<span class="ident">vehicle</span>.<span class="ident">id</span>, <span class="ident">idx</span>);
                 }
@@ -2123,7 +2252,7 @@
 
         <span class="kw">match</span> <span class="ident">car</span>.<span class="ident">state</span> {
             <span class="ident">CarState::Crossing</span>(<span class="kw">_</span>, <span class="kw">_</span>)
-            <span class="op">|</span> <span class="ident">CarState::Unparking</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>)
+            <span class="op">|</span> <span class="ident">CarState::Unparking</span> { .. }
             <span class="op">|</span> <span class="ident">CarState::WaitingToAdvance</span> { .. }
             <span class="op">|</span> <span class="ident">CarState::ChangingLanes</span> { .. } <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
             <span class="ident">CarState::Queued</span> {
@@ -2441,7 +2570,7 @@
                     };
                 }
                 <span class="comment">// They weren&#39;t blocked</span>
-                <span class="ident">CarState::Unparking</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>)
+                <span class="ident">CarState::Unparking</span> { .. }
                 <span class="op">|</span> <span class="ident">CarState::Parking</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>)
                 <span class="op">|</span> <span class="ident">CarState::IdlingAtStop</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {}
                 <span class="ident">CarState::WaitingToAdvance</span> { .. } <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
@@ -2580,7 +2709,7 @@
                             <span class="comment">// jump forwards here; the leader vanished from the end of the traversable.</span>
                             <span class="ident">CarState::Crossing</span>(<span class="kw">_</span>, <span class="kw">_</span>)
                             <span class="op">|</span> <span class="ident">CarState::ChangingLanes</span> { .. }
-                            <span class="op">|</span> <span class="ident">CarState::Unparking</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>)
+                            <span class="op">|</span> <span class="ident">CarState::Unparking</span> { .. }
                             <span class="op">|</span> <span class="ident">CarState::Parking</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>)
                             <span class="op">|</span> <span class="ident">CarState::IdlingAtStop</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {}
                         }
@@ -2882,11 +3011,46 @@
             <span class="prelude-val">Some</span>(<span class="ident">q</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">q</span>
                 .<span class="ident">get_car_positions</span>(<span class="ident">now</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">cars</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">queues</span>)
                 .<span class="ident">into_iter</span>()
-                .<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">entry</span><span class="op">|</span> {
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Queued::Vehicle</span>(<span class="ident">id</span>) <span class="op">=</span> <span class="ident">entry</span>.<span class="ident">member</span> {
+                .<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">entry</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">entry</span>.<span class="ident">member</span> {
+                    <span class="ident">Queued::Vehicle</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> {
                         <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">cars</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>].<span class="ident">get_draw_car</span>(<span class="ident">entry</span>.<span class="ident">front</span>, <span class="ident">now</span>, <span class="ident">map</span>, <span class="ident">transit</span>))
-                    } <span class="kw">else</span> {
-                        <span class="prelude-val">None</span>
+                    }
+                    <span class="comment">// Manually enable to debug exiting driveways and lane-changing</span>
+                    <span class="ident">Queued::StaticBlockage</span> { <span class="ident">cause</span>, <span class="ident">front</span>, <span class="ident">back</span> } <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="kw">if</span> <span class="bool-val">false</span> {
+                            <span class="prelude-val">Some</span>(<span class="ident">DrawCarInput</span> {
+                                <span class="ident">id</span>: <span class="ident">cause</span>,
+                                <span class="ident">waiting_for_turn</span>: <span class="prelude-val">None</span>,
+                                <span class="ident">status</span>: <span class="ident">CarStatus::Parked</span>,
+                                <span class="ident">show_parking_intent</span>: <span class="bool-val">false</span>,
+                                <span class="ident">on</span>,
+                                <span class="ident">partly_on</span>: <span class="ident">Vec::new</span>(),
+                                <span class="ident">label</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;block&quot;</span>.<span class="ident">to_string</span>()),
+                                <span class="ident">person</span>: <span class="prelude-val">None</span>,
+                                <span class="ident">body</span>: <span class="ident">on</span>.<span class="ident">get_polyline</span>(<span class="ident">map</span>).<span class="ident">exact_slice</span>(<span class="ident">back</span>, <span class="ident">front</span>),
+                            })
+                        } <span class="kw">else</span> {
+                            <span class="prelude-val">None</span>
+                        }
+                    }
+                    <span class="ident">Queued::DynamicBlockage</span> { <span class="ident">cause</span>, <span class="ident">vehicle_len</span> } <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="kw">if</span> <span class="bool-val">false</span> {
+                            <span class="prelude-val">Some</span>(<span class="ident">DrawCarInput</span> {
+                                <span class="ident">id</span>: <span class="ident">cause</span>,
+                                <span class="ident">waiting_for_turn</span>: <span class="prelude-val">None</span>,
+                                <span class="ident">status</span>: <span class="ident">CarStatus::Parked</span>,
+                                <span class="ident">show_parking_intent</span>: <span class="bool-val">false</span>,
+                                <span class="ident">on</span>,
+                                <span class="ident">partly_on</span>: <span class="ident">Vec::new</span>(),
+                                <span class="ident">label</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;block&quot;</span>.<span class="ident">to_string</span>()),
+                                <span class="ident">person</span>: <span class="prelude-val">None</span>,
+                                <span class="ident">body</span>: <span class="ident">on</span>
+                                    .<span class="ident">get_polyline</span>(<span class="ident">map</span>)
+                                    .<span class="ident">exact_slice</span>(<span class="ident">entry</span>.<span class="ident">front</span> <span class="op">-</span> <span class="ident">vehicle_len</span>, <span class="ident">entry</span>.<span class="ident">front</span>),
+                            })
+                        } <span class="kw">else</span> {
+                            <span class="prelude-val">None</span>
+                        }
                     }
                 })
                 .<span class="ident">collect</span>(),

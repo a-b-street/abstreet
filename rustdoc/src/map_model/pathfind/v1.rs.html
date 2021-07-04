@@ -621,6 +621,35 @@
 <span id="618">618</span>
 <span id="619">619</span>
 <span id="620">620</span>
+<span id="621">621</span>
+<span id="622">622</span>
+<span id="623">623</span>
+<span id="624">624</span>
+<span id="625">625</span>
+<span id="626">626</span>
+<span id="627">627</span>
+<span id="628">628</span>
+<span id="629">629</span>
+<span id="630">630</span>
+<span id="631">631</span>
+<span id="632">632</span>
+<span id="633">633</span>
+<span id="634">634</span>
+<span id="635">635</span>
+<span id="636">636</span>
+<span id="637">637</span>
+<span id="638">638</span>
+<span id="639">639</span>
+<span id="640">640</span>
+<span id="641">641</span>
+<span id="642">642</span>
+<span id="643">643</span>
+<span id="644">644</span>
+<span id="645">645</span>
+<span id="646">646</span>
+<span id="647">647</span>
+<span id="648">648</span>
+<span id="649">649</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std::collections::VecDeque</span>;
 <span class="kw">use</span> <span class="ident">std::fmt</span>;
@@ -722,7 +751,7 @@
     <span class="comment">// Is the current_step in the middle of an UberTurn?</span>
     <span class="ident">currently_inside_ut</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">UberTurn</span><span class="op">&gt;</span>,
 
-    <span class="ident">blocked_starts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Position</span><span class="op">&gt;</span>,
+    <span class="ident">blocked_starts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LaneID</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Path</span> {
@@ -731,7 +760,7 @@
         <span class="ident">steps</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PathStep</span><span class="op">&gt;</span>,
         <span class="ident">orig_req</span>: <span class="ident">PathRequest</span>,
         <span class="ident">uber_turns</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">UberTurn</span><span class="op">&gt;</span>,
-        <span class="ident">blocked_starts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Position</span><span class="op">&gt;</span>,
+        <span class="ident">blocked_starts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LaneID</span><span class="op">&gt;</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Path</span> {
         <span class="comment">// Haven&#39;t seen problems here in a very long time. Noticeably saves some time to skip.</span>
         <span class="kw">if</span> <span class="bool-val">false</span> {
@@ -1046,9 +1075,9 @@
     }
 
     <span class="doccomment">/// If the agent following this path will initially block some intermediate lanes as they move</span>
-    <span class="doccomment">/// between a driveway and `get_req().start`, then record those equivalent positions here.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_blocked_starts</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Position</span><span class="op">&gt;</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">blocked_starts</span>
+    <span class="doccomment">/// between a driveway and `get_req().start`, then record them here.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_blocked_starts</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LaneID</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">blocked_starts</span>.<span class="ident">clone</span>()
     }
 }
 
@@ -1057,6 +1086,9 @@
     <span class="kw">pub</span> <span class="ident">start</span>: <span class="ident">Position</span>,
     <span class="kw">pub</span> <span class="ident">end</span>: <span class="ident">Position</span>,
     <span class="kw">pub</span> <span class="ident">constraints</span>: <span class="ident">PathConstraints</span>,
+    <span class="comment">// If present, also consider this start position, adding an extra cost to use it. When a Path</span>
+    <span class="comment">// is returned, &#39;start&#39; might be switched to use this one instead, reflecting the choice made.</span>
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">alt_start</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Position</span>, <span class="ident">Duration</span>)<span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">PathRequest</span> {
@@ -1109,6 +1141,7 @@
                 <span class="ident">start</span>,
                 <span class="ident">end</span>,
                 <span class="ident">constraints</span>,
+                <span class="ident">alt_start</span>: <span class="prelude-val">None</span>,
             })
         }
     }
@@ -1119,6 +1152,7 @@
             <span class="ident">start</span>,
             <span class="ident">end</span>,
             <span class="ident">constraints</span>: <span class="ident">PathConstraints::Pedestrian</span>,
+            <span class="ident">alt_start</span>: <span class="prelude-val">None</span>,
         }
     }
 
@@ -1129,6 +1163,7 @@
             <span class="ident">start</span>,
             <span class="ident">end</span>,
             <span class="ident">constraints</span>,
+            <span class="ident">alt_start</span>: <span class="prelude-val">None</span>,
         }
     }
 
@@ -1138,12 +1173,35 @@
         <span class="ident">start</span>: <span class="ident">Position</span>,
         <span class="ident">end</span>: <span class="ident">Position</span>,
         <span class="ident">constraints</span>: <span class="ident">PathConstraints</span>,
-        <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
+        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PathRequest</span> {
+        <span class="kw">let</span> <span class="ident">alt_start</span> <span class="op">=</span> (<span class="op">|</span><span class="op">|</span> {
+            <span class="kw">let</span> <span class="ident">start_lane</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">start</span>.<span class="ident">lane</span>());
+            <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">start_lane</span>.<span class="ident">parent</span>);
+            <span class="comment">// If start and end road match, don&#39;t exit offside</span>
+            <span class="comment">// TODO Sometimes this is valid! Just not if we&#39;re trying to go behind ourselves</span>
+            <span class="kw">if</span> <span class="ident">road</span>.<span class="ident">id</span> <span class="op">=</span><span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">end</span>.<span class="ident">lane</span>()).<span class="ident">parent</span> {
+                <span class="kw">return</span> <span class="prelude-val">None</span>;
+            }
+            <span class="kw">let</span> <span class="ident">offside_dir</span> <span class="op">=</span> <span class="ident">start_lane</span>.<span class="ident">dir</span>.<span class="ident">opposite</span>();
+            <span class="kw">let</span> <span class="ident">alt_lane</span> <span class="op">=</span> <span class="ident">road</span>.<span class="ident">find_closest_lane</span>(
+                <span class="ident">start_lane</span>.<span class="ident">id</span>,
+                <span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="ident">l</span>.<span class="ident">dir</span> <span class="op">=</span><span class="op">=</span> <span class="ident">offside_dir</span> <span class="op">&amp;&amp;</span> <span class="ident">constraints</span>.<span class="ident">can_use</span>(<span class="ident">l</span>, <span class="ident">map</span>),
+                <span class="ident">map</span>,
+            )<span class="question-mark">?</span>;
+            <span class="comment">// TODO Do we need buffer_dist like driving_connection does?</span>
+            <span class="kw">let</span> <span class="ident">pos</span> <span class="op">=</span> <span class="ident">start</span>.<span class="ident">equiv_pos</span>(<span class="ident">alt_lane</span>, <span class="ident">map</span>);
+            <span class="kw">let</span> <span class="ident">number_lanes_between</span> <span class="op">=</span>
+                ((<span class="ident">road</span>.<span class="ident">offset</span>(<span class="ident">start_lane</span>.<span class="ident">id</span>) <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">-</span> (<span class="ident">road</span>.<span class="ident">offset</span>(<span class="ident">alt_lane</span>) <span class="kw">as</span> <span class="ident">f64</span>)).<span class="ident">abs</span>();
+            <span class="comment">// TODO Tune the cost of cutting across lanes</span>
+            <span class="kw">let</span> <span class="ident">cost</span> <span class="op">=</span> <span class="ident">Duration::seconds</span>(<span class="number">10.0</span>) <span class="op">*</span> <span class="ident">number_lanes_between</span>;
+            <span class="prelude-val">Some</span>((<span class="ident">pos</span>, <span class="ident">cost</span>))
+        })();
         <span class="ident">PathRequest</span> {
             <span class="ident">start</span>,
             <span class="ident">end</span>,
             <span class="ident">constraints</span>,
+            <span class="ident">alt_start</span>,
         }
     }
 }

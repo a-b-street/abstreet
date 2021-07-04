@@ -1528,21 +1528,6 @@
 <span id="1525">1525</span>
 <span id="1526">1526</span>
 <span id="1527">1527</span>
-<span id="1528">1528</span>
-<span id="1529">1529</span>
-<span id="1530">1530</span>
-<span id="1531">1531</span>
-<span id="1532">1532</span>
-<span id="1533">1533</span>
-<span id="1534">1534</span>
-<span id="1535">1535</span>
-<span id="1536">1536</span>
-<span id="1537">1537</span>
-<span id="1538">1538</span>
-<span id="1539">1539</span>
-<span id="1540">1540</span>
-<span id="1541">1541</span>
-<span id="1542">1542</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">VecDeque</span>};
 
@@ -2084,26 +2069,11 @@
             <span class="ident">ParkingSpot::Offstreet</span>(<span class="ident">b</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="self">self</span>.<span class="ident">events</span>
                     .<span class="ident">push</span>(<span class="ident">Event::PersonEntersBuilding</span>(<span class="ident">trip</span>.<span class="ident">person</span>, <span class="ident">b</span>));
-                <span class="comment">// Actually, to unpark, the car&#39;s front should be where it&#39;ll wind up at the end.</span>
-                <span class="ident">PathRequest::leave_from_driveway</span>(
-                    <span class="ident">Position::new</span>(
-                        <span class="ident">base_start</span>.<span class="ident">lane</span>(),
-                        <span class="ident">base_start</span>.<span class="ident">dist_along</span>() <span class="op">+</span> <span class="ident">parked_car</span>.<span class="ident">vehicle</span>.<span class="ident">length</span>,
-                    ),
-                    <span class="ident">end</span>,
-                    <span class="ident">PathConstraints::Car</span>,
-                    <span class="ident">ctx</span>.<span class="ident">map</span>,
-                )
+                <span class="ident">PathRequest::leave_from_driveway</span>(<span class="ident">base_start</span>, <span class="ident">end</span>, <span class="ident">PathConstraints::Car</span>, <span class="ident">ctx</span>.<span class="ident">map</span>)
             }
-            <span class="ident">ParkingSpot::Lot</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">PathRequest::leave_from_driveway</span>(
-                <span class="ident">Position::new</span>(
-                    <span class="ident">base_start</span>.<span class="ident">lane</span>(),
-                    <span class="ident">base_start</span>.<span class="ident">dist_along</span>() <span class="op">+</span> <span class="ident">parked_car</span>.<span class="ident">vehicle</span>.<span class="ident">length</span>,
-                ),
-                <span class="ident">end</span>,
-                <span class="ident">PathConstraints::Car</span>,
-                <span class="ident">ctx</span>.<span class="ident">map</span>,
-            ),
+            <span class="ident">ParkingSpot::Lot</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">PathRequest::leave_from_driveway</span>(<span class="ident">base_start</span>, <span class="ident">end</span>, <span class="ident">PathConstraints::Car</span>, <span class="ident">ctx</span>.<span class="ident">map</span>)
+            }
         };
 
         <span class="kw">let</span> <span class="ident">person</span> <span class="op">=</span> <span class="ident">trip</span>.<span class="ident">person</span>;
