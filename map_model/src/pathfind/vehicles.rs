@@ -111,11 +111,14 @@ impl VehiclePathfinder {
                 round(cost),
             ));
         }
-        let raw_path = calc.calc_path_multiple_endpoints(
+        let raw_path = calc.calc_path_multiple_sources_and_targets(
             &self.graph,
             starts,
-            self.nodes
-                .get(Node::Road(map.get_l(req.end.lane()).get_directed_parent())),
+            vec![(
+                self.nodes
+                    .get(Node::Road(map.get_l(req.end.lane()).get_directed_parent())),
+                0,
+            )],
         )?;
         let mut road_steps = Vec::new();
         let mut uber_turns = Vec::new();
