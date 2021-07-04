@@ -94,4 +94,39 @@ impl ObjectDebugger {
             ID::Road(_) => unreachable!(),
         }
     }
+
+    pub fn debug_json(id: ID, map: &Map, sim: &Sim) {
+        let json_string = match id {
+            ID::Lane(id) => abstutil::to_json(map.get_l(id)),
+            ID::Intersection(id) => abstutil::to_json(map.get_i(id)),
+            ID::Building(id) => abstutil::to_json(map.get_b(id)),
+            ID::ParkingLot(id) => abstutil::to_json(map.get_pl(id)),
+            ID::Car(id) => sim.debug_agent_json(AgentID::Car(id)),
+            ID::Pedestrian(id) => sim.debug_agent_json(AgentID::Pedestrian(id)),
+            // Just show the first...
+            ID::PedCrowd(members) => sim.debug_agent_json(AgentID::Pedestrian(members[0])),
+            ID::BusStop(id) => abstutil::to_json(map.get_bs(id)),
+            ID::Area(id) => abstutil::to_json(map.get_a(id)),
+            ID::Road(_) => unreachable!(),
+        };
+        #[cfg(target_arch = "wasm32")]
+        {
+            info!("{}", json_string);
+        }
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            use std::io::Write;
+
+            // The tempfile crate doesn't actually have a way to get the path... so just do this.
+            let path = format!("{}/abst_obj.json", std::env::temp_dir().display());
+            {
+                let mut f = std::fs::File::create(&path).unwrap();
+                writeln!(f, "{}", json_string).unwrap();
+            }
+            // This'll block until the viewer is closed. Also, https://dadroit.com/ is the best
+            // viewer I've found so far, but we can change this to another or make it configurable
+            // with an environment variable or something once other people use this.
+            abstutil::must_run_cmd(std::process::Command::new("dadroit").arg(path));
+        }
+    }
 }

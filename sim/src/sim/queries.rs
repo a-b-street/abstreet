@@ -50,18 +50,26 @@ impl Sim {
     }
 
     pub fn debug_ped(&self, id: PedestrianID) {
-        self.walking.debug_ped(id);
+        println!("{}", self.walking.debug_ped_json(id));
         self.trips.debug_trip(AgentID::Pedestrian(id));
     }
 
     pub fn debug_car(&self, id: CarID) {
-        self.driving.debug_car(id);
+        println!("{}", self.driving.debug_car_json(id));
         self.trips.debug_trip(AgentID::Car(id));
     }
 
     /// Return a short string to debug a car in the UI.
     pub fn debug_car_ui(&self, id: CarID) -> String {
         self.driving.debug_car_ui(id)
+    }
+
+    pub fn debug_agent_json(&self, id: AgentID) -> String {
+        match id {
+            AgentID::Car(id) => self.driving.debug_car_json(id),
+            AgentID::Pedestrian(id) => self.walking.debug_ped_json(id),
+            AgentID::BusPassenger(_, id) => self.driving.debug_car_json(id),
+        }
     }
 
     pub fn debug_intersection(&self, id: IntersectionID, map: &Map) {

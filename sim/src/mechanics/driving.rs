@@ -1399,12 +1399,11 @@ impl DrivingSimState {
         }
     }
 
-    pub fn debug_car(&self, id: CarID) {
+    pub fn debug_car_json(&self, id: CarID) -> String {
         if let Some(ref car) = self.cars.get(&id) {
-            println!("{}", abstutil::to_json(car));
-            println!("State: {:?}", car.state);
+            abstutil::to_json(car)
         } else {
-            println!("{} is parked somewhere", id);
+            format!("{} is parked somewhere", id)
         }
     }
 

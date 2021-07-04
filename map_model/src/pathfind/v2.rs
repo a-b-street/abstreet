@@ -105,12 +105,11 @@ impl PathV2 {
             if let PathStepV2::Along(dr) = self.steps[0] {
                 if map.get_l(self.req.start.lane()).get_directed_parent() == dr {
                     // We used the original side, fine. No need to preserve this.
-                    self.req.alt_start = None;
                 } else {
                     assert_eq!(map.get_l(pos.lane()).get_directed_parent(), dr);
                     self.req.start = pos;
-                    self.req.alt_start = None;
                 }
+                self.req.alt_start = None;
             } else {
                 unreachable!()
             }

@@ -353,11 +353,11 @@ impl WalkingSimState {
         }
     }
 
-    pub fn debug_ped(&self, id: PedestrianID) {
+    pub fn debug_ped_json(&self, id: PedestrianID) -> String {
         if let Some(ped) = self.peds.get(&id) {
-            println!("{}", abstutil::to_json(ped));
+            abstutil::to_json(ped)
         } else {
-            println!("{} doesn't exist", id);
+            format!("{} doesn't exist", id)
         }
     }
 

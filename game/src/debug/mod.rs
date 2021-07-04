@@ -569,7 +569,10 @@ fn calc_all_routes(ctx: &EventCtx, app: &mut App) -> (usize, Drawable) {
 struct Actions;
 impl ContextualActions for Actions {
     fn actions(&self, app: &App, id: ID) -> Vec<(Key, String)> {
-        let mut actions = vec![(Key::D, "debug".to_string())];
+        let mut actions = vec![
+            (Key::D, "debug".to_string()),
+            (Key::J, "debug with JSON viewer".to_string()),
+        ];
         match id {
             ID::Lane(l) => {
                 actions.push((Key::H, "hide this".to_string()));
@@ -637,6 +640,11 @@ impl ContextualActions for Actions {
             (id, "debug") => {
                 *close_info = false;
                 objects::ObjectDebugger::dump_debug(id, &app.primary.map, &app.primary.sim);
+                Transition::Keep
+            }
+            (id, "debug with JSON viewer") => {
+                *close_info = false;
+                objects::ObjectDebugger::debug_json(id, &app.primary.map, &app.primary.sim);
                 Transition::Keep
             }
             (ID::Car(c), "forcibly delete this car") => {
