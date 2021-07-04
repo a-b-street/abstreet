@@ -543,6 +543,14 @@
 <span id="540">540</span>
 <span id="541">541</span>
 <span id="542">542</span>
+<span id="543">543</span>
+<span id="544">544</span>
+<span id="545">545</span>
+<span id="546">546</span>
+<span id="547">547</span>
+<span id="548">548</span>
+<span id="549">549</span>
+<span id="550">550</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! All sorts of read-only queries about a simulation</span>
 
@@ -596,18 +604,26 @@
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">debug_ped</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">PedestrianID</span>) {
-        <span class="self">self</span>.<span class="ident">walking</span>.<span class="ident">debug_ped</span>(<span class="ident">id</span>);
+        <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.<span class="ident">walking</span>.<span class="ident">debug_ped_json</span>(<span class="ident">id</span>));
         <span class="self">self</span>.<span class="ident">trips</span>.<span class="ident">debug_trip</span>(<span class="ident">AgentID::Pedestrian</span>(<span class="ident">id</span>));
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">debug_car</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">CarID</span>) {
-        <span class="self">self</span>.<span class="ident">driving</span>.<span class="ident">debug_car</span>(<span class="ident">id</span>);
+        <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.<span class="ident">driving</span>.<span class="ident">debug_car_json</span>(<span class="ident">id</span>));
         <span class="self">self</span>.<span class="ident">trips</span>.<span class="ident">debug_trip</span>(<span class="ident">AgentID::Car</span>(<span class="ident">id</span>));
     }
 
     <span class="doccomment">/// Return a short string to debug a car in the UI.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">debug_car_ui</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">CarID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
         <span class="self">self</span>.<span class="ident">driving</span>.<span class="ident">debug_car_ui</span>(<span class="ident">id</span>)
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">debug_agent_json</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">AgentID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+        <span class="kw">match</span> <span class="ident">id</span> {
+            <span class="ident">AgentID::Car</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">driving</span>.<span class="ident">debug_car_json</span>(<span class="ident">id</span>),
+            <span class="ident">AgentID::Pedestrian</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">walking</span>.<span class="ident">debug_ped_json</span>(<span class="ident">id</span>),
+            <span class="ident">AgentID::BusPassenger</span>(<span class="kw">_</span>, <span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">driving</span>.<span class="ident">debug_car_json</span>(<span class="ident">id</span>),
+        }
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">debug_intersection</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">IntersectionID</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) {
