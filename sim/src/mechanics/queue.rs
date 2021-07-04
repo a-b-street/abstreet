@@ -241,7 +241,7 @@ impl Queue {
                             // Same as the Crossing logic
                             new_dist.lerp(new_time.percent_clamp_end(now)).min(bound)
                         }
-                        CarState::Unparking(front, _, _) => front,
+                        CarState::Unparking { front, .. } => front,
                         CarState::Parking(front, _, _) => front,
                         CarState::IdlingAtStop(front, _) => front,
                     };
@@ -466,6 +466,7 @@ impl Queue {
         idx: usize,
     ) {
         assert!(front > back);
+        assert!(back >= FOLLOWING_DISTANCE);
         let vehicle_len = front - back;
         self.members
             .insert(idx, Queued::StaticBlockage { cause, front, back });
@@ -596,7 +597,7 @@ fn dump_cars(dists: &[QueueEntry], cars: &FixedMap<CarID, Car>, id: Traversable,
                 CarState::WaitingToAdvance { .. } => {
                     println!("  WaitingToAdvance currently");
                 }
-                CarState::Unparking(_, _, ref time_int) => {
+                CarState::Unparking { ref time_int, .. } => {
                     println!("  Unparking during {} .. {}", time_int.start, time_int.end);
                 }
                 CarState::Parking(_, _, ref time_int) => {
