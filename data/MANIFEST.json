@@ -4021,44 +4021,44 @@
       "compressed_size_bytes": 21601507
     },
     "data/system/us/seattle/prebaked_results/arboretum/weekday.bin": {
-      "checksum": "11a7fdceca71ff040bb3d0ddc64bebf3",
-      "uncompressed_size_bytes": 19954564,
-      "compressed_size_bytes": 8191869
+      "checksum": "921cc2aafd2c80bbd8ef377c4880df60",
+      "uncompressed_size_bytes": 20108976,
+      "compressed_size_bytes": 8180553
     },
     "data/system/us/seattle/prebaked_results/greenlake/weekday.bin": {
-      "checksum": "257d2873d5bbc846df7e92b22fde6a15",
-      "uncompressed_size_bytes": 30567657,
-      "compressed_size_bytes": 12721516
+      "checksum": "68159b6f070807bdcb3d87b0ab0ae885",
+      "uncompressed_size_bytes": 30755955,
+      "compressed_size_bytes": 12609138
     },
     "data/system/us/seattle/prebaked_results/lakeslice/weekday.bin": {
-      "checksum": "6d79c16aadf166512aa32405791b95ec",
-      "uncompressed_size_bytes": 63127803,
-      "compressed_size_bytes": 27171578
+      "checksum": "43001ac0b5472c88c0a82169400bbb7d",
+      "uncompressed_size_bytes": 63604043,
+      "compressed_size_bytes": 27042700
     },
     "data/system/us/seattle/prebaked_results/montlake/car vs bike contention.bin": {
-      "checksum": "cb17cb6b62578b2a0cfa9f819052b92f",
-      "uncompressed_size_bytes": 4236,
-      "compressed_size_bytes": 1347
+      "checksum": "44020e25a9970223944f20b5d54f5de4",
+      "uncompressed_size_bytes": 4290,
+      "compressed_size_bytes": 1346
     },
     "data/system/us/seattle/prebaked_results/montlake/weekday.bin": {
-      "checksum": "609f1ac8efe595cc2abf77b6d67b4999",
-      "uncompressed_size_bytes": 8272562,
-      "compressed_size_bytes": 3263246
+      "checksum": "50099d5a241047062d4a4bac4988ab36",
+      "uncompressed_size_bytes": 8352547,
+      "compressed_size_bytes": 3264425
     },
     "data/system/us/seattle/prebaked_results/phinney/weekday.bin": {
-      "checksum": "639cf97d18fcd40865e70bf103204407",
-      "uncompressed_size_bytes": 33058275,
-      "compressed_size_bytes": 14401994
+      "checksum": "550f5932bbc58be532041fc76f1890a9",
+      "uncompressed_size_bytes": 33300271,
+      "compressed_size_bytes": 14339249
     },
     "data/system/us/seattle/prebaked_results/qa/weekday.bin": {
-      "checksum": "ae11b490a693f43839b03e9e3578504d",
-      "uncompressed_size_bytes": 8568927,
-      "compressed_size_bytes": 3365424
+      "checksum": "4e803155fdbe146b861bfe2e17f0aac5",
+      "uncompressed_size_bytes": 8670216,
+      "compressed_size_bytes": 3342347
     },
     "data/system/us/seattle/prebaked_results/rainier_valley/weekday.bin": {
-      "checksum": "0a1d396552e7c272beaf50c2d0b52026",
-      "uncompressed_size_bytes": 15699097,
-      "compressed_size_bytes": 6160248
+      "checksum": "beed56e95707806458fc6f3a36cef140",
+      "uncompressed_size_bytes": 15812136,
+      "compressed_size_bytes": 6122979
     },
     "data/system/us/seattle/prebaked_results/wallingford/weekday.bin": {
       "checksum": "edcdd10a24f8c002ec564a91cf88360e",

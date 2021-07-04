@@ -160,10 +160,14 @@ impl Car {
                     }
                 }
             }
-            CarState::Unparking(_, ref spot, ref time_int)
+            CarState::Unparking {
+                ref spot,
+                ref time_int,
+                ..
+            }
             | CarState::Parking(_, ref spot, ref time_int) => {
                 let (percent_time, is_parking) = match self.state {
-                    CarState::Unparking(_, _, _) => (1.0 - time_int.percent(now), false),
+                    CarState::Unparking { .. } => (1.0 - time_int.percent(now), false),
                     CarState::Parking(_, _, _) => (time_int.percent(now), true),
                     _ => unreachable!(),
                 };
@@ -260,14 +264,14 @@ impl Car {
                 CarState::WaitingToAdvance { .. } => CarStatus::Moving,
                 CarState::Crossing(_, _) => CarStatus::Moving,
                 CarState::ChangingLanes { .. } => CarStatus::Moving,
-                CarState::Unparking(_, _, _) => CarStatus::Moving,
+                CarState::Unparking { .. } => CarStatus::Moving,
                 CarState::Parking(_, _, _) => CarStatus::Moving,
                 // Changing color for idling buses is helpful
                 CarState::IdlingAtStop(_, _) => CarStatus::Parked,
             },
             show_parking_intent: matches!(
                 (self.is_parking(), &self.state),
-                (true, _) | (_, CarState::Unparking(_, _, _))
+                (true, _) | (_, CarState::Unparking { .. })
             ),
             on: self.router.head(),
             partly_on,
@@ -317,7 +321,12 @@ pub(crate) enum CarState {
         blocked_since: Time,
     },
     /// Where's the front of the car while this is happening?
-    Unparking(Distance, ParkingSpot, TimeInterval),
+    Unparking {
+        front: Distance,
+        spot: ParkingSpot,
+        time_int: TimeInterval,
+        blocked_starts: Vec<LaneID>,
+    },
     Parking(Distance, ParkingSpot, TimeInterval),
     IdlingAtStop(Distance, TimeInterval),
 }
@@ -330,7 +339,7 @@ impl CarState {
             CarState::WaitingToAdvance { .. } => unreachable!(),
             // Note this state lasts for lc_time, NOT for new_time.
             CarState::ChangingLanes { ref lc_time, .. } => lc_time.end,
-            CarState::Unparking(_, _, ref time_int) => time_int.end,
+            CarState::Unparking { ref time_int, .. } => time_int.end,
             CarState::Parking(_, _, ref time_int) => time_int.end,
             CarState::IdlingAtStop(_, ref time_int) => time_int.end,
         }

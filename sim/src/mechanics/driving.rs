@@ -13,7 +13,7 @@ use crate::{
     ActionAtEnd, AgentID, AgentProperties, CarID, CarStatus, Command, CreateCar, DelayCause,
     DistanceInterval, DrawCarInput, Event, IntersectionSimState, ParkedCar, ParkingSim,
     ParkingSpot, PersonID, Problem, SimOptions, TimeInterval, TransitSimState, TripID, TripManager,
-    UnzoomedAgent, Vehicle, VehicleType, WalkingSimState, FOLLOWING_DISTANCE,
+    UnzoomedAgent, Vehicle, VehicleType, WalkingSimState, FOLLOWING_DISTANCE, MAX_CAR_LENGTH,
 };
 
 const TIME_TO_WAIT_AT_BUS_STOP: Duration = Duration::const_seconds(10.0);
@@ -120,12 +120,30 @@ impl DrivingSimState {
         // blockage's front and the index in that queue.
         let mut blocked_starts: Vec<(Position, usize)> = Vec::new();
         for lane in params.router.get_path().get_blocked_starts() {
-            let pos = params
+            // This buffer makes sure other vehicles can enter the queue behind a blockage very
+            // close to the start of the lane and not spillover.
+            let pos = match params
                 .router
                 .get_path()
                 .get_req()
                 .start
-                .equiv_pos(lane, ctx.map);
+                .equiv_pos(lane, ctx.map)
+                .buffer_dist(MAX_CAR_LENGTH + FOLLOWING_DISTANCE, ctx.map)
+            {
+                Some(pos) => pos,
+                None => {
+                    // TODO Loss of some simulation realism. We could also ban this upfront in
+                    // leave_from_driveway by requiring a minimum lane length on all intermediate
+                    // lanes...
+                    warn!("Not inserting a static blockage on {} at {} for {} to spawn, because the lane is too short", lane, now, params.vehicle.id);
+                    continue;
+                }
+            };
+            if !self.queues.contains_key(&Traversable::Lane(lane)) {
+                // TODO This is probably a center turn lane, or maybe some kind of exotic center
+                // parking. Just skip over it, until we properly model them.
+                continue;
+            }
             if let Some(idx) = self.queues[&Traversable::Lane(lane)].can_block_from_driveway(
                 // This is before adjusting for the length of the vehicle exiting the driveway
                 &pos,
@@ -185,9 +203,7 @@ impl DrivingSimState {
                         }
                     }
                 };
-                car.state =
-                    CarState::Unparking(start_dist, p.spot, TimeInterval::new(now, now + delay));
-
+                let mut lanes = Vec::new();
                 for (pos, idx) in blocked_starts {
                     self.queues
                         .get_mut(&Traversable::Lane(pos.lane()))
@@ -198,7 +214,15 @@ impl DrivingSimState {
                             pos.dist_along() - car.vehicle.length,
                             idx,
                         );
+                    lanes.push(pos.lane());
                 }
+
+                car.state = CarState::Unparking {
+                    front: start_dist,
+                    spot: p.spot,
+                    time_int: TimeInterval::new(now, now + delay),
+                    blocked_starts: lanes,
+                };
             } else {
                 // Have to do this early
                 if car.router.last_step() {
@@ -390,13 +414,17 @@ impl DrivingSimState {
                     }
                 }
             }
-            CarState::Unparking(front, _, _) => {
-                for lane in car.router.get_path().get_blocked_starts() {
+            CarState::Unparking {
+                front,
+                ref blocked_starts,
+                ..
+            } => {
+                for lane in blocked_starts {
                     // Calculate the exact positions along this blocked queue (which is ***NOT***
                     // the same queue that the unparking car is in!). Use that to update the
                     // follower. Note that it's fine that the current car isn't currently in
                     // self.cars; the static blockage doesn't need it.
-                    let dists = self.queues[&Traversable::Lane(lane)].get_car_positions(
+                    let dists = self.queues[&Traversable::Lane(*lane)].get_car_positions(
                         now,
                         &self.cars,
                         &self.queues,
@@ -405,7 +433,7 @@ impl DrivingSimState {
                     self.update_follower(idx, &dists, now, ctx);
 
                     self.queues
-                        .get_mut(&Traversable::Lane(lane))
+                        .get_mut(&Traversable::Lane(*lane))
                         .unwrap()
                         .clear_static_blockage(car.vehicle.id, idx);
                 }
@@ -565,7 +593,7 @@ impl DrivingSimState {
 
         match car.state {
             CarState::Crossing(_, _)
-            | CarState::Unparking(_, _, _)
+            | CarState::Unparking { .. }
             | CarState::WaitingToAdvance { .. }
             | CarState::ChangingLanes { .. } => unreachable!(),
             CarState::Queued {
@@ -883,7 +911,7 @@ impl DrivingSimState {
                     };
                 }
                 // They weren't blocked
-                CarState::Unparking(_, _, _)
+                CarState::Unparking { .. }
                 | CarState::Parking(_, _, _)
                 | CarState::IdlingAtStop(_, _) => {}
                 CarState::WaitingToAdvance { .. } => unreachable!(),
@@ -1022,7 +1050,7 @@ impl DrivingSimState {
                             // jump forwards here; the leader vanished from the end of the traversable.
                             CarState::Crossing(_, _)
                             | CarState::ChangingLanes { .. }
-                            | CarState::Unparking(_, _, _)
+                            | CarState::Unparking { .. }
                             | CarState::Parking(_, _, _)
                             | CarState::IdlingAtStop(_, _) => {}
                         }
