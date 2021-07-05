@@ -34,7 +34,6 @@ pub use crate::render::{
 };
 
 pub use self::analytics::{Analytics, Problem, SlidingWindow, TripPhase};
-pub(crate) use self::cap::CapSimState;
 pub(crate) use self::events::Event;
 pub use self::events::{AlertLocation, TripPhaseType};
 pub use self::make::{
@@ -57,7 +56,6 @@ pub use self::trips::{CommutersVehiclesCounts, Person, PersonState, TripInfo, Tr
 pub(crate) use self::trips::{TripLeg, TripManager};
 
 mod analytics;
-mod cap;
 mod events;
 mod make;
 mod mechanics;

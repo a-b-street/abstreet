@@ -7,8 +7,8 @@ use map_gui::tools::ColorDiscrete;
 use map_model::{AccessRestrictions, PathConstraints, RoadID};
 use sim::TripMode;
 use widgetry::{
-    Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, Spinner,
-    State, Text, TextExt, VerticalAlignment, Widget,
+    Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State, Text,
+    VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -41,7 +41,6 @@ impl ZoneEditor {
             .into_iter()
             .map(TripMode::from_constraints)
             .collect();
-        let cap_vehicles_per_hour = start.access_restrictions.cap_vehicles_per_hour;
 
         let (unzoomed, zoomed, legend) = draw_zone(ctx, app, &members);
         let orig_members = members.clone();
@@ -56,18 +55,6 @@ impl ZoneEditor {
                 legend,
                 make_instructions(ctx, &allow_through_traffic).named("instructions"),
                 checkbox_per_mode(ctx, app, &allow_through_traffic),
-                Widget::row(vec![
-                    "Limit the number of vehicles passing through per hour (0 = unlimited):"
-                        .text_widget(ctx)
-                        .centered_vert(),
-                    Spinner::widget(
-                        ctx,
-                        "cap_vehicles",
-                        (0, 1000),
-                        cap_vehicles_per_hour.unwrap_or(0),
-                        1,
-                    ),
-                ]),
                 Widget::custom_row(vec![
                     ctx.style()
                         .btn_solid_primary
@@ -120,14 +107,6 @@ impl State<App> for ZoneEditor {
                     allow_through_traffic.insert(PathConstraints::Train);
                     let new_access_restrictions = AccessRestrictions {
                         allow_through_traffic,
-                        cap_vehicles_per_hour: {
-                            let n = self.panel.spinner("cap_vehicles");
-                            if n == 0 {
-                                None
-                            } else {
-                                Some(n)
-                            }
-                        },
                     };
                     for r in &self.selector.roads {
                         let old_access_restrictions =

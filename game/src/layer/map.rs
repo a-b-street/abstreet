@@ -6,7 +6,7 @@ use map_gui::tools::{ColorDiscrete, ColorLegend, ColorNetwork};
 use map_gui::ID;
 use map_model::{AmenityType, LaneType};
 use sim::AgentType;
-use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, Panel, Text, TextExt, Widget};
+use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, Panel, Text, Widget};
 
 use crate::app::App;
 use crate::layer::{header, Layer, LayerOutcome, PANEL_PLACEMENT};
@@ -338,100 +338,5 @@ impl Static {
             "blackholes".to_string(),
             Widget::nothing(),
         )
-    }
-}
-
-pub struct CongestionCaps {
-    panel: Panel,
-    time: Time,
-    unzoomed: Drawable,
-    zoomed: Drawable,
-    tooltip: Option<Text>,
-}
-
-impl Layer for CongestionCaps {
-    fn name(&self) -> Option<&'static str> {
-        Some("congestion caps")
-    }
-    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Option<LayerOutcome> {
-        let mut recalc_tooltip = false;
-        if app.primary.sim.time() != self.time {
-            *self = CongestionCaps::new(ctx, app);
-            recalc_tooltip = true;
-        }
-
-        // Show a tooltip with count, only when unzoomed
-        if ctx.canvas.cam_zoom < app.opts.min_zoom_for_detail {
-            if ctx.redo_mouseover() || recalc_tooltip {
-                self.tooltip = None;
-                if let Some(ID::Road(r)) = app.mouseover_unzoomed_roads_and_intersections(ctx) {
-                    if let Some(cap) = app
-                        .primary
-                        .map
-                        .get_r(r)
-                        .access_restrictions
-                        .cap_vehicles_per_hour
-                    {
-                        self.tooltip = Some(Text::from(format!(
-                            "Cap of {} vehicles per hour",
-                            prettyprint_usize(cap)
-                        )));
-                    }
-                }
-            }
-        } else {
-            self.tooltip = None;
-        }
-
-        <dyn Layer>::simple_event(ctx, &mut self.panel)
-    }
-    fn draw(&self, g: &mut GfxCtx, app: &App) {
-        self.panel.draw(g);
-        if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
-            g.redraw(&self.unzoomed);
-        } else {
-            g.redraw(&self.zoomed);
-        }
-        if let Some(ref txt) = self.tooltip {
-            g.draw_mouse_tooltip(txt.clone());
-        }
-    }
-    fn draw_minimap(&self, g: &mut GfxCtx) {
-        g.redraw(&self.unzoomed);
-    }
-}
-
-impl CongestionCaps {
-    pub fn new(ctx: &mut EventCtx, app: &App) -> CongestionCaps {
-        let mut colorer = ColorNetwork::new(app);
-        let map = &app.primary.map;
-
-        let mut num_roads = 0;
-        for r in map.all_roads() {
-            if let Some(cap) = r.access_restrictions.cap_vehicles_per_hour {
-                num_roads += 1;
-                let current = app.primary.sim.get_cap_counter(r.id);
-                let pct = ((current as f64) / (cap as f64)).min(1.0);
-                colorer.add_r(r.id, app.cs.good_to_bad_red.eval(pct));
-            }
-        }
-
-        let panel = Panel::new_builder(Widget::col(vec![
-            header(ctx, "Congestion caps"),
-            format!("{} roads have caps", prettyprint_usize(num_roads)).text_widget(ctx),
-            ColorLegend::gradient(ctx, &app.cs.good_to_bad_red, vec!["available", "full"]),
-        ]))
-        .aligned_pair(PANEL_PLACEMENT)
-        .build(ctx);
-
-        let (unzoomed, zoomed) = colorer.build(ctx);
-
-        CongestionCaps {
-            panel,
-            time: app.primary.sim.time(),
-            unzoomed,
-            zoomed,
-            tooltip: None,
-        }
     }
 }

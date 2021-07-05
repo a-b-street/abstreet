@@ -169,7 +169,6 @@ impl Scenario {
                         end: trip.destination,
                         purpose: trip.purpose,
                         modified: trip.modified,
-                        capped: false,
                         cancellation_reason: if trip.cancelled {
                             Some("cancelled by ScenarioModifier".to_string())
                         } else {

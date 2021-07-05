@@ -36,16 +36,6 @@ fn info_body(ctx: &EventCtx, app: &App, id: LaneID) -> Widget {
         if !ban.is_empty() {
             kv.push(("No through-traffic for", ban.join(", ")));
         }
-        if let Some(cap) = r.access_restrictions.cap_vehicles_per_hour {
-            kv.push((
-                "Cap for vehicles this hour",
-                format!(
-                    "{} / {}",
-                    prettyprint_usize(app.primary.sim.get_cap_counter(r.id)),
-                    prettyprint_usize(cap)
-                ),
-            ));
-        }
     }
 
     if l.is_parking() {

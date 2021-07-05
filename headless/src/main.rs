@@ -289,7 +289,6 @@ fn handle_command(
         "/data/get-finished-trips" => {
             let mut trips = Vec::new();
             for (_, id, mode, maybe_duration) in &sim.get_analytics().finished_trips {
-                let info = sim.trip_info(*id);
                 let distance_crossed = if maybe_duration.is_some() {
                     sim.finished_trip_details(*id).unwrap().2
                 } else {
@@ -301,7 +300,6 @@ fn handle_command(
                     duration: *maybe_duration,
                     distance_crossed,
                     mode: *mode,
-                    capped: info.capped,
                 });
             }
             Ok(abstutil::to_json(&trips))
@@ -394,7 +392,6 @@ struct FinishedTrip {
     duration: Option<Duration>,
     distance_crossed: Distance,
     mode: TripMode,
-    capped: bool,
 }
 
 #[derive(Serialize)]
@@ -435,8 +432,6 @@ struct AgentPosition {
     /// - No meaning for bus passengers currently.
     /// - For buses and trains, the value will reset every time the vehicle reaches the next
     ///   transit stop.
-    /// - The value might be slightly undercounted or overcounted if the path crosses into or out
-    ///   of an access-restricted or capped zone.
     /// - At the very end of a driving trip, the agent may wind up crossing slightly more or less
     ///   than the total path length, due to where they park along that last road.
     distance_crossed: Distance,

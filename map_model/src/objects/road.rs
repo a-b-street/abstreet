@@ -468,7 +468,6 @@ impl Road {
         };
         AccessRestrictions {
             allow_through_traffic,
-            cap_vehicles_per_hour: None,
         }
     }
 

@@ -212,7 +212,6 @@ struct FinishedTrip {
     id: TripID,
     mode: TripMode,
     modified: bool,
-    capped: bool,
     start: TripEndpoint,
     end: TripEndpoint,
     departure: Time,
@@ -248,8 +247,6 @@ struct Filters {
     ends_in: Option<Polygon>,
     unmodified_trips: bool,
     modified_trips: bool,
-    uncapped_trips: bool,
-    capped_trips: bool,
 }
 
 fn produce_raw_data(app: &App) -> (Vec<FinishedTrip>, Vec<CancelledTrip>) {
@@ -302,7 +299,6 @@ fn produce_raw_data(app: &App) -> (Vec<FinishedTrip>, Vec<CancelledTrip>) {
             mode: *mode,
             departure: trip.departure,
             modified: trip.modified,
-            capped: trip.capped,
             start: trip.start,
             end: trip.end,
             duration_after,
@@ -317,12 +313,6 @@ fn produce_raw_data(app: &App) -> (Vec<FinishedTrip>, Vec<CancelledTrip>) {
 
 fn make_table_finished_trips(app: &App) -> Table<App, FinishedTrip, Filters> {
     let (finished, _) = produce_raw_data(app);
-    let any_congestion_caps = app
-        .primary
-        .map
-        .all_zones()
-        .iter()
-        .any(|z| z.restrictions.cap_vehicles_per_hour.is_some());
     let filter: Filter<App, FinishedTrip, Filters> = Filter {
         state: Filters {
             modes: TripMode::all().into_iter().collect(),
@@ -332,8 +322,6 @@ fn make_table_finished_trips(app: &App) -> Table<App, FinishedTrip, Filters> {
             ends_in: None,
             unmodified_trips: true,
             modified_trips: true,
-            uncapped_trips: true,
-            capped_trips: true,
         },
         to_controls: Box::new(move |ctx, app, state| {
             Widget::col(vec![
@@ -365,26 +353,6 @@ fn make_table_finished_trips(app: &App) -> Table<App, FinishedTrip, Filters> {
                     } else {
                         Widget::nothing()
                     },
-                    if any_congestion_caps {
-                        Toggle::switch(
-                            ctx,
-                            "trips not affected by congestion caps",
-                            None,
-                            state.uncapped_trips,
-                        )
-                    } else {
-                        Widget::nothing()
-                    },
-                    if any_congestion_caps {
-                        Toggle::switch(
-                            ctx,
-                            "trips affected by congestion caps",
-                            None,
-                            state.capped_trips,
-                        )
-                    } else {
-                        Widget::nothing()
-                    },
                 ]),
             ])
         }),
@@ -406,12 +374,6 @@ fn make_table_finished_trips(app: &App) -> Table<App, FinishedTrip, Filters> {
                     .unwrap_or(true),
                 modified_trips: panel
                     .maybe_is_checked("trips modified by experiment")
-                    .unwrap_or(true),
-                uncapped_trips: panel
-                    .maybe_is_checked("trips not affected by congestion caps")
-                    .unwrap_or(true),
-                capped_trips: panel
-                    .maybe_is_checked("trips affected by congestion caps")
                     .unwrap_or(true),
             }
         }),
@@ -441,12 +403,6 @@ fn make_table_finished_trips(app: &App) -> Table<App, FinishedTrip, Filters> {
             if !state.modified_trips && x.modified {
                 return false;
             }
-            if !state.uncapped_trips && !x.capped {
-                return false;
-            }
-            if !state.capped_trips && x.capped {
-                return false;
-            }
             true
         }),
     };
@@ -464,18 +420,6 @@ fn make_table_finished_trips(app: &App) -> Table<App, FinishedTrip, Filters> {
             "Modified",
             Box::new(|x| {
                 if x.modified {
-                    "Yes".to_string()
-                } else {
-                    "No".to_string()
-                }
-            }),
-        );
-    }
-    if any_congestion_caps {
-        table.static_col(
-            "Capped",
-            Box::new(|x| {
-                if x.capped {
                     "Yes".to_string()
                 } else {
                     "No".to_string()
@@ -558,7 +502,7 @@ fn make_table_finished_trips(app: &App) -> Table<App, FinishedTrip, Filters> {
 
 fn make_table_cancelled_trips(app: &App) -> Table<App, CancelledTrip, Filters> {
     let (_, cancelled) = produce_raw_data(app);
-    // Reuse the same filters, but ignore modified and capped trips
+    // Reuse the same filters, but ignore modified trips
     let filter: Filter<App, CancelledTrip, Filters> = Filter {
         state: Filters {
             modes: TripMode::all().into_iter().collect(),
@@ -568,8 +512,6 @@ fn make_table_cancelled_trips(app: &App) -> Table<App, CancelledTrip, Filters> {
             ends_in: None,
             unmodified_trips: true,
             modified_trips: true,
-            uncapped_trips: true,
-            capped_trips: true,
         },
         to_controls: Box::new(move |ctx, app, state| {
             Widget::col(vec![
@@ -595,8 +537,6 @@ fn make_table_cancelled_trips(app: &App) -> Table<App, CancelledTrip, Filters> {
                 ends_in: None,
                 unmodified_trips: true,
                 modified_trips: true,
-                uncapped_trips: true,
-                capped_trips: true,
             }
         }),
         apply: Box::new(|state, x, app| {
@@ -687,7 +627,7 @@ fn make_table_unfinished_trips(app: &App) -> Table<App, UnfinishedTrip, Filters>
         }
     }
 
-    // Reuse the same filters, but ignore modified and capped trips
+    // Reuse the same filters, but ignore modified trips
     let filter: Filter<App, UnfinishedTrip, Filters> = Filter {
         state: Filters {
             modes: TripMode::all().into_iter().collect(),
@@ -697,8 +637,6 @@ fn make_table_unfinished_trips(app: &App) -> Table<App, UnfinishedTrip, Filters>
             ends_in: None,
             unmodified_trips: true,
             modified_trips: true,
-            uncapped_trips: true,
-            capped_trips: true,
         },
         to_controls: Box::new(move |ctx, app, state| checkbox_per_mode(ctx, app, &state.modes)),
         from_controls: Box::new(|panel| {
@@ -716,8 +654,6 @@ fn make_table_unfinished_trips(app: &App) -> Table<App, UnfinishedTrip, Filters>
                 ends_in: None,
                 unmodified_trips: true,
                 modified_trips: true,
-                uncapped_trips: true,
-                capped_trips: true,
             }
         }),
         apply: Box::new(|state, x, _| {

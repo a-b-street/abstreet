@@ -1,16 +1,13 @@
 use std::collections::{BTreeMap, VecDeque};
 
-use anyhow::Result;
 use serde::{Deserialize, Serialize};
 
 use abstutil::{deserialize_btreemap, serialize_btreemap, Counter};
 use geom::{Distance, Duration, Speed, Time};
 use map_model::{
-    BuildingID, BusRouteID, BusStopID, IntersectionID, Map, Path, PathConstraints, PathRequest,
-    Position,
+    BuildingID, BusRouteID, BusStopID, IntersectionID, Map, PathConstraints, PathRequest, Position,
 };
 
-use crate::cap::CapResult;
 use crate::sim::Ctx;
 use crate::{
     AgentID, AgentType, AlertLocation, CarID, Command, CreateCar, CreatePedestrian, DrivingGoal,
@@ -208,7 +205,7 @@ impl TripManager {
                 );
                 let person = person.id;
 
-                match self.maybe_spawn_car(ctx, now, trip, req, vehicle.id) {
+                match ctx.map.pathfind(req) {
                     Ok(path) => {
                         let router = goal.make_router(vehicle.id, path, ctx.map);
                         ctx.scheduler.push(
@@ -547,7 +544,7 @@ impl TripManager {
 
         let person = trip.person;
         let trip = trip.id;
-        match self.maybe_spawn_car(ctx, now, trip, req, parked_car.vehicle.id) {
+        match ctx.map.pathfind(req) {
             Ok(path) => {
                 let router = drive_to.make_router(parked_car.vehicle.id, path, ctx.map);
                 ctx.scheduler.push(
@@ -958,34 +955,6 @@ impl TripManager {
             }
         }
     }
-
-    /// Returns the path to use if successful. Caller is responsible for handling both the success
-    /// and failure case.
-    fn maybe_spawn_car(
-        &mut self,
-        ctx: &mut Ctx,
-        now: Time,
-        trip: TripID,
-        req: PathRequest,
-        car: CarID,
-    ) -> Result<Path> {
-        let path = ctx.map.pathfind(req)?;
-        match ctx
-            .cap
-            .maybe_cap_path(path, now, car, ctx.intersections, ctx.map)
-        {
-            CapResult::OK(path) => Ok(path),
-            CapResult::Reroute(path) => {
-                self.trips[trip.0].info.capped = true;
-                Ok(path)
-            }
-            CapResult::Cancel { reason } => {
-                self.trips[trip.0].info.capped = true;
-                bail!(reason)
-            }
-            CapResult::Delay(_) => todo!(),
-        }
-    }
 }
 
 // Cancelling trips
@@ -1357,8 +1326,6 @@ pub struct TripInfo {
     pub purpose: TripPurpose,
     /// Did a ScenarioModifier apply to this?
     pub modified: bool,
-    /// Was this trip affected by a congestion cap?
-    pub capped: bool,
     pub cancellation_reason: Option<String>,
 }
 

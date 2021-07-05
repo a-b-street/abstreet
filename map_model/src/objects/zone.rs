@@ -15,14 +15,12 @@ use crate::{IntersectionID, Map, PathConstraints, RoadID};
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub struct AccessRestrictions {
     pub allow_through_traffic: EnumSet<PathConstraints>,
-    pub cap_vehicles_per_hour: Option<usize>,
 }
 
 impl AccessRestrictions {
     pub fn new() -> AccessRestrictions {
         AccessRestrictions {
             allow_through_traffic: EnumSet::all(),
-            cap_vehicles_per_hour: None,
         }
     }
 }

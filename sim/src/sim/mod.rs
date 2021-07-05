@@ -19,12 +19,11 @@ use map_model::{
 
 pub use self::queries::{AgentProperties, DelayCause};
 use crate::{
-    AgentID, AlertLocation, Analytics, CapSimState, CarID, Command, CreateCar, DrivingSimState,
-    Event, IntersectionSimState, OrigPersonID, PandemicModel, ParkedCar, ParkingSim,
-    ParkingSimState, ParkingSpot, Person, PersonID, Router, Scheduler, SidewalkPOI, SidewalkSpot,
-    StartTripArgs, TrafficRecorder, TransitSimState, TripID, TripInfo, TripManager, TripPhaseType,
-    Vehicle, VehicleSpec, VehicleType, WalkingSimState, BUS_LENGTH, LIGHT_RAIL_LENGTH,
-    MIN_CAR_LENGTH,
+    AgentID, AlertLocation, Analytics, CarID, Command, CreateCar, DrivingSimState, Event,
+    IntersectionSimState, OrigPersonID, PandemicModel, ParkedCar, ParkingSim, ParkingSimState,
+    ParkingSpot, Person, PersonID, Router, Scheduler, SidewalkPOI, SidewalkSpot, StartTripArgs,
+    TrafficRecorder, TransitSimState, TripID, TripInfo, TripManager, TripPhaseType, Vehicle,
+    VehicleSpec, VehicleType, WalkingSimState, BUS_LENGTH, LIGHT_RAIL_LENGTH, MIN_CAR_LENGTH,
 };
 
 mod queries;
@@ -40,7 +39,6 @@ pub struct Sim {
     walking: WalkingSimState,
     intersections: IntersectionSimState,
     transit: TransitSimState,
-    cap: CapSimState,
     trips: TripManager,
     #[serde(skip_serializing, skip_deserializing)]
     pandemic: Option<PandemicModel>,
@@ -68,7 +66,6 @@ pub struct Sim {
 pub(crate) struct Ctx<'a> {
     pub parking: &'a mut ParkingSimState,
     pub intersections: &'a mut IntersectionSimState,
-    pub cap: &'a mut CapSimState,
     pub scheduler: &'a mut Scheduler,
     pub map: &'a Map,
     /// If present, live map edits are being processed, and the agents specified are in the process
@@ -109,13 +106,6 @@ pub struct SimOptions {
     /// agent. Obviously this destroys realism of the simulation, but can be used to debug
     /// gridlock. Also implies freeform_policy, so vehicles ignore traffic signals.
     pub disable_turn_conflicts: bool,
-    /// If present, cancel any driving trips who will pass through a road currently experiencing
-    /// delays beyond this threshold.
-    pub cancel_drivers_delay_threshold: Option<Duration>,
-    /// Instead of cancelling trips due to `cancel_drivers_delay_threshold` or congestion capping,
-    /// delay the start of the trip by this amount, and try again. If conditions are still
-    /// problematic, repeat a fixed 3 times before cancelling.
-    pub delay_trips_instead_of_cancelling: Option<Duration>,
     /// Don't collect any analytics. Only useful for benchmarking and debugging gridlock more
     /// quickly.
     pub skip_analytics: bool,
@@ -154,10 +144,6 @@ impl SimOptions {
                 .unwrap_or(AlertHandler::Print),
             infinite_parking: args.enabled("--infinite_parking"),
             disable_turn_conflicts: args.enabled("--disable_turn_conflicts"),
-            cancel_drivers_delay_threshold: args
-                .optional_parse("--cancel_drivers_delay_threshold", Duration::parse),
-            delay_trips_instead_of_cancelling: args
-                .optional_parse("--delay_trips_instead_of_cancelling", Duration::parse),
             skip_analytics: args.enabled("--skip_analytics"),
         }
     }
@@ -192,8 +178,6 @@ impl SimOptions {
             alerts: AlertHandler::Print,
             infinite_parking: false,
             disable_turn_conflicts: false,
-            cancel_drivers_delay_threshold: None,
-            delay_trips_instead_of_cancelling: None,
             skip_analytics: false,
         }
     }
@@ -210,7 +194,6 @@ impl Sim {
             walking: WalkingSimState::new(),
             intersections: IntersectionSimState::new(map, &mut scheduler, &opts),
             transit: TransitSimState::new(map),
-            cap: CapSimState::new(map, &opts),
             trips: TripManager::new(),
             pandemic: opts.enable_pandemic_model.map(PandemicModel::new),
             scheduler,
@@ -437,7 +420,6 @@ impl Sim {
         let mut ctx = Ctx {
             parking: &mut self.parking,
             intersections: &mut self.intersections,
-            cap: &mut self.cap,
             scheduler: &mut self.scheduler,
             map,
             handling_live_edits: None,
@@ -801,10 +783,6 @@ impl Sim {
                 prettyprint_usize(serialized_size_bytes(&self.transit))
             );
             println!(
-                "- cap: {} bytes",
-                prettyprint_usize(serialized_size_bytes(&self.cap))
-            );
-            println!(
                 "- trips: {} bytes",
                 prettyprint_usize(serialized_size_bytes(&self.trips))
             );
@@ -855,7 +833,6 @@ impl Sim {
         let mut ctx = Ctx {
             parking: &mut self.parking,
             intersections: &mut self.intersections,
-            cap: &mut self.cap,
             scheduler: &mut self.scheduler,
             map,
             handling_live_edits: Some(affected_agents),
@@ -971,7 +948,6 @@ impl Sim {
             let mut ctx = Ctx {
                 parking: &mut self.parking,
                 intersections: &mut self.intersections,
-                cap: &mut self.cap,
                 scheduler: &mut self.scheduler,
                 map,
                 handling_live_edits: None,
