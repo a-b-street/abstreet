@@ -84,16 +84,25 @@ impl Position {
         let other_lane = map.get_l(other_lane);
         assert_eq!(our_lane.parent, other_lane.parent);
 
-        // TODO Project perpendicular
+        let pl = &other_lane.lane_center_pts;
+        let pt = self.pt(map);
+        if let Some((mut dist, _)) = pl.dist_along_of_point(pl.project_pt(pt)) {
+            if other_lane.dir != our_lane.dir {
+                // Account for the object_length if needed
+                dist += object_length;
+                dist = dist.max(Distance::ZERO).min(other_lane.length());
+            }
+            return Position::new(other_lane.id, dist);
+        }
+        // TODO So far I haven't observed this happening, but fallback if so.
+        warn!("equiv_pos of {} for {} messes up", self, other_lane.id);
+
         let len = other_lane.length();
-        // The two lanes may be on opposite sides of the road; this often happens on one-ways with
-        // sidewalks on both sides.
         if other_lane.dir == our_lane.dir {
             Position::new(other_lane.id, self.dist_along.min(len))
         } else {
             Position::new(
                 other_lane.id,
-                // TODO I don't understand what this is doing anymore in the one case, revisit
                 (len - self.dist_along + object_length)
                     .max(Distance::ZERO)
                     .min(len),
