@@ -2,7 +2,7 @@ use std::collections::HashSet;
 
 use abstio::MapName;
 use abstutil::{Tags, Timer};
-use geom::{ArrowCap, Distance, PolyLine, Pt2D};
+use geom::{ArrowCap, Circle, Distance, PolyLine, Pt2D};
 use map_gui::colors::ColorSchemeChoice;
 use map_gui::load::MapLoader;
 use map_gui::options::OptionsPanel;
@@ -10,7 +10,8 @@ use map_gui::render::{calculate_corners, DrawMap, DrawOptions};
 use map_gui::tools::{ChooseSomething, PopupMsg, PromptInput};
 use map_gui::{AppLike, ID};
 use map_model::{
-    osm, ControlTrafficSignal, IntersectionID, PathConstraints, RoadID, NORMAL_LANE_THICKNESS,
+    osm, ControlTrafficSignal, IntersectionID, PathConstraints, Position, RoadID,
+    NORMAL_LANE_THICKNESS,
 };
 use sim::{Sim, TripEndpoint};
 use widgetry::{
@@ -587,6 +588,7 @@ impl ContextualActions for Actions {
                     "trace the block to the left of this road".to_string(),
                 ));
                 actions.push((Key::C, "export roads".to_string()));
+                actions.push((Key::E, "show equiv_pos".to_string()));
             }
             ID::Intersection(i) => {
                 actions.push((Key::H, "hide this".to_string()));
@@ -753,6 +755,32 @@ impl ContextualActions for Actions {
                 app,
                 app.primary.map.get_l(l).parent,
             )),
+            (ID::Lane(l), "show equiv_pos") => {
+                Transition::ModifyState(Box::new(move |state, ctx, app| {
+                    if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
+                        let map = &app.primary.map;
+                        let pl = &map.get_l(l).lane_center_pts;
+                        if let Some((dist, _)) = pl.dist_along_of_point(pl.project_pt(pt)) {
+                            let base_pos = Position::new(l, dist);
+                            let mut batch = GeomBatch::new();
+                            for (l, _, _) in map.get_parent(l).lanes_ltr() {
+                                let pt = base_pos.equiv_pos(l, map).pt(map);
+                                batch.push(
+                                    Color::RED,
+                                    Circle::new(pt, Distance::meters(1.0)).to_polygon(),
+                                );
+                            }
+                            let mut mode = state.downcast_mut::<DebugMode>().unwrap();
+                            // Just abuse this to display the results
+                            mode.search_results = Some(SearchResults {
+                                query: format!("equiv_pos {}", base_pos),
+                                num_matches: 0,
+                                draw: ctx.upload(batch),
+                            });
+                        }
+                    }
+                }))
+            }
             (ID::Area(a), "debug area geometry") => {
                 let pts = &app.primary.map.get_a(a).polygon.points();
                 let center = if pts[0] == *pts.last().unwrap() {
