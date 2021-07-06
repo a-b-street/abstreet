@@ -123,9 +123,12 @@ fn prebake(
 
     let mut finished_trips = 0;
     let mut cancelled_trips = 0;
+    // Use f64 seconds, since a serialized Duration has a low cap.
+    let mut total_trip_duration_seconds = 0.0;
     for (_, _, _, maybe_duration) in &sim.get_analytics().finished_trips {
-        if maybe_duration.is_some() {
+        if let Some(dt) = maybe_duration {
             finished_trips += 1;
+            total_trip_duration_seconds += dt.inner_seconds();
         } else {
             cancelled_trips += 1;
         }
@@ -134,6 +137,7 @@ fn prebake(
         map: scenario.map_name.describe(),
         finished_trips,
         cancelled_trips,
+        total_trip_duration_seconds,
     }
 }
 
@@ -142,4 +146,5 @@ struct PrebakeSummary {
     map: String,
     finished_trips: usize,
     cancelled_trips: usize,
+    total_trip_duration_seconds: f64,
 }

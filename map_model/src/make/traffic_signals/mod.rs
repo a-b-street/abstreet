@@ -212,12 +212,14 @@ fn three_way(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
                 (vec![north, south], TurnType::Right, YIELD),
                 (vec![north, south], TurnType::Left, YIELD),
                 (vec![east], TurnType::Right, YIELD),
+                (vec![east], TurnType::Crosswalk, PROTECTED),
             ],
             vec![
                 (vec![east], TurnType::Straight, PROTECTED),
                 (vec![east], TurnType::Right, YIELD),
                 (vec![east], TurnType::Left, YIELD),
                 (vec![north, south], TurnType::Right, YIELD),
+                (vec![north, south], TurnType::Crosswalk, PROTECTED),
             ],
         ],
     );
@@ -359,18 +361,9 @@ fn make_stages(
     driving_side: DrivingSide,
     stage_specs: Vec<Vec<(Vec<RoadID>, TurnType, bool)>>,
 ) {
-    // Don't filter unprotected only stages
-    make_stages_filtered(ts, driving_side, stage_specs, false);
-}
-fn make_stages_filtered(
-    ts: &mut ControlTrafficSignal,
-    driving_side: DrivingSide,
-    stage_specs: Vec<Vec<(Vec<RoadID>, TurnType, bool)>>,
-    filter_unprotected: bool,
-) {
     for specs in stage_specs {
         let mut stage = Stage::new();
-
+        let mut explicit_crosswalks = false;
         for (roads, mut turn_type, protected) in specs.into_iter() {
             // The heuristics are written assuming right turns are easy and lefts are hard, so
             // invert in the UK.
@@ -380,6 +373,9 @@ fn make_stages_filtered(
                 } else if turn_type == TurnType::Left {
                     turn_type = TurnType::Right;
                 }
+            }
+            if turn_type == TurnType::Crosswalk {
+                explicit_crosswalks = true;
             }
 
             for movement in ts.movements.values() {
@@ -397,22 +393,20 @@ fn make_stages_filtered(
                 );
             }
         }
-        // Filter out unprotected only stages if they happen.
-        if filter_unprotected && stage.protected_movements.is_empty() {
-            continue;
-        }
 
-        // Add in all compatible crosswalks. Specifying this in specs explicitly doesn't work when
-        // crosswalks stretch across a road strangely, which happens when one side of a road is
-        // missing a sidewalk.
-        // TODO If a stage has no protected turns at all, this adds the crosswalk to multiple
-        // stages in a pretty weird way. It'd be better to add to just one stage -- the one with
-        // the least conflicting yields.
-        for movement in ts.movements.values() {
-            if movement.turn_type == TurnType::Crosswalk
-                && stage.could_be_protected(movement.id, &ts.movements)
-            {
-                stage.edit_movement(movement, TurnPriority::Protected);
+        // If the specification didn't explicitly include crosswalks, add them in here. Some
+        // crosswalks stretch across multiple roads when some parts of a road are missing a
+        // sidewalk, so it's hard to specify them in all cases.
+        if !explicit_crosswalks {
+            // TODO If a stage has no protected turns at all, this adds the crosswalk to multiple
+            // stages in a pretty weird way. It'd be better to add to just one stage -- the one
+            // with the least conflicting yields.
+            for movement in ts.movements.values() {
+                if movement.turn_type == TurnType::Crosswalk
+                    && stage.could_be_protected(movement.id, &ts.movements)
+                {
+                    stage.edit_movement(movement, TurnPriority::Protected);
+                }
             }
         }
 

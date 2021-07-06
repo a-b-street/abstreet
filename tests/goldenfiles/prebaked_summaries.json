@@ -2,31 +2,37 @@
   {
     "map": "arboretum (in seattle (us))",
     "finished_trips": 76618,
-    "cancelled_trips": 0
+    "cancelled_trips": 0,
+    "total_trip_duration_seconds": 60544769.86689956
   },
   {
     "map": "greenlake (in seattle (us))",
     "finished_trips": 136849,
-    "cancelled_trips": 29
+    "cancelled_trips": 29,
+    "total_trip_duration_seconds": 75260927.2026001
   },
   {
     "map": "montlake (in seattle (us))",
     "finished_trips": 36723,
-    "cancelled_trips": 73
+    "cancelled_trips": 73,
+    "total_trip_duration_seconds": 19335524.52590001
   },
   {
     "map": "lakeslice (in seattle (us))",
     "finished_trips": 260956,
-    "cancelled_trips": 4860
+    "cancelled_trips": 4860,
+    "total_trip_duration_seconds": 198502231.90550786
   },
   {
     "map": "qa (in seattle (us))",
     "finished_trips": 53866,
-    "cancelled_trips": 0
+    "cancelled_trips": 0,
+    "total_trip_duration_seconds": 21455951.885400116
   },
   {
     "map": "rainier_valley (in seattle (us))",
     "finished_trips": 68100,
-    "cancelled_trips": 0
+    "cancelled_trips": 0,
+    "total_trip_duration_seconds": 40551983.643300205
   }
 ]
