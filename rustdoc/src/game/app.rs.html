@@ -859,6 +859,7 @@
 <span id="856">856</span>
 <span id="857">857</span>
 <span id="858">858</span>
+<span id="859">859</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std::cell::RefCell</span>;
 <span class="kw">use</span> <span class="ident">std::collections::BTreeMap</span>;
@@ -1001,6 +1002,7 @@
             }
             <span class="kw">if</span> <span class="ident">layers</span>.<span class="ident">show_buildings</span> {
                 <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="ident">draw_map</span>.<span class="ident">draw_all_buildings</span>);
+                <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="ident">draw_map</span>.<span class="ident">draw_all_building_outlines</span>);
                 <span class="comment">// Not the building driveways</span>
             }
 

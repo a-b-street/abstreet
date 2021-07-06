@@ -339,6 +339,7 @@
 <span id="336">336</span>
 <span id="337">337</span>
 <span id="338">338</span>
+<span id="339">339</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">abstio::MapName</span>;
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">CmdArgs</span>, <span class="ident">Timer</span>};
@@ -434,6 +435,7 @@
         <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">draw_map</span>.<span class="ident">draw_all_unzoomed_parking_lots</span>);
         <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">draw_map</span>.<span class="ident">draw_all_unzoomed_roads_and_intersections</span>);
         <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">draw_map</span>.<span class="ident">draw_all_buildings</span>);
+        <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">draw_map</span>.<span class="ident">draw_all_building_outlines</span>);
         <span class="comment">// Not the building paths</span>
 
         <span class="comment">// Still show some shape selection when zoomed out.</span>
