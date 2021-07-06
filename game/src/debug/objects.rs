@@ -123,10 +123,13 @@ impl ObjectDebugger {
                 let mut f = std::fs::File::create(&path).unwrap();
                 writeln!(f, "{}", json_string).unwrap();
             }
-            // This'll block until the viewer is closed. Also, https://dadroit.com/ is the best
-            // viewer I've found so far, but we can change this to another or make it configurable
-            // with an environment variable or something once other people use this.
-            abstutil::must_run_cmd(std::process::Command::new("dadroit").arg(path));
+            // Don't wait for the command to complet.
+            // Also, https://dadroit.com/ is the best viewer I've found so far, but we can change
+            // this to another or make it configurable with an environment variable or something
+            // once other people use this.
+            if let Err(err) = std::process::Command::new("dadroit").arg(path).spawn() {
+                warn!("Couldn't launch dadroit: {}", err);
+            }
         }
     }
 }
