@@ -70,7 +70,7 @@ pub fn write_json<T: Serialize>(path: String, obj: &T) {
     if let Err(err) = maybe_write_json(&path, obj) {
         panic!("Can't write_json({}): {}", path, err);
     }
-    println!("Wrote {}", path);
+    info!("Wrote {}", path);
 }
 
 fn maybe_write_binary<T: Serialize>(path: &str, obj: &T) -> Result<()> {
@@ -89,16 +89,16 @@ pub fn write_binary<T: Serialize>(path: String, obj: &T) {
     if let Err(err) = maybe_write_binary(&path, obj) {
         panic!("Can't write_binary({}): {}", path, err);
     }
-    println!("Wrote {}", path);
+    info!("Wrote {}", path);
 }
 
 /// Idempotent
 pub fn delete_file<I: AsRef<str>>(path: I) {
     let path = path.as_ref();
     if std::fs::remove_file(path).is_ok() {
-        println!("Deleted {}", path);
+        info!("Deleted {}", path);
     } else {
-        println!("{} doesn't exist, so not deleting it", path);
+        info!("{} doesn't exist, so not deleting it", path);
     }
 }
 

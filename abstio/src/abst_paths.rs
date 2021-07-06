@@ -142,6 +142,15 @@ impl CityName {
         cities
     }
 
+    /// Returns all maps in a city based on importer config.
+    pub fn list_all_maps_in_city_from_importer_config(&self) -> Vec<MapName> {
+        crate::list_dir(format!("importer/config/{}/{}", self.country, self.city))
+            .into_iter()
+            .filter(|path| path.ends_with(".poly"))
+            .map(|path| MapName::from_city(self, &basename(path)))
+            .collect()
+    }
+
     /// Parses a CityName from something like "gb/london"; the inverse of `to_path`.
     pub fn parse(x: &str) -> Result<CityName> {
         let parts = x.split('/').collect::<Vec<_>>();

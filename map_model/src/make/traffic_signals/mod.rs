@@ -483,7 +483,7 @@ pub fn synchronize(map: &mut Map) {
                     .any(|m2| !m2.crosswalk && (m1.to == m2.from || m1.from == m2.to))
         });
         if flip1 || flip2 {
-            println!(
+            info!(
                 "Flipping stage order of {} and {} to synchronize them",
                 i1, i2
             );

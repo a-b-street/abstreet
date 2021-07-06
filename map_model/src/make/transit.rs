@@ -130,7 +130,7 @@ fn make_route(
             end_border = Some(*l);
         } else {
             // TODO Should panic
-            println!(
+            warn!(
                 "Route {} ends at {} ({}), but no ending lane for a {:?}?",
                 r.osm_rel_id, i.id, i.orig_id, route_type
             );

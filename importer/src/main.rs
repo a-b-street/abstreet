@@ -10,7 +10,7 @@ extern crate anyhow;
 extern crate log;
 
 use abstio::{CityName, MapName};
-use abstutil::{basename, Timer};
+use abstutil::Timer;
 use geom::Distance;
 use map_model::RawToMapOptions;
 
@@ -56,6 +56,12 @@ async fn main() {
             .optional_parse("--num_shards", |s| s.parse::<usize>())
             .unwrap_or(1);
         regenerate_everything(config, shard_num, num_shards).await;
+        return;
+    }
+    if args.enabled("--regen_all_maps_parallel") {
+        assert!(opts.build_ch);
+        assert!(!opts.keep_bldg_tags);
+        regenerate_all_maps(opts);
         return;
     }
 
@@ -132,6 +138,20 @@ async fn regenerate_everything(config: ImporterConfiguration, shard_num: usize, 
     }
 }
 
+// TODO Some caveats with this: it doesn't do some of the special GTFS and Berlin things yet. And
+// huge_seattle is such a long tail.
+fn regenerate_all_maps(opts: RawToMapOptions) {
+    let all_maps: Vec<MapName> = CityName::list_all_cities_from_importer_config()
+        .into_iter()
+        .flat_map(|city| city.list_all_maps_in_city_from_importer_config())
+        .collect();
+    Timer::new("regenerate all maps").parallelize("import each city", all_maps, |name| {
+        // Don't pass in a timer; the logs are way too spammy.
+        // It's also recommended to run with RUST_LOG=none
+        utils::raw_to_map(&name, opts.clone(), &mut Timer::throwaway())
+    });
+}
+
 struct Job {
     city: CityName,
     osm_to_raw: bool,
@@ -152,17 +172,10 @@ impl Job {
         timer.start(format!("import {}", self.city.describe()));
         let names = if let Some(n) = self.only_map {
             println!("- Just working on {}", n);
-            vec![n]
+            vec![MapName::from_city(&self.city, &n)]
         } else {
             println!("- Working on all {} maps", self.city.describe());
-            abstio::list_dir(format!(
-                "importer/config/{}/{}",
-                self.city.country, self.city.city
-            ))
-            .into_iter()
-            .filter(|path| path.ends_with(".poly"))
-            .map(basename)
-            .collect()
+            self.city.list_all_maps_in_city_from_importer_config()
         };
 
         // When regenerating everything, huge_seattle gets created twice! This is expensive enough
@@ -190,7 +203,6 @@ impl Job {
         };
 
         for name in names {
-            let name = MapName::from_city(&self.city, &name);
             timer.start(name.describe());
             if self.osm_to_raw {
                 // Still special-cased
