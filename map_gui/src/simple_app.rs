@@ -92,6 +92,7 @@ impl<T: 'static> SimpleApp<T> {
         g.redraw(&self.draw_map.draw_all_unzoomed_parking_lots);
         g.redraw(&self.draw_map.draw_all_unzoomed_roads_and_intersections);
         g.redraw(&self.draw_map.draw_all_buildings);
+        g.redraw(&self.draw_map.draw_all_building_outlines);
         // Not the building paths
 
         // Still show some shape selection when zoomed out.

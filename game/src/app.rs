@@ -139,6 +139,7 @@ impl App {
             }
             if layers.show_buildings {
                 g.redraw(&draw_map.draw_all_buildings);
+                g.redraw(&draw_map.draw_all_building_outlines);
                 // Not the building driveways
             }
 
