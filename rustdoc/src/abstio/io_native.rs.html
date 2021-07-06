@@ -263,7 +263,7 @@
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="ident">maybe_write_json</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>, <span class="ident">obj</span>) {
         <span class="macro">panic!</span>(<span class="string">&quot;Can&#39;t write_json({}): {}&quot;</span>, <span class="ident">path</span>, <span class="ident">err</span>);
     }
-    <span class="macro">println!</span>(<span class="string">&quot;Wrote {}&quot;</span>, <span class="ident">path</span>);
+    <span class="macro">info!</span>(<span class="string">&quot;Wrote {}&quot;</span>, <span class="ident">path</span>);
 }
 
 <span class="kw">fn</span> <span class="ident">maybe_write_binary</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Serialize</span><span class="op">&gt;</span>(<span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">obj</span>: <span class="kw-2">&amp;</span><span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
@@ -282,16 +282,16 @@
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="ident">maybe_write_binary</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>, <span class="ident">obj</span>) {
         <span class="macro">panic!</span>(<span class="string">&quot;Can&#39;t write_binary({}): {}&quot;</span>, <span class="ident">path</span>, <span class="ident">err</span>);
     }
-    <span class="macro">println!</span>(<span class="string">&quot;Wrote {}&quot;</span>, <span class="ident">path</span>);
+    <span class="macro">info!</span>(<span class="string">&quot;Wrote {}&quot;</span>, <span class="ident">path</span>);
 }
 
 <span class="doccomment">/// Idempotent</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">delete_file</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">path</span>: <span class="ident">I</span>) {
     <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">path</span>.<span class="ident">as_ref</span>();
     <span class="kw">if</span> <span class="ident">std::fs::remove_file</span>(<span class="ident">path</span>).<span class="ident">is_ok</span>() {
-        <span class="macro">println!</span>(<span class="string">&quot;Deleted {}&quot;</span>, <span class="ident">path</span>);
+        <span class="macro">info!</span>(<span class="string">&quot;Deleted {}&quot;</span>, <span class="ident">path</span>);
     } <span class="kw">else</span> {
-        <span class="macro">println!</span>(<span class="string">&quot;{} doesn&#39;t exist, so not deleting it&quot;</span>, <span class="ident">path</span>);
+        <span class="macro">info!</span>(<span class="string">&quot;{} doesn&#39;t exist, so not deleting it&quot;</span>, <span class="ident">path</span>);
     }
 }
 

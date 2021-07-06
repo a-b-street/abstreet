@@ -497,7 +497,7 @@
             <span class="ident">end_border</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">l</span>);
         } <span class="kw">else</span> {
             <span class="comment">// TODO Should panic</span>
-            <span class="macro">println!</span>(
+            <span class="macro">warn!</span>(
                 <span class="string">&quot;Route {} ends at {} ({}), but no ending lane for a {:?}?&quot;</span>,
                 <span class="ident">r</span>.<span class="ident">osm_rel_id</span>, <span class="ident">i</span>.<span class="ident">id</span>, <span class="ident">i</span>.<span class="ident">orig_id</span>, <span class="ident">route_type</span>
             );
