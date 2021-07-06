@@ -34,5 +34,29 @@
     "finished_trips": 68100,
     "cancelled_trips": 0,
     "total_trip_duration_seconds": 40551983.643300205
+  },
+  {
+    "map": "center (in poundbury (gb))",
+    "finished_trips": 8188,
+    "cancelled_trips": 0,
+    "total_trip_duration_seconds": 10610661.935500026
+  },
+  {
+    "map": "center (in poundbury (gb))",
+    "finished_trips": 8188,
+    "cancelled_trips": 0,
+    "total_trip_duration_seconds": 10570825.385000024
+  },
+  {
+    "map": "center (in poundbury (gb))",
+    "finished_trips": 23378,
+    "cancelled_trips": 256,
+    "total_trip_duration_seconds": 24774752.40700013
+  },
+  {
+    "map": "center (in poundbury (gb))",
+    "finished_trips": 23378,
+    "cancelled_trips": 256,
+    "total_trip_duration_seconds": 24743564.36250009
   }
 ]
