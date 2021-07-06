@@ -454,7 +454,7 @@ impl ParkingSim for NormalParkingSimState {
             for spot in self.onstreet_lanes[l].spots() {
                 if self.is_free(spot)
                     && driving_pos.dist_along()
-                        < self.spot_to_driving_pos(spot, vehicle, map).dist_along()
+                        <= self.spot_to_driving_pos(spot, vehicle, map).dist_along()
                 {
                     candidates.push(spot);
                 }
@@ -940,7 +940,7 @@ impl ParkingSim for InfiniteParkingSimState {
         // penultimate lanes, when the search begins.
         let mut bldg: Option<BuildingID> = None;
         for (b, bldg_dist) in self.driving_to_offstreet.get(driving_pos.lane()) {
-            if driving_pos.dist_along() >= *bldg_dist {
+            if driving_pos.dist_along() > *bldg_dist {
                 continue;
             }
             if target == *b {

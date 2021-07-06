@@ -4021,19 +4021,19 @@
       "compressed_size_bytes": 21601585
     },
     "data/system/us/seattle/prebaked_results/arboretum/weekday.bin": {
-      "checksum": "dbf55c37a1ab94c11dc1325c7fedbb2b",
-      "uncompressed_size_bytes": 20097104,
-      "compressed_size_bytes": 8221409
+      "checksum": "8ec84261c1e5128ae1be71ef3eaa9750",
+      "uncompressed_size_bytes": 20102356,
+      "compressed_size_bytes": 8224101
     },
     "data/system/us/seattle/prebaked_results/greenlake/weekday.bin": {
-      "checksum": "29e8a829b4192074abe38591f0ef6026",
-      "uncompressed_size_bytes": 30755876,
-      "compressed_size_bytes": 12675232
+      "checksum": "445b177c45dcbb015ab6d953664972a3",
+      "uncompressed_size_bytes": 30767628,
+      "compressed_size_bytes": 12683125
     },
     "data/system/us/seattle/prebaked_results/lakeslice/weekday.bin": {
-      "checksum": "e1bfccaad3096a0d44909f914bd14e6b",
-      "uncompressed_size_bytes": 63515296,
-      "compressed_size_bytes": 27140211
+      "checksum": "6bfec66c310c972c03169b5c286735ea",
+      "uncompressed_size_bytes": 63535253,
+      "compressed_size_bytes": 27151201
     },
     "data/system/us/seattle/prebaked_results/montlake/car vs bike contention.bin": {
       "checksum": "2cbd33691e5d4099457929dca920f5e0",
@@ -4051,14 +4051,14 @@
       "compressed_size_bytes": 14339249
     },
     "data/system/us/seattle/prebaked_results/qa/weekday.bin": {
-      "checksum": "2da6f2f36f402610b13be74ff634d0a1",
-      "uncompressed_size_bytes": 8670983,
-      "compressed_size_bytes": 3364460
+      "checksum": "1cc1e04b77720e8a9ccd41914a1e243f",
+      "uncompressed_size_bytes": 8674856,
+      "compressed_size_bytes": 3366159
     },
     "data/system/us/seattle/prebaked_results/rainier_valley/weekday.bin": {
-      "checksum": "1fbb5d41ff32192c9e8d5185c9a33aed",
-      "uncompressed_size_bytes": 15818580,
-      "compressed_size_bytes": 6159110
+      "checksum": "2dbfc3d8d0fd276c8fca2cf0de6336c4",
+      "uncompressed_size_bytes": 15817988,
+      "compressed_size_bytes": 6158357
     },
     "data/system/us/seattle/prebaked_results/wallingford/weekday.bin": {
       "checksum": "edcdd10a24f8c002ec564a91cf88360e",
