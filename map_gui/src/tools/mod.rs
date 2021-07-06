@@ -71,6 +71,10 @@ pub fn nice_map_name(name: &MapName) -> &str {
             ("salzburg", "west") => "Salzburg (west)",
             _ => &name.map,
         },
+        "br" => match (name.city.city.as_ref(), name.map.as_ref()) {
+            ("sao_paulo", "center") => "São Paulo (city center)",
+            _ => &name.map,
+        },
         "ca" => match (name.city.city.as_ref(), name.map.as_ref()) {
             ("montreal", "plateau") => "Montréal (Plateau)",
             _ => &name.map,
@@ -225,6 +229,7 @@ pub fn nice_country_name(code: &str) -> &str {
     // https://github.com/hampusborgos/country-flags/tree/master/svg
     match code {
         "at" => "Austria",
+        "br" => "Brazil",
         "ca" => "Canada",
         "cz" => "Czech Republic",
         "de" => "Germany",
