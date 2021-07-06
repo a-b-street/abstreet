@@ -104,6 +104,13 @@ pub fn upgrade(mut value: Value, map: &Map) -> Result<PermanentMapEdits> {
             .unwrap()
             .insert("version".to_string(), Value::Number(10.into()));
     }
+    if value["version"] == Value::Number(10.into()) {
+        remove_vehicle_caps(&mut value);
+        value
+            .as_object_mut()
+            .unwrap()
+            .insert("version".to_string(), Value::Number(11.into()));
+    }
 
     abstutil::from_json(&value.to_string().into_bytes())
 }
@@ -425,6 +432,14 @@ fn fix_f64s(value: &mut Value) {
 
         false
     })
+}
+
+// a0dcc255c3212c491e1fa71546a8115fe319312e removed congestion capping
+fn remove_vehicle_caps(value: &mut Value) {
+    walk(value, &|map| {
+        map.remove("cap_vehicles_per_hour");
+        false
+    });
 }
 
 // These're old structs used in fix_old_lane_cmds.

@@ -580,15 +580,6 @@ impl Map {
             .ok_or_else(|| anyhow!("can't fulfill {}", req))?;
         path.into_v1(self)
     }
-    pub fn pathfind_avoiding_roads(
-        &self,
-        req: PathRequest,
-        avoid: BTreeSet<RoadID>,
-    ) -> Result<Path> {
-        assert!(!self.pathfinder_dirty);
-        let path = self.pathfinder.pathfind_avoiding_roads(req, avoid, self)?;
-        path.into_v1(self)
-    }
     pub fn pathfind_with_params(&self, req: PathRequest, params: &RoutingParams) -> Result<Path> {
         assert!(!self.pathfinder_dirty);
         let path = self

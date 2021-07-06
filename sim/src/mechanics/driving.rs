@@ -107,11 +107,13 @@ impl DrivingSimState {
                 start_dist += params.vehicle.length;
                 // TODO Should we also adjust the request?
                 if start_dist > ctx.map.get_l(first_lane).length() {
-                    // I'm not sure if this can happen in practice; we'll find out if so.
-                    panic!(
+                    error!(
                         "At {}, {} needs to exit a driveway at {} on {}, but they overflow",
                         now, params.vehicle.id, start_dist, first_lane
                     );
+                    // Ideally we'd snap driveways to a point such that all equivalent positions
+                    // don't overflow, but until then, just have an unrealistic exit!
+                    start_dist -= params.vehicle.length;
                 }
             }
         }

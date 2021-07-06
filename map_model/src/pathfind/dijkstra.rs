@@ -1,8 +1,5 @@
 //! Pathfinding without needing to build a separate contraction hierarchy.
 
-use std::collections::BTreeSet;
-
-use anyhow::Result;
 use petgraph::graphmap::DiGraphMap;
 
 use geom::Duration;
@@ -10,7 +7,7 @@ use geom::Duration;
 use crate::pathfind::walking::{one_step_walking_path, walking_path_to_steps, WalkingNode};
 use crate::pathfind::{vehicle_cost, zone_cost};
 use crate::{
-    DirectedRoadID, Map, MovementID, PathConstraints, PathRequest, PathV2, RoadID, RoutingParams,
+    DirectedRoadID, Map, MovementID, PathConstraints, PathRequest, PathV2, RoutingParams,
     Traversable,
 };
 
@@ -36,26 +33,6 @@ pub fn build_graph_for_vehicles(
         }
     }
     graph
-}
-
-pub fn pathfind_avoiding_roads(
-    req: PathRequest,
-    avoid: BTreeSet<RoadID>,
-    map: &Map,
-) -> Result<PathV2> {
-    assert_eq!(req.constraints, PathConstraints::Car);
-    let mut graph = DiGraphMap::new();
-    for dr in map.all_directed_roads_for(req.constraints) {
-        if avoid.contains(&dr.id) {
-            continue;
-        }
-        for mvmnt in map.get_movements_for(dr, req.constraints) {
-            graph.add_edge(mvmnt.from, mvmnt.to, mvmnt);
-        }
-    }
-
-    calc_path(graph, req.clone(), map.routing_params(), map)
-        .ok_or_else(|| anyhow!("No path for {} avoiding {} roads", req, avoid.len()))
 }
 
 fn calc_path(

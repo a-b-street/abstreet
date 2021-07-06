@@ -291,13 +291,13 @@ fn generate_manifest(truth: &Manifest) -> Manifest {
     let mut kv = BTreeMap::new();
     for (path, entry) in
         Timer::new("compute md5sums").parallelize("compute md5sums", paths, |(orig_path, path)| {
-            // If the file's modtime is newer than 3 hours or the uncompressed size has changed,
+            // If the file's modtime is newer than 12 hours or the uncompressed size has changed,
             // calculate md5sum. Otherwise assume no change. This heuristic saves lots of time and
             // doesn't stress my poor SSD as much.
             let metadata = std::fs::metadata(&orig_path).unwrap();
             let uncompressed_size_bytes = metadata.len();
             let recent_modtime = metadata.modified().unwrap().elapsed().unwrap()
-                < std::time::Duration::from_secs(60 * 60 * 3);
+                < std::time::Duration::from_secs(60 * 60 * 12);
 
             let checksum = if recent_modtime
                 || truth

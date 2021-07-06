@@ -11,18 +11,13 @@
   },
   {
     "map": "montlake (in seattle (us))",
-    "finished_trips": 36724,
-    "cancelled_trips": 72
+    "finished_trips": 36723,
+    "cancelled_trips": 73
   },
   {
     "map": "lakeslice (in seattle (us))",
-    "finished_trips": 260975,
-    "cancelled_trips": 4841
-  },
-  {
-    "map": "phinney (in seattle (us))",
-    "finished_trips": 138499,
-    "cancelled_trips": 0
+    "finished_trips": 260956,
+    "cancelled_trips": 4860
   },
   {
     "map": "qa (in seattle (us))",

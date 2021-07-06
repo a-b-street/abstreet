@@ -1,13 +1,10 @@
-use std::collections::BTreeSet;
-
-use anyhow::Result;
 use serde::{Deserialize, Serialize};
 
 use abstutil::Timer;
 
 use crate::pathfind::ch::ContractionHierarchyPathfinder;
 use crate::pathfind::dijkstra;
-use crate::{BusRouteID, BusStopID, Map, PathRequest, PathV2, Position, RoadID, RoutingParams};
+use crate::{BusRouteID, BusStopID, Map, PathRequest, PathV2, Position, RoutingParams};
 
 /// Most of the time, prefer using the faster contraction hierarchies. But sometimes, callers can
 /// explicitly opt into a slower (but preparation-free) pathfinder that just uses Dijkstra's
@@ -45,17 +42,6 @@ impl Pathfinder {
             Pathfinder::Dijkstra => dijkstra::pathfind(req, params, map),
             Pathfinder::CH(ref p) => p.pathfind(req, map),
         }
-    }
-
-    /// Note this is a slower implementation, never using contraction hierarchies. Used for
-    /// experimental congestion capping.
-    pub fn pathfind_avoiding_roads(
-        &self,
-        req: PathRequest,
-        avoid: BTreeSet<RoadID>,
-        map: &Map,
-    ) -> Result<PathV2> {
-        dijkstra::pathfind_avoiding_roads(req, avoid, map)
     }
 
     // TODO Consider returning the walking-only path in the failure case, to avoid wasting work

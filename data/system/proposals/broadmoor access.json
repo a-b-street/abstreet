@@ -7,7 +7,7 @@
     "map": "arboretum"
   },
   "edits_name": "broadmoor access",
-  "version": 10,
+  "version": 11,
   "commands": [
     {
       "ChangeRoad": {
@@ -41,8 +41,7 @@
           ],
           "speed_limit": 111760,
           "access_restrictions": {
-            "allow_through_traffic": 21,
-            "cap_vehicles_per_hour": null
+            "allow_through_traffic": 21
           }
         },
         "old": {
@@ -70,8 +69,7 @@
           ],
           "speed_limit": 111760,
           "access_restrictions": {
-            "allow_through_traffic": 0,
-            "cap_vehicles_per_hour": null
+            "allow_through_traffic": 0
           }
         }
       }
@@ -108,8 +106,7 @@
           ],
           "speed_limit": 111760,
           "access_restrictions": {
-            "allow_through_traffic": 21,
-            "cap_vehicles_per_hour": null
+            "allow_through_traffic": 21
           }
         },
         "old": {
@@ -137,8 +134,7 @@
           ],
           "speed_limit": 111760,
           "access_restrictions": {
-            "allow_through_traffic": 0,
-            "cap_vehicles_per_hour": null
+            "allow_through_traffic": 0
           }
         }
       }
@@ -175,8 +171,7 @@
           ],
           "speed_limit": 111760,
           "access_restrictions": {
-            "allow_through_traffic": 21,
-            "cap_vehicles_per_hour": null
+            "allow_through_traffic": 21
           }
         },
         "old": {
@@ -204,8 +199,7 @@
           ],
           "speed_limit": 111760,
           "access_restrictions": {
-            "allow_through_traffic": 0,
-            "cap_vehicles_per_hour": null
+            "allow_through_traffic": 0
           }
         }
       }
@@ -242,8 +236,7 @@
           ],
           "speed_limit": 111760,
           "access_restrictions": {
-            "allow_through_traffic": 21,
-            "cap_vehicles_per_hour": null
+            "allow_through_traffic": 21
           }
         },
         "old": {
@@ -271,8 +264,7 @@
           ],
           "speed_limit": 111760,
           "access_restrictions": {
-            "allow_through_traffic": 0,
-            "cap_vehicles_per_hour": null
+            "allow_through_traffic": 0
           }
         }
       }
@@ -309,8 +301,7 @@
           ],
           "speed_limit": 111760,
           "access_restrictions": {
-            "allow_through_traffic": 21,
-            "cap_vehicles_per_hour": null
+            "allow_through_traffic": 21
           }
         },
         "old": {
@@ -338,8 +329,7 @@
           ],
           "speed_limit": 111760,
           "access_restrictions": {
-            "allow_through_traffic": 0,
-            "cap_vehicles_per_hour": null
+            "allow_through_traffic": 0
           }
         }
       }
@@ -376,8 +366,7 @@
           ],
           "speed_limit": 111760,
           "access_restrictions": {
-            "allow_through_traffic": 21,
-            "cap_vehicles_per_hour": null
+            "allow_through_traffic": 21
           }
         },
         "old": {
@@ -405,8 +394,7 @@
           ],
           "speed_limit": 111760,
           "access_restrictions": {
-            "allow_through_traffic": 0,
-            "cap_vehicles_per_hour": null
+            "allow_through_traffic": 0
           }
         }
       }
@@ -443,8 +431,7 @@
           ],
           "speed_limit": 111760,
           "access_restrictions": {
-            "allow_through_traffic": 21,
-            "cap_vehicles_per_hour": null
+            "allow_through_traffic": 21
           }
         },
         "old": {
@@ -472,8 +459,7 @@
           ],
           "speed_limit": 111760,
           "access_restrictions": {
-            "allow_through_traffic": 0,
-            "cap_vehicles_per_hour": null
+            "allow_through_traffic": 0
           }
         }
       }
@@ -510,8 +496,7 @@
           ],
           "speed_limit": 111760,
           "access_restrictions": {
-            "allow_through_traffic": 21,
-            "cap_vehicles_per_hour": null
+            "allow_through_traffic": 21
           }
         },
         "old": {
@@ -539,8 +524,7 @@
           ],
           "speed_limit": 111760,
           "access_restrictions": {
-            "allow_through_traffic": 0,
-            "cap_vehicles_per_hour": null
+            "allow_through_traffic": 0
           }
         }
       }
@@ -577,8 +561,7 @@
           ],
           "speed_limit": 111760,
           "access_restrictions": {
-            "allow_through_traffic": 21,
-            "cap_vehicles_per_hour": null
+            "allow_through_traffic": 21
           }
         },
         "old": {
@@ -606,8 +589,7 @@
           ],
           "speed_limit": 111760,
           "access_restrictions": {
-            "allow_through_traffic": 0,
-            "cap_vehicles_per_hour": null
+            "allow_through_traffic": 0
           }
         }
       }
@@ -644,8 +626,7 @@
           ],
           "speed_limit": 111760,
           "access_restrictions": {
-            "allow_through_traffic": 21,
-            "cap_vehicles_per_hour": null
+            "allow_through_traffic": 21
           }
         },
         "old": {
@@ -673,8 +654,7 @@
           ],
           "speed_limit": 111760,
           "access_restrictions": {
-            "allow_through_traffic": 0,
-            "cap_vehicles_per_hour": null
+            "allow_through_traffic": 0
           }
         }
       }
@@ -711,8 +691,7 @@
           ],
           "speed_limit": 111760,
           "access_restrictions": {
-            "allow_through_traffic": 21,
-            "cap_vehicles_per_hour": null
+            "allow_through_traffic": 21
           }
         },
         "old": {
@@ -740,8 +719,7 @@
           ],
           "speed_limit": 111760,
           "access_restrictions": {
-            "allow_through_traffic": 0,
-            "cap_vehicles_per_hour": null
+            "allow_through_traffic": 0
           }
         }
       }
@@ -778,8 +756,7 @@
           ],
           "speed_limit": 111760,
           "access_restrictions": {
-            "allow_through_traffic": 21,
-            "cap_vehicles_per_hour": null
+            "allow_through_traffic": 21
           }
         },
         "old": {
@@ -807,8 +784,7 @@
           ],
           "speed_limit": 111760,
           "access_restrictions": {
-            "allow_through_traffic": 0,
-            "cap_vehicles_per_hour": null
+            "allow_through_traffic": 0
           }
         }
       }
@@ -845,8 +821,7 @@
           ],
           "speed_limit": 111760,
           "access_restrictions": {
-            "allow_through_traffic": 21,
-            "cap_vehicles_per_hour": null
+            "allow_through_traffic": 21
           }
         },
         "old": {
@@ -874,8 +849,7 @@
           ],
           "speed_limit": 111760,
           "access_restrictions": {
-            "allow_through_traffic": 0,
-            "cap_vehicles_per_hour": null
+            "allow_through_traffic": 0
           }
         }
       }
@@ -912,8 +886,7 @@
           ],
           "speed_limit": 111760,
           "access_restrictions": {
-            "allow_through_traffic": 21,
-            "cap_vehicles_per_hour": null
+            "allow_through_traffic": 21
           }
         },
         "old": {
@@ -941,8 +914,7 @@
           ],
           "speed_limit": 111760,
           "access_restrictions": {
-            "allow_through_traffic": 0,
-            "cap_vehicles_per_hour": null
+            "allow_through_traffic": 0
           }
         }
       }
@@ -974,8 +946,7 @@
           ],
           "speed_limit": 111760,
           "access_restrictions": {
-            "allow_through_traffic": 21,
-            "cap_vehicles_per_hour": null
+            "allow_through_traffic": 21
           }
         },
         "old": {
@@ -998,8 +969,7 @@
           ],
           "speed_limit": 111760,
           "access_restrictions": {
-            "allow_through_traffic": 0,
-            "cap_vehicles_per_hour": null
+            "allow_through_traffic": 0
           }
         }
       }
@@ -1036,8 +1006,7 @@
           ],
           "speed_limit": 111760,
           "access_restrictions": {
-            "allow_through_traffic": 21,
-            "cap_vehicles_per_hour": null
+            "allow_through_traffic": 21
           }
         },
         "old": {
@@ -1065,8 +1034,7 @@
           ],
           "speed_limit": 111760,
           "access_restrictions": {
-            "allow_through_traffic": 0,
-            "cap_vehicles_per_hour": null
+            "allow_through_traffic": 0
           }
         }
       }
@@ -1103,8 +1071,7 @@
           ],
           "speed_limit": 111760,
           "access_restrictions": {
-            "allow_through_traffic": 21,
-            "cap_vehicles_per_hour": null
+            "allow_through_traffic": 21
           }
         },
         "old": {
@@ -1132,8 +1099,7 @@
           ],
           "speed_limit": 111760,
           "access_restrictions": {
-            "allow_through_traffic": 0,
-            "cap_vehicles_per_hour": null
+            "allow_through_traffic": 0
           }
         }
       }
@@ -1170,8 +1136,7 @@
           ],
           "speed_limit": 111760,
           "access_restrictions": {
-            "allow_through_traffic": 21,
-            "cap_vehicles_per_hour": null
+            "allow_through_traffic": 21
           }
         },
         "old": {
@@ -1199,8 +1164,7 @@
           ],
           "speed_limit": 111760,
           "access_restrictions": {
-            "allow_through_traffic": 0,
-            "cap_vehicles_per_hour": null
+            "allow_through_traffic": 0
           }
         }
       }
@@ -1237,8 +1201,7 @@
           ],
           "speed_limit": 111760,
           "access_restrictions": {
-            "allow_through_traffic": 21,
-            "cap_vehicles_per_hour": null
+            "allow_through_traffic": 21
           }
         },
         "old": {
@@ -1266,8 +1229,7 @@
           ],
           "speed_limit": 111760,
           "access_restrictions": {
-            "allow_through_traffic": 0,
-            "cap_vehicles_per_hour": null
+            "allow_through_traffic": 0
           }
         }
       }
@@ -1304,8 +1266,7 @@
           ],
           "speed_limit": 111760,
           "access_restrictions": {
-            "allow_through_traffic": 21,
-            "cap_vehicles_per_hour": null
+            "allow_through_traffic": 21
           }
         },
         "old": {
@@ -1333,8 +1294,7 @@
           ],
           "speed_limit": 111760,
           "access_restrictions": {
-            "allow_through_traffic": 0,
-            "cap_vehicles_per_hour": null
+            "allow_through_traffic": 0
           }
         }
       }
@@ -1371,8 +1331,7 @@
           ],
           "speed_limit": 111760,
           "access_restrictions": {
-            "allow_through_traffic": 21,
-            "cap_vehicles_per_hour": null
+            "allow_through_traffic": 21
           }
         },
         "old": {
@@ -1400,8 +1359,7 @@
           ],
           "speed_limit": 111760,
           "access_restrictions": {
-            "allow_through_traffic": 0,
-            "cap_vehicles_per_hour": null
+            "allow_through_traffic": 0
           }
         }
       }
@@ -1438,8 +1396,7 @@
           ],
           "speed_limit": 111760,
           "access_restrictions": {
-            "allow_through_traffic": 21,
-            "cap_vehicles_per_hour": null
+            "allow_through_traffic": 21
           }
         },
         "old": {
@@ -1467,8 +1424,7 @@
           ],
           "speed_limit": 111760,
           "access_restrictions": {
-            "allow_through_traffic": 0,
-            "cap_vehicles_per_hour": null
+            "allow_through_traffic": 0
           }
         }
       }
@@ -1505,8 +1461,7 @@
           ],
           "speed_limit": 111760,
           "access_restrictions": {
-            "allow_through_traffic": 21,
-            "cap_vehicles_per_hour": null
+            "allow_through_traffic": 21
           }
         },
         "old": {
@@ -1534,8 +1489,7 @@
           ],
           "speed_limit": 111760,
           "access_restrictions": {
-            "allow_through_traffic": 0,
-            "cap_vehicles_per_hour": null
+            "allow_through_traffic": 0
           }
         }
       }
@@ -1572,8 +1526,7 @@
           ],
           "speed_limit": 111760,
           "access_restrictions": {
-            "allow_through_traffic": 21,
-            "cap_vehicles_per_hour": null
+            "allow_through_traffic": 21
           }
         },
         "old": {
@@ -1601,8 +1554,7 @@
           ],
           "speed_limit": 111760,
           "access_restrictions": {
-            "allow_through_traffic": 0,
-            "cap_vehicles_per_hour": null
+            "allow_through_traffic": 0
           }
         }
       }
@@ -1639,8 +1591,7 @@
           ],
           "speed_limit": 111760,
           "access_restrictions": {
-            "allow_through_traffic": 21,
-            "cap_vehicles_per_hour": null
+            "allow_through_traffic": 21
           }
         },
         "old": {
@@ -1668,8 +1619,7 @@
           ],
           "speed_limit": 111760,
           "access_restrictions": {
-            "allow_through_traffic": 0,
-            "cap_vehicles_per_hour": null
+            "allow_through_traffic": 0
           }
         }
       }
@@ -1706,8 +1656,7 @@
           ],
           "speed_limit": 111760,
           "access_restrictions": {
-            "allow_through_traffic": 21,
-            "cap_vehicles_per_hour": null
+            "allow_through_traffic": 21
           }
         },
         "old": {
@@ -1735,8 +1684,7 @@
           ],
           "speed_limit": 111760,
           "access_restrictions": {
-            "allow_through_traffic": 0,
-            "cap_vehicles_per_hour": null
+            "allow_through_traffic": 0
           }
         }
       }
@@ -1773,8 +1721,7 @@
           ],
           "speed_limit": 111760,
           "access_restrictions": {
-            "allow_through_traffic": 21,
-            "cap_vehicles_per_hour": null
+            "allow_through_traffic": 21
           }
         },
         "old": {
@@ -1802,8 +1749,7 @@
           ],
           "speed_limit": 111760,
           "access_restrictions": {
-            "allow_through_traffic": 0,
-            "cap_vehicles_per_hour": null
+            "allow_through_traffic": 0
           }
         }
       }
@@ -1840,8 +1786,7 @@
           ],
           "speed_limit": 111760,
           "access_restrictions": {
-            "allow_through_traffic": 21,
-            "cap_vehicles_per_hour": null
+            "allow_through_traffic": 21
           }
         },
         "old": {
@@ -1869,8 +1814,7 @@
           ],
           "speed_limit": 111760,
           "access_restrictions": {
-            "allow_through_traffic": 0,
-            "cap_vehicles_per_hour": null
+            "allow_through_traffic": 0
           }
         }
       }
@@ -1907,8 +1851,7 @@
           ],
           "speed_limit": 111760,
           "access_restrictions": {
-            "allow_through_traffic": 21,
-            "cap_vehicles_per_hour": null
+            "allow_through_traffic": 21
           }
         },
         "old": {
@@ -1936,8 +1879,7 @@
           ],
           "speed_limit": 111760,
           "access_restrictions": {
-            "allow_through_traffic": 0,
-            "cap_vehicles_per_hour": null
+            "allow_through_traffic": 0
           }
         }
       }
@@ -1974,8 +1916,7 @@
           ],
           "speed_limit": 111760,
           "access_restrictions": {
-            "allow_through_traffic": 21,
-            "cap_vehicles_per_hour": null
+            "allow_through_traffic": 21
           }
         },
         "old": {
@@ -2003,8 +1944,7 @@
           ],
           "speed_limit": 111760,
           "access_restrictions": {
-            "allow_through_traffic": 0,
-            "cap_vehicles_per_hour": null
+            "allow_through_traffic": 0
           }
         }
       }
@@ -2036,8 +1976,7 @@
           ],
           "speed_limit": 89408,
           "access_restrictions": {
-            "allow_through_traffic": 21,
-            "cap_vehicles_per_hour": null
+            "allow_through_traffic": 21
           }
         },
         "old": {
@@ -2060,8 +1999,7 @@
           ],
           "speed_limit": 89408,
           "access_restrictions": {
-            "allow_through_traffic": 0,
-            "cap_vehicles_per_hour": null
+            "allow_through_traffic": 0
           }
         }
       }
@@ -2098,8 +2036,7 @@
           ],
           "speed_limit": 111760,
           "access_restrictions": {
-            "allow_through_traffic": 21,
-            "cap_vehicles_per_hour": null
+            "allow_through_traffic": 21
           }
         },
         "old": {
@@ -2127,8 +2064,7 @@
           ],
           "speed_limit": 111760,
           "access_restrictions": {
-            "allow_through_traffic": 0,
-            "cap_vehicles_per_hour": null
+            "allow_through_traffic": 0
           }
         }
       }
@@ -2165,8 +2101,7 @@
           ],
           "speed_limit": 111760,
           "access_restrictions": {
-            "allow_through_traffic": 21,
-            "cap_vehicles_per_hour": null
+            "allow_through_traffic": 21
           }
         },
         "old": {
@@ -2194,8 +2129,7 @@
           ],
           "speed_limit": 111760,
           "access_restrictions": {
-            "allow_through_traffic": 0,
-            "cap_vehicles_per_hour": null
+            "allow_through_traffic": 0
           }
         }
       }
@@ -2232,8 +2166,7 @@
           ],
           "speed_limit": 111760,
           "access_restrictions": {
-            "allow_through_traffic": 21,
-            "cap_vehicles_per_hour": null
+            "allow_through_traffic": 21
           }
         },
         "old": {
@@ -2261,8 +2194,7 @@
           ],
           "speed_limit": 111760,
           "access_restrictions": {
-            "allow_through_traffic": 0,
-            "cap_vehicles_per_hour": null
+            "allow_through_traffic": 0
           }
         }
       }
@@ -2299,8 +2231,7 @@
           ],
           "speed_limit": 111760,
           "access_restrictions": {
-            "allow_through_traffic": 21,
-            "cap_vehicles_per_hour": null
+            "allow_through_traffic": 21
           }
         },
         "old": {
@@ -2328,8 +2259,7 @@
           ],
           "speed_limit": 111760,
           "access_restrictions": {
-            "allow_through_traffic": 0,
-            "cap_vehicles_per_hour": null
+            "allow_through_traffic": 0
           }
         }
       }
@@ -2340,5 +2270,5 @@
     "Allow bike and foot traffic through Broadmoor",
     "Create a new connection between Montlake and Madison Park by allowing cyclists and pedestrians to use Broadmoor Drive East, which is currently a gated neighborhood."
   ],
-  "proposal_link": null
+  "proposal_link": "https://a-b-street.github.io/docs/proposals/broadmoor.html"
 }
