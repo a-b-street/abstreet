@@ -157,6 +157,22 @@ impl State<App> for RoadEditor {
                     }
                     return Transition::Pop;
                 }
+                "Revert" => {
+                    let mut edits = app.primary.map.get_edits().clone();
+                    edits.commands.push(EditCmd::ChangeRoad {
+                        r: self.r,
+                        old: app.primary.map.get_r_edit(self.r),
+                        new: EditRoad::get_orig_from_osm(
+                            app.primary.map.get_r(self.r),
+                            app.primary.map.get_config(),
+                        ),
+                    });
+                    self.current_lane = None;
+                    self.hovering_on_lane = None;
+                    apply_map_edits(ctx, app, edits);
+                    self.redo_stack.clear();
+                    self.recalc_all_panels(ctx, app);
+                }
                 "undo" => {
                     let mut edits = app.primary.map.get_edits().clone();
                     self.redo_stack.push(edits.commands.pop().unwrap());
@@ -346,6 +362,9 @@ fn make_top_panel(
     r: RoadID,
     orig_road_state: EditRoad,
 ) -> Panel {
+    let map = &app.primary.map;
+    let current_state = map.get_r_edit(r);
+
     Panel::new_builder(Widget::col(vec![
         Widget::row(vec![
             Line("Editing road").small_heading().into_widget(ctx),
@@ -354,7 +373,7 @@ fn make_top_panel(
                 .text("+ Apply to multiple")
                 .label_color(Color::hex("#4CA7E9"), ControlState::Default)
                 .hotkey(Key::M)
-                .disabled(app.primary.map.get_r_edit(r) == orig_road_state)
+                .disabled(current_state == orig_road_state)
                 .disabled_tooltip("You have to edit one road segment first, then you can apply the changes to more segments.")
                 .build_widget(ctx, "Apply to multiple road segments"),
         ]),
@@ -367,7 +386,7 @@ fn make_top_panel(
             ctx.style()
                 .btn_plain
                 .icon("system/assets/tools/undo.svg")
-                .disabled(app.primary.map.get_edits().commands.len() == num_edit_cmds_originally)
+                .disabled(map.get_edits().commands.len() == num_edit_cmds_originally)
                 .hotkey(lctrl(Key::Z))
                 .build_widget(ctx, "undo"),
             ctx.style()
@@ -377,6 +396,11 @@ fn make_top_panel(
                 // TODO ctrl+shift+Z!
                 .hotkey(lctrl(Key::Y))
                 .build_widget(ctx, "redo"),
+            ctx.style()
+                .btn_plain_destructive
+                .text("Revert")
+                .disabled(current_state == EditRoad::get_orig_from_osm(map.get_r(r), map.get_config()))
+                .build_def(ctx),
             ctx.style()
                 .btn_plain
                 .text("Cancel")
