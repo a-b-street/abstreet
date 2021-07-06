@@ -494,12 +494,6 @@
 <span id="491">491</span>
 <span id="492">492</span>
 <span id="493">493</span>
-<span id="494">494</span>
-<span id="495">495</span>
-<span id="496">496</span>
-<span id="497">497</span>
-<span id="498">498</span>
-<span id="499">499</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! The various traffic signal generators live in the traffic signal module. Eventually, we</span>
 <span class="doccomment">//! might want to move to a trait. For now, there&#39;s a single make_traffic_signal static method</span>
@@ -715,12 +709,14 @@
                 (<span class="macro">vec!</span>[<span class="ident">north</span>, <span class="ident">south</span>], <span class="ident">TurnType::Right</span>, <span class="ident">YIELD</span>),
                 (<span class="macro">vec!</span>[<span class="ident">north</span>, <span class="ident">south</span>], <span class="ident">TurnType::Left</span>, <span class="ident">YIELD</span>),
                 (<span class="macro">vec!</span>[<span class="ident">east</span>], <span class="ident">TurnType::Right</span>, <span class="ident">YIELD</span>),
+                (<span class="macro">vec!</span>[<span class="ident">east</span>], <span class="ident">TurnType::Crosswalk</span>, <span class="ident">PROTECTED</span>),
             ],
             <span class="macro">vec!</span>[
                 (<span class="macro">vec!</span>[<span class="ident">east</span>], <span class="ident">TurnType::Straight</span>, <span class="ident">PROTECTED</span>),
                 (<span class="macro">vec!</span>[<span class="ident">east</span>], <span class="ident">TurnType::Right</span>, <span class="ident">YIELD</span>),
                 (<span class="macro">vec!</span>[<span class="ident">east</span>], <span class="ident">TurnType::Left</span>, <span class="ident">YIELD</span>),
                 (<span class="macro">vec!</span>[<span class="ident">north</span>, <span class="ident">south</span>], <span class="ident">TurnType::Right</span>, <span class="ident">YIELD</span>),
+                (<span class="macro">vec!</span>[<span class="ident">north</span>, <span class="ident">south</span>], <span class="ident">TurnType::Crosswalk</span>, <span class="ident">PROTECTED</span>),
             ],
         ],
     );
@@ -862,18 +858,9 @@
     <span class="ident">driving_side</span>: <span class="ident">DrivingSide</span>,
     <span class="ident">stage_specs</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span>, <span class="ident">TurnType</span>, <span class="ident">bool</span>)<span class="op">&gt;</span><span class="op">&gt;</span>,
 ) {
-    <span class="comment">// Don&#39;t filter unprotected only stages</span>
-    <span class="ident">make_stages_filtered</span>(<span class="ident">ts</span>, <span class="ident">driving_side</span>, <span class="ident">stage_specs</span>, <span class="bool-val">false</span>);
-}
-<span class="kw">fn</span> <span class="ident">make_stages_filtered</span>(
-    <span class="ident">ts</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ControlTrafficSignal</span>,
-    <span class="ident">driving_side</span>: <span class="ident">DrivingSide</span>,
-    <span class="ident">stage_specs</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span>, <span class="ident">TurnType</span>, <span class="ident">bool</span>)<span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">filter_unprotected</span>: <span class="ident">bool</span>,
-) {
     <span class="kw">for</span> <span class="ident">specs</span> <span class="kw">in</span> <span class="ident">stage_specs</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stage</span> <span class="op">=</span> <span class="ident">Stage::new</span>();
-
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">explicit_crosswalks</span> <span class="op">=</span> <span class="bool-val">false</span>;
         <span class="kw">for</span> (<span class="ident">roads</span>, <span class="kw-2">mut</span> <span class="ident">turn_type</span>, <span class="ident">protected</span>) <span class="kw">in</span> <span class="ident">specs</span>.<span class="ident">into_iter</span>() {
             <span class="comment">// The heuristics are written assuming right turns are easy and lefts are hard, so</span>
             <span class="comment">// invert in the UK.</span>
@@ -883,6 +870,9 @@
                 } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">turn_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">TurnType::Left</span> {
                     <span class="ident">turn_type</span> <span class="op">=</span> <span class="ident">TurnType::Right</span>;
                 }
+            }
+            <span class="kw">if</span> <span class="ident">turn_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">TurnType::Crosswalk</span> {
+                <span class="ident">explicit_crosswalks</span> <span class="op">=</span> <span class="bool-val">true</span>;
             }
 
             <span class="kw">for</span> <span class="ident">movement</span> <span class="kw">in</span> <span class="ident">ts</span>.<span class="ident">movements</span>.<span class="ident">values</span>() {
@@ -900,22 +890,20 @@
                 );
             }
         }
-        <span class="comment">// Filter out unprotected only stages if they happen.</span>
-        <span class="kw">if</span> <span class="ident">filter_unprotected</span> <span class="op">&amp;&amp;</span> <span class="ident">stage</span>.<span class="ident">protected_movements</span>.<span class="ident">is_empty</span>() {
-            <span class="kw">continue</span>;
-        }
 
-        <span class="comment">// Add in all compatible crosswalks. Specifying this in specs explicitly doesn&#39;t work when</span>
-        <span class="comment">// crosswalks stretch across a road strangely, which happens when one side of a road is</span>
-        <span class="comment">// missing a sidewalk.</span>
-        <span class="comment">// TODO If a stage has no protected turns at all, this adds the crosswalk to multiple</span>
-        <span class="comment">// stages in a pretty weird way. It&#39;d be better to add to just one stage -- the one with</span>
-        <span class="comment">// the least conflicting yields.</span>
-        <span class="kw">for</span> <span class="ident">movement</span> <span class="kw">in</span> <span class="ident">ts</span>.<span class="ident">movements</span>.<span class="ident">values</span>() {
-            <span class="kw">if</span> <span class="ident">movement</span>.<span class="ident">turn_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">TurnType::Crosswalk</span>
-                <span class="op">&amp;&amp;</span> <span class="ident">stage</span>.<span class="ident">could_be_protected</span>(<span class="ident">movement</span>.<span class="ident">id</span>, <span class="kw-2">&amp;</span><span class="ident">ts</span>.<span class="ident">movements</span>)
-            {
-                <span class="ident">stage</span>.<span class="ident">edit_movement</span>(<span class="ident">movement</span>, <span class="ident">TurnPriority::Protected</span>);
+        <span class="comment">// If the specification didn&#39;t explicitly include crosswalks, add them in here. Some</span>
+        <span class="comment">// crosswalks stretch across multiple roads when some parts of a road are missing a</span>
+        <span class="comment">// sidewalk, so it&#39;s hard to specify them in all cases.</span>
+        <span class="kw">if</span> <span class="op">!</span><span class="ident">explicit_crosswalks</span> {
+            <span class="comment">// TODO If a stage has no protected turns at all, this adds the crosswalk to multiple</span>
+            <span class="comment">// stages in a pretty weird way. It&#39;d be better to add to just one stage -- the one</span>
+            <span class="comment">// with the least conflicting yields.</span>
+            <span class="kw">for</span> <span class="ident">movement</span> <span class="kw">in</span> <span class="ident">ts</span>.<span class="ident">movements</span>.<span class="ident">values</span>() {
+                <span class="kw">if</span> <span class="ident">movement</span>.<span class="ident">turn_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">TurnType::Crosswalk</span>
+                    <span class="op">&amp;&amp;</span> <span class="ident">stage</span>.<span class="ident">could_be_protected</span>(<span class="ident">movement</span>.<span class="ident">id</span>, <span class="kw-2">&amp;</span><span class="ident">ts</span>.<span class="ident">movements</span>)
+                {
+                    <span class="ident">stage</span>.<span class="ident">edit_movement</span>(<span class="ident">movement</span>, <span class="ident">TurnPriority::Protected</span>);
+                }
             }
         }
 

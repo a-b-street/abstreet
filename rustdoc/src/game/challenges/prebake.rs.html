@@ -146,6 +146,11 @@
 <span id="143">143</span>
 <span id="144">144</span>
 <span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">serde::Serialize</span>;
 
@@ -272,9 +277,12 @@
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">finished_trips</span> <span class="op">=</span> <span class="number">0</span>;
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cancelled_trips</span> <span class="op">=</span> <span class="number">0</span>;
+    <span class="comment">// Use f64 seconds, since a serialized Duration has a low cap.</span>
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">total_trip_duration_seconds</span> <span class="op">=</span> <span class="number">0.0</span>;
     <span class="kw">for</span> (<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">maybe_duration</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">sim</span>.<span class="ident">get_analytics</span>().<span class="ident">finished_trips</span> {
-        <span class="kw">if</span> <span class="ident">maybe_duration</span>.<span class="ident">is_some</span>() {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">dt</span>) <span class="op">=</span> <span class="ident">maybe_duration</span> {
             <span class="ident">finished_trips</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+            <span class="ident">total_trip_duration_seconds</span> <span class="op">+</span><span class="op">=</span> <span class="ident">dt</span>.<span class="ident">inner_seconds</span>();
         } <span class="kw">else</span> {
             <span class="ident">cancelled_trips</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
         }
@@ -283,6 +291,7 @@
         <span class="ident">map</span>: <span class="ident">scenario</span>.<span class="ident">map_name</span>.<span class="ident">describe</span>(),
         <span class="ident">finished_trips</span>,
         <span class="ident">cancelled_trips</span>,
+        <span class="ident">total_trip_duration_seconds</span>,
     }
 }
 
@@ -291,6 +300,7 @@
     <span class="ident">map</span>: <span class="ident">String</span>,
     <span class="ident">finished_trips</span>: <span class="ident">usize</span>,
     <span class="ident">cancelled_trips</span>: <span class="ident">usize</span>,
+    <span class="ident">total_trip_duration_seconds</span>: <span class="ident">f64</span>,
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="game" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
