@@ -68,31 +68,14 @@
 <span id="65">65</span>
 <span id="66">66</span>
 <span id="67">67</span>
-<span id="68">68</span>
-<span id="69">69</span>
-<span id="70">70</span>
-<span id="71">71</span>
-<span id="72">72</span>
-<span id="73">73</span>
-<span id="74">74</span>
-<span id="75">75</span>
-<span id="76">76</span>
-<span id="77">77</span>
-<span id="78">78</span>
-<span id="79">79</span>
-<span id="80">80</span>
-<span id="81">81</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
-
-<span class="kw">use</span> <span class="ident">anyhow::Result</span>;
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
 <span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::pathfind::ch::ContractionHierarchyPathfinder</span>;
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::pathfind::dijkstra</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">BusRouteID</span>, <span class="ident">BusStopID</span>, <span class="ident">Map</span>, <span class="ident">PathRequest</span>, <span class="ident">PathV2</span>, <span class="ident">Position</span>, <span class="ident">RoadID</span>, <span class="ident">RoutingParams</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">BusRouteID</span>, <span class="ident">BusStopID</span>, <span class="ident">Map</span>, <span class="ident">PathRequest</span>, <span class="ident">PathV2</span>, <span class="ident">Position</span>, <span class="ident">RoutingParams</span>};
 
 <span class="doccomment">/// Most of the time, prefer using the faster contraction hierarchies. But sometimes, callers can</span>
 <span class="doccomment">/// explicitly opt into a slower (but preparation-free) pathfinder that just uses Dijkstra&#39;s</span>
@@ -130,17 +113,6 @@
             <span class="ident">Pathfinder::Dijkstra</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">dijkstra::pathfind</span>(<span class="ident">req</span>, <span class="ident">params</span>, <span class="ident">map</span>),
             <span class="ident">Pathfinder::CH</span>(<span class="kw-2">ref</span> <span class="ident">p</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">p</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>, <span class="ident">map</span>),
         }
-    }
-
-    <span class="doccomment">/// Note this is a slower implementation, never using contraction hierarchies. Used for</span>
-    <span class="doccomment">/// experimental congestion capping.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pathfind_avoiding_roads</span>(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">req</span>: <span class="ident">PathRequest</span>,
-        <span class="ident">avoid</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span>,
-        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PathV2</span><span class="op">&gt;</span> {
-        <span class="ident">dijkstra::pathfind_avoiding_roads</span>(<span class="ident">req</span>, <span class="ident">avoid</span>, <span class="ident">map</span>)
     }
 
     <span class="comment">// TODO Consider returning the walking-only path in the failure case, to avoid wasting work</span>

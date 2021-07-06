@@ -1016,30 +1016,6 @@
 <span id="1013">1013</span>
 <span id="1014">1014</span>
 <span id="1015">1015</span>
-<span id="1016">1016</span>
-<span id="1017">1017</span>
-<span id="1018">1018</span>
-<span id="1019">1019</span>
-<span id="1020">1020</span>
-<span id="1021">1021</span>
-<span id="1022">1022</span>
-<span id="1023">1023</span>
-<span id="1024">1024</span>
-<span id="1025">1025</span>
-<span id="1026">1026</span>
-<span id="1027">1027</span>
-<span id="1028">1028</span>
-<span id="1029">1029</span>
-<span id="1030">1030</span>
-<span id="1031">1031</span>
-<span id="1032">1032</span>
-<span id="1033">1033</span>
-<span id="1034">1034</span>
-<span id="1035">1035</span>
-<span id="1036">1036</span>
-<span id="1037">1037</span>
-<span id="1038">1038</span>
-<span id="1039">1039</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// This file has a jumbled mess of queries, setup, and mutating methods.</span>
 
@@ -1062,12 +1038,11 @@
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::queries</span>::{<span class="ident">AgentProperties</span>, <span class="ident">DelayCause</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">AgentID</span>, <span class="ident">AlertLocation</span>, <span class="ident">Analytics</span>, <span class="ident">CapSimState</span>, <span class="ident">CarID</span>, <span class="ident">Command</span>, <span class="ident">CreateCar</span>, <span class="ident">DrivingSimState</span>,
-    <span class="ident">Event</span>, <span class="ident">IntersectionSimState</span>, <span class="ident">OrigPersonID</span>, <span class="ident">PandemicModel</span>, <span class="ident">ParkedCar</span>, <span class="ident">ParkingSim</span>,
-    <span class="ident">ParkingSimState</span>, <span class="ident">ParkingSpot</span>, <span class="ident">Person</span>, <span class="ident">PersonID</span>, <span class="ident">Router</span>, <span class="ident">Scheduler</span>, <span class="ident">SidewalkPOI</span>, <span class="ident">SidewalkSpot</span>,
-    <span class="ident">StartTripArgs</span>, <span class="ident">TrafficRecorder</span>, <span class="ident">TransitSimState</span>, <span class="ident">TripID</span>, <span class="ident">TripInfo</span>, <span class="ident">TripManager</span>, <span class="ident">TripPhaseType</span>,
-    <span class="ident">Vehicle</span>, <span class="ident">VehicleSpec</span>, <span class="ident">VehicleType</span>, <span class="ident">WalkingSimState</span>, <span class="ident">BUS_LENGTH</span>, <span class="ident">LIGHT_RAIL_LENGTH</span>,
-    <span class="ident">MIN_CAR_LENGTH</span>,
+    <span class="ident">AgentID</span>, <span class="ident">AlertLocation</span>, <span class="ident">Analytics</span>, <span class="ident">CarID</span>, <span class="ident">Command</span>, <span class="ident">CreateCar</span>, <span class="ident">DrivingSimState</span>, <span class="ident">Event</span>,
+    <span class="ident">IntersectionSimState</span>, <span class="ident">OrigPersonID</span>, <span class="ident">PandemicModel</span>, <span class="ident">ParkedCar</span>, <span class="ident">ParkingSim</span>, <span class="ident">ParkingSimState</span>,
+    <span class="ident">ParkingSpot</span>, <span class="ident">Person</span>, <span class="ident">PersonID</span>, <span class="ident">Router</span>, <span class="ident">Scheduler</span>, <span class="ident">SidewalkPOI</span>, <span class="ident">SidewalkSpot</span>, <span class="ident">StartTripArgs</span>,
+    <span class="ident">TrafficRecorder</span>, <span class="ident">TransitSimState</span>, <span class="ident">TripID</span>, <span class="ident">TripInfo</span>, <span class="ident">TripManager</span>, <span class="ident">TripPhaseType</span>, <span class="ident">Vehicle</span>,
+    <span class="ident">VehicleSpec</span>, <span class="ident">VehicleType</span>, <span class="ident">WalkingSimState</span>, <span class="ident">BUS_LENGTH</span>, <span class="ident">LIGHT_RAIL_LENGTH</span>, <span class="ident">MIN_CAR_LENGTH</span>,
 };
 
 <span class="kw">mod</span> <span class="ident">queries</span>;
@@ -1083,7 +1058,6 @@
     <span class="ident">walking</span>: <span class="ident">WalkingSimState</span>,
     <span class="ident">intersections</span>: <span class="ident">IntersectionSimState</span>,
     <span class="ident">transit</span>: <span class="ident">TransitSimState</span>,
-    <span class="ident">cap</span>: <span class="ident">CapSimState</span>,
     <span class="ident">trips</span>: <span class="ident">TripManager</span>,
     <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">skip_serializing</span>, <span class="ident">skip_deserializing</span>)]</span>
     <span class="ident">pandemic</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PandemicModel</span><span class="op">&gt;</span>,
@@ -1111,7 +1085,6 @@
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">Ctx</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">pub</span> <span class="ident">parking</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">ParkingSimState</span>,
     <span class="kw">pub</span> <span class="ident">intersections</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">IntersectionSimState</span>,
-    <span class="kw">pub</span> <span class="ident">cap</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">CapSimState</span>,
     <span class="kw">pub</span> <span class="ident">scheduler</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">Scheduler</span>,
     <span class="kw">pub</span> <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Map</span>,
     <span class="doccomment">/// If present, live map edits are being processed, and the agents specified are in the process</span>
@@ -1152,13 +1125,6 @@
     <span class="doccomment">/// agent. Obviously this destroys realism of the simulation, but can be used to debug</span>
     <span class="doccomment">/// gridlock. Also implies freeform_policy, so vehicles ignore traffic signals.</span>
     <span class="kw">pub</span> <span class="ident">disable_turn_conflicts</span>: <span class="ident">bool</span>,
-    <span class="doccomment">/// If present, cancel any driving trips who will pass through a road currently experiencing</span>
-    <span class="doccomment">/// delays beyond this threshold.</span>
-    <span class="kw">pub</span> <span class="ident">cancel_drivers_delay_threshold</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// Instead of cancelling trips due to `cancel_drivers_delay_threshold` or congestion capping,</span>
-    <span class="doccomment">/// delay the start of the trip by this amount, and try again. If conditions are still</span>
-    <span class="doccomment">/// problematic, repeat a fixed 3 times before cancelling.</span>
-    <span class="kw">pub</span> <span class="ident">delay_trips_instead_of_cancelling</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>,
     <span class="doccomment">/// Don&#39;t collect any analytics. Only useful for benchmarking and debugging gridlock more</span>
     <span class="doccomment">/// quickly.</span>
     <span class="kw">pub</span> <span class="ident">skip_analytics</span>: <span class="ident">bool</span>,
@@ -1197,10 +1163,6 @@
                 .<span class="ident">unwrap_or</span>(<span class="ident">AlertHandler::Print</span>),
             <span class="ident">infinite_parking</span>: <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--infinite_parking&quot;</span>),
             <span class="ident">disable_turn_conflicts</span>: <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--disable_turn_conflicts&quot;</span>),
-            <span class="ident">cancel_drivers_delay_threshold</span>: <span class="ident">args</span>
-                .<span class="ident">optional_parse</span>(<span class="string">&quot;--cancel_drivers_delay_threshold&quot;</span>, <span class="ident">Duration::parse</span>),
-            <span class="ident">delay_trips_instead_of_cancelling</span>: <span class="ident">args</span>
-                .<span class="ident">optional_parse</span>(<span class="string">&quot;--delay_trips_instead_of_cancelling&quot;</span>, <span class="ident">Duration::parse</span>),
             <span class="ident">skip_analytics</span>: <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--skip_analytics&quot;</span>),
         }
     }
@@ -1235,8 +1197,6 @@
             <span class="ident">alerts</span>: <span class="ident">AlertHandler::Print</span>,
             <span class="ident">infinite_parking</span>: <span class="bool-val">false</span>,
             <span class="ident">disable_turn_conflicts</span>: <span class="bool-val">false</span>,
-            <span class="ident">cancel_drivers_delay_threshold</span>: <span class="prelude-val">None</span>,
-            <span class="ident">delay_trips_instead_of_cancelling</span>: <span class="prelude-val">None</span>,
             <span class="ident">skip_analytics</span>: <span class="bool-val">false</span>,
         }
     }
@@ -1253,7 +1213,6 @@
             <span class="ident">walking</span>: <span class="ident">WalkingSimState::new</span>(),
             <span class="ident">intersections</span>: <span class="ident">IntersectionSimState::new</span>(<span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">scheduler</span>, <span class="kw-2">&amp;</span><span class="ident">opts</span>),
             <span class="ident">transit</span>: <span class="ident">TransitSimState::new</span>(<span class="ident">map</span>),
-            <span class="ident">cap</span>: <span class="ident">CapSimState::new</span>(<span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="ident">opts</span>),
             <span class="ident">trips</span>: <span class="ident">TripManager::new</span>(),
             <span class="ident">pandemic</span>: <span class="ident">opts</span>.<span class="ident">enable_pandemic_model</span>.<span class="ident">map</span>(<span class="ident">PandemicModel::new</span>),
             <span class="ident">scheduler</span>,
@@ -1480,7 +1439,6 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ctx</span> <span class="op">=</span> <span class="ident">Ctx</span> {
             <span class="ident">parking</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">parking</span>,
             <span class="ident">intersections</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">intersections</span>,
-            <span class="ident">cap</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">cap</span>,
             <span class="ident">scheduler</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">scheduler</span>,
             <span class="ident">map</span>,
             <span class="ident">handling_live_edits</span>: <span class="prelude-val">None</span>,
@@ -1844,10 +1802,6 @@
                 <span class="ident">prettyprint_usize</span>(<span class="ident">serialized_size_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">transit</span>))
             );
             <span class="macro">println!</span>(
-                <span class="string">&quot;- cap: {} bytes&quot;</span>,
-                <span class="ident">prettyprint_usize</span>(<span class="ident">serialized_size_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">cap</span>))
-            );
-            <span class="macro">println!</span>(
                 <span class="string">&quot;- trips: {} bytes&quot;</span>,
                 <span class="ident">prettyprint_usize</span>(<span class="ident">serialized_size_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">trips</span>))
             );
@@ -1898,7 +1852,6 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ctx</span> <span class="op">=</span> <span class="ident">Ctx</span> {
             <span class="ident">parking</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">parking</span>,
             <span class="ident">intersections</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">intersections</span>,
-            <span class="ident">cap</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">cap</span>,
             <span class="ident">scheduler</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">scheduler</span>,
             <span class="ident">map</span>,
             <span class="ident">handling_live_edits</span>: <span class="prelude-val">Some</span>(<span class="ident">affected_agents</span>),
@@ -2014,7 +1967,6 @@
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ctx</span> <span class="op">=</span> <span class="ident">Ctx</span> {
                 <span class="ident">parking</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">parking</span>,
                 <span class="ident">intersections</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">intersections</span>,
-                <span class="ident">cap</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">cap</span>,
                 <span class="ident">scheduler</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">scheduler</span>,
                 <span class="ident">map</span>,
                 <span class="ident">handling_live_edits</span>: <span class="prelude-val">None</span>,

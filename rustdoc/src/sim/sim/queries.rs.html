@@ -547,10 +547,6 @@
 <span id="544">544</span>
 <span id="545">545</span>
 <span id="546">546</span>
-<span id="547">547</span>
-<span id="548">548</span>
-<span id="549">549</span>
-<span id="550">550</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! All sorts of read-only queries about a simulation</span>
 
@@ -562,7 +558,7 @@
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">PolyLine</span>, <span class="ident">Pt2D</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{
     <span class="ident">BuildingID</span>, <span class="ident">BusRouteID</span>, <span class="ident">BusStopID</span>, <span class="ident">IntersectionID</span>, <span class="ident">Lane</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">Path</span>, <span class="ident">PathConstraints</span>,
-    <span class="ident">Position</span>, <span class="ident">RoadID</span>, <span class="ident">Traversable</span>, <span class="ident">TurnID</span>,
+    <span class="ident">Position</span>, <span class="ident">Traversable</span>, <span class="ident">TurnID</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::analytics::SlidingWindow</span>;
@@ -942,10 +938,6 @@
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">generate_scenario</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">name</span>: <span class="ident">String</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Scenario</span> {
         <span class="self">self</span>.<span class="ident">trips</span>.<span class="ident">generate_scenario</span>(<span class="ident">map</span>, <span class="ident">name</span>)
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_cap_counter</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">r</span>: <span class="ident">RoadID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
-        <span class="self">self</span>.<span class="ident">cap</span>.<span class="ident">get_cap_counter</span>(<span class="ident">r</span>)
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">infinite_parking</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {

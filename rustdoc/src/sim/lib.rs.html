@@ -648,8 +648,6 @@
 <span id="645">645</span>
 <span id="646">646</span>
 <span id="647">647</span>
-<span id="648">648</span>
-<span id="649">649</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! The sim crate runs a traffic simulation on top of the map_model. See also</span>
 <span class="doccomment">//! https://a-b-street.github.io/docs/tech/trafficsim/index.html.</span>
@@ -687,7 +685,6 @@
 };
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::analytics</span>::{<span class="ident">Analytics</span>, <span class="ident">Problem</span>, <span class="ident">SlidingWindow</span>, <span class="ident">TripPhase</span>};
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="self">self</span><span class="ident">::cap::CapSimState</span>;
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="self">self</span><span class="ident">::events::Event</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::events</span>::{<span class="ident">AlertLocation</span>, <span class="ident">TripPhaseType</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::make</span>::{
@@ -710,7 +707,6 @@
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="self">self</span><span class="ident">::trips</span>::{<span class="ident">TripLeg</span>, <span class="ident">TripManager</span>};
 
 <span class="kw">mod</span> <span class="ident">analytics</span>;
-<span class="kw">mod</span> <span class="ident">cap</span>;
 <span class="kw">mod</span> <span class="ident">events</span>;
 <span class="kw">mod</span> <span class="ident">make</span>;
 <span class="kw">mod</span> <span class="ident">mechanics</span>;

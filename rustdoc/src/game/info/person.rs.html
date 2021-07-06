@@ -730,11 +730,6 @@
 <span id="727">727</span>
 <span id="728">728</span>
 <span id="729">729</span>
-<span id="730">730</span>
-<span id="731">731</span>
-<span id="732">732</span>
-<span id="733">733</span>
-<span id="734">734</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std::collections::BTreeMap</span>;
 
@@ -917,11 +912,6 @@
             .<span class="ident">margin_right</span>(<span class="number">21</span>),
             <span class="kw">if</span> <span class="ident">trip</span>.<span class="ident">modified</span> {
                 <span class="ident">Line</span>(<span class="string">&quot;modified&quot;</span>).<span class="ident">batch</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>().<span class="ident">margin_right</span>(<span class="number">15</span>)
-            } <span class="kw">else</span> {
-                <span class="ident">Widget::nothing</span>()
-            },
-            <span class="kw">if</span> <span class="ident">trip</span>.<span class="ident">capped</span> {
-                <span class="ident">Line</span>(<span class="string">&quot;capped&quot;</span>).<span class="ident">batch</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>().<span class="ident">margin_right</span>(<span class="number">15</span>)
             } <span class="kw">else</span> {
                 <span class="ident">Widget::nothing</span>()
             },

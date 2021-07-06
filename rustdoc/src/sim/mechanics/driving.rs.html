@@ -1655,6 +1655,8 @@
 <span id="1652">1652</span>
 <span id="1653">1653</span>
 <span id="1654">1654</span>
+<span id="1655">1655</span>
+<span id="1656">1656</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>, <span class="ident">VecDeque</span>};
 
@@ -1765,11 +1767,13 @@
                 <span class="ident">start_dist</span> <span class="op">+</span><span class="op">=</span> <span class="ident">params</span>.<span class="ident">vehicle</span>.<span class="ident">length</span>;
                 <span class="comment">// TODO Should we also adjust the request?</span>
                 <span class="kw">if</span> <span class="ident">start_dist</span> <span class="op">&gt;</span> <span class="ident">ctx</span>.<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">first_lane</span>).<span class="ident">length</span>() {
-                    <span class="comment">// I&#39;m not sure if this can happen in practice; we&#39;ll find out if so.</span>
-                    <span class="macro">panic!</span>(
+                    <span class="macro">error!</span>(
                         <span class="string">&quot;At {}, {} needs to exit a driveway at {} on {}, but they overflow&quot;</span>,
                         <span class="ident">now</span>, <span class="ident">params</span>.<span class="ident">vehicle</span>.<span class="ident">id</span>, <span class="ident">start_dist</span>, <span class="ident">first_lane</span>
                     );
+                    <span class="comment">// Ideally we&#39;d snap driveways to a point such that all equivalent positions</span>
+                    <span class="comment">// don&#39;t overflow, but until then, just have an unrealistic exit!</span>
+                    <span class="ident">start_dist</span> <span class="op">-</span><span class="op">=</span> <span class="ident">params</span>.<span class="ident">vehicle</span>.<span class="ident">length</span>;
                 }
             }
         }

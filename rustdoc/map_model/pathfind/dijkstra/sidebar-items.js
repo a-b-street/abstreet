@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["build_graph_for_pedestrians",""],["build_graph_for_vehicles",""],["calc_path",""],["pathfind",""],["pathfind_avoiding_roads",""],["pathfind_walking",""]]});
+initSidebarItems({"fn":[["build_graph_for_pedestrians",""],["build_graph_for_vehicles",""],["calc_path",""],["pathfind",""],["pathfind_walking",""]]});

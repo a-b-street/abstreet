@@ -531,7 +531,6 @@
 <span id="528">528</span>
 <span id="529">529</span>
 <span id="530">530</span>
-<span id="531">531</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashSet</span>, <span class="ident">VecDeque</span>};
 <span class="kw">use</span> <span class="ident">std::fmt</span>;
@@ -704,7 +703,6 @@
                         <span class="ident">end</span>: <span class="ident">trip</span>.<span class="ident">destination</span>,
                         <span class="ident">purpose</span>: <span class="ident">trip</span>.<span class="ident">purpose</span>,
                         <span class="ident">modified</span>: <span class="ident">trip</span>.<span class="ident">modified</span>,
-                        <span class="ident">capped</span>: <span class="bool-val">false</span>,
                         <span class="ident">cancellation_reason</span>: <span class="kw">if</span> <span class="ident">trip</span>.<span class="ident">cancelled</span> {
                             <span class="prelude-val">Some</span>(<span class="string">&quot;cancelled by ScenarioModifier&quot;</span>.<span class="ident">to_string</span>())
                         } <span class="kw">else</span> {

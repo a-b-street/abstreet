@@ -1495,53 +1495,17 @@
 <span id="1492">1492</span>
 <span id="1493">1493</span>
 <span id="1494">1494</span>
-<span id="1495">1495</span>
-<span id="1496">1496</span>
-<span id="1497">1497</span>
-<span id="1498">1498</span>
-<span id="1499">1499</span>
-<span id="1500">1500</span>
-<span id="1501">1501</span>
-<span id="1502">1502</span>
-<span id="1503">1503</span>
-<span id="1504">1504</span>
-<span id="1505">1505</span>
-<span id="1506">1506</span>
-<span id="1507">1507</span>
-<span id="1508">1508</span>
-<span id="1509">1509</span>
-<span id="1510">1510</span>
-<span id="1511">1511</span>
-<span id="1512">1512</span>
-<span id="1513">1513</span>
-<span id="1514">1514</span>
-<span id="1515">1515</span>
-<span id="1516">1516</span>
-<span id="1517">1517</span>
-<span id="1518">1518</span>
-<span id="1519">1519</span>
-<span id="1520">1520</span>
-<span id="1521">1521</span>
-<span id="1522">1522</span>
-<span id="1523">1523</span>
-<span id="1524">1524</span>
-<span id="1525">1525</span>
-<span id="1526">1526</span>
-<span id="1527">1527</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">VecDeque</span>};
 
-<span class="kw">use</span> <span class="ident">anyhow::Result</span>;
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">deserialize_btreemap</span>, <span class="ident">serialize_btreemap</span>, <span class="ident">Counter</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Speed</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{
-    <span class="ident">BuildingID</span>, <span class="ident">BusRouteID</span>, <span class="ident">BusStopID</span>, <span class="ident">IntersectionID</span>, <span class="ident">Map</span>, <span class="ident">Path</span>, <span class="ident">PathConstraints</span>, <span class="ident">PathRequest</span>,
-    <span class="ident">Position</span>,
+    <span class="ident">BuildingID</span>, <span class="ident">BusRouteID</span>, <span class="ident">BusStopID</span>, <span class="ident">IntersectionID</span>, <span class="ident">Map</span>, <span class="ident">PathConstraints</span>, <span class="ident">PathRequest</span>, <span class="ident">Position</span>,
 };
 
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::cap::CapResult</span>;
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::sim::Ctx</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">AgentID</span>, <span class="ident">AgentType</span>, <span class="ident">AlertLocation</span>, <span class="ident">CarID</span>, <span class="ident">Command</span>, <span class="ident">CreateCar</span>, <span class="ident">CreatePedestrian</span>, <span class="ident">DrivingGoal</span>,
@@ -1739,7 +1703,7 @@
                 );
                 <span class="kw">let</span> <span class="ident">person</span> <span class="op">=</span> <span class="ident">person</span>.<span class="ident">id</span>;
 
-                <span class="kw">match</span> <span class="self">self</span>.<span class="ident">maybe_spawn_car</span>(<span class="ident">ctx</span>, <span class="ident">now</span>, <span class="ident">trip</span>, <span class="ident">req</span>, <span class="ident">vehicle</span>.<span class="ident">id</span>) {
+                <span class="kw">match</span> <span class="ident">ctx</span>.<span class="ident">map</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>) {
                     <span class="prelude-val">Ok</span>(<span class="ident">path</span>) <span class="op">=</span><span class="op">&gt;</span> {
                         <span class="kw">let</span> <span class="ident">router</span> <span class="op">=</span> <span class="ident">goal</span>.<span class="ident">make_router</span>(<span class="ident">vehicle</span>.<span class="ident">id</span>, <span class="ident">path</span>, <span class="ident">ctx</span>.<span class="ident">map</span>);
                         <span class="ident">ctx</span>.<span class="ident">scheduler</span>.<span class="ident">push</span>(
@@ -2078,7 +2042,7 @@
 
         <span class="kw">let</span> <span class="ident">person</span> <span class="op">=</span> <span class="ident">trip</span>.<span class="ident">person</span>;
         <span class="kw">let</span> <span class="ident">trip</span> <span class="op">=</span> <span class="ident">trip</span>.<span class="ident">id</span>;
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">maybe_spawn_car</span>(<span class="ident">ctx</span>, <span class="ident">now</span>, <span class="ident">trip</span>, <span class="ident">req</span>, <span class="ident">parked_car</span>.<span class="ident">vehicle</span>.<span class="ident">id</span>) {
+        <span class="kw">match</span> <span class="ident">ctx</span>.<span class="ident">map</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>) {
             <span class="prelude-val">Ok</span>(<span class="ident">path</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="ident">router</span> <span class="op">=</span> <span class="ident">drive_to</span>.<span class="ident">make_router</span>(<span class="ident">parked_car</span>.<span class="ident">vehicle</span>.<span class="ident">id</span>, <span class="ident">path</span>, <span class="ident">ctx</span>.<span class="ident">map</span>);
                 <span class="ident">ctx</span>.<span class="ident">scheduler</span>.<span class="ident">push</span>(
@@ -2489,34 +2453,6 @@
             }
         }
     }
-
-    <span class="doccomment">/// Returns the path to use if successful. Caller is responsible for handling both the success</span>
-    <span class="doccomment">/// and failure case.</span>
-    <span class="kw">fn</span> <span class="ident">maybe_spawn_car</span>(
-        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Ctx</span>,
-        <span class="ident">now</span>: <span class="ident">Time</span>,
-        <span class="ident">trip</span>: <span class="ident">TripID</span>,
-        <span class="ident">req</span>: <span class="ident">PathRequest</span>,
-        <span class="ident">car</span>: <span class="ident">CarID</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">map</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>)<span class="question-mark">?</span>;
-        <span class="kw">match</span> <span class="ident">ctx</span>
-            .<span class="ident">cap</span>
-            .<span class="ident">maybe_cap_path</span>(<span class="ident">path</span>, <span class="ident">now</span>, <span class="ident">car</span>, <span class="ident">ctx</span>.<span class="ident">intersections</span>, <span class="ident">ctx</span>.<span class="ident">map</span>)
-        {
-            <span class="ident">CapResult::OK</span>(<span class="ident">path</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">path</span>),
-            <span class="ident">CapResult::Reroute</span>(<span class="ident">path</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="self">self</span>.<span class="ident">trips</span>[<span class="ident">trip</span>.<span class="number">0</span>].<span class="ident">info</span>.<span class="ident">capped</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                <span class="prelude-val">Ok</span>(<span class="ident">path</span>)
-            }
-            <span class="ident">CapResult::Cancel</span> { <span class="ident">reason</span> } <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="self">self</span>.<span class="ident">trips</span>[<span class="ident">trip</span>.<span class="number">0</span>].<span class="ident">info</span>.<span class="ident">capped</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                <span class="macro">bail!</span>(<span class="ident">reason</span>)
-            }
-            <span class="ident">CapResult::Delay</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">todo!</span>(),
-        }
-    }
 }
 
 <span class="comment">// Cancelling trips</span>
@@ -2888,8 +2824,6 @@
     <span class="kw">pub</span> <span class="ident">purpose</span>: <span class="ident">TripPurpose</span>,
     <span class="doccomment">/// Did a ScenarioModifier apply to this?</span>
     <span class="kw">pub</span> <span class="ident">modified</span>: <span class="ident">bool</span>,
-    <span class="doccomment">/// Was this trip affected by a congestion cap?</span>
-    <span class="kw">pub</span> <span class="ident">capped</span>: <span class="ident">bool</span>,
     <span class="kw">pub</span> <span class="ident">cancellation_reason</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
 }
 

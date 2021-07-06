@@ -1,1 +1,0 @@
-initSidebarItems({"enum":[["CapResult",""]],"struct":[["CapSimState","Dynamically limit driving trips that meet different conditions:"],["Zone",""]],"type":[["ZoneIdx",""]]});

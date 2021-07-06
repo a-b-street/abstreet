@@ -91,8 +91,6 @@
 <span id="88">88</span>
 <span id="89">89</span>
 <span id="90">90</span>
-<span id="91">91</span>
-<span id="92">92</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Zones and AccessRestrictions are used to model things like:</span>
 <span class="doccomment">//! 1) gated communities, where only trips beginning or ending at a building in the neighborhood may</span>
@@ -111,14 +109,12 @@
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">AccessRestrictions</span> {
     <span class="kw">pub</span> <span class="ident">allow_through_traffic</span>: <span class="ident">EnumSet</span><span class="op">&lt;</span><span class="ident">PathConstraints</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">cap_vehicles_per_hour</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">AccessRestrictions</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">AccessRestrictions</span> {
         <span class="ident">AccessRestrictions</span> {
             <span class="ident">allow_through_traffic</span>: <span class="ident">EnumSet::all</span>(),
-            <span class="ident">cap_vehicles_per_hour</span>: <span class="prelude-val">None</span>,
         }
     }
 }

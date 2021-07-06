@@ -293,16 +293,6 @@
 <span id="290">290</span>
 <span id="291">291</span>
 <span id="292">292</span>
-<span id="293">293</span>
-<span id="294">294</span>
-<span id="295">295</span>
-<span id="296">296</span>
-<span id="297">297</span>
-<span id="298">298</span>
-<span id="299">299</span>
-<span id="300">300</span>
-<span id="301">301</span>
-<span id="302">302</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 
@@ -341,16 +331,6 @@
         }
         <span class="kw">if</span> <span class="op">!</span><span class="ident">ban</span>.<span class="ident">is_empty</span>() {
             <span class="ident">kv</span>.<span class="ident">push</span>((<span class="string">&quot;No through-traffic for&quot;</span>, <span class="ident">ban</span>.<span class="ident">join</span>(<span class="string">&quot;, &quot;</span>)));
-        }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">cap</span>) <span class="op">=</span> <span class="ident">r</span>.<span class="ident">access_restrictions</span>.<span class="ident">cap_vehicles_per_hour</span> {
-            <span class="ident">kv</span>.<span class="ident">push</span>((
-                <span class="string">&quot;Cap for vehicles this hour&quot;</span>,
-                <span class="macro">format!</span>(
-                    <span class="string">&quot;{} / {}&quot;</span>,
-                    <span class="ident">prettyprint_usize</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_cap_counter</span>(<span class="ident">r</span>.<span class="ident">id</span>)),
-                    <span class="ident">prettyprint_usize</span>(<span class="ident">cap</span>)
-                ),
-            ));
         }
     }
 
