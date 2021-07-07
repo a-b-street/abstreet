@@ -486,9 +486,15 @@ impl Router {
         .is_some()
     }
 
-    pub fn confirm_lanechange(&mut self, to: LaneID, map: &Map) {
+    pub fn confirm_lanechange(&mut self, to: LaneID, must_return: bool, map: &Map) {
         // No assertions, blind trust!
+        // Always modify the current step!
         self.path.modify_step(0, PathStep::Lane(to), map);
+        // If we're going to return to the original lane, don't mess with the rest of the path yet
+        // -- we'll undo this change soon.
+        if must_return {
+            return;
+        }
         let mut turn = match self.path.get_steps()[1] {
             PathStep::Turn(t) => t,
             _ => unreachable!(),

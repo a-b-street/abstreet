@@ -329,10 +329,12 @@ pub(crate) enum CarState {
         new_dist: DistanceInterval,
         // How long does the lane-changing itself last? This must end before new_time_int does.
         lc_time: TimeInterval,
+        must_return: bool,
     },
     Queued {
         blocked_since: Time,
-        want_to_change_lanes: Option<LaneID>,
+        // (target lane, do we have to return to the original lane to preserve the path?)
+        want_to_change_lanes: Option<(LaneID, bool)>,
     },
     WaitingToAdvance {
         blocked_since: Time,
