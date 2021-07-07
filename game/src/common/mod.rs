@@ -310,6 +310,13 @@ impl CommonState {
         if ctx.input.pressed(lctrl(Key::J)) {
             return Some(Transition::Push(warp::DebugWarp::new_state(ctx)));
         }
+        if app.secondary.is_some() && ctx.input.pressed(lctrl(Key::Tab)) {
+            // This swaps the primary and secondary PerMaps. Depending on what state the rest of
+            // the app is in, things like IDs might totally change! This is very much a debug tool.
+            let secondary = app.secondary.take().unwrap();
+            let primary = std::mem::replace(&mut app.primary, secondary);
+            app.secondary = Some(primary);
+        }
         None
     }
 }

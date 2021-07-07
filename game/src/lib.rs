@@ -126,6 +126,7 @@ fn run(mut settings: Settings) {
         mode = Some(sandbox::GameplayMode::Actdev(name, scenario, false));
     }
     let load_kml = args.optional("--kml");
+    let diff_map = args.optional("--diff");
 
     args.done();
 
@@ -140,6 +141,7 @@ fn run(mut settings: Settings) {
             center_camera,
             start_time,
             load_kml,
+            diff_map,
         )
     });
 }
@@ -154,6 +156,7 @@ fn setup_app(
     center_camera: Option<String>,
     start_time: Option<Duration>,
     load_kml: Option<String>,
+    diff_map: Option<String>,
 ) -> (App, Vec<Box<dyn State<App>>>) {
     let title = !opts.dev
         && !flags.sim_flags.load.contains("player/save")
@@ -186,6 +189,18 @@ fn setup_app(
     }
     let cs = map_gui::colors::ColorScheme::new(ctx, opts.color_scheme);
 
+    // No web support; this uses blocking IO
+    let secondary = diff_map.map(|path| {
+        ctx.loading_screen("load secondary map", |ctx, mut timer| {
+            // Use this low-level API, since the secondary map file probably isn't in the usual
+            // directory structure
+            let mut map: Map = abstio::read_binary(path, &mut timer);
+            map.map_loaded_directly();
+            let sim = Sim::new(&map, flags.sim_flags.opts.clone());
+            crate::app::PerMap::map_loaded(map, sim, flags.clone(), &opts, &cs, ctx, &mut timer)
+        })
+    });
+
     // SimFlags::load doesn't know how to do async IO, which we need on the web. But in the common
     // case, all we're creating there is a map. If so, use the proper async interface.
     //
@@ -206,6 +221,7 @@ fn setup_app(
         );
         let app = App {
             primary,
+            secondary,
             cs,
             opts,
             per_obj: crate::app::PerObjectActions::new(),
@@ -239,8 +255,10 @@ fn setup_app(
             let (map, sim, _) = flags.sim_flags.load_synchronously(timer);
             crate::app::PerMap::map_loaded(map, sim, flags, &opts, &cs, ctx, &mut timer)
         });
+        assert!(secondary.is_none());
         let mut app = App {
             primary,
+            secondary,
             cs,
             opts,
             per_obj: crate::app::PerObjectActions::new(),
@@ -352,6 +370,20 @@ fn finish_app_setup(
             vec![SandboxMode::simple_new(app, mode)]
         }
     } else {
+        // Not attempting to keep the primary and secondary simulations synchronized at the same
+        // time yet. Just handle this one startup case, so we can switch maps without constantly
+        // flopping day/night mode.
+        if let Some(ref mut secondary) = app.secondary {
+            secondary.sim.timed_step(
+                &secondary.map,
+                // And actually, make it easier to distinguish the two maps by setting the
+                // alternate in the future slightly!
+                Duration::hours(6) + Duration::minutes(30),
+                &mut None,
+                &mut Timer::throwaway(),
+            );
+        }
+
         // We got here by just passing --dev and a map as flags; we're just looking at an empty
         // map. Start in the daytime.
         vec![SandboxMode::async_new(

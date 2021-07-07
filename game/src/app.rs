@@ -29,9 +29,10 @@ pub type Transition = widgetry::Transition<App>;
 
 /// The top-level data that lasts through the entire game, no matter what state the game is in.
 pub struct App {
-    // Naming is from older days when there was an A/B test, "side-by-side" mode. Keeping this
-    // naming, because that mode will return someday.
     pub primary: PerMap,
+    /// This is only used right now for a debug mode to compare two versions of the same map. In
+    /// the future, it might be used for some kind of live "side-by-side" comparison.
+    pub secondary: Option<PerMap>,
     pub cs: ColorScheme,
     pub opts: Options,
 
