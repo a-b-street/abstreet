@@ -860,6 +860,7 @@
 <span id="857">857</span>
 <span id="858">858</span>
 <span id="859">859</span>
+<span id="860">860</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std::cell::RefCell</span>;
 <span class="kw">use</span> <span class="ident">std::collections::BTreeMap</span>;
@@ -892,9 +893,10 @@
 
 <span class="doccomment">/// The top-level data that lasts through the entire game, no matter what state the game is in.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">App</span> {
-    <span class="comment">// Naming is from older days when there was an A/B test, &quot;side-by-side&quot; mode. Keeping this</span>
-    <span class="comment">// naming, because that mode will return someday.</span>
     <span class="kw">pub</span> <span class="ident">primary</span>: <span class="ident">PerMap</span>,
+    <span class="doccomment">/// This is only used right now for a debug mode to compare two versions of the same map. In</span>
+    <span class="doccomment">/// the future, it might be used for some kind of live &quot;side-by-side&quot; comparison.</span>
+    <span class="kw">pub</span> <span class="ident">secondary</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PerMap</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">cs</span>: <span class="ident">ColorScheme</span>,
     <span class="kw">pub</span> <span class="ident">opts</span>: <span class="ident">Options</span>,
 
