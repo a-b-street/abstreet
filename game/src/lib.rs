@@ -36,6 +36,18 @@ pub fn main() {
     run(settings);
 }
 
+struct Setup {
+    flags: Flags,
+    opts: Options,
+    start_with_edits: Option<String>,
+    maybe_mode: Option<GameplayMode>,
+    initialize_tutorial: bool,
+    center_camera: Option<String>,
+    start_time: Option<Duration>,
+    load_kml: Option<String>,
+    diff_map: Option<String>,
+}
+
 fn run(mut settings: Settings) {
     settings = settings
         .read_svg(Box::new(abstio::slurp_bytes))
@@ -49,15 +61,26 @@ fn run(mut settings: Settings) {
         challenges::prebake::prebake_all();
         return;
     }
-    let mut flags = Flags {
-        sim_flags: SimFlags::from_args(&mut args),
-        live_map_edits: args.enabled("--live_map_edits"),
-        study_area: args.optional("--study_area"),
+
+    let mut setup = Setup {
+        flags: Flags {
+            sim_flags: SimFlags::from_args(&mut args),
+            live_map_edits: args.enabled("--live_map_edits"),
+            study_area: args.optional("--study_area"),
+        },
+        opts: Options::load_or_default(),
+        start_with_edits: args.optional("--edits"),
+        maybe_mode: None,
+        initialize_tutorial: false,
+        center_camera: args.optional("--cam"),
+        start_time: args.optional_parse("--time", |t| Duration::parse(t)),
+        load_kml: args.optional("--kml"),
+        diff_map: args.optional("--diff"),
     };
-    let mut opts = Options::load_or_default();
-    settings = settings.canvas_settings(opts.canvas_settings.clone());
-    opts.toggle_day_night_colors = true;
-    opts.update_from_args(&mut args);
+
+    settings = settings.canvas_settings(setup.opts.canvas_settings.clone());
+    setup.opts.toggle_day_night_colors = true;
+    setup.opts.update_from_args(&mut args);
 
     if args.enabled("--dump_raw_events") {
         settings = settings.dump_raw_events();
@@ -66,46 +89,41 @@ fn run(mut settings: Settings) {
         settings = settings.scale_factor(s);
     }
 
-    let mut mode = None;
-    let mut initialize_tutorial = false;
     if let Some(x) = args.optional("--challenge") {
         let mut aliases = Vec::new();
         'OUTER: for (_, stages) in challenges::Challenge::all() {
             for challenge in stages {
                 if challenge.alias == x {
-                    flags.sim_flags.load = challenge.gameplay.map_name().path();
-                    mode = Some(challenge.gameplay);
+                    setup.flags.sim_flags.load = challenge.gameplay.map_name().path();
+                    setup.maybe_mode = Some(challenge.gameplay);
                     break 'OUTER;
                 } else {
                     aliases.push(challenge.alias);
                 }
             }
         }
-        if mode.is_none() {
+        if setup.maybe_mode.is_none() {
             panic!("Invalid --challenge={}. Choices: {}", x, aliases.join(", "));
         }
     }
     if let Some(n) = args.optional_parse("--tutorial", |s| s.parse::<usize>()) {
-        initialize_tutorial = true;
-        mode = Some(sandbox::GameplayMode::Tutorial(
+        setup.initialize_tutorial = true;
+        setup.maybe_mode = Some(sandbox::GameplayMode::Tutorial(
             sandbox::TutorialPointer::new(n - 1, 0),
         ));
     }
 
     // Don't keep the scenario modifiers in the original sim_flags; they shouldn't apply to
     // other scenarios loaed in the UI later.
-    let modifiers = flags.sim_flags.modifiers.drain(..).collect();
+    let modifiers = setup.flags.sim_flags.modifiers.drain(..).collect();
 
-    if mode.is_none() && flags.sim_flags.load.contains("scenarios/") {
-        let (map_name, scenario) = abstio::parse_scenario_path(&flags.sim_flags.load);
-        flags.sim_flags.load = map_name.path();
-        mode = Some(sandbox::GameplayMode::PlayScenario(
+    if setup.maybe_mode.is_none() && setup.flags.sim_flags.load.contains("scenarios/") {
+        let (map_name, scenario) = abstio::parse_scenario_path(&setup.flags.sim_flags.load);
+        setup.flags.sim_flags.load = map_name.path();
+        setup.maybe_mode = Some(sandbox::GameplayMode::PlayScenario(
             map_name, scenario, modifiers,
         ));
     }
-    let start_with_edits = args.optional("--edits");
-    let center_camera = args.optional("--cam");
-    let start_time = args.optional_parse("--time", |t| Duration::parse(t));
 
     if let Some(site) = args.optional("--actdev") {
         // Handle if the site was accidentally passed in with underscores. Otherwise, some study
@@ -113,63 +131,37 @@ fn run(mut settings: Settings) {
         let site = site.replace("_", "-");
         let city = site.replace("-", "_");
         let name = MapName::new("gb", &city, "center");
-        flags.sim_flags.load = name.path();
-        flags.study_area = Some(site);
+        setup.flags.sim_flags.load = name.path();
+        setup.flags.study_area = Some(site);
         // Parking data in the actdev maps is nonexistent, so many people have convoluted walking
         // routes just to fetch their car. Just disable parking entirely.
-        flags.sim_flags.opts.infinite_parking = true;
+        setup.flags.sim_flags.opts.infinite_parking = true;
         let scenario = if args.optional("--actdev_scenario") == Some("go_active".to_string()) {
             "go_active".to_string()
         } else {
             "base".to_string()
         };
-        mode = Some(sandbox::GameplayMode::Actdev(name, scenario, false));
+        setup.maybe_mode = Some(sandbox::GameplayMode::Actdev(name, scenario, false));
     }
-    let load_kml = args.optional("--kml");
-    let diff_map = args.optional("--diff");
 
     args.done();
 
-    widgetry::run(settings, |ctx| {
-        setup_app(
-            ctx,
-            flags,
-            opts,
-            start_with_edits,
-            mode,
-            initialize_tutorial,
-            center_camera,
-            start_time,
-            load_kml,
-            diff_map,
-        )
-    });
+    widgetry::run(settings, |ctx| setup_app(ctx, setup))
 }
 
-fn setup_app(
-    ctx: &mut EventCtx,
-    mut flags: Flags,
-    mut opts: Options,
-    start_with_edits: Option<String>,
-    maybe_mode: Option<GameplayMode>,
-    initialize_tutorial: bool,
-    center_camera: Option<String>,
-    start_time: Option<Duration>,
-    load_kml: Option<String>,
-    diff_map: Option<String>,
-) -> (App, Vec<Box<dyn State<App>>>) {
-    let title = !opts.dev
-        && !flags.sim_flags.load.contains("player/save")
-        && !flags.sim_flags.load.contains("/scenarios/")
-        && maybe_mode.is_none();
+fn setup_app(ctx: &mut EventCtx, mut setup: Setup) -> (App, Vec<Box<dyn State<App>>>) {
+    let title = !setup.opts.dev
+        && !setup.flags.sim_flags.load.contains("player/save")
+        && !setup.flags.sim_flags.load.contains("/scenarios/")
+        && setup.maybe_mode.is_none();
 
     // Load the map used previously if we're starting on the title screen without any overrides.
-    if title && flags.sim_flags.load == MapName::seattle("montlake").path() {
+    if title && setup.flags.sim_flags.load == MapName::seattle("montlake").path() {
         if let Ok(default) = abstio::maybe_read_json::<map_gui::tools::DefaultMap>(
             abstio::path_player("maps.json"),
             &mut Timer::throwaway(),
         ) {
-            flags.sim_flags.load = default.last_map.path();
+            setup.flags.sim_flags.load = default.last_map.path();
         }
     }
 
@@ -180,24 +172,32 @@ fn setup_app(
     if let Some(GameplayMode::PlayScenario(_, _, _))
     | Some(GameplayMode::FixTrafficSignals)
     | Some(GameplayMode::OptimizeCommute(_, _))
-    | Some(GameplayMode::Tutorial(_)) = maybe_mode
+    | Some(GameplayMode::Tutorial(_)) = setup.maybe_mode
     {
-        opts.color_scheme = map_gui::colors::ColorSchemeChoice::NightMode;
+        setup.opts.color_scheme = map_gui::colors::ColorSchemeChoice::NightMode;
     }
     if title {
-        opts.color_scheme = map_gui::colors::ColorSchemeChoice::Pregame;
+        setup.opts.color_scheme = map_gui::colors::ColorSchemeChoice::Pregame;
     }
-    let cs = map_gui::colors::ColorScheme::new(ctx, opts.color_scheme);
+    let cs = map_gui::colors::ColorScheme::new(ctx, setup.opts.color_scheme);
 
     // No web support; this uses blocking IO
-    let secondary = diff_map.map(|path| {
+    let secondary = setup.diff_map.as_ref().map(|path| {
         ctx.loading_screen("load secondary map", |ctx, mut timer| {
             // Use this low-level API, since the secondary map file probably isn't in the usual
             // directory structure
-            let mut map: Map = abstio::read_binary(path, &mut timer);
+            let mut map: Map = abstio::read_binary(path.clone(), &mut timer);
             map.map_loaded_directly();
-            let sim = Sim::new(&map, flags.sim_flags.opts.clone());
-            crate::app::PerMap::map_loaded(map, sim, flags.clone(), &opts, &cs, ctx, &mut timer)
+            let sim = Sim::new(&map, setup.flags.sim_flags.opts.clone());
+            crate::app::PerMap::map_loaded(
+                map,
+                sim,
+                setup.flags.clone(),
+                &setup.opts,
+                &cs,
+                ctx,
+                &mut timer,
+            )
         })
     });
 
@@ -206,15 +206,15 @@ fn setup_app(
     //
     // Note if we started with a scenario, main() rewrote it to be the appropriate map, along with
     // maybe_mode.
-    if flags.sim_flags.load.contains("/maps/") {
+    if setup.flags.sim_flags.load.contains("/maps/") {
         // Get App created with a dummy blank map
         let map = Map::blank();
-        let sim = Sim::new(&map, flags.sim_flags.opts.clone());
+        let sim = Sim::new(&map, setup.flags.sim_flags.opts.clone());
         let primary = crate::app::PerMap::map_loaded(
             map,
             sim,
-            flags,
-            &opts,
+            setup.flags.clone(),
+            &setup.opts,
             &cs,
             ctx,
             &mut Timer::throwaway(),
@@ -223,7 +223,7 @@ fn setup_app(
             primary,
             secondary,
             cs,
-            opts,
+            opts: setup.opts.clone(),
             per_obj: crate::app::PerObjectActions::new(),
             session: crate::app::SessionState::empty(),
         };
@@ -232,50 +232,36 @@ fn setup_app(
             ctx,
             &app,
             map_name,
-            Box::new(move |ctx, app| {
-                Transition::Clear(finish_app_setup(
-                    ctx,
-                    app,
-                    title,
-                    start_with_edits,
-                    maybe_mode,
-                    initialize_tutorial,
-                    center_camera,
-                    start_time,
-                    load_kml,
-                ))
-            }),
+            Box::new(move |ctx, app| Transition::Clear(finish_app_setup(ctx, app, title, setup))),
         )];
         (app, states)
     } else {
         // We're loading a savestate or a RawMap. Do it with blocking IO. This won't
         // work on the web.
         let primary = ctx.loading_screen("load map", |ctx, mut timer| {
-            assert!(flags.sim_flags.modifiers.is_empty());
-            let (map, sim, _) = flags.sim_flags.load_synchronously(timer);
-            crate::app::PerMap::map_loaded(map, sim, flags, &opts, &cs, ctx, &mut timer)
+            assert!(setup.flags.sim_flags.modifiers.is_empty());
+            let (map, sim, _) = setup.flags.sim_flags.load_synchronously(timer);
+            crate::app::PerMap::map_loaded(
+                map,
+                sim,
+                setup.flags.clone(),
+                &setup.opts,
+                &cs,
+                ctx,
+                &mut timer,
+            )
         });
         assert!(secondary.is_none());
         let mut app = App {
             primary,
             secondary,
             cs,
-            opts,
+            opts: setup.opts.clone(),
             per_obj: crate::app::PerObjectActions::new(),
             session: crate::app::SessionState::empty(),
         };
 
-        let states = finish_app_setup(
-            ctx,
-            &mut app,
-            title,
-            start_with_edits,
-            maybe_mode,
-            initialize_tutorial,
-            center_camera,
-            start_time,
-            load_kml,
-        );
+        let states = finish_app_setup(ctx, &mut app, title, setup);
         (app, states)
     }
 }
@@ -284,15 +270,11 @@ fn finish_app_setup(
     ctx: &mut EventCtx,
     app: &mut App,
     title: bool,
-    start_with_edits: Option<String>,
-    maybe_mode: Option<GameplayMode>,
-    initialize_tutorial: bool,
-    center_camera: Option<String>,
-    start_time: Option<Duration>,
-    load_kml: Option<String>,
+    setup: Setup,
 ) -> Vec<Box<dyn State<App>>> {
-    if let Some((pt, zoom)) =
-        center_camera.and_then(|cam| URLManager::parse_center_camera(app, cam))
+    if let Some((pt, zoom)) = setup
+        .center_camera
+        .and_then(|cam| URLManager::parse_center_camera(app, cam))
     {
         ctx.canvas.cam_zoom = zoom;
         ctx.canvas.center_on_map_pt(pt);
@@ -308,7 +290,7 @@ fn finish_app_setup(
         .load
         .contains("player/saves/")
     {
-        assert!(maybe_mode.is_none());
+        assert!(setup.maybe_mode.is_none());
         Some(app.primary.clear_sim())
     } else {
         None
@@ -316,7 +298,7 @@ fn finish_app_setup(
 
     // Just apply this here, don't plumb to SimFlags or anything else. We recreate things using
     // these flags later, but we don't want to keep applying the same edits.
-    if let Some(edits_name) = start_with_edits {
+    if let Some(edits_name) = setup.start_with_edits {
         // TODO Maybe loading screen
         let mut timer = Timer::new("apply initial edits");
         let edits = map_model::MapEdits::load(
@@ -339,11 +321,11 @@ fn finish_app_setup(
         app.primary.clear_sim();
     }
 
-    if initialize_tutorial {
+    if setup.initialize_tutorial {
         crate::sandbox::gameplay::Tutorial::initialize(ctx, app);
     }
 
-    let states: Vec<Box<dyn State<App>>> = if let Some(path) = load_kml {
+    let states: Vec<Box<dyn State<App>>> = if let Some(path) = setup.load_kml {
         vec![
             Box::new(TitleScreen::new(ctx, app)),
             crate::devtools::kml::ViewKML::new_state(ctx, app, Some(path)),
@@ -353,14 +335,14 @@ fn finish_app_setup(
     } else if let Some(ss) = savestate {
         app.primary.sim = ss;
         vec![SandboxMode::start_from_savestate(app)]
-    } else if let Some(mode) = maybe_mode {
+    } else if let Some(mode) = setup.maybe_mode {
         if let GameplayMode::Actdev(_, _, _) = mode {
             vec![SandboxMode::async_new(
                 app,
                 mode,
                 jump_to_time_upon_startup(Duration::hours(8)),
             )]
-        } else if let Some(t) = start_time {
+        } else if let Some(t) = setup.start_time {
             vec![SandboxMode::async_new(
                 app,
                 mode,
