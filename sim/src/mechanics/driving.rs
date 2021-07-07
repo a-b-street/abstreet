@@ -572,8 +572,10 @@ impl DrivingSimState {
                     .clear_dynamic_blockage(car.vehicle.id, idx);
 
                 if must_return {
+                    // The slowpoke is directly in front of the first dynamic blockage. Let's warp
+                    // in front of them.
                     assert!(idx != 0);
-                    let return_idx = idx - 1;
+                    let slowpoke_front = dists[idx - 1].front;
 
                     // ASAP exit the old queue (leaving a dynamic blockage in place)
                     // TODO uhh whats the index?
@@ -591,12 +593,22 @@ impl DrivingSimState {
                     self.queues
                         .get_mut(&car.router.head())
                         .unwrap()
-                        .insert_car_at_idx(return_idx, car);
+                        .insert_car_at_idx(idx - 1, car);
+
+                    // And recalculate the crossing intervals, using the slowpoke's front
+                    // (Note this shadows the variables from the match)
+                    let (new_time, new_dist) = match car.crossing_state_with_end_dist(
+                        DistanceInterval::new_driving(slowpoke_front + car.vehicle.length + FOLLOWING_DISTANCE, ctx.map.get_l(from).length()),
+                        now,
+                        ctx.map,
+                    ) {
+                        CarState::Crossing(time, dist) => (time, dist),
+                        _ => unreachable!(),
+                    };
 
                     car.state = CarState::ChangingLanes {
                         from: to,
                         to: from,
-                        // TODO will these two still be valid?!?!
                         new_time,
                         new_dist,
                         lc_time: TimeInterval::new(now, now + TIME_TO_CHANGE_LANES),
