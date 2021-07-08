@@ -79,6 +79,8 @@ impl GenericCityImporter {
                 private_offstreet_parking: self.private_offstreet_parking.clone(),
                 include_railroads: self.include_railroads,
                 extra_buildings: self.extra_buildings.clone(),
+                // TODO Total hack! Need to figure out how to express per-map config overrides
+                skip_local_roads: name == MapName::new("us", "phoenix", "loop101"),
             },
             timer,
         );

@@ -37,6 +37,9 @@ pub struct Options {
     pub include_railroads: bool,
     /// If provided, read polygons from this GeoJSON file and add them to the RawMap as buildings.
     pub extra_buildings: Option<String>,
+    /// Only include highways and arterials. This may make sense for some region-wide maps for
+    /// particular use cases.
+    pub skip_local_roads: bool,
 }
 
 /// What roads will have on-street parking lanes? Data from

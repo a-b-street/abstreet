@@ -361,6 +361,7 @@ fn oneshot(osm_path: String, clip: Option<String>, drive_on_right: bool, opts: R
             private_offstreet_parking: convert_osm::PrivateOffstreetParking::FixedPerBldg(1),
             include_railroads: true,
             extra_buildings: None,
+            skip_local_roads: false,
         },
         &mut timer,
     );

@@ -201,6 +201,7 @@ fn import_map(
             private_offstreet_parking: convert_osm::PrivateOffstreetParking::FixedPerBldg(1),
             include_railroads: true,
             extra_buildings: None,
+            skip_local_roads: false,
         },
         timer,
     );

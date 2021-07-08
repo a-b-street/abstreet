@@ -67,6 +67,7 @@ impl Model {
                     ),
                     include_railroads: true,
                     extra_buildings: None,
+                    skip_local_roads: false,
                 },
                 &mut timer,
             )

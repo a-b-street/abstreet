@@ -473,6 +473,10 @@ fn is_road(tags: &mut Tags, opts: &Options) -> bool {
         return false;
     }
 
+    if opts.skip_local_roads && osm::RoadRank::from_highway(highway) == osm::RoadRank::Local {
+        return false;
+    }
+
     // It's a road! Now fill in some possibly missing data.
 
     // If there's no parking data in OSM already, then assume no parking and mark that it's
