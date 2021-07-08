@@ -131,6 +131,7 @@ fn prebake(
     }
     PrebakeSummary {
         map: scenario.map_name.describe(),
+        scenario: scenario.scenario_name.clone(),
         finished_trips,
         cancelled_trips,
         total_trip_duration_seconds,
@@ -140,6 +141,7 @@ fn prebake(
 #[derive(Serialize)]
 struct PrebakeSummary {
     map: String,
+    scenario: String,
     finished_trips: usize,
     cancelled_trips: usize,
     total_trip_duration_seconds: f64,

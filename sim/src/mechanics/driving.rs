@@ -392,10 +392,11 @@ impl DrivingSimState {
                 } else if let Some(slow_leader) = self.wants_to_overtake(car) {
                     // TODO This entire check kicks in a little late; we only enter Queued after
                     // spending the freeflow time possibly moving very slowly.
-                    car.wants_to_overtake.insert(slow_leader);
+                    let first_conflict = car.wants_to_overtake.insert(slow_leader);
 
                     // Record when a vehicle wants to pass a bike
-                    if slow_leader.vehicle_type == VehicleType::Bike
+                    if first_conflict
+                        && slow_leader.vehicle_type == VehicleType::Bike
                         && car.vehicle.vehicle_type != VehicleType::Bike
                     {
                         self.events.push(Event::ProblemEncountered(
@@ -1607,11 +1608,7 @@ impl DrivingSimState {
     /// Does the given car want to over-take the vehicle in front of it?
     fn wants_to_overtake(&self, car: &Car) -> Option<CarID> {
         let queue = &self.queues[&car.router.head()];
-        let leader = queue.get_leader(car.vehicle.id)?;
-        if car.wants_to_overtake.contains(&leader) {
-            return None;
-        }
-        let leader = &self.cars[&leader];
+        let leader = &self.cars[&queue.get_leader(car.vehicle.id)?];
 
         // Are we faster than them?
         // TODO This shouldn't be a blocking check; we also want to pass parking cars and buses
