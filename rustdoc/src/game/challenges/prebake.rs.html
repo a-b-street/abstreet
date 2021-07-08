@@ -147,6 +147,8 @@
 <span id="144">144</span>
 <span id="145">145</span>
 <span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">serde::Serialize</span>;
 
@@ -281,6 +283,7 @@
     }
     <span class="ident">PrebakeSummary</span> {
         <span class="ident">map</span>: <span class="ident">scenario</span>.<span class="ident">map_name</span>.<span class="ident">describe</span>(),
+        <span class="ident">scenario</span>: <span class="ident">scenario</span>.<span class="ident">scenario_name</span>.<span class="ident">clone</span>(),
         <span class="ident">finished_trips</span>,
         <span class="ident">cancelled_trips</span>,
         <span class="ident">total_trip_duration_seconds</span>,
@@ -290,6 +293,7 @@
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>)]</span>
 <span class="kw">struct</span> <span class="ident">PrebakeSummary</span> {
     <span class="ident">map</span>: <span class="ident">String</span>,
+    <span class="ident">scenario</span>: <span class="ident">String</span>,
     <span class="ident">finished_trips</span>: <span class="ident">usize</span>,
     <span class="ident">cancelled_trips</span>: <span class="ident">usize</span>,
     <span class="ident">total_trip_duration_seconds</span>: <span class="ident">f64</span>,
