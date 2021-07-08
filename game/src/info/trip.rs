@@ -1,4 +1,4 @@
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, HashSet};
 
 use maplit::btreemap;
 
@@ -901,6 +901,15 @@ fn make_elevation(ctx: &EventCtx, color: Color, walking: bool, path: &Path, map:
         }
         dist += step.as_traversable().get_polyline(map).length();
     }
+
+    // TODO Cache this value?
+    let max_elevation = map
+        .all_intersections()
+        .iter()
+        .map(|i| i.elevation)
+        .max()
+        .unwrap();
+
     // TODO Show roughly where we are in the trip; use distance covered by current path for this
     LinePlot::new_widget(
         ctx,
@@ -914,7 +923,16 @@ fn make_elevation(ctx: &EventCtx, color: Color, walking: bool, path: &Path, map:
             color,
             pts,
         }],
-        PlotOptions::fixed(),
+        PlotOptions {
+            filterable: false,
+            max_x: None,
+            // We want to use the same Y scale for this plot when comparing before/after map edits.
+            // If we use the max elevation encountered along the route, then no matter how we
+            // round, there are always edge cases where the scale will jump. So just use the
+            // maximum elevation from the entire map.
+            max_y: Some(max_elevation.round_up_for_axis()),
+            disabled: HashSet::new(),
+        },
     )
 }
 

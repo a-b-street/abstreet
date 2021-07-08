@@ -170,7 +170,10 @@ impl Layer for ElevationContours {
                         .closest_elevation
                         .closest_pt(pt, INTERSECTION_SEARCH_RADIUS)
                     {
-                        self.tooltip = Some(Text::from(format!("Elevation: {}", elevation)));
+                        self.tooltip = Some(Text::from(format!(
+                            "Elevation: {}",
+                            elevation.to_string(&app.opts.units)
+                        )));
                     }
                 }
             }
@@ -205,7 +208,12 @@ impl ElevationContours {
 
         let panel = Panel::new_builder(Widget::col(vec![
             header(ctx, "Elevation"),
-            format!("Elevation from {} to {}", low, high).text_widget(ctx),
+            format!(
+                "Elevation from {} to {}",
+                low.to_string(&app.opts.units),
+                high.to_string(&app.opts.units)
+            )
+            .text_widget(ctx),
         ]))
         .aligned_pair(PANEL_PLACEMENT)
         .build(ctx);

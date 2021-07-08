@@ -111,6 +111,25 @@ impl Distance {
         }
         self / other
     }
+
+    /// Rounds this distance up to a higher, more "even" value to use for buckets along a plot's
+    /// axis. Always rounds for imperial units (feet).
+    pub fn round_up_for_axis(self) -> Distance {
+        let x = self.to_feet();
+        if x <= 0.0 {
+            Distance::ZERO
+        } else if x <= 10.0 {
+            Distance::feet(x.ceil())
+        } else if x <= 100.0 {
+            Distance::feet(10.0 * (x / 10.0).ceil())
+        } else if x <= 1000.0 {
+            Distance::feet(100.0 * (x / 100.0).ceil())
+        } else if x <= 10_000.0 {
+            Distance::feet(1000.0 * (x / 1000.0).ceil())
+        } else {
+            Distance::feet(x)
+        }
+    }
 }
 
 impl fmt::Display for Distance {
@@ -220,5 +239,27 @@ impl std::iter::Sum for Distance {
 impl Default for Distance {
     fn default() -> Distance {
         Distance::ZERO
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn round_up_for_axis() {
+        for (input, expected) in [
+            (-3.0, 0.0),
+            (0.0, 0.0),
+            (3.2, 4.0),
+            (30.2, 40.0),
+            (300.2, 400.0),
+            (3000.2, 4000.0),
+        ] {
+            assert_eq!(
+                Distance::feet(input).round_up_for_axis(),
+                Distance::feet(expected)
+            );
+        }
     }
 }
