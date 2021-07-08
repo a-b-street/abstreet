@@ -172,6 +172,9 @@
 <span id="169">169</span>
 <span id="170">170</span>
 <span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
+<span id="174">174</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="attribute">#[<span class="ident">macro_use</span>]</span>
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">anyhow</span>;
@@ -212,6 +215,9 @@
     <span class="kw">pub</span> <span class="ident">include_railroads</span>: <span class="ident">bool</span>,
     <span class="doccomment">/// If provided, read polygons from this GeoJSON file and add them to the RawMap as buildings.</span>
     <span class="kw">pub</span> <span class="ident">extra_buildings</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Only include highways and arterials. This may make sense for some region-wide maps for</span>
+    <span class="doccomment">/// particular use cases.</span>
+    <span class="kw">pub</span> <span class="ident">skip_local_roads</span>: <span class="ident">bool</span>,
 }
 
 <span class="doccomment">/// What roads will have on-street parking lanes? Data from</span>

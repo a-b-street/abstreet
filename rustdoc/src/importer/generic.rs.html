@@ -89,6 +89,8 @@
 <span id="86">86</span>
 <span id="87">87</span>
 <span id="88">88</span>
+<span id="89">89</span>
+<span id="90">90</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
@@ -171,6 +173,8 @@
                 <span class="ident">private_offstreet_parking</span>: <span class="self">self</span>.<span class="ident">private_offstreet_parking</span>.<span class="ident">clone</span>(),
                 <span class="ident">include_railroads</span>: <span class="self">self</span>.<span class="ident">include_railroads</span>,
                 <span class="ident">extra_buildings</span>: <span class="self">self</span>.<span class="ident">extra_buildings</span>.<span class="ident">clone</span>(),
+                <span class="comment">// TODO Total hack! Need to figure out how to express per-map config overrides</span>
+                <span class="ident">skip_local_roads</span>: <span class="ident">name</span> <span class="op">=</span><span class="op">=</span> <span class="ident">MapName::new</span>(<span class="string">&quot;us&quot;</span>, <span class="string">&quot;phoenix&quot;</span>, <span class="string">&quot;loop101&quot;</span>),
             },
             <span class="ident">timer</span>,
         );

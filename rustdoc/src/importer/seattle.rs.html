@@ -341,6 +341,7 @@
 <span id="338">338</span>
 <span id="339">339</span>
 <span id="340">340</span>
+<span id="341">341</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashSet</span>};
 <span class="kw">use</span> <span class="ident">std::fs::File</span>;
@@ -502,6 +503,7 @@
             <span class="comment">// They mess up 16th and E Marginal badly enough to cause gridlock.</span>
             <span class="ident">include_railroads</span>: <span class="bool-val">false</span>,
             <span class="ident">extra_buildings</span>: <span class="prelude-val">None</span>,
+            <span class="ident">skip_local_roads</span>: <span class="bool-val">false</span>,
         },
         <span class="ident">timer</span>,
     );

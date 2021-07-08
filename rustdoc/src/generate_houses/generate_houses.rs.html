@@ -217,6 +217,7 @@
 <span id="214">214</span>
 <span id="215">215</span>
 <span id="216">216</span>
+<span id="217">217</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Procedurally generates houses along empty residential roads of a map. Writes a GeoJSON file</span>
 <span class="doccomment">//! with the results if the number of houses is at least `--num_required`. This can be used to</span>
@@ -421,6 +422,7 @@
             <span class="ident">private_offstreet_parking</span>: <span class="ident">convert_osm::PrivateOffstreetParking::FixedPerBldg</span>(<span class="number">1</span>),
             <span class="ident">include_railroads</span>: <span class="bool-val">true</span>,
             <span class="ident">extra_buildings</span>: <span class="prelude-val">None</span>,
+            <span class="ident">skip_local_roads</span>: <span class="bool-val">false</span>,
         },
         <span class="ident">timer</span>,
     );
