@@ -228,7 +228,11 @@ impl Queue {
                             }
                             self.geom_len
                         }
-                        CarState::Crossing(ref time_int, ref dist_int) => {
+                        CarState::Crossing {
+                            ref time_int,
+                            ref dist_int,
+                            ..
+                        } => {
                             // TODO Why percent_clamp_end? We process car updates in any order, so we might
                             // calculate this before moving this car from Crossing to another state.
                             dist_int.lerp(time_int.percent_clamp_end(now)).min(bound)
@@ -575,7 +579,11 @@ fn dump_cars(dists: &[QueueEntry], cars: &FixedMap<CarID, Car>, id: Traversable,
         println!("- {:?} @ {}..{}", entry.member, entry.front, entry.back);
         match entry.member {
             Queued::Vehicle(id) => match cars[&id].state {
-                CarState::Crossing(ref time_int, ref dist_int) => {
+                CarState::Crossing {
+                    ref time_int,
+                    ref dist_int,
+                    ..
+                } => {
                     println!(
                         "  Going {} .. {} during {} .. {}",
                         dist_int.start, dist_int.end, time_int.start, time_int.end

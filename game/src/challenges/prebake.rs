@@ -131,7 +131,7 @@ fn prebake(
     }
     PrebakeSummary {
         map: scenario.map_name.describe(),
-        scenario: scenario.scenario_name.clone(),
+        scenario: scenario.scenario_name,
         finished_trips,
         cancelled_trips,
         total_trip_duration_seconds,

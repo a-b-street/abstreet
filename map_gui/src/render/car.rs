@@ -1,6 +1,6 @@
 use geom::{Angle, ArrowCap, Distance, PolyLine, Polygon, Pt2D, Ring};
 use map_model::{Map, TurnType};
-use sim::{CarID, CarStatus, DrawCarInput, Sim, VehicleType};
+use sim::{CarID, CarStatus, DrawCarInput, Intent, Sim, VehicleType};
 use widgetry::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, Text};
 
 use crate::colors::ColorScheme;
@@ -90,7 +90,7 @@ impl DrawCar {
             );
         }
 
-        if input.show_parking_intent {
+        if input.intent == Some(Intent::Parking) {
             // draw intent bubble
             let bubble_z = -0.0001;
             let mut bubble_batch =

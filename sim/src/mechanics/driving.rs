@@ -368,7 +368,7 @@ impl DrivingSimState {
         transit: &mut TransitSimState,
     ) -> bool {
         match car.state {
-            CarState::Crossing(_, _) => {
+            CarState::Crossing { .. } => {
                 car.state = CarState::Queued {
                     blocked_since: now,
                     want_to_change_lanes: None,
@@ -554,7 +554,11 @@ impl DrivingSimState {
             } => {
                 // The car is already in the target queue. Just set them in the crossing state; we
                 // already calculated the intervals for it.
-                car.state = CarState::Crossing(new_time, new_dist);
+                car.state = CarState::Crossing {
+                    time_int: new_time,
+                    dist_int: new_dist,
+                    steep_uphill: false,
+                };
                 ctx.scheduler
                     .push(car.state.get_end_time(), Command::UpdateCar(car.vehicle.id));
 
@@ -595,7 +599,7 @@ impl DrivingSimState {
         let our_dist = dists[idx].front;
 
         match car.state {
-            CarState::Crossing(_, _)
+            CarState::Crossing { .. }
             | CarState::Unparking { .. }
             | CarState::WaitingToAdvance { .. }
             | CarState::ChangingLanes { .. } => unreachable!(),
@@ -709,7 +713,7 @@ impl DrivingSimState {
                         /*
                         // If this car wasn't blocked at all, when would it reach its goal?
                         let ideal_end_time = match car.crossing_state(our_dist, now, map) {
-                            CarState::Crossing(time_int, _) => time_int.end,
+                            CarState::Crossing { time_int, .. } => time_int.end,
                             _ => unreachable!(),
                         };
                         if ideal_end_time == now {
@@ -876,7 +880,7 @@ impl DrivingSimState {
                         Command::UpdateCar(follower_id),
                     );
                 }
-                CarState::Crossing(_, _) => {
+                CarState::Crossing { .. } => {
                     // If the follower was still Crossing, they might not've been blocked by the
                     // leader yet. But recalculating their Crossing state isn't necessarily a no-op
                     // -- this could prevent them from suddenly warping past a blockage.
@@ -901,7 +905,9 @@ impl DrivingSimState {
                         now,
                         ctx.map,
                     ) {
-                        CarState::Crossing(time, dist) => (time, dist),
+                        CarState::Crossing {
+                            time_int, dist_int, ..
+                        } => (time_int, dist_int),
                         _ => unreachable!(),
                     };
                     assert!(new_time.end >= lc_time.end);
@@ -1051,7 +1057,7 @@ impl DrivingSimState {
                             CarState::WaitingToAdvance { .. } => unreachable!(),
                             // They weren't blocked. Note that there's no way the Crossing state could
                             // jump forwards here; the leader vanished from the end of the traversable.
-                            CarState::Crossing(_, _)
+                            CarState::Crossing { .. }
                             | CarState::ChangingLanes { .. }
                             | CarState::Unparking { .. }
                             | CarState::Parking(_, _, _)
@@ -1151,7 +1157,9 @@ impl DrivingSimState {
             now,
             ctx.map,
         ) {
-            CarState::Crossing(time, dist) => (time, dist),
+            CarState::Crossing {
+                time_int, dist_int, ..
+            } => (time_int, dist_int),
             _ => unreachable!(),
         };
 
@@ -1366,7 +1374,7 @@ impl DrivingSimState {
                                 id: cause,
                                 waiting_for_turn: None,
                                 status: CarStatus::Parked,
-                                show_parking_intent: false,
+                                intent: None,
                                 on,
                                 partly_on: Vec::new(),
                                 label: Some("block".to_string()),
@@ -1383,7 +1391,7 @@ impl DrivingSimState {
                                 id: cause,
                                 waiting_for_turn: None,
                                 status: CarStatus::Parked,
-                                show_parking_intent: false,
+                                intent: None,
                                 on,
                                 partly_on: Vec::new(),
                                 label: Some("block".to_string()),

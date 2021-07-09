@@ -260,7 +260,7 @@ pub fn vehicle_cost(
         PathConstraints::Pedestrian => unreachable!(),
     };
     let t1 = map.get_r(dr.id).center_pts.length()
-        / Traversable::max_speed_along_road(dr, max_speed, constraints, map);
+        / Traversable::max_speed_along_road(dr, max_speed, constraints, map).0;
     let t2 =
         mvmnt_length / Traversable::max_speed_along_movement(mvmnt, max_speed, constraints, map);
 

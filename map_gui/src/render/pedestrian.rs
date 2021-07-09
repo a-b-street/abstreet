@@ -1,6 +1,6 @@
 use geom::{ArrowCap, Circle, Distance, PolyLine, Polygon, Pt2D};
 use map_model::{DrivingSide, Map, SIDEWALK_THICKNESS};
-use sim::{DrawPedCrowdInput, DrawPedestrianInput, PedCrowdLocation, PedestrianID, Sim};
+use sim::{DrawPedCrowdInput, DrawPedestrianInput, Intent, PedCrowdLocation, PedestrianID, Sim};
 use widgetry::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, Text};
 
 use crate::colors::ColorScheme;
@@ -41,6 +41,25 @@ impl DrawPedestrian {
                 ])
                 .make_arrow(Distance::meters(0.15), ArrowCap::Triangle),
             );
+        }
+
+        if input.intent == Some(Intent::SteepUphill) {
+            let bubble_z = -0.0001;
+            let mut bubble_batch =
+                GeomBatch::load_svg(prerender, "system/assets/map/thought_bubble.svg")
+                    .scale(0.05)
+                    .centered_on(input.pos)
+                    .translate(2.0, -3.5)
+                    .set_z_offset(bubble_z);
+            bubble_batch.append(
+                GeomBatch::load_svg(prerender, "system/assets/tools/uphill.svg")
+                    .scale(0.05)
+                    .centered_on(input.pos)
+                    .translate(2.2, -4.2)
+                    .set_z_offset(bubble_z),
+            );
+
+            draw_default.append(bubble_batch);
         }
 
         DrawPedestrian {

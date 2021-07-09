@@ -29,7 +29,7 @@ use map_model::{
 };
 
 pub use crate::render::{
-    CarStatus, DrawCarInput, DrawPedCrowdInput, DrawPedestrianInput, PedCrowdLocation,
+    CarStatus, DrawCarInput, DrawPedCrowdInput, DrawPedestrianInput, Intent, PedCrowdLocation,
     UnzoomedAgent,
 };
 

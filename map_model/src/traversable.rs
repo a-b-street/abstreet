@@ -202,6 +202,18 @@ impl Traversable {
         constraints: PathConstraints,
         map: &Map,
     ) -> Speed {
+        self.max_speed_and_incline_along(max_speed_on_flat_ground, constraints, map)
+            .0
+    }
+
+    /// The single definitive place to determine how fast somebody could go along a single road or
+    /// turn. This should be used for pathfinding and simulation. Returns (speed, percent incline).
+    pub fn max_speed_and_incline_along(
+        &self,
+        max_speed_on_flat_ground: Option<Speed>,
+        constraints: PathConstraints,
+        map: &Map,
+    ) -> (Speed, f64) {
         match self {
             Traversable::Lane(l) => Traversable::max_speed_along_road(
                 map.get_l(*l).get_directed_parent(),
@@ -209,23 +221,26 @@ impl Traversable {
                 constraints,
                 map,
             ),
-            Traversable::Turn(t) => Traversable::max_speed_along_movement(
-                t.to_movement(map),
-                max_speed_on_flat_ground,
-                constraints,
-                map,
+            Traversable::Turn(t) => (
+                Traversable::max_speed_along_movement(
+                    t.to_movement(map),
+                    max_speed_on_flat_ground,
+                    constraints,
+                    map,
+                ),
+                0.0,
             ),
         }
     }
 
     /// The single definitive place to determine how fast somebody could go along a single road.
-    /// This should be used for pathfinding and simulation.
-    pub fn max_speed_along_road(
+    /// This should be used for pathfinding and simulation. Returns (speed, percent incline).
+    pub(crate) fn max_speed_along_road(
         dr: DirectedRoadID,
         max_speed_on_flat_ground: Option<Speed>,
         constraints: PathConstraints,
         map: &Map,
-    ) -> Speed {
+    ) -> (Speed, f64) {
         let road = map.get_r(dr.id);
         let percent_incline = if dr.dir == Direction::Fwd {
             road.percent_incline
@@ -245,16 +260,17 @@ impl Traversable {
             road.speed_limit
         };
 
-        if let Some(s) = max_speed_on_flat_ground {
+        let speed = if let Some(s) = max_speed_on_flat_ground {
             base.min(s)
         } else {
             base
-        }
+        };
+        (speed, percent_incline)
     }
 
     /// The single definitive place to determine how fast somebody could go along a single
-    /// movement.  This should be used for pathfinding and simulation.
-    pub fn max_speed_along_movement(
+    /// movement. This should be used for pathfinding and simulation. Ignores elevation.
+    pub(crate) fn max_speed_along_movement(
         mvmnt: MovementID,
         max_speed_on_flat_ground: Option<Speed>,
         _: PathConstraints,

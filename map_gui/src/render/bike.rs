@@ -1,6 +1,6 @@
 use geom::{ArrowCap, Circle, Distance, Line, PolyLine, Polygon, Pt2D};
 use map_model::{Map, SIDEWALK_THICKNESS};
-use sim::{CarID, DrawCarInput, Sim};
+use sim::{CarID, DrawCarInput, Intent, Sim};
 use widgetry::{Drawable, GeomBatch, GfxCtx, Prerender};
 
 use crate::colors::ColorScheme;
@@ -97,6 +97,25 @@ impl DrawBike {
                 ])
                 .make_arrow(Distance::meters(0.15), ArrowCap::Triangle),
             );
+        }
+
+        if input.intent == Some(Intent::SteepUphill) {
+            let bubble_z = -0.0001;
+            let mut bubble_batch =
+                GeomBatch::load_svg(prerender, "system/assets/map/thought_bubble.svg")
+                    .scale(0.05)
+                    .centered_on(input.body.middle())
+                    .translate(2.0, -3.5)
+                    .set_z_offset(bubble_z);
+            bubble_batch.append(
+                GeomBatch::load_svg(prerender, "system/assets/tools/uphill.svg")
+                    .scale(0.05)
+                    .centered_on(input.body.middle())
+                    .translate(2.2, -4.2)
+                    .set_z_offset(bubble_z),
+            );
+
+            draw_default.append(bubble_batch);
         }
 
         let zorder = input
