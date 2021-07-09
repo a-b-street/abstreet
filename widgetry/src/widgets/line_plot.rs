@@ -149,7 +149,7 @@ impl<X: Axis<X>, Y: Axis<Y>> LinePlot<X, Y> {
         }
         let x_axis = Widget::custom_row(row).padding(10).evenly_spaced();
 
-        let num_y_labels = 4;
+        let num_y_labels = 3;
         let mut col = Vec::new();
         for i in 0..num_y_labels {
             let percent_y = (i as f64) / ((num_y_labels - 1) as f64);
