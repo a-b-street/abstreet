@@ -906,9 +906,9 @@ fn make_elevation(ctx: &EventCtx, color: Color, walking: bool, path: &Path, map:
     let max_elevation = map
         .all_intersections()
         .iter()
-        .map(|i| i.elevation)
-        .max()
-        .unwrap();
+        .max_by_key(|i| i.elevation)
+        .unwrap()
+        .elevation;
 
     // TODO Show roughly where we are in the trip; use distance covered by current path for this
     LinePlot::new_widget(
@@ -925,7 +925,7 @@ fn make_elevation(ctx: &EventCtx, color: Color, walking: bool, path: &Path, map:
         }],
         PlotOptions {
             filterable: false,
-            max_x: None,
+            max_x: Some(dist.round_up_for_axis()),
             // We want to use the same Y scale for this plot when comparing before/after map edits.
             // If we use the max elevation encountered along the route, then no matter how we
             // round, there are always edge cases where the scale will jump. So just use the

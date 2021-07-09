@@ -115,19 +115,26 @@ impl Distance {
     /// Rounds this distance up to a higher, more "even" value to use for buckets along a plot's
     /// axis. Always rounds for imperial units (feet).
     pub fn round_up_for_axis(self) -> Distance {
-        let x = self.to_feet();
-        if x <= 0.0 {
+        let ft = self.to_feet();
+        let miles = ft / 5280.0;
+        if ft <= 0.0 {
             Distance::ZERO
-        } else if x <= 10.0 {
-            Distance::feet(x.ceil())
-        } else if x <= 100.0 {
-            Distance::feet(10.0 * (x / 10.0).ceil())
-        } else if x <= 1000.0 {
-            Distance::feet(100.0 * (x / 100.0).ceil())
-        } else if x <= 10_000.0 {
-            Distance::feet(1000.0 * (x / 1000.0).ceil())
+        } else if ft <= 10.0 {
+            Distance::feet(ft.ceil())
+        } else if ft <= 100.0 {
+            Distance::feet(10.0 * (ft / 10.0).ceil())
+        } else if miles < 0.1 {
+            Distance::feet(100.0 * (ft / 100.0).ceil())
         } else {
-            Distance::feet(x)
+            if miles <= 1.0 {
+                Distance::miles((miles * 10.0).ceil() / 10.0)
+            } else if miles <= 10.0 {
+                Distance::miles(miles.ceil())
+            } else if miles <= 100.0 {
+                Distance::miles(10.0 * (miles / 10.0).ceil())
+            } else {
+                self
+            }
         }
     }
 }
@@ -248,17 +255,37 @@ mod tests {
 
     #[test]
     fn round_up_for_axis() {
+        let fmt = UnitFmt {
+            metric: false,
+            round_durations: false,
+        };
+
         for (input, expected) in [
             (-3.0, 0.0),
             (0.0, 0.0),
             (3.2, 4.0),
             (30.2, 40.0),
             (300.2, 400.0),
-            (3000.2, 4000.0),
+            (
+                Distance::miles(0.13).to_feet(),
+                Distance::miles(0.2).to_feet(),
+            ),
+            (
+                Distance::miles(0.64).to_feet(),
+                Distance::miles(0.7).to_feet(),
+            ),
+            (
+                Distance::miles(2.6).to_feet(),
+                Distance::miles(3.0).to_feet(),
+            ),
+            (
+                Distance::miles(2.9).to_feet(),
+                Distance::miles(3.0).to_feet(),
+            ),
         ] {
             assert_eq!(
-                Distance::feet(input).round_up_for_axis(),
-                Distance::feet(expected)
+                Distance::feet(input).round_up_for_axis().to_string(&fmt),
+                Distance::feet(expected).to_string(&fmt)
             );
         }
     }
