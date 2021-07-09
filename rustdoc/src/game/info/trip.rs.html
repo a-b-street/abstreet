@@ -1001,8 +1001,26 @@
 <span id="998"> 998</span>
 <span id="999"> 999</span>
 <span id="1000">1000</span>
+<span id="1001">1001</span>
+<span id="1002">1002</span>
+<span id="1003">1003</span>
+<span id="1004">1004</span>
+<span id="1005">1005</span>
+<span id="1006">1006</span>
+<span id="1007">1007</span>
+<span id="1008">1008</span>
+<span id="1009">1009</span>
+<span id="1010">1010</span>
+<span id="1011">1011</span>
+<span id="1012">1012</span>
+<span id="1013">1013</span>
+<span id="1014">1014</span>
+<span id="1015">1015</span>
+<span id="1016">1016</span>
+<span id="1017">1017</span>
+<span id="1018">1018</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">std::collections::BTreeMap</span>;
+<span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashSet</span>};
 
 <span class="kw">use</span> <span class="ident">maplit::btreemap</span>;
 
@@ -1905,6 +1923,15 @@
         }
         <span class="ident">dist</span> <span class="op">+</span><span class="op">=</span> <span class="ident">step</span>.<span class="ident">as_traversable</span>().<span class="ident">get_polyline</span>(<span class="ident">map</span>).<span class="ident">length</span>();
     }
+
+    <span class="comment">// TODO Cache this value?</span>
+    <span class="kw">let</span> <span class="ident">max_elevation</span> <span class="op">=</span> <span class="ident">map</span>
+        .<span class="ident">all_intersections</span>()
+        .<span class="ident">iter</span>()
+        .<span class="ident">max_by_key</span>(<span class="op">|</span><span class="ident">i</span><span class="op">|</span> <span class="ident">i</span>.<span class="ident">elevation</span>)
+        .<span class="ident">unwrap</span>()
+        .<span class="ident">elevation</span>;
+
     <span class="comment">// TODO Show roughly where we are in the trip; use distance covered by current path for this</span>
     <span class="ident">LinePlot::new_widget</span>(
         <span class="ident">ctx</span>,
@@ -1918,7 +1945,16 @@
             <span class="ident">color</span>,
             <span class="ident">pts</span>,
         }],
-        <span class="ident">PlotOptions::fixed</span>(),
+        <span class="ident">PlotOptions</span> {
+            <span class="ident">filterable</span>: <span class="bool-val">false</span>,
+            <span class="ident">max_x</span>: <span class="prelude-val">Some</span>(<span class="ident">dist</span>.<span class="ident">round_up_for_axis</span>()),
+            <span class="comment">// We want to use the same Y scale for this plot when comparing before/after map edits.</span>
+            <span class="comment">// If we use the max elevation encountered along the route, then no matter how we</span>
+            <span class="comment">// round, there are always edge cases where the scale will jump. So just use the</span>
+            <span class="comment">// maximum elevation from the entire map.</span>
+            <span class="ident">max_y</span>: <span class="prelude-val">Some</span>(<span class="ident">max_elevation</span>.<span class="ident">round_up_for_axis</span>()),
+            <span class="ident">disabled</span>: <span class="ident">HashSet::new</span>(),
+        },
     )
 }
 
