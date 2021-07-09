@@ -11,6 +11,7 @@ pub struct DrawPedestrianInput {
     pub pos: Pt2D,
     pub facing: Angle,
     pub waiting_for_turn: Option<TurnID>,
+    pub intent: Option<Intent>,
     pub preparing_bike: bool,
     pub waiting_for_bus: bool,
     pub on: Traversable,
@@ -37,7 +38,7 @@ pub struct DrawCarInput {
     pub id: CarID,
     pub waiting_for_turn: Option<TurnID>,
     pub status: CarStatus,
-    pub show_parking_intent: bool,
+    pub intent: Option<Intent>,
     /// Front of the car
     pub on: Traversable,
     /// Possibly the rest
@@ -54,6 +55,13 @@ pub struct DrawCarInput {
 pub enum CarStatus {
     Moving,
     Parked,
+}
+
+/// Shows an agent's current inner intention or thoughts.
+#[derive(Clone, PartialEq)]
+pub enum Intent {
+    Parking,
+    SteepUphill,
 }
 
 pub struct UnzoomedAgent {

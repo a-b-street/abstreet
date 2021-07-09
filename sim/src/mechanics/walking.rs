@@ -12,9 +12,9 @@ use map_model::{
 use crate::sim::Ctx;
 use crate::{
     AgentID, AgentProperties, Command, CommutersVehiclesCounts, CreatePedestrian, DistanceInterval,
-    DrawPedCrowdInput, DrawPedestrianInput, Event, IntersectionSimState, ParkedCar, ParkingSpot,
-    PedCrowdLocation, PedestrianID, PersonID, Scheduler, SidewalkPOI, SidewalkSpot, TimeInterval,
-    TransitSimState, TripID, TripManager, UnzoomedAgent,
+    DrawPedCrowdInput, DrawPedestrianInput, Event, Intent, IntersectionSimState, ParkedCar,
+    ParkingSpot, PedCrowdLocation, PedestrianID, PersonID, Scheduler, SidewalkPOI, SidewalkSpot,
+    TimeInterval, TransitSimState, TripID, TripManager, UnzoomedAgent,
 };
 
 const TIME_TO_START_BIKING: Duration = Duration::const_seconds(30.0);
@@ -60,13 +60,14 @@ impl WalkingSimState {
         let mut ped = Pedestrian {
             id: params.id,
             // Temporary bogus thing
-            state: PedState::Crossing(
-                DistanceInterval::new_walking(Distance::ZERO, Distance::meters(1.0)),
-                TimeInterval::new(
+            state: PedState::Crossing {
+                dist_int: DistanceInterval::new_walking(Distance::ZERO, Distance::meters(1.0)),
+                time_int: TimeInterval::new(
                     Time::START_OF_DAY,
                     Time::START_OF_DAY + Duration::seconds(1.0),
                 ),
-            ),
+                steep_uphill: false,
+            },
             speed: params.speed,
             total_blocked_time: Duration::ZERO,
             started_at: now,
@@ -129,7 +130,7 @@ impl WalkingSimState {
     ) {
         let mut ped = self.peds.get_mut(&id).unwrap();
         match ped.state {
-            PedState::Crossing(ref dist_int, _) => {
+            PedState::Crossing { ref dist_int, .. } => {
                 if ped.path.is_last_step() {
                     match ped.goal.connection {
                         SidewalkPOI::ParkingSpot(spot) => {
@@ -371,9 +372,11 @@ impl WalkingSimState {
         }*/
 
         let current_state_dist = match p.state {
-            PedState::Crossing(ref dist_int, ref time_int) => {
-                time_int.percent(now) * dist_int.length()
-            }
+            PedState::Crossing {
+                ref dist_int,
+                ref time_int,
+                ..
+            } => time_int.percent(now) * dist_int.length(),
             // We're at the beginning of our trip and are only walking along a driveway or biking
             // connection
             PedState::LeavingBuilding(_, _)
@@ -448,7 +451,7 @@ impl WalkingSimState {
             let dist = ped.get_dist_along(now, map);
 
             match ped.state {
-                PedState::Crossing(ref dist_int, _) => {
+                PedState::Crossing { ref dist_int, .. } => {
                     if dist_int.start < dist_int.end {
                         forwards.push((*id, dist));
                     } else {
@@ -628,18 +631,26 @@ impl Pedestrian {
             }
         };
         let dist_int = DistanceInterval::new_walking(start_dist, end_dist);
-        let speed = self.path.current_step().as_traversable().max_speed_along(
-            Some(self.speed),
-            PathConstraints::Pedestrian,
-            map,
-        );
+        let (speed, percent_incline) = self
+            .path
+            .current_step()
+            .as_traversable()
+            .max_speed_and_incline_along(Some(self.speed), PathConstraints::Pedestrian, map);
         let time_int = TimeInterval::new(start_time, start_time + dist_int.length() / speed);
-        PedState::Crossing(dist_int, time_int)
+        PedState::Crossing {
+            dist_int,
+            time_int,
+            steep_uphill: percent_incline >= 0.08,
+        }
     }
 
     fn get_dist_along(&self, now: Time, map: &Map) -> Distance {
         match self.state {
-            PedState::Crossing(ref dist_int, ref time_int) => dist_int.lerp(time_int.percent(now)),
+            PedState::Crossing {
+                ref dist_int,
+                ref time_int,
+                ..
+            } => dist_int.lerp(time_int.percent(now)),
             PedState::WaitingToTurn(dist, _) => dist,
             PedState::LeavingBuilding(b, _) | PedState::EnteringBuilding(b, _) => {
                 map.get_b(b).sidewalk_pos.dist_along()
@@ -661,8 +672,13 @@ impl Pedestrian {
         } else {
             270.0
         };
+        let mut intent = None;
         let (pos, facing) = match self.state {
-            PedState::Crossing(ref dist_int, ref time_int) => {
+            PedState::Crossing {
+                ref dist_int,
+                ref time_int,
+                steep_uphill,
+            } => {
                 let percent = if now > time_int.end {
                     1.0
                 } else {
@@ -677,6 +693,9 @@ impl Pedestrian {
                 } else {
                     orig_angle.opposite()
                 };
+                if steep_uphill {
+                    intent = Some(Intent::SteepUphill);
+                }
                 (
                     pos.project_away(SIDEWALK_THICKNESS / 4.0, facing.rotate_degs(angle_offset)),
                     facing,
@@ -758,6 +777,7 @@ impl Pedestrian {
                 PedState::WaitingToTurn(_, _) => Some(self.path.next_step().as_turn()),
                 _ => None,
             },
+            intent,
             preparing_bike: matches!(
                 self.state,
                 PedState::StartingToBike(_, _, _) | PedState::FinishingBiking(_, _, _)
@@ -817,7 +837,11 @@ impl Pedestrian {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 enum PedState {
-    Crossing(DistanceInterval, TimeInterval),
+    Crossing {
+        dist_int: DistanceInterval,
+        time_int: TimeInterval,
+        steep_uphill: bool,
+    },
     /// The Distance is either 0 or the current traversable's length. The Time is blocked_since.
     WaitingToTurn(Distance, Time),
     LeavingBuilding(BuildingID, TimeInterval),
@@ -832,7 +856,7 @@ enum PedState {
 impl PedState {
     fn get_end_time(&self) -> Time {
         match self {
-            PedState::Crossing(_, ref time_int) => time_int.end,
+            PedState::Crossing { ref time_int, .. } => time_int.end,
             PedState::WaitingToTurn(_, _) => unreachable!(),
             PedState::LeavingBuilding(_, ref time_int) => time_int.end,
             PedState::EnteringBuilding(_, ref time_int) => time_int.end,

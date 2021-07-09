@@ -306,6 +306,7 @@ pub fn draw_occupants(details: &mut Details, app: &App, id: BuildingID, focus: O
                     pos,
                     facing: Angle::degrees(90.0),
                     waiting_for_turn: None,
+                    intent: None,
                     preparing_bike: false,
                     // Both hands and feet!
                     waiting_for_bus: true,

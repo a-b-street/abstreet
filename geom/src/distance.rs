@@ -125,16 +125,14 @@ impl Distance {
             Distance::feet(10.0 * (ft / 10.0).ceil())
         } else if miles < 0.1 {
             Distance::feet(100.0 * (ft / 100.0).ceil())
+        } else if miles <= 1.0 {
+            Distance::miles((miles * 10.0).ceil() / 10.0)
+        } else if miles <= 10.0 {
+            Distance::miles(miles.ceil())
+        } else if miles <= 100.0 {
+            Distance::miles(10.0 * (miles / 10.0).ceil())
         } else {
-            if miles <= 1.0 {
-                Distance::miles((miles * 10.0).ceil() / 10.0)
-            } else if miles <= 10.0 {
-                Distance::miles(miles.ceil())
-            } else if miles <= 100.0 {
-                Distance::miles(10.0 * (miles / 10.0).ceil())
-            } else {
-                self
-            }
+            self
         }
     }
 }

@@ -6,8 +6,8 @@ use geom::{Distance, Duration, PolyLine, Time, EPSILON_DIST};
 use map_model::{Direction, LaneID, Map, Traversable};
 
 use crate::{
-    CarID, CarStatus, DistanceInterval, DrawCarInput, ParkingSpot, PersonID, Router, TimeInterval,
-    TransitSimState, TripID, Vehicle, VehicleType,
+    CarID, CarStatus, DistanceInterval, DrawCarInput, Intent, ParkingSpot, PersonID, Router,
+    TimeInterval, TransitSimState, TripID, Vehicle, VehicleType,
 };
 
 /// Represents a single vehicle. Note "car" is a misnomer; it could also be a bus or bike.
@@ -51,13 +51,17 @@ impl Car {
         start_time: Time,
         map: &Map,
     ) -> CarState {
-        let speed = self.router.head().max_speed_along(
+        let (speed, percent_incline) = self.router.head().max_speed_and_incline_along(
             self.vehicle.max_speed,
             self.vehicle.vehicle_type.to_constraints(),
             map,
         );
         let dt = (dist_int.end - dist_int.start) / speed;
-        CarState::Crossing(TimeInterval::new(start_time, start_time + dt), dist_int)
+        CarState::Crossing {
+            time_int: TimeInterval::new(start_time, start_time + dt),
+            dist_int,
+            steep_uphill: percent_incline >= 0.08,
+        }
     }
 
     pub fn get_draw_car(
@@ -262,17 +266,23 @@ impl Car {
             status: match self.state {
                 CarState::Queued { .. } => CarStatus::Moving,
                 CarState::WaitingToAdvance { .. } => CarStatus::Moving,
-                CarState::Crossing(_, _) => CarStatus::Moving,
+                CarState::Crossing { .. } => CarStatus::Moving,
                 CarState::ChangingLanes { .. } => CarStatus::Moving,
                 CarState::Unparking { .. } => CarStatus::Moving,
                 CarState::Parking(_, _, _) => CarStatus::Moving,
                 // Changing color for idling buses is helpful
                 CarState::IdlingAtStop(_, _) => CarStatus::Parked,
             },
-            show_parking_intent: matches!(
-                (self.is_parking(), &self.state),
-                (true, _) | (_, CarState::Unparking { .. })
-            ),
+            intent: if self.is_parking() || matches!(self.state, CarState::Unparking { .. }) {
+                Some(Intent::Parking)
+            } else {
+                match self.state {
+                    CarState::Crossing { steep_uphill, .. } if steep_uphill => {
+                        Some(Intent::SteepUphill)
+                    }
+                    _ => None,
+                }
+            },
             on: self.router.head(),
             partly_on,
             label: if self.vehicle.vehicle_type == VehicleType::Bus
@@ -303,7 +313,11 @@ impl Car {
 /// state machine encoded here.
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub(crate) enum CarState {
-    Crossing(TimeInterval, DistanceInterval),
+    Crossing {
+        time_int: TimeInterval,
+        dist_int: DistanceInterval,
+        steep_uphill: bool,
+    },
     ChangingLanes {
         from: LaneID,
         to: LaneID,
@@ -334,7 +348,7 @@ pub(crate) enum CarState {
 impl CarState {
     pub fn get_end_time(&self) -> Time {
         match self {
-            CarState::Crossing(ref time_int, _) => time_int.end,
+            CarState::Crossing { ref time_int, .. } => time_int.end,
             CarState::Queued { .. } => unreachable!(),
             CarState::WaitingToAdvance { .. } => unreachable!(),
             // Note this state lasts for lc_time, NOT for new_time.
