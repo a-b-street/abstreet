@@ -3,7 +3,7 @@
 use std::collections::BTreeMap;
 use std::fmt::Debug;
 
-use fast_paths::{InputGraph, NodeId, ShortestPath};
+use fast_paths::{InputGraph, NodeId};
 use serde::{Deserialize, Deserializer, Serialize};
 
 /// A bidirectional mapping between fast_paths NodeId and some custom ID type.
@@ -45,14 +45,6 @@ impl<T: Copy + Ord + Debug + Serialize> NodeMap<T> {
 
     pub fn translate_id(&self, id: usize) -> T {
         self.id_to_node[id]
-    }
-
-    // TODO rm
-    pub fn translate(&self, path: &ShortestPath) -> Vec<T> {
-        path.get_nodes()
-            .iter()
-            .map(|id| self.id_to_node[*id])
-            .collect()
     }
 
     /// Call this after filling out the input graph, right before preparation.
