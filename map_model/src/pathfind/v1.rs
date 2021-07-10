@@ -79,6 +79,55 @@ impl PathStep {
             }
         }
     }
+
+    /// The single definitive place to determine how fast somebody could go along a single road or
+    /// turn. This should be used for pathfinding and simulation.
+    pub fn max_speed_along(
+        &self,
+        max_speed_on_flat_ground: Option<Speed>,
+        constraints: PathConstraints,
+        map: &Map,
+    ) -> Speed {
+        self.max_speed_and_incline_along(max_speed_on_flat_ground, constraints, map)
+            .0
+    }
+
+    /// The single definitive place to determine how fast somebody could go along a single road or
+    /// turn. This should be used for pathfinding and simulation. Returns (speed, percent incline).
+    pub fn max_speed_and_incline_along(
+        &self,
+        max_speed_on_flat_ground: Option<Speed>,
+        constraints: PathConstraints,
+        map: &Map,
+    ) -> (Speed, f64) {
+        match self {
+            PathStep::Lane(l) => Traversable::max_speed_along_road(
+                map.get_l(*l).get_directed_parent(),
+                max_speed_on_flat_ground,
+                constraints,
+                map,
+            ),
+            PathStep::ContraflowLane(l) => Traversable::max_speed_along_road(
+                {
+                    let mut dr = map.get_l(*l).get_directed_parent();
+                    dr.dir = dr.dir.opposite();
+                    dr
+                },
+                max_speed_on_flat_ground,
+                constraints,
+                map,
+            ),
+            PathStep::Turn(t) => (
+                Traversable::max_speed_along_movement(
+                    t.to_movement(map),
+                    max_speed_on_flat_ground,
+                    constraints,
+                    map,
+                ),
+                0.0,
+            ),
+        }
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -413,9 +462,7 @@ impl Path {
         let mut total = Duration::ZERO;
         for step in &self.steps {
             let dist = self.dist_crossed_from_step(map, step);
-            let speed = step
-                .as_traversable()
-                .max_speed_along(max_speed, constraints, map);
+            let speed = step.max_speed_along(max_speed, constraints, map);
             total += dist / speed;
         }
         total

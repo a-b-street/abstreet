@@ -7,8 +7,7 @@ use geom::Duration;
 use crate::pathfind::walking::{one_step_walking_path, walking_path_to_steps, WalkingNode};
 use crate::pathfind::{vehicle_cost, zone_cost};
 use crate::{
-    DirectedRoadID, Map, MovementID, PathConstraints, PathRequest, PathV2, RoutingParams,
-    Traversable,
+    DirectedRoadID, Map, MovementID, PathConstraints, PathRequest, PathStep, PathV2, RoutingParams,
 };
 
 // TODO These should maybe keep the DiGraphMaps as state. It's cheap to recalculate it for edits.
@@ -61,16 +60,16 @@ pub fn build_graph_for_pedestrians(map: &Map) -> DiGraphMap<WalkingNode, Duratio
     let mut graph: DiGraphMap<WalkingNode, Duration> = DiGraphMap::new();
     for l in map.all_lanes().values() {
         if l.is_walkable() {
-            let cost = l.length()
-                / Traversable::Lane(l.id).max_speed_along(
-                    max_speed,
-                    PathConstraints::Pedestrian,
-                    map,
-                );
-            let n1 = WalkingNode::SidewalkEndpoint(l.get_directed_parent(), true);
-            let n2 = WalkingNode::SidewalkEndpoint(l.get_directed_parent(), false);
-            graph.add_edge(n1, n2, cost);
-            graph.add_edge(n2, n1, cost);
+            let n1 = WalkingNode::SidewalkEndpoint(l.get_directed_parent(), false);
+            let n2 = WalkingNode::SidewalkEndpoint(l.get_directed_parent(), true);
+            for (step, pair) in [
+                (PathStep::Lane(l.id), (n1, n2)),
+                (PathStep::ContraflowLane(l.id), (n2, n1)),
+            ] {
+                let cost =
+                    l.length() / step.max_speed_along(max_speed, PathConstraints::Pedestrian, map);
+                graph.add_edge(pair.0, pair.1, cost);
+            }
 
             for turn in map.get_turns_for(l.id, PathConstraints::Pedestrian) {
                 graph.add_edge(
@@ -83,7 +82,7 @@ pub fn build_graph_for_pedestrians(map: &Map) -> DiGraphMap<WalkingNode, Duratio
                         map.get_l(turn.id.dst).dst_i == turn.id.parent,
                     ),
                     turn.geom.length()
-                        / Traversable::Turn(turn.id).max_speed_along(
+                        / PathStep::Turn(turn.id).max_speed_along(
                             max_speed,
                             PathConstraints::Pedestrian,
                             map,

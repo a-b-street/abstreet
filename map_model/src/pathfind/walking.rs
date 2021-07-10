@@ -16,7 +16,7 @@ use crate::pathfind::vehicles::VehiclePathfinder;
 use crate::pathfind::zone_cost;
 use crate::{
     BusRoute, BusRouteID, BusStopID, DirectedRoadID, IntersectionID, Map, MovementID,
-    PathConstraints, PathRequest, PathStepV2, PathV2, Position, Traversable,
+    PathConstraints, PathRequest, PathStep, PathStepV2, PathV2, Position,
 };
 
 #[derive(Serialize, Deserialize)]
@@ -221,23 +221,26 @@ fn make_input_graph(
 
     for l in map.all_lanes().values() {
         if l.is_walkable() {
-            let mut cost = l.length()
-                / Traversable::Lane(l.id).max_speed_along(
-                    max_speed,
-                    PathConstraints::Pedestrian,
-                    map,
-                );
-            // TODO Tune this penalty, along with many others.
-            if l.is_shoulder() {
-                cost = 2.0 * cost;
-            }
-            let n1 = nodes.get(WalkingNode::SidewalkEndpoint(l.get_directed_parent(), true));
-            let n2 = nodes.get(WalkingNode::SidewalkEndpoint(
+            // Sidewalks can be crossed in two directions. When there's a steep incline, of course
+            // it flips.
+            let n1 = nodes.get(WalkingNode::SidewalkEndpoint(
                 l.get_directed_parent(),
                 false,
             ));
-            input_graph.add_edge(n1, n2, round(cost));
-            input_graph.add_edge(n2, n1, round(cost));
+            let n2 = nodes.get(WalkingNode::SidewalkEndpoint(l.get_directed_parent(), true));
+
+            for (step, pair) in [
+                (PathStep::Lane(l.id), (n1, n2)),
+                (PathStep::ContraflowLane(l.id), (n2, n1)),
+            ] {
+                let mut cost =
+                    l.length() / step.max_speed_along(max_speed, PathConstraints::Pedestrian, map);
+                // TODO Tune this penalty, along with many others.
+                if l.is_shoulder() {
+                    cost = 2.0 * cost;
+                }
+                input_graph.add_edge(pair.0, pair.1, round(cost));
+            }
         }
     }
 
@@ -250,11 +253,7 @@ fn make_input_graph(
             let to =
                 WalkingNode::SidewalkEndpoint(dst.get_directed_parent(), dst.dst_i == t.id.parent);
             let cost = t.geom.length()
-                / Traversable::Turn(t.id).max_speed_along(
-                    max_speed,
-                    PathConstraints::Pedestrian,
-                    map,
-                );
+                / PathStep::Turn(t.id).max_speed_along(max_speed, PathConstraints::Pedestrian, map);
             input_graph.add_edge(
                 nodes.get(from),
                 nodes.get(to),
@@ -283,18 +282,16 @@ fn transit_input_graph(
     for stop in map.all_bus_stops().values() {
         let ride_bus = nodes.get(WalkingNode::RideBus(stop.id));
         let lane = map.get_l(stop.sidewalk_pos.lane());
-        for endpt in [true, false] {
+        for (endpt, step) in [
+            (false, PathStep::Lane(lane.id)),
+            (true, PathStep::ContraflowLane(lane.id)),
+        ] {
             let dist = if endpt {
                 lane.length() - stop.sidewalk_pos.dist_along()
             } else {
                 stop.sidewalk_pos.dist_along()
             };
-            let cost = dist
-                / Traversable::Lane(lane.id).max_speed_along(
-                    max_speed,
-                    PathConstraints::Pedestrian,
-                    map,
-                );
+            let cost = dist / step.max_speed_along(max_speed, PathConstraints::Pedestrian, map);
             // Add some extra penalty to using a bus stop. Otherwise a path might try to pass
             // through it uselessly.
             let penalty = Duration::seconds(10.0);
@@ -441,21 +438,28 @@ pub fn walking_path_to_steps(path: Vec<WalkingNode>, map: &Map) -> Vec<PathStepV
 
 // TODO Do we even need this at all?
 pub fn one_step_walking_path(req: PathRequest, map: &Map) -> PathV2 {
+    let l = req.start.lane();
     // Weird case, but it can happen for walking from a building path to a bus stop that're
     // actually at the same spot.
-    let step = if req.start.dist_along() <= req.end.dist_along() {
-        PathStepV2::Along(map.get_l(req.start.lane()).get_directed_parent())
+    let (step_v2, step_v1) = if req.start.dist_along() <= req.end.dist_along() {
+        (
+            PathStepV2::Along(map.get_l(l).get_directed_parent()),
+            PathStep::Lane(l),
+        )
     } else {
-        PathStepV2::Contraflow(map.get_l(req.start.lane()).get_directed_parent())
+        (
+            PathStepV2::Contraflow(map.get_l(l).get_directed_parent()),
+            PathStep::ContraflowLane(l),
+        )
     };
     let mut cost = (req.start.dist_along() - req.end.dist_along()).abs()
-        / Traversable::Lane(req.start.lane()).max_speed_along(
+        / step_v1.max_speed_along(
             Some(crate::MAX_WALKING_SPEED),
             PathConstraints::Pedestrian,
             map,
         );
-    if map.get_l(req.start.lane()).is_shoulder() {
+    if map.get_l(l).is_shoulder() {
         cost = 2.0 * cost;
     }
-    PathV2::new(vec![step], req, cost, Vec::new())
+    PathV2::new(vec![step_v2], req, cost, Vec::new())
 }

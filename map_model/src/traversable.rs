@@ -194,45 +194,6 @@ impl Traversable {
         }
     }
 
-    /// The single definitive place to determine how fast somebody could go along a single road or
-    /// turn. This should be used for pathfinding and simulation.
-    pub fn max_speed_along(
-        &self,
-        max_speed_on_flat_ground: Option<Speed>,
-        constraints: PathConstraints,
-        map: &Map,
-    ) -> Speed {
-        self.max_speed_and_incline_along(max_speed_on_flat_ground, constraints, map)
-            .0
-    }
-
-    /// The single definitive place to determine how fast somebody could go along a single road or
-    /// turn. This should be used for pathfinding and simulation. Returns (speed, percent incline).
-    pub fn max_speed_and_incline_along(
-        &self,
-        max_speed_on_flat_ground: Option<Speed>,
-        constraints: PathConstraints,
-        map: &Map,
-    ) -> (Speed, f64) {
-        match self {
-            Traversable::Lane(l) => Traversable::max_speed_along_road(
-                map.get_l(*l).get_directed_parent(),
-                max_speed_on_flat_ground,
-                constraints,
-                map,
-            ),
-            Traversable::Turn(t) => (
-                Traversable::max_speed_along_movement(
-                    t.to_movement(map),
-                    max_speed_on_flat_ground,
-                    constraints,
-                    map,
-                ),
-                0.0,
-            ),
-        }
-    }
-
     /// The single definitive place to determine how fast somebody could go along a single road.
     /// This should be used for pathfinding and simulation. Returns (speed, percent incline).
     pub(crate) fn max_speed_along_road(
