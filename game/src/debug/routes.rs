@@ -6,7 +6,7 @@ use map_gui::colors::ColorSchemeChoice;
 use map_gui::tools::ColorNetwork;
 use map_gui::{AppLike, ID};
 use map_model::{
-    connectivity, DirectedRoadID, Direction, PathRequest, RoadID, RoutingParams, Traversable,
+    DirectedRoadID, Direction, PathRequest, RoadID, RoutingParams, Traversable,
     NORMAL_LANE_THICKNESS,
 };
 use sim::{TripEndpoint, TripMode};
@@ -508,7 +508,7 @@ impl PathCostDebugger {
         req: PathRequest,
         draw_path: Polygon,
     ) -> Option<Box<dyn State<App>>> {
-        let (full_cost, all_costs) = connectivity::debug_vehicle_costs(req, &app.primary.map)?;
+        let (full_cost, all_costs) = app.primary.map.all_costs_from(req)?;
         let mut batch = GeomBatch::new();
         // Highlight all directed roads with a cost less than the cost of the chosen path. This
         // more or less shows "alternatives considered"; the boundary becomes the point where the
