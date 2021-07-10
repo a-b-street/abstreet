@@ -138,12 +138,15 @@ async fn regenerate_everything(config: ImporterConfiguration, shard_num: usize, 
     }
 }
 
-// TODO Some caveats with this: it doesn't do some of the special GTFS and Berlin things yet. And
-// huge_seattle is such a long tail.
 fn regenerate_all_maps(opts: RawToMapOptions) {
+    // Omit Seattle and Berlin, because they have special follow-up actions (GTFS and
+    // distributing residents)
     let all_maps: Vec<MapName> = CityName::list_all_cities_from_importer_config()
         .into_iter()
         .flat_map(|city| city.list_all_maps_in_city_from_importer_config())
+        .filter(|name| {
+            name != &MapName::new("de", "berlin", "center") && name.city != CityName::seattle()
+        })
         .collect();
     Timer::new("regenerate all maps").parallelize("import each city", all_maps, |name| {
         // Don't pass in a timer; the logs are way too spammy.
