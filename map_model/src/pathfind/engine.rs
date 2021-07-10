@@ -9,6 +9,7 @@ use thread_local::ThreadLocal;
 /// to/from higher-level types.
 #[derive(Serialize, Deserialize)]
 pub enum PathfindEngine {
+    Empty,
     Dijkstra {
         // TODO It's not serializable?!
         #[serde(skip_serializing, skip_deserializing)]
@@ -35,6 +36,7 @@ impl PathfindEngine {
         ends: Vec<(usize, usize)>,
     ) -> Option<(usize, Vec<usize>)> {
         match self {
+            PathfindEngine::Empty => unreachable!(),
             PathfindEngine::Dijkstra { ref graph } => {
                 // TODO Handle multiple sources/targets by brute-force
                 petgraph::algo::astar(
@@ -60,18 +62,23 @@ impl PathfindEngine {
     }
 
     pub fn reuse_ordering(&self) -> CreateEngine {
-        todo!()
+        match self {
+            PathfindEngine::Empty => unreachable!(),
+            // Just don't reuse the ordering
+            PathfindEngine::Dijkstra { .. } => CreateEngine::Dijkstra,
+            PathfindEngine::CH { ref graph, .. } => CreateEngine::CHSeedingNodeOrdering(graph),
+        }
     }
 }
 
-#[derive(Clone, Copy)]
-pub enum CreateEngine {
+pub enum CreateEngine<'a> {
     Dijkstra,
     CH,
+    CHSeedingNodeOrdering(&'a FastGraph),
 }
 
-impl CreateEngine {
-    pub fn create(self, input_graph: InputGraph) -> PathfindEngine {
+impl<'a> CreateEngine<'a> {
+    pub fn create(&self, input_graph: InputGraph) -> PathfindEngine {
         match self {
             CreateEngine::Dijkstra => {
                 let mut graph = DiGraphMap::new();
@@ -91,15 +98,14 @@ impl CreateEngine {
                     path_calc: ThreadLocal::new(),
                 }
             }
+            CreateEngine::CHSeedingNodeOrdering(prev_graph) => {
+                let node_ordering = prev_graph.get_node_ordering();
+                let graph = fast_paths::prepare_with_order(&input_graph, &node_ordering).unwrap();
+                PathfindEngine::CH {
+                    graph,
+                    path_calc: ThreadLocal::new(),
+                }
+            }
         }
     }
 }
-
-/*let graph = if let Some(seed) = seed {
-           let node_ordering = seed.graph.get_node_ordering();
-           fast_paths::prepare_with_order(&input_graph, &node_ordering).unwrap()
-       } else {
-           fast_paths::prepare(&input_graph)
-       };
-
-*/

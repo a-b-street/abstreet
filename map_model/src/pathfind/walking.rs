@@ -53,10 +53,18 @@ impl WalkingNode {
 }
 
 impl SidewalkPathfinder {
+    pub fn empty() -> SidewalkPathfinder {
+        SidewalkPathfinder {
+            nodes: NodeMap::new(),
+            use_transit: false,
+            engine: PathfindEngine::Empty,
+        }
+    }
+
     pub fn new(
         map: &Map,
         use_transit: Option<(&VehiclePathfinder, &VehiclePathfinder)>,
-        engine: CreateEngine,
+        engine: &CreateEngine,
     ) -> SidewalkPathfinder {
         let mut nodes = NodeMap::new();
         for r in map.all_roads() {
@@ -94,10 +102,9 @@ impl SidewalkPathfinder {
         map: &Map,
         use_transit: Option<(&VehiclePathfinder, &VehiclePathfinder)>,
     ) {
-        /*let input_graph = self.translator.make_input_graph(map, Some(bus_graph));
-        let node_ordering = self.graph.get_node_ordering();
-        self.graph = fast_paths::prepare_with_order(&input_graph, &node_ordering).unwrap();*/
-        // TODO
+        let input_graph = make_input_graph(&self.nodes, use_transit, map);
+        let engine = self.engine.reuse_ordering().create(input_graph);
+        self.engine = engine;
     }
 
     pub fn pathfind(&self, req: PathRequest, map: &Map) -> Option<PathV2> {

@@ -26,8 +26,18 @@ pub struct Pathfinder {
 }
 
 impl Pathfinder {
+    /// Quickly create an invalid pathfinder, just to make borrow checking / initialization order
+    /// work.
     pub fn empty() -> Pathfinder {
-        todo!()
+        Pathfinder {
+            car_graph: VehiclePathfinder::empty(),
+            bike_graph: VehiclePathfinder::empty(),
+            bus_graph: VehiclePathfinder::empty(),
+            train_graph: VehiclePathfinder::empty(),
+            walking_graph: SidewalkPathfinder::empty(),
+            walking_with_transit_graph: SidewalkPathfinder::empty(),
+            params: RoutingParams::default(),
+        }
     }
 
     pub fn new(
@@ -37,13 +47,13 @@ impl Pathfinder {
         timer: &mut Timer,
     ) -> Pathfinder {
         timer.start("prepare pathfinding for cars");
-        let car_graph = VehiclePathfinder::new(map, PathConstraints::Car, &params, engine);
+        let car_graph = VehiclePathfinder::new(map, PathConstraints::Car, &params, &engine);
         timer.stop("prepare pathfinding for cars");
 
         // The edge weights for bikes are so different from the driving graph that reusing the node
         // ordering actually hurts!
         timer.start("prepare pathfinding for bikes");
-        let bike_graph = VehiclePathfinder::new(map, PathConstraints::Bike, &params, engine);
+        let bike_graph = VehiclePathfinder::new(map, PathConstraints::Bike, &params, &engine);
         timer.stop("prepare pathfinding for bikes");
 
         timer.start("prepare pathfinding for buses");
@@ -51,24 +61,28 @@ impl Pathfinder {
             map,
             PathConstraints::Bus,
             &params,
-            car_graph.engine.reuse_ordering(),
+            &car_graph.engine.reuse_ordering(),
         );
         timer.stop("prepare pathfinding for buses");
 
         // Light rail networks are absolutely tiny; using a contraction hierarchy for them is
         // overkill. And in fact, it costs a bit of memory and file size, so don't do it!
         timer.start("prepare pathfinding for trains");
-        let train_graph =
-            VehiclePathfinder::new(map, PathConstraints::Train, &params, CreateEngine::Dijkstra);
+        let train_graph = VehiclePathfinder::new(
+            map,
+            PathConstraints::Train,
+            &params,
+            &CreateEngine::Dijkstra,
+        );
         timer.stop("prepare pathfinding for trains");
 
         timer.start("prepare pathfinding for pedestrians");
-        let walking_graph = SidewalkPathfinder::new(map, None, engine);
+        let walking_graph = SidewalkPathfinder::new(map, None, &engine);
         timer.stop("prepare pathfinding for pedestrians");
 
         timer.start("prepare pathfinding for pedestrians using transit");
         let walking_with_transit_graph =
-            SidewalkPathfinder::new(map, Some((&bus_graph, &train_graph)), engine);
+            SidewalkPathfinder::new(map, Some((&bus_graph, &train_graph)), &engine);
         timer.stop("prepare pathfinding for pedestrians using transit");
 
         Pathfinder {

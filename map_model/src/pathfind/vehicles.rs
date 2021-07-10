@@ -22,6 +22,7 @@ pub struct VehiclePathfinder {
     nodes: NodeMap<Node>,
     uber_turns: Vec<UberTurnV2>,
     constraints: PathConstraints,
+    params: RoutingParams,
     pub engine: PathfindEngine,
 }
 
@@ -32,11 +33,21 @@ pub enum Node {
 }
 
 impl VehiclePathfinder {
+    pub fn empty() -> VehiclePathfinder {
+        VehiclePathfinder {
+            nodes: NodeMap::new(),
+            uber_turns: Vec::new(),
+            constraints: PathConstraints::Car,
+            params: RoutingParams::default(),
+            engine: PathfindEngine::Empty,
+        }
+    }
+
     pub fn new(
         map: &Map,
         constraints: PathConstraints,
         params: &RoutingParams,
-        engine: CreateEngine,
+        engine: &CreateEngine,
     ) -> VehiclePathfinder {
         // Insert every road as a node.
         let mut nodes = NodeMap::new();
@@ -69,6 +80,7 @@ impl VehiclePathfinder {
             nodes,
             uber_turns,
             constraints,
+            params: params.clone(),
             engine,
         }
     }
@@ -124,9 +136,15 @@ impl VehiclePathfinder {
         // the node ordering.
         // TODO Make sure the result of this is deterministic and equivalent to computing from
         // scratch.
-        /*let input_graph = self.translator.make_input_graph(map.routing_params(), map);
-        let node_ordering = self.graph.get_node_ordering();
-        self.graph = fast_paths::prepare_with_order(&input_graph, &node_ordering).unwrap();*/
+        let input_graph = make_input_graph(
+            self.constraints,
+            &self.nodes,
+            &self.uber_turns,
+            &self.params,
+            map,
+        );
+        let engine = self.engine.reuse_ordering().create(input_graph);
+        self.engine = engine;
     }
 }
 
