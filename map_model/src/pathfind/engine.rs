@@ -1,7 +1,7 @@
 use std::cell::RefCell;
 
 use fast_paths::{deserialize_32, serialize_32, FastGraph, InputGraph, PathCalculator};
-use petgraph::graphmap::DiGraphMap;
+use petgraph::graph::{DiGraph, NodeIndex};
 use serde::{Deserialize, Serialize};
 use thread_local::ThreadLocal;
 
@@ -11,9 +11,7 @@ use thread_local::ThreadLocal;
 pub enum PathfindEngine {
     Empty,
     Dijkstra {
-        // TODO It's not serializable?!
-        #[serde(skip_serializing, skip_deserializing)]
-        graph: DiGraphMap<usize, usize>,
+        graph: DiGraph<usize, usize>,
     },
     CH {
         #[serde(serialize_with = "serialize_32", deserialize_with = "deserialize_32")]
@@ -39,13 +37,18 @@ impl PathfindEngine {
             PathfindEngine::Empty => unreachable!(),
             PathfindEngine::Dijkstra { ref graph } => {
                 // TODO Handle multiple sources/targets by brute-force
-                petgraph::algo::astar(
+                let end = NodeIndex::new(ends[0].0);
+                let (raw_weight, raw_nodes) = petgraph::algo::astar(
                     graph,
-                    starts[0].0,
-                    |node| node == ends[0].0,
-                    |(_, _, cost)| *cost,
+                    NodeIndex::new(starts[0].0),
+                    |node| node == end,
+                    |edge| *edge.weight(),
                     |_| 0,
-                )
+                )?;
+                Some((
+                    raw_weight,
+                    raw_nodes.into_iter().map(|n| n.index()).collect(),
+                ))
             }
             PathfindEngine::CH {
                 ref graph,
@@ -81,9 +84,17 @@ impl<'a> CreateEngine<'a> {
     pub fn create(&self, input_graph: InputGraph) -> PathfindEngine {
         match self {
             CreateEngine::Dijkstra => {
-                let mut graph = DiGraphMap::new();
+                let mut graph = DiGraph::new();
+                let dummy_weight = 42;
+                for node in 0..input_graph.get_num_nodes() {
+                    assert_eq!(graph.add_node(dummy_weight).index(), node);
+                }
                 for edge in input_graph.get_edges() {
-                    graph.add_edge(edge.from, edge.to, edge.weight);
+                    graph.add_edge(
+                        NodeIndex::new(edge.from),
+                        NodeIndex::new(edge.to),
+                        edge.weight,
+                    );
                 }
                 PathfindEngine::Dijkstra { graph }
             }
