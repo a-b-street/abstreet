@@ -2,13 +2,13 @@
 
 use petgraph::graphmap::DiGraphMap;
 
+use fast_paths::InputGraph;
 use geom::Duration;
 
+use crate::pathfind::vehicles::{Node, VehiclePathTranslator};
 use crate::pathfind::walking::{one_step_walking_path, walking_path_to_steps, WalkingNode};
-use crate::pathfind::{vehicle_cost, zone_cost};
-use crate::{
-    DirectedRoadID, Map, MovementID, PathConstraints, PathRequest, PathStep, PathV2, RoutingParams,
-};
+use crate::pathfind::zone_cost;
+use crate::{Map, PathConstraints, PathRequest, PathStep, PathV2, RoutingParams};
 
 // TODO These should maybe keep the DiGraphMaps as state. It's cheap to recalculate it for edits.
 
@@ -16,43 +16,37 @@ pub fn pathfind(req: PathRequest, params: &RoutingParams, map: &Map) -> Option<P
     if req.constraints == PathConstraints::Pedestrian {
         pathfind_walking(req, map)
     } else {
-        let graph = build_graph_for_vehicles(map, req.constraints);
-        calc_path(graph, req, params, map)
+        assert!(!map.get_l(req.start.lane()).is_walkable());
+
+        let translator = VehiclePathTranslator::new(map, req.constraints);
+        let input_graph = translator.make_input_graph(params, map);
+        let graph = fast_paths_to_petgraph(input_graph);
+
+        // TODO Handle multiple starts here?
+
+        let start = translator.nodes.get(Node::Road(
+            map.get_l(req.start.lane()).get_directed_parent(),
+        ));
+        let end = translator
+            .nodes
+            .get(Node::Road(map.get_l(req.end.lane()).get_directed_parent()));
+        let (raw_cost, raw_nodes) = petgraph::algo::astar(
+            &graph,
+            start,
+            |node| node == end,
+            |(_, _, cost)| *cost,
+            |_| 0,
+        )?;
+        Some(translator.reconstruct_path(&raw_nodes, raw_cost, req, map))
     }
 }
 
-pub fn build_graph_for_vehicles(
-    map: &Map,
-    constraints: PathConstraints,
-) -> DiGraphMap<DirectedRoadID, MovementID> {
+pub fn fast_paths_to_petgraph(input_graph: InputGraph) -> DiGraphMap<usize, usize> {
     let mut graph = DiGraphMap::new();
-    for dr in map.all_directed_roads_for(constraints) {
-        for mvmnt in map.get_movements_for(dr, constraints) {
-            graph.add_edge(mvmnt.from, mvmnt.to, mvmnt);
-        }
+    for edge in input_graph.get_edges() {
+        graph.add_edge(edge.from, edge.to, edge.weight);
     }
     graph
-}
-
-fn calc_path(
-    graph: DiGraphMap<DirectedRoadID, MovementID>,
-    req: PathRequest,
-    params: &RoutingParams,
-    map: &Map,
-) -> Option<PathV2> {
-    let end = map.get_l(req.end.lane()).get_directed_parent();
-    let (cost, steps) = petgraph::algo::astar(
-        &graph,
-        map.get_l(req.start.lane()).get_directed_parent(),
-        |dr| dr == end,
-        |(_, _, mvmnt)| {
-            vehicle_cost(mvmnt.from, *mvmnt, req.constraints, params, map)
-                + zone_cost(*mvmnt, req.constraints, map)
-        },
-        |_| Duration::ZERO,
-    )?;
-    // TODO No uber-turns yet
-    Some(PathV2::from_roads(steps, req, cost, Vec::new(), map))
 }
 
 pub fn build_graph_for_pedestrians(map: &Map) -> DiGraphMap<WalkingNode, Duration> {

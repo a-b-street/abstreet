@@ -103,3 +103,7 @@ pub fn round(cost: Duration) -> usize {
     // Round up! 0 cost edges are ignored
     (cost.inner_seconds().round() as usize).max(1)
 }
+
+pub fn unround(cost: usize) -> Duration {
+    Duration::seconds(cost as f64)
+}

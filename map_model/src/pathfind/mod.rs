@@ -5,12 +5,12 @@ use serde::{Deserialize, Serialize};
 
 use geom::Duration;
 
-pub use self::ch::ContractionHierarchyPathfinder;
-pub use self::dijkstra::{build_graph_for_pedestrians, build_graph_for_vehicles};
+pub use self::ch::{unround, ContractionHierarchyPathfinder};
+pub use self::dijkstra::{build_graph_for_pedestrians, fast_paths_to_petgraph};
 pub use self::pathfinder::Pathfinder;
 pub use self::v1::{Path, PathRequest, PathStep};
 pub use self::v2::{PathStepV2, PathV2};
-pub use self::vehicles::vehicle_cost;
+pub use self::vehicles::{vehicle_cost, Node, VehiclePathTranslator};
 pub use self::walking::WalkingNode;
 use crate::{osm, Lane, LaneID, LaneType, Map, MovementID, TurnType};
 

@@ -492,20 +492,6 @@ impl Map {
         result
     }
 
-    /// Find all directed roads usable by somebody.
-    pub(crate) fn all_directed_roads_for(
-        &self,
-        constraints: PathConstraints,
-    ) -> Vec<DirectedRoadID> {
-        let mut result = BTreeSet::new();
-        for l in self.lanes.values() {
-            if constraints.can_use(l, self) {
-                result.insert(l.get_directed_parent());
-            }
-        }
-        result.into_iter().collect()
-    }
-
     pub fn save(&self) {
         assert!(self.edits.edits_name.starts_with("Untitled Proposal"));
         assert!(self.edits.commands.is_empty());

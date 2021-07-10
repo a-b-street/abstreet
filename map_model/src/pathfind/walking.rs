@@ -9,7 +9,7 @@ use thread_local::ThreadLocal;
 
 use geom::{Distance, Duration};
 
-use crate::pathfind::ch::round;
+use crate::pathfind::ch::{round, unround};
 use crate::pathfind::dijkstra;
 use crate::pathfind::node_map::{deserialize_nodemap, NodeMap};
 use crate::pathfind::vehicles::VehiclePathfinder;
@@ -116,7 +116,7 @@ impl SidewalkPathfinder {
         )?;
         let nodes = self.nodes.translate(&raw_path);
         let steps = walking_path_to_steps(nodes, map);
-        let cost = Duration::seconds(raw_path.get_weight() as f64);
+        let cost = unround(raw_path.get_weight());
         Some(PathV2::new(steps, req, cost, Vec::new()))
     }
 
