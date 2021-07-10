@@ -1,18 +1,16 @@
 //! Pathfinding for cars, bikes, buses, and trains using contraction hierarchies
 
-use std::cell::RefCell;
-
-use fast_paths::{deserialize_32, serialize_32, FastGraph, InputGraph, PathCalculator};
+use fast_paths::InputGraph;
 use serde::{Deserialize, Serialize};
-use thread_local::ThreadLocal;
 
 use abstutil::MultiMap;
 use geom::{Distance, Duration};
 
-use crate::pathfind::ch::{round, unround};
+use crate::pathfind::engine::{CreateEngine, PathfindEngine};
 use crate::pathfind::node_map::{deserialize_nodemap, NodeMap};
 use crate::pathfind::uber_turns::{IntersectionCluster, UberTurnV2};
 use crate::pathfind::zone_cost;
+use crate::pathfind::{round, unround};
 use crate::{
     DirectedRoadID, Direction, DrivingSide, LaneType, Map, MovementID, PathConstraints,
     PathRequest, PathV2, RoutingParams, Traversable, TurnType,
@@ -20,20 +18,11 @@ use crate::{
 
 #[derive(Serialize, Deserialize)]
 pub struct VehiclePathfinder {
-    #[serde(serialize_with = "serialize_32", deserialize_with = "deserialize_32")]
-    graph: FastGraph,
-    #[serde(skip_serializing, skip_deserializing)]
-    path_calc: ThreadLocal<RefCell<PathCalculator>>,
-    translator: VehiclePathTranslator,
-}
-
-/// Used for both contraction hierarchies and Dijkstra's
-#[derive(Serialize, Deserialize)]
-pub struct VehiclePathTranslator {
     #[serde(deserialize_with = "deserialize_nodemap")]
-    pub nodes: NodeMap<Node>,
+    nodes: NodeMap<Node>,
     uber_turns: Vec<UberTurnV2>,
     constraints: PathConstraints,
+    pub engine: PathfindEngine,
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug, Serialize, Deserialize)]
@@ -42,8 +31,13 @@ pub enum Node {
     UberTurn(usize),
 }
 
-impl VehiclePathTranslator {
-    pub fn new(map: &Map, constraints: PathConstraints) -> VehiclePathTranslator {
+impl VehiclePathfinder {
+    pub fn new(
+        map: &Map,
+        constraints: PathConstraints,
+        params: &RoutingParams,
+        engine: CreateEngine,
+    ) -> VehiclePathfinder {
         // Insert every road as a node.
         let mut nodes = NodeMap::new();
         for r in map.all_roads() {
@@ -68,95 +62,44 @@ impl VehiclePathTranslator {
             }
         }
 
-        VehiclePathTranslator {
+        let input_graph = make_input_graph(constraints, &nodes, &uber_turns, params, map);
+        let engine = engine.create(input_graph);
+
+        VehiclePathfinder {
             nodes,
             uber_turns,
             constraints,
+            engine,
         }
     }
 
-    pub fn make_input_graph(&self, params: &RoutingParams, map: &Map) -> InputGraph {
-        let constraints = self.constraints;
-        let mut input_graph = InputGraph::new();
-
-        // From some roads, instead of adding edges to movements, add edges to these (indexed)
-        // uber-turns.
-        let mut uber_turn_entrances: MultiMap<DirectedRoadID, usize> = MultiMap::new();
-        for (idx, ut) in self.uber_turns.iter().enumerate() {
-            // Force the nodes to always match up in the graph for different vehicle types.
-            self.nodes.get(Node::UberTurn(idx));
-
-            // But actually, make sure this uber-turn only contains roads that can be used by this
-            // vehicle.
-            // TODO Need to test editing lanes inside an IntersectionCluster very carefully. See Mercer
-            // and Dexter.
-            if ut
-                .path
-                .iter()
-                .all(|mvmnt| !mvmnt.to.lanes(constraints, map).is_empty())
-            {
-                uber_turn_entrances.insert(ut.entry(), idx);
-            }
+    pub fn pathfind(&self, req: PathRequest, map: &Map) -> Option<PathV2> {
+        assert!(!map.get_l(req.start.lane()).is_walkable());
+        let mut starts = vec![(
+            self.nodes.get(Node::Road(
+                map.get_l(req.start.lane()).get_directed_parent(),
+            )),
+            0,
+        )];
+        if let Some((pos, cost)) = req.alt_start {
+            starts.push((
+                self.nodes
+                    .get(Node::Road(map.get_l(pos.lane()).get_directed_parent())),
+                round(cost),
+            ));
         }
+        let (raw_weight, raw_nodes) = self.engine.calculate_path_multiple_sources_and_targets(
+            starts,
+            vec![(
+                self.nodes
+                    .get(Node::Road(map.get_l(req.end.lane()).get_directed_parent())),
+                0,
+            )],
+        )?;
 
-        for r in map.all_roads() {
-            for dr in r.id.both_directions() {
-                let from = self.nodes.get(Node::Road(dr));
-                if !dr.lanes(constraints, map).is_empty() {
-                    let indices = uber_turn_entrances.get(dr);
-                    if indices.is_empty() {
-                        for mvmnt in map.get_movements_for(dr, constraints) {
-                            input_graph.add_edge(
-                                from,
-                                self.nodes.get(Node::Road(mvmnt.to)),
-                                round(
-                                    vehicle_cost(mvmnt.from, mvmnt, constraints, params, map)
-                                        + zone_cost(mvmnt, constraints, map),
-                                ),
-                            );
-                        }
-                    } else {
-                        for idx in indices {
-                            let ut = &self.uber_turns[*idx];
-
-                            let mut sum_cost = Duration::ZERO;
-                            for mvmnt in &ut.path {
-                                sum_cost +=
-                                    vehicle_cost(mvmnt.from, *mvmnt, constraints, params, map)
-                                        + zone_cost(*mvmnt, constraints, map);
-                            }
-                            input_graph.add_edge(
-                                from,
-                                self.nodes.get(Node::UberTurn(*idx)),
-                                round(sum_cost),
-                            );
-                            input_graph.add_edge(
-                                self.nodes.get(Node::UberTurn(*idx)),
-                                self.nodes.get(Node::Road(ut.exit())),
-                                // The cost is already captured for entering the uber-turn
-                                1,
-                            );
-                        }
-                    }
-                }
-            }
-        }
-
-        self.nodes.guarantee_node_ordering(&mut input_graph);
-        input_graph.freeze();
-        input_graph
-    }
-
-    pub fn reconstruct_path(
-        &self,
-        raw_nodes: &Vec<usize>,
-        raw_weight: usize,
-        req: PathRequest,
-        map: &Map,
-    ) -> PathV2 {
         let mut road_steps = Vec::new();
         let mut uber_turns = Vec::new();
-        for node in raw_nodes.into_iter().map(|id| self.nodes.translate_id(*id)) {
+        for node in raw_nodes.into_iter().map(|id| self.nodes.translate_id(id)) {
             match node {
                 Node::Road(dr) => {
                     road_steps.push(dr);
@@ -173,76 +116,7 @@ impl VehiclePathTranslator {
             }
         }
         let cost = unround(raw_weight);
-        PathV2::from_roads(road_steps, req, cost, uber_turns, map)
-    }
-}
-
-impl VehiclePathfinder {
-    pub fn new(
-        map: &Map,
-        constraints: PathConstraints,
-        seed: Option<&VehiclePathfinder>,
-    ) -> VehiclePathfinder {
-        let translator = VehiclePathTranslator::new(map, constraints);
-        let input_graph = translator.make_input_graph(map.routing_params(), map);
-
-        // All VehiclePathfinders have the same nodes (roads), so if we're not the first being
-        // built, seed from the node ordering.
-        info!(
-            "Contraction hierarchy input graph for {:?} has {} nodes",
-            constraints,
-            abstutil::prettyprint_usize(input_graph.get_num_nodes())
-        );
-        let graph = if let Some(seed) = seed {
-            let node_ordering = seed.graph.get_node_ordering();
-            fast_paths::prepare_with_order(&input_graph, &node_ordering).unwrap()
-        } else {
-            fast_paths::prepare(&input_graph)
-        };
-
-        VehiclePathfinder {
-            graph,
-            path_calc: ThreadLocal::new(),
-            translator,
-        }
-    }
-
-    pub fn pathfind(&self, req: PathRequest, map: &Map) -> Option<PathV2> {
-        assert!(!map.get_l(req.start.lane()).is_walkable());
-        let mut calc = self
-            .path_calc
-            .get_or(|| RefCell::new(fast_paths::create_calculator(&self.graph)))
-            .borrow_mut();
-        let mut starts = vec![(
-            self.translator.nodes.get(Node::Road(
-                map.get_l(req.start.lane()).get_directed_parent(),
-            )),
-            0,
-        )];
-        if let Some((pos, cost)) = req.alt_start {
-            starts.push((
-                self.translator
-                    .nodes
-                    .get(Node::Road(map.get_l(pos.lane()).get_directed_parent())),
-                round(cost),
-            ));
-        }
-        let raw_path = calc.calc_path_multiple_sources_and_targets(
-            &self.graph,
-            starts,
-            vec![(
-                self.translator
-                    .nodes
-                    .get(Node::Road(map.get_l(req.end.lane()).get_directed_parent())),
-                0,
-            )],
-        )?;
-        Some(self.translator.reconstruct_path(
-            raw_path.get_nodes(),
-            raw_path.get_weight(),
-            req,
-            map,
-        ))
+        Some(PathV2::from_roads(road_steps, req, cost, uber_turns, map))
     }
 
     pub fn apply_edits(&mut self, map: &Map) {
@@ -250,10 +124,86 @@ impl VehiclePathfinder {
         // the node ordering.
         // TODO Make sure the result of this is deterministic and equivalent to computing from
         // scratch.
-        let input_graph = self.translator.make_input_graph(map.routing_params(), map);
+        /*let input_graph = self.translator.make_input_graph(map.routing_params(), map);
         let node_ordering = self.graph.get_node_ordering();
-        self.graph = fast_paths::prepare_with_order(&input_graph, &node_ordering).unwrap();
+        self.graph = fast_paths::prepare_with_order(&input_graph, &node_ordering).unwrap();*/
     }
+}
+
+fn make_input_graph(
+    constraints: PathConstraints,
+    nodes: &NodeMap<Node>,
+    uber_turns: &Vec<UberTurnV2>,
+    params: &RoutingParams,
+    map: &Map,
+) -> InputGraph {
+    let mut input_graph = InputGraph::new();
+
+    // From some roads, instead of adding edges to movements, add edges to these (indexed)
+    // uber-turns.
+    let mut uber_turn_entrances: MultiMap<DirectedRoadID, usize> = MultiMap::new();
+    for (idx, ut) in uber_turns.iter().enumerate() {
+        // Force the nodes to always match up in the graph for different vehicle types.
+        nodes.get(Node::UberTurn(idx));
+
+        // But actually, make sure this uber-turn only contains roads that can be used by this
+        // vehicle.
+        // TODO Need to test editing lanes inside an IntersectionCluster very carefully. See Mercer
+        // and Dexter.
+        if ut
+            .path
+            .iter()
+            .all(|mvmnt| !mvmnt.to.lanes(constraints, map).is_empty())
+        {
+            uber_turn_entrances.insert(ut.entry(), idx);
+        }
+    }
+
+    for r in map.all_roads() {
+        for dr in r.id.both_directions() {
+            let from = nodes.get(Node::Road(dr));
+            if !dr.lanes(constraints, map).is_empty() {
+                let indices = uber_turn_entrances.get(dr);
+                if indices.is_empty() {
+                    for mvmnt in map.get_movements_for(dr, constraints) {
+                        input_graph.add_edge(
+                            from,
+                            nodes.get(Node::Road(mvmnt.to)),
+                            round(
+                                vehicle_cost(mvmnt.from, mvmnt, constraints, params, map)
+                                    + zone_cost(mvmnt, constraints, map),
+                            ),
+                        );
+                    }
+                } else {
+                    for idx in indices {
+                        let ut = &uber_turns[*idx];
+
+                        let mut sum_cost = Duration::ZERO;
+                        for mvmnt in &ut.path {
+                            sum_cost += vehicle_cost(mvmnt.from, *mvmnt, constraints, params, map)
+                                + zone_cost(*mvmnt, constraints, map);
+                        }
+                        input_graph.add_edge(
+                            from,
+                            nodes.get(Node::UberTurn(*idx)),
+                            round(sum_cost),
+                        );
+                        input_graph.add_edge(
+                            nodes.get(Node::UberTurn(*idx)),
+                            nodes.get(Node::Road(ut.exit())),
+                            // The cost is already captured for entering the uber-turn
+                            1,
+                        );
+                    }
+                }
+            }
+        }
+    }
+
+    nodes.guarantee_node_ordering(&mut input_graph);
+    input_graph.freeze();
+    input_graph
 }
 
 /// This returns the pathfinding cost of crossing one road and turn. This is also expressed in

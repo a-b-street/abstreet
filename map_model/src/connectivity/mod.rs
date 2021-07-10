@@ -9,11 +9,9 @@ use petgraph::graphmap::DiGraphMap;
 use geom::Duration;
 
 pub use self::walking::{all_walking_costs_from, WalkingOptions};
-use crate::pathfind::{fast_paths_to_petgraph, unround, zone_cost, Node, VehiclePathTranslator};
+use crate::pathfind::zone_cost;
 pub use crate::pathfind::{vehicle_cost, WalkingNode};
-use crate::{
-    BuildingID, DirectedRoadID, IntersectionID, LaneID, Map, PathConstraints, PathRequest,
-};
+use crate::{BuildingID, DirectedRoadID, IntersectionID, LaneID, Map, PathConstraints};
 
 mod walking;
 
@@ -166,36 +164,4 @@ impl Ord for Item {
         }
         self.node.cmp(&other.node)
     }
-}
-
-/// Return the cost of a single path, and also a mapping from every directed road to the cost of
-/// getting there from the same start. This can be used to understand why an alternative route
-/// wasn't chosen.
-pub fn debug_vehicle_costs(
-    req: PathRequest,
-    map: &Map,
-) -> Option<(Duration, HashMap<DirectedRoadID, Duration>)> {
-    // TODO Support this
-    if req.constraints == PathConstraints::Pedestrian {
-        return None;
-    }
-
-    let cost =
-        crate::pathfind::dijkstra::pathfind(req.clone(), map.routing_params(), map)?.get_cost();
-
-    let translator = VehiclePathTranslator::new(map, req.constraints);
-    let input_graph = translator.make_input_graph(map.routing_params(), map);
-    let graph = fast_paths_to_petgraph(input_graph);
-
-    let start = translator.nodes.get(Node::Road(
-        map.get_l(req.start.lane()).get_directed_parent(),
-    ));
-    let raw_road_costs = petgraph::algo::dijkstra(&graph, start, None, |(_, _, cost)| *cost);
-    let mut road_costs = HashMap::new();
-    for (node, cost) in raw_road_costs {
-        if let Node::Road(dr) = translator.nodes.translate_id(node) {
-            road_costs.insert(dr, unround(cost));
-        }
-    }
-    Some((cost, road_costs))
 }

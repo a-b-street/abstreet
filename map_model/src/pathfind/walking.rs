@@ -1,19 +1,15 @@
-//! Pathfinding for pedestrians using contraction hierarchies, as well as figuring out if somebody
-//! should use public transit.
+//! Pathfinding for pedestrians, as well as figuring out if somebody should use public transit.
 
-use std::cell::RefCell;
-
-use fast_paths::{deserialize_32, serialize_32, FastGraph, InputGraph, PathCalculator};
+use fast_paths::InputGraph;
 use serde::{Deserialize, Serialize};
-use thread_local::ThreadLocal;
 
 use geom::{Distance, Duration};
 
-use crate::pathfind::ch::{round, unround};
-use crate::pathfind::dijkstra;
+use crate::pathfind::engine::{CreateEngine, PathfindEngine};
 use crate::pathfind::node_map::{deserialize_nodemap, NodeMap};
 use crate::pathfind::vehicles::VehiclePathfinder;
 use crate::pathfind::zone_cost;
+use crate::pathfind::{round, unround};
 use crate::{
     BusRoute, BusRouteID, BusStopID, DirectedRoadID, IntersectionID, Map, MovementID,
     PathConstraints, PathRequest, PathStep, PathStepV2, PathV2, Position,
@@ -21,20 +17,10 @@ use crate::{
 
 #[derive(Serialize, Deserialize)]
 pub struct SidewalkPathfinder {
-    translator: SidewalkPathTranslator,
-    #[serde(serialize_with = "serialize_32", deserialize_with = "deserialize_32")]
-    graph: FastGraph,
-
-    #[serde(skip_serializing, skip_deserializing)]
-    path_calc: ThreadLocal<RefCell<PathCalculator>>,
-}
-
-/// Used for both contraction hierarchies and Dijkstra's
-#[derive(Serialize, Deserialize)]
-pub struct SidewalkPathTranslator {
     #[serde(deserialize_with = "deserialize_nodemap")]
-    pub nodes: NodeMap<WalkingNode>,
+    nodes: NodeMap<WalkingNode>,
     use_transit: bool,
+    engine: PathfindEngine,
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Debug, Hash, Serialize, Deserialize)]
@@ -66,8 +52,12 @@ impl WalkingNode {
     }
 }
 
-impl SidewalkPathTranslator {
-    pub fn just_walking(map: &Map) -> SidewalkPathTranslator {
+impl SidewalkPathfinder {
+    pub fn new(
+        map: &Map,
+        use_transit: Option<(&VehiclePathfinder, &VehiclePathfinder)>,
+        engine: CreateEngine,
+    ) -> SidewalkPathfinder {
         let mut nodes = NodeMap::new();
         for r in map.all_roads() {
             // Regardless of whether the road has sidewalks/shoulders on one or both sides, add
@@ -78,276 +68,74 @@ impl SidewalkPathTranslator {
                 }
             }
         }
-
-        SidewalkPathTranslator {
-            nodes,
-            use_transit: false,
-        }
-    }
-
-    pub fn walking_with_transit(map: &Map) -> SidewalkPathTranslator {
-        let mut translator = SidewalkPathTranslator::just_walking(map);
-        // Add a node for each bus stop.
-        for bs in map.all_bus_stops().keys() {
-            translator.nodes.get_or_insert(WalkingNode::RideBus(*bs));
-        }
-        for i in map.all_outgoing_borders() {
-            // We could filter for those with sidewalks, but eh
-            translator.nodes.get_or_insert(WalkingNode::LeaveMap(i.id));
-        }
-        translator
-    }
-
-    pub fn make_input_graph(&self, map: &Map, bus_graph: Option<&VehiclePathfinder>) -> InputGraph {
-        let max_speed = Some(crate::MAX_WALKING_SPEED);
-        let mut input_graph = InputGraph::new();
-
-        for l in map.all_lanes().values() {
-            if l.is_walkable() {
-                // Sidewalks can be crossed in two directions. When there's a steep incline, of course
-                // it flips.
-                let n1 = self.nodes.get(WalkingNode::SidewalkEndpoint(
-                    l.get_directed_parent(),
-                    false,
-                ));
-                let n2 = self
-                    .nodes
-                    .get(WalkingNode::SidewalkEndpoint(l.get_directed_parent(), true));
-
-                for (step, pair) in [
-                    (PathStep::Lane(l.id), (n1, n2)),
-                    (PathStep::ContraflowLane(l.id), (n2, n1)),
-                ] {
-                    let mut cost = l.length()
-                        / step.max_speed_along(max_speed, PathConstraints::Pedestrian, map);
-                    // TODO Tune this penalty, along with many others.
-                    if l.is_shoulder() {
-                        cost = 2.0 * cost;
-                    }
-                    input_graph.add_edge(pair.0, pair.1, round(cost));
-                }
+        if use_transit.is_some() {
+            // Add a node for each bus stop.
+            for bs in map.all_bus_stops().keys() {
+                nodes.get_or_insert(WalkingNode::RideBus(*bs));
+            }
+            for i in map.all_outgoing_borders() {
+                // We could filter for those with sidewalks, but eh
+                nodes.get_or_insert(WalkingNode::LeaveMap(i.id));
             }
         }
 
-        for t in map.all_turns() {
-            if t.between_sidewalks() {
-                let src = map.get_l(t.id.src);
-                let dst = map.get_l(t.id.dst);
-                let from = WalkingNode::SidewalkEndpoint(
-                    src.get_directed_parent(),
-                    src.dst_i == t.id.parent,
-                );
-                let to = WalkingNode::SidewalkEndpoint(
-                    dst.get_directed_parent(),
-                    dst.dst_i == t.id.parent,
-                );
-                let cost = t.geom.length()
-                    / PathStep::Turn(t.id).max_speed_along(
-                        max_speed,
-                        PathConstraints::Pedestrian,
-                        map,
-                    );
-                input_graph.add_edge(
-                    self.nodes.get(from),
-                    self.nodes.get(to),
-                    round(
-                        cost + zone_cost(t.id.to_movement(map), PathConstraints::Pedestrian, map),
-                    ),
-                );
-            }
-        }
+        let input_graph = make_input_graph(&nodes, use_transit, map);
+        let engine = engine.create(input_graph);
 
-        if self.use_transit {
-            self.transit_input_graph(&mut input_graph, map, bus_graph.unwrap());
-        }
-
-        self.nodes.guarantee_node_ordering(&mut input_graph);
-        input_graph.freeze();
-        input_graph
-    }
-
-    fn transit_input_graph(
-        &self,
-        input_graph: &mut InputGraph,
-        map: &Map,
-        bus_graph: &VehiclePathfinder,
-    ) {
-        let max_speed = Some(crate::MAX_WALKING_SPEED);
-        // Connect bus stops with both sidewalk endpoints, using the appropriate distance.
-        for stop in map.all_bus_stops().values() {
-            let ride_bus = self.nodes.get(WalkingNode::RideBus(stop.id));
-            let lane = map.get_l(stop.sidewalk_pos.lane());
-            for (endpt, step) in [
-                (false, PathStep::Lane(lane.id)),
-                (true, PathStep::ContraflowLane(lane.id)),
-            ] {
-                let dist = if endpt {
-                    lane.length() - stop.sidewalk_pos.dist_along()
-                } else {
-                    stop.sidewalk_pos.dist_along()
-                };
-                let cost = dist / step.max_speed_along(max_speed, PathConstraints::Pedestrian, map);
-                // Add some extra penalty to using a bus stop. Otherwise a path might try to pass
-                // through it uselessly.
-                let penalty = Duration::seconds(10.0);
-                let sidewalk = self.nodes.get(WalkingNode::SidewalkEndpoint(
-                    lane.get_directed_parent(),
-                    endpt,
-                ));
-                input_graph.add_edge(sidewalk, ride_bus, round(cost + penalty));
-                input_graph.add_edge(ride_bus, sidewalk, round(cost + penalty));
-            }
-        }
-
-        // Connect each adjacent stop along a route, with the cost based on how long it'll take a
-        // bus to drive between the stops. Optimistically assume no waiting time at a stop.
-        for route in map.all_bus_routes() {
-            // TODO Also plug in border starts
-            for pair in route.stops.windows(2) {
-                let (stop1, stop2) = (map.get_bs(pair[0]), map.get_bs(pair[1]));
-                let req =
-                    PathRequest::vehicle(stop1.driving_pos, stop2.driving_pos, route.route_type);
-                let maybe_driving_cost = match route.route_type {
-                    PathConstraints::Bus => bus_graph.pathfind(req, map).map(|p| p.get_cost()),
-                    // We always use Dijkstra for trains
-                    PathConstraints::Train => {
-                        dijkstra::pathfind(req, map.routing_params(), map).map(|p| p.get_cost())
-                    }
-                    _ => unreachable!(),
-                };
-                if let Some(driving_cost) = maybe_driving_cost {
-                    input_graph.add_edge(
-                        self.nodes.get(WalkingNode::RideBus(stop1.id)),
-                        self.nodes.get(WalkingNode::RideBus(stop2.id)),
-                        round(driving_cost),
-                    );
-                } else {
-                    panic!(
-                        "No bus route from {} to {} now for {}! Prevent this edit",
-                        stop1.driving_pos, stop2.driving_pos, route.full_name,
-                    );
-                }
-            }
-
-            if let Some(l) = route.end_border {
-                let stop1 = map.get_bs(*route.stops.last().unwrap());
-                let req = PathRequest::vehicle(
-                    stop1.driving_pos,
-                    Position::end(l, map),
-                    route.route_type,
-                );
-                let maybe_driving_cost = match route.route_type {
-                    PathConstraints::Bus => bus_graph.pathfind(req, map).map(|p| p.get_cost()),
-                    // We always use Dijkstra for trains
-                    PathConstraints::Train => {
-                        dijkstra::pathfind(req, map.routing_params(), map).map(|p| p.get_cost())
-                    }
-                    _ => unreachable!(),
-                };
-                if let Some(driving_cost) = maybe_driving_cost {
-                    let border = map.get_i(map.get_l(l).dst_i);
-                    input_graph.add_edge(
-                        self.nodes.get(WalkingNode::RideBus(stop1.id)),
-                        self.nodes.get(WalkingNode::LeaveMap(border.id)),
-                        round(driving_cost),
-                    );
-                } else {
-                    panic!(
-                        "No bus route from {} to end of {} now for {}! Prevent this edit",
-                        stop1.driving_pos, l, route.full_name,
-                    );
-                }
-            }
-        }
-    }
-
-    pub fn reconstruct_path(
-        &self,
-        raw_nodes: &Vec<usize>,
-        raw_weight: usize,
-        req: PathRequest,
-        map: &Map,
-    ) -> PathV2 {
-        let nodes: Vec<WalkingNode> = raw_nodes
-            .into_iter()
-            .map(|id| self.nodes.translate_id(*id))
-            .collect();
-        let steps = walking_path_to_steps(nodes, map);
-        let cost = unround(raw_weight);
-        PathV2::new(steps, req, cost, Vec::new())
-    }
-}
-
-impl SidewalkPathfinder {
-    pub fn new(map: &Map, use_transit: bool, bus_graph: &VehiclePathfinder) -> SidewalkPathfinder {
-        let translator = if use_transit {
-            SidewalkPathTranslator::walking_with_transit(map)
-        } else {
-            SidewalkPathTranslator::just_walking(map)
-        };
-
-        let graph = fast_paths::prepare(&translator.make_input_graph(map, Some(bus_graph)));
         SidewalkPathfinder {
-            translator,
-            graph,
-            path_calc: ThreadLocal::new(),
+            nodes,
+            use_transit: use_transit.is_some(),
+            engine,
         }
     }
 
-    pub fn apply_edits(&mut self, map: &Map, bus_graph: &VehiclePathfinder) {
-        let input_graph = self.translator.make_input_graph(map, Some(bus_graph));
+    pub fn apply_edits(
+        &mut self,
+        map: &Map,
+        use_transit: Option<(&VehiclePathfinder, &VehiclePathfinder)>,
+    ) {
+        /*let input_graph = self.translator.make_input_graph(map, Some(bus_graph));
         let node_ordering = self.graph.get_node_ordering();
-        self.graph = fast_paths::prepare_with_order(&input_graph, &node_ordering).unwrap();
+        self.graph = fast_paths::prepare_with_order(&input_graph, &node_ordering).unwrap();*/
+        // TODO
     }
 
     pub fn pathfind(&self, req: PathRequest, map: &Map) -> Option<PathV2> {
         if req.start.lane() == req.end.lane() {
             return Some(one_step_walking_path(req, map));
         }
-
-        let mut calc = self
-            .path_calc
-            .get_or(|| RefCell::new(fast_paths::create_calculator(&self.graph)))
-            .borrow_mut();
-        let raw_path = calc.calc_path(
-            &self.graph,
-            self.translator
-                .nodes
-                .get(WalkingNode::closest(req.start, map)),
-            self.translator
-                .nodes
-                .get(WalkingNode::closest(req.end, map)),
+        let (raw_weight, raw_nodes) = self.engine.calculate_path(
+            self.nodes.get(WalkingNode::closest(req.start, map)),
+            self.nodes.get(WalkingNode::closest(req.end, map)),
         )?;
-        Some(self.translator.reconstruct_path(
-            raw_path.get_nodes(),
-            raw_path.get_weight(),
-            req,
-            map,
-        ))
+        let nodes: Vec<WalkingNode> = raw_nodes
+            .into_iter()
+            .map(|id| self.nodes.translate_id(id))
+            .collect();
+        let steps = walking_path_to_steps(nodes, map);
+        let cost = unround(raw_weight);
+        Some(PathV2::new(steps, req, cost, Vec::new()))
     }
 
     /// Attempt the pathfinding and see if we should ride a bus. If so, says (stop1, optional stop
     /// 2, route). If there's no stop 2, then ride the bus off the border.
-    // TODO Lift to be useful in Dijkstra as well
     pub fn should_use_transit(
         &self,
         map: &Map,
         start: Position,
         end: Position,
     ) -> Option<(BusStopID, Option<BusStopID>, BusRouteID)> {
-        let raw_path = fast_paths::calc_path(
-            &self.graph,
-            self.translator.nodes.get(WalkingNode::closest(start, map)),
-            self.translator
-                .nodes
-                .get(WalkingNode::end_transit(end, map)),
-        )?;
+        assert!(self.use_transit);
 
-        let nodes: Vec<WalkingNode> = raw_path
-            .get_nodes()
+        let (_, raw_nodes) = self.engine.calculate_path(
+            self.nodes.get(WalkingNode::closest(start, map)),
+            self.nodes.get(WalkingNode::end_transit(end, map)),
+        )?;
+        let nodes: Vec<WalkingNode> = raw_nodes
             .into_iter()
-            .map(|id| self.translator.nodes.translate_id(*id))
+            .map(|id| self.nodes.translate_id(id))
             .collect();
+
         if false {
             println!("should_use_transit from {} to {}?", start, end);
             for n in &nodes {
@@ -420,6 +208,152 @@ impl SidewalkPathfinder {
             }
         }
         None
+    }
+}
+
+fn make_input_graph(
+    nodes: &NodeMap<WalkingNode>,
+    use_transit: Option<(&VehiclePathfinder, &VehiclePathfinder)>,
+    map: &Map,
+) -> InputGraph {
+    let max_speed = Some(crate::MAX_WALKING_SPEED);
+    let mut input_graph = InputGraph::new();
+
+    for l in map.all_lanes().values() {
+        if l.is_walkable() {
+            // Sidewalks can be crossed in two directions. When there's a steep incline, of course
+            // it flips.
+            let n1 = nodes.get(WalkingNode::SidewalkEndpoint(
+                l.get_directed_parent(),
+                false,
+            ));
+            let n2 = nodes.get(WalkingNode::SidewalkEndpoint(l.get_directed_parent(), true));
+
+            for (step, pair) in [
+                (PathStep::Lane(l.id), (n1, n2)),
+                (PathStep::ContraflowLane(l.id), (n2, n1)),
+            ] {
+                let mut cost =
+                    l.length() / step.max_speed_along(max_speed, PathConstraints::Pedestrian, map);
+                // TODO Tune this penalty, along with many others.
+                if l.is_shoulder() {
+                    cost = 2.0 * cost;
+                }
+                input_graph.add_edge(pair.0, pair.1, round(cost));
+            }
+        }
+    }
+
+    for t in map.all_turns() {
+        if t.between_sidewalks() {
+            let src = map.get_l(t.id.src);
+            let dst = map.get_l(t.id.dst);
+            let from =
+                WalkingNode::SidewalkEndpoint(src.get_directed_parent(), src.dst_i == t.id.parent);
+            let to =
+                WalkingNode::SidewalkEndpoint(dst.get_directed_parent(), dst.dst_i == t.id.parent);
+            let cost = t.geom.length()
+                / PathStep::Turn(t.id).max_speed_along(max_speed, PathConstraints::Pedestrian, map);
+            input_graph.add_edge(
+                nodes.get(from),
+                nodes.get(to),
+                round(cost + zone_cost(t.id.to_movement(map), PathConstraints::Pedestrian, map)),
+            );
+        }
+    }
+
+    if let Some(graphs) = use_transit {
+        transit_input_graph(&mut input_graph, &nodes, map, graphs.0, graphs.1);
+    }
+
+    nodes.guarantee_node_ordering(&mut input_graph);
+    input_graph.freeze();
+    input_graph
+}
+
+fn transit_input_graph(
+    input_graph: &mut InputGraph,
+    nodes: &NodeMap<WalkingNode>,
+    map: &Map,
+    bus_graph: &VehiclePathfinder,
+    train_graph: &VehiclePathfinder,
+) {
+    let max_speed = Some(crate::MAX_WALKING_SPEED);
+    // Connect bus stops with both sidewalk endpoints, using the appropriate distance.
+    for stop in map.all_bus_stops().values() {
+        let ride_bus = nodes.get(WalkingNode::RideBus(stop.id));
+        let lane = map.get_l(stop.sidewalk_pos.lane());
+        for (endpt, step) in [
+            (false, PathStep::Lane(lane.id)),
+            (true, PathStep::ContraflowLane(lane.id)),
+        ] {
+            let dist = if endpt {
+                lane.length() - stop.sidewalk_pos.dist_along()
+            } else {
+                stop.sidewalk_pos.dist_along()
+            };
+            let cost = dist / step.max_speed_along(max_speed, PathConstraints::Pedestrian, map);
+            // Add some extra penalty to using a bus stop. Otherwise a path might try to pass
+            // through it uselessly.
+            let penalty = Duration::seconds(10.0);
+            let sidewalk = nodes.get(WalkingNode::SidewalkEndpoint(
+                lane.get_directed_parent(),
+                endpt,
+            ));
+            input_graph.add_edge(sidewalk, ride_bus, round(cost + penalty));
+            input_graph.add_edge(ride_bus, sidewalk, round(cost + penalty));
+        }
+    }
+
+    // Connect each adjacent stop along a route, with the cost based on how long it'll take a
+    // bus to drive between the stops. Optimistically assume no waiting time at a stop.
+    for route in map.all_bus_routes() {
+        // TODO Also plug in border starts
+        for pair in route.stops.windows(2) {
+            let (stop1, stop2) = (map.get_bs(pair[0]), map.get_bs(pair[1]));
+            let req = PathRequest::vehicle(stop1.driving_pos, stop2.driving_pos, route.route_type);
+            let maybe_driving_cost = match route.route_type {
+                PathConstraints::Bus => bus_graph.pathfind(req, map).map(|p| p.get_cost()),
+                PathConstraints::Train => train_graph.pathfind(req, map).map(|p| p.get_cost()),
+                _ => unreachable!(),
+            };
+            if let Some(driving_cost) = maybe_driving_cost {
+                input_graph.add_edge(
+                    nodes.get(WalkingNode::RideBus(stop1.id)),
+                    nodes.get(WalkingNode::RideBus(stop2.id)),
+                    round(driving_cost),
+                );
+            } else {
+                panic!(
+                    "No bus route from {} to {} now for {}! Prevent this edit",
+                    stop1.driving_pos, stop2.driving_pos, route.full_name,
+                );
+            }
+        }
+
+        if let Some(l) = route.end_border {
+            let stop1 = map.get_bs(*route.stops.last().unwrap());
+            let req =
+                PathRequest::vehicle(stop1.driving_pos, Position::end(l, map), route.route_type);
+            let maybe_driving_cost = match route.route_type {
+                PathConstraints::Bus => bus_graph.pathfind(req, map).map(|p| p.get_cost()),
+                PathConstraints::Train => train_graph.pathfind(req, map).map(|p| p.get_cost()),
+                _ => unreachable!(),
+            };
+            if let Some(driving_cost) = maybe_driving_cost {
+                let border = map.get_i(map.get_l(l).dst_i);
+                input_graph.add_edge(
+                    nodes.get(WalkingNode::RideBus(stop1.id)),
+                    nodes.get(WalkingNode::LeaveMap(border.id)),
+                    round(driving_cost),
+                );
+            } else {
+                panic!(
+                    "No bus route from {} to end of {} now for {}! Prevent this edit",
+                    stop1.driving_pos, l, route.full_name,
+                );
+            }
+        }
     }
 }
 
@@ -499,7 +433,7 @@ fn walking_path_to_steps(path: Vec<WalkingNode>, map: &Map) -> Vec<PathStepV2> {
 }
 
 // TODO Do we even need this at all?
-pub fn one_step_walking_path(req: PathRequest, map: &Map) -> PathV2 {
+fn one_step_walking_path(req: PathRequest, map: &Map) -> PathV2 {
     let l = req.start.lane();
     // Weird case, but it can happen for walking from a building path to a bus stop that're
     // actually at the same spot.

@@ -1,6 +1,6 @@
 //! A bunch of (mostly read-only) queries on a Map.
 
-use std::collections::{BTreeMap, BTreeSet, HashSet, VecDeque};
+use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet, VecDeque};
 
 use anyhow::Result;
 use petgraph::graphmap::UnGraphMap;
@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 
 use abstio::{CityName, MapName};
 use abstutil::{Tags, Timer};
-use geom::{Bounds, Distance, GPSBounds, Polygon, Pt2D, Ring, Time};
+use geom::{Bounds, Distance, Duration, GPSBounds, Polygon, Pt2D, Ring, Time};
 
 use crate::raw::{OriginalRoad, RawMap};
 use crate::{
@@ -165,7 +165,7 @@ impl Map {
                 inferred_sidewalks: true,
                 street_parking_spot_length: Distance::meters(8.0),
             },
-            pathfinder: Pathfinder::Dijkstra,
+            pathfinder: Pathfinder::empty(),
             pathfinder_dirty: false,
             routing_params: RoutingParams::default(),
             name: MapName::new("zz", "blank city", "blank"),
@@ -574,13 +574,24 @@ impl Map {
             .ok_or_else(|| anyhow!("can't fulfill {}", req))?;
         path.into_v1(self)
     }
-
     pub fn should_use_transit(
         &self,
         start: Position,
         end: Position,
     ) -> Option<(BusStopID, Option<BusStopID>, BusRouteID)> {
+        assert!(!self.pathfinder_dirty);
         self.pathfinder.should_use_transit(self, start, end)
+    }
+
+    /// Return the cost of a single path, and also a mapping from every directed road to the cost
+    /// of getting there from the same start. This can be used to understand why an alternative
+    /// route wasn't chosen.
+    pub fn all_costs_from(
+        &self,
+        req: PathRequest,
+    ) -> Option<(Duration, HashMap<DirectedRoadID, Duration>)> {
+        assert!(!self.pathfinder_dirty);
+        self.pathfinder.all_costs_from(req, self)
     }
 
     // None for SharedSidewalkCorners
