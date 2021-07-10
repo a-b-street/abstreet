@@ -51,11 +51,15 @@ impl Car {
         start_time: Time,
         map: &Map,
     ) -> CarState {
-        let (speed, percent_incline) = self.router.head().max_speed_and_incline_along(
-            self.vehicle.max_speed,
-            self.vehicle.vehicle_type.to_constraints(),
-            map,
-        );
+        let (speed, percent_incline) = self
+            .router
+            .get_path()
+            .current_step()
+            .max_speed_and_incline_along(
+                self.vehicle.max_speed,
+                self.vehicle.vehicle_type.to_constraints(),
+                map,
+            );
         let dt = (dist_int.end - dist_int.start) / speed;
         CarState::Crossing {
             time_int: TimeInterval::new(start_time, start_time + dt),

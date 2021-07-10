@@ -6,7 +6,7 @@ use geom::{Duration, Speed};
 
 use crate::connectivity::Spot;
 use crate::pathfind::{zone_cost, WalkingNode};
-use crate::{BuildingID, Lane, LaneType, Map, PathConstraints, Traversable};
+use crate::{BuildingID, Lane, LaneType, Map, PathConstraints, PathStep};
 
 #[derive(Clone)]
 pub struct WalkingOptions {
@@ -144,11 +144,13 @@ pub fn all_walking_costs_from(
         // Cross the lane
         if opts.allow_shoulders || lane.lane_type != LaneType::Shoulder {
             let sidewalk_len = lane.length();
-            let speed = Traversable::Lane(lane.id).max_speed_along(
-                Some(opts.walking_speed),
-                PathConstraints::Pedestrian,
-                map,
-            );
+            let step = if is_dst_i {
+                PathStep::ContraflowLane(lane.id)
+            } else {
+                PathStep::Lane(lane.id)
+            };
+            let speed =
+                step.max_speed_along(Some(opts.walking_speed), PathConstraints::Pedestrian, map);
             let cross_to_node = WalkingNode::SidewalkEndpoint(r, !is_dst_i);
 
             // We're crossing the sidewalk from one end to the other. If we haven't already found a
@@ -185,7 +187,7 @@ pub fn all_walking_costs_from(
             queue.push(Item {
                 cost: current.cost
                     + turn.geom.length()
-                        / Traversable::Turn(turn.id).max_speed_along(
+                        / PathStep::Turn(turn.id).max_speed_along(
                             Some(opts.walking_speed),
                             PathConstraints::Pedestrian,
                             map,

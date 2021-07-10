@@ -631,11 +631,11 @@ impl Pedestrian {
             }
         };
         let dist_int = DistanceInterval::new_walking(start_dist, end_dist);
-        let (speed, percent_incline) = self
-            .path
-            .current_step()
-            .as_traversable()
-            .max_speed_and_incline_along(Some(self.speed), PathConstraints::Pedestrian, map);
+        let (speed, percent_incline) = self.path.current_step().max_speed_and_incline_along(
+            Some(self.speed),
+            PathConstraints::Pedestrian,
+            map,
+        );
         let time_int = TimeInterval::new(start_time, start_time + dist_int.length() / speed);
         PedState::Crossing {
             dist_int,
@@ -802,7 +802,7 @@ impl Pedestrian {
             if !intersections.maybe_start_turn(
                 AgentID::Pedestrian(self.id),
                 t,
-                Traversable::Turn(t).max_speed_along(
+                PathStep::Turn(t).max_speed_along(
                     Some(self.speed),
                     PathConstraints::Pedestrian,
                     map,

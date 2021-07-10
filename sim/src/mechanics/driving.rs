@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 use abstutil::{deserialize_hashmap, serialize_hashmap, FixedMap, IndexableKey};
 use geom::{Distance, Duration, PolyLine, Time};
-use map_model::{DrivingSide, IntersectionID, LaneID, Map, Path, Position, Traversable};
+use map_model::{DrivingSide, IntersectionID, LaneID, Map, Path, PathStep, Position, Traversable};
 
 use crate::mechanics::car::{Car, CarState};
 use crate::mechanics::queue::{Queue, QueueEntry, Queued};
@@ -469,7 +469,7 @@ impl DrivingSimState {
                     if !ctx.intersections.maybe_start_turn(
                         AgentID::Car(car.vehicle.id),
                         t,
-                        goto.max_speed_along(
+                        PathStep::Turn(t).max_speed_along(
                             car.vehicle.max_speed,
                             car.vehicle.vehicle_type.to_constraints(),
                             ctx.map,
