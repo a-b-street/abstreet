@@ -43,6 +43,11 @@ impl<T: Copy + Ord + Debug + Serialize> NodeMap<T> {
         }
     }
 
+    pub fn translate_id(&self, id: usize) -> T {
+        self.id_to_node[id]
+    }
+
+    // TODO rm
     pub fn translate(&self, path: &ShortestPath) -> Vec<T> {
         path.get_nodes()
             .iter()
