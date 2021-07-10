@@ -326,7 +326,14 @@ impl Map {
 
         traffic_signals::synchronize(&mut map);
 
-        // Note this will always use the slower Pathfinder::Dijkstra.
+        // Initialization order is tricky. We have to create the slower Dijkstra pathfinding so we
+        // can validate routes.
+        map.pathfinder = Pathfinder::new(
+            &map,
+            map.routing_params().clone(),
+            CreateEngine::Dijkstra,
+            timer,
+        );
         transit::make_stops_and_routes(&mut map, &raw.bus_routes, timer);
         for id in map.bus_stops.keys() {
             assert!(!map.get_routes_serving_stop(*id).is_empty());
