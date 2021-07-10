@@ -10,7 +10,7 @@ use geom::{
 };
 
 pub use self::parking_lots::snap_driveway;
-use crate::pathfind::Pathfinder;
+use crate::pathfind::{CreateEngine, Pathfinder};
 use crate::raw::{OriginalRoad, RawMap};
 use crate::{
     connectivity, osm, AccessRestrictions, Area, AreaID, AreaType, ControlStopSign,
@@ -90,7 +90,7 @@ impl Map {
             gps_bounds,
             bounds,
             config: raw.config.clone(),
-            pathfinder: Pathfinder::Dijkstra,
+            pathfinder: Pathfinder::empty(),
             pathfinder_dirty: false,
             routing_params: RoutingParams::default(),
             name: raw.name.clone(),
@@ -332,13 +332,14 @@ impl Map {
             assert!(!map.get_routes_serving_stop(*id).is_empty());
         }
 
-        if opts.build_ch {
-            timer.start("setup ContractionHierarchyPathfinder");
-            map.pathfinder = Pathfinder::CH(crate::pathfind::ContractionHierarchyPathfinder::new(
-                &map, timer,
-            ));
-            timer.stop("setup ContractionHierarchyPathfinder");
-        }
+        timer.start("setup pathfinding");
+        let engine = if opts.build_ch {
+            CreateEngine::CH
+        } else {
+            CreateEngine::Dijkstra
+        };
+        map.pathfinder = Pathfinder::new(&map, map.routing_params().clone(), engine, timer);
+        timer.stop("setup pathfinding");
 
         map
     }

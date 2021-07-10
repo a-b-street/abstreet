@@ -5,17 +5,15 @@ use serde::{Deserialize, Serialize};
 
 use geom::Duration;
 
-pub use self::ch::{unround, ContractionHierarchyPathfinder};
-pub use self::dijkstra::fast_paths_to_petgraph;
+pub use self::engine::CreateEngine;
 pub use self::pathfinder::Pathfinder;
 pub use self::v1::{Path, PathRequest, PathStep};
 pub use self::v2::{PathStepV2, PathV2};
-pub use self::vehicles::{vehicle_cost, Node, VehiclePathTranslator};
+pub use self::vehicles::vehicle_cost;
 pub use self::walking::WalkingNode;
 use crate::{osm, Lane, LaneID, LaneType, Map, MovementID, TurnType};
 
-mod ch;
-pub mod dijkstra;
+mod engine;
 mod node_map;
 mod pathfinder;
 // TODO tmp
@@ -157,7 +155,7 @@ pub fn zone_cost(mvmnt: MovementID, constraints: PathConstraints, map: &Map) -> 
 /// Tuneable parameters for all types of routing.
 // These will maybe become part of the PathRequest later, but that's an extremely invasive and
 // space-expensive change right now.
-#[derive(PartialEq, Serialize, Deserialize)]
+#[derive(Clone, PartialEq, Serialize, Deserialize)]
 pub struct RoutingParams {
     // For all vehicles. This is added to the cost of a movement as an additional delay.
     pub unprotected_turn_penalty: Duration,
@@ -179,4 +177,13 @@ impl RoutingParams {
             driving_lane_penalty: 1.5,
         }
     }
+}
+
+pub fn round(cost: Duration) -> usize {
+    // Round up! 0 cost edges are ignored
+    (cost.inner_seconds().round() as usize).max(1)
+}
+
+pub fn unround(cost: usize) -> Duration {
+    Duration::seconds(cost as f64)
 }

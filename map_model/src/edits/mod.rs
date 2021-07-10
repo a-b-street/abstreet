@@ -872,7 +872,7 @@ impl Map {
             return;
         }
 
-        let mut pathfinder = std::mem::replace(&mut self.pathfinder, Pathfinder::Dijkstra);
+        let mut pathfinder = std::mem::replace(&mut self.pathfinder, Pathfinder::empty());
         pathfinder.apply_edits(self, timer);
         self.pathfinder = pathfinder;
 
