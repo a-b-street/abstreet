@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 use geom::Duration;
 
 pub use self::ch::{unround, ContractionHierarchyPathfinder};
-pub use self::dijkstra::{build_graph_for_pedestrians, fast_paths_to_petgraph};
+pub use self::dijkstra::fast_paths_to_petgraph;
 pub use self::pathfinder::Pathfinder;
 pub use self::v1::{Path, PathRequest, PathStep};
 pub use self::v2::{PathStepV2, PathV2};
