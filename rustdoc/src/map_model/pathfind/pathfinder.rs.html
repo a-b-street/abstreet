@@ -183,6 +183,12 @@
 <span id="180">180</span>
 <span id="181">181</span>
 <span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
@@ -324,8 +330,14 @@
         <span class="ident">req</span>: <span class="ident">PathRequest</span>,
         <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Duration</span>, <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">DirectedRoadID</span>, <span class="ident">Duration</span><span class="op">&gt;</span>)<span class="op">&gt;</span> {
-        <span class="comment">// TODO how?</span>
-        <span class="macro">todo!</span>()
+        <span class="kw">let</span> <span class="ident">req_cost</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>.<span class="ident">clone</span>(), <span class="ident">map</span>)<span class="question-mark">?</span>.<span class="ident">get_cost</span>();
+        <span class="kw">let</span> <span class="ident">all_costs</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">req</span>.<span class="ident">constraints</span> {
+            <span class="ident">PathConstraints::Pedestrian</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">walking_graph</span>.<span class="ident">all_costs_from</span>(<span class="ident">req</span>.<span class="ident">start</span>, <span class="ident">map</span>),
+            <span class="ident">PathConstraints::Car</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">car_graph</span>.<span class="ident">all_costs_from</span>(<span class="ident">req</span>.<span class="ident">start</span>, <span class="ident">map</span>),
+            <span class="ident">PathConstraints::Bike</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">bike_graph</span>.<span class="ident">all_costs_from</span>(<span class="ident">req</span>.<span class="ident">start</span>, <span class="ident">map</span>),
+            <span class="ident">PathConstraints::Bus</span> <span class="op">|</span> <span class="ident">PathConstraints::Train</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
+        };
+        <span class="prelude-val">Some</span>((<span class="ident">req_cost</span>, <span class="ident">all_costs</span>))
     }
 
     <span class="comment">// TODO Consider returning the walking-only path in the failure case, to avoid wasting work</span>

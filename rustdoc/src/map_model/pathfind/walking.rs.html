@@ -469,8 +469,37 @@
 <span id="466">466</span>
 <span id="467">467</span>
 <span id="468">468</span>
+<span id="469">469</span>
+<span id="470">470</span>
+<span id="471">471</span>
+<span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
+<span id="476">476</span>
+<span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
+<span id="482">482</span>
+<span id="483">483</span>
+<span id="484">484</span>
+<span id="485">485</span>
+<span id="486">486</span>
+<span id="487">487</span>
+<span id="488">488</span>
+<span id="489">489</span>
+<span id="490">490</span>
+<span id="491">491</span>
+<span id="492">492</span>
+<span id="493">493</span>
+<span id="494">494</span>
+<span id="495">495</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Pathfinding for pedestrians, as well as figuring out if somebody should use public transit.</span>
+
+<span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
 <span class="kw">use</span> <span class="ident">fast_paths::InputGraph</span>;
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
@@ -687,6 +716,31 @@
             }
         }
         <span class="prelude-val">None</span>
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">all_costs_from</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">start</span>: <span class="ident">Position</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">DirectedRoadID</span>, <span class="ident">Duration</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">nodes</span>.<span class="ident">get</span>(<span class="ident">WalkingNode::closest</span>(<span class="ident">start</span>, <span class="ident">map</span>));
+        <span class="kw">let</span> <span class="ident">raw_costs</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">engine</span>.<span class="ident">is_dijkstra</span>() {
+            <span class="self">self</span>.<span class="ident">engine</span>.<span class="ident">all_costs_from</span>(<span class="ident">start</span>)
+        } <span class="kw">else</span> {
+            <span class="comment">// The CH engine doesn&#39;t support this!</span>
+            <span class="kw">let</span> <span class="ident">input_graph</span> <span class="op">=</span> <span class="ident">make_input_graph</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">nodes</span>, <span class="prelude-val">None</span>, <span class="ident">map</span>);
+            <span class="ident">CreateEngine::Dijkstra</span>
+                .<span class="ident">create</span>(<span class="ident">input_graph</span>)
+                .<span class="ident">all_costs_from</span>(<span class="ident">start</span>)
+        };
+        <span class="ident">raw_costs</span>
+            .<span class="ident">into_iter</span>()
+            .<span class="ident">filter_map</span>(<span class="op">|</span>(<span class="ident">k</span>, <span class="ident">v</span>)<span class="op">|</span> {
+                <span class="comment">// If we want to be more precise here, maybe take the min or max here of both</span>
+                <span class="comment">// endpoints</span>
+                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">WalkingNode::SidewalkEndpoint</span>(<span class="ident">dr</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">nodes</span>.<span class="ident">translate_id</span>(<span class="ident">k</span>) {
+                    <span class="prelude-val">Some</span>((<span class="ident">dr</span>, <span class="ident">unround</span>(<span class="ident">v</span>)))
+                } <span class="kw">else</span> {
+                    <span class="prelude-val">None</span>
+                }
+            })
+            .<span class="ident">collect</span>()
     }
 }
 

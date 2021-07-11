@@ -124,8 +124,27 @@
 <span id="121">121</span>
 <span id="122">122</span>
 <span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
+<span id="126">126</span>
+<span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
+<span id="131">131</span>
+<span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std::cell::RefCell</span>;
+<span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
 <span class="kw">use</span> <span class="ident">fast_paths</span>::{<span class="ident">deserialize_32</span>, <span class="ident">serialize_32</span>, <span class="ident">FastGraph</span>, <span class="ident">InputGraph</span>, <span class="ident">PathCalculator</span>};
 <span class="kw">use</span> <span class="ident">petgraph::graph</span>::{<span class="ident">DiGraph</span>, <span class="ident">NodeIndex</span>};
@@ -198,6 +217,23 @@
             <span class="comment">// Just don&#39;t reuse the ordering</span>
             <span class="ident">PathfindEngine::Dijkstra</span> { .. } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">CreateEngine::Dijkstra</span>,
             <span class="ident">PathfindEngine::CH</span> { <span class="kw-2">ref</span> <span class="ident">graph</span>, .. } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">CreateEngine::CHSeedingNodeOrdering</span>(<span class="ident">graph</span>),
+        }
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_dijkstra</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+        <span class="macro">matches!</span>(<span class="self">self</span>, <span class="ident">PathfindEngine::Dijkstra</span> { .. })
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">all_costs_from</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">start</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">usize</span><span class="op">&gt;</span> {
+        <span class="kw">match</span> <span class="self">self</span> {
+            <span class="ident">PathfindEngine::Empty</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
+            <span class="ident">PathfindEngine::Dijkstra</span> { <span class="kw-2">ref</span> <span class="ident">graph</span> } <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">petgraph::algo::dijkstra</span>(<span class="ident">graph</span>, <span class="ident">NodeIndex::new</span>(<span class="ident">start</span>), <span class="prelude-val">None</span>, <span class="op">|</span><span class="ident">edge</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">edge</span>.<span class="ident">weight</span>())
+                    .<span class="ident">into_iter</span>()
+                    .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">k</span>, <span class="ident">v</span>)<span class="op">|</span> (<span class="ident">k</span>.<span class="ident">index</span>(), <span class="ident">v</span>))
+                    .<span class="ident">collect</span>()
+            }
+            <span class="ident">PathfindEngine::CH</span> { .. } <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
         }
     }
 }
