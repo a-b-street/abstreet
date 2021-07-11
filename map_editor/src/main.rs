@@ -122,6 +122,10 @@ impl MainState {
                             .btn_solid_destructive
                             .text("overwrite RawMap")
                             .build_def(ctx),
+                        ctx.style()
+                            .btn_solid_destructive
+                            .text("reload RawMap")
+                            .build_def(ctx),
                     ]),
                 ]))
                 .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
@@ -319,6 +323,18 @@ impl State<App> for MainState {
                                 }
                                 "overwrite RawMap" => {
                                     app.model.map.save();
+                                }
+                                "reload RawMap" => {
+                                    let include_bldgs = false;
+                                    app.model = Model::import(
+                                        ctx,
+                                        abstio::path_raw_map(&app.model.map.name),
+                                        include_bldgs,
+                                    );
+                                    app.model.show_intersection_geometry(
+                                        ctx,
+                                        self.panel.is_checked("intersection geometry"),
+                                    );
                                 }
                                 _ => unreachable!(),
                             },
