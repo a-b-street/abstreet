@@ -1,5 +1,7 @@
 //! Pathfinding for cars, bikes, buses, and trains using contraction hierarchies
 
+use std::collections::HashMap;
+
 use fast_paths::InputGraph;
 use serde::{Deserialize, Serialize};
 
@@ -13,7 +15,7 @@ use crate::pathfind::zone_cost;
 use crate::pathfind::{round, unround};
 use crate::{
     DirectedRoadID, Direction, DrivingSide, LaneType, Map, MovementID, PathConstraints,
-    PathRequest, PathV2, RoutingParams, Traversable, TurnType,
+    PathRequest, PathV2, Position, RoutingParams, Traversable, TurnType,
 };
 
 #[derive(Serialize, Deserialize)]
@@ -145,6 +147,37 @@ impl VehiclePathfinder {
         );
         let engine = self.engine.reuse_ordering().create(input_graph);
         self.engine = engine;
+    }
+
+    pub fn all_costs_from(&self, start: Position, map: &Map) -> HashMap<DirectedRoadID, Duration> {
+        let start = self
+            .nodes
+            .get(Node::Road(map.get_l(start.lane()).get_directed_parent()));
+        let raw_costs = if self.engine.is_dijkstra() {
+            self.engine.all_costs_from(start)
+        } else {
+            // The CH engine doesn't support this!
+            let input_graph = make_input_graph(
+                self.constraints,
+                &self.nodes,
+                &self.uber_turns,
+                &self.params,
+                map,
+            );
+            CreateEngine::Dijkstra
+                .create(input_graph)
+                .all_costs_from(start)
+        };
+        raw_costs
+            .into_iter()
+            .filter_map(|(k, v)| {
+                if let Node::Road(dr) = self.nodes.translate_id(k) {
+                    Some((dr, unround(v)))
+                } else {
+                    None
+                }
+            })
+            .collect()
     }
 }
 

@@ -138,8 +138,14 @@ impl Pathfinder {
         req: PathRequest,
         map: &Map,
     ) -> Option<(Duration, HashMap<DirectedRoadID, Duration>)> {
-        // TODO how?
-        todo!()
+        let req_cost = self.pathfind(req.clone(), map)?.get_cost();
+        let all_costs = match req.constraints {
+            PathConstraints::Pedestrian => self.walking_graph.all_costs_from(req.start, map),
+            PathConstraints::Car => self.car_graph.all_costs_from(req.start, map),
+            PathConstraints::Bike => self.bike_graph.all_costs_from(req.start, map),
+            PathConstraints::Bus | PathConstraints::Train => unreachable!(),
+        };
+        Some((req_cost, all_costs))
     }
 
     // TODO Consider returning the walking-only path in the failure case, to avoid wasting work

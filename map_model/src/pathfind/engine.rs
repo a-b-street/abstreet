@@ -1,4 +1,5 @@
 use std::cell::RefCell;
+use std::collections::HashMap;
 
 use fast_paths::{deserialize_32, serialize_32, FastGraph, InputGraph, PathCalculator};
 use petgraph::graph::{DiGraph, NodeIndex};
@@ -71,6 +72,23 @@ impl PathfindEngine {
             // Just don't reuse the ordering
             PathfindEngine::Dijkstra { .. } => CreateEngine::Dijkstra,
             PathfindEngine::CH { ref graph, .. } => CreateEngine::CHSeedingNodeOrdering(graph),
+        }
+    }
+
+    pub fn is_dijkstra(&self) -> bool {
+        matches!(self, PathfindEngine::Dijkstra { .. })
+    }
+
+    pub fn all_costs_from(&self, start: usize) -> HashMap<usize, usize> {
+        match self {
+            PathfindEngine::Empty => unreachable!(),
+            PathfindEngine::Dijkstra { ref graph } => {
+                petgraph::algo::dijkstra(graph, NodeIndex::new(start), None, |edge| *edge.weight())
+                    .into_iter()
+                    .map(|(k, v)| (k.index(), v))
+                    .collect()
+            }
+            PathfindEngine::CH { .. } => unreachable!(),
         }
     }
 }

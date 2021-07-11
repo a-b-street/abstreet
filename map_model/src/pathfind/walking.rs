@@ -1,5 +1,7 @@
 //! Pathfinding for pedestrians, as well as figuring out if somebody should use public transit.
 
+use std::collections::HashMap;
+
 use fast_paths::InputGraph;
 use serde::{Deserialize, Serialize};
 
@@ -215,6 +217,31 @@ impl SidewalkPathfinder {
             }
         }
         None
+    }
+
+    pub fn all_costs_from(&self, start: Position, map: &Map) -> HashMap<DirectedRoadID, Duration> {
+        let start = self.nodes.get(WalkingNode::closest(start, map));
+        let raw_costs = if self.engine.is_dijkstra() {
+            self.engine.all_costs_from(start)
+        } else {
+            // The CH engine doesn't support this!
+            let input_graph = make_input_graph(&self.nodes, None, map);
+            CreateEngine::Dijkstra
+                .create(input_graph)
+                .all_costs_from(start)
+        };
+        raw_costs
+            .into_iter()
+            .filter_map(|(k, v)| {
+                // If we want to be more precise here, maybe take the min or max here of both
+                // endpoints
+                if let WalkingNode::SidewalkEndpoint(dr, _) = self.nodes.translate_id(k) {
+                    Some((dr, unround(v)))
+                } else {
+                    None
+                }
+            })
+            .collect()
     }
 }
 
