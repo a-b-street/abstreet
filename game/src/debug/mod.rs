@@ -7,8 +7,9 @@ use map_gui::colors::ColorSchemeChoice;
 use map_gui::load::MapLoader;
 use map_gui::options::OptionsPanel;
 use map_gui::render::{calculate_corners, DrawMap, DrawOptions};
-use map_gui::tools::{ChooseSomething, PopupMsg, PromptInput};
+use map_gui::tools::{find_exe, ChooseSomething, PopupMsg, PromptInput, RunCommand};
 use map_gui::{AppLike, ID};
+use map_model::raw::OriginalRoad;
 use map_model::{
     osm, ControlTrafficSignal, IntersectionID, PathConstraints, Position, RoadID,
     NORMAL_LANE_THICKNESS,
@@ -155,6 +156,11 @@ impl DebugMode {
                     ctx.style()
                         .btn_outline
                         .text("import color-scheme")
+                        .build_def(ctx),
+                    ctx.style()
+                        .btn_outline
+                        .text("undo all merged roads")
+                        .hotkey(lctrl(Key::M))
                         .build_def(ctx),
                 ]),
                 Text::from_all(vec![
@@ -386,6 +392,14 @@ impl State<App> for DebugMode {
                             DrawMap::new(ctx, &app.primary.map, &app.opts, &app.cs, timer);
                     });
                 }
+                "undo all merged roads" => {
+                    if let Err(err) =
+                        std::fs::rename("merge_osm_ways.json", "UNDO_merge_osm_ways.json")
+                    {
+                        warn!("No merged road file? {}", err);
+                    }
+                    return Transition::Push(reimport_map(ctx, app));
+                }
                 _ => unreachable!(),
             },
             Outcome::Changed(_) => {
@@ -589,6 +603,7 @@ impl ContextualActions for Actions {
                 ));
                 actions.push((Key::C, "export roads".to_string()));
                 actions.push((Key::E, "show equiv_pos".to_string()));
+                actions.push((Key::M, "merge short segment".to_string()));
             }
             ID::Intersection(i) => {
                 actions.push((Key::H, "hide this".to_string()));
@@ -780,6 +795,15 @@ impl ContextualActions for Actions {
                         }
                     }
                 }))
+            }
+            (ID::Lane(l), "merge short segment") => {
+                let mut timer = Timer::throwaway();
+                let mut ways: Vec<OriginalRoad> =
+                    abstio::maybe_read_json("merge_osm_ways.json".to_string(), &mut timer)
+                        .unwrap_or_else(|_| Vec::new());
+                ways.push(app.primary.map.get_parent(l).orig_id);
+                abstio::write_json("merge_osm_ways.json".to_string(), &ways);
+                Transition::Push(reimport_map(ctx, app))
             }
             (ID::Area(a), "debug area geometry") => {
                 let pts = &app.primary.map.get_a(a).polygon.points();
@@ -1034,4 +1058,25 @@ fn draw_arterial_crosswalks(ctx: &mut EventCtx, app: &App) -> Drawable {
         }
     }
     ctx.upload(batch)
+}
+
+fn reimport_map(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
+    RunCommand::new_state(
+        ctx,
+        app,
+        vec![
+            find_exe("importer"),
+            "--map".to_string(),
+            app.primary.map.get_name().map.clone(),
+            format!("--city={}", app.primary.map.get_name().city.to_path()),
+            "--skip_ch".to_string(),
+        ],
+        Box::new(|ctx, app, _, _| {
+            Transition::Push(MapLoader::force_reload(
+                ctx,
+                app.primary.map.get_name().clone(),
+                Box::new(|_, _| Transition::Pop),
+            ))
+        }),
+    )
 }

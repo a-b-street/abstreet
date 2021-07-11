@@ -40,6 +40,15 @@ impl MapLoader {
             });
         }
 
+        MapLoader::force_reload(ctx, name, on_load)
+    }
+
+    /// Even if the current map name matches, still reload.
+    pub fn force_reload<A: AppLike + 'static>(
+        ctx: &mut EventCtx,
+        name: MapName,
+        on_load: Box<dyn FnOnce(&mut EventCtx, &mut A) -> Transition<A>>,
+    ) -> Box<dyn State<A>> {
         // TODO Generalize this more, maybe with some kind of country code -> font config
         if let Some(extra_font) = match name.city.country.as_ref() {
             "ir" | "ly" => Some("NotoSansArabic-Regular.ttf"),

@@ -1,5 +1,3 @@
-use std::collections::BTreeSet;
-
 use maplit::btreeset;
 
 use map_gui::tools::PopupMsg;
@@ -39,10 +37,6 @@ fn make_select_panel(ctx: &mut EventCtx, selector: &RoadSelector) -> Panel {
             ctx.style()
                 .btn_outline
                 .text("export one road to Streetmix")
-                .build_def(ctx),
-            ctx.style()
-                .btn_outline
-                .text("export list of roads")
                 .build_def(ctx),
             ctx.style().btn_close_widget(ctx),
         ])
@@ -84,18 +78,6 @@ impl State<App> for BulkSelect {
                              at {}",
                             path
                         )],
-                    ));
-                }
-                "export list of roads" => {
-                    let mut osm_ids: BTreeSet<map_model::osm::WayID> = BTreeSet::new();
-                    for r in &self.selector.roads {
-                        osm_ids.insert(app.primary.map.get_r(*r).orig_id.osm_way_id);
-                    }
-                    abstio::write_json("osm_ways.json".to_string(), &osm_ids);
-                    return Transition::Push(PopupMsg::new_state(
-                        ctx,
-                        "List of roads exported",
-                        vec!["Wrote osm_ways.json"],
                     ));
                 }
                 x => {

@@ -1,5 +1,6 @@
 use std::collections::{BTreeSet, VecDeque};
 
+use abstutil::Timer;
 use geom::{Angle, Distance};
 
 use crate::osm;
@@ -35,6 +36,24 @@ pub fn merge_short_roads(map: &mut RawMap, consolidate_all: bool) -> BTreeSet<No
                 Ok((i, _, _, new_roads)) => {
                     merged.insert(i);
                     queue.extend(new_roads);
+                }
+                Err(err) => {
+                    warn!("Not merging short road / junction=intersection: {}", err);
+                }
+            }
+        }
+    }
+
+    // Use this to quickly test overrides to some ways before upstreaming in OSM.
+    // Since these IDs might be based on already merged roads, do these last.
+    if let Ok(ways) = abstio::maybe_read_json::<Vec<OriginalRoad>>(
+        "merge_osm_ways.json".to_string(),
+        &mut Timer::throwaway(),
+    ) {
+        for id in ways {
+            match map.merge_short_road(id) {
+                Ok((i, _, _, _)) => {
+                    merged.insert(i);
                 }
                 Err(err) => {
                     warn!("Not merging short road / junction=intersection: {}", err);

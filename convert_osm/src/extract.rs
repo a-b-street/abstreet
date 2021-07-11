@@ -1,4 +1,4 @@
-use std::collections::{BTreeSet, HashMap};
+use std::collections::HashMap;
 
 use osm::{NodeID, OsmID, RelationID, WayID};
 
@@ -28,18 +28,6 @@ pub struct OsmExtract {
 
 pub fn extract_osm(map: &mut RawMap, opts: &Options, timer: &mut Timer) -> OsmExtract {
     let mut doc = crate::reader::read(&opts.osm_input, &map.gps_bounds, timer).unwrap();
-
-    // Use this to quickly test overrides to some ways before upstreaming in OSM.
-    if false {
-        let ways: BTreeSet<WayID> = abstio::read_json("osm_ways.json".to_string(), timer);
-        for id in ways {
-            doc.ways
-                .get_mut(&id)
-                .unwrap()
-                .tags
-                .insert("junction", "intersection");
-        }
-    }
 
     // TODO Hacks to override OSM data. There's no problem upstream, but we want to accomplish
     // various things for A/B Street.
