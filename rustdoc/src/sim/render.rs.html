@@ -68,6 +68,14 @@
 <span id="65">65</span>
 <span id="66">66</span>
 <span id="67">67</span>
+<span id="68">68</span>
+<span id="69">69</span>
+<span id="70">70</span>
+<span id="71">71</span>
+<span id="72">72</span>
+<span id="73">73</span>
+<span id="74">74</span>
+<span id="75">75</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Intermediate structures so that sim and game crates don&#39;t have a cyclic dependency.</span>
 
@@ -82,6 +90,7 @@
     <span class="kw">pub</span> <span class="ident">pos</span>: <span class="ident">Pt2D</span>,
     <span class="kw">pub</span> <span class="ident">facing</span>: <span class="ident">Angle</span>,
     <span class="kw">pub</span> <span class="ident">waiting_for_turn</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TurnID</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">intent</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Intent</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">preparing_bike</span>: <span class="ident">bool</span>,
     <span class="kw">pub</span> <span class="ident">waiting_for_bus</span>: <span class="ident">bool</span>,
     <span class="kw">pub</span> <span class="ident">on</span>: <span class="ident">Traversable</span>,
@@ -108,7 +117,7 @@
     <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">CarID</span>,
     <span class="kw">pub</span> <span class="ident">waiting_for_turn</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TurnID</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">status</span>: <span class="ident">CarStatus</span>,
-    <span class="kw">pub</span> <span class="ident">show_parking_intent</span>: <span class="ident">bool</span>,
+    <span class="kw">pub</span> <span class="ident">intent</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Intent</span><span class="op">&gt;</span>,
     <span class="doccomment">/// Front of the car</span>
     <span class="kw">pub</span> <span class="ident">on</span>: <span class="ident">Traversable</span>,
     <span class="doccomment">/// Possibly the rest</span>
@@ -125,6 +134,13 @@
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">CarStatus</span> {
     <span class="ident">Moving</span>,
     <span class="ident">Parked</span>,
+}
+
+<span class="doccomment">/// Shows an agent&#39;s current inner intention or thoughts.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">PartialEq</span>)]</span>
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Intent</span> {
+    <span class="ident">Parking</span>,
+    <span class="ident">SteepUphill</span>,
 }
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">UnzoomedAgent</span> {

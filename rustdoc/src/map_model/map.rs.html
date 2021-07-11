@@ -745,13 +745,10 @@
 <span id="742">742</span>
 <span id="743">743</span>
 <span id="744">744</span>
-<span id="745">745</span>
-<span id="746">746</span>
-<span id="747">747</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! A bunch of (mostly read-only) queries on a Map.</span>
 
-<span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashSet</span>, <span class="ident">VecDeque</span>};
+<span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>, <span class="ident">VecDeque</span>};
 
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
 <span class="kw">use</span> <span class="ident">petgraph::graphmap::UnGraphMap</span>;
@@ -759,7 +756,7 @@
 
 <span class="kw">use</span> <span class="ident">abstio</span>::{<span class="ident">CityName</span>, <span class="ident">MapName</span>};
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">Tags</span>, <span class="ident">Timer</span>};
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Bounds</span>, <span class="ident">Distance</span>, <span class="ident">GPSBounds</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>, <span class="ident">Time</span>};
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Bounds</span>, <span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">GPSBounds</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>, <span class="ident">Time</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::raw</span>::{<span class="ident">OriginalRoad</span>, <span class="ident">RawMap</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -916,7 +913,7 @@
                 <span class="ident">inferred_sidewalks</span>: <span class="bool-val">true</span>,
                 <span class="ident">street_parking_spot_length</span>: <span class="ident">Distance::meters</span>(<span class="number">8.0</span>),
             },
-            <span class="ident">pathfinder</span>: <span class="ident">Pathfinder::Dijkstra</span>,
+            <span class="ident">pathfinder</span>: <span class="ident">Pathfinder::empty</span>(),
             <span class="ident">pathfinder_dirty</span>: <span class="bool-val">false</span>,
             <span class="ident">routing_params</span>: <span class="ident">RoutingParams::default</span>(),
             <span class="ident">name</span>: <span class="ident">MapName::new</span>(<span class="string">&quot;zz&quot;</span>, <span class="string">&quot;blank city&quot;</span>, <span class="string">&quot;blank&quot;</span>),
@@ -1243,20 +1240,6 @@
         <span class="ident">result</span>
     }
 
-    <span class="doccomment">/// Find all directed roads usable by somebody.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">all_directed_roads_for</span>(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">constraints</span>: <span class="ident">PathConstraints</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DirectedRoadID</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">BTreeSet::new</span>();
-        <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">lanes</span>.<span class="ident">values</span>() {
-            <span class="kw">if</span> <span class="ident">constraints</span>.<span class="ident">can_use</span>(<span class="ident">l</span>, <span class="self">self</span>) {
-                <span class="ident">result</span>.<span class="ident">insert</span>(<span class="ident">l</span>.<span class="ident">get_directed_parent</span>());
-            }
-        }
-        <span class="ident">result</span>.<span class="ident">into_iter</span>().<span class="ident">collect</span>()
-    }
-
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">save</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {
         <span class="macro">assert!</span>(<span class="self">self</span>.<span class="ident">edits</span>.<span class="ident">edits_name</span>.<span class="ident">starts_with</span>(<span class="string">&quot;Untitled Proposal&quot;</span>));
         <span class="macro">assert!</span>(<span class="self">self</span>.<span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">is_empty</span>());
@@ -1339,13 +1322,24 @@
             .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">anyhow!</span>(<span class="string">&quot;can&#39;t fulfill {}&quot;</span>, <span class="ident">req</span>))<span class="question-mark">?</span>;
         <span class="ident">path</span>.<span class="ident">into_v1</span>(<span class="self">self</span>)
     }
-
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">should_use_transit</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">start</span>: <span class="ident">Position</span>,
         <span class="ident">end</span>: <span class="ident">Position</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">BusStopID</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BusStopID</span><span class="op">&gt;</span>, <span class="ident">BusRouteID</span>)<span class="op">&gt;</span> {
+        <span class="macro">assert!</span>(<span class="op">!</span><span class="self">self</span>.<span class="ident">pathfinder_dirty</span>);
         <span class="self">self</span>.<span class="ident">pathfinder</span>.<span class="ident">should_use_transit</span>(<span class="self">self</span>, <span class="ident">start</span>, <span class="ident">end</span>)
+    }
+
+    <span class="doccomment">/// Return the cost of a single path, and also a mapping from every directed road to the cost</span>
+    <span class="doccomment">/// of getting there from the same start. This can be used to understand why an alternative</span>
+    <span class="doccomment">/// route wasn&#39;t chosen.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">all_costs_from</span>(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        <span class="ident">req</span>: <span class="ident">PathRequest</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Duration</span>, <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">DirectedRoadID</span>, <span class="ident">Duration</span><span class="op">&gt;</span>)<span class="op">&gt;</span> {
+        <span class="macro">assert!</span>(<span class="op">!</span><span class="self">self</span>.<span class="ident">pathfinder_dirty</span>);
+        <span class="self">self</span>.<span class="ident">pathfinder</span>.<span class="ident">all_costs_from</span>(<span class="ident">req</span>, <span class="self">self</span>)
     }
 
     <span class="comment">// None for SharedSidewalkCorners</span>

@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["CarStatus",""],["PedCrowdLocation",""]],"struct":[["DrawCarInput",""],["DrawPedCrowdInput",""],["DrawPedestrianInput",""],["UnzoomedAgent",""]]});
+initSidebarItems({"enum":[["CarStatus",""],["Intent","Shows an agent’s current inner intention or thoughts."],["PedCrowdLocation",""]],"struct":[["DrawCarInput",""],["DrawPedCrowdInput",""],["DrawPedestrianInput",""],["UnzoomedAgent",""]]});

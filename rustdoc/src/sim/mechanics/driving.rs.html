@@ -1654,6 +1654,14 @@
 <span id="1651">1651</span>
 <span id="1652">1652</span>
 <span id="1653">1653</span>
+<span id="1654">1654</span>
+<span id="1655">1655</span>
+<span id="1656">1656</span>
+<span id="1657">1657</span>
+<span id="1658">1658</span>
+<span id="1659">1659</span>
+<span id="1660">1660</span>
+<span id="1661">1661</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>, <span class="ident">VecDeque</span>};
 
@@ -1661,7 +1669,7 @@
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">deserialize_hashmap</span>, <span class="ident">serialize_hashmap</span>, <span class="ident">FixedMap</span>, <span class="ident">IndexableKey</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">PolyLine</span>, <span class="ident">Time</span>};
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">DrivingSide</span>, <span class="ident">IntersectionID</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">Path</span>, <span class="ident">Position</span>, <span class="ident">Traversable</span>};
+<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">DrivingSide</span>, <span class="ident">IntersectionID</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">Path</span>, <span class="ident">PathStep</span>, <span class="ident">Position</span>, <span class="ident">Traversable</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::mechanics::car</span>::{<span class="ident">Car</span>, <span class="ident">CarState</span>};
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::mechanics::queue</span>::{<span class="ident">Queue</span>, <span class="ident">QueueEntry</span>, <span class="ident">Queued</span>};
@@ -2025,7 +2033,7 @@
         <span class="ident">transit</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">TransitSimState</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="kw">match</span> <span class="ident">car</span>.<span class="ident">state</span> {
-            <span class="ident">CarState::Crossing</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">CarState::Crossing</span> { .. } <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="ident">car</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">CarState::Queued</span> {
                     <span class="ident">blocked_since</span>: <span class="ident">now</span>,
                     <span class="ident">want_to_change_lanes</span>: <span class="prelude-val">None</span>,
@@ -2126,7 +2134,7 @@
                     <span class="kw">if</span> <span class="op">!</span><span class="ident">ctx</span>.<span class="ident">intersections</span>.<span class="ident">maybe_start_turn</span>(
                         <span class="ident">AgentID::Car</span>(<span class="ident">car</span>.<span class="ident">vehicle</span>.<span class="ident">id</span>),
                         <span class="ident">t</span>,
-                        <span class="ident">goto</span>.<span class="ident">max_speed_along</span>(
+                        <span class="ident">PathStep::Turn</span>(<span class="ident">t</span>).<span class="ident">max_speed_along</span>(
                             <span class="ident">car</span>.<span class="ident">vehicle</span>.<span class="ident">max_speed</span>,
                             <span class="ident">car</span>.<span class="ident">vehicle</span>.<span class="ident">vehicle_type</span>.<span class="ident">to_constraints</span>(),
                             <span class="ident">ctx</span>.<span class="ident">map</span>,
@@ -2211,7 +2219,11 @@
             } <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="comment">// The car is already in the target queue. Just set them in the crossing state; we</span>
                 <span class="comment">// already calculated the intervals for it.</span>
-                <span class="ident">car</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">CarState::Crossing</span>(<span class="ident">new_time</span>, <span class="ident">new_dist</span>);
+                <span class="ident">car</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">CarState::Crossing</span> {
+                    <span class="ident">time_int</span>: <span class="ident">new_time</span>,
+                    <span class="ident">dist_int</span>: <span class="ident">new_dist</span>,
+                    <span class="ident">steep_uphill</span>: <span class="bool-val">false</span>,
+                };
                 <span class="ident">ctx</span>.<span class="ident">scheduler</span>
                     .<span class="ident">push</span>(<span class="ident">car</span>.<span class="ident">state</span>.<span class="ident">get_end_time</span>(), <span class="ident">Command::UpdateCar</span>(<span class="ident">car</span>.<span class="ident">vehicle</span>.<span class="ident">id</span>));
 
@@ -2252,7 +2264,7 @@
         <span class="kw">let</span> <span class="ident">our_dist</span> <span class="op">=</span> <span class="ident">dists</span>[<span class="ident">idx</span>].<span class="ident">front</span>;
 
         <span class="kw">match</span> <span class="ident">car</span>.<span class="ident">state</span> {
-            <span class="ident">CarState::Crossing</span>(<span class="kw">_</span>, <span class="kw">_</span>)
+            <span class="ident">CarState::Crossing</span> { .. }
             <span class="op">|</span> <span class="ident">CarState::Unparking</span> { .. }
             <span class="op">|</span> <span class="ident">CarState::WaitingToAdvance</span> { .. }
             <span class="op">|</span> <span class="ident">CarState::ChangingLanes</span> { .. } <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
@@ -2366,7 +2378,7 @@
                         <span class="comment">/*
                         // If this car wasn&#39;t blocked at all, when would it reach its goal?
                         let ideal_end_time = match car.crossing_state(our_dist, now, map) {
-                            CarState::Crossing(time_int, _) =&gt; time_int.end,
+                            CarState::Crossing { time_int, .. } =&gt; time_int.end,
                             _ =&gt; unreachable!(),
                         };
                         if ideal_end_time == now {
@@ -2533,7 +2545,7 @@
                         <span class="ident">Command::UpdateCar</span>(<span class="ident">follower_id</span>),
                     );
                 }
-                <span class="ident">CarState::Crossing</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">CarState::Crossing</span> { .. } <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="comment">// If the follower was still Crossing, they might not&#39;ve been blocked by the</span>
                     <span class="comment">// leader yet. But recalculating their Crossing state isn&#39;t necessarily a no-op</span>
                     <span class="comment">// -- this could prevent them from suddenly warping past a blockage.</span>
@@ -2558,7 +2570,9 @@
                         <span class="ident">now</span>,
                         <span class="ident">ctx</span>.<span class="ident">map</span>,
                     ) {
-                        <span class="ident">CarState::Crossing</span>(<span class="ident">time</span>, <span class="ident">dist</span>) <span class="op">=</span><span class="op">&gt;</span> (<span class="ident">time</span>, <span class="ident">dist</span>),
+                        <span class="ident">CarState::Crossing</span> {
+                            <span class="ident">time_int</span>, <span class="ident">dist_int</span>, ..
+                        } <span class="op">=</span><span class="op">&gt;</span> (<span class="ident">time_int</span>, <span class="ident">dist_int</span>),
                         <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
                     };
                     <span class="macro">assert!</span>(<span class="ident">new_time</span>.<span class="ident">end</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">lc_time</span>.<span class="ident">end</span>);
@@ -2708,7 +2722,7 @@
                             <span class="ident">CarState::WaitingToAdvance</span> { .. } <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
                             <span class="comment">// They weren&#39;t blocked. Note that there&#39;s no way the Crossing state could</span>
                             <span class="comment">// jump forwards here; the leader vanished from the end of the traversable.</span>
-                            <span class="ident">CarState::Crossing</span>(<span class="kw">_</span>, <span class="kw">_</span>)
+                            <span class="ident">CarState::Crossing</span> { .. }
                             <span class="op">|</span> <span class="ident">CarState::ChangingLanes</span> { .. }
                             <span class="op">|</span> <span class="ident">CarState::Unparking</span> { .. }
                             <span class="op">|</span> <span class="ident">CarState::Parking</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>)
@@ -2808,7 +2822,9 @@
             <span class="ident">now</span>,
             <span class="ident">ctx</span>.<span class="ident">map</span>,
         ) {
-            <span class="ident">CarState::Crossing</span>(<span class="ident">time</span>, <span class="ident">dist</span>) <span class="op">=</span><span class="op">&gt;</span> (<span class="ident">time</span>, <span class="ident">dist</span>),
+            <span class="ident">CarState::Crossing</span> {
+                <span class="ident">time_int</span>, <span class="ident">dist_int</span>, ..
+            } <span class="op">=</span><span class="op">&gt;</span> (<span class="ident">time_int</span>, <span class="ident">dist_int</span>),
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
         };
 
@@ -3023,7 +3039,7 @@
                                 <span class="ident">id</span>: <span class="ident">cause</span>,
                                 <span class="ident">waiting_for_turn</span>: <span class="prelude-val">None</span>,
                                 <span class="ident">status</span>: <span class="ident">CarStatus::Parked</span>,
-                                <span class="ident">show_parking_intent</span>: <span class="bool-val">false</span>,
+                                <span class="ident">intent</span>: <span class="prelude-val">None</span>,
                                 <span class="ident">on</span>,
                                 <span class="ident">partly_on</span>: <span class="ident">Vec::new</span>(),
                                 <span class="ident">label</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;block&quot;</span>.<span class="ident">to_string</span>()),
@@ -3040,7 +3056,7 @@
                                 <span class="ident">id</span>: <span class="ident">cause</span>,
                                 <span class="ident">waiting_for_turn</span>: <span class="prelude-val">None</span>,
                                 <span class="ident">status</span>: <span class="ident">CarStatus::Parked</span>,
-                                <span class="ident">show_parking_intent</span>: <span class="bool-val">false</span>,
+                                <span class="ident">intent</span>: <span class="prelude-val">None</span>,
                                 <span class="ident">on</span>,
                                 <span class="ident">partly_on</span>: <span class="ident">Vec::new</span>(),
                                 <span class="ident">label</span>: <span class="prelude-val">Some</span>(<span class="string">&quot;block&quot;</span>.<span class="ident">to_string</span>()),

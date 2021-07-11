@@ -141,10 +141,29 @@
 <span id="138">138</span>
 <span id="139">139</span>
 <span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">ArrowCap</span>, <span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Line</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">Map</span>, <span class="ident">SIDEWALK_THICKNESS</span>};
-<span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">CarID</span>, <span class="ident">DrawCarInput</span>, <span class="ident">Sim</span>};
+<span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">CarID</span>, <span class="ident">DrawCarInput</span>, <span class="ident">Intent</span>, <span class="ident">Sim</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Drawable</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Prerender</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::colors::ColorScheme</span>;
@@ -241,6 +260,25 @@
                 ])
                 .<span class="ident">make_arrow</span>(<span class="ident">Distance::meters</span>(<span class="number">0.15</span>), <span class="ident">ArrowCap::Triangle</span>),
             );
+        }
+
+        <span class="kw">if</span> <span class="ident">input</span>.<span class="ident">intent</span> <span class="op">=</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Intent::SteepUphill</span>) {
+            <span class="kw">let</span> <span class="ident">bubble_z</span> <span class="op">=</span> <span class="op">-</span><span class="number">0.0001</span>;
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bubble_batch</span> <span class="op">=</span>
+                <span class="ident">GeomBatch::load_svg</span>(<span class="ident">prerender</span>, <span class="string">&quot;system/assets/map/thought_bubble.svg&quot;</span>)
+                    .<span class="ident">scale</span>(<span class="number">0.05</span>)
+                    .<span class="ident">centered_on</span>(<span class="ident">input</span>.<span class="ident">body</span>.<span class="ident">middle</span>())
+                    .<span class="ident">translate</span>(<span class="number">2.0</span>, <span class="op">-</span><span class="number">3.5</span>)
+                    .<span class="ident">set_z_offset</span>(<span class="ident">bubble_z</span>);
+            <span class="ident">bubble_batch</span>.<span class="ident">append</span>(
+                <span class="ident">GeomBatch::load_svg</span>(<span class="ident">prerender</span>, <span class="string">&quot;system/assets/tools/uphill.svg&quot;</span>)
+                    .<span class="ident">scale</span>(<span class="number">0.05</span>)
+                    .<span class="ident">centered_on</span>(<span class="ident">input</span>.<span class="ident">body</span>.<span class="ident">middle</span>())
+                    .<span class="ident">translate</span>(<span class="number">2.2</span>, <span class="op">-</span><span class="number">4.2</span>)
+                    .<span class="ident">set_z_offset</span>(<span class="ident">bubble_z</span>),
+            );
+
+            <span class="ident">draw_default</span>.<span class="ident">append</span>(<span class="ident">bubble_batch</span>);
         }
 
         <span class="kw">let</span> <span class="ident">zorder</span> <span class="op">=</span> <span class="ident">input</span>

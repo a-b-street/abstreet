@@ -102,16 +102,13 @@
 <span id="99"> 99</span>
 <span id="100">100</span>
 <span id="101">101</span>
-<span id="102">102</span>
-<span id="103">103</span>
-<span id="104">104</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Some helpers for working with fast_paths.</span>
 
 <span class="kw">use</span> <span class="ident">std::collections::BTreeMap</span>;
 <span class="kw">use</span> <span class="ident">std::fmt::Debug</span>;
 
-<span class="kw">use</span> <span class="ident">fast_paths</span>::{<span class="ident">InputGraph</span>, <span class="ident">NodeId</span>, <span class="ident">ShortestPath</span>};
+<span class="kw">use</span> <span class="ident">fast_paths</span>::{<span class="ident">InputGraph</span>, <span class="ident">NodeId</span>};
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Deserializer</span>, <span class="ident">Serialize</span>};
 
 <span class="doccomment">/// A bidirectional mapping between fast_paths NodeId and some custom ID type.</span>
@@ -151,11 +148,8 @@
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">translate</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">ShortestPath</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="ident">path</span>.<span class="ident">get_nodes</span>()
-            .<span class="ident">iter</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">id_to_node</span>[<span class="kw-2">*</span><span class="ident">id</span>])
-            .<span class="ident">collect</span>()
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">translate_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T</span> {
+        <span class="self">self</span>.<span class="ident">id_to_node</span>[<span class="ident">id</span>]
     }
 
     <span class="doccomment">/// Call this after filling out the input graph, right before preparation.</span>

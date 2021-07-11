@@ -1,1 +1,0 @@
-initSidebarItems({"fn":[["round",""]],"struct":[["ContractionHierarchyPathfinder",""]]});

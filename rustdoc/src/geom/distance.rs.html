@@ -291,8 +291,6 @@
 <span id="288">288</span>
 <span id="289">289</span>
 <span id="290">290</span>
-<span id="291">291</span>
-<span id="292">292</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">cmp</span>, <span class="ident">f64</span>, <span class="ident">fmt</span>, <span class="ident">ops</span>};
 
@@ -421,16 +419,14 @@
             <span class="ident">Distance::feet</span>(<span class="number">10.0</span> <span class="op">*</span> (<span class="ident">ft</span> <span class="op">/</span> <span class="number">10.0</span>).<span class="ident">ceil</span>())
         } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">miles</span> <span class="op">&lt;</span> <span class="number">0.1</span> {
             <span class="ident">Distance::feet</span>(<span class="number">100.0</span> <span class="op">*</span> (<span class="ident">ft</span> <span class="op">/</span> <span class="number">100.0</span>).<span class="ident">ceil</span>())
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">miles</span> <span class="op">&lt;</span><span class="op">=</span> <span class="number">1.0</span> {
+            <span class="ident">Distance::miles</span>((<span class="ident">miles</span> <span class="op">*</span> <span class="number">10.0</span>).<span class="ident">ceil</span>() <span class="op">/</span> <span class="number">10.0</span>)
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">miles</span> <span class="op">&lt;</span><span class="op">=</span> <span class="number">10.0</span> {
+            <span class="ident">Distance::miles</span>(<span class="ident">miles</span>.<span class="ident">ceil</span>())
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">miles</span> <span class="op">&lt;</span><span class="op">=</span> <span class="number">100.0</span> {
+            <span class="ident">Distance::miles</span>(<span class="number">10.0</span> <span class="op">*</span> (<span class="ident">miles</span> <span class="op">/</span> <span class="number">10.0</span>).<span class="ident">ceil</span>())
         } <span class="kw">else</span> {
-            <span class="kw">if</span> <span class="ident">miles</span> <span class="op">&lt;</span><span class="op">=</span> <span class="number">1.0</span> {
-                <span class="ident">Distance::miles</span>((<span class="ident">miles</span> <span class="op">*</span> <span class="number">10.0</span>).<span class="ident">ceil</span>() <span class="op">/</span> <span class="number">10.0</span>)
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">miles</span> <span class="op">&lt;</span><span class="op">=</span> <span class="number">10.0</span> {
-                <span class="ident">Distance::miles</span>(<span class="ident">miles</span>.<span class="ident">ceil</span>())
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">miles</span> <span class="op">&lt;</span><span class="op">=</span> <span class="number">100.0</span> {
-                <span class="ident">Distance::miles</span>(<span class="number">10.0</span> <span class="op">*</span> (<span class="ident">miles</span> <span class="op">/</span> <span class="number">10.0</span>).<span class="ident">ceil</span>())
-            } <span class="kw">else</span> {
-                <span class="self">self</span>
-            }
+            <span class="self">self</span>
         }
     }
 }

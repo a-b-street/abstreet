@@ -183,6 +183,13 @@
 <span id="180">180</span>
 <span id="181">181</span>
 <span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Everything related to pathfinding through a map for different types of agents.</span>
 
@@ -191,8 +198,7 @@
 
 <span class="kw">use</span> <span class="ident">geom::Duration</span>;
 
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::ch::ContractionHierarchyPathfinder</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::dijkstra</span>::{<span class="ident">build_graph_for_pedestrians</span>, <span class="ident">build_graph_for_vehicles</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::engine::CreateEngine</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::pathfinder::Pathfinder</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::v1</span>::{<span class="ident">Path</span>, <span class="ident">PathRequest</span>, <span class="ident">PathStep</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::v2</span>::{<span class="ident">PathStepV2</span>, <span class="ident">PathV2</span>};
@@ -200,8 +206,7 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::walking::WalkingNode</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">osm</span>, <span class="ident">Lane</span>, <span class="ident">LaneID</span>, <span class="ident">LaneType</span>, <span class="ident">Map</span>, <span class="ident">MovementID</span>, <span class="ident">TurnType</span>};
 
-<span class="kw">mod</span> <span class="ident">ch</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">dijkstra</span>;
+<span class="kw">mod</span> <span class="ident">engine</span>;
 <span class="kw">mod</span> <span class="ident">node_map</span>;
 <span class="kw">mod</span> <span class="ident">pathfinder</span>;
 <span class="comment">// TODO tmp</span>
@@ -343,7 +348,7 @@
 <span class="doccomment">/// Tuneable parameters for all types of routing.</span>
 <span class="comment">// These will maybe become part of the PathRequest later, but that&#39;s an extremely invasive and</span>
 <span class="comment">// space-expensive change right now.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RoutingParams</span> {
     <span class="comment">// For all vehicles. This is added to the cost of a movement as an additional delay.</span>
     <span class="kw">pub</span> <span class="ident">unprotected_turn_penalty</span>: <span class="ident">Duration</span>,
@@ -365,6 +370,15 @@
             <span class="ident">driving_lane_penalty</span>: <span class="number">1.5</span>,
         }
     }
+}
+
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">round</span>(<span class="ident">cost</span>: <span class="ident">Duration</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+    <span class="comment">// Round up! 0 cost edges are ignored</span>
+    (<span class="ident">cost</span>.<span class="ident">inner_seconds</span>().<span class="ident">round</span>() <span class="kw">as</span> <span class="ident">usize</span>).<span class="ident">max</span>(<span class="number">1</span>)
+}
+
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">unround</span>(<span class="ident">cost</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Duration</span> {
+    <span class="ident">Duration::seconds</span>(<span class="ident">cost</span> <span class="kw">as</span> <span class="ident">f64</span>)
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_model" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
