@@ -172,6 +172,11 @@
 <span id="169">169</span>
 <span id="170">170</span>
 <span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
+<span id="174">174</span>
+<span id="175">175</span>
+<span id="176">176</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std::collections::VecDeque</span>;
 <span class="kw">use</span> <span class="ident">std::time::Duration</span>;
@@ -195,6 +200,7 @@
     <span class="ident">max_capacity</span>: <span class="ident">usize</span>,
     <span class="ident">started</span>: <span class="ident">Instant</span>,
     <span class="ident">last_drawn</span>: <span class="ident">Instant</span>,
+    <span class="ident">show_success_popup</span>: <span class="ident">bool</span>,
     <span class="comment">// Wrapped in an Option just to make calling from event() work. The bool is success, and the</span>
     <span class="comment">// strings are the last lines of output.</span>
     <span class="ident">on_load</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span>, <span class="ident">bool</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
@@ -203,7 +209,7 @@
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">AppLike</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span> <span class="ident">RunCommand</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(
         <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
-        <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">A</span>,
+        <span class="ident">show_success_popup</span>: <span class="ident">bool</span>,
         <span class="ident">args</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
         <span class="ident">on_load</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span>, <span class="ident">bool</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span> {
@@ -232,6 +238,7 @@
                     <span class="ident">max_capacity</span>,
                     <span class="ident">started</span>: <span class="ident">Instant::now</span>(),
                     <span class="ident">last_drawn</span>: <span class="ident">Instant::now</span>(),
+                    <span class="ident">show_success_popup</span>,
                     <span class="ident">on_load</span>: <span class="prelude-val">Some</span>(<span class="ident">on_load</span>),
                 })
             }
@@ -325,15 +332,18 @@
             <span class="kw">if</span> <span class="op">!</span><span class="ident">success</span> {
                 <span class="ident">lines</span>.<span class="ident">push</span>(<span class="macro">format!</span>(<span class="string">&quot;Command failed: {:?}&quot;</span>, <span class="ident">status</span>));
             }
-            <span class="kw">return</span> <span class="ident">Transition::Multi</span>(<span class="macro">vec!</span>[
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">transitions</span> <span class="op">=</span> <span class="macro">vec!</span>[
                 <span class="ident">Transition::Pop</span>,
                 (<span class="self">self</span>.<span class="ident">on_load</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>())(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">success</span>, <span class="ident">lines</span>.<span class="ident">clone</span>()),
-                <span class="ident">Transition::Push</span>(<span class="ident">PopupMsg::new_state</span>(
+            ];
+            <span class="kw">if</span> <span class="op">!</span><span class="ident">success</span> <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">show_success_popup</span> {
+                <span class="ident">transitions</span>.<span class="ident">push</span>(<span class="ident">Transition::Push</span>(<span class="ident">PopupMsg::new_state</span>(
                     <span class="ident">ctx</span>,
                     <span class="kw">if</span> <span class="ident">success</span> { <span class="string">&quot;Success!&quot;</span> } <span class="kw">else</span> { <span class="string">&quot;Failure!&quot;</span> },
                     <span class="ident">lines</span>,
-                )),
-            ]);
+                )));
+            }
+            <span class="kw">return</span> <span class="ident">Transition::Multi</span>(<span class="ident">transitions</span>);
         }
 
         <span class="ident">Transition::Keep</span>

@@ -139,7 +139,7 @@
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">path</span>)) <span class="op">=</span> <span class="ident">maybe_path</span> {
                 <span class="ident">Transition::Replace</span>(<span class="ident">RunCommand::new_state</span>(
                     <span class="ident">ctx</span>,
-                    <span class="ident">app</span>,
+                    <span class="bool-val">true</span>,
                     <span class="macro">vec!</span>[
                         <span class="ident">find_exe</span>(<span class="string">&quot;import_grid2demand&quot;</span>),
                         <span class="macro">format!</span>(<span class="string">&quot;--map={}&quot;</span>, <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">path</span>()),
