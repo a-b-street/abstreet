@@ -38,15 +38,32 @@ impl PathfindEngine {
         match self {
             PathfindEngine::Empty => unreachable!(),
             PathfindEngine::Dijkstra { ref graph } => {
-                // TODO Handle multiple sources/targets by brute-force
-                let end = NodeIndex::new(ends[0].0);
-                let (raw_weight, raw_nodes) = petgraph::algo::astar(
-                    graph,
-                    NodeIndex::new(starts[0].0),
-                    |node| node == end,
-                    |edge| *edge.weight(),
-                    |_| 0,
-                )?;
+                // If there are multiple starts and ends, calculate each individual path and take
+                // the lowest cost.
+                let mut best_pair: Option<(usize, Vec<NodeIndex>)> = None;
+                for (start_node, weight1) in starts {
+                    let start_node = NodeIndex::new(start_node);
+                    for (end_node, weight2) in &ends {
+                        let end_node = NodeIndex::new(*end_node);
+                        if let Some((raw_weight, raw_nodes)) = petgraph::algo::astar(
+                            graph,
+                            start_node,
+                            |node| node == end_node,
+                            |edge| *edge.weight(),
+                            |_| 0,
+                        ) {
+                            let total_weight = raw_weight + weight1 + weight2;
+                            if best_pair
+                                .as_ref()
+                                .map(|pair| total_weight < pair.0)
+                                .unwrap_or(true)
+                            {
+                                best_pair = Some((total_weight, raw_nodes));
+                            }
+                        }
+                    }
+                }
+                let (raw_weight, raw_nodes) = best_pair?;
                 Some((
                     raw_weight,
                     raw_nodes.into_iter().map(|n| n.index()).collect(),
