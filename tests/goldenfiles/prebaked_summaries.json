@@ -4,69 +4,69 @@
     "scenario": "weekday",
     "finished_trips": 76618,
     "cancelled_trips": 0,
-    "total_trip_duration_seconds": 60504241.673200294
+    "total_trip_duration_seconds": 66120160.662800334
   },
   {
     "map": "greenlake (in seattle (us))",
     "scenario": "weekday",
     "finished_trips": 136849,
     "cancelled_trips": 29,
-    "total_trip_duration_seconds": 75039976.44589964
+    "total_trip_duration_seconds": 75744608.19010042
   },
   {
     "map": "montlake (in seattle (us))",
     "scenario": "weekday",
     "finished_trips": 36723,
     "cancelled_trips": 73,
-    "total_trip_duration_seconds": 19331578.362500068
+    "total_trip_duration_seconds": 19715126.615600005
   },
   {
     "map": "lakeslice (in seattle (us))",
     "scenario": "weekday",
     "finished_trips": 260956,
     "cancelled_trips": 4860,
-    "total_trip_duration_seconds": 199413101.38540325
+    "total_trip_duration_seconds": 200894456.255508
   },
   {
     "map": "qa (in seattle (us))",
     "scenario": "weekday",
     "finished_trips": 53866,
     "cancelled_trips": 0,
-    "total_trip_duration_seconds": 21454910.575500127
+    "total_trip_duration_seconds": 19767575.984599806
   },
   {
     "map": "rainier_valley (in seattle (us))",
     "scenario": "weekday",
     "finished_trips": 68100,
     "cancelled_trips": 0,
-    "total_trip_duration_seconds": 40501470.70569933
+    "total_trip_duration_seconds": 40847817.747400254
   },
   {
     "map": "center (in poundbury (gb))",
     "scenario": "base",
     "finished_trips": 8188,
     "cancelled_trips": 0,
-    "total_trip_duration_seconds": 10610661.935500026
+    "total_trip_duration_seconds": 10662488.71139999
   },
   {
     "map": "center (in poundbury (gb))",
     "scenario": "go_active",
     "finished_trips": 8188,
     "cancelled_trips": 0,
-    "total_trip_duration_seconds": 10570825.385000024
+    "total_trip_duration_seconds": 10512146.459600033
   },
   {
     "map": "center (in poundbury (gb))",
     "scenario": "base_with_bg",
     "finished_trips": 23378,
     "cancelled_trips": 256,
-    "total_trip_duration_seconds": 24774686.489400133
+    "total_trip_duration_seconds": 25032415.78279987
   },
   {
     "map": "center (in poundbury (gb))",
     "scenario": "go_active_with_bg",
     "finished_trips": 23378,
     "cancelled_trips": 256,
-    "total_trip_duration_seconds": 24743270.81650008
+    "total_trip_duration_seconds": 24867356.31510022
   }
 ]

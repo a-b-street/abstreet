@@ -151,7 +151,7 @@ impl VehiclePathfinder {
 fn make_input_graph(
     constraints: PathConstraints,
     nodes: &NodeMap<Node>,
-    uber_turns: &Vec<UberTurnV2>,
+    uber_turns: &[UberTurnV2],
     params: &RoutingParams,
     map: &Map,
 ) -> InputGraph {
