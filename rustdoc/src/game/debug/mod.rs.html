@@ -1038,6 +1038,51 @@
 <span id="1035">1035</span>
 <span id="1036">1036</span>
 <span id="1037">1037</span>
+<span id="1038">1038</span>
+<span id="1039">1039</span>
+<span id="1040">1040</span>
+<span id="1041">1041</span>
+<span id="1042">1042</span>
+<span id="1043">1043</span>
+<span id="1044">1044</span>
+<span id="1045">1045</span>
+<span id="1046">1046</span>
+<span id="1047">1047</span>
+<span id="1048">1048</span>
+<span id="1049">1049</span>
+<span id="1050">1050</span>
+<span id="1051">1051</span>
+<span id="1052">1052</span>
+<span id="1053">1053</span>
+<span id="1054">1054</span>
+<span id="1055">1055</span>
+<span id="1056">1056</span>
+<span id="1057">1057</span>
+<span id="1058">1058</span>
+<span id="1059">1059</span>
+<span id="1060">1060</span>
+<span id="1061">1061</span>
+<span id="1062">1062</span>
+<span id="1063">1063</span>
+<span id="1064">1064</span>
+<span id="1065">1065</span>
+<span id="1066">1066</span>
+<span id="1067">1067</span>
+<span id="1068">1068</span>
+<span id="1069">1069</span>
+<span id="1070">1070</span>
+<span id="1071">1071</span>
+<span id="1072">1072</span>
+<span id="1073">1073</span>
+<span id="1074">1074</span>
+<span id="1075">1075</span>
+<span id="1076">1076</span>
+<span id="1077">1077</span>
+<span id="1078">1078</span>
+<span id="1079">1079</span>
+<span id="1080">1080</span>
+<span id="1081">1081</span>
+<span id="1082">1082</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 
@@ -1048,8 +1093,9 @@
 <span class="kw">use</span> <span class="ident">map_gui::load::MapLoader</span>;
 <span class="kw">use</span> <span class="ident">map_gui::options::OptionsPanel</span>;
 <span class="kw">use</span> <span class="ident">map_gui::render</span>::{<span class="ident">calculate_corners</span>, <span class="ident">DrawMap</span>, <span class="ident">DrawOptions</span>};
-<span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">ChooseSomething</span>, <span class="ident">PopupMsg</span>, <span class="ident">PromptInput</span>};
+<span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">find_exe</span>, <span class="ident">ChooseSomething</span>, <span class="ident">PopupMsg</span>, <span class="ident">PromptInput</span>, <span class="ident">RunCommand</span>};
 <span class="kw">use</span> <span class="ident">map_gui</span>::{<span class="ident">AppLike</span>, <span class="ident">ID</span>};
+<span class="kw">use</span> <span class="ident">map_model::raw::OriginalRoad</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{
     <span class="ident">osm</span>, <span class="ident">ControlTrafficSignal</span>, <span class="ident">IntersectionID</span>, <span class="ident">PathConstraints</span>, <span class="ident">Position</span>, <span class="ident">RoadID</span>,
     <span class="ident">NORMAL_LANE_THICKNESS</span>,
@@ -1196,6 +1242,11 @@
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
                         .<span class="ident">btn_outline</span>
                         .<span class="ident">text</span>(<span class="string">&quot;import color-scheme&quot;</span>)
+                        .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+                    <span class="ident">ctx</span>.<span class="ident">style</span>()
+                        .<span class="ident">btn_outline</span>
+                        .<span class="ident">text</span>(<span class="string">&quot;undo all merged roads&quot;</span>)
+                        .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key::M</span>))
                         .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                 ]),
                 <span class="ident">Text::from_all</span>(<span class="macro">vec!</span>[
@@ -1427,6 +1478,14 @@
                             <span class="ident">DrawMap::new</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">opts</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">cs</span>, <span class="ident">timer</span>);
                     });
                 }
+                <span class="string">&quot;undo all merged roads&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span>
+                        <span class="ident">std::fs::rename</span>(<span class="string">&quot;merge_osm_ways.json&quot;</span>, <span class="string">&quot;UNDO_merge_osm_ways.json&quot;</span>)
+                    {
+                        <span class="macro">warn!</span>(<span class="string">&quot;No merged road file? {}&quot;</span>, <span class="ident">err</span>);
+                    }
+                    <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">reimport_map</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
+                }
                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
             },
             <span class="ident">Outcome::Changed</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
@@ -1630,6 +1689,7 @@
                 ));
                 <span class="ident">actions</span>.<span class="ident">push</span>((<span class="ident">Key::C</span>, <span class="string">&quot;export roads&quot;</span>.<span class="ident">to_string</span>()));
                 <span class="ident">actions</span>.<span class="ident">push</span>((<span class="ident">Key::E</span>, <span class="string">&quot;show equiv_pos&quot;</span>.<span class="ident">to_string</span>()));
+                <span class="ident">actions</span>.<span class="ident">push</span>((<span class="ident">Key::M</span>, <span class="string">&quot;merge short segment&quot;</span>.<span class="ident">to_string</span>()));
             }
             <span class="ident">ID::Intersection</span>(<span class="ident">i</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="ident">actions</span>.<span class="ident">push</span>((<span class="ident">Key::H</span>, <span class="string">&quot;hide this&quot;</span>.<span class="ident">to_string</span>()));
@@ -1821,6 +1881,15 @@
                         }
                     }
                 }))
+            }
+            (<span class="ident">ID::Lane</span>(<span class="ident">l</span>), <span class="string">&quot;merge short segment&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">timer</span> <span class="op">=</span> <span class="ident">Timer::throwaway</span>();
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ways</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">OriginalRoad</span><span class="op">&gt;</span> <span class="op">=</span>
+                    <span class="ident">abstio::maybe_read_json</span>(<span class="string">&quot;merge_osm_ways.json&quot;</span>.<span class="ident">to_string</span>(), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>)
+                        .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">Vec::new</span>());
+                <span class="ident">ways</span>.<span class="ident">push</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_parent</span>(<span class="ident">l</span>).<span class="ident">orig_id</span>);
+                <span class="ident">abstio::write_json</span>(<span class="string">&quot;merge_osm_ways.json&quot;</span>.<span class="ident">to_string</span>(), <span class="kw-2">&amp;</span><span class="ident">ways</span>);
+                <span class="ident">Transition::Push</span>(<span class="ident">reimport_map</span>(<span class="ident">ctx</span>, <span class="ident">app</span>))
             }
             (<span class="ident">ID::Area</span>(<span class="ident">a</span>), <span class="string">&quot;debug area geometry&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="ident">pts</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_a</span>(<span class="ident">a</span>).<span class="ident">polygon</span>.<span class="ident">points</span>();
@@ -2075,6 +2144,27 @@
         }
     }
     <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">batch</span>)
+}
+
+<span class="kw">fn</span> <span class="ident">reimport_map</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="ident">RunCommand::new_state</span>(
+        <span class="ident">ctx</span>,
+        <span class="ident">app</span>,
+        <span class="macro">vec!</span>[
+            <span class="ident">find_exe</span>(<span class="string">&quot;importer&quot;</span>),
+            <span class="string">&quot;--map&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">map</span>.<span class="ident">clone</span>(),
+            <span class="macro">format!</span>(<span class="string">&quot;--city={}&quot;</span>, <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">city</span>.<span class="ident">to_path</span>()),
+            <span class="string">&quot;--skip_ch&quot;</span>.<span class="ident">to_string</span>(),
+        ],
+        <span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw">_</span>, <span class="kw">_</span><span class="op">|</span> {
+            <span class="ident">Transition::Push</span>(<span class="ident">MapLoader::force_reload</span>(
+                <span class="ident">ctx</span>,
+                <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">clone</span>(),
+                <span class="ident">Box::new</span>(<span class="op">|</span><span class="kw">_</span>, <span class="kw">_</span><span class="op">|</span> <span class="ident">Transition::Pop</span>),
+            ))
+        }),
+    )
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="game" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
