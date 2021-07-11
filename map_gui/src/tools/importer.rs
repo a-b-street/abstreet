@@ -85,7 +85,7 @@ impl<A: AppLike + 'static> ImportCity<A> {
 }
 
 impl<A: AppLike + 'static> State<A> for ImportCity<A> {
-    fn event(&mut self, ctx: &mut EventCtx, app: &mut A) -> Transition<A> {
+    fn event(&mut self, ctx: &mut EventCtx, _: &mut A) -> Transition<A> {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "close" => Transition::Pop,
@@ -106,7 +106,7 @@ impl<A: AppLike + 'static> State<A> for ImportCity<A> {
                     match grab_geojson_from_clipboard() {
                         Ok(()) => Transition::Push(crate::tools::RunCommand::new_state(
                             ctx,
-                            app,
+                            true,
                             args,
                             Box::new(|_, _, success, mut lines| {
                                 if success {

@@ -20,6 +20,7 @@ pub struct RunCommand<A: AppLike> {
     max_capacity: usize,
     started: Instant,
     last_drawn: Instant,
+    show_success_popup: bool,
     // Wrapped in an Option just to make calling from event() work. The bool is success, and the
     // strings are the last lines of output.
     on_load: Option<Box<dyn FnOnce(&mut EventCtx, &mut A, bool, Vec<String>) -> Transition<A>>>,
@@ -28,7 +29,7 @@ pub struct RunCommand<A: AppLike> {
 impl<A: AppLike + 'static> RunCommand<A> {
     pub fn new_state(
         ctx: &mut EventCtx,
-        _: &A,
+        show_success_popup: bool,
         args: Vec<String>,
         on_load: Box<dyn FnOnce(&mut EventCtx, &mut A, bool, Vec<String>) -> Transition<A>>,
     ) -> Box<dyn State<A>> {
@@ -57,6 +58,7 @@ impl<A: AppLike + 'static> RunCommand<A> {
                     max_capacity,
                     started: Instant::now(),
                     last_drawn: Instant::now(),
+                    show_success_popup,
                     on_load: Some(on_load),
                 })
             }
@@ -150,15 +152,18 @@ impl<A: AppLike + 'static> State<A> for RunCommand<A> {
             if !success {
                 lines.push(format!("Command failed: {:?}", status));
             }
-            return Transition::Multi(vec![
+            let mut transitions = vec![
                 Transition::Pop,
                 (self.on_load.take().unwrap())(ctx, app, success, lines.clone()),
-                Transition::Push(PopupMsg::new_state(
+            ];
+            if !success || self.show_success_popup {
+                transitions.push(Transition::Push(PopupMsg::new_state(
                     ctx,
                     if success { "Success!" } else { "Failure!" },
                     lines,
-                )),
-            ]);
+                )));
+            }
+            return Transition::Multi(transitions);
         }
 
         Transition::Keep

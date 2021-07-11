@@ -21,7 +21,7 @@ pub fn import_grid2demand(ctx: &mut EventCtx) -> Transition {
             if let Ok(Some(path)) = maybe_path {
                 Transition::Replace(RunCommand::new_state(
                     ctx,
-                    app,
+                    true,
                     vec![
                         find_exe("import_grid2demand"),
                         format!("--map={}", app.primary.map.get_name().path()),

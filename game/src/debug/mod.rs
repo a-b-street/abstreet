@@ -1063,7 +1063,7 @@ fn draw_arterial_crosswalks(ctx: &mut EventCtx, app: &App) -> Drawable {
 fn reimport_map(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
     RunCommand::new_state(
         ctx,
-        app,
+        false,
         vec![
             find_exe("importer"),
             "--map".to_string(),
