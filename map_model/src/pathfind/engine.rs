@@ -7,6 +7,7 @@ use thread_local::ThreadLocal;
 
 /// This operates on raw IDs and costs; no type safety. The thing containing this transforms
 /// to/from higher-level types.
+#[allow(clippy::large_enum_variant)]
 #[derive(Serialize, Deserialize)]
 pub enum PathfindEngine {
     Empty,
