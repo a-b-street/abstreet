@@ -257,7 +257,11 @@ impl CommonState {
 
         // First the constant background
         let mut batch = GeomBatch::from(vec![(
-            app.cs.panel_bg,
+            if app.primary.is_secondary {
+                Color::BLUE
+            } else {
+                app.cs.panel_bg
+            },
             Polygon::rectangle(g.canvas.window_width, 1.5 * g.default_line_height()),
         )]);
         batch.append(

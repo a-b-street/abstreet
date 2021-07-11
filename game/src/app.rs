@@ -624,6 +624,9 @@ pub struct PerMap {
     /// Storing this may cost some memory, but otherwise resetting to midnight would require
     /// loading it again from a file. This is particularly painful on the web!
     pub scenario: Option<Scenario>,
+
+    /// Is this the original "secondary" state, loaded via --diff?
+    pub is_secondary: bool,
 }
 
 impl PerMap {
@@ -662,6 +665,7 @@ impl PerMap {
             suspended_sim: None,
             prebaked: None,
             scenario: None,
+            is_secondary: false,
         }
     }
 

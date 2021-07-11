@@ -189,7 +189,7 @@ fn setup_app(ctx: &mut EventCtx, mut setup: Setup) -> (App, Vec<Box<dyn State<Ap
             let mut map: Map = abstio::read_binary(path.clone(), &mut timer);
             map.map_loaded_directly();
             let sim = Sim::new(&map, setup.flags.sim_flags.opts.clone());
-            crate::app::PerMap::map_loaded(
+            let mut per_map = crate::app::PerMap::map_loaded(
                 map,
                 sim,
                 setup.flags.clone(),
@@ -197,7 +197,9 @@ fn setup_app(ctx: &mut EventCtx, mut setup: Setup) -> (App, Vec<Box<dyn State<Ap
                 &cs,
                 ctx,
                 &mut timer,
-            )
+            );
+            per_map.is_secondary = true;
+            per_map
         })
     });
 
