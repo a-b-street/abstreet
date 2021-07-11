@@ -13,6 +13,8 @@ fast_paths = { git = "https://github.com/easbar/fast_paths" }
 geom = { path = "../geom" }
 log = "0.4.14"
 nbez = "0.1.0"
+#osm_ch_pre = { path = "/home/dabreegster/Downloads/osm_ch/pre" }
+osm_ch_pre = { git = "https://github.com/dabreegster/osm_ch", branch = "prototype_lib" }
 petgraph = { version = "0.6.0", features=["serde-1"] }
 rand = "0.8.3"
 rand_xorshift = "0.3.0"

@@ -343,7 +343,8 @@ impl Map {
         let engine = if opts.build_ch {
             CreateEngine::CH
         } else {
-            CreateEngine::Dijkstra
+            // TODO tmp
+            CreateEngine::OsmCH
         };
         map.pathfinder = Pathfinder::new(&map, map.routing_params().clone(), engine, timer);
         timer.stop("setup pathfinding");

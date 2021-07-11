@@ -21,6 +21,9 @@ pub enum PathfindEngine {
         #[serde(skip_serializing, skip_deserializing)]
         path_calc: ThreadLocal<RefCell<PathCalculator>>,
     },
+    OsmCH {
+        output: osm_ch_pre::Output,
+    },
 }
 
 impl PathfindEngine {
@@ -63,6 +66,11 @@ impl PathfindEngine {
                 // TODO Add an into_nodes to avoid this clone
                 Some((path.get_weight(), path.get_nodes().to_vec()))
             }
+            PathfindEngine::OsmCH { ref output } => {
+                let start = starts[0].0;
+                let end = ends[0].0;
+                output.query(start, end)
+            }
         }
     }
 
@@ -72,6 +80,9 @@ impl PathfindEngine {
             // Just don't reuse the ordering
             PathfindEngine::Dijkstra { .. } => CreateEngine::Dijkstra,
             PathfindEngine::CH { ref graph, .. } => CreateEngine::CHSeedingNodeOrdering(graph),
+            // Just don't reuse the ordering
+            // TODO yet
+            PathfindEngine::OsmCH { .. } => CreateEngine::OsmCH,
         }
     }
 
@@ -89,6 +100,7 @@ impl PathfindEngine {
                     .collect()
             }
             PathfindEngine::CH { .. } => unreachable!(),
+            PathfindEngine::OsmCH { .. } => unreachable!(),
         }
     }
 }
@@ -97,6 +109,7 @@ pub enum CreateEngine<'a> {
     Dijkstra,
     CH,
     CHSeedingNodeOrdering(&'a FastGraph),
+    OsmCH,
 }
 
 impl<'a> CreateEngine<'a> {
@@ -135,6 +148,20 @@ impl<'a> CreateEngine<'a> {
                     graph,
                     path_calc: ThreadLocal::new(),
                 }
+            }
+            CreateEngine::OsmCH => {
+                let mut edges = Vec::new();
+                let mut max_node = 0;
+                for edge in input_graph.get_edges() {
+                    edges.push(osm_ch_pre::Way::new(edge.from, edge.to, edge.weight));
+                    max_node = max_node.max(edge.from);
+                    max_node = max_node.max(edge.to);
+                }
+                let nodes = (0..=max_node)
+                    .map(|_| osm_ch_pre::Node { rank: 0 })
+                    .collect::<Vec<_>>();
+                let output = osm_ch_pre::build_ch(nodes, edges);
+                PathfindEngine::OsmCH { output }
             }
         }
     }
