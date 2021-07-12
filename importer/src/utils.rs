@@ -20,7 +20,7 @@ pub async fn download(config: &ImporterConfiguration, output: String, url: &str)
 
     let tmp = "tmp_output";
     println!("- Missing {}, so downloading {}", output, url);
-    abstio::download_to_file(url, tmp).await.unwrap();
+    abstio::download_to_file(url, None, tmp).await.unwrap();
 
     if url.ends_with(".zip") {
         let unzip_to = if output.ends_with('/') {
@@ -70,7 +70,7 @@ pub async fn download_kml(
         std::fs::copy(output.replace(".bin", ".kml"), tmp).unwrap();
     } else {
         println!("- Missing {}, so downloading {}", output, url);
-        abstio::download_to_file(url, tmp).await.unwrap();
+        abstio::download_to_file(url, None, tmp).await.unwrap();
     }
 
     println!("- Extracting KML data");

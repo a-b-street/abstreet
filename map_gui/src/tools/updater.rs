@@ -149,7 +149,7 @@ async fn download_cities(
             warn!("Couldn't send progress: {}", err);
         }
 
-        match abstio::download_bytes(&url, &mut inner_progress)
+        match abstio::download_bytes(&url, None, &mut inner_progress)
             .await
             .and_then(|bytes| {
                 // TODO Instead of holding everything in memory like this, we could also try to

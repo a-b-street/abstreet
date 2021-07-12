@@ -62,6 +62,10 @@ impl<A: AppLike + 'static> ImportCity<A> {
                 ]),
                 Widget::row(vec![
                     "Step 5)".text_widget(ctx).centered_vert(),
+                    Toggle::choice(ctx, "source", "GeoFabrik", "Overpass", None, true),
+                ]),
+                Widget::row(vec![
+                    "Step 6)".text_widget(ctx).centered_vert(),
                     ctx.style()
                         .btn_solid_primary
                         .text("Import the area from your clipboard")
@@ -102,6 +106,9 @@ impl<A: AppLike + 'static> State<A> for ImportCity<A> {
                         vec![find_exe("one_step_import"), "boundary.geojson".to_string()];
                     if self.panel.is_checked("left handed driving") {
                         args.push("--drive_on_left".to_string());
+                    }
+                    if !self.panel.is_checked("source") {
+                        args.push("--use_overpass".to_string());
                     }
                     match grab_geojson_from_clipboard() {
                         Ok(()) => Transition::Push(crate::tools::RunCommand::new_state(

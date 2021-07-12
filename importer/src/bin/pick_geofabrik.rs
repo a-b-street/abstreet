@@ -51,7 +51,7 @@ async fn main() -> Result<()> {
 async fn load_remote_geojson(path: String, url: &str) -> Result<GeoJson> {
     if !abstio::file_exists(&path) {
         info!("Downloading {}", url);
-        abstio::download_to_file(url, &path).await?;
+        abstio::download_to_file(url, None, &path).await?;
     }
     abstio::maybe_read_json(path, &mut Timer::throwaway())
 }

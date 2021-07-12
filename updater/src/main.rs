@@ -371,7 +371,7 @@ async fn download_file(version: &str, path: &str, dl_from_local: bool) -> Result
     println!("> download {}", url);
     let (mut tx, rx) = futures_channel::mpsc::channel(1000);
     abstio::print_download_progress(rx);
-    abstio::download_bytes(url, &mut tx).await
+    abstio::download_bytes(url, None, &mut tx).await
 }
 
 // download() will remove stray files, but leave empty directories around. Since some runtime code

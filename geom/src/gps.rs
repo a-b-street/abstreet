@@ -3,6 +3,7 @@ use std::fs::File;
 use std::io::{BufRead, BufReader, Write};
 
 use anyhow::Result;
+use geojson::{GeoJson, Value};
 use ordered_float::NotNan;
 use serde::{Deserialize, Serialize};
 
@@ -146,6 +147,34 @@ impl LonLat {
             return None;
         }
         Some(pts)
+    }
+
+    /// Extract polygons from a raw GeoJSON string. For multipolygons, only returns the first
+    /// member.
+    pub fn parse_geojson_polygons(raw: String) -> Result<Vec<Vec<LonLat>>> {
+        let geojson = raw.parse::<GeoJson>()?;
+        let features = match geojson {
+            GeoJson::Feature(feature) => vec![feature],
+            GeoJson::FeatureCollection(feature_collection) => feature_collection.features,
+            _ => anyhow::bail!("Unexpected geojson: {:?}", geojson),
+        };
+        let mut polygons = Vec::new();
+        for mut feature in features {
+            let points = match feature.geometry.take().map(|g| g.value) {
+                Some(Value::MultiPolygon(multi_polygon)) => multi_polygon[0][0].clone(),
+                Some(Value::Polygon(polygon)) => polygon[0].clone(),
+                _ => {
+                    anyhow::bail!("Unexpected feature: {:?}", feature);
+                }
+            };
+            polygons.push(
+                points
+                    .into_iter()
+                    .map(|pt| LonLat::new(pt[0], pt[1]))
+                    .collect(),
+            );
+        }
+        Ok(polygons)
     }
 }
 
