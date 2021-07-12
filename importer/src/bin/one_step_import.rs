@@ -69,7 +69,7 @@ async fn main() -> Result<()> {
         }
         filter.pop();
         filter.push('"');
-        let query = format!("(\n   node({});\n   <;\n);\nout meta;\n", filter);
+        let query = format!("(\n   nwr({});\n   <;\n);\nout meta;\n", filter);
         abstio::download_to_file("https://overpass-api.de/api/interpreter", Some(query), &osm)
             .await?;
     } else {

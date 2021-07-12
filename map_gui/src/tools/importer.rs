@@ -62,7 +62,7 @@ impl<A: AppLike + 'static> ImportCity<A> {
                 ]),
                 Widget::row(vec![
                     "Step 5)".text_widget(ctx).centered_vert(),
-                    Toggle::choice(ctx, "source", "GeoFabrik", "Overpass", None, true),
+                    Toggle::choice(ctx, "source", "GeoFabrik", "Overpass (faster)", None, false),
                 ]),
                 Widget::row(vec![
                     "Step 6)".text_widget(ctx).centered_vert(),
