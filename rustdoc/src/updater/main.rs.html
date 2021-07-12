@@ -797,7 +797,7 @@
     <span class="macro">println!</span>(<span class="string">&quot;&gt; download {}&quot;</span>, <span class="ident">url</span>);
     <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">tx</span>, <span class="ident">rx</span>) <span class="op">=</span> <span class="ident">futures_channel::mpsc::channel</span>(<span class="number">1000</span>);
     <span class="ident">abstio::print_download_progress</span>(<span class="ident">rx</span>);
-    <span class="ident">abstio::download_bytes</span>(<span class="ident">url</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tx</span>).<span class="kw">await</span>
+    <span class="ident">abstio::download_bytes</span>(<span class="ident">url</span>, <span class="prelude-val">None</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">tx</span>).<span class="kw">await</span>
 }
 
 <span class="comment">// download() will remove stray files, but leave empty directories around. Since some runtime code</span>

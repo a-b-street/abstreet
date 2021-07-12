@@ -163,7 +163,7 @@
 
     <span class="kw">let</span> <span class="ident">tmp</span> <span class="op">=</span> <span class="string">&quot;tmp_output&quot;</span>;
     <span class="macro">println!</span>(<span class="string">&quot;- Missing {}, so downloading {}&quot;</span>, <span class="ident">output</span>, <span class="ident">url</span>);
-    <span class="ident">abstio::download_to_file</span>(<span class="ident">url</span>, <span class="ident">tmp</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+    <span class="ident">abstio::download_to_file</span>(<span class="ident">url</span>, <span class="prelude-val">None</span>, <span class="ident">tmp</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
 
     <span class="kw">if</span> <span class="ident">url</span>.<span class="ident">ends_with</span>(<span class="string">&quot;.zip&quot;</span>) {
         <span class="kw">let</span> <span class="ident">unzip_to</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">output</span>.<span class="ident">ends_with</span>(<span class="string">&#39;/&#39;</span>) {
@@ -213,7 +213,7 @@
         <span class="ident">std::fs::copy</span>(<span class="ident">output</span>.<span class="ident">replace</span>(<span class="string">&quot;.bin&quot;</span>, <span class="string">&quot;.kml&quot;</span>), <span class="ident">tmp</span>).<span class="ident">unwrap</span>();
     } <span class="kw">else</span> {
         <span class="macro">println!</span>(<span class="string">&quot;- Missing {}, so downloading {}&quot;</span>, <span class="ident">output</span>, <span class="ident">url</span>);
-        <span class="ident">abstio::download_to_file</span>(<span class="ident">url</span>, <span class="ident">tmp</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
+        <span class="ident">abstio::download_to_file</span>(<span class="ident">url</span>, <span class="prelude-val">None</span>, <span class="ident">tmp</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>();
     }
 
     <span class="macro">println!</span>(<span class="string">&quot;- Extracting KML data&quot;</span>);
