@@ -23,7 +23,7 @@ pub fn prebake_all() {
                 &mut timer,
             );
             // Don't record a summary for this
-            prebake(&map, scenario, None, &mut timer);
+            prebake(&map, scenario, &mut timer);
         }
     }
 
@@ -41,22 +41,19 @@ pub fn prebake_all() {
         let map = map_model::Map::load_synchronously(name.path(), &mut timer);
         let scenario: Scenario =
             abstio::read_binary(abstio::path_scenario(map.get_name(), "weekday"), &mut timer);
-        summaries.push(prebake(&map, scenario, None, &mut timer));
+        summaries.push(prebake(&map, scenario, &mut timer));
     }
 
+    let pbury_map = map_model::Map::load_synchronously(
+        MapName::new("gb", "poundbury", "center").path(),
+        &mut timer,
+    );
     for scenario_name in ["base", "go_active", "base_with_bg", "go_active_with_bg"] {
-        let map = map_model::Map::load_synchronously(
-            MapName::new("gb", "poundbury", "center").path(),
-            &mut timer,
-        );
         let scenario: Scenario = abstio::read_binary(
-            abstio::path_scenario(map.get_name(), scenario_name),
+            abstio::path_scenario(pbury_map.get_name(), scenario_name),
             &mut timer,
         );
-        let mut opts = SimOptions::new("prebaked");
-        opts.alerts = AlertHandler::Silence;
-        opts.infinite_parking = true;
-        summaries.push(prebake(&map, scenario, Some(opts), &mut timer));
+        summaries.push(prebake(&pbury_map, scenario, &mut timer));
     }
 
     // Assume this is being run from the 'game' directory. This other tests directory is the most
@@ -67,23 +64,15 @@ pub fn prebake_all() {
     );
 }
 
-fn prebake(
-    map: &Map,
-    scenario: Scenario,
-    opts: Option<SimOptions>,
-    timer: &mut Timer,
-) -> PrebakeSummary {
+fn prebake(map: &Map, scenario: Scenario, timer: &mut Timer) -> PrebakeSummary {
     timer.start(format!(
         "prebake for {} / {}",
         scenario.map_name.describe(),
         scenario.scenario_name
     ));
 
-    let opts = opts.unwrap_or_else(|| {
-        let mut opts = SimOptions::new("prebaked");
-        opts.alerts = AlertHandler::Silence;
-        opts
-    });
+    let mut opts = SimOptions::new("prebaked");
+    opts.alerts = AlertHandler::Silence;
     let mut sim = Sim::new(map, opts);
     // Bit of an abuse of this, but just need to fix the rng seed.
     let mut rng = SimFlags::for_test("prebaked").make_rng();

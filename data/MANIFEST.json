@@ -4056,9 +4056,9 @@
       "compressed_size_bytes": 21921532
     },
     "data/system/us/seattle/prebaked_results/arboretum/weekday.bin": {
-      "checksum": "023b39b0674a829511147fc5612fe708",
-      "uncompressed_size_bytes": 19773103,
-      "compressed_size_bytes": 8190644
+      "checksum": "dc15a04e70904732702d01231f4afeb0",
+      "uncompressed_size_bytes": 17124971,
+      "compressed_size_bytes": 6651447
     },
     "data/system/us/seattle/prebaked_results/greenlake/weekday.bin": {
       "checksum": "69a925c1a2727fb00076db5ca350775b",
