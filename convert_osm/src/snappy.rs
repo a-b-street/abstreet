@@ -1,39 +1,40 @@
-use std::collections::{BTreeMap, HashMap, HashSet};
+use std::collections::{BTreeMap, HashMap};
 
+use abstio::MapName;
 use abstutil::MultiMap;
-use abstutil::Timer;
 use geom::{Distance, FindClosest, Line, PolyLine};
 use kml::{ExtraShape, ExtraShapes};
-use map_model::osm::WayID;
 use map_model::raw::{OriginalRoad, RawMap};
-use map_model::{osm, Direction};
+use map_model::Direction;
 
-/// Attempt to snap separately mapped cycleways to main roads. Emit extra KML files to debug later.
-pub fn snap_cycleways(map: &RawMap, timer: &mut Timer) {
-    // TODO The output here is nondeterministic and I haven't figured out why. Instead of spurious
-    // data diffs, just totally disable this experiment for now. Will fix when this becomes active
-    // work again.
-    if true {
+const DEBUG_OUTPUT: bool = false;
+
+/// Snap separately mapped cycleways to main roads.
+pub fn snap_cycleways(map: &mut RawMap) {
+    // A gradual experiment...
+    if false
+        && map.name != MapName::seattle("montlake")
+        && map.name != MapName::seattle("udistrict")
+    {
         return;
     }
 
-    let mut cycleways = BTreeMap::new();
-    for shape in
-        abstio::read_binary::<ExtraShapes>(map.name.city.input_path("footways.bin"), timer).shapes
-    {
-        // Just cycleways for now. This same general strategy should later work for sidewalks,
-        // tramways, and blockface parking too.
-        if shape.attributes.get("highway") == Some(&"cycleway".to_string()) {
-            cycleways.insert(
-                WayID(shape.attributes[osm::OSM_WAY_ID].parse().unwrap()),
-                shape,
-            );
+    let mut cycleways = Vec::new();
+    for (id, road) in &map.roads {
+        if road.is_cycleway(&map.config) {
+            let (center, total_width) = road.get_geometry(*id, &map.config).unwrap();
+            cycleways.push(Cycleway {
+                id: *id,
+                center,
+                total_width,
+                layer: road.osm_tags.get("layer").cloned(),
+            });
         }
     }
 
     let mut road_edges: HashMap<(OriginalRoad, Direction), PolyLine> = HashMap::new();
     for (id, r) in &map.roads {
-        if r.is_light_rail() || r.is_footway() || r.is_service() {
+        if r.is_light_rail() || r.is_footway() || r.is_service() || r.is_cycleway(&map.config) {
             continue;
         }
         let (pl, total_width) = r.get_geometry(*id, &map.config).unwrap();
@@ -48,68 +49,72 @@ pub fn snap_cycleways(map: &RawMap, timer: &mut Timer) {
     }
 
     let matches = v1(map, &cycleways, &road_edges);
-    // TODO A v2 idea: just look for cycleways strictly overlapping a thick road polygon
-    dump_output(map, &cycleways, &road_edges, matches);
-}
 
-fn dump_output(
-    map: &RawMap,
-    cycleways: &BTreeMap<WayID, ExtraShape>,
-    road_edges: &HashMap<(OriginalRoad, Direction), PolyLine>,
-    matches: MultiMap<(OriginalRoad, Direction), WayID>,
-) {
-    let mut separate_cycleways = ExtraShapes { shapes: Vec::new() };
-    let mut snapped_cycleways = ExtraShapes { shapes: Vec::new() };
-
-    let mut used_cycleways = HashSet::new();
-    for ((r, dir), ids) in matches.consume() {
-        let mut attributes = BTreeMap::new();
-        used_cycleways.extend(ids.clone());
-        attributes.insert(
-            "cycleways".to_string(),
-            ids.into_iter()
-                .map(|x| x.to_string())
-                .collect::<Vec<_>>()
-                .join(", "),
-        );
-        snapped_cycleways.shapes.push(ExtraShape {
-            points: map.gps_bounds.convert_back(road_edges[&(r, dir)].points()),
-            attributes,
-        });
-    }
-
-    for (id, shape) in cycleways {
-        if !used_cycleways.contains(id) {
-            separate_cycleways.shapes.push(shape.clone());
+    // Go apply the matches!
+    for (cycleway_id, roads) in matches.consume() {
+        if DEBUG_OUTPUT {
+            // Just mark what we snapped in an easy-to-debug way
+            map.roads
+                .get_mut(&cycleway_id)
+                .unwrap()
+                .osm_tags
+                .insert("abst:snap", "remove");
+            for (road_id, dir) in roads {
+                map.roads.get_mut(&road_id).unwrap().osm_tags.insert(
+                    if dir == Direction::Fwd {
+                        "abst:snap_fwd"
+                    } else {
+                        "abst:snap_back"
+                    },
+                    "cyclepath",
+                );
+            }
+        } else {
+            // Remove the separate cycleway
+            let deleted_cycleway = map.roads.remove(&cycleway_id).unwrap();
+            // Add it as an attribute to the roads instead
+            for (road_id, dir) in roads {
+                let dir = if dir == Direction::Fwd {
+                    "right"
+                } else {
+                    "left"
+                };
+                map.roads
+                    .get_mut(&road_id)
+                    .unwrap()
+                    .osm_tags
+                    .insert(format!("cycleway:{}", dir), "track");
+                if !deleted_cycleway.osm_tags.is("oneway", "yes") {
+                    map.roads
+                        .get_mut(&road_id)
+                        .unwrap()
+                        .osm_tags
+                        .insert(format!("cycleway:{}:oneway", dir), "no");
+                }
+            }
         }
     }
+}
 
-    abstio::write_binary(
-        map.name
-            .city
-            .input_path(format!("{}_separate_cycleways.bin", map.name.map)),
-        &separate_cycleways,
-    );
-    abstio::write_binary(
-        map.name
-            .city
-            .input_path(format!("{}_snapped_cycleways.bin", map.name.map)),
-        &snapped_cycleways,
-    );
+struct Cycleway {
+    id: OriginalRoad,
+    center: PolyLine,
+    total_width: Distance,
+    layer: Option<String>,
 }
 
 // Walk along every cycleway, form a perpendicular line, and mark all road edges that it hits.
+// Returns (cycleway ID, every directed road hit).
 //
 // TODO Inverse idea: Walk every road, project perpendicular from each of the 4 corners and see what
 // cycleways hit.
-//
-// TODO Should we run this before splitting ways? Possibly less work to do.
+// TODO Or look for cycleway polygons strictly overlapping thick road polygons
 fn v1(
     map: &RawMap,
-    cycleways: &BTreeMap<WayID, ExtraShape>,
+    cycleways: &Vec<Cycleway>,
     road_edges: &HashMap<(OriginalRoad, Direction), PolyLine>,
-) -> MultiMap<(OriginalRoad, Direction), WayID> {
-    let mut matches: MultiMap<(OriginalRoad, Direction), WayID> = MultiMap::new();
+) -> MultiMap<OriginalRoad, (OriginalRoad, Direction)> {
+    let mut matches = MultiMap::new();
 
     let mut closest: FindClosest<(OriginalRoad, Direction)> =
         FindClosest::new(&map.gps_bounds.to_bounds());
@@ -120,43 +125,66 @@ fn v1(
     // TODO If this is too large, we might miss some intermediate pieces of the road.
     let step_size = Distance::meters(5.0);
     // This gives the length of the perpendicular test line
-    let cycleway_half_width = Distance::meters(3.0);
+    let buffer_from_cycleway = Distance::meters(3.0);
     // How many degrees difference to consider parallel ways
     let parallel_threshold = 30.0;
-    for (cycleway_id, cycleway) in cycleways {
-        let pl = match PolyLine::new(map.gps_bounds.convert(&cycleway.points)) {
-            Ok(pl) => pl,
-            Err(err) => {
-                warn!("Not snapping cycleway {}: {}", cycleway_id, err);
-                continue;
-            }
-        };
 
+    let mut debug_shapes = Vec::new();
+
+    for cycleway in cycleways {
+        let cycleway_half_width = (cycleway.total_width / 2.0) + buffer_from_cycleway;
+        // Walk along the cycleway's center line
         let mut dist = Distance::ZERO;
         loop {
-            let (pt, cycleway_angle) = pl.must_dist_along(dist);
+            let (pt, cycleway_angle) = cycleway.center.must_dist_along(dist);
             let perp_line = Line::must_new(
                 pt.project_away(cycleway_half_width, cycleway_angle.rotate_degs(90.0)),
                 pt.project_away(cycleway_half_width, cycleway_angle.rotate_degs(-90.0)),
             );
-            for (id, _, _) in closest.all_close_pts(perp_line.pt1(), cycleway_half_width) {
+            debug_shapes.push(ExtraShape {
+                points: map.gps_bounds.convert_back(&perp_line.points()),
+                attributes: BTreeMap::new(),
+            });
+            for (road_pair, _, _) in closest.all_close_pts(pt, cycleway_half_width) {
+                // A cycleway can't snap to a road at a different height
+                if map.roads[&road_pair.0].osm_tags.get("layer") != cycleway.layer.as_ref() {
+                    continue;
+                }
+
                 if let Some((_, road_angle)) =
-                    road_edges[&id].intersection(&perp_line.to_polyline())
+                    road_edges[&road_pair].intersection(&perp_line.to_polyline())
                 {
-                    if road_angle.approx_eq(cycleway_angle, parallel_threshold) {
-                        matches.insert(id, *cycleway_id);
-                        // TODO Just stop at the first hit?
+                    // The two angles might be anti-parallel
+                    if road_angle.approx_eq(cycleway_angle, parallel_threshold)
+                        || road_angle
+                            .opposite()
+                            .approx_eq(cycleway_angle, parallel_threshold)
+                    {
+                        matches.insert(cycleway.id, road_pair);
+                        // Just stop at the first, closest hit. One point along a cycleway might be
+                        // close to multiple road edges, but we want the closest hit.
                         break;
                     }
                 }
             }
 
-            if dist == pl.length() {
+            if dist == cycleway.center.length() {
                 break;
             }
             dist += step_size;
-            dist = dist.min(pl.length());
+            dist = dist.min(cycleway.center.length());
         }
+    }
+
+    if DEBUG_OUTPUT {
+        abstio::write_binary(
+            map.name
+                .city
+                .input_path(format!("{}_snapping.bin", map.name.map)),
+            &ExtraShapes {
+                shapes: debug_shapes,
+            },
+        );
     }
 
     matches

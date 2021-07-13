@@ -5,8 +5,7 @@
 use std::collections::{BTreeMap, BTreeSet};
 use std::fmt;
 
-use crate::anyhow::Context;
-use anyhow::Result;
+use anyhow::{Context, Result};
 use petgraph::graphmap::DiGraphMap;
 use serde::{Deserialize, Serialize};
 
@@ -15,7 +14,9 @@ use abstutil::{deserialize_btreemap, serialize_btreemap, Tags};
 use geom::{Distance, GPSBounds, PolyLine, Polygon, Pt2D};
 
 use crate::make::initial::lane_specs::get_lane_specs_ltr;
-use crate::{osm, Amenity, AreaType, Direction, DrivingSide, IntersectionType, MapConfig};
+use crate::{
+    osm, Amenity, AreaType, Direction, DrivingSide, IntersectionType, LaneType, MapConfig,
+};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct RawMap {
@@ -545,6 +546,19 @@ impl RawRoad {
 
     pub fn is_service(&self) -> bool {
         self.osm_tags.is(osm::HIGHWAY, "service")
+    }
+
+    pub fn is_cycleway(&self, cfg: &MapConfig) -> bool {
+        // Don't repeat the logic looking at the tags, just see what lanes we'll create
+        let mut bike = false;
+        for spec in get_lane_specs_ltr(&self.osm_tags, cfg) {
+            if spec.lt == LaneType::Biking {
+                bike = true;
+            } else if spec.lt != LaneType::Shoulder {
+                return false;
+            }
+        }
+        bike
     }
 }
 
