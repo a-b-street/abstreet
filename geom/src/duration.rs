@@ -163,8 +163,8 @@ impl Duration {
 
     // TODO Do something fancier? http://vis.stanford.edu/papers/tick-labels
     // TODO Unit test me
-    /// Returns (rounded max, the boundaries in number of minutes)
-    pub fn make_intervals_for_max(self, num_labels: usize) -> (Duration, Vec<usize>) {
+    /// Returns (rounded max, the boundaries)
+    pub fn make_intervals_for_max(self, num_labels: usize) -> (Duration, Vec<Duration>) {
         // Example 1: 43 minutes, max 5 labels... raw_mins_per_interval is 8.6
         let raw_mins_per_interval = (self.num_minutes_rounded_up() as f64) / (num_labels as f64);
         // So then this rounded up to 10 minutes
@@ -185,7 +185,7 @@ impl Duration {
         }
 
         let max = (num_labels as f64) * Duration::minutes(mins_per_interval);
-        let labels = (0..=num_labels).map(|i| i * mins_per_interval).collect();
+        let labels = (0..=num_labels).map(|i| Duration::minutes(i * mins_per_interval)).collect();
 
         if max < self {
             panic!(
