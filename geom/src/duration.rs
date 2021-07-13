@@ -64,6 +64,10 @@ impl Duration {
         (x as f64) * Duration::EPSILON
     }
 
+    pub fn abs(&self) -> Self {
+        Self(self.0.abs())
+    }
+
     /// Returns the duration in seconds. Prefer working in typesafe `Duration`s.
     // TODO Remove if possible.
     pub fn inner_seconds(self) -> f64 {

@@ -307,14 +307,14 @@ fn contingency_table(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
     // Draw the X axis
     let text_height = ctx.default_line_height();
     let text_v_padding = 12.0;
-    let padded_text_height = text_height + text_v_padding;
+    let x_axis_height = text_height + text_v_padding;
     let line_thickness = Distance::meters(1.5);
     for (idx, mins) in duration_buckets.iter().skip(1).enumerate() {
         let x = (idx as f64 + 1.0) / (num_buckets as f64) * total_width;
         let y = total_height / 2.0;
 
         {
-            let bottom_of_top_bar = (total_height - padded_text_height) / 2.0;
+            let bottom_of_top_bar = (total_height - x_axis_height) / 2.0;
             let line_top = bottom_of_top_bar;
             let line_bottom = bottom_of_top_bar + text_v_padding / 2.0 + 2.0;
             batch.push(
@@ -325,7 +325,7 @@ fn contingency_table(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
             );
         }
         {
-            let top_of_bottom_bar = (total_height - padded_text_height) / 2.0 + padded_text_height;
+            let top_of_bottom_bar = (total_height - x_axis_height) / 2.0 + x_axis_height;
             let line_bottom = top_of_bottom_bar;
             let line_top = line_bottom - text_v_padding / 2.0 - 2.0;
             batch.push(
@@ -398,15 +398,17 @@ fn contingency_table(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
     let max_y = losses_per_bucket
         .iter()
         .chain(savings_per_bucket.iter())
-        .map(|c| c.accumulated_duration)
+        .map(|c| c.accumulated_duration.abs())
         .max()
         .unwrap();
 
+    let intervals = max_y.make_intervals_for_max(2);
+
     // Draw the bars!
     let bar_width = total_width / (num_buckets as f64);
-    let max_bar_height = (total_height - padded_text_height) / 2.0;
+    let max_bar_height = (total_height - x_axis_height) / 2.0;
     let min_bar_height = 8.0;
-    let mut outlines = Vec::new();
+    let mut bar_outlines = Vec::new();
     let mut tooltips = Vec::new();
     let mut x1 = 0.0;
     for (
@@ -427,10 +429,10 @@ fn contingency_table(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
         .enumerate()
     {
         if num_savings > 0 {
-            let height = ((total_savings / max_y) * max_bar_height).max(min_bar_height);
+            let height = ((total_savings / intervals.0) * max_bar_height).max(min_bar_height);
             let rect = Polygon::rectangle(bar_width, height).translate(x1, max_bar_height - height);
             if let Ok(o) = rect.to_outline(line_thickness) {
-                outlines.push(o);
+                bar_outlines.push(o);
             }
             batch.push(Color::GREEN, rect.clone());
             tooltips.push((
@@ -454,16 +456,20 @@ fn contingency_table(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
                             duration_buckets[idx + 1]
                         ),
                     }),
-                    Line(format!("Saved {} in total", total_savings)).fg(Color::hex("#72CE36")),
+                    Line(format!(
+                        "Saved {} in total",
+                        total_savings.to_rounded_string(1)
+                    ))
+                    .fg(Color::hex("#72CE36")),
                 ]),
             ));
         }
         if num_loss > 0 {
-            let height = ((total_loss / max_y) * max_bar_height).max(min_bar_height);
+            let height = ((total_loss / intervals.0) * max_bar_height).max(min_bar_height);
             let rect =
                 Polygon::rectangle(bar_width, height).translate(x1, total_height - max_bar_height);
             if let Ok(o) = rect.to_outline(line_thickness) {
-                outlines.push(o);
+                bar_outlines.push(o);
             }
             batch.push(Color::RED, rect.clone());
             tooltips.push((
@@ -487,19 +493,60 @@ fn contingency_table(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
                             duration_buckets[idx + 1]
                         ),
                     }),
-                    Line(format!("Lost {} in total", total_loss)).fg(Color::hex("#EB3223")),
+                    Line(format!("Lost {} in total", total_loss.to_rounded_string(1)))
+                        .fg(Color::hex("#EB3223")),
                 ]),
             ));
         }
         x1 += bar_width;
     }
-    batch.extend(Color::BLACK, outlines);
+    // Draw the y-axis
+    let mut y_axis_ticks = GeomBatch::new();
+    let mut y_axis_labels = GeomBatch::new();
+    {
+        let line_length = 8.0;
+        let line_thickness = 2.0;
+
+        intervals.1[1..]
+            .iter()
+            .map(|interval| {
+                // positive ticks
+                let y =
+                    max_bar_height * (1.0 - interval.inner_seconds() / intervals.0.inner_seconds());
+                (interval, y)
+            })
+            .chain(
+                // negative ticks
+                intervals.1[1..].iter().map(|interval| {
+                    let y = total_height
+                        - max_bar_height
+                            * (1.0 - interval.abs().inner_seconds() / intervals.0.inner_seconds());
+                    (interval, y)
+                }),
+            )
+            .for_each(|(interval, y)| {
+                let start = Pt2D::new(0.0, y);
+                let line: geom::Line =
+                    geom::Line::new(start, start.offset(line_length, 0.0)).unwrap();
+                let poly = line.make_polygons(Distance::meters(line_thickness));
+                y_axis_ticks.push(ctx.style().text_secondary_color, poly);
+
+                let text = Text::from(Line(interval.abs().to_rounded_string(0)).secondary())
+                    .render(ctx)
+                    .centered_on(start.offset(0.0, -4.0));
+                y_axis_labels.append(text);
+            });
+    }
+    y_axis_labels.autocrop_dims = true;
+    y_axis_labels = y_axis_labels.autocrop();
+
+    batch.extend(Color::BLACK, bar_outlines);
 
     Widget::col(vec![
         Text::from_multiline(vec![
-            Line("Aggregate difference by trip length").small_heading(),
+            Line("Aggregate difference by trip duration").small_heading(),
             Line(format!(
-                "Grouped by the length of the trip before\n\"{}\" changes.",
+                "Grouped by the duration of the trip before\n\"{}\" changes.",
                 app.primary.map.get_edits().edits_name
             )),
         ])
@@ -509,8 +556,18 @@ fn contingency_table(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
             .secondary()
             .into_widget(ctx)
             .centered_horiz(),
-        DrawWithTooltips::new_widget(ctx, batch, tooltips, Box::new(|_| GeomBatch::new()))
-            .centered_horiz(),
+        Widget::custom_row(vec![
+            y_axis_labels
+                .into_widget(ctx)
+                .margin_right(8)
+                .centered_vert(),
+            y_axis_ticks
+                .into_widget(ctx)
+                .margin_right(8)
+                .centered_vert(),
+            DrawWithTooltips::new_widget(ctx, batch, tooltips, Box::new(|_| GeomBatch::new())),
+        ])
+        .centered_horiz(),
         Line("Total Time Lost (slower)")
             .secondary()
             .into_widget(ctx)
