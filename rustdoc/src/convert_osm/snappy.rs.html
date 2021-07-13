@@ -164,43 +164,72 @@
 <span id="161">161</span>
 <span id="162">162</span>
 <span id="163">163</span>
+<span id="164">164</span>
+<span id="165">165</span>
+<span id="166">166</span>
+<span id="167">167</span>
+<span id="168">168</span>
+<span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
+<span id="174">174</span>
+<span id="175">175</span>
+<span id="176">176</span>
+<span id="177">177</span>
+<span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
+<span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashMap</span>};
 
+<span class="kw">use</span> <span class="ident">abstio::MapName</span>;
 <span class="kw">use</span> <span class="ident">abstutil::MultiMap</span>;
-<span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">FindClosest</span>, <span class="ident">Line</span>, <span class="ident">PolyLine</span>};
 <span class="kw">use</span> <span class="ident">kml</span>::{<span class="ident">ExtraShape</span>, <span class="ident">ExtraShapes</span>};
-<span class="kw">use</span> <span class="ident">map_model::osm::WayID</span>;
 <span class="kw">use</span> <span class="ident">map_model::raw</span>::{<span class="ident">OriginalRoad</span>, <span class="ident">RawMap</span>};
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">osm</span>, <span class="ident">Direction</span>};
+<span class="kw">use</span> <span class="ident">map_model::Direction</span>;
 
-<span class="doccomment">/// Attempt to snap separately mapped cycleways to main roads. Emit extra KML files to debug later.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">snap_cycleways</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">RawMap</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) {
-    <span class="comment">// TODO The output here is nondeterministic and I haven&#39;t figured out why. Instead of spurious</span>
-    <span class="comment">// data diffs, just totally disable this experiment for now. Will fix when this becomes active</span>
-    <span class="comment">// work again.</span>
-    <span class="kw">if</span> <span class="bool-val">true</span> {
+<span class="kw">const</span> <span class="ident">DEBUG_OUTPUT</span>: <span class="ident">bool</span> <span class="op">=</span> <span class="bool-val">false</span>;
+
+<span class="doccomment">/// Snap separately mapped cycleways to main roads.</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">snap_cycleways</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">RawMap</span>) {
+    <span class="comment">// A gradual experiment...</span>
+    <span class="kw">if</span> <span class="bool-val">false</span>
+        <span class="op">&amp;&amp;</span> <span class="ident">map</span>.<span class="ident">name</span> <span class="op">!</span><span class="op">=</span> <span class="ident">MapName::seattle</span>(<span class="string">&quot;montlake&quot;</span>)
+        <span class="op">&amp;&amp;</span> <span class="ident">map</span>.<span class="ident">name</span> <span class="op">!</span><span class="op">=</span> <span class="ident">MapName::seattle</span>(<span class="string">&quot;udistrict&quot;</span>)
+    {
         <span class="kw">return</span>;
     }
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cycleways</span> <span class="op">=</span> <span class="ident">BTreeMap::new</span>();
-    <span class="kw">for</span> <span class="ident">shape</span> <span class="kw">in</span>
-        <span class="ident">abstio::read_binary</span>::<span class="op">&lt;</span><span class="ident">ExtraShapes</span><span class="op">&gt;</span>(<span class="ident">map</span>.<span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">input_path</span>(<span class="string">&quot;footways.bin&quot;</span>), <span class="ident">timer</span>).<span class="ident">shapes</span>
-    {
-        <span class="comment">// Just cycleways for now. This same general strategy should later work for sidewalks,</span>
-        <span class="comment">// tramways, and blockface parking too.</span>
-        <span class="kw">if</span> <span class="ident">shape</span>.<span class="ident">attributes</span>.<span class="ident">get</span>(<span class="string">&quot;highway&quot;</span>) <span class="op">=</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="string">&quot;cycleway&quot;</span>.<span class="ident">to_string</span>()) {
-            <span class="ident">cycleways</span>.<span class="ident">insert</span>(
-                <span class="ident">WayID</span>(<span class="ident">shape</span>.<span class="ident">attributes</span>[<span class="ident">osm::OSM_WAY_ID</span>].<span class="ident">parse</span>().<span class="ident">unwrap</span>()),
-                <span class="ident">shape</span>,
-            );
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cycleways</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+    <span class="kw">for</span> (<span class="ident">id</span>, <span class="ident">road</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">roads</span> {
+        <span class="kw">if</span> <span class="ident">road</span>.<span class="ident">is_cycleway</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">config</span>) {
+            <span class="kw">let</span> (<span class="ident">center</span>, <span class="ident">total_width</span>) <span class="op">=</span> <span class="ident">road</span>.<span class="ident">get_geometry</span>(<span class="kw-2">*</span><span class="ident">id</span>, <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">config</span>).<span class="ident">unwrap</span>();
+            <span class="ident">cycleways</span>.<span class="ident">push</span>(<span class="ident">Cycleway</span> {
+                <span class="ident">id</span>: <span class="kw-2">*</span><span class="ident">id</span>,
+                <span class="ident">center</span>,
+                <span class="ident">total_width</span>,
+                <span class="ident">layer</span>: <span class="ident">road</span>.<span class="ident">osm_tags</span>.<span class="ident">get</span>(<span class="string">&quot;layer&quot;</span>).<span class="ident">cloned</span>(),
+            });
         }
     }
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">road_edges</span>: <span class="ident">HashMap</span><span class="op">&lt;</span>(<span class="ident">OriginalRoad</span>, <span class="ident">Direction</span>), <span class="ident">PolyLine</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
     <span class="kw">for</span> (<span class="ident">id</span>, <span class="ident">r</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">roads</span> {
-        <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">is_light_rail</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">r</span>.<span class="ident">is_footway</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">r</span>.<span class="ident">is_service</span>() {
+        <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">is_light_rail</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">r</span>.<span class="ident">is_footway</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">r</span>.<span class="ident">is_service</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">r</span>.<span class="ident">is_cycleway</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">config</span>) {
             <span class="kw">continue</span>;
         }
         <span class="kw">let</span> (<span class="ident">pl</span>, <span class="ident">total_width</span>) <span class="op">=</span> <span class="ident">r</span>.<span class="ident">get_geometry</span>(<span class="kw-2">*</span><span class="ident">id</span>, <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">config</span>).<span class="ident">unwrap</span>();
@@ -215,68 +244,72 @@
     }
 
     <span class="kw">let</span> <span class="ident">matches</span> <span class="op">=</span> <span class="ident">v1</span>(<span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="ident">cycleways</span>, <span class="kw-2">&amp;</span><span class="ident">road_edges</span>);
-    <span class="comment">// TODO A v2 idea: just look for cycleways strictly overlapping a thick road polygon</span>
-    <span class="ident">dump_output</span>(<span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="ident">cycleways</span>, <span class="kw-2">&amp;</span><span class="ident">road_edges</span>, <span class="ident">matches</span>);
-}
 
-<span class="kw">fn</span> <span class="ident">dump_output</span>(
-    <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">RawMap</span>,
-    <span class="ident">cycleways</span>: <span class="kw-2">&amp;</span><span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">WayID</span>, <span class="ident">ExtraShape</span><span class="op">&gt;</span>,
-    <span class="ident">road_edges</span>: <span class="kw-2">&amp;</span><span class="ident">HashMap</span><span class="op">&lt;</span>(<span class="ident">OriginalRoad</span>, <span class="ident">Direction</span>), <span class="ident">PolyLine</span><span class="op">&gt;</span>,
-    <span class="ident">matches</span>: <span class="ident">MultiMap</span><span class="op">&lt;</span>(<span class="ident">OriginalRoad</span>, <span class="ident">Direction</span>), <span class="ident">WayID</span><span class="op">&gt;</span>,
-) {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">separate_cycleways</span> <span class="op">=</span> <span class="ident">ExtraShapes</span> { <span class="ident">shapes</span>: <span class="ident">Vec::new</span>() };
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">snapped_cycleways</span> <span class="op">=</span> <span class="ident">ExtraShapes</span> { <span class="ident">shapes</span>: <span class="ident">Vec::new</span>() };
-
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">used_cycleways</span> <span class="op">=</span> <span class="ident">HashSet::new</span>();
-    <span class="kw">for</span> ((<span class="ident">r</span>, <span class="ident">dir</span>), <span class="ident">ids</span>) <span class="kw">in</span> <span class="ident">matches</span>.<span class="ident">consume</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">attributes</span> <span class="op">=</span> <span class="ident">BTreeMap::new</span>();
-        <span class="ident">used_cycleways</span>.<span class="ident">extend</span>(<span class="ident">ids</span>.<span class="ident">clone</span>());
-        <span class="ident">attributes</span>.<span class="ident">insert</span>(
-            <span class="string">&quot;cycleways&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">ids</span>.<span class="ident">into_iter</span>()
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">to_string</span>())
-                .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>()
-                .<span class="ident">join</span>(<span class="string">&quot;, &quot;</span>),
-        );
-        <span class="ident">snapped_cycleways</span>.<span class="ident">shapes</span>.<span class="ident">push</span>(<span class="ident">ExtraShape</span> {
-            <span class="ident">points</span>: <span class="ident">map</span>.<span class="ident">gps_bounds</span>.<span class="ident">convert_back</span>(<span class="ident">road_edges</span>[<span class="kw-2">&amp;</span>(<span class="ident">r</span>, <span class="ident">dir</span>)].<span class="ident">points</span>()),
-            <span class="ident">attributes</span>,
-        });
-    }
-
-    <span class="kw">for</span> (<span class="ident">id</span>, <span class="ident">shape</span>) <span class="kw">in</span> <span class="ident">cycleways</span> {
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">used_cycleways</span>.<span class="ident">contains</span>(<span class="ident">id</span>) {
-            <span class="ident">separate_cycleways</span>.<span class="ident">shapes</span>.<span class="ident">push</span>(<span class="ident">shape</span>.<span class="ident">clone</span>());
+    <span class="comment">// Go apply the matches!</span>
+    <span class="kw">for</span> (<span class="ident">cycleway_id</span>, <span class="ident">roads</span>) <span class="kw">in</span> <span class="ident">matches</span>.<span class="ident">consume</span>() {
+        <span class="kw">if</span> <span class="ident">DEBUG_OUTPUT</span> {
+            <span class="comment">// Just mark what we snapped in an easy-to-debug way</span>
+            <span class="ident">map</span>.<span class="ident">roads</span>
+                .<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">cycleway_id</span>)
+                .<span class="ident">unwrap</span>()
+                .<span class="ident">osm_tags</span>
+                .<span class="ident">insert</span>(<span class="string">&quot;abst:snap&quot;</span>, <span class="string">&quot;remove&quot;</span>);
+            <span class="kw">for</span> (<span class="ident">road_id</span>, <span class="ident">dir</span>) <span class="kw">in</span> <span class="ident">roads</span> {
+                <span class="ident">map</span>.<span class="ident">roads</span>.<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">road_id</span>).<span class="ident">unwrap</span>().<span class="ident">osm_tags</span>.<span class="ident">insert</span>(
+                    <span class="kw">if</span> <span class="ident">dir</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Direction::Fwd</span> {
+                        <span class="string">&quot;abst:snap_fwd&quot;</span>
+                    } <span class="kw">else</span> {
+                        <span class="string">&quot;abst:snap_back&quot;</span>
+                    },
+                    <span class="string">&quot;cyclepath&quot;</span>,
+                );
+            }
+        } <span class="kw">else</span> {
+            <span class="comment">// Remove the separate cycleway</span>
+            <span class="kw">let</span> <span class="ident">deleted_cycleway</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">roads</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">cycleway_id</span>).<span class="ident">unwrap</span>();
+            <span class="comment">// Add it as an attribute to the roads instead</span>
+            <span class="kw">for</span> (<span class="ident">road_id</span>, <span class="ident">dir</span>) <span class="kw">in</span> <span class="ident">roads</span> {
+                <span class="kw">let</span> <span class="ident">dir</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">dir</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Direction::Fwd</span> {
+                    <span class="string">&quot;right&quot;</span>
+                } <span class="kw">else</span> {
+                    <span class="string">&quot;left&quot;</span>
+                };
+                <span class="ident">map</span>.<span class="ident">roads</span>
+                    .<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">road_id</span>)
+                    .<span class="ident">unwrap</span>()
+                    .<span class="ident">osm_tags</span>
+                    .<span class="ident">insert</span>(<span class="macro">format!</span>(<span class="string">&quot;cycleway:{}&quot;</span>, <span class="ident">dir</span>), <span class="string">&quot;track&quot;</span>);
+                <span class="kw">if</span> <span class="op">!</span><span class="ident">deleted_cycleway</span>.<span class="ident">osm_tags</span>.<span class="ident">is</span>(<span class="string">&quot;oneway&quot;</span>, <span class="string">&quot;yes&quot;</span>) {
+                    <span class="ident">map</span>.<span class="ident">roads</span>
+                        .<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">road_id</span>)
+                        .<span class="ident">unwrap</span>()
+                        .<span class="ident">osm_tags</span>
+                        .<span class="ident">insert</span>(<span class="macro">format!</span>(<span class="string">&quot;cycleway:{}:oneway&quot;</span>, <span class="ident">dir</span>), <span class="string">&quot;no&quot;</span>);
+                }
+            }
         }
     }
+}
 
-    <span class="ident">abstio::write_binary</span>(
-        <span class="ident">map</span>.<span class="ident">name</span>
-            .<span class="ident">city</span>
-            .<span class="ident">input_path</span>(<span class="macro">format!</span>(<span class="string">&quot;{}_separate_cycleways.bin&quot;</span>, <span class="ident">map</span>.<span class="ident">name</span>.<span class="ident">map</span>)),
-        <span class="kw-2">&amp;</span><span class="ident">separate_cycleways</span>,
-    );
-    <span class="ident">abstio::write_binary</span>(
-        <span class="ident">map</span>.<span class="ident">name</span>
-            .<span class="ident">city</span>
-            .<span class="ident">input_path</span>(<span class="macro">format!</span>(<span class="string">&quot;{}_snapped_cycleways.bin&quot;</span>, <span class="ident">map</span>.<span class="ident">name</span>.<span class="ident">map</span>)),
-        <span class="kw-2">&amp;</span><span class="ident">snapped_cycleways</span>,
-    );
+<span class="kw">struct</span> <span class="ident">Cycleway</span> {
+    <span class="ident">id</span>: <span class="ident">OriginalRoad</span>,
+    <span class="ident">center</span>: <span class="ident">PolyLine</span>,
+    <span class="ident">total_width</span>: <span class="ident">Distance</span>,
+    <span class="ident">layer</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
 }
 
 <span class="comment">// Walk along every cycleway, form a perpendicular line, and mark all road edges that it hits.</span>
+<span class="comment">// Returns (cycleway ID, every directed road hit).</span>
 <span class="comment">//</span>
 <span class="comment">// TODO Inverse idea: Walk every road, project perpendicular from each of the 4 corners and see what</span>
 <span class="comment">// cycleways hit.</span>
-<span class="comment">//</span>
-<span class="comment">// TODO Should we run this before splitting ways? Possibly less work to do.</span>
+<span class="comment">// TODO Or look for cycleway polygons strictly overlapping thick road polygons</span>
 <span class="kw">fn</span> <span class="ident">v1</span>(
     <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">RawMap</span>,
-    <span class="ident">cycleways</span>: <span class="kw-2">&amp;</span><span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">WayID</span>, <span class="ident">ExtraShape</span><span class="op">&gt;</span>,
+    <span class="ident">cycleways</span>: <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Cycleway</span><span class="op">&gt;</span>,
     <span class="ident">road_edges</span>: <span class="kw-2">&amp;</span><span class="ident">HashMap</span><span class="op">&lt;</span>(<span class="ident">OriginalRoad</span>, <span class="ident">Direction</span>), <span class="ident">PolyLine</span><span class="op">&gt;</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">MultiMap</span><span class="op">&lt;</span>(<span class="ident">OriginalRoad</span>, <span class="ident">Direction</span>), <span class="ident">WayID</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">matches</span>: <span class="ident">MultiMap</span><span class="op">&lt;</span>(<span class="ident">OriginalRoad</span>, <span class="ident">Direction</span>), <span class="ident">WayID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">MultiMap::new</span>();
+) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">MultiMap</span><span class="op">&lt;</span><span class="ident">OriginalRoad</span>, (<span class="ident">OriginalRoad</span>, <span class="ident">Direction</span>)<span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">matches</span> <span class="op">=</span> <span class="ident">MultiMap::new</span>();
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">closest</span>: <span class="ident">FindClosest</span><span class="op">&lt;</span>(<span class="ident">OriginalRoad</span>, <span class="ident">Direction</span>)<span class="op">&gt;</span> <span class="op">=</span>
         <span class="ident">FindClosest::new</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">gps_bounds</span>.<span class="ident">to_bounds</span>());
@@ -287,43 +320,66 @@
     <span class="comment">// TODO If this is too large, we might miss some intermediate pieces of the road.</span>
     <span class="kw">let</span> <span class="ident">step_size</span> <span class="op">=</span> <span class="ident">Distance::meters</span>(<span class="number">5.0</span>);
     <span class="comment">// This gives the length of the perpendicular test line</span>
-    <span class="kw">let</span> <span class="ident">cycleway_half_width</span> <span class="op">=</span> <span class="ident">Distance::meters</span>(<span class="number">3.0</span>);
+    <span class="kw">let</span> <span class="ident">buffer_from_cycleway</span> <span class="op">=</span> <span class="ident">Distance::meters</span>(<span class="number">3.0</span>);
     <span class="comment">// How many degrees difference to consider parallel ways</span>
     <span class="kw">let</span> <span class="ident">parallel_threshold</span> <span class="op">=</span> <span class="number">30.0</span>;
-    <span class="kw">for</span> (<span class="ident">cycleway_id</span>, <span class="ident">cycleway</span>) <span class="kw">in</span> <span class="ident">cycleways</span> {
-        <span class="kw">let</span> <span class="ident">pl</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">PolyLine::new</span>(<span class="ident">map</span>.<span class="ident">gps_bounds</span>.<span class="ident">convert</span>(<span class="kw-2">&amp;</span><span class="ident">cycleway</span>.<span class="ident">points</span>)) {
-            <span class="prelude-val">Ok</span>(<span class="ident">pl</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">pl</span>,
-            <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="macro">warn!</span>(<span class="string">&quot;Not snapping cycleway {}: {}&quot;</span>, <span class="ident">cycleway_id</span>, <span class="ident">err</span>);
-                <span class="kw">continue</span>;
-            }
-        };
 
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">debug_shapes</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+
+    <span class="kw">for</span> <span class="ident">cycleway</span> <span class="kw">in</span> <span class="ident">cycleways</span> {
+        <span class="kw">let</span> <span class="ident">cycleway_half_width</span> <span class="op">=</span> (<span class="ident">cycleway</span>.<span class="ident">total_width</span> <span class="op">/</span> <span class="number">2.0</span>) <span class="op">+</span> <span class="ident">buffer_from_cycleway</span>;
+        <span class="comment">// Walk along the cycleway&#39;s center line</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">dist</span> <span class="op">=</span> <span class="ident">Distance::ZERO</span>;
         <span class="kw">loop</span> {
-            <span class="kw">let</span> (<span class="ident">pt</span>, <span class="ident">cycleway_angle</span>) <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">must_dist_along</span>(<span class="ident">dist</span>);
+            <span class="kw">let</span> (<span class="ident">pt</span>, <span class="ident">cycleway_angle</span>) <span class="op">=</span> <span class="ident">cycleway</span>.<span class="ident">center</span>.<span class="ident">must_dist_along</span>(<span class="ident">dist</span>);
             <span class="kw">let</span> <span class="ident">perp_line</span> <span class="op">=</span> <span class="ident">Line::must_new</span>(
                 <span class="ident">pt</span>.<span class="ident">project_away</span>(<span class="ident">cycleway_half_width</span>, <span class="ident">cycleway_angle</span>.<span class="ident">rotate_degs</span>(<span class="number">90.0</span>)),
                 <span class="ident">pt</span>.<span class="ident">project_away</span>(<span class="ident">cycleway_half_width</span>, <span class="ident">cycleway_angle</span>.<span class="ident">rotate_degs</span>(<span class="op">-</span><span class="number">90.0</span>)),
             );
-            <span class="kw">for</span> (<span class="ident">id</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="ident">closest</span>.<span class="ident">all_close_pts</span>(<span class="ident">perp_line</span>.<span class="ident">pt1</span>(), <span class="ident">cycleway_half_width</span>) {
+            <span class="ident">debug_shapes</span>.<span class="ident">push</span>(<span class="ident">ExtraShape</span> {
+                <span class="ident">points</span>: <span class="ident">map</span>.<span class="ident">gps_bounds</span>.<span class="ident">convert_back</span>(<span class="kw-2">&amp;</span><span class="ident">perp_line</span>.<span class="ident">points</span>()),
+                <span class="ident">attributes</span>: <span class="ident">BTreeMap::new</span>(),
+            });
+            <span class="kw">for</span> (<span class="ident">road_pair</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="ident">closest</span>.<span class="ident">all_close_pts</span>(<span class="ident">pt</span>, <span class="ident">cycleway_half_width</span>) {
+                <span class="comment">// A cycleway can&#39;t snap to a road at a different height</span>
+                <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">roads</span>[<span class="kw-2">&amp;</span><span class="ident">road_pair</span>.<span class="number">0</span>].<span class="ident">osm_tags</span>.<span class="ident">get</span>(<span class="string">&quot;layer&quot;</span>) <span class="op">!</span><span class="op">=</span> <span class="ident">cycleway</span>.<span class="ident">layer</span>.<span class="ident">as_ref</span>() {
+                    <span class="kw">continue</span>;
+                }
+
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="ident">road_angle</span>)) <span class="op">=</span>
-                    <span class="ident">road_edges</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>].<span class="ident">intersection</span>(<span class="kw-2">&amp;</span><span class="ident">perp_line</span>.<span class="ident">to_polyline</span>())
+                    <span class="ident">road_edges</span>[<span class="kw-2">&amp;</span><span class="ident">road_pair</span>].<span class="ident">intersection</span>(<span class="kw-2">&amp;</span><span class="ident">perp_line</span>.<span class="ident">to_polyline</span>())
                 {
-                    <span class="kw">if</span> <span class="ident">road_angle</span>.<span class="ident">approx_eq</span>(<span class="ident">cycleway_angle</span>, <span class="ident">parallel_threshold</span>) {
-                        <span class="ident">matches</span>.<span class="ident">insert</span>(<span class="ident">id</span>, <span class="kw-2">*</span><span class="ident">cycleway_id</span>);
-                        <span class="comment">// TODO Just stop at the first hit?</span>
+                    <span class="comment">// The two angles might be anti-parallel</span>
+                    <span class="kw">if</span> <span class="ident">road_angle</span>.<span class="ident">approx_eq</span>(<span class="ident">cycleway_angle</span>, <span class="ident">parallel_threshold</span>)
+                        <span class="op">|</span><span class="op">|</span> <span class="ident">road_angle</span>
+                            .<span class="ident">opposite</span>()
+                            .<span class="ident">approx_eq</span>(<span class="ident">cycleway_angle</span>, <span class="ident">parallel_threshold</span>)
+                    {
+                        <span class="ident">matches</span>.<span class="ident">insert</span>(<span class="ident">cycleway</span>.<span class="ident">id</span>, <span class="ident">road_pair</span>);
+                        <span class="comment">// Just stop at the first, closest hit. One point along a cycleway might be</span>
+                        <span class="comment">// close to multiple road edges, but we want the closest hit.</span>
                         <span class="kw">break</span>;
                     }
                 }
             }
 
-            <span class="kw">if</span> <span class="ident">dist</span> <span class="op">=</span><span class="op">=</span> <span class="ident">pl</span>.<span class="ident">length</span>() {
+            <span class="kw">if</span> <span class="ident">dist</span> <span class="op">=</span><span class="op">=</span> <span class="ident">cycleway</span>.<span class="ident">center</span>.<span class="ident">length</span>() {
                 <span class="kw">break</span>;
             }
             <span class="ident">dist</span> <span class="op">+</span><span class="op">=</span> <span class="ident">step_size</span>;
-            <span class="ident">dist</span> <span class="op">=</span> <span class="ident">dist</span>.<span class="ident">min</span>(<span class="ident">pl</span>.<span class="ident">length</span>());
+            <span class="ident">dist</span> <span class="op">=</span> <span class="ident">dist</span>.<span class="ident">min</span>(<span class="ident">cycleway</span>.<span class="ident">center</span>.<span class="ident">length</span>());
         }
+    }
+
+    <span class="kw">if</span> <span class="ident">DEBUG_OUTPUT</span> {
+        <span class="ident">abstio::write_binary</span>(
+            <span class="ident">map</span>.<span class="ident">name</span>
+                .<span class="ident">city</span>
+                .<span class="ident">input_path</span>(<span class="macro">format!</span>(<span class="string">&quot;{}_snapping.bin&quot;</span>, <span class="ident">map</span>.<span class="ident">name</span>.<span class="ident">map</span>)),
+            <span class="kw-2">&amp;</span><span class="ident">ExtraShapes</span> {
+                <span class="ident">shapes</span>: <span class="ident">debug_shapes</span>,
+            },
+        );
     }
 
     <span class="ident">matches</span>
