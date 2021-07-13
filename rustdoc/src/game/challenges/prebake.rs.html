@@ -138,17 +138,6 @@
 <span id="135">135</span>
 <span id="136">136</span>
 <span id="137">137</span>
-<span id="138">138</span>
-<span id="139">139</span>
-<span id="140">140</span>
-<span id="141">141</span>
-<span id="142">142</span>
-<span id="143">143</span>
-<span id="144">144</span>
-<span id="145">145</span>
-<span id="146">146</span>
-<span id="147">147</span>
-<span id="148">148</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">serde::Serialize</span>;
 
@@ -175,7 +164,7 @@
                 <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>,
             );
             <span class="comment">// Don&#39;t record a summary for this</span>
-            <span class="ident">prebake</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>, <span class="ident">scenario</span>, <span class="prelude-val">None</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>);
+            <span class="ident">prebake</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>, <span class="ident">scenario</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>);
         }
     }
 
@@ -193,22 +182,19 @@
         <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">map_model::Map::load_synchronously</span>(<span class="ident">name</span>.<span class="ident">path</span>(), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>);
         <span class="kw">let</span> <span class="ident">scenario</span>: <span class="ident">Scenario</span> <span class="op">=</span>
             <span class="ident">abstio::read_binary</span>(<span class="ident">abstio::path_scenario</span>(<span class="ident">map</span>.<span class="ident">get_name</span>(), <span class="string">&quot;weekday&quot;</span>), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>);
-        <span class="ident">summaries</span>.<span class="ident">push</span>(<span class="ident">prebake</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>, <span class="ident">scenario</span>, <span class="prelude-val">None</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>));
+        <span class="ident">summaries</span>.<span class="ident">push</span>(<span class="ident">prebake</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>, <span class="ident">scenario</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>));
     }
 
+    <span class="kw">let</span> <span class="ident">pbury_map</span> <span class="op">=</span> <span class="ident">map_model::Map::load_synchronously</span>(
+        <span class="ident">MapName::new</span>(<span class="string">&quot;gb&quot;</span>, <span class="string">&quot;poundbury&quot;</span>, <span class="string">&quot;center&quot;</span>).<span class="ident">path</span>(),
+        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>,
+    );
     <span class="kw">for</span> <span class="ident">scenario_name</span> <span class="kw">in</span> [<span class="string">&quot;base&quot;</span>, <span class="string">&quot;go_active&quot;</span>, <span class="string">&quot;base_with_bg&quot;</span>, <span class="string">&quot;go_active_with_bg&quot;</span>] {
-        <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">map_model::Map::load_synchronously</span>(
-            <span class="ident">MapName::new</span>(<span class="string">&quot;gb&quot;</span>, <span class="string">&quot;poundbury&quot;</span>, <span class="string">&quot;center&quot;</span>).<span class="ident">path</span>(),
-            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>,
-        );
         <span class="kw">let</span> <span class="ident">scenario</span>: <span class="ident">Scenario</span> <span class="op">=</span> <span class="ident">abstio::read_binary</span>(
-            <span class="ident">abstio::path_scenario</span>(<span class="ident">map</span>.<span class="ident">get_name</span>(), <span class="ident">scenario_name</span>),
+            <span class="ident">abstio::path_scenario</span>(<span class="ident">pbury_map</span>.<span class="ident">get_name</span>(), <span class="ident">scenario_name</span>),
             <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>,
         );
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">opts</span> <span class="op">=</span> <span class="ident">SimOptions::new</span>(<span class="string">&quot;prebaked&quot;</span>);
-        <span class="ident">opts</span>.<span class="ident">alerts</span> <span class="op">=</span> <span class="ident">AlertHandler::Silence</span>;
-        <span class="ident">opts</span>.<span class="ident">infinite_parking</span> <span class="op">=</span> <span class="bool-val">true</span>;
-        <span class="ident">summaries</span>.<span class="ident">push</span>(<span class="ident">prebake</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>, <span class="ident">scenario</span>, <span class="prelude-val">Some</span>(<span class="ident">opts</span>), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>));
+        <span class="ident">summaries</span>.<span class="ident">push</span>(<span class="ident">prebake</span>(<span class="kw-2">&amp;</span><span class="ident">pbury_map</span>, <span class="ident">scenario</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>));
     }
 
     <span class="comment">// Assume this is being run from the &#39;game&#39; directory. This other tests directory is the most</span>
@@ -219,23 +205,15 @@
     );
 }
 
-<span class="kw">fn</span> <span class="ident">prebake</span>(
-    <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-    <span class="ident">scenario</span>: <span class="ident">Scenario</span>,
-    <span class="ident">opts</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">SimOptions</span><span class="op">&gt;</span>,
-    <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PrebakeSummary</span> {
+<span class="kw">fn</span> <span class="ident">prebake</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">scenario</span>: <span class="ident">Scenario</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PrebakeSummary</span> {
     <span class="ident">timer</span>.<span class="ident">start</span>(<span class="macro">format!</span>(
         <span class="string">&quot;prebake for {} / {}&quot;</span>,
         <span class="ident">scenario</span>.<span class="ident">map_name</span>.<span class="ident">describe</span>(),
         <span class="ident">scenario</span>.<span class="ident">scenario_name</span>
     ));
 
-    <span class="kw">let</span> <span class="ident">opts</span> <span class="op">=</span> <span class="ident">opts</span>.<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">opts</span> <span class="op">=</span> <span class="ident">SimOptions::new</span>(<span class="string">&quot;prebaked&quot;</span>);
-        <span class="ident">opts</span>.<span class="ident">alerts</span> <span class="op">=</span> <span class="ident">AlertHandler::Silence</span>;
-        <span class="ident">opts</span>
-    });
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">opts</span> <span class="op">=</span> <span class="ident">SimOptions::new</span>(<span class="string">&quot;prebaked&quot;</span>);
+    <span class="ident">opts</span>.<span class="ident">alerts</span> <span class="op">=</span> <span class="ident">AlertHandler::Silence</span>;
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">sim</span> <span class="op">=</span> <span class="ident">Sim::new</span>(<span class="ident">map</span>, <span class="ident">opts</span>);
     <span class="comment">// Bit of an abuse of this, but just need to fix the rng seed.</span>
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="ident">SimFlags::for_test</span>(<span class="string">&quot;prebaked&quot;</span>).<span class="ident">make_rng</span>();
