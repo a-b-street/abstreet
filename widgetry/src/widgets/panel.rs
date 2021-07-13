@@ -110,7 +110,7 @@ impl Panel {
 
         // Wrap the main widget in scrollable containers if necessary.
         if self.scrollable_x {
-            let mut slider = Slider::horizontal(
+            let mut slider = Slider::horizontal_scrollbar(
                 ctx,
                 self.container_dims.width,
                 self.container_dims.width * (self.container_dims.width / self.contents_dims.width),
@@ -129,7 +129,7 @@ impl Panel {
         }
 
         if self.scrollable_y {
-            let mut slider = Slider::vertical(
+            let mut slider = Slider::vertical_scrollbar(
                 ctx,
                 self.container_dims.height,
                 self.container_dims.height

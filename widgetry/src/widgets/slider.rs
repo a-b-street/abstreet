@@ -1,7 +1,7 @@
 use geom::{Circle, Distance, Polygon, Pt2D};
 
 use crate::{
-    Color, Drawable, EdgeInsets, EventCtx, GeomBatch, GfxCtx, ScreenDims, ScreenPt,
+    Color, Drawable, EdgeInsets, EventCtx, GeomBatch, GfxCtx, Outcome, ScreenDims, ScreenPt,
     ScreenRectangle, Widget, WidgetImpl, WidgetOutput,
 };
 
@@ -11,6 +11,7 @@ pub struct Slider {
     pub(crate) dragging: bool,
 
     style: Style,
+    label: Option<String>,
 
     draw: Drawable,
 
@@ -54,7 +55,7 @@ impl Style {
 }
 
 impl Slider {
-    pub fn horizontal(
+    pub(crate) fn horizontal_scrollbar(
         ctx: &EventCtx,
         width: f64,
         dragger_len: f64,
@@ -67,10 +68,17 @@ impl Slider {
                 dragger_len,
             },
             current_percent,
+            // Don't emit Outcome::Changed for scollbars
+            None,
         )
     }
 
-    pub fn vertical(ctx: &EventCtx, height: f64, dragger_len: f64, current_percent: f64) -> Widget {
+    pub(crate) fn vertical_scrollbar(
+        ctx: &EventCtx,
+        height: f64,
+        dragger_len: f64,
+        current_percent: f64,
+    ) -> Widget {
         Slider::new_widget(
             ctx,
             Style::Vertical {
@@ -78,20 +86,34 @@ impl Slider {
                 dragger_len,
             },
             current_percent,
+            // Don't emit Outcome::Changed for scollbars
+            None,
         )
     }
 
-    pub fn area(ctx: &EventCtx, width: f64, current_percent: f64) -> Widget {
-        Slider::new_widget(ctx, Style::Area { width }, current_percent)
+    pub fn area(ctx: &EventCtx, width: f64, current_percent: f64, label: &str) -> Widget {
+        Slider::new_widget(
+            ctx,
+            Style::Area { width },
+            current_percent,
+            Some(label.to_string()),
+        )
+        .named(label)
     }
 
-    fn new_widget(ctx: &EventCtx, style: Style, current_percent: f64) -> Widget {
+    fn new_widget(
+        ctx: &EventCtx,
+        style: Style,
+        current_percent: f64,
+        label: Option<String>,
+    ) -> Widget {
         let mut s = Slider {
             current_percent,
             mouse_on_slider: false,
             dragging: false,
             style,
             draw: Drawable::empty(ctx),
+            label,
 
             top_left: ScreenPt::new(0.0, 0.0),
             dims: ScreenDims::new(0.0, 0.0),
@@ -221,6 +243,7 @@ impl Slider {
         }
     }
 
+    // True if anything changed
     fn inner_event(&mut self, ctx: &mut EventCtx) -> bool {
         if self.dragging {
             if ctx.input.get_moved_mouse().is_some() {
@@ -290,9 +313,12 @@ impl WidgetImpl for Slider {
         self.top_left = top_left;
     }
 
-    fn event(&mut self, ctx: &mut EventCtx, _: &mut WidgetOutput) {
+    fn event(&mut self, ctx: &mut EventCtx, output: &mut WidgetOutput) {
         if self.inner_event(ctx) {
             self.recalc(ctx);
+            if let Some(ref label) = self.label {
+                output.outcome = Outcome::Changed(label.clone());
+            }
         }
     }
 

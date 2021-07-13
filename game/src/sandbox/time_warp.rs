@@ -56,8 +56,12 @@ impl JumpToTime {
                 } else {
                     Widget::nothing()
                 },
-                Slider::area(ctx, slider_width, target.to_percent(end_of_day).min(1.0))
-                    .named("time slider"),
+                Slider::area(
+                    ctx,
+                    slider_width,
+                    target.to_percent(end_of_day).min(1.0),
+                    "time slider",
+                ),
                 build_jump_to_time_btn(ctx, target),
             ])
         };
@@ -161,6 +165,7 @@ impl State<App> for JumpToTime {
                     }
                 }
             },
+            // TODO check what changed...
             Outcome::Changed(_) => {
                 if self.tabs.active_tab_idx() == 1 {
                     self.panel.replace(

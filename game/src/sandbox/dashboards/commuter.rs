@@ -684,11 +684,11 @@ fn make_panel(ctx: &mut EventCtx, app: &App) -> Panel {
         Toggle::switch(ctx, "include borders", None, true),
         Widget::row(vec![
             "Departing from:".text_widget(ctx).margin_right(20),
-            Slider::area(ctx, 0.15 * ctx.canvas.window_width, 0.0).named("depart from"),
+            Slider::area(ctx, 0.15 * ctx.canvas.window_width, 0.0, "depart from"),
         ]),
         Widget::row(vec![
             "Departing until:".text_widget(ctx).margin_right(20),
-            Slider::area(ctx, 0.15 * ctx.canvas.window_width, 1.0).named("depart until"),
+            Slider::area(ctx, 0.15 * ctx.canvas.window_width, 1.0, "depart until"),
         ]),
         checkbox_per_mode(ctx, app, &TripMode::all().into_iter().collect()),
         ColorLegend::gradient(ctx, &app.cs.good_to_bad_red, vec!["0", "0"]).named("scale"),

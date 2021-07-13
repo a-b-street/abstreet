@@ -98,11 +98,11 @@ impl Filters {
             ),
             Widget::row(vec![
                 "Between:".text_widget(ctx).margin_right(20),
-                Slider::area(ctx, 0.1 * ctx.canvas.window_width, 0.0).named("time1"),
+                Slider::area(ctx, 0.1 * ctx.canvas.window_width, 0.0, "time1"),
             ]),
             Widget::row(vec![
                 "and:".text_widget(ctx).margin_right(20),
-                Slider::area(ctx, 0.1 * ctx.canvas.window_width, 1.0).named("time2"),
+                Slider::area(ctx, 0.1 * ctx.canvas.window_width, 1.0, "time2"),
             ]),
             Widget::row(vec![
                 "Severity:".text_widget(ctx).margin_right(20),
@@ -268,32 +268,31 @@ impl State<App> for CollisionsViewer {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         ctx.canvas_movement();
 
-        let old_filters = Filters::from_controls(&self.panel);
-        if let Outcome::Clicked(x) = self.panel.event(ctx) {
-            match x.as_ref() {
+        match self.panel.event(ctx) {
+            Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
                     return Transition::Pop;
                 }
                 _ => unreachable!(),
+            },
+            Outcome::Changed(_) => {
+                let filters = Filters::from_controls(&self.panel);
+                let indices = filters.apply(&self.data);
+                let count = indices.len();
+                let (dataviz, tooltips) = if filters.show_individual {
+                    Dataviz::individual(ctx, app, &self.data, indices)
+                } else {
+                    Dataviz::aggregated(ctx, app, &self.data, indices)
+                };
+                self.dataviz = dataviz;
+                self.tooltips = tooltips;
+                let count = format!("{} collisions", prettyprint_usize(count)).text_widget(ctx);
+                self.panel.replace(ctx, "count", count);
+            }
+            _ => {
+                self.tooltips.event(ctx);
             }
         }
-        // TODO Should fiddling with sliders produce Outcome::Changed?
-        let filters = Filters::from_controls(&self.panel);
-        if filters != old_filters {
-            let indices = filters.apply(&self.data);
-            let count = indices.len();
-            let (dataviz, tooltips) = if filters.show_individual {
-                Dataviz::individual(ctx, app, &self.data, indices)
-            } else {
-                Dataviz::aggregated(ctx, app, &self.data, indices)
-            };
-            self.dataviz = dataviz;
-            self.tooltips = tooltips;
-            let count = format!("{} collisions", prettyprint_usize(count)).text_widget(ctx);
-            self.panel.replace(ctx, "count", count);
-        }
-
-        self.tooltips.event(ctx);
 
         Transition::Keep
     }

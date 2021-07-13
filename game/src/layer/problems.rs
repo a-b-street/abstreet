@@ -203,9 +203,9 @@ fn make_controls(
             ctx,
             0.15 * ctx.canvas.window_width,
             opts.time1.to_percent(end_of_day),
+            "time1",
         )
-        .align_right()
-        .named("time1"),
+        .align_right(),
     ]));
     col.push(Widget::row(vec![
         "and:".text_widget(ctx).margin_right(20),
@@ -213,9 +213,9 @@ fn make_controls(
             ctx,
             0.15 * ctx.canvas.window_width,
             opts.time2.to_percent(end_of_day),
+            "time2",
         )
-        .align_right()
-        .named("time2"),
+        .align_right(),
     ]));
     col.push(checkbox_per_mode(ctx, app, &opts.modes));
     col.push(Toggle::checkbox(ctx, "show delays", None, opts.show_delays));

@@ -425,11 +425,11 @@ impl ChangeMode {
                 checkbox_per_mode(ctx, app, &btreeset! { TripMode::Drive }),
                 Widget::row(vec![
                     "Departing from:".text_widget(ctx),
-                    Slider::area(ctx, 0.25 * ctx.canvas.window_width, 0.0).named("depart from"),
+                    Slider::area(ctx, 0.25 * ctx.canvas.window_width, 0.0, "depart from"),
                 ]),
                 Widget::row(vec![
                     "Departing until:".text_widget(ctx),
-                    Slider::area(ctx, 0.25 * ctx.canvas.window_width, 0.3).named("depart to"),
+                    Slider::area(ctx, 0.25 * ctx.canvas.window_width, 0.3, "depart to"),
                 ]),
                 "Matching trips:".text_widget(ctx).named("count"),
                 Widget::horiz_separator(ctx, 1.0),
