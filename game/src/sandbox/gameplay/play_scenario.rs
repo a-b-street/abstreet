@@ -1,7 +1,8 @@
-use std::collections::BTreeSet;
+use std::collections::{BTreeMap, BTreeSet};
 
 use maplit::btreeset;
 
+use abstutil::prettyprint_usize;
 use geom::{Duration, Time};
 use map_gui::tools::{
     grey_out_map, nice_map_name, ChooseSomething, CityPicker, PopupMsg, URLManager,
@@ -398,6 +399,7 @@ struct ChangeMode {
     panel: Panel,
     scenario_name: String,
     modifiers: Vec<ScenarioModifier>,
+    count_trips: CountTrips,
 }
 
 impl ChangeMode {
@@ -407,9 +409,10 @@ impl ChangeMode {
         scenario_name: String,
         modifiers: Vec<ScenarioModifier>,
     ) -> Box<dyn State<App>> {
-        Box::new(ChangeMode {
+        let mut state = ChangeMode {
             scenario_name,
             modifiers,
+            count_trips: CountTrips::new(app),
             panel: Panel::new_builder(Widget::col(vec![
                 Line("Change trip mode").small_heading().into_widget(ctx),
                 Widget::row(vec![
@@ -428,6 +431,7 @@ impl ChangeMode {
                     "Departing until:".text_widget(ctx),
                     Slider::area(ctx, 0.25 * ctx.canvas.window_width, 0.3).named("depart to"),
                 ]),
+                "Matching trips:".text_widget(ctx).named("count"),
                 Widget::horiz_separator(ctx, 1.0),
                 Widget::row(vec![
                     "Change to trip type:".text_widget(ctx),
@@ -455,7 +459,50 @@ impl ChangeMode {
             ]))
             .exact_size_percent(80, 80)
             .build(ctx),
-        })
+        };
+        state.recalc_count(ctx, app);
+        Box::new(state)
+    }
+
+    fn get_filters(&self, app: &App) -> (BTreeSet<TripMode>, (Time, Time)) {
+        let to_mode = self.panel.dropdown_value::<Option<TripMode>, _>("to_mode");
+        let (p1, p2) = (
+            self.panel.slider("depart from").get_percent(),
+            self.panel.slider("depart to").get_percent(),
+        );
+        let departure_filter = (
+            app.primary.sim.get_end_of_day().percent_of(p1),
+            app.primary.sim.get_end_of_day().percent_of(p2),
+        );
+        let mut from_modes = TripMode::all()
+            .into_iter()
+            .filter(|m| self.panel.is_checked(m.ongoing_verb()))
+            .collect::<BTreeSet<_>>();
+        if let Some(ref m) = to_mode {
+            from_modes.remove(m);
+        }
+        (from_modes, departure_filter)
+    }
+
+    fn recalc_count(&mut self, ctx: &mut EventCtx, app: &App) {
+        let (modes, (t1, t2)) = self.get_filters(app);
+        let mut cnt = 0;
+        for m in modes {
+            cnt += self.count_trips.count(m, t1, t2);
+        }
+        let pct_ppl: usize = self.panel.spinner("pct_ppl");
+        let mut txt = Text::from(format!("Matching trips: {}", prettyprint_usize(cnt)));
+        let adjusted_cnt = ((cnt as f64) * (pct_ppl as f64) / 100.0) as usize;
+        txt.append(
+            Line(format!(
+                " ({}% is {})",
+                pct_ppl,
+                prettyprint_usize(adjusted_cnt)
+            ))
+            .secondary(),
+        );
+        let label = txt.into_widget(ctx);
+        self.panel.replace(ctx, "count", label);
     }
 }
 
@@ -465,24 +512,9 @@ impl State<App> for ChangeMode {
             Outcome::Clicked(x) => match x.as_ref() {
                 "Discard changes" => Transition::Pop,
                 "Apply" => {
+                    let (from_modes, departure_filter) = self.get_filters(app);
                     let to_mode = self.panel.dropdown_value::<Option<TripMode>, _>("to_mode");
                     let pct_ppl = self.panel.spinner("pct_ppl");
-                    let (p1, p2) = (
-                        self.panel.slider("depart from").get_percent(),
-                        self.panel.slider("depart to").get_percent(),
-                    );
-                    let departure_filter = (
-                        app.primary.sim.get_end_of_day().percent_of(p1),
-                        app.primary.sim.get_end_of_day().percent_of(p2),
-                    );
-                    let mut from_modes = TripMode::all()
-                        .into_iter()
-                        .filter(|m| self.panel.is_checked(m.ongoing_verb()))
-                        .collect::<BTreeSet<_>>();
-                    if let Some(ref m) = to_mode {
-                        from_modes.remove(m);
-                    }
-
                     if from_modes.is_empty() {
                         return Transition::Push(PopupMsg::new_state(
                             ctx,
@@ -490,7 +522,7 @@ impl State<App> for ChangeMode {
                             vec!["You have to select at least one mode to convert from"],
                         ));
                     }
-                    if p1 >= p2 {
+                    if departure_filter.0 >= departure_filter.1 {
                         return Transition::Push(PopupMsg::new_state(
                             ctx,
                             "Error",
@@ -516,6 +548,10 @@ impl State<App> for ChangeMode {
                 }
                 _ => unreachable!(),
             },
+            Outcome::Changed(_) => {
+                self.recalc_count(ctx, app);
+                Transition::Keep
+            }
             _ => Transition::Keep,
         }
     }
@@ -606,5 +642,48 @@ impl SimpleState<App> for DepartureSummary {
             }
             _ => unreachable!(),
         }
+    }
+}
+
+struct CountTrips {
+    // Times are sorted
+    departures_per_mode: BTreeMap<TripMode, Vec<Time>>,
+}
+
+impl CountTrips {
+    fn new(app: &App) -> CountTrips {
+        let mut departures_per_mode = BTreeMap::new();
+        for m in TripMode::all() {
+            departures_per_mode.insert(m, Vec::new());
+        }
+        for person in &app.primary.scenario.as_ref().unwrap().people {
+            for trip in &person.trips {
+                departures_per_mode
+                    .get_mut(&trip.mode)
+                    .unwrap()
+                    .push(trip.depart);
+            }
+        }
+        for list in departures_per_mode.values_mut() {
+            list.sort();
+        }
+        CountTrips {
+            departures_per_mode,
+        }
+    }
+
+    fn count(&self, mode: TripMode, t1: Time, t2: Time) -> usize {
+        // TODO Could binary search or even have a cursor to remember the position between queries.
+        // Be careful with binary_search_by_key; it might miss multiple trips with the same time.
+        let mut cnt = 0;
+        for t in &self.departures_per_mode[&mode] {
+            if *t >= t1 && *t <= t2 {
+                cnt += 1;
+            }
+            if *t > t2 {
+                break;
+            }
+        }
+        cnt
     }
 }
