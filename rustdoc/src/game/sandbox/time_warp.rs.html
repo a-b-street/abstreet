@@ -452,6 +452,11 @@
 <span id="449">449</span>
 <span id="450">450</span>
 <span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">instant::Instant</span>;
 
@@ -511,8 +516,12 @@
                 } <span class="kw">else</span> {
                     <span class="ident">Widget::nothing</span>()
                 },
-                <span class="ident">Slider::area</span>(<span class="ident">ctx</span>, <span class="ident">slider_width</span>, <span class="ident">target</span>.<span class="ident">to_percent</span>(<span class="ident">end_of_day</span>).<span class="ident">min</span>(<span class="number">1.0</span>))
-                    .<span class="ident">named</span>(<span class="string">&quot;time slider&quot;</span>),
+                <span class="ident">Slider::area</span>(
+                    <span class="ident">ctx</span>,
+                    <span class="ident">slider_width</span>,
+                    <span class="ident">target</span>.<span class="ident">to_percent</span>(<span class="ident">end_of_day</span>).<span class="ident">min</span>(<span class="number">1.0</span>),
+                    <span class="string">&quot;time slider&quot;</span>,
+                ),
                 <span class="ident">build_jump_to_time_btn</span>(<span class="ident">ctx</span>, <span class="ident">target</span>),
             ])
         };
@@ -616,6 +625,7 @@
                     }
                 }
             },
+            <span class="comment">// TODO check what changed...</span>
             <span class="ident">Outcome::Changed</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">if</span> <span class="self">self</span>.<span class="ident">tabs</span>.<span class="ident">active_tab_idx</span>() <span class="op">=</span><span class="op">=</span> <span class="number">1</span> {
                     <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(

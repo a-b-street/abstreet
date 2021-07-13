@@ -784,7 +784,7 @@
 
         <span class="comment">// Wrap the main widget in scrollable containers if necessary.</span>
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">scrollable_x</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">slider</span> <span class="op">=</span> <span class="ident">Slider::horizontal</span>(
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">slider</span> <span class="op">=</span> <span class="ident">Slider::horizontal_scrollbar</span>(
                 <span class="ident">ctx</span>,
                 <span class="self">self</span>.<span class="ident">container_dims</span>.<span class="ident">width</span>,
                 <span class="self">self</span>.<span class="ident">container_dims</span>.<span class="ident">width</span> <span class="op">*</span> (<span class="self">self</span>.<span class="ident">container_dims</span>.<span class="ident">width</span> <span class="op">/</span> <span class="self">self</span>.<span class="ident">contents_dims</span>.<span class="ident">width</span>),
@@ -803,7 +803,7 @@
         }
 
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">scrollable_y</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">slider</span> <span class="op">=</span> <span class="ident">Slider::vertical</span>(
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">slider</span> <span class="op">=</span> <span class="ident">Slider::vertical_scrollbar</span>(
                 <span class="ident">ctx</span>,
                 <span class="self">self</span>.<span class="ident">container_dims</span>.<span class="ident">height</span>,
                 <span class="self">self</span>.<span class="ident">container_dims</span>.<span class="ident">height</span>

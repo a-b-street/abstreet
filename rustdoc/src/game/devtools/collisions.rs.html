@@ -365,7 +365,6 @@
 <span id="362">362</span>
 <span id="363">363</span>
 <span id="364">364</span>
-<span id="365">365</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">Counter</span>};
 <span class="kw">use</span> <span class="ident">collisions</span>::{<span class="ident">CollisionDataset</span>, <span class="ident">Severity</span>};
@@ -467,11 +466,11 @@
             ),
             <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
                 <span class="string">&quot;Between:&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">margin_right</span>(<span class="number">20</span>),
-                <span class="ident">Slider::area</span>(<span class="ident">ctx</span>, <span class="number">0.1</span> <span class="op">*</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_width</span>, <span class="number">0.0</span>).<span class="ident">named</span>(<span class="string">&quot;time1&quot;</span>),
+                <span class="ident">Slider::area</span>(<span class="ident">ctx</span>, <span class="number">0.1</span> <span class="op">*</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_width</span>, <span class="number">0.0</span>, <span class="string">&quot;time1&quot;</span>),
             ]),
             <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
                 <span class="string">&quot;and:&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">margin_right</span>(<span class="number">20</span>),
-                <span class="ident">Slider::area</span>(<span class="ident">ctx</span>, <span class="number">0.1</span> <span class="op">*</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_width</span>, <span class="number">1.0</span>).<span class="ident">named</span>(<span class="string">&quot;time2&quot;</span>),
+                <span class="ident">Slider::area</span>(<span class="ident">ctx</span>, <span class="number">0.1</span> <span class="op">*</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_width</span>, <span class="number">1.0</span>, <span class="string">&quot;time2&quot;</span>),
             ]),
             <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
                 <span class="string">&quot;Severity:&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">margin_right</span>(<span class="number">20</span>),
@@ -637,32 +636,31 @@
     <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span> {
         <span class="ident">ctx</span>.<span class="ident">canvas_movement</span>();
 
-        <span class="kw">let</span> <span class="ident">old_filters</span> <span class="op">=</span> <span class="ident">Filters::from_controls</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">panel</span>);
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
+        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
+            <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
                 <span class="string">&quot;close&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">return</span> <span class="ident">Transition::Pop</span>;
                 }
                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
+            },
+            <span class="ident">Outcome::Changed</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">let</span> <span class="ident">filters</span> <span class="op">=</span> <span class="ident">Filters::from_controls</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">panel</span>);
+                <span class="kw">let</span> <span class="ident">indices</span> <span class="op">=</span> <span class="ident">filters</span>.<span class="ident">apply</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">data</span>);
+                <span class="kw">let</span> <span class="ident">count</span> <span class="op">=</span> <span class="ident">indices</span>.<span class="ident">len</span>();
+                <span class="kw">let</span> (<span class="ident">dataviz</span>, <span class="ident">tooltips</span>) <span class="op">=</span> <span class="kw">if</span> <span class="ident">filters</span>.<span class="ident">show_individual</span> {
+                    <span class="ident">Dataviz::individual</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">data</span>, <span class="ident">indices</span>)
+                } <span class="kw">else</span> {
+                    <span class="ident">Dataviz::aggregated</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">data</span>, <span class="ident">indices</span>)
+                };
+                <span class="self">self</span>.<span class="ident">dataviz</span> <span class="op">=</span> <span class="ident">dataviz</span>;
+                <span class="self">self</span>.<span class="ident">tooltips</span> <span class="op">=</span> <span class="ident">tooltips</span>;
+                <span class="kw">let</span> <span class="ident">count</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{} collisions&quot;</span>, <span class="ident">prettyprint_usize</span>(<span class="ident">count</span>)).<span class="ident">text_widget</span>(<span class="ident">ctx</span>);
+                <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;count&quot;</span>, <span class="ident">count</span>);
+            }
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="self">self</span>.<span class="ident">tooltips</span>.<span class="ident">event</span>(<span class="ident">ctx</span>);
             }
         }
-        <span class="comment">// TODO Should fiddling with sliders produce Outcome::Changed?</span>
-        <span class="kw">let</span> <span class="ident">filters</span> <span class="op">=</span> <span class="ident">Filters::from_controls</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">panel</span>);
-        <span class="kw">if</span> <span class="ident">filters</span> <span class="op">!</span><span class="op">=</span> <span class="ident">old_filters</span> {
-            <span class="kw">let</span> <span class="ident">indices</span> <span class="op">=</span> <span class="ident">filters</span>.<span class="ident">apply</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">data</span>);
-            <span class="kw">let</span> <span class="ident">count</span> <span class="op">=</span> <span class="ident">indices</span>.<span class="ident">len</span>();
-            <span class="kw">let</span> (<span class="ident">dataviz</span>, <span class="ident">tooltips</span>) <span class="op">=</span> <span class="kw">if</span> <span class="ident">filters</span>.<span class="ident">show_individual</span> {
-                <span class="ident">Dataviz::individual</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">data</span>, <span class="ident">indices</span>)
-            } <span class="kw">else</span> {
-                <span class="ident">Dataviz::aggregated</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">data</span>, <span class="ident">indices</span>)
-            };
-            <span class="self">self</span>.<span class="ident">dataviz</span> <span class="op">=</span> <span class="ident">dataviz</span>;
-            <span class="self">self</span>.<span class="ident">tooltips</span> <span class="op">=</span> <span class="ident">tooltips</span>;
-            <span class="kw">let</span> <span class="ident">count</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{} collisions&quot;</span>, <span class="ident">prettyprint_usize</span>(<span class="ident">count</span>)).<span class="ident">text_widget</span>(<span class="ident">ctx</span>);
-            <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;count&quot;</span>, <span class="ident">count</span>);
-        }
-
-        <span class="self">self</span>.<span class="ident">tooltips</span>.<span class="ident">event</span>(<span class="ident">ctx</span>);
 
         <span class="ident">Transition::Keep</span>
     }

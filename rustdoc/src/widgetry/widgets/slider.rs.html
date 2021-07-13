@@ -307,11 +307,37 @@
 <span id="304">304</span>
 <span id="305">305</span>
 <span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
+<span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EdgeInsets</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>,
+    <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EdgeInsets</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Outcome</span>, <span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>,
     <span class="ident">ScreenRectangle</span>, <span class="ident">Widget</span>, <span class="ident">WidgetImpl</span>, <span class="ident">WidgetOutput</span>,
 };
 
@@ -321,6 +347,7 @@
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">dragging</span>: <span class="ident">bool</span>,
 
     <span class="ident">style</span>: <span class="ident">Style</span>,
+    <span class="ident">label</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
 
     <span class="ident">draw</span>: <span class="ident">Drawable</span>,
 
@@ -364,7 +391,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Slider</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">horizontal</span>(
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">horizontal_scrollbar</span>(
         <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>,
         <span class="ident">width</span>: <span class="ident">f64</span>,
         <span class="ident">dragger_len</span>: <span class="ident">f64</span>,
@@ -377,10 +404,17 @@
                 <span class="ident">dragger_len</span>,
             },
             <span class="ident">current_percent</span>,
+            <span class="comment">// Don&#39;t emit Outcome::Changed for scollbars</span>
+            <span class="prelude-val">None</span>,
         )
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">vertical</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">height</span>: <span class="ident">f64</span>, <span class="ident">dragger_len</span>: <span class="ident">f64</span>, <span class="ident">current_percent</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">vertical_scrollbar</span>(
+        <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>,
+        <span class="ident">height</span>: <span class="ident">f64</span>,
+        <span class="ident">dragger_len</span>: <span class="ident">f64</span>,
+        <span class="ident">current_percent</span>: <span class="ident">f64</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
         <span class="ident">Slider::new_widget</span>(
             <span class="ident">ctx</span>,
             <span class="ident">Style::Vertical</span> {
@@ -388,20 +422,34 @@
                 <span class="ident">dragger_len</span>,
             },
             <span class="ident">current_percent</span>,
+            <span class="comment">// Don&#39;t emit Outcome::Changed for scollbars</span>
+            <span class="prelude-val">None</span>,
         )
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">area</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">width</span>: <span class="ident">f64</span>, <span class="ident">current_percent</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
-        <span class="ident">Slider::new_widget</span>(<span class="ident">ctx</span>, <span class="ident">Style::Area</span> { <span class="ident">width</span> }, <span class="ident">current_percent</span>)
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">area</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">width</span>: <span class="ident">f64</span>, <span class="ident">current_percent</span>: <span class="ident">f64</span>, <span class="ident">label</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+        <span class="ident">Slider::new_widget</span>(
+            <span class="ident">ctx</span>,
+            <span class="ident">Style::Area</span> { <span class="ident">width</span> },
+            <span class="ident">current_percent</span>,
+            <span class="prelude-val">Some</span>(<span class="ident">label</span>.<span class="ident">to_string</span>()),
+        )
+        .<span class="ident">named</span>(<span class="ident">label</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">new_widget</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">style</span>: <span class="ident">Style</span>, <span class="ident">current_percent</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+    <span class="kw">fn</span> <span class="ident">new_widget</span>(
+        <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>,
+        <span class="ident">style</span>: <span class="ident">Style</span>,
+        <span class="ident">current_percent</span>: <span class="ident">f64</span>,
+        <span class="ident">label</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">Slider</span> {
             <span class="ident">current_percent</span>,
             <span class="ident">mouse_on_slider</span>: <span class="bool-val">false</span>,
             <span class="ident">dragging</span>: <span class="bool-val">false</span>,
             <span class="ident">style</span>,
             <span class="ident">draw</span>: <span class="ident">Drawable::empty</span>(<span class="ident">ctx</span>),
+            <span class="ident">label</span>,
 
             <span class="ident">top_left</span>: <span class="ident">ScreenPt::new</span>(<span class="number">0.0</span>, <span class="number">0.0</span>),
             <span class="ident">dims</span>: <span class="ident">ScreenDims::new</span>(<span class="number">0.0</span>, <span class="number">0.0</span>),
@@ -531,6 +579,7 @@
         }
     }
 
+    <span class="comment">// True if anything changed</span>
     <span class="kw">fn</span> <span class="ident">inner_event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">dragging</span> {
             <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">get_moved_mouse</span>().<span class="ident">is_some</span>() {
@@ -600,9 +649,12 @@
         <span class="self">self</span>.<span class="ident">top_left</span> <span class="op">=</span> <span class="ident">top_left</span>;
     }
 
-    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">WidgetOutput</span>) {
+    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">output</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">WidgetOutput</span>) {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">inner_event</span>(<span class="ident">ctx</span>) {
             <span class="self">self</span>.<span class="ident">recalc</span>(<span class="ident">ctx</span>);
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">label</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">label</span> {
+                <span class="ident">output</span>.<span class="ident">outcome</span> <span class="op">=</span> <span class="ident">Outcome::Changed</span>(<span class="ident">label</span>.<span class="ident">clone</span>());
+            }
         }
     }
 
