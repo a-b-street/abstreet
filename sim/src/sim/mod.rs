@@ -101,6 +101,8 @@ pub struct SimOptions {
     pub alerts: AlertHandler,
     /// Ignore parking data in the map and instead treat every building as if it has unlimited
     /// capacity for vehicles.
+    ///
+    /// Two maps always have this hardcoded on -- the Arboretum and Poundbury.
     pub infinite_parking: bool,
     /// Allow all agents to immediately proceed into an intersection, even if they'd hit another
     /// agent. Obviously this destroys realism of the simulation, but can be used to debug
@@ -185,9 +187,19 @@ impl SimOptions {
 
 // Setup
 impl Sim {
-    pub fn new(map: &Map, opts: SimOptions) -> Sim {
+    pub fn new(map: &Map, mut opts: SimOptions) -> Sim {
         let mut timer = Timer::new("create blank sim");
         let mut scheduler = Scheduler::new();
+
+        // Always disable parking for two maps. See
+        // https://github.com/a-b-street/abstreet/issues/688 for discussion of how to set this
+        // properly.
+        if map.get_name() == &MapName::seattle("arboretum")
+            || map.get_name() == &MapName::new("gb", "poundbury", "center")
+        {
+            opts.infinite_parking = true;
+        }
+
         Sim {
             driving: DrivingSimState::new(map, &opts),
             parking: ParkingSimState::new(map, opts.infinite_parking, &mut timer),
