@@ -135,6 +135,7 @@ fn v1(
         let cycleway_half_width = (cycleway.total_width / 2.0) + buffer_from_cycleway;
         // Walk along the cycleway's center line
         let mut dist = Distance::ZERO;
+        let mut matches_here = Vec::new();
         loop {
             let (pt, cycleway_angle) = cycleway.center.must_dist_along(dist);
             let perp_line = Line::must_new(
@@ -160,7 +161,7 @@ fn v1(
                             .opposite()
                             .approx_eq(cycleway_angle, parallel_threshold)
                     {
-                        matches.insert(cycleway.id, road_pair);
+                        matches_here.push(road_pair);
                         // Just stop at the first, closest hit. One point along a cycleway might be
                         // close to multiple road edges, but we want the closest hit.
                         break;
@@ -173,6 +174,19 @@ fn v1(
             }
             dist += step_size;
             dist = dist.min(cycleway.center.length());
+        }
+
+        // If only part of this cyclepath snapped to a parallel road, just keep it separate.
+        let pct_snapped = (matches_here.len() as f64) / (cycleway.center.length() / step_size);
+        info!(
+            "Only {}% of {} snapped to a road",
+            (pct_snapped * 100.0).round(),
+            cycleway.id
+        );
+        if pct_snapped >= 0.8 {
+            for pair in matches_here {
+                matches.insert(cycleway.id, pair);
+            }
         }
     }
 
