@@ -192,6 +192,20 @@
 <span id="189">189</span>
 <span id="190">190</span>
 <span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashMap</span>};
 
@@ -330,6 +344,7 @@
         <span class="kw">let</span> <span class="ident">cycleway_half_width</span> <span class="op">=</span> (<span class="ident">cycleway</span>.<span class="ident">total_width</span> <span class="op">/</span> <span class="number">2.0</span>) <span class="op">+</span> <span class="ident">buffer_from_cycleway</span>;
         <span class="comment">// Walk along the cycleway&#39;s center line</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">dist</span> <span class="op">=</span> <span class="ident">Distance::ZERO</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">matches_here</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
         <span class="kw">loop</span> {
             <span class="kw">let</span> (<span class="ident">pt</span>, <span class="ident">cycleway_angle</span>) <span class="op">=</span> <span class="ident">cycleway</span>.<span class="ident">center</span>.<span class="ident">must_dist_along</span>(<span class="ident">dist</span>);
             <span class="kw">let</span> <span class="ident">perp_line</span> <span class="op">=</span> <span class="ident">Line::must_new</span>(
@@ -355,7 +370,7 @@
                             .<span class="ident">opposite</span>()
                             .<span class="ident">approx_eq</span>(<span class="ident">cycleway_angle</span>, <span class="ident">parallel_threshold</span>)
                     {
-                        <span class="ident">matches</span>.<span class="ident">insert</span>(<span class="ident">cycleway</span>.<span class="ident">id</span>, <span class="ident">road_pair</span>);
+                        <span class="ident">matches_here</span>.<span class="ident">push</span>(<span class="ident">road_pair</span>);
                         <span class="comment">// Just stop at the first, closest hit. One point along a cycleway might be</span>
                         <span class="comment">// close to multiple road edges, but we want the closest hit.</span>
                         <span class="kw">break</span>;
@@ -368,6 +383,19 @@
             }
             <span class="ident">dist</span> <span class="op">+</span><span class="op">=</span> <span class="ident">step_size</span>;
             <span class="ident">dist</span> <span class="op">=</span> <span class="ident">dist</span>.<span class="ident">min</span>(<span class="ident">cycleway</span>.<span class="ident">center</span>.<span class="ident">length</span>());
+        }
+
+        <span class="comment">// If only part of this cyclepath snapped to a parallel road, just keep it separate.</span>
+        <span class="kw">let</span> <span class="ident">pct_snapped</span> <span class="op">=</span> (<span class="ident">matches_here</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> (<span class="ident">cycleway</span>.<span class="ident">center</span>.<span class="ident">length</span>() <span class="op">/</span> <span class="ident">step_size</span>);
+        <span class="macro">info!</span>(
+            <span class="string">&quot;Only {}% of {} snapped to a road&quot;</span>,
+            (<span class="ident">pct_snapped</span> <span class="op">*</span> <span class="number">100.0</span>).<span class="ident">round</span>(),
+            <span class="ident">cycleway</span>.<span class="ident">id</span>
+        );
+        <span class="kw">if</span> <span class="ident">pct_snapped</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">0.8</span> {
+            <span class="kw">for</span> <span class="ident">pair</span> <span class="kw">in</span> <span class="ident">matches_here</span> {
+                <span class="ident">matches</span>.<span class="ident">insert</span>(<span class="ident">cycleway</span>.<span class="ident">id</span>, <span class="ident">pair</span>);
+            }
         }
     }
 
