@@ -85,7 +85,7 @@ impl Duration {
         remainder -= minutes * 60.0;
         let seconds = remainder.floor();
         remainder -= seconds;
-        let centis = (remainder / 0.1).floor();
+        let centis = (remainder / 0.01).round();
 
         (
             hours as usize,
@@ -202,6 +202,19 @@ impl Duration {
         (max, labels)
     }
 
+    /// Shows only the largest unit (hours, minute, seconds), rounded to `precision` decimal points.
+    ///
+    /// ```
+    /// use geom::Duration;
+    /// assert_eq!(Duration::seconds(3600.0).to_rounded_string(0), "1hr");
+    /// assert_eq!(Duration::seconds(3600.0).to_rounded_string(1), "1.0hr");
+    /// assert_eq!(Duration::seconds(7800.0).to_rounded_string(0), "2hr");
+    /// assert_eq!(Duration::seconds(800.0).to_rounded_string(1), "13.3min");
+    /// assert_eq!(Duration::seconds(-800.0).to_rounded_string(1), "-13.3min");
+    /// assert_eq!(Duration::seconds(0.0).to_rounded_string(0), "0");
+    /// assert_eq!(Duration::seconds(12.5).to_rounded_string(1), "12.5s");
+    /// assert_eq!(Duration::seconds(12.5).to_rounded_string(2), "12.50s");
+    /// ```
     pub fn to_rounded_string(self, precision: usize) -> String {
         let (hours, minutes, seconds, remainder) = self.get_parts();
         if hours == 0 && minutes == 0 && seconds == 0 && remainder == 0 {
@@ -398,7 +411,7 @@ mod tests {
         assert_eq!("0s", Duration::ZERO.to_string(&dont_round));
         assert_eq!("0s", Duration::seconds(0.001).to_string(&dont_round));
         assert_eq!(
-            "1min 30.1s",
+            "1min 30.12s",
             Duration::seconds(90.123).to_string(&dont_round)
         );
         assert_eq!("1min 30s", Duration::seconds(90.123).to_string(&round));
