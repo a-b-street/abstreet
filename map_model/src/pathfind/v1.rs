@@ -451,18 +451,13 @@ impl Path {
     }
 
     /// Estimate how long following the path will take in the best case, assuming no traffic or
-    /// delay at intersections. To determine the speed along each step, the agent following their
-    /// path and their optional max_speed must be specified.
-    pub fn estimate_duration(
-        &self,
-        map: &Map,
-        constraints: PathConstraints,
-        max_speed: Option<Speed>,
-    ) -> Duration {
+    /// delay at intersections. To determine the speed along each step, the agent's optional
+    /// max_speed must be known.
+    pub fn estimate_duration(&self, map: &Map, max_speed: Option<Speed>) -> Duration {
         let mut total = Duration::ZERO;
         for step in &self.steps {
             let dist = self.dist_crossed_from_step(map, step);
-            let speed = step.max_speed_along(max_speed, constraints, map);
+            let speed = step.max_speed_along(max_speed, self.orig_req.constraints, map);
             total += dist / speed;
         }
         total

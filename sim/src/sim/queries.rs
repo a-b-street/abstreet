@@ -7,8 +7,8 @@ use std::collections::{BTreeMap, BTreeSet};
 use abstutil::Counter;
 use geom::{Distance, Duration, PolyLine, Pt2D, Time};
 use map_model::{
-    BuildingID, BusRouteID, BusStopID, IntersectionID, Lane, LaneID, Map, Path, PathConstraints,
-    Position, Traversable, TurnID,
+    BuildingID, BusRouteID, BusStopID, IntersectionID, Lane, LaneID, Map, Path, Position,
+    Traversable, TurnID,
 };
 
 use crate::analytics::SlidingWindow;
@@ -424,11 +424,6 @@ impl Sim {
                     .trips
                     .get_person(self.trips.trip_to_person(id).unwrap())
                     .unwrap();
-                let mut constraints = info.mode.to_constraints();
-                // TODO Fix TripMode.to_constraints
-                if info.mode == TripMode::Transit {
-                    constraints = PathConstraints::Pedestrian;
-                }
                 let max_speed = match info.mode {
                     TripMode::Walk | TripMode::Transit => Some(person.ped_speed),
                     // TODO We should really search the vehicles and grab it from there
@@ -443,7 +438,7 @@ impl Sim {
                             .max_speed
                     }
                 };
-                Ok(path.estimate_duration(map, constraints, max_speed))
+                Ok(path.estimate_duration(map, max_speed))
             }
             None => bail!(
                 "can't figure out PathRequest from {:?} to {:?} via {}",

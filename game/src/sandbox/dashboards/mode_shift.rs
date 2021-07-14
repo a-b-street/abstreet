@@ -1,5 +1,4 @@
 use geom::{Distance, Duration};
-use map_model::PathConstraints;
 use sim::{TripEndpoint, TripID, TripMode};
 use widgetry::table::{Col, Filter, Table};
 use widgetry::{
@@ -131,16 +130,9 @@ fn produce_raw_data(ctx: &mut EventCtx, app: &App) -> Vec<Entry> {
                         biking_path.get_total_elevation_change(map);
                     Some(Entry {
                         trip: id,
-                        estimated_driving_time: driving_path.estimate_duration(
-                            map,
-                            PathConstraints::Car,
-                            None,
-                        ),
-                        estimated_biking_time: biking_path.estimate_duration(
-                            map,
-                            PathConstraints::Bike,
-                            Some(map_model::MAX_BIKE_SPEED),
-                        ),
+                        estimated_driving_time: driving_path.estimate_duration(map, None),
+                        estimated_biking_time: biking_path
+                            .estimate_duration(map, Some(map_model::MAX_BIKE_SPEED)),
                         // TODO The distance (and elevation change) might differ between the two
                         // paths if there's a highway or a trail. For now, just use the biking
                         // distance.

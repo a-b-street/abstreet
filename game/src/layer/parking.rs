@@ -4,9 +4,7 @@ use abstutil::{prettyprint_usize, Counter};
 use geom::{Circle, Distance, Duration, Pt2D, Time};
 use map_gui::render::unzoomed_agent_radius;
 use map_gui::tools::{ColorLegend, ColorNetwork};
-use map_model::{
-    BuildingID, Map, OffstreetParking, ParkingLotID, PathConstraints, PathRequest, RoadID,
-};
+use map_model::{BuildingID, Map, OffstreetParking, ParkingLotID, PathRequest, RoadID};
 use sim::{ParkingSpot, VehicleType};
 use widgetry::{Drawable, EventCtx, GeomBatch, GfxCtx, Line, Outcome, Panel, Text, Toggle, Widget};
 
@@ -384,11 +382,7 @@ impl Efficiency {
                         map.pathfind(req).ok().map(|path| {
                             (
                                 car_pt,
-                                path.estimate_duration(
-                                    map,
-                                    PathConstraints::Pedestrian,
-                                    Some(map_model::MAX_WALKING_SPEED),
-                                ),
+                                path.estimate_duration(map, Some(map_model::MAX_WALKING_SPEED)),
                             )
                         })
                     }
