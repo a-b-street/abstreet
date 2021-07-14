@@ -7,9 +7,8 @@ use map_gui::colors::ColorSchemeChoice;
 use map_gui::load::MapLoader;
 use map_gui::options::OptionsPanel;
 use map_gui::render::{calculate_corners, DrawMap, DrawOptions};
-use map_gui::tools::{find_exe, ChooseSomething, PopupMsg, PromptInput, RunCommand};
+use map_gui::tools::{ChooseSomething, PopupMsg, PromptInput};
 use map_gui::{AppLike, ID};
-use map_model::raw::OriginalRoad;
 use map_model::{
     osm, ControlTrafficSignal, IntersectionID, PathConstraints, Position, RoadID,
     NORMAL_LANE_THICKNESS,
@@ -157,11 +156,15 @@ impl DebugMode {
                         .btn_outline
                         .text("import color-scheme")
                         .build_def(ctx),
-                    ctx.style()
-                        .btn_outline
-                        .text("undo all merged roads")
-                        .hotkey(lctrl(Key::M))
-                        .build_def(ctx),
+                    if cfg!(not(target_arch = "wasm32")) {
+                        ctx.style()
+                            .btn_outline
+                            .text("undo all merged roads")
+                            .hotkey(lctrl(Key::M))
+                            .build_def(ctx)
+                    } else {
+                        Widget::nothing()
+                    },
                 ]),
                 Text::from_all(vec![
                     Line("Hold "),
@@ -392,6 +395,7 @@ impl State<App> for DebugMode {
                             DrawMap::new(ctx, &app.primary.map, &app.opts, &app.cs, timer);
                     });
                 }
+                #[cfg(not(target_arch = "wasm32"))]
                 "undo all merged roads" => {
                     if let Err(err) =
                         std::fs::rename("merge_osm_ways.json", "UNDO_merge_osm_ways.json")
@@ -603,7 +607,9 @@ impl ContextualActions for Actions {
                 ));
                 actions.push((Key::C, "export roads".to_string()));
                 actions.push((Key::E, "show equiv_pos".to_string()));
-                actions.push((Key::M, "merge short segment".to_string()));
+                if cfg!(not(target_arch = "wasm32")) {
+                    actions.push((Key::M, "merge short segment".to_string()));
+                }
             }
             ID::Intersection(i) => {
                 actions.push((Key::H, "hide this".to_string()));
@@ -796,9 +802,10 @@ impl ContextualActions for Actions {
                     }
                 }))
             }
+            #[cfg(not(target_arch = "wasm32"))]
             (ID::Lane(l), "merge short segment") => {
                 let mut timer = Timer::throwaway();
-                let mut ways: Vec<OriginalRoad> =
+                let mut ways: Vec<map_model::raw::OriginalRoad> =
                     abstio::maybe_read_json("merge_osm_ways.json".to_string(), &mut timer)
                         .unwrap_or_else(|_| Vec::new());
                 ways.push(app.primary.map.get_parent(l).orig_id);
@@ -1060,12 +1067,13 @@ fn draw_arterial_crosswalks(ctx: &mut EventCtx, app: &App) -> Drawable {
     ctx.upload(batch)
 }
 
+#[cfg(not(target_arch = "wasm32"))]
 fn reimport_map(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
-    RunCommand::new_state(
+    map_gui::tools::RunCommand::new_state(
         ctx,
         false,
         vec![
-            find_exe("importer"),
+            map_gui::tools::find_exe("importer"),
             "--map".to_string(),
             app.primary.map.get_name().map.clone(),
             format!("--city={}", app.primary.map.get_name().city.to_path()),
