@@ -185,7 +185,9 @@ impl Duration {
         }
 
         let max = (num_labels as f64) * Duration::minutes(mins_per_interval);
-        let labels = (0..=num_labels).map(|i| Duration::minutes(i * mins_per_interval)).collect();
+        let labels = (0..=num_labels)
+            .map(|i| Duration::minutes(i * mins_per_interval))
+            .collect();
 
         if max < self {
             panic!(
@@ -194,6 +196,37 @@ impl Duration {
             );
         }
         (max, labels)
+    }
+
+    pub fn to_rounded_string(self, precision: usize) -> String {
+        let (hours, minutes, seconds, remainder) = self.get_parts();
+        if hours == 0 && minutes == 0 && seconds == 0 && remainder == 0 {
+            return "0".to_string();
+        }
+
+        let sign = if self < Duration::ZERO { "-" } else { "" };
+
+        let (whole, part, unit) = {
+            if hours != 0 {
+                let whole = hours as f64;
+                let part = minutes as f64 / 60.0;
+                let unit = "hr";
+                (whole, part, unit)
+            } else if minutes != 0 {
+                let whole = minutes as f64;
+                let part = seconds as f64 / 60.0;
+                let unit = "min";
+                (whole, part, unit)
+            } else {
+                let whole = seconds as f64;
+                let part = remainder as f64 / 100.0;
+                let unit = "s";
+                (whole, part, unit)
+            }
+        };
+
+        let number = format!("{:.1$}", whole + part, precision);
+        return format!("{}{}{}", sign, number, unit);
     }
 
     /// Describes the duration according to formatting rules.

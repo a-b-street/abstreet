@@ -206,7 +206,11 @@ fn summary_boxes(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
                 }
             ))
             .small(),
-            Line(format!("Saved {} in total", sum_faster)).small(),
+            Line(format!(
+                "Saved {} in total",
+                sum_faster.to_rounded_string(1)
+            ))
+            .small(),
         ])
         .into_widget(ctx)
         .container()
@@ -229,7 +233,7 @@ fn summary_boxes(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
                 }
             ))
             .small(),
-            Line(format!("Lost {} in total", sum_slower)).small(),
+            Line(format!("Lost {} in total", sum_slower.to_rounded_string(1))).small(),
         ])
         .into_widget(ctx)
         .container()
