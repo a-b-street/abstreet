@@ -2,7 +2,10 @@ use geom::{Distance, Duration};
 use map_model::PathConstraints;
 use sim::{TripEndpoint, TripID, TripMode};
 use widgetry::table::{Col, Filter, Table};
-use widgetry::{EventCtx, Filler, GeomBatch, GfxCtx, Line, Outcome, Panel, State, Text, Widget};
+use widgetry::{
+    EventCtx, Filler, GeomBatch, GfxCtx, Line, Outcome, Panel, Spinner, State, Text, TextExt,
+    Widget,
+};
 
 use crate::app::{App, Transition};
 use crate::sandbox::dashboards::generic_trip_table::{open_trip_transition, preview_trip};
@@ -89,8 +92,12 @@ struct Entry {
     total_elevation_loss: Distance,
 }
 
-// TODO Sliders for ranges of time/distance/steepness
-struct Filters;
+struct Filters {
+    max_driving_time: Duration,
+    max_biking_time: Duration,
+    max_distance: Distance,
+    max_elevation_gain: Distance,
+}
 
 fn produce_raw_data(ctx: &mut EventCtx, app: &App) -> Vec<Entry> {
     let map = &app.primary.map;
@@ -154,10 +161,70 @@ fn produce_raw_data(ctx: &mut EventCtx, app: &App) -> Vec<Entry> {
 
 fn make_table(ctx: &mut EventCtx, app: &App) -> Table<App, Entry, Filters> {
     let filter: Filter<App, Entry, Filters> = Filter {
-        state: Filters,
-        to_controls: Box::new(|_, _, _| Widget::nothing()),
-        from_controls: Box::new(|_| Filters),
-        apply: Box::new(|_, _, _| true),
+        state: Filters {
+            // Just some sample defaults
+            max_driving_time: Duration::minutes(30),
+            max_biking_time: Duration::minutes(30),
+            max_distance: Distance::miles(10.0),
+            max_elevation_gain: Distance::feet(30.0),
+        },
+        to_controls: Box::new(|ctx, _, state| {
+            Widget::row(vec![
+                Widget::row(vec![
+                    "Max driving time".text_widget(ctx).centered_vert(),
+                    Spinner::widget(
+                        ctx,
+                        "max_driving_time",
+                        (Duration::ZERO, Duration::hours(12)),
+                        state.max_driving_time,
+                        Duration::minutes(1),
+                    ),
+                ]),
+                Widget::row(vec![
+                    "Max biking time".text_widget(ctx).centered_vert(),
+                    Spinner::widget(
+                        ctx,
+                        "max_biking_time",
+                        (Duration::ZERO, Duration::hours(12)),
+                        state.max_biking_time,
+                        Duration::minutes(1),
+                    ),
+                ]),
+                Widget::row(vec![
+                    "Max distance".text_widget(ctx).centered_vert(),
+                    Spinner::widget(
+                        ctx,
+                        "max_distance",
+                        (Distance::ZERO, Distance::miles(20.0)),
+                        state.max_distance,
+                        Distance::miles(0.1),
+                    ),
+                ]),
+                Widget::row(vec![
+                    "Max elevation gain".text_widget(ctx).centered_vert(),
+                    Spinner::widget(
+                        ctx,
+                        "max_elevation_gain",
+                        (Distance::ZERO, Distance::feet(500.0)),
+                        state.max_elevation_gain,
+                        Distance::feet(10.0),
+                    ),
+                ]),
+            ])
+            .evenly_spaced()
+        }),
+        from_controls: Box::new(|panel| Filters {
+            max_driving_time: panel.spinner("max_driving_time"),
+            max_biking_time: panel.spinner("max_biking_time"),
+            max_distance: panel.spinner("max_distance"),
+            max_elevation_gain: panel.spinner("max_elevation_gain"),
+        }),
+        apply: Box::new(|state, x, _| {
+            x.estimated_driving_time <= state.max_driving_time
+                && x.estimated_biking_time <= state.max_biking_time
+                && x.distance <= state.max_distance
+                && x.total_elevation_gain <= state.max_elevation_gain
+        }),
     };
 
     let mut table = Table::new(

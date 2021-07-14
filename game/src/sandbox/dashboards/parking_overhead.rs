@@ -178,7 +178,7 @@ fn make_table(app: &App) -> Table<App, Entry, Filters> {
             starts_off_map: true,
             ends_off_map: true,
         },
-        to_controls: Box::new(move |ctx, _, state| {
+        to_controls: Box::new(|ctx, _, state| {
             Widget::row(vec![
                 Toggle::switch(ctx, "starting off-map", None, state.starts_off_map),
                 Toggle::switch(ctx, "ending off-map", None, state.ends_off_map),

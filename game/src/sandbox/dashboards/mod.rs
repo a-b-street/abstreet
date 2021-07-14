@@ -67,13 +67,6 @@ impl DashTab {
         app: &mut App,
         panel: &Panel,
     ) -> Option<Transition> {
-        // TODO Temporary, for fast development
-        if ctx.input.pressed(widgetry::Key::M) {
-            return Some(Transition::Replace(mode_shift::ModeShift::new_state(
-                ctx, app,
-            )));
-        }
-
         let tab = panel.dropdown_value("tab");
         if tab == self {
             return None;
