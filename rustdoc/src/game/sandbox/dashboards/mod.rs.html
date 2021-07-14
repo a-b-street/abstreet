@@ -86,6 +86,10 @@
 <span id="83">83</span>
 <span id="84">84</span>
 <span id="85">85</span>
+<span id="86">86</span>
+<span id="87">87</span>
+<span id="88">88</span>
+<span id="89">89</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">commuter::CommuterPatterns</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">traffic_signals::TrafficSignalDemand</span>;
@@ -99,6 +103,7 @@
 <span class="kw">mod</span> <span class="ident">commuter</span>;
 <span class="kw">mod</span> <span class="ident">generic_trip_table</span>;
 <span class="kw">mod</span> <span class="ident">misc</span>;
+<span class="kw">mod</span> <span class="ident">mode_shift</span>;
 <span class="kw">mod</span> <span class="ident">parking_overhead</span>;
 <span class="kw">mod</span> <span class="ident">risks</span>;
 <span class="kw">mod</span> <span class="ident">selector</span>;
@@ -118,6 +123,7 @@
     <span class="ident">TransitRoutes</span>,
     <span class="ident">CommuterPatterns</span>,
     <span class="ident">TrafficSignals</span>,
+    <span class="ident">ModeShift</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">DashTab</span> {
@@ -131,6 +137,7 @@
             <span class="ident">Choice::new</span>(<span class="string">&quot;Transit Routes&quot;</span>, <span class="ident">DashTab::TransitRoutes</span>),
             <span class="ident">Choice::new</span>(<span class="string">&quot;Commuter Patterns&quot;</span>, <span class="ident">DashTab::CommuterPatterns</span>),
             <span class="ident">Choice::new</span>(<span class="string">&quot;Traffic Signal Demand&quot;</span>, <span class="ident">DashTab::TrafficSignals</span>),
+            <span class="ident">Choice::new</span>(<span class="string">&quot;Mode shift (experimental)&quot;</span>, <span class="ident">DashTab::ModeShift</span>),
         ];
         <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">has_prebaked</span>().<span class="ident">is_none</span>() {
             <span class="ident">choices</span>.<span class="ident">remove</span>(<span class="number">1</span>);
@@ -169,6 +176,7 @@
             <span class="ident">DashTab::TransitRoutes</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">misc::TransitRoutes::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
             <span class="ident">DashTab::CommuterPatterns</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">CommuterPatterns::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
             <span class="ident">DashTab::TrafficSignals</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">TrafficSignalDemand::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
+            <span class="ident">DashTab::ModeShift</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">mode_shift::ModeShift::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
         }))
     }
 }

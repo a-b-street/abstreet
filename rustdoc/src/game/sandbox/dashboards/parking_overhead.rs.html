@@ -425,7 +425,7 @@
             <span class="ident">starts_off_map</span>: <span class="bool-val">true</span>,
             <span class="ident">ends_off_map</span>: <span class="bool-val">true</span>,
         },
-        <span class="ident">to_controls</span>: <span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">ctx</span>, <span class="kw">_</span>, <span class="ident">state</span><span class="op">|</span> {
+        <span class="ident">to_controls</span>: <span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">ctx</span>, <span class="kw">_</span>, <span class="ident">state</span><span class="op">|</span> {
             <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
                 <span class="ident">Toggle::switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;starting off-map&quot;</span>, <span class="prelude-val">None</span>, <span class="ident">state</span>.<span class="ident">starts_off_map</span>),
                 <span class="ident">Toggle::switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;ending off-map&quot;</span>, <span class="prelude-val">None</span>, <span class="ident">state</span>.<span class="ident">ends_off_map</span>),

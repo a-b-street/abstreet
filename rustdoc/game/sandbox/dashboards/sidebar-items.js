@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["DashTab",""]],"mod":[["commuter",""],["generic_trip_table",""],["misc",""],["parking_overhead",""],["risks",""],["selector",""],["traffic_signals",""],["travel_times",""],["trip_problems",""],["trip_table",""]]});
+initSidebarItems({"enum":[["DashTab",""]],"mod":[["commuter",""],["generic_trip_table",""],["misc",""],["mode_shift",""],["parking_overhead",""],["risks",""],["selector",""],["traffic_signals",""],["travel_times",""],["trip_problems",""],["trip_table",""]]});

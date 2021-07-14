@@ -542,11 +542,6 @@
 <span id="539">539</span>
 <span id="540">540</span>
 <span id="541">541</span>
-<span id="542">542</span>
-<span id="543">543</span>
-<span id="544">544</span>
-<span id="545">545</span>
-<span id="546">546</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! All sorts of read-only queries about a simulation</span>
 
@@ -557,8 +552,8 @@
 <span class="kw">use</span> <span class="ident">abstutil::Counter</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">PolyLine</span>, <span class="ident">Pt2D</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{
-    <span class="ident">BuildingID</span>, <span class="ident">BusRouteID</span>, <span class="ident">BusStopID</span>, <span class="ident">IntersectionID</span>, <span class="ident">Lane</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">Path</span>, <span class="ident">PathConstraints</span>,
-    <span class="ident">Position</span>, <span class="ident">Traversable</span>, <span class="ident">TurnID</span>,
+    <span class="ident">BuildingID</span>, <span class="ident">BusRouteID</span>, <span class="ident">BusStopID</span>, <span class="ident">IntersectionID</span>, <span class="ident">Lane</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">Path</span>, <span class="ident">Position</span>,
+    <span class="ident">Traversable</span>, <span class="ident">TurnID</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::analytics::SlidingWindow</span>;
@@ -974,11 +969,6 @@
                     .<span class="ident">trips</span>
                     .<span class="ident">get_person</span>(<span class="self">self</span>.<span class="ident">trips</span>.<span class="ident">trip_to_person</span>(<span class="ident">id</span>).<span class="ident">unwrap</span>())
                     .<span class="ident">unwrap</span>();
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">constraints</span> <span class="op">=</span> <span class="ident">info</span>.<span class="ident">mode</span>.<span class="ident">to_constraints</span>();
-                <span class="comment">// TODO Fix TripMode.to_constraints</span>
-                <span class="kw">if</span> <span class="ident">info</span>.<span class="ident">mode</span> <span class="op">=</span><span class="op">=</span> <span class="ident">TripMode::Transit</span> {
-                    <span class="ident">constraints</span> <span class="op">=</span> <span class="ident">PathConstraints::Pedestrian</span>;
-                }
                 <span class="kw">let</span> <span class="ident">max_speed</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">info</span>.<span class="ident">mode</span> {
                     <span class="ident">TripMode::Walk</span> <span class="op">|</span> <span class="ident">TripMode::Transit</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">person</span>.<span class="ident">ped_speed</span>),
                     <span class="comment">// TODO We should really search the vehicles and grab it from there</span>
@@ -993,7 +983,7 @@
                             .<span class="ident">max_speed</span>
                     }
                 };
-                <span class="prelude-val">Ok</span>(<span class="ident">path</span>.<span class="ident">estimate_duration</span>(<span class="ident">map</span>, <span class="ident">constraints</span>, <span class="ident">max_speed</span>))
+                <span class="prelude-val">Ok</span>(<span class="ident">path</span>.<span class="ident">estimate_duration</span>(<span class="ident">map</span>, <span class="ident">max_speed</span>))
             }
             <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">bail!</span>(
                 <span class="string">&quot;can&#39;t figure out PathRequest from {:?} to {:?} via {}&quot;</span>,

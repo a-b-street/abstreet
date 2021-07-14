@@ -418,12 +418,6 @@
 <span id="415">415</span>
 <span id="416">416</span>
 <span id="417">417</span>
-<span id="418">418</span>
-<span id="419">419</span>
-<span id="420">420</span>
-<span id="421">421</span>
-<span id="422">422</span>
-<span id="423">423</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
 
@@ -431,9 +425,7 @@
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Pt2D</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">map_gui::render::unzoomed_agent_radius</span>;
 <span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">ColorLegend</span>, <span class="ident">ColorNetwork</span>};
-<span class="kw">use</span> <span class="ident">map_model</span>::{
-    <span class="ident">BuildingID</span>, <span class="ident">Map</span>, <span class="ident">OffstreetParking</span>, <span class="ident">ParkingLotID</span>, <span class="ident">PathConstraints</span>, <span class="ident">PathRequest</span>, <span class="ident">RoadID</span>,
-};
+<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">BuildingID</span>, <span class="ident">Map</span>, <span class="ident">OffstreetParking</span>, <span class="ident">ParkingLotID</span>, <span class="ident">PathRequest</span>, <span class="ident">RoadID</span>};
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">ParkingSpot</span>, <span class="ident">VehicleType</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">Text</span>, <span class="ident">Toggle</span>, <span class="ident">Widget</span>};
 
@@ -811,11 +803,7 @@
                         <span class="ident">map</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>).<span class="ident">ok</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">path</span><span class="op">|</span> {
                             (
                                 <span class="ident">car_pt</span>,
-                                <span class="ident">path</span>.<span class="ident">estimate_duration</span>(
-                                    <span class="ident">map</span>,
-                                    <span class="ident">PathConstraints::Pedestrian</span>,
-                                    <span class="prelude-val">Some</span>(<span class="ident">map_model::MAX_WALKING_SPEED</span>),
-                                ),
+                                <span class="ident">path</span>.<span class="ident">estimate_duration</span>(<span class="ident">map</span>, <span class="prelude-val">Some</span>(<span class="ident">map_model::MAX_WALKING_SPEED</span>)),
                             )
                         })
                     }
