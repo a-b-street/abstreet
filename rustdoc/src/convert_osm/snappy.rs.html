@@ -206,6 +206,7 @@
 <span id="203">203</span>
 <span id="204">204</span>
 <span id="205">205</span>
+<span id="206">206</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashMap</span>};
 
@@ -220,6 +221,7 @@
 
 <span class="doccomment">/// Snap separately mapped cycleways to main roads.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">snap_cycleways</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">RawMap</span>) {
+    <span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::logic_bug</span>)]</span>
     <span class="comment">// A gradual experiment...</span>
     <span class="kw">if</span> <span class="bool-val">false</span>
         <span class="op">&amp;&amp;</span> <span class="ident">map</span>.<span class="ident">name</span> <span class="op">!</span><span class="op">=</span> <span class="ident">MapName::seattle</span>(<span class="string">&quot;montlake&quot;</span>)
@@ -320,7 +322,7 @@
 <span class="comment">// TODO Or look for cycleway polygons strictly overlapping thick road polygons</span>
 <span class="kw">fn</span> <span class="ident">v1</span>(
     <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">RawMap</span>,
-    <span class="ident">cycleways</span>: <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Cycleway</span><span class="op">&gt;</span>,
+    <span class="ident">cycleways</span>: <span class="kw-2">&amp;</span>[<span class="ident">Cycleway</span>],
     <span class="ident">road_edges</span>: <span class="kw-2">&amp;</span><span class="ident">HashMap</span><span class="op">&lt;</span>(<span class="ident">OriginalRoad</span>, <span class="ident">Direction</span>), <span class="ident">PolyLine</span><span class="op">&gt;</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">MultiMap</span><span class="op">&lt;</span><span class="ident">OriginalRoad</span>, (<span class="ident">OriginalRoad</span>, <span class="ident">Direction</span>)<span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">matches</span> <span class="op">=</span> <span class="ident">MultiMap::new</span>();

@@ -657,7 +657,6 @@
 <span id="654">654</span>
 <span id="655">655</span>
 <span id="656">656</span>
-<span id="657">657</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
 <span class="kw">use</span> <span class="ident">std::fs::File</span>;
@@ -1187,8 +1186,7 @@
             )
             .<span class="ident">for_each</span>(<span class="op">|</span>(<span class="ident">interval</span>, <span class="ident">y</span>)<span class="op">|</span> {
                 <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="ident">Pt2D::new</span>(<span class="number">0.0</span>, <span class="ident">y</span>);
-                <span class="kw">let</span> <span class="ident">line</span>: <span class="ident">geom::Line</span> <span class="op">=</span>
-                    <span class="ident">geom::Line::new</span>(<span class="ident">start</span>, <span class="ident">start</span>.<span class="ident">offset</span>(<span class="ident">line_length</span>, <span class="number">0.0</span>)).<span class="ident">unwrap</span>();
+                <span class="kw">let</span> <span class="ident">line</span> <span class="op">=</span> <span class="ident">geom::Line::new</span>(<span class="ident">start</span>, <span class="ident">start</span>.<span class="ident">offset</span>(<span class="ident">line_length</span>, <span class="number">0.0</span>)).<span class="ident">unwrap</span>();
                 <span class="kw">let</span> <span class="ident">poly</span> <span class="op">=</span> <span class="ident">line</span>.<span class="ident">make_polygons</span>(<span class="ident">Distance::meters</span>(<span class="ident">line_thickness</span>));
                 <span class="ident">y_axis_ticks</span>.<span class="ident">push</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_secondary_color</span>, <span class="ident">poly</span>);
 
