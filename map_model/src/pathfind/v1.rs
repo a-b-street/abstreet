@@ -473,6 +473,39 @@ impl Path {
     pub fn get_blocked_starts(&self) -> Vec<LaneID> {
         self.blocked_starts.clone()
     }
+
+    /// Returns the total elevation (gain, loss) experienced over the path.
+    pub fn get_total_elevation_change(&self, map: &Map) -> (Distance, Distance) {
+        let mut gain = Distance::ZERO;
+        let mut loss = Distance::ZERO;
+        for step in &self.steps {
+            let (from, to) = match step {
+                PathStep::Lane(l) => {
+                    let lane = map.get_l(*l);
+                    (
+                        map.get_i(lane.src_i).elevation,
+                        map.get_i(lane.dst_i).elevation,
+                    )
+                }
+                PathStep::ContraflowLane(l) => {
+                    let lane = map.get_l(*l);
+                    (
+                        map.get_i(lane.dst_i).elevation,
+                        map.get_i(lane.src_i).elevation,
+                    )
+                }
+                PathStep::Turn(_) => {
+                    continue;
+                }
+            };
+            if from < to {
+                gain += to - from;
+            } else {
+                loss += from - to;
+            }
+        }
+        (gain, loss)
+    }
 }
 
 #[derive(Debug, PartialEq, Eq, Clone, Serialize, Deserialize)]

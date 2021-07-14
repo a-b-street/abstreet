@@ -10,6 +10,7 @@ use crate::app::Transition;
 mod commuter;
 mod generic_trip_table;
 mod misc;
+mod mode_shift;
 mod parking_overhead;
 mod risks;
 mod selector;
@@ -29,6 +30,7 @@ pub enum DashTab {
     TransitRoutes,
     CommuterPatterns,
     TrafficSignals,
+    ModeShift,
 }
 
 impl DashTab {
@@ -42,6 +44,7 @@ impl DashTab {
             Choice::new("Transit Routes", DashTab::TransitRoutes),
             Choice::new("Commuter Patterns", DashTab::CommuterPatterns),
             Choice::new("Traffic Signal Demand", DashTab::TrafficSignals),
+            Choice::new("Mode shift (experimental)", DashTab::ModeShift),
         ];
         if app.has_prebaked().is_none() {
             choices.remove(1);
@@ -64,6 +67,13 @@ impl DashTab {
         app: &mut App,
         panel: &Panel,
     ) -> Option<Transition> {
+        // TODO Temporary, for fast development
+        if ctx.input.pressed(widgetry::Key::M) {
+            return Some(Transition::Replace(mode_shift::ModeShift::new_state(
+                ctx, app,
+            )));
+        }
+
         let tab = panel.dropdown_value("tab");
         if tab == self {
             return None;
@@ -80,6 +90,7 @@ impl DashTab {
             DashTab::TransitRoutes => misc::TransitRoutes::new_state(ctx, app),
             DashTab::CommuterPatterns => CommuterPatterns::new_state(ctx, app),
             DashTab::TrafficSignals => TrafficSignalDemand::new_state(ctx, app),
+            DashTab::ModeShift => mode_shift::ModeShift::new_state(ctx, app),
         }))
     }
 }
