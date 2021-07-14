@@ -597,6 +597,67 @@
 <span id="594">594</span>
 <span id="595">595</span>
 <span id="596">596</span>
+<span id="597">597</span>
+<span id="598">598</span>
+<span id="599">599</span>
+<span id="600">600</span>
+<span id="601">601</span>
+<span id="602">602</span>
+<span id="603">603</span>
+<span id="604">604</span>
+<span id="605">605</span>
+<span id="606">606</span>
+<span id="607">607</span>
+<span id="608">608</span>
+<span id="609">609</span>
+<span id="610">610</span>
+<span id="611">611</span>
+<span id="612">612</span>
+<span id="613">613</span>
+<span id="614">614</span>
+<span id="615">615</span>
+<span id="616">616</span>
+<span id="617">617</span>
+<span id="618">618</span>
+<span id="619">619</span>
+<span id="620">620</span>
+<span id="621">621</span>
+<span id="622">622</span>
+<span id="623">623</span>
+<span id="624">624</span>
+<span id="625">625</span>
+<span id="626">626</span>
+<span id="627">627</span>
+<span id="628">628</span>
+<span id="629">629</span>
+<span id="630">630</span>
+<span id="631">631</span>
+<span id="632">632</span>
+<span id="633">633</span>
+<span id="634">634</span>
+<span id="635">635</span>
+<span id="636">636</span>
+<span id="637">637</span>
+<span id="638">638</span>
+<span id="639">639</span>
+<span id="640">640</span>
+<span id="641">641</span>
+<span id="642">642</span>
+<span id="643">643</span>
+<span id="644">644</span>
+<span id="645">645</span>
+<span id="646">646</span>
+<span id="647">647</span>
+<span id="648">648</span>
+<span id="649">649</span>
+<span id="650">650</span>
+<span id="651">651</span>
+<span id="652">652</span>
+<span id="653">653</span>
+<span id="654">654</span>
+<span id="655">655</span>
+<span id="656">656</span>
+<span id="657">657</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
 <span class="kw">use</span> <span class="ident">std::fs::File</span>;
@@ -806,7 +867,11 @@
                 }
             ))
             .<span class="ident">small</span>(),
-            <span class="ident">Line</span>(<span class="macro">format!</span>(<span class="string">&quot;Saved {} in total&quot;</span>, <span class="ident">sum_faster</span>)).<span class="ident">small</span>(),
+            <span class="ident">Line</span>(<span class="macro">format!</span>(
+                <span class="string">&quot;Saved {} in total&quot;</span>,
+                <span class="ident">sum_faster</span>.<span class="ident">to_rounded_string</span>(<span class="number">1</span>)
+            ))
+            .<span class="ident">small</span>(),
         ])
         .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
         .<span class="ident">container</span>()
@@ -829,7 +894,7 @@
                 }
             ))
             .<span class="ident">small</span>(),
-            <span class="ident">Line</span>(<span class="macro">format!</span>(<span class="string">&quot;Lost {} in total&quot;</span>, <span class="ident">sum_slower</span>)).<span class="ident">small</span>(),
+            <span class="ident">Line</span>(<span class="macro">format!</span>(<span class="string">&quot;Lost {} in total&quot;</span>, <span class="ident">sum_slower</span>.<span class="ident">to_rounded_string</span>(<span class="number">1</span>))).<span class="ident">small</span>(),
         ])
         .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
         .<span class="ident">container</span>()
@@ -903,14 +968,14 @@
     <span class="comment">// Draw the X axis</span>
     <span class="kw">let</span> <span class="ident">text_height</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">default_line_height</span>();
     <span class="kw">let</span> <span class="ident">text_v_padding</span> <span class="op">=</span> <span class="number">12.0</span>;
-    <span class="kw">let</span> <span class="ident">padded_text_height</span> <span class="op">=</span> <span class="ident">text_height</span> <span class="op">+</span> <span class="ident">text_v_padding</span>;
+    <span class="kw">let</span> <span class="ident">x_axis_height</span> <span class="op">=</span> <span class="ident">text_height</span> <span class="op">+</span> <span class="ident">text_v_padding</span>;
     <span class="kw">let</span> <span class="ident">line_thickness</span> <span class="op">=</span> <span class="ident">Distance::meters</span>(<span class="number">1.5</span>);
     <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">mins</span>) <span class="kw">in</span> <span class="ident">duration_buckets</span>.<span class="ident">iter</span>().<span class="ident">skip</span>(<span class="number">1</span>).<span class="ident">enumerate</span>() {
         <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> (<span class="ident">idx</span> <span class="kw">as</span> <span class="ident">f64</span> <span class="op">+</span> <span class="number">1.0</span>) <span class="op">/</span> (<span class="ident">num_buckets</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">*</span> <span class="ident">total_width</span>;
         <span class="kw">let</span> <span class="ident">y</span> <span class="op">=</span> <span class="ident">total_height</span> <span class="op">/</span> <span class="number">2.0</span>;
 
         {
-            <span class="kw">let</span> <span class="ident">bottom_of_top_bar</span> <span class="op">=</span> (<span class="ident">total_height</span> <span class="op">-</span> <span class="ident">padded_text_height</span>) <span class="op">/</span> <span class="number">2.0</span>;
+            <span class="kw">let</span> <span class="ident">bottom_of_top_bar</span> <span class="op">=</span> (<span class="ident">total_height</span> <span class="op">-</span> <span class="ident">x_axis_height</span>) <span class="op">/</span> <span class="number">2.0</span>;
             <span class="kw">let</span> <span class="ident">line_top</span> <span class="op">=</span> <span class="ident">bottom_of_top_bar</span>;
             <span class="kw">let</span> <span class="ident">line_bottom</span> <span class="op">=</span> <span class="ident">bottom_of_top_bar</span> <span class="op">+</span> <span class="ident">text_v_padding</span> <span class="op">/</span> <span class="number">2.0</span> <span class="op">+</span> <span class="number">2.0</span>;
             <span class="ident">batch</span>.<span class="ident">push</span>(
@@ -921,7 +986,7 @@
             );
         }
         {
-            <span class="kw">let</span> <span class="ident">top_of_bottom_bar</span> <span class="op">=</span> (<span class="ident">total_height</span> <span class="op">-</span> <span class="ident">padded_text_height</span>) <span class="op">/</span> <span class="number">2.0</span> <span class="op">+</span> <span class="ident">padded_text_height</span>;
+            <span class="kw">let</span> <span class="ident">top_of_bottom_bar</span> <span class="op">=</span> (<span class="ident">total_height</span> <span class="op">-</span> <span class="ident">x_axis_height</span>) <span class="op">/</span> <span class="number">2.0</span> <span class="op">+</span> <span class="ident">x_axis_height</span>;
             <span class="kw">let</span> <span class="ident">line_bottom</span> <span class="op">=</span> <span class="ident">top_of_bottom_bar</span>;
             <span class="kw">let</span> <span class="ident">line_top</span> <span class="op">=</span> <span class="ident">line_bottom</span> <span class="op">-</span> <span class="ident">text_v_padding</span> <span class="op">/</span> <span class="number">2.0</span> <span class="op">-</span> <span class="number">2.0</span>;
             <span class="ident">batch</span>.<span class="ident">push</span>(
@@ -994,15 +1059,17 @@
     <span class="kw">let</span> <span class="ident">max_y</span> <span class="op">=</span> <span class="ident">losses_per_bucket</span>
         .<span class="ident">iter</span>()
         .<span class="ident">chain</span>(<span class="ident">savings_per_bucket</span>.<span class="ident">iter</span>())
-        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">c</span>.<span class="ident">accumulated_duration</span>)
+        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">c</span>.<span class="ident">accumulated_duration</span>.<span class="ident">abs</span>())
         .<span class="ident">max</span>()
         .<span class="ident">unwrap</span>();
 
+    <span class="kw">let</span> <span class="ident">intervals</span> <span class="op">=</span> <span class="ident">max_y</span>.<span class="ident">make_intervals_for_max</span>(<span class="number">2</span>);
+
     <span class="comment">// Draw the bars!</span>
     <span class="kw">let</span> <span class="ident">bar_width</span> <span class="op">=</span> <span class="ident">total_width</span> <span class="op">/</span> (<span class="ident">num_buckets</span> <span class="kw">as</span> <span class="ident">f64</span>);
-    <span class="kw">let</span> <span class="ident">max_bar_height</span> <span class="op">=</span> (<span class="ident">total_height</span> <span class="op">-</span> <span class="ident">padded_text_height</span>) <span class="op">/</span> <span class="number">2.0</span>;
+    <span class="kw">let</span> <span class="ident">max_bar_height</span> <span class="op">=</span> (<span class="ident">total_height</span> <span class="op">-</span> <span class="ident">x_axis_height</span>) <span class="op">/</span> <span class="number">2.0</span>;
     <span class="kw">let</span> <span class="ident">min_bar_height</span> <span class="op">=</span> <span class="number">8.0</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">outlines</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bar_outlines</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tooltips</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">x1</span> <span class="op">=</span> <span class="number">0.0</span>;
     <span class="kw">for</span> (
@@ -1023,10 +1090,10 @@
         .<span class="ident">enumerate</span>()
     {
         <span class="kw">if</span> <span class="ident">num_savings</span> <span class="op">&gt;</span> <span class="number">0</span> {
-            <span class="kw">let</span> <span class="ident">height</span> <span class="op">=</span> ((<span class="ident">total_savings</span> <span class="op">/</span> <span class="ident">max_y</span>) <span class="op">*</span> <span class="ident">max_bar_height</span>).<span class="ident">max</span>(<span class="ident">min_bar_height</span>);
+            <span class="kw">let</span> <span class="ident">height</span> <span class="op">=</span> ((<span class="ident">total_savings</span> <span class="op">/</span> <span class="ident">intervals</span>.<span class="number">0</span>) <span class="op">*</span> <span class="ident">max_bar_height</span>).<span class="ident">max</span>(<span class="ident">min_bar_height</span>);
             <span class="kw">let</span> <span class="ident">rect</span> <span class="op">=</span> <span class="ident">Polygon::rectangle</span>(<span class="ident">bar_width</span>, <span class="ident">height</span>).<span class="ident">translate</span>(<span class="ident">x1</span>, <span class="ident">max_bar_height</span> <span class="op">-</span> <span class="ident">height</span>);
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">o</span>) <span class="op">=</span> <span class="ident">rect</span>.<span class="ident">to_outline</span>(<span class="ident">line_thickness</span>) {
-                <span class="ident">outlines</span>.<span class="ident">push</span>(<span class="ident">o</span>);
+                <span class="ident">bar_outlines</span>.<span class="ident">push</span>(<span class="ident">o</span>);
             }
             <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color::GREEN</span>, <span class="ident">rect</span>.<span class="ident">clone</span>());
             <span class="ident">tooltips</span>.<span class="ident">push</span>((
@@ -1050,16 +1117,20 @@
                             <span class="ident">duration_buckets</span>[<span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>]
                         ),
                     }),
-                    <span class="ident">Line</span>(<span class="macro">format!</span>(<span class="string">&quot;Saved {} in total&quot;</span>, <span class="ident">total_savings</span>)).<span class="ident">fg</span>(<span class="ident">Color::hex</span>(<span class="string">&quot;#72CE36&quot;</span>)),
+                    <span class="ident">Line</span>(<span class="macro">format!</span>(
+                        <span class="string">&quot;Saved {} in total&quot;</span>,
+                        <span class="ident">total_savings</span>.<span class="ident">to_rounded_string</span>(<span class="number">1</span>)
+                    ))
+                    .<span class="ident">fg</span>(<span class="ident">Color::hex</span>(<span class="string">&quot;#72CE36&quot;</span>)),
                 ]),
             ));
         }
         <span class="kw">if</span> <span class="ident">num_loss</span> <span class="op">&gt;</span> <span class="number">0</span> {
-            <span class="kw">let</span> <span class="ident">height</span> <span class="op">=</span> ((<span class="ident">total_loss</span> <span class="op">/</span> <span class="ident">max_y</span>) <span class="op">*</span> <span class="ident">max_bar_height</span>).<span class="ident">max</span>(<span class="ident">min_bar_height</span>);
+            <span class="kw">let</span> <span class="ident">height</span> <span class="op">=</span> ((<span class="ident">total_loss</span> <span class="op">/</span> <span class="ident">intervals</span>.<span class="number">0</span>) <span class="op">*</span> <span class="ident">max_bar_height</span>).<span class="ident">max</span>(<span class="ident">min_bar_height</span>);
             <span class="kw">let</span> <span class="ident">rect</span> <span class="op">=</span>
                 <span class="ident">Polygon::rectangle</span>(<span class="ident">bar_width</span>, <span class="ident">height</span>).<span class="ident">translate</span>(<span class="ident">x1</span>, <span class="ident">total_height</span> <span class="op">-</span> <span class="ident">max_bar_height</span>);
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">o</span>) <span class="op">=</span> <span class="ident">rect</span>.<span class="ident">to_outline</span>(<span class="ident">line_thickness</span>) {
-                <span class="ident">outlines</span>.<span class="ident">push</span>(<span class="ident">o</span>);
+                <span class="ident">bar_outlines</span>.<span class="ident">push</span>(<span class="ident">o</span>);
             }
             <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color::RED</span>, <span class="ident">rect</span>.<span class="ident">clone</span>());
             <span class="ident">tooltips</span>.<span class="ident">push</span>((
@@ -1083,19 +1154,60 @@
                             <span class="ident">duration_buckets</span>[<span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>]
                         ),
                     }),
-                    <span class="ident">Line</span>(<span class="macro">format!</span>(<span class="string">&quot;Lost {} in total&quot;</span>, <span class="ident">total_loss</span>)).<span class="ident">fg</span>(<span class="ident">Color::hex</span>(<span class="string">&quot;#EB3223&quot;</span>)),
+                    <span class="ident">Line</span>(<span class="macro">format!</span>(<span class="string">&quot;Lost {} in total&quot;</span>, <span class="ident">total_loss</span>.<span class="ident">to_rounded_string</span>(<span class="number">1</span>)))
+                        .<span class="ident">fg</span>(<span class="ident">Color::hex</span>(<span class="string">&quot;#EB3223&quot;</span>)),
                 ]),
             ));
         }
         <span class="ident">x1</span> <span class="op">+</span><span class="op">=</span> <span class="ident">bar_width</span>;
     }
-    <span class="ident">batch</span>.<span class="ident">extend</span>(<span class="ident">Color::BLACK</span>, <span class="ident">outlines</span>);
+    <span class="comment">// Draw the y-axis</span>
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">y_axis_ticks</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">y_axis_labels</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
+    {
+        <span class="kw">let</span> <span class="ident">line_length</span> <span class="op">=</span> <span class="number">8.0</span>;
+        <span class="kw">let</span> <span class="ident">line_thickness</span> <span class="op">=</span> <span class="number">2.0</span>;
+
+        <span class="ident">intervals</span>.<span class="number">1</span>[<span class="number">1</span>..]
+            .<span class="ident">iter</span>()
+            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">interval</span><span class="op">|</span> {
+                <span class="comment">// positive ticks</span>
+                <span class="kw">let</span> <span class="ident">y</span> <span class="op">=</span>
+                    <span class="ident">max_bar_height</span> <span class="op">*</span> (<span class="number">1.0</span> <span class="op">-</span> <span class="ident">interval</span>.<span class="ident">inner_seconds</span>() <span class="op">/</span> <span class="ident">intervals</span>.<span class="number">0</span>.<span class="ident">inner_seconds</span>());
+                (<span class="ident">interval</span>, <span class="ident">y</span>)
+            })
+            .<span class="ident">chain</span>(
+                <span class="comment">// negative ticks</span>
+                <span class="ident">intervals</span>.<span class="number">1</span>[<span class="number">1</span>..].<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">interval</span><span class="op">|</span> {
+                    <span class="kw">let</span> <span class="ident">y</span> <span class="op">=</span> <span class="ident">total_height</span>
+                        <span class="op">-</span> <span class="ident">max_bar_height</span>
+                            <span class="op">*</span> (<span class="number">1.0</span> <span class="op">-</span> <span class="ident">interval</span>.<span class="ident">abs</span>().<span class="ident">inner_seconds</span>() <span class="op">/</span> <span class="ident">intervals</span>.<span class="number">0</span>.<span class="ident">inner_seconds</span>());
+                    (<span class="ident">interval</span>, <span class="ident">y</span>)
+                }),
+            )
+            .<span class="ident">for_each</span>(<span class="op">|</span>(<span class="ident">interval</span>, <span class="ident">y</span>)<span class="op">|</span> {
+                <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="ident">Pt2D::new</span>(<span class="number">0.0</span>, <span class="ident">y</span>);
+                <span class="kw">let</span> <span class="ident">line</span>: <span class="ident">geom::Line</span> <span class="op">=</span>
+                    <span class="ident">geom::Line::new</span>(<span class="ident">start</span>, <span class="ident">start</span>.<span class="ident">offset</span>(<span class="ident">line_length</span>, <span class="number">0.0</span>)).<span class="ident">unwrap</span>();
+                <span class="kw">let</span> <span class="ident">poly</span> <span class="op">=</span> <span class="ident">line</span>.<span class="ident">make_polygons</span>(<span class="ident">Distance::meters</span>(<span class="ident">line_thickness</span>));
+                <span class="ident">y_axis_ticks</span>.<span class="ident">push</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_secondary_color</span>, <span class="ident">poly</span>);
+
+                <span class="kw">let</span> <span class="ident">text</span> <span class="op">=</span> <span class="ident">Text::from</span>(<span class="ident">Line</span>(<span class="ident">interval</span>.<span class="ident">abs</span>().<span class="ident">to_rounded_string</span>(<span class="number">0</span>)).<span class="ident">secondary</span>())
+                    .<span class="ident">render</span>(<span class="ident">ctx</span>)
+                    .<span class="ident">centered_on</span>(<span class="ident">start</span>.<span class="ident">offset</span>(<span class="number">0.0</span>, <span class="op">-</span><span class="number">4.0</span>));
+                <span class="ident">y_axis_labels</span>.<span class="ident">append</span>(<span class="ident">text</span>);
+            });
+    }
+    <span class="ident">y_axis_labels</span>.<span class="ident">autocrop_dims</span> <span class="op">=</span> <span class="bool-val">true</span>;
+    <span class="ident">y_axis_labels</span> <span class="op">=</span> <span class="ident">y_axis_labels</span>.<span class="ident">autocrop</span>();
+
+    <span class="ident">batch</span>.<span class="ident">extend</span>(<span class="ident">Color::BLACK</span>, <span class="ident">bar_outlines</span>);
 
     <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
         <span class="ident">Text::from_multiline</span>(<span class="macro">vec!</span>[
-            <span class="ident">Line</span>(<span class="string">&quot;Aggregate difference by trip length&quot;</span>).<span class="ident">small_heading</span>(),
+            <span class="ident">Line</span>(<span class="string">&quot;Aggregate difference by trip duration&quot;</span>).<span class="ident">small_heading</span>(),
             <span class="ident">Line</span>(<span class="macro">format!</span>(
-                <span class="string">&quot;Grouped by the length of the trip before\n\&quot;{}\&quot; changes.&quot;</span>,
+                <span class="string">&quot;Grouped by the duration of the trip before\n\&quot;{}\&quot; changes.&quot;</span>,
                 <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">edits_name</span>
             )),
         ])
@@ -1105,8 +1217,18 @@
             .<span class="ident">secondary</span>()
             .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
             .<span class="ident">centered_horiz</span>(),
-        <span class="ident">DrawWithTooltips::new_widget</span>(<span class="ident">ctx</span>, <span class="ident">batch</span>, <span class="ident">tooltips</span>, <span class="ident">Box::new</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">GeomBatch::new</span>()))
-            .<span class="ident">centered_horiz</span>(),
+        <span class="ident">Widget::custom_row</span>(<span class="macro">vec!</span>[
+            <span class="ident">y_axis_labels</span>
+                .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
+                .<span class="ident">margin_right</span>(<span class="number">8</span>)
+                .<span class="ident">centered_vert</span>(),
+            <span class="ident">y_axis_ticks</span>
+                .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
+                .<span class="ident">margin_right</span>(<span class="number">8</span>)
+                .<span class="ident">centered_vert</span>(),
+            <span class="ident">DrawWithTooltips::new_widget</span>(<span class="ident">ctx</span>, <span class="ident">batch</span>, <span class="ident">tooltips</span>, <span class="ident">Box::new</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">GeomBatch::new</span>())),
+        ])
+        .<span class="ident">centered_horiz</span>(),
         <span class="ident">Line</span>(<span class="string">&quot;Total Time Lost (slower)&quot;</span>)
             .<span class="ident">secondary</span>()
             .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)

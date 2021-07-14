@@ -196,6 +196,14 @@
 <span id="193">193</span>
 <span id="194">194</span>
 <span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Pt2D</span>};
 
@@ -293,7 +301,11 @@
             <span class="ident">labels</span>
                 .<span class="ident">iter</span>()
                 .<span class="ident">rev</span>()
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">Line</span>(<span class="ident">x</span>.<span class="ident">to_string</span>()).<span class="ident">small</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>))
+                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> {
+                    <span class="ident">Line</span>(<span class="ident">x</span>.<span class="ident">num_minutes_rounded_up</span>().<span class="ident">to_string</span>())
+                        .<span class="ident">small</span>()
+                        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
+                })
                 .<span class="ident">collect</span>(),
         )
         .<span class="ident">evenly_spaced</span>();
@@ -310,7 +322,11 @@
         <span class="kw">let</span> <span class="ident">x_axis</span> <span class="op">=</span> <span class="ident">Widget::custom_row</span>(
             <span class="ident">labels</span>
                 .<span class="ident">iter</span>()
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">Line</span>(<span class="ident">x</span>.<span class="ident">to_string</span>()).<span class="ident">small</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>))
+                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> {
+                    <span class="ident">Line</span>(<span class="ident">x</span>.<span class="ident">num_minutes_rounded_up</span>().<span class="ident">to_string</span>())
+                        .<span class="ident">small</span>()
+                        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
+                })
                 .<span class="ident">collect</span>(),
         )
         .<span class="ident">evenly_spaced</span>();
