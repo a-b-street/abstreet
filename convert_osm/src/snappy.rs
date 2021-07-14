@@ -11,6 +11,7 @@ const DEBUG_OUTPUT: bool = false;
 
 /// Snap separately mapped cycleways to main roads.
 pub fn snap_cycleways(map: &mut RawMap) {
+    #![allow(clippy::logic_bug)]
     // A gradual experiment...
     if false
         && map.name != MapName::seattle("montlake")
@@ -111,7 +112,7 @@ struct Cycleway {
 // TODO Or look for cycleway polygons strictly overlapping thick road polygons
 fn v1(
     map: &RawMap,
-    cycleways: &Vec<Cycleway>,
+    cycleways: &[Cycleway],
     road_edges: &HashMap<(OriginalRoad, Direction), PolyLine>,
 ) -> MultiMap<OriginalRoad, (OriginalRoad, Direction)> {
     let mut matches = MultiMap::new();

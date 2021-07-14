@@ -526,8 +526,7 @@ fn contingency_table(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
             )
             .for_each(|(interval, y)| {
                 let start = Pt2D::new(0.0, y);
-                let line: geom::Line =
-                    geom::Line::new(start, start.offset(line_length, 0.0)).unwrap();
+                let line = geom::Line::new(start, start.offset(line_length, 0.0)).unwrap();
                 let poly = line.make_polygons(Distance::meters(line_thickness));
                 y_axis_ticks.push(ctx.style().text_secondary_color, poly);
 
