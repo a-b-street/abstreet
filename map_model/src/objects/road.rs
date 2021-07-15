@@ -592,6 +592,31 @@ impl Road {
         }
         panic!("{} doesn't contain both {} and {}", self.id, l1, l2);
     }
+
+    /// A simple classification of if the road is stressful or not for cycling. Arterial roads
+    /// without a bike lane match this. Why arterial, instead of looking at speed limits? Even on
+    /// arterial roads with official speed limits lowered, in practice vehicles still travel at the
+    /// speed suggested by the design of the road.
+    // TODO No treatment of direction
+    // TODO Should elevation matter or not? Flat high-speed roads are still terrifying, but there's
+    // something about slogging up (or flying down!) a pothole-filled road inches from cars.
+    pub fn high_stress_for_bikes(&self, map: &Map) -> bool {
+        let mut bike_lanes = false;
+        let mut can_use = false;
+        // Can a bike even use it, or is it a highway?
+        for (l, _, lt) in self.lanes_ltr() {
+            if lt == LaneType::Biking {
+                bike_lanes = true;
+            }
+            if PathConstraints::Bike.can_use(map.get_l(l), map) {
+                can_use = true;
+            }
+        }
+        if !can_use || bike_lanes {
+            return false;
+        }
+        self.get_rank() == osm::RoadRank::Arterial
+    }
 }
 
 // TODO All of this is kind of deprecated? During the transiton towards lanes_ltr, some pieces

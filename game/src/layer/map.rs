@@ -339,4 +339,27 @@ impl Static {
             Widget::nothing(),
         )
     }
+
+    pub fn high_stress(ctx: &mut EventCtx, app: &App) -> Static {
+        let mut colorer = ColorDiscrete::new(app, vec![("high stress", app.cs.edits_layer)]);
+
+        for r in app.primary.map.all_roads() {
+            if r.high_stress_for_bikes(&app.primary.map) {
+                colorer.add_r(r.id, "high stress");
+            }
+        }
+
+        Static::new(
+            ctx,
+            colorer,
+            "high stress",
+            "High stress roads for biking".to_string(),
+            Text::from_multiline(vec![
+                Line("High stress defined as:"),
+                Line("- arterial classification"),
+                Line("- no dedicated cycle lane"),
+            ])
+            .into_widget(ctx),
+        )
+    }
 }
