@@ -245,6 +245,18 @@ fn params_to_controls(ctx: &mut EventCtx, mode: TripMode, params: &RoutingParams
                 0.1,
             ),
         ]));
+        rows.push(Widget::row(vec![
+            "High stress road penalty:"
+                .text_widget(ctx)
+                .margin_right(20),
+            Spinner::widget(
+                ctx,
+                "high stress road penalty",
+                (0.1, 5.0),
+                params.high_stress_bike_penalty,
+                0.1,
+            ),
+        ]));
     }
     Widget::col(rows)
 }
@@ -262,6 +274,7 @@ fn controls_to_params(panel: &Panel) -> (TripMode, RoutingParams) {
     params.bike_lane_penalty = panel.spinner("bike lane penalty");
     params.bus_lane_penalty = panel.spinner("bus lane penalty");
     params.driving_lane_penalty = panel.spinner("driving lane penalty");
+    params.high_stress_bike_penalty = panel.spinner("high stress road penalty");
     (TripMode::Bike, params)
 }
 

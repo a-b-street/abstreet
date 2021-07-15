@@ -299,7 +299,13 @@ pub fn vehicle_cost(
                 params.driving_lane_penalty
             };
 
-            lt_penalty * (t1 + t2)
+            let road_type_penalty = if map.get_r(dr.id).high_stress_for_bikes(map) {
+                params.high_stress_bike_penalty
+            } else {
+                1.0
+            };
+
+            lt_penalty * road_type_penalty * (t1 + t2)
         }
         PathConstraints::Bus => {
             // Like Car, but prefer bus lanes.

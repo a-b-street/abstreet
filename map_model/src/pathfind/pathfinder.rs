@@ -115,13 +115,14 @@ impl Pathfinder {
             // should only be happening from the debug UI; be very obnoxious if we start calling it
             // from the simulation or something else.
             warn!("Pathfinding slowly for {} with custom params", req);
-            let tmp_pathfinder = Pathfinder::new(
-                map,
-                params.clone(),
-                CreateEngine::Dijkstra,
-                &mut Timer::throwaway(),
-            );
-            return tmp_pathfinder.pathfind_with_params(req, params, map);
+            let engine = CreateEngine::Dijkstra;
+            // Building the vehicle input graph is currently slow. As a workaround, don't recreate
+            // the full Pathfinder -- just the piece we need.
+            return if req.constraints == PathConstraints::Pedestrian {
+                SidewalkPathfinder::new(map, None, &engine).pathfind(req, map)
+            } else {
+                VehiclePathfinder::new(map, req.constraints, &params, &engine).pathfind(req, map)
+            };
         }
 
         match req.constraints {

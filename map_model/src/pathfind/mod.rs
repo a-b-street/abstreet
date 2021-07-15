@@ -157,13 +157,16 @@ pub fn zone_cost(mvmnt: MovementID, constraints: PathConstraints, map: &Map) -> 
 // space-expensive change right now.
 #[derive(Clone, PartialEq, Serialize, Deserialize)]
 pub struct RoutingParams {
-    // For all vehicles. This is added to the cost of a movement as an additional delay.
+    /// For all vehicles. This is added to the cost of a movement as an additional delay.
     pub unprotected_turn_penalty: Duration,
     // For bike routing. Multiplied by the base cost, since spending more time on the wrong lane
     // type matters.
     pub bike_lane_penalty: f64,
     pub bus_lane_penalty: f64,
     pub driving_lane_penalty: f64,
+    /// When a bike crosses a road segment classified as `high_stress_for_bikes`, multiply the base
+    /// cost by this penalty.
+    pub high_stress_bike_penalty: f64,
 }
 
 impl RoutingParams {
@@ -175,6 +178,7 @@ impl RoutingParams {
             bike_lane_penalty: 1.0,
             bus_lane_penalty: 1.1,
             driving_lane_penalty: 1.5,
+            high_stress_bike_penalty: 2.0,
         }
     }
 }
