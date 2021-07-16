@@ -323,7 +323,7 @@ impl ContextualActions for Actions {
                     if !app.primary.map.get_turns_from_lane(l).is_empty() {
                         actions.push((Key::Z, "explore turns from this lane".to_string()));
                     }
-                    if can_edit_lane(&self.gameplay, l, app) {
+                    if self.gameplay.can_edit_roads() && can_edit_lane(app, l) {
                         actions.push((Key::E, "edit lane".to_string()));
                     }
                 }

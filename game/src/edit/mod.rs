@@ -6,7 +6,7 @@ use map_gui::options::OptionsPanel;
 use map_gui::render::DrawMap;
 use map_gui::tools::{grey_out_map, ChooseSomething, ColorLegend, PopupMsg};
 use map_gui::ID;
-use map_model::{EditCmd, IntersectionID, LaneID, LaneType, MapEdits};
+use map_model::{EditCmd, IntersectionID, LaneID, MapEdits};
 use widgetry::{
     lctrl, Choice, Color, ControlState, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Image,
     Key, Line, Menu, Outcome, Panel, State, Text, TextBox, TextExt, VerticalAlignment, Widget,
@@ -166,7 +166,7 @@ impl State<App> for EditMode {
         if ctx.redo_mouseover() {
             app.primary.current_selection = app.mouseover_unzoomed_roads_and_intersections(ctx);
             if match app.primary.current_selection {
-                Some(ID::Lane(l)) => !can_edit_lane(&self.mode, l, app),
+                Some(ID::Lane(l)) => !self.mode.can_edit_roads() || !can_edit_lane(app, l),
                 Some(ID::Intersection(i)) => {
                     !self.mode.can_edit_stop_signs()
                         && app.primary.map.maybe_get_stop_sign(i).is_some()
@@ -732,13 +732,9 @@ pub fn apply_map_edits(ctx: &mut EventCtx, app: &mut App, edits: MapEdits) {
     app.primary.map.save_edits();
 }
 
-pub fn can_edit_lane(mode: &GameplayMode, l: LaneID, app: &App) -> bool {
-    let l = app.primary.map.get_l(l);
-    mode.can_edit_lanes()
-        && !l.is_walkable()
-        && l.lane_type != LaneType::SharedLeftTurn
-        && !l.is_light_rail()
-        && !app.primary.map.get_parent(l.id).is_service()
+pub fn can_edit_lane(app: &App, l: LaneID) -> bool {
+    let map = &app.primary.map;
+    !map.get_l(l).is_light_rail() && !map.get_parent(l).is_service()
 }
 
 pub fn speed_limit_choices(app: &App, preset: Option<Speed>) -> Vec<Choice<Speed>> {

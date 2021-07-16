@@ -14,7 +14,7 @@ use widgetry::{
 
 use crate::app::{App, Transition};
 use crate::edit::zones::ZoneEditor;
-use crate::edit::{apply_map_edits, speed_limit_choices};
+use crate::edit::{apply_map_edits, can_edit_lane, speed_limit_choices};
 
 pub struct RoadEditor {
     r: RoadID,
@@ -297,7 +297,10 @@ impl State<App> for RoadEditor {
         if ctx.canvas.get_cursor_in_map_space().is_some() {
             if ctx.redo_mouseover() {
                 app.recalculate_current_selection(ctx);
-                if !matches!(app.primary.current_selection, Some(ID::Lane(_))) {
+                if match app.primary.current_selection {
+                    Some(ID::Lane(l)) => !can_edit_lane(app, l),
+                    _ => true,
+                } {
                     app.primary.current_selection = None;
                 }
             }

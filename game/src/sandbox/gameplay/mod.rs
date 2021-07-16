@@ -161,7 +161,7 @@ impl GameplayMode {
         }
     }
 
-    pub fn can_edit_lanes(&self) -> bool {
+    pub fn can_edit_roads(&self) -> bool {
         !matches!(self, GameplayMode::FixTrafficSignals)
     }
 
@@ -177,7 +177,7 @@ impl GameplayMode {
         for cmd in &edits.commands {
             match cmd {
                 EditCmd::ChangeRoad { .. } => {
-                    if !self.can_edit_lanes() {
+                    if !self.can_edit_roads() {
                         return false;
                     }
                 }
