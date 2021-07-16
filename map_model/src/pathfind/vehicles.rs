@@ -18,7 +18,7 @@ use crate::{
     PathRequest, PathV2, Position, RoutingParams, Traversable, TurnType,
 };
 
-#[derive(Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct VehiclePathfinder {
     #[serde(deserialize_with = "deserialize_nodemap")]
     nodes: NodeMap<Node>,

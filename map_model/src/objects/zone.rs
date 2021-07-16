@@ -27,7 +27,7 @@ impl AccessRestrictions {
 
 /// A contiguous set of roads with access restrictions. This is derived from all the map's roads and
 /// kept cached for performance.
-#[derive(Serialize, Deserialize, Debug, PartialEq)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 pub struct Zone {
     pub members: BTreeSet<RoadID>,
     pub borders: BTreeSet<IntersectionID>,

@@ -17,7 +17,7 @@ use crate::{
     PathConstraints, PathRequest, PathStep, PathStepV2, PathV2, Position,
 };
 
-#[derive(Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct SidewalkPathfinder {
     #[serde(deserialize_with = "deserialize_nodemap")]
     nodes: NodeMap<WalkingNode>,

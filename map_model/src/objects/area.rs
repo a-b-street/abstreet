@@ -34,7 +34,7 @@ pub enum AreaType {
 }
 
 /// Areas are just used for drawing.
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Area {
     pub id: AreaID,
     pub area_type: AreaType,

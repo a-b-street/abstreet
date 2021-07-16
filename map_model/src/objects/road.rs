@@ -131,7 +131,7 @@ impl DirectedRoadID {
 }
 
 /// A Road represents a segment between exactly two Intersections. It contains Lanes as children.
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Road {
     pub id: RoadID,
     pub osm_tags: Tags,

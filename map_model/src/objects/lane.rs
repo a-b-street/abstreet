@@ -128,7 +128,7 @@ impl LaneType {
 }
 
 /// A road segment is broken down into individual lanes, which have a LaneType.
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Lane {
     pub id: LaneID,
     pub parent: RoadID,

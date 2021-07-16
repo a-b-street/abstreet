@@ -23,6 +23,22 @@ pub enum PathfindEngine {
     },
 }
 
+// Implemented manually to deal with the ThreadLocal
+impl Clone for PathfindEngine {
+    fn clone(&self) -> Self {
+        match self {
+            PathfindEngine::Empty => PathfindEngine::Empty,
+            PathfindEngine::Dijkstra { ref graph } => PathfindEngine::Dijkstra {
+                graph: graph.clone(),
+            },
+            PathfindEngine::CH { ref graph, .. } => PathfindEngine::CH {
+                graph: graph.clone(),
+                path_calc: ThreadLocal::new(),
+            },
+        }
+    }
+}
+
 impl PathfindEngine {
     /// Returns (path cost, node IDs in path)
     pub fn calculate_path(&self, start: usize, end: usize) -> Option<(usize, Vec<usize>)> {

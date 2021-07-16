@@ -13,7 +13,7 @@ use crate::{
     RoutingParams,
 };
 
-#[derive(Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct Pathfinder {
     car_graph: VehiclePathfinder,
     bike_graph: VehiclePathfinder,

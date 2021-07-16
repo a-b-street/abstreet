@@ -34,7 +34,7 @@ pub enum IntersectionType {
 /// An intersection connects roads. Most have >2 roads and are controlled by stop signs or traffic
 /// signals. Roads that lead to the boundary of the map end at border intersections, with only that
 /// one road attached.
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Intersection {
     pub id: IntersectionID,
     /// This needs to be in clockwise orientation, or later rendering of sidewalk corners breaks.

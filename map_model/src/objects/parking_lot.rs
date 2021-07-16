@@ -26,7 +26,7 @@ impl fmt::Display for ParkingLotID {
 }
 
 /// Parking lots have some fixed capacity for cars, and are connected to a sidewalk and road.
-#[derive(Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct ParkingLot {
     pub id: ParkingLotID,
     pub polygon: Polygon,

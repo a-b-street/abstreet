@@ -50,7 +50,7 @@ pub struct BusStop {
     pub is_train_stop: bool,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct BusRoute {
     pub id: BusRouteID,
     pub full_name: String,

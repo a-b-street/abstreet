@@ -80,7 +80,7 @@ mod traversable;
 
 // The map used by the simulation and UI. This struct is declared here so that the rest of the
 // crate can reach into private fields.
-#[derive(Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct Map {
     roads: Vec<Road>,
     lanes: BTreeMap<LaneID, Lane>,

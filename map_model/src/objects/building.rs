@@ -29,7 +29,7 @@ impl fmt::Display for BuildingID {
 
 /// A building has connections to the road and sidewalk, may contain commercial amenities, and have
 /// off-street parking.
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Building {
     pub id: BuildingID,
     pub polygon: Polygon,
