@@ -3,7 +3,7 @@ use map_gui::render::{Renderable, OUTLINE_THICKNESS};
 use map_gui::tools::PopupMsg;
 use map_gui::ID;
 use map_model::{
-    Direction, EditCmd, EditRoad, LaneID, LaneSpec, LaneType, MapEdits, Road, RoadID,
+    BufferType, Direction, EditCmd, EditRoad, LaneID, LaneSpec, LaneType, MapEdits, Road, RoadID,
     NORMAL_LANE_THICKNESS,
 };
 use widgetry::{
@@ -464,12 +464,16 @@ fn make_main_panel(
 
     let current_lts: Vec<LaneType> = road.lanes_ltr().into_iter().map(|(_, _, lt)| lt).collect();
     let mut available_lane_types_row = vec![
-        (LaneType::Driving, Key::D),
-        (LaneType::Biking, Key::B),
-        (LaneType::Bus, Key::T),
-        (LaneType::Parking, Key::P),
-        (LaneType::Construction, Key::C),
-        (LaneType::Sidewalk, Key::S),
+        (LaneType::Driving, Some(Key::D)),
+        (LaneType::Biking, Some(Key::B)),
+        (LaneType::Bus, Some(Key::T)),
+        (LaneType::Parking, Some(Key::P)),
+        (LaneType::Construction, Some(Key::C)),
+        (LaneType::Sidewalk, Some(Key::S)),
+        (LaneType::Buffer(BufferType::Stripes), None),
+        (LaneType::Buffer(BufferType::FlexPosts), None),
+        (LaneType::Buffer(BufferType::Planters), None),
+        (LaneType::Buffer(BufferType::JerseyBarrier), None),
     ]
     .into_iter()
     .map(|(lt, key)| {
@@ -477,8 +481,8 @@ fn make_main_panel(
             .style()
             .btn_plain
             .icon(lane_type_to_icon(lt).unwrap())
-            .hotkey(if current_lane.is_some() {
-                Some(key.into())
+            .hotkey(if current_lane.is_some() && key.is_some() {
+                Some(key.unwrap().into())
             } else {
                 None
             });
@@ -674,6 +678,12 @@ fn lane_type_to_icon(lt: LaneType) -> Option<&'static str> {
         LaneType::Bus => Some("system/assets/edit/bus.svg"),
         LaneType::SharedLeftTurn => Some("system/assets/map/shared_left_turn.svg"),
         LaneType::Construction => Some("system/assets/edit/construction.svg"),
+        LaneType::Buffer(BufferType::Stripes) => Some("system/assets/edit/buffer/stripes.svg"),
+        LaneType::Buffer(BufferType::FlexPosts) => Some("system/assets/edit/buffer/flex_posts.svg"),
+        LaneType::Buffer(BufferType::Planters) => Some("system/assets/edit/buffer/planters.svg"),
+        LaneType::Buffer(BufferType::JerseyBarrier) => {
+            Some("system/assets/edit/buffer/jersey_barrier.svg")
+        }
         // Don't allow creating these yet
         LaneType::LightRail => None,
     }
@@ -769,6 +779,10 @@ fn add_new_lane(road: &mut EditRoad, lt: LaneType) -> usize {
                 road.lanes_ltr.last().unwrap().dir
             }
         }
+        LaneType::Buffer(_) => {
+            // TODO Look for the bike lane that's missing a buffer
+            Direction::Fwd
+        }
         _ => unreachable!(),
     };
 
@@ -791,6 +805,10 @@ fn add_new_lane(road: &mut EditRoad, lt: LaneType) -> usize {
             } else {
                 road.lanes_ltr.len()
             }
+        }
+        LaneType::Buffer(_) => {
+            // TODO Look for the bike lane that's missing a buffer
+            0
         }
         _ => unreachable!(),
     };
