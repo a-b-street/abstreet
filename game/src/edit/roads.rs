@@ -659,7 +659,7 @@ fn highlight_current_selection(
             color,
             road.center_pts
                 .to_thick_boundary(road.get_width(map), OUTLINE_THICKNESS)
-                .unwrap(),
+                .unwrap_or_else(|| road.get_thick_polygon(map)),
         );
     }
     (l, ctx.upload(batch))
