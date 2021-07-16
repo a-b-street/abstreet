@@ -40,3 +40,9 @@ npm install
 make dev
 make server
 ```
+
+The workflow for interactive development of just one app in debug mode:
+
+```
+./bin/build-wasm game abstreet && rm -rf build/dist/abstreet/wasm_pkg/ && cp -Rv src/abstreet/wasm_pkg build/dist/abstreet/ && make server
+```

@@ -6,7 +6,7 @@ edition = "2018"
 
 [features]
 native = ["clipboard", "subprocess", "tokio", "widgetry/native-backend"]
-wasm = ["js-sys", "wasm-bindgen", "wasm-bindgen-futures", "web-sys", "widgetry/wasm-backend"]
+wasm = ["js-sys", "wasm-bindgen", "wasm-bindgen-futures", "wasm-streams", "web-sys", "widgetry/wasm-backend"]
 # A marker to use a named release from S3 instead of dev for updating files
 release_s3 = []
 
@@ -34,6 +34,7 @@ subprocess = { git = "https://github.com/hniksic/rust-subprocess", optional = tr
 tokio = { version ="1.1.1", features=["full"], optional = true }
 wasm-bindgen = { version = "0.2.70", optional = true }
 wasm-bindgen-futures = { version = "0.4.20", optional = true }
+wasm-streams = { version = "0.2.0", optional = true }
 webbrowser = "0.5.5"
 widgetry = { path = "../widgetry" }
 
@@ -43,6 +44,7 @@ optional = true
 features = [
   "Headers",
   "History",
+  "ReadableStream",
   "Request",
   "RequestInit",
   "RequestMode",
