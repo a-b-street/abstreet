@@ -1,10 +1,10 @@
 use std::cell::RefCell;
 
 use geom::{Angle, Distance, Line, Polygon, Pt2D, Ring};
-use map_model::{Building, BuildingID, LaneType, Map, OffstreetParking, NORMAL_LANE_THICKNESS};
+use map_model::{Building, BuildingID, Map, OffstreetParking};
 use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, Text};
 
-use crate::colors::{ColorScheme, ColorSchemeChoice};
+use crate::colors::ColorScheme;
 use crate::options::{CameraAngle, Options};
 use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
 use crate::{AppLike, ID};
@@ -192,41 +192,6 @@ impl DrawBuilding {
         DrawBuilding {
             id: bldg.id,
             label: RefCell::new(None),
-        }
-    }
-
-    pub fn draw_driveway(
-        bldg: &Building,
-        map: &Map,
-        cs: &ColorScheme,
-        opts: &Options,
-        batch: &mut GeomBatch,
-    ) {
-        if opts.camera_angle != CameraAngle::Abstract {
-            // Trim the driveway away from the sidewalk's center line, so that it doesn't overlap.
-            // For now, this cleanup is visual; it doesn't belong in the map_model
-            // layer.
-            let orig_pl = &bldg.driveway_geom;
-            let driveway = orig_pl
-                .slice(
-                    Distance::ZERO,
-                    orig_pl.length() - map.get_l(bldg.sidewalk()).width / 2.0,
-                )
-                .map(|(pl, _)| pl)
-                .unwrap_or_else(|_| orig_pl.clone());
-            if driveway.length() > Distance::meters(0.1) {
-                batch.push(
-                    if opts.color_scheme == ColorSchemeChoice::NightMode {
-                        Color::hex("#4B4B4B")
-                    } else {
-                        cs.zoomed_road_surface(
-                            LaneType::Sidewalk,
-                            map.get_parent(bldg.sidewalk()).get_rank(),
-                        )
-                    },
-                    driveway.make_polygons(NORMAL_LANE_THICKNESS),
-                );
-            }
         }
     }
 

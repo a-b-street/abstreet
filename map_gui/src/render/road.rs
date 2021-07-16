@@ -1,9 +1,12 @@
 use std::cell::RefCell;
 
+use abstutil::MultiMap;
 use geom::{Distance, Polygon, Pt2D};
-use map_model::{LaneType, Map, Road, RoadID};
-use widgetry::{Drawable, GeomBatch, GfxCtx, Line, Prerender, Text};
+use map_model::{Building, BuildingID, LaneType, Map, Road, RoadID, NORMAL_LANE_THICKNESS};
+use widgetry::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, Text};
 
+use crate::colors::ColorSchemeChoice;
+use crate::options::CameraAngle;
 use crate::render::{DrawOptions, Renderable};
 use crate::{AppLike, ID};
 
@@ -104,6 +107,13 @@ impl DrawRoad {
             }
         }
 
+        // Driveways of connected buildings. These are grouped by road to limit what has to be
+        // recalculated when road edits cause buildings to re-snap.
+        // TODO Cache road_to_buildings in app... or Map?
+        for b in road_to_buildings(app).get(self.id) {
+            draw_building_driveway(app, app.map().get_b(*b), &mut batch);
+        }
+
         batch
     }
 
@@ -137,4 +147,43 @@ impl Renderable for DrawRoad {
     fn get_zorder(&self) -> isize {
         self.zorder
     }
+}
+
+fn draw_building_driveway(app: &dyn AppLike, bldg: &Building, batch: &mut GeomBatch) {
+    if app.opts().camera_angle == CameraAngle::Abstract || !app.opts().show_building_driveways {
+        return;
+    }
+
+    // Trim the driveway away from the sidewalk's center line, so that it doesn't overlap.  For
+    // now, this cleanup is visual; it doesn't belong in the map_model layer.
+    let orig_pl = &bldg.driveway_geom;
+    let driveway = orig_pl
+        .slice(
+            Distance::ZERO,
+            orig_pl.length() - app.map().get_l(bldg.sidewalk()).width / 2.0,
+        )
+        .map(|(pl, _)| pl)
+        .unwrap_or_else(|_| orig_pl.clone());
+    if driveway.length() > Distance::meters(0.1) {
+        batch.push(
+            if app.opts().color_scheme == ColorSchemeChoice::NightMode {
+                Color::hex("#4B4B4B")
+            } else {
+                app.cs().zoomed_road_surface(
+                    LaneType::Sidewalk,
+                    app.map().get_parent(bldg.sidewalk()).get_rank(),
+                )
+            },
+            driveway.make_polygons(NORMAL_LANE_THICKNESS),
+        );
+    }
+}
+
+fn road_to_buildings(app: &dyn AppLike) -> MultiMap<RoadID, BuildingID> {
+    let map = app.map();
+    let mut mapping = MultiMap::new();
+    for b in map.all_buildings() {
+        mapping.insert(map.get_l(b.sidewalk_pos.lane()).parent, b.id);
+    }
+    mapping
 }

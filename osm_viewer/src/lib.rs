@@ -11,7 +11,8 @@ pub fn main() {
 }
 
 pub fn run(mut settings: Settings) {
-    let options = map_gui::options::Options::load_or_default();
+    let mut options = map_gui::options::Options::load_or_default();
+    options.show_building_driveways = false;
     settings = settings
         .read_svg(Box::new(abstio::slurp_bytes))
         .canvas_settings(options.canvas_settings.clone());

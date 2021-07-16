@@ -141,7 +141,6 @@ impl App {
             if layers.show_buildings {
                 g.redraw(&draw_map.draw_all_buildings);
                 g.redraw(&draw_map.draw_all_building_outlines);
-                // Not the building driveways
             }
 
             // Still show some shape selection when zoomed out.
@@ -193,9 +192,6 @@ impl App {
                 match obj.get_id() {
                     ID::Building(_) => {
                         if !drawn_all_buildings {
-                            if opts.show_building_driveways {
-                                g.redraw(&draw_map.draw_all_building_driveways);
-                            }
                             g.redraw(&draw_map.draw_all_buildings);
                             g.redraw(&draw_map.draw_all_building_outlines);
                             drawn_all_buildings = true;

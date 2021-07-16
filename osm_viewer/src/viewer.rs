@@ -366,9 +366,7 @@ impl State<App> for Viewer {
         if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
             app.draw_unzoomed(g);
         } else {
-            let mut opts = DrawOptions::new();
-            opts.show_building_driveways = false;
-            app.draw_zoomed(g, opts);
+            app.draw_zoomed(g, DrawOptions::new());
         }
 
         self.top_panel.draw(g);

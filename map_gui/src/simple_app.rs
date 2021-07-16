@@ -132,9 +132,6 @@ impl<T: 'static> SimpleApp<T> {
             match obj.get_id() {
                 ID::Building(_) => {
                     if !drawn_all_buildings {
-                        if opts.show_building_driveways {
-                            g.redraw(&self.draw_map.draw_all_building_driveways);
-                        }
                         g.redraw(&self.draw_map.draw_all_buildings);
                         g.redraw(&self.draw_map.draw_all_building_outlines);
                         drawn_all_buildings = true;

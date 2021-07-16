@@ -139,7 +139,6 @@ pub struct EditEffects {
     pub changed_intersections: BTreeSet<IntersectionID>,
     pub added_turns: BTreeSet<TurnID>,
     pub deleted_turns: BTreeSet<TurnID>,
-    pub resnapped_buildings: bool,
     pub changed_parking_lots: BTreeSet<ParkingLotID>,
 }
 
@@ -516,10 +515,9 @@ fn modify_lanes(map: &mut Map, r: RoadID, lanes_ltr: Vec<LaneSpec>, effects: &mu
     for b in map.all_buildings() {
         if modified_lanes.contains(&b.sidewalk()) {
             recalc_buildings.push(b.id);
-            effects.resnapped_buildings = true;
         }
     }
-    fix_building_driveways(map, recalc_buildings);
+    fix_building_driveways(map, recalc_buildings, effects);
 
     // Same for parking lots
     let mut recalc_parking_lots = Vec::new();
@@ -617,7 +615,7 @@ fn recalculate_intersection_polygon(
 }
 
 /// Recalculate the driveways of some buildings after map edits.
-fn fix_building_driveways(map: &mut Map, input: Vec<BuildingID>) {
+fn fix_building_driveways(map: &mut Map, input: Vec<BuildingID>, effects: &mut EditEffects) {
     // TODO Copying from make/buildings.rs
     let mut center_per_bldg: BTreeMap<BuildingID, HashablePt2D> = BTreeMap::new();
     let mut query: HashSet<HashablePt2D> = HashSet::new();
@@ -649,6 +647,10 @@ fn fix_building_driveways(map: &mut Map, input: Vec<BuildingID>) {
                 let b = &mut map.buildings[id.0];
                 b.sidewalk_pos = sidewalk_pos;
                 b.driveway_geom = driveway_geom.to_polyline();
+                // We may need to redraw the road that now has this building snapped to it
+                effects
+                    .changed_roads
+                    .insert(map.get_l(sidewalk_pos.lane()).parent);
             }
             None => {
                 // TODO Not sure what to do here yet.
@@ -776,7 +778,6 @@ impl Map {
             changed_intersections: BTreeSet::new(),
             added_turns: BTreeSet::new(),
             deleted_turns: BTreeSet::new(),
-            resnapped_buildings: false,
             changed_parking_lots: BTreeSet::new(),
         };
 

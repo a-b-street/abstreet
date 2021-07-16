@@ -35,6 +35,8 @@ pub struct Options {
     pub min_zoom_for_detail: f64,
     /// Draw buildings in different perspectives
     pub camera_angle: CameraAngle,
+    /// Draw building driveways.
+    pub show_building_driveways: bool,
 
     /// When making a screen recording, enable this option to hide some UI elements
     pub minimal_controls: bool,
@@ -80,6 +82,7 @@ impl Options {
             toggle_day_night_colors: false,
             min_zoom_for_detail: 4.0,
             camera_angle: CameraAngle::TopDown,
+            show_building_driveways: true,
 
             time_increment: Duration::minutes(10),
             dont_draw_time_warp: false,
@@ -361,7 +364,6 @@ impl<A: AppLike> State<A> for OptionsPanel {
                         ctx.loading_screen("rerendering buildings", |ctx, timer| {
                             let mut all_buildings = GeomBatch::new();
                             let mut all_building_outlines = GeomBatch::new();
-                            let mut all_building_driveways = GeomBatch::new();
                             timer
                                 .start_iter("rendering buildings", app.map().all_buildings().len());
                             for b in app.map().all_buildings() {
@@ -375,18 +377,13 @@ impl<A: AppLike> State<A> for OptionsPanel {
                                     &mut all_buildings,
                                     &mut all_building_outlines,
                                 );
-                                DrawBuilding::draw_driveway(
-                                    b,
-                                    app.map(),
-                                    app.cs(),
-                                    app.opts(),
-                                    &mut all_building_driveways,
-                                );
                             }
+                            for r in &mut app.mut_draw_map().roads {
+                                r.clear_rendering();
+                            }
+
                             timer.start("upload geometry");
                             app.mut_draw_map().draw_all_buildings = all_buildings.upload(ctx);
-                            app.mut_draw_map().draw_all_building_driveways =
-                                all_building_driveways.upload(ctx);
                             app.mut_draw_map().draw_all_building_outlines =
                                 all_building_outlines.upload(ctx);
                             timer.stop("upload geometry");
@@ -411,7 +408,11 @@ impl<A: AppLike> State<A> for OptionsPanel {
                         }
                     }
 
+                    // Be careful -- there are some options not exposed by this panel, but per app.
+                    let show_building_driveways = opts.show_building_driveways;
+                    opts.show_building_driveways = true;
                     abstio::write_json(abstio::path_player("settings.json"), &opts);
+                    opts.show_building_driveways = show_building_driveways;
                     *app.mut_opts() = opts;
 
                     return widgetry::Transition::Pop;
