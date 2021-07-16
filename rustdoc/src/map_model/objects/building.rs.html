@@ -425,7 +425,7 @@
 
 <span class="doccomment">/// A building has connections to the road and sidewalk, may contain commercial amenities, and have</span>
 <span class="doccomment">/// off-street parking.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Debug</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Building</span> {
     <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">BuildingID</span>,
     <span class="kw">pub</span> <span class="ident">polygon</span>: <span class="ident">Polygon</span>,

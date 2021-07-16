@@ -205,7 +205,7 @@
     <span class="ident">RoutingParams</span>,
 };
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Pathfinder</span> {
     <span class="ident">car_graph</span>: <span class="ident">VehiclePathfinder</span>,
     <span class="ident">bike_graph</span>: <span class="ident">VehiclePathfinder</span>,

@@ -83,7 +83,7 @@
 }
 
 <span class="doccomment">/// Areas are just used for drawing.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Debug</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Area</span> {
     <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">AreaID</span>,
     <span class="kw">pub</span> <span class="ident">area_type</span>: <span class="ident">AreaType</span>,

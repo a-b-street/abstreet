@@ -159,6 +159,22 @@
 <span id="156">156</span>
 <span id="157">157</span>
 <span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
+<span id="165">165</span>
+<span id="166">166</span>
+<span id="167">167</span>
+<span id="168">168</span>
+<span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
+<span id="174">174</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std::cell::RefCell</span>;
 <span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
@@ -183,6 +199,22 @@
         <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">skip_serializing</span>, <span class="ident">skip_deserializing</span>)]</span>
         <span class="ident">path_calc</span>: <span class="ident">ThreadLocal</span><span class="op">&lt;</span><span class="ident">RefCell</span><span class="op">&lt;</span><span class="ident">PathCalculator</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     },
+}
+
+<span class="comment">// Implemented manually to deal with the ThreadLocal</span>
+<span class="kw">impl</span> <span class="ident">Clone</span> <span class="kw">for</span> <span class="ident">PathfindEngine</span> {
+    <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="kw">match</span> <span class="self">self</span> {
+            <span class="ident">PathfindEngine::Empty</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">PathfindEngine::Empty</span>,
+            <span class="ident">PathfindEngine::Dijkstra</span> { <span class="kw-2">ref</span> <span class="ident">graph</span> } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">PathfindEngine::Dijkstra</span> {
+                <span class="ident">graph</span>: <span class="ident">graph</span>.<span class="ident">clone</span>(),
+            },
+            <span class="ident">PathfindEngine::CH</span> { <span class="kw-2">ref</span> <span class="ident">graph</span>, .. } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">PathfindEngine::CH</span> {
+                <span class="ident">graph</span>: <span class="ident">graph</span>.<span class="ident">clone</span>(),
+                <span class="ident">path_calc</span>: <span class="ident">ThreadLocal::new</span>(),
+            },
+        }
+    }
 }
 
 <span class="kw">impl</span> <span class="ident">PathfindEngine</span> {

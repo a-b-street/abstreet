@@ -157,7 +157,7 @@
     <span class="kw">pub</span> <span class="ident">is_train_stop</span>: <span class="ident">bool</span>,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Debug</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">BusRoute</span> {
     <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">BusRouteID</span>,
     <span class="kw">pub</span> <span class="ident">full_name</span>: <span class="ident">String</span>,

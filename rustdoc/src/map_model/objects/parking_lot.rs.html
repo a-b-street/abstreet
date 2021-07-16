@@ -86,7 +86,7 @@
 }
 
 <span class="doccomment">/// Parking lots have some fixed capacity for cars, and are connected to a sidewalk and road.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ParkingLot</span> {
     <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">ParkingLotID</span>,
     <span class="kw">pub</span> <span class="ident">polygon</span>: <span class="ident">Polygon</span>,

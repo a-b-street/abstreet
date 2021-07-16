@@ -113,7 +113,7 @@
 
 <span class="doccomment">/// A bidirectional mapping between fast_paths NodeId and some custom ID type.</span>
 <span class="comment">// TODO Upstream this in fast_paths when this is more solid.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Serialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">NodeMap</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">Ord</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Serialize</span><span class="op">&gt;</span> {
     <span class="comment">// These two fields are redundant and large, so don&#39;t serialize the bigger one, to cut down</span>
     <span class="comment">// file size.</span>

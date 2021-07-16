@@ -625,7 +625,7 @@
 }
 
 <span class="doccomment">/// A road segment is broken down into individual lanes, which have a LaneType.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Debug</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Lane</span> {
     <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">LaneID</span>,
     <span class="kw">pub</span> <span class="ident">parent</span>: <span class="ident">RoadID</span>,

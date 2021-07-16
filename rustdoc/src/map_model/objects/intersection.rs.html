@@ -221,7 +221,7 @@
 <span class="doccomment">/// An intersection connects roads. Most have &gt;2 roads and are controlled by stop signs or traffic</span>
 <span class="doccomment">/// signals. Roads that lead to the boundary of the map end at border intersections, with only that</span>
 <span class="doccomment">/// one road attached.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Debug</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Intersection</span> {
     <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">IntersectionID</span>,
     <span class="doccomment">/// This needs to be in clockwise orientation, or later rendering of sidewalk corners breaks.</span>

@@ -354,7 +354,7 @@
     <span class="ident">PathRequest</span>, <span class="ident">PathV2</span>, <span class="ident">Position</span>, <span class="ident">RoutingParams</span>, <span class="ident">Traversable</span>, <span class="ident">TurnType</span>,
 };
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">VehiclePathfinder</span> {
     <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">deserialize_with</span> <span class="op">=</span> <span class="string">&quot;deserialize_nodemap&quot;</span>)]</span>
     <span class="ident">nodes</span>: <span class="ident">NodeMap</span><span class="op">&lt;</span><span class="ident">Node</span><span class="op">&gt;</span>,
