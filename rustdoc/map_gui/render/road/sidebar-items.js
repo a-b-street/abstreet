@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["DrawRoad",""]]});
+initSidebarItems({"fn":[["draw_building_driveway",""]],"struct":[["DrawRoad",""]]});

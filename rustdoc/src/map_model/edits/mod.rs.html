@@ -906,6 +906,9 @@
 <span id="903">903</span>
 <span id="904">904</span>
 <span id="905">905</span>
+<span id="906">906</span>
+<span id="907">907</span>
+<span id="908">908</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Once a Map exists, the player can edit it in the UI (producing `MapEdits` in-memory), then save</span>
 <span class="doccomment">//! the changes to a file (as `PermanentMapEdits`). See</span>
@@ -1048,7 +1051,6 @@
     <span class="kw">pub</span> <span class="ident">changed_intersections</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">added_turns</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">TurnID</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">deleted_turns</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">TurnID</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">resnapped_buildings</span>: <span class="ident">bool</span>,
     <span class="kw">pub</span> <span class="ident">changed_parking_lots</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">ParkingLotID</span><span class="op">&gt;</span>,
 }
 
@@ -1425,10 +1427,9 @@
     <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_buildings</span>() {
         <span class="kw">if</span> <span class="ident">modified_lanes</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">b</span>.<span class="ident">sidewalk</span>()) {
             <span class="ident">recalc_buildings</span>.<span class="ident">push</span>(<span class="ident">b</span>.<span class="ident">id</span>);
-            <span class="ident">effects</span>.<span class="ident">resnapped_buildings</span> <span class="op">=</span> <span class="bool-val">true</span>;
         }
     }
-    <span class="ident">fix_building_driveways</span>(<span class="ident">map</span>, <span class="ident">recalc_buildings</span>);
+    <span class="ident">fix_building_driveways</span>(<span class="ident">map</span>, <span class="ident">recalc_buildings</span>, <span class="ident">effects</span>);
 
     <span class="comment">// Same for parking lots</span>
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">recalc_parking_lots</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
@@ -1526,7 +1527,7 @@
 }
 
 <span class="doccomment">/// Recalculate the driveways of some buildings after map edits.</span>
-<span class="kw">fn</span> <span class="ident">fix_building_driveways</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Map</span>, <span class="ident">input</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">BuildingID</span><span class="op">&gt;</span>) {
+<span class="kw">fn</span> <span class="ident">fix_building_driveways</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Map</span>, <span class="ident">input</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">BuildingID</span><span class="op">&gt;</span>, <span class="ident">effects</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EditEffects</span>) {
     <span class="comment">// TODO Copying from make/buildings.rs</span>
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">center_per_bldg</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">BuildingID</span>, <span class="ident">HashablePt2D</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">BTreeMap::new</span>();
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">query</span>: <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">HashablePt2D</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">HashSet::new</span>();
@@ -1558,6 +1559,10 @@
                 <span class="kw">let</span> <span class="ident">b</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">map</span>.<span class="ident">buildings</span>[<span class="ident">id</span>.<span class="number">0</span>];
                 <span class="ident">b</span>.<span class="ident">sidewalk_pos</span> <span class="op">=</span> <span class="ident">sidewalk_pos</span>;
                 <span class="ident">b</span>.<span class="ident">driveway_geom</span> <span class="op">=</span> <span class="ident">driveway_geom</span>.<span class="ident">to_polyline</span>();
+                <span class="comment">// We may need to redraw the road that now has this building snapped to it</span>
+                <span class="ident">effects</span>
+                    .<span class="ident">changed_roads</span>
+                    .<span class="ident">insert</span>(<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">sidewalk_pos</span>.<span class="ident">lane</span>()).<span class="ident">parent</span>);
             }
             <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="comment">// TODO Not sure what to do here yet.</span>
@@ -1685,7 +1690,6 @@
             <span class="ident">changed_intersections</span>: <span class="ident">BTreeSet::new</span>(),
             <span class="ident">added_turns</span>: <span class="ident">BTreeSet::new</span>(),
             <span class="ident">deleted_turns</span>: <span class="ident">BTreeSet::new</span>(),
-            <span class="ident">resnapped_buildings</span>: <span class="bool-val">false</span>,
             <span class="ident">changed_parking_lots</span>: <span class="ident">BTreeSet::new</span>(),
         };
 
@@ -1770,6 +1774,8 @@
         <span class="ident">effects</span>
             .<span class="ident">changed_intersections</span>
             .<span class="ident">extend</span>(<span class="ident">more_changed_intersections</span>);
+
+        <span class="self">self</span>.<span class="ident">recalculate_road_to_buildings</span>();
 
         <span class="ident">effects</span>
     }

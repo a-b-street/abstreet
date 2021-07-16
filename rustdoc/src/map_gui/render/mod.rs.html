@@ -116,9 +116,6 @@
 <span id="113">113</span>
 <span id="114">114</span>
 <span id="115">115</span>
-<span id="116">116</span>
-<span id="117">117</span>
-<span id="118">118</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Render static and dynamic map elements.</span>
 
@@ -200,8 +197,6 @@
     <span class="kw">pub</span> <span class="ident">suppress_traffic_signal_details</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span>,
     <span class="doccomment">/// Label every building.</span>
     <span class="kw">pub</span> <span class="ident">label_buildings</span>: <span class="ident">bool</span>,
-    <span class="doccomment">/// Draw building driveways.</span>
-    <span class="kw">pub</span> <span class="ident">show_building_driveways</span>: <span class="ident">bool</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">DrawOptions</span> {
@@ -210,7 +205,6 @@
         <span class="ident">DrawOptions</span> {
             <span class="ident">suppress_traffic_signal_details</span>: <span class="ident">Vec::new</span>(),
             <span class="ident">label_buildings</span>: <span class="bool-val">false</span>,
-            <span class="ident">show_building_driveways</span>: <span class="bool-val">true</span>,
         }
     }
 }

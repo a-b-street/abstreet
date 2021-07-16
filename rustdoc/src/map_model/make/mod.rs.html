@@ -464,6 +464,7 @@
 <span id="461">461</span>
 <span id="462">462</span>
 <span id="463">463</span>
+<span id="464">464</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! See &lt;https://a-b-street.github.io/docs/tech/map/importing/index.html&gt; for an overview. This module</span>
 <span class="doccomment">//! covers the RawMap-&gt;Map stage.</span>
@@ -471,7 +472,7 @@
 <span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
 <span class="kw">use</span> <span class="ident">abstio::MapName</span>;
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">Tags</span>, <span class="ident">Timer</span>};
+<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">MultiMap</span>, <span class="ident">Tags</span>, <span class="ident">Timer</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{
     <span class="ident">Bounds</span>, <span class="ident">Distance</span>, <span class="ident">FindClosest</span>, <span class="ident">GPSBounds</span>, <span class="ident">HashablePt2D</span>, <span class="ident">Line</span>, <span class="ident">Polygon</span>, <span class="ident">Speed</span>, <span class="ident">EPSILON_DIST</span>,
 };
@@ -562,6 +563,7 @@
             <span class="ident">routing_params</span>: <span class="ident">RoutingParams::default</span>(),
             <span class="ident">name</span>: <span class="ident">raw</span>.<span class="ident">name</span>.<span class="ident">clone</span>(),
             <span class="ident">edits</span>: <span class="ident">MapEdits::new</span>(),
+            <span class="ident">road_to_buildings</span>: <span class="ident">MultiMap::new</span>(),
         };
         <span class="ident">map</span>.<span class="ident">edits</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">new_edits</span>();
 
