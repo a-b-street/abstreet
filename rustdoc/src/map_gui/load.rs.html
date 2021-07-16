@@ -552,155 +552,6 @@
 <span id="549">549</span>
 <span id="550">550</span>
 <span id="551">551</span>
-<span id="552">552</span>
-<span id="553">553</span>
-<span id="554">554</span>
-<span id="555">555</span>
-<span id="556">556</span>
-<span id="557">557</span>
-<span id="558">558</span>
-<span id="559">559</span>
-<span id="560">560</span>
-<span id="561">561</span>
-<span id="562">562</span>
-<span id="563">563</span>
-<span id="564">564</span>
-<span id="565">565</span>
-<span id="566">566</span>
-<span id="567">567</span>
-<span id="568">568</span>
-<span id="569">569</span>
-<span id="570">570</span>
-<span id="571">571</span>
-<span id="572">572</span>
-<span id="573">573</span>
-<span id="574">574</span>
-<span id="575">575</span>
-<span id="576">576</span>
-<span id="577">577</span>
-<span id="578">578</span>
-<span id="579">579</span>
-<span id="580">580</span>
-<span id="581">581</span>
-<span id="582">582</span>
-<span id="583">583</span>
-<span id="584">584</span>
-<span id="585">585</span>
-<span id="586">586</span>
-<span id="587">587</span>
-<span id="588">588</span>
-<span id="589">589</span>
-<span id="590">590</span>
-<span id="591">591</span>
-<span id="592">592</span>
-<span id="593">593</span>
-<span id="594">594</span>
-<span id="595">595</span>
-<span id="596">596</span>
-<span id="597">597</span>
-<span id="598">598</span>
-<span id="599">599</span>
-<span id="600">600</span>
-<span id="601">601</span>
-<span id="602">602</span>
-<span id="603">603</span>
-<span id="604">604</span>
-<span id="605">605</span>
-<span id="606">606</span>
-<span id="607">607</span>
-<span id="608">608</span>
-<span id="609">609</span>
-<span id="610">610</span>
-<span id="611">611</span>
-<span id="612">612</span>
-<span id="613">613</span>
-<span id="614">614</span>
-<span id="615">615</span>
-<span id="616">616</span>
-<span id="617">617</span>
-<span id="618">618</span>
-<span id="619">619</span>
-<span id="620">620</span>
-<span id="621">621</span>
-<span id="622">622</span>
-<span id="623">623</span>
-<span id="624">624</span>
-<span id="625">625</span>
-<span id="626">626</span>
-<span id="627">627</span>
-<span id="628">628</span>
-<span id="629">629</span>
-<span id="630">630</span>
-<span id="631">631</span>
-<span id="632">632</span>
-<span id="633">633</span>
-<span id="634">634</span>
-<span id="635">635</span>
-<span id="636">636</span>
-<span id="637">637</span>
-<span id="638">638</span>
-<span id="639">639</span>
-<span id="640">640</span>
-<span id="641">641</span>
-<span id="642">642</span>
-<span id="643">643</span>
-<span id="644">644</span>
-<span id="645">645</span>
-<span id="646">646</span>
-<span id="647">647</span>
-<span id="648">648</span>
-<span id="649">649</span>
-<span id="650">650</span>
-<span id="651">651</span>
-<span id="652">652</span>
-<span id="653">653</span>
-<span id="654">654</span>
-<span id="655">655</span>
-<span id="656">656</span>
-<span id="657">657</span>
-<span id="658">658</span>
-<span id="659">659</span>
-<span id="660">660</span>
-<span id="661">661</span>
-<span id="662">662</span>
-<span id="663">663</span>
-<span id="664">664</span>
-<span id="665">665</span>
-<span id="666">666</span>
-<span id="667">667</span>
-<span id="668">668</span>
-<span id="669">669</span>
-<span id="670">670</span>
-<span id="671">671</span>
-<span id="672">672</span>
-<span id="673">673</span>
-<span id="674">674</span>
-<span id="675">675</span>
-<span id="676">676</span>
-<span id="677">677</span>
-<span id="678">678</span>
-<span id="679">679</span>
-<span id="680">680</span>
-<span id="681">681</span>
-<span id="682">682</span>
-<span id="683">683</span>
-<span id="684">684</span>
-<span id="685">685</span>
-<span id="686">686</span>
-<span id="687">687</span>
-<span id="688">688</span>
-<span id="689">689</span>
-<span id="690">690</span>
-<span id="691">691</span>
-<span id="692">692</span>
-<span id="693">693</span>
-<span id="694">694</span>
-<span id="695">695</span>
-<span id="696">696</span>
-<span id="697">697</span>
-<span id="698">698</span>
-<span id="699">699</span>
-<span id="700">700</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Loading large resources (like maps, scenarios, and prebaked data) requires different strategies</span>
 <span class="doccomment">//! on native and web. Both cases are wrapped up as a State that runs a callback when done.</span>
@@ -724,10 +575,10 @@
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::AppLike</span>;
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>))]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">native_loader</span>::{<span class="ident">FileLoader</span>, <span class="ident">RawFileLoader</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">native_loader::FileLoader</span>;
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">wasm_loader</span>::{<span class="ident">FileLoader</span>, <span class="ident">RawFileLoader</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">wasm_loader::FileLoader</span>;
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MapLoader</span>;
 
@@ -761,12 +612,12 @@
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
         } {
             <span class="kw">if</span> <span class="op">!</span><span class="ident">ctx</span>.<span class="ident">is_font_loaded</span>(<span class="ident">extra_font</span>) {
-                <span class="kw">return</span> <span class="ident">RawFileLoader</span>::<span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="ident">::new_state</span>(
+                <span class="kw">return</span> <span class="ident">FileLoader</span>::<span class="op">&lt;</span><span class="ident">A</span>, <span class="ident">RawBytes</span><span class="op">&gt;</span><span class="ident">::new_state</span>(
                     <span class="ident">ctx</span>,
                     <span class="ident">abstio::path</span>(<span class="macro">format!</span>(<span class="string">&quot;system/extra_fonts/{}&quot;</span>, <span class="ident">extra_font</span>)),
-                    <span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">bytes</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">bytes</span> {
+                    <span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw">_</span>, <span class="ident">bytes</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">bytes</span> {
                         <span class="prelude-val">Ok</span>(<span class="ident">bytes</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                            <span class="ident">ctx</span>.<span class="ident">load_font</span>(<span class="ident">extra_font</span>, <span class="ident">bytes</span>);
+                            <span class="ident">ctx</span>.<span class="ident">load_font</span>(<span class="ident">extra_font</span>, <span class="ident">bytes</span>.<span class="number">0</span>);
                             <span class="ident">Transition::Replace</span>(<span class="ident">MapLoader::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">name</span>, <span class="ident">on_load</span>))
                         }
                         <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition::Replace</span>(<span class="ident">PopupMsg::new_state</span>(
@@ -816,11 +667,20 @@
     <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">A</span>) {}
 }
 
+<span class="comment">// Use this with FileLoader to just read raw bytes without any deserialization.</span>
+<span class="kw">struct</span> <span class="ident">RawBytes</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>);
+
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>))]</span>
 <span class="kw">mod</span> <span class="ident">native_loader</span> {
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
 
-    <span class="doccomment">/// Loads a JSON or bincoded file, then deserializes it</span>
+    <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Readable</span> {
+        <span class="kw">fn</span> <span class="ident">read_file</span>(<span class="ident">path</span>: <span class="ident">String</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>
+        <span class="kw">where</span>
+            <span class="self">Self</span>: <span class="ident">Sized</span>;
+    }
+
+    <span class="doccomment">/// Loads a JSON, bincoded, or raw file, then deserializes it</span>
     <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">FileLoader</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">AppLike</span>, <span class="ident">T</span><span class="op">&gt;</span> {
         <span class="ident">path</span>: <span class="ident">String</span>,
         <span class="comment">// Wrapped in an Option just to make calling from event() work. Technically this is unsafe</span>
@@ -829,7 +689,7 @@
             <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     }
 
-    <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">AppLike</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>, <span class="ident">T</span>: <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">DeserializeOwned</span><span class="op">&gt;</span> <span class="ident">FileLoader</span><span class="op">&lt;</span><span class="ident">A</span>, <span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">AppLike</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>, <span class="ident">T</span>: <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">Readable</span><span class="op">&gt;</span> <span class="ident">FileLoader</span><span class="op">&lt;</span><span class="ident">A</span>, <span class="ident">T</span><span class="op">&gt;</span> {
         <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(
             <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
             <span class="ident">path</span>: <span class="ident">String</span>,
@@ -842,11 +702,11 @@
         }
     }
 
-    <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">AppLike</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>, <span class="ident">T</span>: <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">DeserializeOwned</span><span class="op">&gt;</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">FileLoader</span><span class="op">&lt;</span><span class="ident">A</span>, <span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">AppLike</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>, <span class="ident">T</span>: <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">Readable</span><span class="op">&gt;</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">FileLoader</span><span class="op">&lt;</span><span class="ident">A</span>, <span class="ident">T</span><span class="op">&gt;</span> {
         <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> {
             <span class="macro">debug!</span>(<span class="string">&quot;Loading {}&quot;</span>, <span class="self">self</span>.<span class="ident">path</span>);
             <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="macro">format!</span>(<span class="string">&quot;load {}&quot;</span>, <span class="self">self</span>.<span class="ident">path</span>), <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">timer</span><span class="op">|</span> {
-                <span class="kw">let</span> <span class="ident">file</span> <span class="op">=</span> <span class="ident">abstio::read_object</span>(<span class="self">self</span>.<span class="ident">path</span>.<span class="ident">clone</span>(), <span class="ident">timer</span>);
+                <span class="kw">let</span> <span class="ident">file</span> <span class="op">=</span> <span class="ident">T::read_file</span>(<span class="self">self</span>.<span class="ident">path</span>.<span class="ident">clone</span>(), <span class="ident">timer</span>);
                 (<span class="self">self</span>.<span class="ident">on_load</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>())(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">timer</span>, <span class="ident">file</span>)
             })
         }
@@ -856,38 +716,15 @@
         }
     }
 
-    <span class="doccomment">/// Loads a file without deserializing it.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// TODO Ideally merge with FileLoader</span>
-    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RawFileLoader</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">AppLike</span><span class="op">&gt;</span> {
-        <span class="ident">path</span>: <span class="ident">String</span>,
-        <span class="comment">// Wrapped in an Option just to make calling from event() work. Technically this is unsafe</span>
-        <span class="comment">// if a caller fails to pop the FileLoader state in their transitions!</span>
-        <span class="ident">on_load</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    }
-
-    <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">AppLike</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span> <span class="ident">RawFileLoader</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> {
-        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(
-            <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
-            <span class="ident">path</span>: <span class="ident">String</span>,
-            <span class="ident">on_load</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-        ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-            <span class="ident">Box::new</span>(<span class="ident">RawFileLoader</span> {
-                <span class="ident">path</span>,
-                <span class="ident">on_load</span>: <span class="prelude-val">Some</span>(<span class="ident">on_load</span>),
-            })
+    <span class="comment">// Two implementations for reading the file, using serde or just raw bytes</span>
+    <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">DeserializeOwned</span><span class="op">&gt;</span> <span class="ident">Readable</span> <span class="kw">for</span> <span class="ident">T</span> {
+        <span class="kw">fn</span> <span class="ident">read_file</span>(<span class="ident">path</span>: <span class="ident">String</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+            <span class="ident">abstio::read_object</span>(<span class="ident">path</span>.<span class="ident">clone</span>(), <span class="ident">timer</span>)
         }
     }
-
-    <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">AppLike</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">RawFileLoader</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> {
-        <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> {
-            <span class="macro">debug!</span>(<span class="string">&quot;Loading {}&quot;</span>, <span class="self">self</span>.<span class="ident">path</span>);
-            <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">abstio::slurp_file</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">path</span>);
-            (<span class="self">self</span>.<span class="ident">on_load</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>())(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">bytes</span>)
-        }
-
-        <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">A</span>) {
-            <span class="ident">g</span>.<span class="ident">clear</span>(<span class="ident">Color::BLACK</span>);
+    <span class="kw">impl</span> <span class="ident">Readable</span> <span class="kw">for</span> <span class="ident">RawBytes</span> {
+        <span class="kw">fn</span> <span class="ident">read_file</span>(<span class="ident">path</span>: <span class="ident">String</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">RawBytes</span><span class="op">&gt;</span> {
+            <span class="ident">abstio::slurp_file</span>(<span class="ident">path</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">bytes</span><span class="op">|</span> <span class="ident">RawBytes</span>(<span class="ident">bytes</span>))
         }
     }
 }
@@ -906,7 +743,13 @@
 
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
 
-    <span class="doccomment">/// Loads a JSON or bincoded file, then deserializes it</span>
+    <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Readable</span> {
+        <span class="kw">fn</span> <span class="ident">read_url</span>(<span class="ident">url</span>: <span class="ident">String</span>, <span class="ident">resp</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span>
+        <span class="kw">where</span>
+            <span class="self">Self</span>: <span class="ident">Sized</span>;
+    }
+
+    <span class="doccomment">/// Loads a JSON, bincoded, or raw file, then deserializes it</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Instead of blockingly reading a file within ctx.loading_screen, on the web have to</span>
     <span class="doccomment">/// asynchronously make an HTTP request and keep &quot;polling&quot; for completion in a way that&#39;s</span>
@@ -925,7 +768,7 @@
         <span class="ident">got_read_bytes</span>: <span class="ident">mpsc::Receiver</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>,
     }
 
-    <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">AppLike</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>, <span class="ident">T</span>: <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">DeserializeOwned</span><span class="op">&gt;</span> <span class="ident">FileLoader</span><span class="op">&lt;</span><span class="ident">A</span>, <span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">AppLike</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>, <span class="ident">T</span>: <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">Readable</span><span class="op">&gt;</span> <span class="ident">FileLoader</span><span class="op">&lt;</span><span class="ident">A</span>, <span class="ident">T</span><span class="op">&gt;</span> {
         <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(
             <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
             <span class="ident">path</span>: <span class="ident">String</span>,
@@ -1012,7 +855,7 @@
         }
     }
 
-    <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">AppLike</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>, <span class="ident">T</span>: <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">DeserializeOwned</span><span class="op">&gt;</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">FileLoader</span><span class="op">&lt;</span><span class="ident">A</span>, <span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">AppLike</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>, <span class="ident">T</span>: <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">Readable</span><span class="op">&gt;</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">FileLoader</span><span class="op">&lt;</span><span class="ident">A</span>, <span class="ident">T</span><span class="op">&gt;</span> {
         <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> {
             <span class="kw">if</span> <span class="self">self</span>.<span class="ident">total_bytes</span>.<span class="ident">is_none</span>() {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">total</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">got_total_bytes</span>.<span class="ident">try_recv</span>() {
@@ -1028,20 +871,7 @@
                 <span class="comment">// while. Any way to make it still be nonblockingish? Maybe put some of the work</span>
                 <span class="comment">// inside that spawn_local?</span>
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">timer</span> <span class="op">=</span> <span class="ident">Timer::new</span>(<span class="macro">format!</span>(<span class="string">&quot;Loading {}...&quot;</span>, <span class="self">self</span>.<span class="ident">url</span>));
-                <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">maybe_resp</span>.<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">resp</span><span class="op">|</span> {
-                    <span class="kw">if</span> <span class="self">self</span>.<span class="ident">url</span>.<span class="ident">ends_with</span>(<span class="string">&quot;.gz&quot;</span>) {
-                        <span class="kw">let</span> <span class="ident">decoder</span> <span class="op">=</span> <span class="ident">flate2::read::GzDecoder::new</span>(<span class="kw-2">&amp;</span><span class="ident">resp</span>[..]);
-                        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">url</span>.<span class="ident">ends_with</span>(<span class="string">&quot;.bin.gz&quot;</span>) {
-                            <span class="ident">abstutil::from_binary_reader</span>(<span class="ident">decoder</span>)
-                        } <span class="kw">else</span> {
-                            <span class="ident">abstutil::from_json_reader</span>(<span class="ident">decoder</span>)
-                        }
-                    } <span class="kw">else</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">url</span>.<span class="ident">ends_with</span>(<span class="string">&quot;.bin&quot;</span>) {
-                        <span class="ident">abstutil::from_binary</span>(<span class="op">&amp;&amp;</span><span class="ident">resp</span>)
-                    } <span class="kw">else</span> {
-                        <span class="ident">abstutil::from_json</span>(<span class="op">&amp;&amp;</span><span class="ident">resp</span>)
-                    }
-                });
+                <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">maybe_resp</span>.<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">resp</span><span class="op">|</span> <span class="ident">T::read_url</span>(<span class="self">self</span>.<span class="ident">url</span>.<span class="ident">clone</span>(), <span class="ident">resp</span>));
                 <span class="kw">return</span> (<span class="self">self</span>.<span class="ident">on_load</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>())(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>, <span class="ident">result</span>);
             }
 
@@ -1074,163 +904,35 @@
         }
     }
 
-    <span class="doccomment">/// This loads a file without deserializing it.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// TODO This is a horrible copy of FileLoader. Make the serde FileLoader just build on top of</span>
-    <span class="doccomment">/// this one!!!</span>
-    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RawFileLoader</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">AppLike</span><span class="op">&gt;</span> {
-        <span class="ident">response</span>: <span class="ident">oneshot::Receiver</span><span class="op">&lt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-        <span class="ident">on_load</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-        <span class="ident">panel</span>: <span class="ident">Panel</span>,
-        <span class="ident">started</span>: <span class="ident">Instant</span>,
-        <span class="ident">url</span>: <span class="ident">String</span>,
-
-        <span class="ident">total_bytes</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>,
-        <span class="ident">read_bytes</span>: <span class="ident">usize</span>,
-        <span class="ident">got_total_bytes</span>: <span class="ident">oneshot::Receiver</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>,
-        <span class="ident">got_read_bytes</span>: <span class="ident">mpsc::Receiver</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>,
-    }
-
-    <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">AppLike</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span> <span class="ident">RawFileLoader</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> {
-        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(
-            <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
-            <span class="ident">path</span>: <span class="ident">String</span>,
-            <span class="ident">on_load</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-        ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-            <span class="kw">let</span> <span class="ident">base_url</span> <span class="op">=</span> <span class="ident">ctx</span>
-                .<span class="ident">prerender</span>
-                .<span class="ident">assets_base_url</span>()
-                .<span class="ident">expect</span>(<span class="string">&quot;assets_base_url must be specified for wasm builds via `Settings`&quot;</span>);
-
-            <span class="comment">// Note that files are gzipped on S3 and other deployments. When running locally, we</span>
-            <span class="comment">// just symlink the data/ directory, where files aren&#39;t compressed.</span>
-            <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">prerender</span>.<span class="ident">assets_are_gzipped</span>() {
-                <span class="macro">format!</span>(<span class="string">&quot;{}/{}.gz&quot;</span>, <span class="ident">base_url</span>, <span class="ident">path</span>)
-            } <span class="kw">else</span> {
-                <span class="macro">format!</span>(<span class="string">&quot;{}/{}&quot;</span>, <span class="ident">base_url</span>, <span class="ident">path</span>)
-            };
-
-            <span class="comment">// Make the HTTP request nonblockingly. When the response is received, send it through</span>
-            <span class="comment">// the channel.</span>
-            <span class="kw">let</span> (<span class="ident">tx</span>, <span class="ident">rx</span>) <span class="op">=</span> <span class="ident">oneshot::channel</span>();
-            <span class="kw">let</span> (<span class="ident">tx_total_bytes</span>, <span class="ident">got_total_bytes</span>) <span class="op">=</span> <span class="ident">oneshot::channel</span>();
-            <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">tx_read_bytes</span>, <span class="ident">got_read_bytes</span>) <span class="op">=</span> <span class="ident">mpsc::channel</span>(<span class="number">10</span>);
-            <span class="kw">let</span> <span class="ident">url_copy</span> <span class="op">=</span> <span class="ident">url</span>.<span class="ident">clone</span>();
-            <span class="macro">debug!</span>(<span class="string">&quot;Loading {}&quot;</span>, <span class="ident">url_copy</span>);
-            <span class="ident">wasm_bindgen_futures::spawn_local</span>(<span class="kw">async</span> <span class="kw">move</span> {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">opts</span> <span class="op">=</span> <span class="ident">RequestInit::new</span>();
-                <span class="ident">opts</span>.<span class="ident">method</span>(<span class="string">&quot;GET&quot;</span>);
-                <span class="ident">opts</span>.<span class="ident">mode</span>(<span class="ident">RequestMode::Cors</span>);
-                <span class="kw">let</span> <span class="ident">request</span> <span class="op">=</span> <span class="ident">Request::new_with_str_and_init</span>(<span class="kw-2">&amp;</span><span class="ident">url_copy</span>, <span class="kw-2">&amp;</span><span class="ident">opts</span>).<span class="ident">unwrap</span>();
-
-                <span class="kw">let</span> <span class="ident">window</span> <span class="op">=</span> <span class="ident">web_sys::window</span>().<span class="ident">unwrap</span>();
-                <span class="kw">match</span> <span class="ident">JsFuture::from</span>(<span class="ident">window</span>.<span class="ident">fetch_with_request</span>(<span class="kw-2">&amp;</span><span class="ident">request</span>)).<span class="kw">await</span> {
-                    <span class="prelude-val">Ok</span>(<span class="ident">resp_value</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                        <span class="kw">let</span> <span class="ident">resp</span>: <span class="ident">Response</span> <span class="op">=</span> <span class="ident">resp_value</span>.<span class="ident">dyn_into</span>().<span class="ident">unwrap</span>();
-                        <span class="kw">if</span> <span class="ident">resp</span>.<span class="ident">ok</span>() {
-                            <span class="kw">let</span> <span class="ident">total_bytes</span> <span class="op">=</span> <span class="ident">resp</span>
-                                .<span class="ident">headers</span>()
-                                .<span class="ident">get</span>(<span class="string">&quot;Content-Length&quot;</span>)
-                                .<span class="ident">unwrap</span>()
-                                .<span class="ident">unwrap</span>()
-                                .<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>()
-                                .<span class="ident">unwrap</span>();
-                            <span class="ident">tx_total_bytes</span>.<span class="ident">send</span>(<span class="ident">total_bytes</span>).<span class="ident">unwrap</span>();
-
-                            <span class="kw">let</span> <span class="ident">raw_body</span> <span class="op">=</span> <span class="ident">resp</span>.<span class="ident">body</span>().<span class="ident">unwrap_throw</span>();
-                            <span class="kw">let</span> <span class="ident">body</span> <span class="op">=</span> <span class="ident">ReadableStream::from_raw</span>(<span class="ident">raw_body</span>.<span class="ident">dyn_into</span>().<span class="ident">unwrap_throw</span>());
-                            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stream</span> <span class="op">=</span> <span class="ident">body</span>.<span class="ident">into_stream</span>();
-                            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buffer</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-                            <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="prelude-val">Ok</span>(<span class="ident">chunk</span>)) <span class="op">=</span> <span class="ident">stream</span>.<span class="ident">next</span>().<span class="kw">await</span> {
-                                <span class="kw">let</span> <span class="ident">array</span> <span class="op">=</span> <span class="ident">js_sys::Uint8Array::new</span>(<span class="kw-2">&amp;</span><span class="ident">chunk</span>);
-                                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span>
-                                    <span class="ident">tx_read_bytes</span>.<span class="ident">try_send</span>(<span class="ident">array</span>.<span class="ident">byte_length</span>() <span class="kw">as</span> <span class="ident">usize</span>)
-                                {
-                                    <span class="macro">warn!</span>(<span class="string">&quot;Couldn&#39;t send update on bytes: {}&quot;</span>, <span class="ident">err</span>);
-                                }
-                                <span class="comment">// TODO Can we avoid this clone?</span>
-                                <span class="ident">buffer</span>.<span class="ident">extend</span>(<span class="ident">array</span>.<span class="ident">to_vec</span>());
-                            }
-                            <span class="ident">tx</span>.<span class="ident">send</span>(<span class="prelude-val">Ok</span>(<span class="ident">buffer</span>)).<span class="ident">unwrap</span>();
-                        } <span class="kw">else</span> {
-                            <span class="kw">let</span> <span class="ident">status</span> <span class="op">=</span> <span class="ident">resp</span>.<span class="ident">status</span>();
-                            <span class="kw">let</span> <span class="ident">err</span> <span class="op">=</span> <span class="ident">resp</span>.<span class="ident">status_text</span>();
-                            <span class="ident">tx</span>.<span class="ident">send</span>(<span class="prelude-val">Err</span>(<span class="macro">anyhow!</span>(<span class="string">&quot;HTTP {}: {}&quot;</span>, <span class="ident">status</span>, <span class="ident">err</span>))).<span class="ident">unwrap</span>();
-                        }
-                    }
-                    <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                        <span class="ident">tx</span>.<span class="ident">send</span>(<span class="prelude-val">Err</span>(<span class="macro">anyhow!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">err</span>))).<span class="ident">unwrap</span>();
-                    }
-                }
-            });
-
-            <span class="ident">Box::new</span>(<span class="ident">RawFileLoader</span> {
-                <span class="ident">response</span>: <span class="ident">rx</span>,
-                <span class="ident">on_load</span>: <span class="prelude-val">Some</span>(<span class="ident">on_load</span>),
-                <span class="ident">panel</span>: <span class="ident">ctx</span>.<span class="ident">make_loading_screen</span>(<span class="ident">Text::from</span>(<span class="macro">format!</span>(<span class="string">&quot;Loading {}...&quot;</span>, <span class="ident">url</span>))),
-                <span class="ident">started</span>: <span class="ident">Instant::now</span>(),
-                <span class="ident">url</span>,
-                <span class="ident">total_bytes</span>: <span class="prelude-val">None</span>,
-                <span class="ident">read_bytes</span>: <span class="number">0</span>,
-                <span class="ident">got_total_bytes</span>,
-                <span class="ident">got_read_bytes</span>,
-            })
-        }
-    }
-
-    <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">AppLike</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">RawFileLoader</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> {
-        <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> {
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">total_bytes</span>.<span class="ident">is_none</span>() {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">total</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">got_total_bytes</span>.<span class="ident">try_recv</span>() {
-                    <span class="self">self</span>.<span class="ident">total_bytes</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">total</span>);
-                }
-            }
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">read</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">got_read_bytes</span>.<span class="ident">try_next</span>().<span class="ident">ok</span>().<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">value</span><span class="op">|</span> <span class="ident">value</span>) {
-                <span class="self">self</span>.<span class="ident">read_bytes</span> <span class="op">+</span><span class="op">=</span> <span class="ident">read</span>;
-            }
-
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">maybe_resp</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">response</span>.<span class="ident">try_recv</span>().<span class="ident">unwrap</span>() {
-                <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">url</span>.<span class="ident">ends_with</span>(<span class="string">&quot;.gz&quot;</span>) {
-                    <span class="ident">maybe_resp</span>.<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">gzipped</span><span class="op">|</span> {
-                        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">decoder</span> <span class="op">=</span> <span class="ident">flate2::read::GzDecoder::new</span>(<span class="kw-2">&amp;</span><span class="ident">gzipped</span>[..]);
-                        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buffer</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-                        <span class="ident">decoder</span>
-                            .<span class="ident">read_to_end</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buffer</span>)
-                            .<span class="ident">map</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">buffer</span>)
-                            .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">err</span>.<span class="ident">into</span>())
-                    })
+    <span class="comment">// Two implementations for reading the file, using serde or just raw bytes</span>
+    <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">DeserializeOwned</span><span class="op">&gt;</span> <span class="ident">Readable</span> <span class="kw">for</span> <span class="ident">T</span> {
+        <span class="kw">fn</span> <span class="ident">read_url</span>(<span class="ident">url</span>: <span class="ident">String</span>, <span class="ident">resp</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+            <span class="kw">if</span> <span class="ident">url</span>.<span class="ident">ends_with</span>(<span class="string">&quot;.gz&quot;</span>) {
+                <span class="kw">let</span> <span class="ident">decoder</span> <span class="op">=</span> <span class="ident">flate2::read::GzDecoder::new</span>(<span class="kw-2">&amp;</span><span class="ident">resp</span>[..]);
+                <span class="kw">if</span> <span class="ident">url</span>.<span class="ident">ends_with</span>(<span class="string">&quot;.bin.gz&quot;</span>) {
+                    <span class="ident">abstutil::from_binary_reader</span>(<span class="ident">decoder</span>)
                 } <span class="kw">else</span> {
-                    <span class="ident">maybe_resp</span>
-                };
-                <span class="kw">return</span> (<span class="self">self</span>.<span class="ident">on_load</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>())(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">bytes</span>);
+                    <span class="ident">abstutil::from_json_reader</span>(<span class="ident">decoder</span>)
+                }
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">url</span>.<span class="ident">ends_with</span>(<span class="string">&quot;.bin&quot;</span>) {
+                <span class="ident">abstutil::from_binary</span>(<span class="op">&amp;&amp;</span><span class="ident">resp</span>)
+            } <span class="kw">else</span> {
+                <span class="ident">abstutil::from_json</span>(<span class="op">&amp;&amp;</span><span class="ident">resp</span>)
             }
-
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lines</span> <span class="op">=</span> <span class="macro">vec!</span>[
-                <span class="ident">Line</span>(<span class="macro">format!</span>(<span class="string">&quot;Loading {}...&quot;</span>, <span class="self">self</span>.<span class="ident">url</span>)),
-                <span class="ident">Line</span>(<span class="macro">format!</span>(
-                    <span class="string">&quot;Time spent: {}&quot;</span>,
-                    <span class="ident">Duration::realtime_elapsed</span>(<span class="self">self</span>.<span class="ident">started</span>)
-                )),
-            ];
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">total</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">total_bytes</span> {
-                <span class="ident">lines</span>.<span class="ident">push</span>(<span class="ident">Line</span>(<span class="macro">format!</span>(
-                    <span class="string">&quot;Read {} / {} bytes&quot;</span>,
-                    <span class="ident">prettyprint_usize</span>(<span class="self">self</span>.<span class="ident">read_bytes</span>),
-                    <span class="ident">prettyprint_usize</span>(<span class="ident">total</span>)
-                )));
-            }
-            <span class="self">self</span>.<span class="ident">panel</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">make_loading_screen</span>(<span class="ident">Text::from_multiline</span>(<span class="ident">lines</span>));
-
-            <span class="comment">// Until the response is received, just ask winit to regularly call event(), so we can</span>
-            <span class="comment">// keep polling the channel.</span>
-            <span class="ident">ctx</span>.<span class="ident">request_update</span>(<span class="ident">UpdateType::Game</span>);
-            <span class="ident">Transition::Keep</span>
         }
-
-        <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">A</span>) {
-            <span class="comment">// TODO Progress bar for bytes received</span>
-            <span class="ident">g</span>.<span class="ident">clear</span>(<span class="ident">Color::BLACK</span>);
-            <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
+    }
+    <span class="kw">impl</span> <span class="ident">Readable</span> <span class="kw">for</span> <span class="ident">RawBytes</span> {
+        <span class="kw">fn</span> <span class="ident">read_url</span>(<span class="ident">url</span>: <span class="ident">String</span>, <span class="ident">resp</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">RawBytes</span><span class="op">&gt;</span> {
+            <span class="kw">if</span> <span class="ident">url</span>.<span class="ident">ends_with</span>(<span class="string">&quot;.gz&quot;</span>) {
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">decoder</span> <span class="op">=</span> <span class="ident">flate2::read::GzDecoder::new</span>(<span class="kw-2">&amp;</span><span class="ident">resp</span>[..]);
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buffer</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+                <span class="ident">decoder</span>
+                    .<span class="ident">read_to_end</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">buffer</span>)
+                    .<span class="ident">map</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">RawBytes</span>(<span class="ident">buffer</span>))
+                    .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">err</span>.<span class="ident">into</span>())
+            } <span class="kw">else</span> {
+                <span class="prelude-val">Ok</span>(<span class="ident">RawBytes</span>(<span class="ident">resp</span>))
+            }
         }
     }
 }
