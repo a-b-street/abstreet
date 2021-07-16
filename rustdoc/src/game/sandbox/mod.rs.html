@@ -1049,7 +1049,7 @@
                     <span class="kw">if</span> <span class="op">!</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_turns_from_lane</span>(<span class="ident">l</span>).<span class="ident">is_empty</span>() {
                         <span class="ident">actions</span>.<span class="ident">push</span>((<span class="ident">Key::Z</span>, <span class="string">&quot;explore turns from this lane&quot;</span>.<span class="ident">to_string</span>()));
                     }
-                    <span class="kw">if</span> <span class="ident">can_edit_lane</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">gameplay</span>, <span class="ident">l</span>, <span class="ident">app</span>) {
+                    <span class="kw">if</span> <span class="self">self</span>.<span class="ident">gameplay</span>.<span class="ident">can_edit_roads</span>() <span class="op">&amp;&amp;</span> <span class="ident">can_edit_lane</span>(<span class="ident">app</span>, <span class="ident">l</span>) {
                         <span class="ident">actions</span>.<span class="ident">push</span>((<span class="ident">Key::E</span>, <span class="string">&quot;edit lane&quot;</span>.<span class="ident">to_string</span>()));
                     }
                 }
