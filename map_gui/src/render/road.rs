@@ -1,8 +1,7 @@
 use std::cell::RefCell;
 
-use abstutil::MultiMap;
 use geom::{Distance, Polygon, Pt2D};
-use map_model::{Building, BuildingID, LaneType, Map, Road, RoadID, NORMAL_LANE_THICKNESS};
+use map_model::{Building, LaneType, Map, Road, RoadID, NORMAL_LANE_THICKNESS};
 use widgetry::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, Text};
 
 use crate::colors::ColorSchemeChoice;
@@ -109,8 +108,7 @@ impl DrawRoad {
 
         // Driveways of connected buildings. These are grouped by road to limit what has to be
         // recalculated when road edits cause buildings to re-snap.
-        // TODO Cache road_to_buildings in app... or Map?
-        for b in road_to_buildings(app).get(self.id) {
+        for b in app.map().road_to_buildings(self.id) {
             draw_building_driveway(app, app.map().get_b(*b), &mut batch);
         }
 
@@ -177,13 +175,4 @@ fn draw_building_driveway(app: &dyn AppLike, bldg: &Building, batch: &mut GeomBa
             driveway.make_polygons(NORMAL_LANE_THICKNESS),
         );
     }
-}
-
-fn road_to_buildings(app: &dyn AppLike) -> MultiMap<RoadID, BuildingID> {
-    let map = app.map();
-    let mut mapping = MultiMap::new();
-    for b in map.all_buildings() {
-        mapping.insert(map.get_l(b.sidewalk_pos.lane()).parent, b.id);
-    }
-    mapping
 }

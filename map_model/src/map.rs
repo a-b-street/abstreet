@@ -7,7 +7,7 @@ use petgraph::graphmap::UnGraphMap;
 use serde::{Deserialize, Serialize};
 
 use abstio::{CityName, MapName};
-use abstutil::{Tags, Timer};
+use abstutil::{MultiMap, Tags, Timer};
 use geom::{Bounds, Distance, Duration, GPSBounds, Polygon, Pt2D, Ring, Time};
 
 use crate::raw::{OriginalRoad, RawMap};
@@ -85,6 +85,7 @@ impl Map {
     /// After deserializing a map directly, call this after.
     pub fn map_loaded_directly(&mut self) {
         self.edits = self.new_edits();
+        self.recalculate_road_to_buildings();
 
         if false {
             use abstutil::{prettyprint_usize, serialized_size_bytes};
@@ -170,6 +171,7 @@ impl Map {
             routing_params: RoutingParams::default(),
             name: MapName::new("zz", "blank city", "blank"),
             edits: MapEdits::new(),
+            road_to_buildings: MultiMap::new(),
         }
     }
 
@@ -740,5 +742,17 @@ impl Map {
     // in which case it should be easy to look for all places calling this.
     pub fn routing_params(&self) -> &RoutingParams {
         &self.routing_params
+    }
+
+    pub fn road_to_buildings(&self, r: RoadID) -> &BTreeSet<BuildingID> {
+        self.road_to_buildings.get(r)
+    }
+
+    pub(crate) fn recalculate_road_to_buildings(&mut self) {
+        let mut mapping = MultiMap::new();
+        for b in self.all_buildings() {
+            mapping.insert(self.get_l(b.sidewalk_pos.lane()).parent, b.id);
+        }
+        self.road_to_buildings = mapping;
     }
 }

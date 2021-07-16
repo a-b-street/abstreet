@@ -33,7 +33,7 @@ use std::collections::BTreeMap;
 use serde::{Deserialize, Serialize};
 
 use abstio::MapName;
-use abstutil::{deserialize_btreemap, serialize_btreemap};
+use abstutil::{deserialize_btreemap, serialize_btreemap, MultiMap};
 use geom::{Bounds, GPSBounds, Polygon};
 
 pub use crate::city::City;
@@ -112,6 +112,9 @@ pub struct Map {
     zones: Vec<Zone>,
 
     name: MapName,
+
     #[serde(skip_serializing, skip_deserializing)]
     edits: MapEdits,
+    #[serde(skip_serializing, skip_deserializing)]
+    road_to_buildings: MultiMap<RoadID, BuildingID>,
 }

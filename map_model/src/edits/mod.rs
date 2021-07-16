@@ -863,6 +863,8 @@ impl Map {
             .changed_intersections
             .extend(more_changed_intersections);
 
+        self.recalculate_road_to_buildings();
+
         effects
     }
 

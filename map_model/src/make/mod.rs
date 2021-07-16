@@ -4,7 +4,7 @@
 use std::collections::{BTreeMap, HashMap, HashSet};
 
 use abstio::MapName;
-use abstutil::{Tags, Timer};
+use abstutil::{MultiMap, Tags, Timer};
 use geom::{
     Bounds, Distance, FindClosest, GPSBounds, HashablePt2D, Line, Polygon, Speed, EPSILON_DIST,
 };
@@ -95,6 +95,7 @@ impl Map {
             routing_params: RoutingParams::default(),
             name: raw.name.clone(),
             edits: MapEdits::new(),
+            road_to_buildings: MultiMap::new(),
         };
         map.edits = map.new_edits();
 
