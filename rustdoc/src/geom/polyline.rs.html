@@ -953,6 +953,31 @@
 <span id="950">950</span>
 <span id="951">951</span>
 <span id="952">952</span>
+<span id="953">953</span>
+<span id="954">954</span>
+<span id="955">955</span>
+<span id="956">956</span>
+<span id="957">957</span>
+<span id="958">958</span>
+<span id="959">959</span>
+<span id="960">960</span>
+<span id="961">961</span>
+<span id="962">962</span>
+<span id="963">963</span>
+<span id="964">964</span>
+<span id="965">965</span>
+<span id="966">966</span>
+<span id="967">967</span>
+<span id="968">968</span>
+<span id="969">969</span>
+<span id="970">970</span>
+<span id="971">971</span>
+<span id="972">972</span>
+<span id="973">973</span>
+<span id="974">974</span>
+<span id="975">975</span>
+<span id="976">976</span>
+<span id="977">977</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 <span class="kw">use</span> <span class="ident">std::fmt</span>;
@@ -1842,6 +1867,31 @@
             .<span class="ident">map</span>(<span class="op">|</span><span class="ident">pt</span><span class="op">|</span> <span class="ident">geo::Point::new</span>(<span class="ident">pt</span>.<span class="ident">x</span>(), <span class="ident">pt</span>.<span class="ident">y</span>()))
             .<span class="ident">collect</span>();
         <span class="ident">pts</span>.<span class="ident">into</span>()
+    }
+
+    <span class="doccomment">/// Walk along the PolyLine, starting `buffer_ends` from the start and ending `buffer_ends`</span>
+    <span class="doccomment">/// before the end. Advance in increments of `step_size`. Returns the point and angle at each</span>
+    <span class="doccomment">/// step.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">step_along</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">step_size</span>: <span class="ident">Distance</span>, <span class="ident">buffer_ends</span>: <span class="ident">Distance</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Pt2D</span>, <span class="ident">Angle</span>)<span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">step_along_start_end</span>(<span class="ident">step_size</span>, <span class="ident">buffer_ends</span>, <span class="ident">buffer_ends</span>)
+    }
+
+    <span class="doccomment">/// Walk along the PolyLine, from `start_buffer` to `length - end_buffer`. Advance in</span>
+    <span class="doccomment">/// increments of `step_size`. Returns the point and angle at each step.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">step_along_start_end</span>(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        <span class="ident">step_size</span>: <span class="ident">Distance</span>,
+        <span class="ident">start_buffer</span>: <span class="ident">Distance</span>,
+        <span class="ident">end_buffer</span>: <span class="ident">Distance</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Pt2D</span>, <span class="ident">Angle</span>)<span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">dist_along</span> <span class="op">=</span> <span class="ident">start_buffer</span>;
+        <span class="kw">let</span> <span class="ident">length</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">length</span>();
+        <span class="kw">while</span> <span class="ident">dist_along</span> <span class="op">&lt;</span> <span class="ident">length</span> <span class="op">-</span> <span class="ident">end_buffer</span> {
+            <span class="ident">result</span>.<span class="ident">push</span>(<span class="self">self</span>.<span class="ident">must_dist_along</span>(<span class="ident">dist_along</span>));
+            <span class="ident">dist_along</span> <span class="op">+</span><span class="op">=</span> <span class="ident">step_size</span>;
+        }
+        <span class="ident">result</span>
     }
 }
 

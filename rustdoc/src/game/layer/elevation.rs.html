@@ -311,12 +311,6 @@
 <span id="308">308</span>
 <span id="309">309</span>
 <span id="310">310</span>
-<span id="311">311</span>
-<span id="312">312</span>
-<span id="313">313</span>
-<span id="314">314</span>
-<span id="315">315</span>
-<span id="316">316</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">Distance</span>, <span class="ident">FindClosest</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
 <span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">ColorDiscrete</span>, <span class="ident">ColorScale</span>, <span class="ident">Grid</span>};
@@ -415,12 +409,7 @@
                 <span class="ident">pl</span> <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">reversed</span>();
             }
 
-            <span class="kw">let</span> <span class="ident">btwn</span> <span class="op">=</span> <span class="ident">Distance::meters</span>(<span class="number">15.0</span>);
-            <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">length</span>();
-
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">dist</span> <span class="op">=</span> <span class="ident">arrow_len</span>;
-            <span class="kw">while</span> <span class="ident">dist</span> <span class="op">+</span> <span class="ident">arrow_len</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">len</span> {
-                <span class="kw">let</span> (<span class="ident">pt</span>, <span class="ident">angle</span>) <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">must_dist_along</span>(<span class="ident">dist</span>);
+            <span class="kw">for</span> (<span class="ident">pt</span>, <span class="ident">angle</span>) <span class="kw">in</span> <span class="ident">pl</span>.<span class="ident">step_along</span>(<span class="ident">Distance::meters</span>(<span class="number">15.0</span>), <span class="ident">arrow_len</span>) {
                 <span class="ident">arrows</span>.<span class="ident">push</span>(
                     <span class="ident">Color::WHITE</span>,
                     <span class="ident">PolyLine::must_new</span>(<span class="macro">vec!</span>[
@@ -430,7 +419,6 @@
                     ])
                     .<span class="ident">make_polygons</span>(<span class="ident">thickness</span>),
                 );
-                <span class="ident">dist</span> <span class="op">+</span><span class="op">=</span> <span class="ident">btwn</span>;
             }
         }
         <span class="ident">colorer</span>.<span class="ident">unzoomed</span>.<span class="ident">append</span>(<span class="ident">arrows</span>);

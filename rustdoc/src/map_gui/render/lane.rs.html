@@ -387,13 +387,6 @@
 <span id="384">384</span>
 <span id="385">385</span>
 <span id="386">386</span>
-<span id="387">387</span>
-<span id="388">388</span>
-<span id="389">389</span>
-<span id="390">390</span>
-<span id="391">391</span>
-<span id="392">392</span>
-<span id="393">393</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std::cell::RefCell</span>;
 <span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
@@ -437,6 +430,7 @@
             );
         }
         <span class="kw">let</span> <span class="ident">general_road_marking</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">general_road_marking</span>(<span class="ident">road</span>.<span class="ident">get_rank</span>());
+
         <span class="kw">match</span> <span class="ident">lane</span>.<span class="ident">lane_type</span> {
             <span class="ident">LaneType::Sidewalk</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">c</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">sidewalk_lines</span> {
@@ -463,12 +457,40 @@
             <span class="ident">LaneType::Parking</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="ident">batch</span>.<span class="ident">extend</span>(<span class="ident">general_road_marking</span>, <span class="ident">calculate_parking_lines</span>(<span class="ident">lane</span>, <span class="ident">map</span>));
             }
-            <span class="ident">LaneType::Driving</span> <span class="op">|</span> <span class="ident">LaneType::Bus</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">LaneType::Driving</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="ident">batch</span>.<span class="ident">extend</span>(<span class="ident">general_road_marking</span>, <span class="ident">calculate_driving_lines</span>(<span class="ident">lane</span>, <span class="ident">road</span>));
                 <span class="ident">batch</span>.<span class="ident">extend</span>(<span class="ident">general_road_marking</span>, <span class="ident">calculate_turn_markings</span>(<span class="ident">map</span>, <span class="ident">lane</span>));
                 <span class="ident">batch</span>.<span class="ident">extend</span>(<span class="ident">general_road_marking</span>, <span class="ident">calculate_one_way_markings</span>(<span class="ident">lane</span>, <span class="ident">road</span>));
             }
-            <span class="ident">LaneType::Biking</span> <span class="op">=</span><span class="op">&gt;</span> {}
+            <span class="ident">LaneType::Bus</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">batch</span>.<span class="ident">extend</span>(<span class="ident">general_road_marking</span>, <span class="ident">calculate_driving_lines</span>(<span class="ident">lane</span>, <span class="ident">road</span>));
+                <span class="ident">batch</span>.<span class="ident">extend</span>(<span class="ident">general_road_marking</span>, <span class="ident">calculate_turn_markings</span>(<span class="ident">map</span>, <span class="ident">lane</span>));
+                <span class="ident">batch</span>.<span class="ident">extend</span>(<span class="ident">general_road_marking</span>, <span class="ident">calculate_one_way_markings</span>(<span class="ident">lane</span>, <span class="ident">road</span>));
+                <span class="kw">for</span> (<span class="ident">pt</span>, <span class="ident">angle</span>) <span class="kw">in</span> <span class="ident">lane</span>
+                    .<span class="ident">lane_center_pts</span>
+                    .<span class="ident">step_along</span>(<span class="ident">Distance::meters</span>(<span class="number">30.0</span>), <span class="ident">Distance::meters</span>(<span class="number">5.0</span>))
+                {
+                    <span class="ident">batch</span>.<span class="ident">append</span>(
+                        <span class="ident">GeomBatch::load_svg</span>(<span class="ident">prerender</span>, <span class="string">&quot;system/assets/map/bus_only.svg&quot;</span>)
+                            .<span class="ident">scale</span>(<span class="number">0.06</span>)
+                            .<span class="ident">centered_on</span>(<span class="ident">pt</span>)
+                            .<span class="ident">rotate</span>(<span class="ident">angle</span>.<span class="ident">shortest_rotation_towards</span>(<span class="ident">Angle::degrees</span>(<span class="op">-</span><span class="number">90.0</span>))),
+                    );
+                }
+            }
+            <span class="ident">LaneType::Biking</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">for</span> (<span class="ident">pt</span>, <span class="ident">angle</span>) <span class="kw">in</span> <span class="ident">lane</span>
+                    .<span class="ident">lane_center_pts</span>
+                    .<span class="ident">step_along</span>(<span class="ident">Distance::meters</span>(<span class="number">30.0</span>), <span class="ident">Distance::meters</span>(<span class="number">5.0</span>))
+                {
+                    <span class="ident">batch</span>.<span class="ident">append</span>(
+                        <span class="ident">GeomBatch::load_svg</span>(<span class="ident">prerender</span>, <span class="string">&quot;system/assets/meters/bike.svg&quot;</span>)
+                            .<span class="ident">scale</span>(<span class="number">0.06</span>)
+                            .<span class="ident">centered_on</span>(<span class="ident">pt</span>)
+                            .<span class="ident">rotate</span>(<span class="ident">angle</span>.<span class="ident">shortest_rotation_towards</span>(<span class="ident">Angle::degrees</span>(<span class="op">-</span><span class="number">90.0</span>))),
+                    );
+                }
+            }
             <span class="ident">LaneType::SharedLeftTurn</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="ident">thickness</span> <span class="op">=</span> <span class="ident">Distance::meters</span>(<span class="number">0.25</span>);
                 <span class="ident">batch</span>.<span class="ident">push</span>(
@@ -483,8 +505,36 @@
                         .<span class="ident">must_shift_left</span>((<span class="ident">lane</span>.<span class="ident">width</span> <span class="op">-</span> <span class="ident">thickness</span>) <span class="op">/</span> <span class="number">2.0</span>)
                         .<span class="ident">make_polygons</span>(<span class="ident">thickness</span>),
                 );
+                <span class="kw">for</span> (<span class="ident">pt</span>, <span class="ident">angle</span>) <span class="kw">in</span> <span class="ident">lane</span>
+                    .<span class="ident">lane_center_pts</span>
+                    .<span class="ident">step_along</span>(<span class="ident">Distance::meters</span>(<span class="number">30.0</span>), <span class="ident">Distance::meters</span>(<span class="number">5.0</span>))
+                {
+                    <span class="ident">batch</span>.<span class="ident">append</span>(
+                        <span class="ident">GeomBatch::load_svg</span>(<span class="ident">prerender</span>, <span class="string">&quot;system/assets/map/shared_left_turn.svg&quot;</span>)
+                            .<span class="ident">autocrop</span>()
+                            .<span class="ident">scale</span>(<span class="number">0.003</span>)
+                            .<span class="ident">centered_on</span>(<span class="ident">pt</span>)
+                            .<span class="ident">rotate</span>(<span class="ident">angle</span>.<span class="ident">shortest_rotation_towards</span>(<span class="ident">Angle::degrees</span>(<span class="op">-</span><span class="number">90.0</span>))),
+                    );
+                }
             }
-            <span class="ident">LaneType::Construction</span> <span class="op">=</span><span class="op">&gt;</span> {}
+            <span class="ident">LaneType::Construction</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">for</span> (<span class="ident">pt</span>, <span class="ident">angle</span>) <span class="kw">in</span> <span class="ident">lane</span>
+                    .<span class="ident">lane_center_pts</span>
+                    .<span class="ident">step_along</span>(<span class="ident">Distance::meters</span>(<span class="number">30.0</span>), <span class="ident">Distance::meters</span>(<span class="number">5.0</span>))
+                {
+                    <span class="comment">// TODO Still not quite centered right, but close enough</span>
+                    <span class="ident">batch</span>.<span class="ident">append</span>(
+                        <span class="ident">GeomBatch::load_svg</span>(<span class="ident">prerender</span>, <span class="string">&quot;system/assets/map/under_construction.svg&quot;</span>)
+                            .<span class="ident">scale</span>(<span class="number">0.05</span>)
+                            .<span class="ident">rotate_around_batch_center</span>(
+                                <span class="ident">angle</span>.<span class="ident">shortest_rotation_towards</span>(<span class="ident">Angle::degrees</span>(<span class="op">-</span><span class="number">90.0</span>)),
+                            )
+                            .<span class="ident">autocrop</span>()
+                            .<span class="ident">centered_on</span>(<span class="ident">pt</span>),
+                    );
+                }
+            }
             <span class="ident">LaneType::LightRail</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="ident">track_width</span> <span class="op">=</span> <span class="ident">lane</span>.<span class="ident">width</span> <span class="op">/</span> <span class="number">4.0</span>;
                 <span class="ident">batch</span>.<span class="ident">push</span>(
@@ -500,69 +550,17 @@
                         .<span class="ident">make_polygons</span>(<span class="ident">track_width</span>),
                 );
 
-                <span class="comment">// Start away from the intersections</span>
-                <span class="kw">let</span> <span class="ident">tile_every</span> <span class="op">=</span> <span class="ident">Distance::meters</span>(<span class="number">3.0</span>);
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">dist_along</span> <span class="op">=</span> <span class="ident">tile_every</span>;
-                <span class="kw">while</span> <span class="ident">dist_along</span> <span class="op">&lt;</span> <span class="ident">lane</span>.<span class="ident">lane_center_pts</span>.<span class="ident">length</span>() <span class="op">-</span> <span class="ident">tile_every</span> {
-                    <span class="kw">let</span> (<span class="ident">pt</span>, <span class="ident">angle</span>) <span class="op">=</span> <span class="ident">lane</span>.<span class="ident">lane_center_pts</span>.<span class="ident">must_dist_along</span>(<span class="ident">dist_along</span>);
+                <span class="kw">for</span> (<span class="ident">pt</span>, <span class="ident">angle</span>) <span class="kw">in</span> <span class="ident">lane</span>
+                    .<span class="ident">lane_center_pts</span>
+                    .<span class="ident">step_along</span>(<span class="ident">Distance::meters</span>(<span class="number">3.0</span>), <span class="ident">Distance::meters</span>(<span class="number">3.0</span>))
+                {
                     <span class="comment">// Reuse perp_line. Project away an arbitrary amount</span>
                     <span class="kw">let</span> <span class="ident">pt2</span> <span class="op">=</span> <span class="ident">pt</span>.<span class="ident">project_away</span>(<span class="ident">Distance::meters</span>(<span class="number">1.0</span>), <span class="ident">angle</span>);
                     <span class="ident">batch</span>.<span class="ident">push</span>(
                         <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">light_rail_track</span>,
                         <span class="ident">perp_line</span>(<span class="ident">Line::must_new</span>(<span class="ident">pt</span>, <span class="ident">pt2</span>), <span class="ident">lane</span>.<span class="ident">width</span>).<span class="ident">make_polygons</span>(<span class="ident">track_width</span>),
                     );
-                    <span class="ident">dist_along</span> <span class="op">+</span><span class="op">=</span> <span class="ident">tile_every</span>;
                 }
-            }
-        }
-
-        <span class="kw">if</span> <span class="ident">lane</span>.<span class="ident">is_bus</span>()
-            <span class="op">|</span><span class="op">|</span> <span class="ident">lane</span>.<span class="ident">is_biking</span>()
-            <span class="op">|</span><span class="op">|</span> <span class="ident">lane</span>.<span class="ident">lane_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType::Construction</span>
-            <span class="op">|</span><span class="op">|</span> <span class="ident">lane</span>.<span class="ident">lane_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType::SharedLeftTurn</span>
-        {
-            <span class="kw">let</span> <span class="ident">buffer</span> <span class="op">=</span> <span class="ident">Distance::meters</span>(<span class="number">5.0</span>);
-            <span class="kw">let</span> <span class="ident">btwn</span> <span class="op">=</span> <span class="ident">Distance::meters</span>(<span class="number">30.0</span>);
-            <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">lane</span>.<span class="ident">lane_center_pts</span>.<span class="ident">length</span>();
-
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">dist</span> <span class="op">=</span> <span class="ident">buffer</span>;
-            <span class="kw">while</span> <span class="ident">dist</span> <span class="op">+</span> <span class="ident">buffer</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">len</span> {
-                <span class="kw">let</span> (<span class="ident">pt</span>, <span class="ident">angle</span>) <span class="op">=</span> <span class="ident">lane</span>.<span class="ident">lane_center_pts</span>.<span class="ident">must_dist_along</span>(<span class="ident">dist</span>);
-                <span class="kw">if</span> <span class="ident">lane</span>.<span class="ident">is_bus</span>() {
-                    <span class="ident">batch</span>.<span class="ident">append</span>(
-                        <span class="ident">GeomBatch::load_svg</span>(<span class="ident">prerender</span>, <span class="string">&quot;system/assets/map/bus_only.svg&quot;</span>)
-                            .<span class="ident">scale</span>(<span class="number">0.06</span>)
-                            .<span class="ident">centered_on</span>(<span class="ident">pt</span>)
-                            .<span class="ident">rotate</span>(<span class="ident">angle</span>.<span class="ident">shortest_rotation_towards</span>(<span class="ident">Angle::degrees</span>(<span class="op">-</span><span class="number">90.0</span>))),
-                    );
-                } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">lane</span>.<span class="ident">is_biking</span>() {
-                    <span class="ident">batch</span>.<span class="ident">append</span>(
-                        <span class="ident">GeomBatch::load_svg</span>(<span class="ident">prerender</span>, <span class="string">&quot;system/assets/meters/bike.svg&quot;</span>)
-                            .<span class="ident">scale</span>(<span class="number">0.06</span>)
-                            .<span class="ident">centered_on</span>(<span class="ident">pt</span>)
-                            .<span class="ident">rotate</span>(<span class="ident">angle</span>.<span class="ident">shortest_rotation_towards</span>(<span class="ident">Angle::degrees</span>(<span class="op">-</span><span class="number">90.0</span>))),
-                    );
-                } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">lane</span>.<span class="ident">lane_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType::SharedLeftTurn</span> {
-                    <span class="ident">batch</span>.<span class="ident">append</span>(
-                        <span class="ident">GeomBatch::load_svg</span>(<span class="ident">prerender</span>, <span class="string">&quot;system/assets/map/shared_left_turn.svg&quot;</span>)
-                            .<span class="ident">autocrop</span>()
-                            .<span class="ident">scale</span>(<span class="number">0.003</span>)
-                            .<span class="ident">centered_on</span>(<span class="ident">pt</span>)
-                            .<span class="ident">rotate</span>(<span class="ident">angle</span>.<span class="ident">shortest_rotation_towards</span>(<span class="ident">Angle::degrees</span>(<span class="op">-</span><span class="number">90.0</span>))),
-                    );
-                } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">lane</span>.<span class="ident">lane_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType::Construction</span> {
-                    <span class="comment">// TODO Still not quite centered right, but close enough</span>
-                    <span class="ident">batch</span>.<span class="ident">append</span>(
-                        <span class="ident">GeomBatch::load_svg</span>(<span class="ident">prerender</span>, <span class="string">&quot;system/assets/map/under_construction.svg&quot;</span>)
-                            .<span class="ident">scale</span>(<span class="number">0.05</span>)
-                            .<span class="ident">rotate_around_batch_center</span>(
-                                <span class="ident">angle</span>.<span class="ident">shortest_rotation_towards</span>(<span class="ident">Angle::degrees</span>(<span class="op">-</span><span class="number">90.0</span>)),
-                            )
-                            .<span class="ident">autocrop</span>()
-                            .<span class="ident">centered_on</span>(<span class="ident">pt</span>),
-                    );
-                }
-                <span class="ident">dist</span> <span class="op">+</span><span class="op">=</span> <span class="ident">btwn</span>;
             }
         }
 
@@ -621,28 +619,18 @@
 }
 
 <span class="kw">fn</span> <span class="ident">calculate_sidewalk_lines</span>(<span class="ident">lane</span>: <span class="kw-2">&amp;</span><span class="ident">Lane</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">tile_every</span> <span class="op">=</span> <span class="ident">lane</span>.<span class="ident">width</span>;
-
-    <span class="kw">let</span> <span class="ident">length</span> <span class="op">=</span> <span class="ident">lane</span>.<span class="ident">length</span>();
-
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-    <span class="comment">// Start away from the intersections</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">dist_along</span> <span class="op">=</span> <span class="ident">tile_every</span>;
-    <span class="kw">while</span> <span class="ident">dist_along</span> <span class="op">&lt;</span> <span class="ident">length</span> <span class="op">-</span> <span class="ident">tile_every</span> {
-        <span class="kw">let</span> (<span class="ident">pt</span>, <span class="ident">angle</span>) <span class="op">=</span> <span class="ident">lane</span>.<span class="ident">lane_center_pts</span>.<span class="ident">must_dist_along</span>(<span class="ident">dist_along</span>);
-        <span class="comment">// Reuse perp_line. Project away an arbitrary amount</span>
-        <span class="kw">let</span> <span class="ident">pt2</span> <span class="op">=</span> <span class="ident">pt</span>.<span class="ident">project_away</span>(<span class="ident">Distance::meters</span>(<span class="number">1.0</span>), <span class="ident">angle</span>);
-        <span class="ident">result</span>.<span class="ident">push</span>(
-            <span class="ident">perp_line</span>(<span class="ident">Line::must_new</span>(<span class="ident">pt</span>, <span class="ident">pt2</span>), <span class="ident">lane</span>.<span class="ident">width</span>).<span class="ident">make_polygons</span>(<span class="ident">Distance::meters</span>(<span class="number">0.25</span>)),
-        );
-        <span class="ident">dist_along</span> <span class="op">+</span><span class="op">=</span> <span class="ident">tile_every</span>;
-    }
-
-    <span class="ident">result</span>
+    <span class="ident">lane</span>.<span class="ident">lane_center_pts</span>
+        .<span class="ident">step_along</span>(<span class="ident">lane</span>.<span class="ident">width</span>, <span class="ident">lane</span>.<span class="ident">width</span>)
+        .<span class="ident">into_iter</span>()
+        .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">pt</span>, <span class="ident">angle</span>)<span class="op">|</span> {
+            <span class="comment">// Reuse perp_line. Project away an arbitrary amount</span>
+            <span class="kw">let</span> <span class="ident">pt2</span> <span class="op">=</span> <span class="ident">pt</span>.<span class="ident">project_away</span>(<span class="ident">Distance::meters</span>(<span class="number">1.0</span>), <span class="ident">angle</span>);
+            <span class="ident">perp_line</span>(<span class="ident">Line::must_new</span>(<span class="ident">pt</span>, <span class="ident">pt2</span>), <span class="ident">lane</span>.<span class="ident">width</span>).<span class="ident">make_polygons</span>(<span class="ident">Distance::meters</span>(<span class="number">0.25</span>))
+        })
+        .<span class="ident">collect</span>()
 }
 
 <span class="kw">fn</span> <span class="ident">calculate_parking_lines</span>(<span class="ident">lane</span>: <span class="kw-2">&amp;</span><span class="ident">Lane</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span> {
-    <span class="comment">// meters, but the dims get annoying below to remove</span>
     <span class="kw">let</span> <span class="ident">leg_length</span> <span class="op">=</span> <span class="ident">Distance::meters</span>(<span class="number">1.0</span>);
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
@@ -769,14 +757,13 @@
     }
 
     <span class="kw">let</span> <span class="ident">arrow_len</span> <span class="op">=</span> <span class="ident">Distance::meters</span>(<span class="number">4.0</span>);
-    <span class="kw">let</span> <span class="ident">btwn</span> <span class="op">=</span> <span class="ident">Distance::meters</span>(<span class="number">30.0</span>);
     <span class="kw">let</span> <span class="ident">thickness</span> <span class="op">=</span> <span class="ident">Distance::meters</span>(<span class="number">0.25</span>);
     <span class="comment">// Stop 1m before the calculate_turn_markings() stuff starts</span>
-    <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">lane</span>.<span class="ident">length</span>() <span class="op">-</span> <span class="ident">Distance::meters</span>(<span class="number">8.0</span>);
-
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">dist</span> <span class="op">=</span> <span class="ident">arrow_len</span>;
-    <span class="kw">while</span> <span class="ident">dist</span> <span class="op">+</span> <span class="ident">arrow_len</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">len</span> {
-        <span class="kw">let</span> (<span class="ident">pt</span>, <span class="ident">angle</span>) <span class="op">=</span> <span class="ident">lane</span>.<span class="ident">lane_center_pts</span>.<span class="ident">must_dist_along</span>(<span class="ident">dist</span>);
+    <span class="kw">for</span> (<span class="ident">pt</span>, <span class="ident">angle</span>) <span class="kw">in</span> <span class="ident">lane</span>.<span class="ident">lane_center_pts</span>.<span class="ident">step_along_start_end</span>(
+        <span class="ident">Distance::meters</span>(<span class="number">30.0</span>),
+        <span class="ident">arrow_len</span>,
+        <span class="ident">arrow_len</span> <span class="op">+</span> <span class="ident">Distance::meters</span>(<span class="number">8.0</span>),
+    ) {
         <span class="ident">results</span>.<span class="ident">push</span>(
             <span class="ident">PolyLine::must_new</span>(<span class="macro">vec!</span>[
                 <span class="ident">pt</span>.<span class="ident">project_away</span>(<span class="ident">arrow_len</span> <span class="op">/</span> <span class="number">2.0</span>, <span class="ident">angle</span>.<span class="ident">opposite</span>()),
@@ -784,7 +771,6 @@
             ])
             .<span class="ident">make_arrow</span>(<span class="ident">thickness</span>, <span class="ident">ArrowCap::Triangle</span>),
         );
-        <span class="ident">dist</span> <span class="op">+</span><span class="op">=</span> <span class="ident">btwn</span>;
     }
     <span class="ident">results</span>
 }

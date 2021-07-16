@@ -160,10 +160,6 @@
 <span id="157">157</span>
 <span id="158">158</span>
 <span id="159">159</span>
-<span id="160">160</span>
-<span id="161">161</span>
-<span id="162">162</span>
-<span id="163">163</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std::fs::File</span>;
 <span class="kw">use</span> <span class="ident">std::io</span>::{<span class="ident">BufRead</span>, <span class="ident">BufReader</span>, <span class="ident">BufWriter</span>, <span class="ident">Write</span>};
@@ -241,14 +237,10 @@
         <span class="comment">// TODO Handle cul-de-sacs</span>
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">pl</span>) <span class="op">=</span> <span class="ident">PolyLine::new</span>(<span class="ident">r</span>.<span class="ident">center_points</span>.<span class="ident">clone</span>()) {
             <span class="ident">ids</span>.<span class="ident">push</span>(<span class="kw-2">*</span><span class="ident">id</span>);
-            <span class="comment">// Sample points every meter along the road</span>
+            <span class="comment">// Sample points along the road. Smaller step size gives more detail, but is slower.</span>
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">dist</span> <span class="op">=</span> <span class="ident">Distance::ZERO</span>;
-            <span class="kw">while</span> <span class="ident">dist</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">pl</span>.<span class="ident">length</span>() {
-                <span class="kw">let</span> (<span class="ident">pt</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">dist_along</span>(<span class="ident">dist</span>).<span class="ident">unwrap</span>();
+            <span class="kw">for</span> (<span class="ident">pt</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="ident">pl</span>.<span class="ident">step_along</span>(<span class="ident">Distance::meters</span>(<span class="number">5.0</span>), <span class="ident">Distance::ZERO</span>) {
                 <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">pt</span>);
-                <span class="comment">// Smaller gives more detail, but is slower.</span>
-                <span class="ident">dist</span> <span class="op">+</span><span class="op">=</span> <span class="ident">Distance::meters</span>(<span class="number">5.0</span>);
             }
             <span class="comment">// Always ask for the intersection</span>
             <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">pts</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>() <span class="op">!</span><span class="op">=</span> <span class="ident">pl</span>.<span class="ident">last_pt</span>() {
