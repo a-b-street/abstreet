@@ -1468,8 +1468,8 @@
     <span class="doccomment">/// Any ScenarioModifiers in effect?</span>
     <span class="kw">pub</span> <span class="ident">has_modified_trips</span>: <span class="ident">bool</span>,
 
-    <span class="doccomment">/// Sometimes we need the map before any edits have been applied. Cache it here.</span>
-    <span class="kw">pub</span> <span class="ident">unedited_map</span>: <span class="ident">RefCell</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Map</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// If the map has been edited, store the unedited version here.</span>
+    <span class="kw">pub</span> <span class="ident">unedited_map</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Map</span><span class="op">&gt;</span>,
 
     <span class="kw">pub</span> <span class="ident">layer</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Layer</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="doccomment">/// Only filled out in edit mode. Stored here once to avoid lots of clones. Used for preview.</span>
@@ -1520,7 +1520,7 @@
             <span class="ident">sim_cb</span>: <span class="prelude-val">None</span>,
             <span class="ident">dirty_from_edits</span>: <span class="bool-val">false</span>,
             <span class="ident">has_modified_trips</span>: <span class="bool-val">false</span>,
-            <span class="ident">unedited_map</span>: <span class="ident">RefCell::new</span>(<span class="prelude-val">None</span>),
+            <span class="ident">unedited_map</span>: <span class="prelude-val">None</span>,
             <span class="ident">layer</span>: <span class="prelude-val">None</span>,
             <span class="ident">suspended_sim</span>: <span class="prelude-val">None</span>,
             <span class="ident">prebaked</span>: <span class="prelude-val">None</span>,

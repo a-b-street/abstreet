@@ -929,6 +929,13 @@
 <span id="926">926</span>
 <span id="927">927</span>
 <span id="928">928</span>
+<span id="929">929</span>
+<span id="930">930</span>
+<span id="931">931</span>
+<span id="932">932</span>
+<span id="933">933</span>
+<span id="934">934</span>
+<span id="935">935</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">maplit::btreeset</span>;
 
@@ -1619,6 +1626,13 @@
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">apply_map_edits</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>, <span class="ident">edits</span>: <span class="ident">MapEdits</span>) {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">timer</span> <span class="op">=</span> <span class="ident">Timer::new</span>(<span class="string">&quot;apply map edits&quot;</span>);
+
+    <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">unedited_map</span>.<span class="ident">is_none</span>() {
+        <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;save unedited map&quot;</span>);
+        <span class="macro">assert!</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">commands</span>.<span class="ident">is_empty</span>());
+        <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">unedited_map</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">clone</span>());
+        <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;save unedited map&quot;</span>);
+    }
 
     <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;edit map&quot;</span>);
     <span class="kw">let</span> <span class="ident">effects</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">must_apply_edits</span>(<span class="ident">edits</span>);
