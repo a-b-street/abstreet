@@ -192,10 +192,10 @@ mod native_loader {
 mod wasm_loader {
     use std::io::Read;
 
-    use wasm_bindgen::{UnwrapThrowExt, JsCast};
-    use wasm_streams::ReadableStream;
     use futures::StreamExt;
+    use wasm_bindgen::{JsCast, UnwrapThrowExt};
     use wasm_bindgen_futures::JsFuture;
+    use wasm_streams::ReadableStream;
     use web_sys::{Request, RequestInit, RequestMode, Response};
 
     use abstutil::prettyprint_usize;
@@ -273,9 +273,11 @@ mod wasm_loader {
                             let mut buffer = Vec::new();
                             while let Some(Ok(chunk)) = stream.next().await {
                                 let array = js_sys::Uint8Array::new(&chunk);
-                                tx_read_bytes
-                                    .try_send(array.byte_length() as usize)
-                                    .unwrap();
+                                if let Err(err) =
+                                    tx_read_bytes.try_send(array.byte_length() as usize)
+                                {
+                                    warn!("Couldn't send update on bytes: {}", err);
+                                }
                                 // TODO Can we avoid this clone?
                                 buffer.extend(array.to_vec());
                             }
@@ -378,6 +380,11 @@ mod wasm_loader {
         panel: Panel,
         started: Instant,
         url: String,
+
+        total_bytes: Option<usize>,
+        read_bytes: usize,
+        got_total_bytes: oneshot::Receiver<usize>,
+        got_read_bytes: mpsc::Receiver<usize>,
     }
 
     impl<A: AppLike + 'static> RawFileLoader<A> {
@@ -402,6 +409,8 @@ mod wasm_loader {
             // Make the HTTP request nonblockingly. When the response is received, send it through
             // the channel.
             let (tx, rx) = oneshot::channel();
+            let (tx_total_bytes, got_total_bytes) = oneshot::channel();
+            let (mut tx_read_bytes, got_read_bytes) = mpsc::channel(10);
             let url_copy = url.clone();
             debug!("Loading {}", url_copy);
             wasm_bindgen_futures::spawn_local(async move {
@@ -415,9 +424,30 @@ mod wasm_loader {
                     Ok(resp_value) => {
                         let resp: Response = resp_value.dyn_into().unwrap();
                         if resp.ok() {
-                            let buf = JsFuture::from(resp.array_buffer().unwrap()).await.unwrap();
-                            let array = js_sys::Uint8Array::new(&buf);
-                            tx.send(Ok(array.to_vec())).unwrap();
+                            let total_bytes = resp
+                                .headers()
+                                .get("Content-Length")
+                                .unwrap()
+                                .unwrap()
+                                .parse::<usize>()
+                                .unwrap();
+                            tx_total_bytes.send(total_bytes).unwrap();
+
+                            let raw_body = resp.body().unwrap_throw();
+                            let body = ReadableStream::from_raw(raw_body.dyn_into().unwrap_throw());
+                            let mut stream = body.into_stream();
+                            let mut buffer = Vec::new();
+                            while let Some(Ok(chunk)) = stream.next().await {
+                                let array = js_sys::Uint8Array::new(&chunk);
+                                if let Err(err) =
+                                    tx_read_bytes.try_send(array.byte_length() as usize)
+                                {
+                                    warn!("Couldn't send update on bytes: {}", err);
+                                }
+                                // TODO Can we avoid this clone?
+                                buffer.extend(array.to_vec());
+                            }
+                            tx.send(Ok(buffer)).unwrap();
                         } else {
                             let status = resp.status();
                             let err = resp.status_text();
@@ -436,12 +466,25 @@ mod wasm_loader {
                 panel: ctx.make_loading_screen(Text::from(format!("Loading {}...", url))),
                 started: Instant::now(),
                 url,
+                total_bytes: None,
+                read_bytes: 0,
+                got_total_bytes,
+                got_read_bytes,
             })
         }
     }
 
     impl<A: AppLike + 'static> State<A> for RawFileLoader<A> {
         fn event(&mut self, ctx: &mut EventCtx, app: &mut A) -> Transition<A> {
+            if self.total_bytes.is_none() {
+                if let Ok(Some(total)) = self.got_total_bytes.try_recv() {
+                    self.total_bytes = Some(total);
+                }
+            }
+            if let Some(read) = self.got_read_bytes.try_next().ok().and_then(|value| value) {
+                self.read_bytes += read;
+            }
+
             if let Some(maybe_resp) = self.response.try_recv().unwrap() {
                 let bytes = if self.url.ends_with(".gz") {
                     maybe_resp.and_then(|gzipped| {
@@ -458,14 +501,21 @@ mod wasm_loader {
                 return (self.on_load.take().unwrap())(ctx, app, bytes);
             }
 
-            self.panel = ctx.make_loading_screen(Text::from_multiline(vec![
+            let mut lines = vec![
                 Line(format!("Loading {}...", self.url)),
                 Line(format!(
                     "Time spent: {}",
                     Duration::realtime_elapsed(self.started)
                 )),
-                Line("TODO update RawFileLoader too"),
-            ]));
+            ];
+            if let Some(total) = self.total_bytes {
+                lines.push(Line(format!(
+                    "Read {} / {} bytes",
+                    prettyprint_usize(self.read_bytes),
+                    prettyprint_usize(total)
+                )));
+            }
+            self.panel = ctx.make_loading_screen(Text::from_multiline(lines));
 
             // Until the response is received, just ask winit to regularly call event(), so we can
             // keep polling the channel.
