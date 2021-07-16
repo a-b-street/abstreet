@@ -3,7 +3,6 @@ use std::collections::{BTreeMap, HashSet};
 use maplit::btreemap;
 
 use geom::{Distance, Duration, Percent, Polygon, Pt2D};
-use map_gui::load::FileLoader;
 use map_gui::ID;
 use map_model::{Map, Path, PathStep, Traversable};
 use sim::{
@@ -15,10 +14,9 @@ use widgetry::{
     RewriteColor, Series, Text, TextExt, Widget,
 };
 
-use crate::app::{App, Transition};
+use crate::app::App;
 use crate::common::color_for_trip_phase;
 use crate::info::{make_table, Details, Tab};
-use crate::sandbox::SandboxMode;
 
 #[derive(Clone)]
 pub struct OpenTrip {
@@ -151,7 +149,6 @@ pub fn ongoing(
 pub fn future(
     ctx: &mut EventCtx,
     app: &App,
-    person: PersonID,
     id: TripID,
     open_trip: &mut OpenTrip,
     details: &mut Details,
@@ -186,12 +183,11 @@ pub fn future(
             ],
         ));
 
-        if let Some(t) = show_before(ctx, app, person, id) {
-            details.stop_immediately = Some(t);
-            return Widget::nothing();
-        }
-        let borrow = app.primary.unedited_map.borrow();
-        let unedited_map = borrow.as_ref().unwrap_or(&app.primary.map);
+        let unedited_map = app
+            .primary
+            .unedited_map
+            .as_ref()
+            .unwrap_or(&app.primary.map);
         let phases = app.prebaked().get_trip_phases(id, unedited_map);
         col.push(make_trip_details(
             ctx,
@@ -229,15 +225,6 @@ pub fn finished(
     id: TripID,
     details: &mut Details,
 ) -> Widget {
-    // Weird order to make sure the borrow remains in scope in case we need it.
-    if !open_trips[&id].show_after {
-        if let Some(t) = show_before(ctx, app, person, id) {
-            details.stop_immediately = Some(t);
-            return Widget::nothing();
-        }
-    }
-    let borrow = app.primary.unedited_map.borrow();
-
     let trip = app.primary.sim.trip_info(id);
     let (phases, map_for_pathfinding) = if open_trips[&id].show_after {
         (
@@ -248,7 +235,11 @@ pub fn finished(
             &app.primary.map,
         )
     } else {
-        let unedited_map = borrow.as_ref().unwrap_or(&app.primary.map);
+        let unedited_map = app
+            .primary
+            .unedited_map
+            .as_ref()
+            .unwrap_or(&app.primary.map);
         (
             app.prebaked().get_trip_phases(id, unedited_map),
             unedited_map,
@@ -963,56 +954,4 @@ fn endpoint(endpt: &TripEndpoint, app: &App) -> (ID, Pt2D, String) {
             ),
         ),
     }
-}
-
-// This is similar to calculate_unedited_map, except it "defers" reopening the info panel. The
-// sequencing of these steps to refresh the trip panel after toggling before/after edits is very
-// complex due to intermediate file loading states.
-fn show_before(
-    ctx: &mut EventCtx,
-    app: &App,
-    person: PersonID,
-    trip: TripID,
-) -> Option<Transition> {
-    if app.primary.map.get_edits().commands.is_empty()
-        || app.primary.unedited_map.borrow().is_some()
-    {
-        return None;
-    }
-    Some(Transition::Push(FileLoader::<App, Map>::new_state(
-        ctx,
-        app.primary.map.get_name().path(),
-        Box::new(move |_, app, _, map| {
-            // TODO Handle failure how? Popup is temporary, it would keep trying to
-            // load it.
-            let map = map.unwrap();
-            *app.primary.unedited_map.borrow_mut() = Some(map);
-
-            Transition::Multi(vec![
-                // Exit the file loader
-                Transition::Pop,
-                // Reopen the info panel to immediately use the unedited map
-                Transition::ModifyState(Box::new(move |state, ctx, app| {
-                    let sandbox = state.downcast_mut::<SandboxMode>().unwrap();
-                    let mut actions = sandbox.contextual_actions();
-                    // TODO This loses state if other trips were open or if the panel was scrolled
-                    // a bit
-                    sandbox.controls.common.as_mut().unwrap().launch_info_panel(
-                        ctx,
-                        app,
-                        Tab::PersonTrips(
-                            person,
-                            btreemap! {
-                                trip => OpenTrip {
-                                    show_after: false,
-                                    cached_routes: Vec::new(),
-                                }
-                            },
-                        ),
-                        &mut actions,
-                    );
-                })),
-            ])
-        }),
-    )))
 }

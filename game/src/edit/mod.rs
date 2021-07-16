@@ -688,6 +688,13 @@ fn make_topcenter(ctx: &mut EventCtx, app: &App) -> Panel {
 pub fn apply_map_edits(ctx: &mut EventCtx, app: &mut App, edits: MapEdits) {
     let mut timer = Timer::new("apply map edits");
 
+    if app.primary.unedited_map.is_none() {
+        timer.start("save unedited map");
+        assert!(app.primary.map.get_edits().commands.is_empty());
+        app.primary.unedited_map = Some(app.primary.map.clone());
+        timer.stop("save unedited map");
+    }
+
     timer.start("edit map");
     let effects = app.primary.map.must_apply_edits(edits);
     timer.stop("edit map");

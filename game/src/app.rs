@@ -604,8 +604,8 @@ pub struct PerMap {
     /// Any ScenarioModifiers in effect?
     pub has_modified_trips: bool,
 
-    /// Sometimes we need the map before any edits have been applied. Cache it here.
-    pub unedited_map: RefCell<Option<Map>>,
+    /// If the map has been edited, store the unedited version here.
+    pub unedited_map: Option<Map>,
 
     pub layer: Option<Box<dyn Layer>>,
     /// Only filled out in edit mode. Stored here once to avoid lots of clones. Used for preview.
@@ -656,7 +656,7 @@ impl PerMap {
             sim_cb: None,
             dirty_from_edits: false,
             has_modified_trips: false,
-            unedited_map: RefCell::new(None),
+            unedited_map: None,
             layer: None,
             suspended_sim: None,
             prebaked: None,

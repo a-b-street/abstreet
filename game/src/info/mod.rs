@@ -3,12 +3,9 @@ use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 pub use trip::OpenTrip;
 
 use geom::{Circle, Distance, Polygon, Time};
-use map_gui::load::FileLoader;
 use map_gui::tools::open_browser;
 use map_gui::ID;
-use map_model::{
-    AreaID, BuildingID, BusRouteID, BusStopID, IntersectionID, LaneID, Map, ParkingLotID,
-};
+use map_model::{AreaID, BuildingID, BusRouteID, BusStopID, IntersectionID, LaneID, ParkingLotID};
 use sim::{
     AgentID, AgentType, Analytics, CarID, ParkingSpot, PedestrianID, PersonID, PersonState, TripID,
     VehicleType,
@@ -303,21 +300,15 @@ pub struct Details {
     pub time_warpers: HashMap<String, (TripID, Time)>,
     // It's just convenient to plumb this here
     pub can_jump_to_time: bool,
-    /// If this gets filled out, immediately execute this transition, keeping the info panel open.
-    /// This can only be used when updating an already open info panel. If a panel is launched
-    /// directly into a tab that fills this out, it'll crash!
-    pub stop_immediately: Option<Transition>,
 }
 
 impl InfoPanel {
-    /// Also returns `Details::stop_immediately`, which can only be used when updating an existing
-    /// info panel.
     pub fn new(
         ctx: &mut EventCtx,
         app: &mut App,
         mut tab: Tab,
         ctx_actions: &mut dyn ContextualActions,
-    ) -> (InfoPanel, Option<Transition>) {
+    ) -> InfoPanel {
         let (k, v) = tab.variant();
         app.session.info_panel_tab.insert(k, v);
 
@@ -329,7 +320,6 @@ impl InfoPanel {
             warpers: HashMap::new(),
             time_warpers: HashMap::new(),
             can_jump_to_time: ctx_actions.gameplay_mode().can_jump_to_time(),
-            stop_immediately: None,
         };
 
         let (header_and_tabs, main_tab) = match tab {
@@ -455,26 +445,23 @@ impl InfoPanel {
             }
         }
 
-        (
-            InfoPanel {
-                tab,
-                time: app.primary.sim.time(),
-                is_paused: ctx_actions.is_paused(),
-                panel: Panel::new_builder(Widget::col(col).bg(app.cs.panel_bg).padding(16))
-                    .aligned_pair(PANEL_PLACEMENT)
-                    // TODO Some headings are too wide.. Intersection #xyz (Traffic signals)
-                    .exact_size_percent(30, 60)
-                    .build_custom(ctx),
-                unzoomed: details.unzoomed.upload(ctx),
-                zoomed: details.zoomed.upload(ctx),
-                tooltips: details.tooltips,
-                hyperlinks: details.hyperlinks,
-                warpers: details.warpers,
-                time_warpers: details.time_warpers,
-                cached_actions,
-            },
-            details.stop_immediately,
-        )
+        InfoPanel {
+            tab,
+            time: app.primary.sim.time(),
+            is_paused: ctx_actions.is_paused(),
+            panel: Panel::new_builder(Widget::col(col).bg(app.cs.panel_bg).padding(16))
+                .aligned_pair(PANEL_PLACEMENT)
+                // TODO Some headings are too wide.. Intersection #xyz (Traffic signals)
+                .exact_size_percent(30, 60)
+                .build_custom(ctx),
+            unzoomed: details.unzoomed.upload(ctx),
+            zoomed: details.zoomed.upload(ctx),
+            tooltips: details.tooltips,
+            hyperlinks: details.hyperlinks,
+            warpers: details.warpers,
+            time_warpers: details.time_warpers,
+            cached_actions,
+        }
     }
 
     // (Are we done, optional transition)
@@ -494,19 +481,17 @@ impl InfoPanel {
 
         // Live update?
         if app.primary.sim.time() != self.time || ctx_actions.is_paused() != self.is_paused {
-            let (mut new, maybe_transition) =
-                InfoPanel::new(ctx, app, self.tab.clone(), ctx_actions);
+            let mut new = InfoPanel::new(ctx, app, self.tab.clone(), ctx_actions);
             new.panel.restore(ctx, &self.panel);
             *self = new;
-            return (false, maybe_transition);
+            return (false, None);
         }
 
         let maybe_id = self.tab.to_id(app);
         match self.panel.event(ctx) {
             Outcome::Clicked(action) => {
                 if let Some(new_tab) = self.hyperlinks.get(&action).cloned() {
-                    let (mut new, maybe_transition) =
-                        InfoPanel::new(ctx, app, new_tab, ctx_actions);
+                    let mut new = InfoPanel::new(ctx, app, new_tab, ctx_actions);
                     // TODO Most cases use changed_settings, but one doesn't. Detect that
                     // "sameness" here.
                     if let (Tab::PersonTrips(p1, _), Tab::PersonTrips(p2, _)) =
@@ -517,7 +502,7 @@ impl InfoPanel {
                         }
                     }
                     *self = new;
-                    (false, maybe_transition)
+                    (false, None)
                 } else if action == "close" {
                     (true, None)
                 } else if action == "jump to object" {
@@ -579,15 +564,6 @@ impl InfoPanel {
                         Box::new(move |_, _| vec![jump_to_time]),
                     ));
 
-                    // Before we rewind and wind up calling launch_info_panel, we may need to use
-                    // an extra state to load the unedited map for comparing routes. It's easier to
-                    // explicitly do this "outside" of SandboxMode::async_new.
-                    if app.has_prebaked().is_some() {
-                        if let Some(t) = calculate_unedited_map(ctx, app) {
-                            return (false, Some(Transition::Multi(vec![rewind_sim, t])));
-                        }
-                    }
-
                     (false, Some(rewind_sim))
                 } else if let Some(url) = action.strip_prefix("open ") {
                     open_browser(url);
@@ -642,11 +618,10 @@ impl InfoPanel {
                 // Maybe a non-click action should change the tab. Aka, checkboxes/dropdowns/etc on
                 // a tab.
                 if let Some(new_tab) = self.tab.changed_settings(&self.panel) {
-                    let (mut new, maybe_transition) =
-                        InfoPanel::new(ctx, app, new_tab, ctx_actions);
+                    let mut new = InfoPanel::new(ctx, app, new_tab, ctx_actions);
                     new.panel.restore(ctx, &self.panel);
                     *self = new;
-                    return (false, maybe_transition);
+                    return (false, None);
                 }
 
                 (false, None)
@@ -849,31 +824,4 @@ impl DataOptions {
             .map(|a| a.noun().to_string())
             .collect()
     }
-}
-
-/// If needed, makes sure the unedited_map is populated. Callers can then do
-/// `app.primary.unedited_map.borrow().unwrap_or(&app.primary.map)` if this returns None. If a
-/// transition is returned, that must be executed first.
-// TODO I'd like to return &Map or something here, but can't get the borrow checker to work.
-fn calculate_unedited_map(ctx: &mut EventCtx, app: &App) -> Option<Transition> {
-    if app.primary.map.get_edits().commands.is_empty()
-        || app.primary.unedited_map.borrow().is_some()
-    {
-        return None;
-    }
-
-    // TODO Why can't we just clone the map and revert the edits? Cloning the map is hard,
-    // because of some ThreadLocals used for pathfinding...
-    Some(Transition::Push(FileLoader::<App, Map>::new_state(
-        ctx,
-        app.primary.map.get_name().path(),
-        Box::new(|_, app, _, map| {
-            // TODO Handle failure how? Popup is temporary, it would keep trying to
-            // load it.
-            let map = map.unwrap();
-            *app.primary.unedited_map.borrow_mut() = Some(map);
-            // The pop exits the file loader
-            Transition::Pop
-        }),
-    )))
 }

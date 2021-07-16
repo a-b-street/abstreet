@@ -77,7 +77,7 @@ fn trips_body(
                         Color::YELLOW,
                         open_trips
                             .get_mut(t)
-                            .map(|open_trip| trip::future(ctx, app, id, *t, open_trip, details)),
+                            .map(|open_trip| trip::future(ctx, app, *t, open_trip, details)),
                     )
                 } else {
                     (
@@ -85,7 +85,7 @@ fn trips_body(
                         Color::hex("#4CA7E9"),
                         open_trips
                             .get_mut(t)
-                            .map(|open_trip| trip::future(ctx, app, id, *t, open_trip, details)),
+                            .map(|open_trip| trip::future(ctx, app, *t, open_trip, details)),
                     )
                 }
             }
