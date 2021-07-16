@@ -887,6 +887,31 @@ impl PolyLine {
             .collect();
         pts.into()
     }
+
+    /// Walk along the PolyLine, starting `buffer_ends` from the start and ending `buffer_ends`
+    /// before the end. Advance in increments of `step_size`. Returns the point and angle at each
+    /// step.
+    pub fn step_along(&self, step_size: Distance, buffer_ends: Distance) -> Vec<(Pt2D, Angle)> {
+        self.step_along_start_end(step_size, buffer_ends, buffer_ends)
+    }
+
+    /// Walk along the PolyLine, from `start_buffer` to `length - end_buffer`. Advance in
+    /// increments of `step_size`. Returns the point and angle at each step.
+    pub fn step_along_start_end(
+        &self,
+        step_size: Distance,
+        start_buffer: Distance,
+        end_buffer: Distance,
+    ) -> Vec<(Pt2D, Angle)> {
+        let mut result = Vec::new();
+        let mut dist_along = start_buffer;
+        let length = self.length();
+        while dist_along < length - end_buffer {
+            result.push(self.must_dist_along(dist_along));
+            dist_along += step_size;
+        }
+        result
+    }
 }
 
 impl fmt::Display for PolyLine {

@@ -40,6 +40,7 @@ impl DrawLane {
             );
         }
         let general_road_marking = app.cs().general_road_marking(road.get_rank());
+
         match lane.lane_type {
             LaneType::Sidewalk => {
                 if let Some(c) = app.cs().sidewalk_lines {
@@ -66,12 +67,40 @@ impl DrawLane {
             LaneType::Parking => {
                 batch.extend(general_road_marking, calculate_parking_lines(lane, map));
             }
-            LaneType::Driving | LaneType::Bus => {
+            LaneType::Driving => {
                 batch.extend(general_road_marking, calculate_driving_lines(lane, road));
                 batch.extend(general_road_marking, calculate_turn_markings(map, lane));
                 batch.extend(general_road_marking, calculate_one_way_markings(lane, road));
             }
-            LaneType::Biking => {}
+            LaneType::Bus => {
+                batch.extend(general_road_marking, calculate_driving_lines(lane, road));
+                batch.extend(general_road_marking, calculate_turn_markings(map, lane));
+                batch.extend(general_road_marking, calculate_one_way_markings(lane, road));
+                for (pt, angle) in lane
+                    .lane_center_pts
+                    .step_along(Distance::meters(30.0), Distance::meters(5.0))
+                {
+                    batch.append(
+                        GeomBatch::load_svg(prerender, "system/assets/map/bus_only.svg")
+                            .scale(0.06)
+                            .centered_on(pt)
+                            .rotate(angle.shortest_rotation_towards(Angle::degrees(-90.0))),
+                    );
+                }
+            }
+            LaneType::Biking => {
+                for (pt, angle) in lane
+                    .lane_center_pts
+                    .step_along(Distance::meters(30.0), Distance::meters(5.0))
+                {
+                    batch.append(
+                        GeomBatch::load_svg(prerender, "system/assets/meters/bike.svg")
+                            .scale(0.06)
+                            .centered_on(pt)
+                            .rotate(angle.shortest_rotation_towards(Angle::degrees(-90.0))),
+                    );
+                }
+            }
             LaneType::SharedLeftTurn => {
                 let thickness = Distance::meters(0.25);
                 batch.push(
@@ -86,8 +115,36 @@ impl DrawLane {
                         .must_shift_left((lane.width - thickness) / 2.0)
                         .make_polygons(thickness),
                 );
+                for (pt, angle) in lane
+                    .lane_center_pts
+                    .step_along(Distance::meters(30.0), Distance::meters(5.0))
+                {
+                    batch.append(
+                        GeomBatch::load_svg(prerender, "system/assets/map/shared_left_turn.svg")
+                            .autocrop()
+                            .scale(0.003)
+                            .centered_on(pt)
+                            .rotate(angle.shortest_rotation_towards(Angle::degrees(-90.0))),
+                    );
+                }
             }
-            LaneType::Construction => {}
+            LaneType::Construction => {
+                for (pt, angle) in lane
+                    .lane_center_pts
+                    .step_along(Distance::meters(30.0), Distance::meters(5.0))
+                {
+                    // TODO Still not quite centered right, but close enough
+                    batch.append(
+                        GeomBatch::load_svg(prerender, "system/assets/map/under_construction.svg")
+                            .scale(0.05)
+                            .rotate_around_batch_center(
+                                angle.shortest_rotation_towards(Angle::degrees(-90.0)),
+                            )
+                            .autocrop()
+                            .centered_on(pt),
+                    );
+                }
+            }
             LaneType::LightRail => {
                 let track_width = lane.width / 4.0;
                 batch.push(
@@ -103,69 +160,17 @@ impl DrawLane {
                         .make_polygons(track_width),
                 );
 
-                // Start away from the intersections
-                let tile_every = Distance::meters(3.0);
-                let mut dist_along = tile_every;
-                while dist_along < lane.lane_center_pts.length() - tile_every {
-                    let (pt, angle) = lane.lane_center_pts.must_dist_along(dist_along);
+                for (pt, angle) in lane
+                    .lane_center_pts
+                    .step_along(Distance::meters(3.0), Distance::meters(3.0))
+                {
                     // Reuse perp_line. Project away an arbitrary amount
                     let pt2 = pt.project_away(Distance::meters(1.0), angle);
                     batch.push(
                         app.cs().light_rail_track,
                         perp_line(Line::must_new(pt, pt2), lane.width).make_polygons(track_width),
                     );
-                    dist_along += tile_every;
                 }
-            }
-        }
-
-        if lane.is_bus()
-            || lane.is_biking()
-            || lane.lane_type == LaneType::Construction
-            || lane.lane_type == LaneType::SharedLeftTurn
-        {
-            let buffer = Distance::meters(5.0);
-            let btwn = Distance::meters(30.0);
-            let len = lane.lane_center_pts.length();
-
-            let mut dist = buffer;
-            while dist + buffer <= len {
-                let (pt, angle) = lane.lane_center_pts.must_dist_along(dist);
-                if lane.is_bus() {
-                    batch.append(
-                        GeomBatch::load_svg(prerender, "system/assets/map/bus_only.svg")
-                            .scale(0.06)
-                            .centered_on(pt)
-                            .rotate(angle.shortest_rotation_towards(Angle::degrees(-90.0))),
-                    );
-                } else if lane.is_biking() {
-                    batch.append(
-                        GeomBatch::load_svg(prerender, "system/assets/meters/bike.svg")
-                            .scale(0.06)
-                            .centered_on(pt)
-                            .rotate(angle.shortest_rotation_towards(Angle::degrees(-90.0))),
-                    );
-                } else if lane.lane_type == LaneType::SharedLeftTurn {
-                    batch.append(
-                        GeomBatch::load_svg(prerender, "system/assets/map/shared_left_turn.svg")
-                            .autocrop()
-                            .scale(0.003)
-                            .centered_on(pt)
-                            .rotate(angle.shortest_rotation_towards(Angle::degrees(-90.0))),
-                    );
-                } else if lane.lane_type == LaneType::Construction {
-                    // TODO Still not quite centered right, but close enough
-                    batch.append(
-                        GeomBatch::load_svg(prerender, "system/assets/map/under_construction.svg")
-                            .scale(0.05)
-                            .rotate_around_batch_center(
-                                angle.shortest_rotation_towards(Angle::degrees(-90.0)),
-                            )
-                            .autocrop()
-                            .centered_on(pt),
-                    );
-                }
-                dist += btwn;
             }
         }
 
@@ -224,28 +229,18 @@ fn perp_line(l: Line, length: Distance) -> Line {
 }
 
 fn calculate_sidewalk_lines(lane: &Lane) -> Vec<Polygon> {
-    let tile_every = lane.width;
-
-    let length = lane.length();
-
-    let mut result = Vec::new();
-    // Start away from the intersections
-    let mut dist_along = tile_every;
-    while dist_along < length - tile_every {
-        let (pt, angle) = lane.lane_center_pts.must_dist_along(dist_along);
-        // Reuse perp_line. Project away an arbitrary amount
-        let pt2 = pt.project_away(Distance::meters(1.0), angle);
-        result.push(
-            perp_line(Line::must_new(pt, pt2), lane.width).make_polygons(Distance::meters(0.25)),
-        );
-        dist_along += tile_every;
-    }
-
-    result
+    lane.lane_center_pts
+        .step_along(lane.width, lane.width)
+        .into_iter()
+        .map(|(pt, angle)| {
+            // Reuse perp_line. Project away an arbitrary amount
+            let pt2 = pt.project_away(Distance::meters(1.0), angle);
+            perp_line(Line::must_new(pt, pt2), lane.width).make_polygons(Distance::meters(0.25))
+        })
+        .collect()
 }
 
 fn calculate_parking_lines(lane: &Lane, map: &Map) -> Vec<Polygon> {
-    // meters, but the dims get annoying below to remove
     let leg_length = Distance::meters(1.0);
 
     let mut result = Vec::new();
@@ -372,14 +367,13 @@ fn calculate_one_way_markings(lane: &Lane, parent: &Road) -> Vec<Polygon> {
     }
 
     let arrow_len = Distance::meters(4.0);
-    let btwn = Distance::meters(30.0);
     let thickness = Distance::meters(0.25);
     // Stop 1m before the calculate_turn_markings() stuff starts
-    let len = lane.length() - Distance::meters(8.0);
-
-    let mut dist = arrow_len;
-    while dist + arrow_len <= len {
-        let (pt, angle) = lane.lane_center_pts.must_dist_along(dist);
+    for (pt, angle) in lane.lane_center_pts.step_along_start_end(
+        Distance::meters(30.0),
+        arrow_len,
+        arrow_len + Distance::meters(8.0),
+    ) {
         results.push(
             PolyLine::must_new(vec![
                 pt.project_away(arrow_len / 2.0, angle.opposite()),
@@ -387,7 +381,6 @@ fn calculate_one_way_markings(lane: &Lane, parent: &Road) -> Vec<Polygon> {
             ])
             .make_arrow(thickness, ArrowCap::Triangle),
         );
-        dist += btwn;
     }
     results
 }

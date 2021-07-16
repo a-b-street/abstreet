@@ -95,12 +95,7 @@ impl SteepStreets {
                 pl = pl.reversed();
             }
 
-            let btwn = Distance::meters(15.0);
-            let len = pl.length();
-
-            let mut dist = arrow_len;
-            while dist + arrow_len <= len {
-                let (pt, angle) = pl.must_dist_along(dist);
+            for (pt, angle) in pl.step_along(Distance::meters(15.0), arrow_len) {
                 arrows.push(
                     Color::WHITE,
                     PolyLine::must_new(vec![
@@ -110,7 +105,6 @@ impl SteepStreets {
                     ])
                     .make_polygons(thickness),
                 );
-                dist += btwn;
             }
         }
         colorer.unzoomed.append(arrows);

@@ -74,14 +74,10 @@ fn generate_input(map: &RawMap) -> Result<Vec<OriginalRoad>> {
         // TODO Handle cul-de-sacs
         if let Ok(pl) = PolyLine::new(r.center_points.clone()) {
             ids.push(*id);
-            // Sample points every meter along the road
+            // Sample points along the road. Smaller step size gives more detail, but is slower.
             let mut pts = Vec::new();
-            let mut dist = Distance::ZERO;
-            while dist <= pl.length() {
-                let (pt, _) = pl.dist_along(dist).unwrap();
+            for (pt, _) in pl.step_along(Distance::meters(5.0), Distance::ZERO) {
                 pts.push(pt);
-                // Smaller gives more detail, but is slower.
-                dist += Distance::meters(5.0);
             }
             // Always ask for the intersection
             if *pts.last().unwrap() != pl.last_pt() {
