@@ -293,7 +293,7 @@ impl<'a, 'c> Image<'a, 'c> {
                     DrawWithTooltips::new_widget(
                         ctx,
                         batch,
-                        vec![(bounds.get_rectangle(), tooltip)],
+                        vec![(bounds.get_rectangle(), tooltip, None)],
                         Box::new(|_| GeomBatch::new()),
                     )
                 } else {

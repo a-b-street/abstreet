@@ -1,8 +1,8 @@
 use geom::Polygon;
 
 use crate::{
-    Drawable, EventCtx, GeomBatch, GfxCtx, ScreenDims, ScreenPt, ScreenRectangle, Text, Widget,
-    WidgetImpl, WidgetOutput,
+    Drawable, EventCtx, GeomBatch, GfxCtx, Outcome, ScreenDims, ScreenPt, ScreenRectangle, Text,
+    Widget, WidgetImpl, WidgetOutput,
 };
 
 // Just draw something, no interaction.
@@ -41,8 +41,9 @@ impl WidgetImpl for JustDraw {
 
 pub struct DrawWithTooltips {
     draw: Drawable,
-    tooltips: Vec<(Polygon, Text)>,
+    tooltips: Vec<(Polygon, Text, Option<String>)>,
     hover: Box<dyn Fn(&Polygon) -> GeomBatch>,
+    hovering_on_idx: Option<usize>,
 
     top_left: ScreenPt,
     dims: ScreenDims,
@@ -50,20 +51,23 @@ pub struct DrawWithTooltips {
 
 impl DrawWithTooltips {
     /// `batch`: the `GeomBatch` to draw
-    /// `tooltips`: (hitbox, text) tuples where each `text` is shown when the user hovers over
-    ///             the respective `hitbox`
+    /// `tooltips`: (hitbox, text, clickable label) tuples where each `text` is shown when the user hovers over
+    ///             the respective `hitbox`. If a label is present and the user clicks the
+    ///             `hitbox`, then it acts like a button click. It's assumed the hitboxes are
+    ///             non-overlapping.
     /// `hover`: returns a GeomBatch to render upon hovering. Return an `GeomBox::new()` if
     ///          you want hovering to be a no-op
     pub fn new_widget(
         ctx: &EventCtx,
         batch: GeomBatch,
-        tooltips: Vec<(Polygon, Text)>,
+        tooltips: Vec<(Polygon, Text, Option<String>)>,
         hover: Box<dyn Fn(&Polygon) -> GeomBatch>,
     ) -> Widget {
         Widget::new(Box::new(DrawWithTooltips {
             dims: batch.get_dims(),
             top_left: ScreenPt::new(0.0, 0.0),
             hover,
+            hovering_on_idx: None,
             draw: ctx.upload(batch),
             tooltips,
         }))
@@ -79,26 +83,40 @@ impl WidgetImpl for DrawWithTooltips {
         self.top_left = top_left;
     }
 
-    fn event(&mut self, _: &mut EventCtx, _: &mut WidgetOutput) {}
+    fn event(&mut self, ctx: &mut EventCtx, output: &mut WidgetOutput) {
+        if ctx.redo_mouseover() {
+            self.hovering_on_idx = None;
+            if let Some(cursor) = ctx.canvas.get_cursor_in_screen_space() {
+                if !ScreenRectangle::top_left(self.top_left, self.dims).contains(cursor) {
+                    return;
+                }
+                let translated =
+                    ScreenPt::new(cursor.x - self.top_left.x, cursor.y - self.top_left.y).to_pt();
+                for (idx, (hitbox, _, _)) in self.tooltips.iter().enumerate() {
+                    if hitbox.contains_pt(translated) {
+                        self.hovering_on_idx = Some(idx);
+                        break;
+                    }
+                }
+            }
+        }
+
+        if let Some(idx) = self.hovering_on_idx {
+            if ctx.normal_left_click() {
+                if let Some(ref label) = self.tooltips[idx].2 {
+                    output.outcome = Outcome::Clicked(label.clone());
+                }
+            }
+        }
+    }
 
     fn draw(&self, g: &mut GfxCtx) {
         g.redraw_at(self.top_left, &self.draw);
-
-        if let Some(cursor) = g.canvas.get_cursor_in_screen_space() {
-            if !ScreenRectangle::top_left(self.top_left, self.dims).contains(cursor) {
-                return;
-            }
-            let translated =
-                ScreenPt::new(cursor.x - self.top_left.x, cursor.y - self.top_left.y).to_pt();
-            // TODO Assume regions are non-overlapping
-            for (region, txt) in &self.tooltips {
-                if region.contains_pt(translated) {
-                    let extra = g.upload((self.hover)(region));
-                    g.redraw_at(self.top_left, &extra);
-                    g.draw_mouse_tooltip(txt.clone());
-                    return;
-                }
-            }
+        if let Some(idx) = self.hovering_on_idx {
+            let (hitbox, txt, _) = &self.tooltips[idx];
+            let extra = g.upload((self.hover)(hitbox));
+            g.redraw_at(self.top_left, &extra);
+            g.draw_mouse_tooltip(txt.clone());
         }
     }
 }

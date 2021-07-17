@@ -1,10 +1,11 @@
 use std::cmp::Ordering;
+use std::collections::HashMap;
 use std::fmt::Display;
 
 use abstutil::{abbreviated_format, prettyprint_usize};
 use geom::{Angle, Distance, Duration, Line, Polygon, Pt2D, Time};
 use map_gui::tools::ColorScale;
-use sim::{Problem, TripMode};
+use sim::{Problem, TripID, TripMode};
 use widgetry::{Color, DrawWithTooltips, GeomBatch, GeomBatchStack, StackAlignment, Text, Widget};
 
 use crate::{App, EventCtx};
@@ -54,10 +55,15 @@ pub trait TripProblemFilter {
     fn include_no_changes(&self) -> bool;
 
     // Returns:
-    // 1) trip duration after changes
-    // 2) difference in number of matching problems, where positive means MORE problems after
+    // 1) trip ID
+    // 2) trip duration after changes
+    // 3) difference in number of matching problems, where positive means MORE problems after
     //    changes
-    fn trip_problems(&self, app: &App, problem_type: ProblemType) -> Vec<(Duration, isize)> {
+    fn trip_problems(
+        &self,
+        app: &App,
+        problem_type: ProblemType,
+    ) -> Vec<(TripID, Duration, isize)> {
         let before = app.prebaked();
         let after = app.primary.sim.get_analytics();
         let empty = Vec::new();
@@ -73,7 +79,7 @@ pub trait TripProblemFilter {
                 if !self.include_no_changes() && count_after == count_before {
                     continue;
                 }
-                points.push((time_after, count_after - count_before));
+                points.push((id, time_after, count_after - count_before));
             }
         }
         points
@@ -97,9 +103,14 @@ lazy_static::lazy_static! {
     static ref CLEAR_COLOR_SCALE: ColorScale = ColorScale(vec![Color::CLEAR, Color::CLEAR]);
 }
 
-pub fn problem_matrix(ctx: &mut EventCtx, app: &App, trips: &[(Duration, isize)]) -> Widget {
-    let points = trips;
-
+/// The `title` is just used to generate unique labels. Returns a widget and a mapping from
+/// `Outcome::Clicked` labels to the list of trips matching the bucket.
+pub fn problem_matrix(
+    ctx: &mut EventCtx,
+    app: &App,
+    title: &str,
+    trips: Vec<(TripID, Duration, isize)>,
+) -> (Widget, HashMap<String, Vec<TripID>>) {
     let duration_buckets = vec![
         Duration::ZERO,
         Duration::minutes(5),
@@ -110,14 +121,15 @@ pub fn problem_matrix(ctx: &mut EventCtx, app: &App, trips: &[(Duration, isize)]
     ];
 
     let num_buckets = 7;
-    let mut matrix = Matrix::new(duration_buckets, bucketize_isizes(num_buckets, points));
-    for (x, y) in points {
-        matrix.add_pt(*x, *y);
+    let mut matrix = Matrix::new(duration_buckets, bucketize_isizes(num_buckets, &trips));
+    for (id, x, y) in trips {
+        matrix.add_pt(id, x, y);
     }
     matrix.draw(
         ctx,
         app,
         MatrixOptions {
+            title: title.to_string(),
             total_width: 600.0,
             total_height: 600.0,
             color_scale_for_bucket: Box::new(|app, _, n| match n.cmp(&0) {
@@ -186,17 +198,17 @@ pub fn problem_matrix(ctx: &mut EventCtx, app: &App, trips: &[(Duration, isize)]
     )
 }
 
-/// Aka a 2D histogram. Counts the number of matching points in each cell.
-struct Matrix<X, Y> {
-    counts: Vec<usize>,
+/// Aka a 2D histogram. Tracks matching IDs in each cell.
+struct Matrix<ID, X, Y> {
+    entries: Vec<Vec<ID>>,
     buckets_x: Vec<X>,
     buckets_y: Vec<Y>,
 }
 
-impl<X: Copy + PartialOrd + Display, Y: Copy + PartialOrd + Display> Matrix<X, Y> {
-    fn new(buckets_x: Vec<X>, buckets_y: Vec<Y>) -> Matrix<X, Y> {
+impl<ID, X: Copy + PartialOrd + Display, Y: Copy + PartialOrd + Display> Matrix<ID, X, Y> {
+    fn new(buckets_x: Vec<X>, buckets_y: Vec<Y>) -> Matrix<ID, X, Y> {
         Matrix {
-            counts: std::iter::repeat(0)
+            entries: std::iter::repeat_with(Vec::new)
                 .take(buckets_x.len() * buckets_y.len())
                 .collect(),
             buckets_x,
@@ -204,7 +216,7 @@ impl<X: Copy + PartialOrd + Display, Y: Copy + PartialOrd + Display> Matrix<X, Y
         }
     }
 
-    fn add_pt(&mut self, x: X, y: Y) {
+    fn add_pt(&mut self, id: ID, x: X, y: Y) {
         // Find its bucket
         // TODO Unit test this
         let x_idx = self
@@ -220,7 +232,7 @@ impl<X: Copy + PartialOrd + Display, Y: Copy + PartialOrd + Display> Matrix<X, Y
             .unwrap_or(self.buckets_y.len())
             - 1;
         let idx = self.idx(x_idx, y_idx);
-        self.counts[idx] += 1;
+        self.entries[idx].push(id);
     }
 
     fn idx(&self, x: usize, y: usize) -> usize {
@@ -228,21 +240,32 @@ impl<X: Copy + PartialOrd + Display, Y: Copy + PartialOrd + Display> Matrix<X, Y
         y * self.buckets_x.len() + x
     }
 
-    fn draw(self, ctx: &mut EventCtx, app: &App, opts: MatrixOptions<X, Y>) -> Widget {
+    fn draw(
+        mut self,
+        ctx: &mut EventCtx,
+        app: &App,
+        opts: MatrixOptions<X, Y>,
+    ) -> (Widget, HashMap<String, Vec<ID>>) {
         let mut grid_batch = GeomBatch::new();
         let mut tooltips = Vec::new();
         let cell_width = opts.total_width / (self.buckets_x.len() as f64);
         let cell_height = opts.total_height / (self.buckets_y.len() as f64);
         let cell = Polygon::rectangle(cell_width, cell_height);
 
-        let max_count = *self.counts.iter().max().unwrap() as f64;
+        let max_count = self.entries.iter().map(|list| list.len()).max().unwrap() as f64;
 
+        let mut mapping = HashMap::new();
         for x in 0..self.buckets_x.len() - 1 {
             for y in 0..self.buckets_y.len() - 1 {
                 let is_first_xbucket = x == 0;
                 let is_last_xbucket = x == self.buckets_x.len() - 2;
                 let is_middle_ybucket = y + 1 == self.buckets_y.len() / 2;
-                let count = self.counts[self.idx(x, y)];
+                let idx = self.idx(x, y);
+                let count = self.entries[idx].len();
+                let bucket_label = format!("{}/{}", opts.title, idx);
+                if count != 0 {
+                    mapping.insert(bucket_label.clone(), std::mem::take(&mut self.entries[idx]));
+                }
                 let color = if count == 0 {
                     widgetry::Color::CLEAR
                 } else {
@@ -288,6 +311,7 @@ impl<X: Copy + PartialOrd + Display, Y: Copy + PartialOrd + Display> Matrix<X, Y
                             (self.buckets_y[y], self.buckets_y[y + 1]),
                             count,
                         ),
+                        Some(bucket_label),
                     ));
                 }
             }
@@ -388,7 +412,7 @@ impl<X: Copy + PartialOrd + Display, Y: Copy + PartialOrd + Display> Matrix<X, Y
             x_axis_scale
         };
 
-        for (polygon, _) in tooltips.iter_mut() {
+        for (polygon, _, _) in &mut tooltips {
             let mut translated = polygon.translate(y_axis_batch.get_bounds().width(), 0.0);
             std::mem::swap(&mut translated, polygon);
         }
@@ -398,11 +422,21 @@ impl<X: Copy + PartialOrd + Display, Y: Copy + PartialOrd + Display> Matrix<X, Y
         let mut chart = GeomBatchStack::horizontal(vec![y_axis_batch, col.batch()]);
         chart.set_alignment(StackAlignment::Top);
 
-        DrawWithTooltips::new_widget(ctx, chart.batch(), tooltips, Box::new(|_| GeomBatch::new()))
+        (
+            DrawWithTooltips::new_widget(
+                ctx,
+                chart.batch(),
+                tooltips,
+                Box::new(|_| GeomBatch::new()),
+            ),
+            mapping,
+        )
     }
 }
 
 struct MatrixOptions<X, Y> {
+    // To disambiguate labels
+    title: String,
     total_width: f64,
     total_height: f64,
     // (lower_bound, upper_bound) -> Cell Label
@@ -411,7 +445,7 @@ struct MatrixOptions<X, Y> {
     tooltip_for_bucket: Box<dyn Fn((Option<X>, Option<X>), (Y, Y), usize) -> Text>,
 }
 
-fn bucketize_isizes(max_buckets: usize, pts: &[(Duration, isize)]) -> Vec<isize> {
+fn bucketize_isizes(max_buckets: usize, pts: &[(TripID, Duration, isize)]) -> Vec<isize> {
     debug_assert!(
         max_buckets % 2 == 1,
         "num_buckets must be odd to have a symmetrical number of buckets around axis"
@@ -420,8 +454,8 @@ fn bucketize_isizes(max_buckets: usize, pts: &[(Duration, isize)]) -> Vec<isize>
 
     let positive_buckets = (max_buckets - 1) / 2;
     // uniformly sized integer buckets
-    let max = match pts.iter().max_by_key(|(_, cnt)| cnt.abs()) {
-        Some(t) if (t.1.abs() as usize) >= positive_buckets => t.1.abs(),
+    let max = match pts.iter().max_by_key(|(_, _, cnt)| cnt.abs()) {
+        Some(t) if (t.2.abs() as usize) >= positive_buckets => t.2.abs(),
         _ => {
             // Enforce a bucket width of at least 1.
             let negative_buckets = -(positive_buckets as isize);

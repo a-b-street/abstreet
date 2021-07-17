@@ -612,7 +612,7 @@ fn make_timeline(
     // icons above them.
     let mut batch = GeomBatch::new();
     // And associate a tooltip with each rectangle segment
-    let mut tooltips: Vec<(Polygon, Text)> = Vec::new();
+    let mut tooltips: Vec<(Polygon, Text, Option<String>)> = Vec::new();
     // How far along are we from previous segments?
     let mut x1 = 0.0;
     let rectangle_height = 15.0;
@@ -660,6 +660,7 @@ fn make_timeline(
         tooltips.push((
             rectangle.clone(),
             Text::from_multiline(tooltip.into_iter().map(Line).collect()),
+            None,
         ));
 
         batch.push(

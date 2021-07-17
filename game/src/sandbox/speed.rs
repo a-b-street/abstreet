@@ -4,8 +4,9 @@ use map_gui::tools::PopupMsg;
 use map_gui::ID;
 use sim::AlertLocation;
 use widgetry::{
-    Choice, Color, ControlState, EdgeInsets, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
-    Line, Outcome, Panel, PersistentSplit, ScreenDims, Text, TextExt, VerticalAlignment, Widget,
+    Choice, Color, ControlState, DrawWithTooltips, EdgeInsets, EventCtx, GeomBatch, GfxCtx,
+    HorizontalAlignment, Key, Line, Outcome, Panel, PersistentSplit, ScreenDims, Text, TextExt,
+    VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -253,7 +254,6 @@ impl TimePanel {
             progress_bar.push(cursor_fg, triangle_poly);
         }
 
-        use widgetry::DrawWithTooltips;
         let mut tooltip_text = Text::from("Finished Trips");
         tooltip_text.add_line(format!(
             "{} ({}% of total)",
@@ -286,7 +286,7 @@ impl TimePanel {
 
         let bounds = progress_bar.get_bounds();
         let bounding_box = Polygon::rectangle(bounds.width(), bounds.height());
-        let tooltip = vec![(bounding_box, tooltip_text)];
+        let tooltip = vec![(bounding_box, tooltip_text, None)];
         DrawWithTooltips::new_widget(ctx, progress_bar, tooltip, Box::new(|_| GeomBatch::new()))
     }
 
