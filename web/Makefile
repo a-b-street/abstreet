@@ -29,7 +29,7 @@ release: clean build
 dev: export WASM_PACK_FLAGS=--dev
 dev: build build/dist/data
 
-server:
+server: build/dist/data
 	cd build/dist && python3 -m http.server $(SERVER_PORT)
 
 ##
@@ -47,11 +47,17 @@ build/dist/%.html: src/web_root/*.html
 	# just copy everything... we could do something more nuanced
 	cp -r src/web_root/* build/dist
 
+# We rebuild wasm when any of these files change. 
+#
+# Because Make doesn't know about rust's build system, it's pretty naive:
+# changing any rust file in any crate will trigger rebuilding the wasm 
+# (the rebuilds themselves should be pretty fast due to incremental compilation)
+RUST_SOURCES=$(shell find ../ -name \*.rs)
+
 # Produce the wasm package via our wasm-pack script
-# To skip optimization:
-#     WASM_PACK_FLAGS="--dev" make
-src/%/wasm_pkg:
+src/%/wasm_pkg: $(RUST_SOURCES)
 	bin/build-wasm $*
+	touch $@
 
 # simply copies over the wasm pkg we 
 # built to be able to compile our typescript
@@ -88,8 +94,9 @@ abstreet: build/dist/abstreet/wasm_pkg build/dist/abstreet/abstreet.bundle.js bu
 
 # Unlike the other crates, we have an explicit rule to give the "game" js a
 # more meaningful name
-src/abstreet/wasm_pkg:
+src/abstreet/wasm_pkg: $(RUST_SOURCES)
 	bin/build-wasm game abstreet
+	touch src/abstreet/wasm_pkg
 
 build/dist/abstreet/abstreet.bundle.js: build/widgetry.js build/abstreet/abstreet.js
 
