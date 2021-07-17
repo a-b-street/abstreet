@@ -1,4 +1,4 @@
-use std::collections::BTreeSet;
+use std::collections::{BTreeSet, HashMap};
 use std::fs::File;
 use std::io::Write;
 
@@ -7,7 +7,7 @@ use anyhow::Result;
 use abstutil::prettyprint_usize;
 use geom::{Distance, Duration, Polygon, Pt2D};
 use map_gui::tools::PopupMsg;
-use sim::TripMode;
+use sim::{TripID, TripMode};
 use widgetry::{
     Choice, Color, CompareTimes, DrawWithTooltips, EventCtx, GeomBatch, GfxCtx, Line, Outcome,
     Panel, State, Text, TextExt, Toggle, Widget,
@@ -16,20 +16,20 @@ use widgetry::{
 use super::trip_problems::{problem_matrix, ProblemType, TripProblemFilter};
 use crate::app::{App, Transition};
 use crate::common::color_for_mode;
+use crate::sandbox::dashboards::generic_trip_table::open_trip_transition;
 use crate::sandbox::dashboards::DashTab;
 
 pub struct TravelTimes {
     panel: Panel,
+    trip_lookup: HashMap<String, Vec<TripID>>,
 }
 
 impl TravelTimes {
     pub fn new_state(ctx: &mut EventCtx, app: &App, filter: Filter) -> Box<dyn State<App>> {
-        Box::new(TravelTimes {
-            panel: TravelTimes::make_panel(ctx, app, filter),
-        })
+        Box::new(TravelTimes::new(ctx, app, filter))
     }
 
-    fn make_panel(ctx: &mut EventCtx, app: &App, filter: Filter) -> Panel {
+    fn new(ctx: &mut EventCtx, app: &App, filter: Filter) -> TravelTimes {
         let mut filters = vec!["Filters".text_widget(ctx)];
         for mode in TripMode::all() {
             filters.push(Toggle::colored_checkbox(
@@ -48,7 +48,14 @@ impl TravelTimes {
                 .align_bottom(),
         );
 
-        Panel::new_builder(Widget::col(vec![
+        let (problems, trip_lookup) = problem_matrix(
+            ctx,
+            app,
+            "delays",
+            filter.trip_problems(app, ProblemType::IntersectionDelay),
+        );
+
+        let panel = Panel::new_builder(Widget::col(vec![
             DashTab::TravelTimes.picker(ctx, app),
             Widget::row(vec![
                 Widget::col(filters).section(ctx),
@@ -92,19 +99,16 @@ impl TravelTimes {
                                 filter.include_no_changes(),
                             ),
                         ]),
-                        problem_matrix(
-                            ctx,
-                            app,
-                            &filter.trip_problems(app, ProblemType::IntersectionDelay),
-                        )
-                        .margin_left(32),
+                        problems.margin_left(32),
                     ])
                     .section(ctx),
                 ]),
             ]),
         ]))
         .exact_size_percent(90, 90)
-        .build(ctx)
+        .build(ctx);
+
+        TravelTimes { panel, trip_lookup }
     }
 }
 
@@ -125,7 +129,10 @@ impl State<App> for TravelTimes {
                     });
                 }
                 "close" => Transition::Pop,
-                _ => unreachable!(),
+                x => {
+                    // TODO Handle browsing multiple trips
+                    return open_trip_transition(app, self.trip_lookup[x][0].0);
+                }
             },
             Outcome::Changed(_) => {
                 if let Some(t) = DashTab::TravelTimes.transition(ctx, app, &self.panel) {
@@ -142,9 +149,9 @@ impl State<App> for TravelTimes {
                         filter.modes.insert(m);
                     }
                 }
-                let mut new_panel = TravelTimes::make_panel(ctx, app, filter);
-                new_panel.restore(ctx, &self.panel);
-                self.panel = new_panel;
+                let mut new = TravelTimes::new(ctx, app, filter);
+                new.panel.restore(ctx, &self.panel);
+                *self = new;
                 Transition::Keep
             }
             _ => Transition::Keep,
@@ -462,6 +469,7 @@ fn contingency_table(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
                     ))
                     .fg(Color::hex("#72CE36")),
                 ]),
+                None,
             ));
         }
         if num_loss > 0 {
@@ -496,6 +504,7 @@ fn contingency_table(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
                     Line(format!("Lost {} in total", total_loss.to_rounded_string(1)))
                         .fg(Color::hex("#EB3223")),
                 ]),
+                None,
             ));
         }
         x1 += bar_width;
