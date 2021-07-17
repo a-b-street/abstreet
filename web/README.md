@@ -44,5 +44,5 @@ make server
 The workflow for interactive development of just one app in debug mode:
 
 ```
-make clean abstreet build/dist/data server
+make abstreet server
 ```
