@@ -974,7 +974,7 @@ checksum = "7360491ce676a36bf9bb3c56c1aa791658183a54d2744120f27285738d90465a"
 [[package]]
 name = "fast_paths"
 version = "0.3.0-SNAPSHOT"
-source = "git+https://github.com/easbar/fast_paths#1f9c984708492f1027ac3745bdcc96d81567f89f"
+source = "git+https://github.com/easbar/fast_paths?branch=large_edge_weights_quick_fix#634957aea136ac56679123196d5e97b7a2c1a442"
 dependencies = [
  "log",
  "priority-queue",

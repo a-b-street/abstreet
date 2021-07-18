@@ -9,7 +9,7 @@ abstio = { path = "../abstio" }
 abstutil = { path = "../abstutil" }
 anyhow = "1.0.38"
 enumset = { version = "1.0.3", features=["serde"] }
-fast_paths = { git = "https://github.com/easbar/fast_paths" }
+fast_paths = { git = "https://github.com/easbar/fast_paths", branch = "large_edge_weights_quick_fix" }
 geom = { path = "../geom" }
 log = "0.4.14"
 nbez = "0.1.0"
