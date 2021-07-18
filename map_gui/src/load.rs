@@ -164,12 +164,12 @@ mod native_loader {
     // Two implementations for reading the file, using serde or just raw bytes
     impl<T: 'static + DeserializeOwned> Readable for T {
         fn read_file(path: String, timer: &mut Timer) -> Result<T> {
-            abstio::read_object(path.clone(), timer)
+            abstio::read_object(path, timer)
         }
     }
     impl Readable for RawBytes {
         fn read_file(path: String, _: &mut Timer) -> Result<RawBytes> {
-            abstio::slurp_file(path).map(|bytes| RawBytes(bytes))
+            abstio::slurp_file(path).map(RawBytes)
         }
     }
 }

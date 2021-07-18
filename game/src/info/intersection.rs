@@ -200,7 +200,7 @@ fn current_demand_body(ctx: &mut EventCtx, app: &App, id: IntersectionID) -> Wid
         polygon.translate(-bounds.min_x, -bounds.min_y).scale(zoom),
     );
 
-    let mut tooltips: Vec<(Polygon, Text, Option<String>)> = Vec::new();
+    let mut tooltips = Vec::new();
     let mut outlines = Vec::new();
     for (pl, demand) in demand_per_movement {
         let percent = (demand as f64) / (total_demand as f64);

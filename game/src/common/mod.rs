@@ -56,12 +56,8 @@ impl CommonState {
             // TODO Also have a hotkey binding for this?
             if app.per_obj.left_click(ctx, "show info") {
                 app.primary.layer = None;
-                self.info_panel = Some(InfoPanel::new(
-                    ctx,
-                    app,
-                    Tab::from_id(app, id.clone()),
-                    ctx_actions,
-                ));
+                self.info_panel =
+                    Some(InfoPanel::new(ctx, app, Tab::from_id(app, id), ctx_actions));
                 return None;
             }
         }

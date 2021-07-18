@@ -49,7 +49,7 @@ impl WidgetImpl for Container {
     fn event(&mut self, ctx: &mut EventCtx, output: &mut WidgetOutput) {
         for w in &mut self.members {
             w.widget.event(ctx, output);
-            if output.outcome != Outcome::Nothing {
+            if !matches!(output.outcome, Outcome::Nothing) {
                 return;
             }
         }

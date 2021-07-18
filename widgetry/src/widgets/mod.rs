@@ -7,6 +7,7 @@ use stretch::style::{
     AlignItems, Dimension, FlexDirection, FlexWrap, JustifyContent, PositionType, Style,
 };
 
+use abstutil::CloneableAny;
 use geom::{CornerRadii, Distance, Percent, Polygon};
 
 use crate::widgets::containers::{Container, Nothing};
@@ -67,15 +68,22 @@ pub trait WidgetImpl: downcast_rs::Downcast {
 }
 
 /// The result of a Panel handling an event
-#[derive(Debug, PartialEq)]
 pub enum Outcome {
     /// An action was done
     Clicked(String),
+    /// An action was done, with custom data. The caller must cast to the proper type.
+    ClickCustom(Box<dyn CloneableAny>),
     /// A dropdown, checkbox, spinner, etc changed values. The name of the changed widget is
     /// returned, but not the value, since its type is generic.
     Changed(String),
     /// Nothing happened
     Nothing,
+}
+
+/// When an action happens through a button-like widget, what data is plumbed back?
+pub enum ClickOutcome {
+    Label(String),
+    Custom(Box<dyn CloneableAny>),
 }
 
 pub struct WidgetOutput {

@@ -74,7 +74,7 @@ pub use crate::widgets::text_box::TextBox;
 pub use crate::widgets::toggle::Toggle;
 pub use crate::widgets::DEFAULT_CORNER_RADIUS;
 pub use crate::widgets::{
-    CornerRounding, EdgeInsets, Outcome, Panel, Widget, WidgetImpl, WidgetOutput,
+    ClickOutcome, CornerRounding, EdgeInsets, Outcome, Panel, Widget, WidgetImpl, WidgetOutput,
 };
 
 mod app_state;

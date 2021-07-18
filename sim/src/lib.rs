@@ -244,6 +244,8 @@ pub struct TripID(
     pub usize,
 );
 
+impl abstutil::CloneableAny for TripID {}
+
 impl fmt::Display for TripID {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "Trip #{}", self.0)

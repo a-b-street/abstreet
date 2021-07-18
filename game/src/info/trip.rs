@@ -612,7 +612,7 @@ fn make_timeline(
     // icons above them.
     let mut batch = GeomBatch::new();
     // And associate a tooltip with each rectangle segment
-    let mut tooltips: Vec<(Polygon, Text, Option<String>)> = Vec::new();
+    let mut tooltips = Vec::new();
     // How far along are we from previous segments?
     let mut x1 = 0.0;
     let rectangle_height = 15.0;
@@ -776,7 +776,7 @@ fn make_trip_details(
                     color,
                     p.phase_type == TripPhaseType::Walking,
                     path,
-                    map_for_pathfinding
+                    map_for_pathfinding,
                 ));
             }
 

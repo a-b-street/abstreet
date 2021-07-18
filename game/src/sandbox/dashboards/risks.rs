@@ -1,4 +1,4 @@
-use std::collections::{BTreeSet, HashMap};
+use std::collections::BTreeSet;
 use std::fs::File;
 use std::io::Write;
 
@@ -15,7 +15,6 @@ use crate::sandbox::dashboards::DashTab;
 
 pub struct RiskSummaries {
     panel: Panel,
-    trip_lookup: HashMap<String, Vec<TripID>>,
 }
 
 impl RiskSummaries {
@@ -28,32 +27,11 @@ impl RiskSummaries {
             modes: maplit::btreeset! { TripMode::Bike },
             include_no_changes,
         };
+
         let ped_filter = Filter {
             modes: maplit::btreeset! { TripMode::Walk },
             include_no_changes,
         };
-
-        let (arterial_problems, mut trip_lookup) = problem_matrix(
-            ctx,
-            app,
-            "arterials",
-            ped_filter.trip_problems(app, ProblemType::ArterialIntersectionCrossing),
-        );
-        let (complex_intersection_problems, lookup2) = problem_matrix(
-            ctx,
-            app,
-            "complex intersections",
-            bike_filter.trip_problems(app, ProblemType::ComplexIntersectionCrossing),
-        );
-        let (overtaking_problems, lookup3) = problem_matrix(
-            ctx,
-            app,
-            "overtakings",
-            bike_filter.trip_problems(app, ProblemType::OvertakeDesired),
-        );
-        // The keys won't overlap, due to the unique title of each matrix.
-        trip_lookup.extend(lookup2);
-        trip_lookup.extend(lookup3);
 
         Box::new(RiskSummaries {
             panel: Panel::new_builder(Widget::col(vec![
@@ -89,7 +67,12 @@ impl RiskSummaries {
                             .small_heading()
                             .into_widget(ctx)
                             .centered_horiz(),
-                        arterial_problems,
+                        problem_matrix(
+                            ctx,
+                            app,
+                            ped_filter
+                                .trip_problems(app, ProblemType::ArterialIntersectionCrossing),
+                        ),
                     ])
                     .section(ctx)],
                 )
@@ -116,7 +99,12 @@ impl RiskSummaries {
                                 .small_heading()
                                 .into_widget(ctx)
                                 .centered_horiz(),
-                            complex_intersection_problems,
+                            problem_matrix(
+                                ctx,
+                                app,
+                                bike_filter
+                                    .trip_problems(app, ProblemType::ComplexIntersectionCrossing),
+                            ),
                         ])
                         .section(ctx),
                         Widget::col(vec![
@@ -124,7 +112,11 @@ impl RiskSummaries {
                                 .small_heading()
                                 .into_widget(ctx)
                                 .centered_horiz(),
-                            overtaking_problems,
+                            problem_matrix(
+                                ctx,
+                                app,
+                                bike_filter.trip_problems(app, ProblemType::OvertakeDesired),
+                            ),
                         ])
                         .section(ctx),
                     ],
@@ -134,7 +126,6 @@ impl RiskSummaries {
             ]))
             .exact_size_percent(90, 90)
             .build(ctx),
-            trip_lookup,
         })
     }
 }
@@ -156,11 +147,13 @@ impl State<App> for RiskSummaries {
                         }
                     });
                 }
-                x => {
-                    // TODO Handle browsing multiple trips
-                    return open_trip_transition(app, self.trip_lookup[x][0].0);
-                }
+                _ => unreachable!(),
             },
+            Outcome::ClickCustom(data) => {
+                let trips = data.as_any().downcast_ref::<Vec<TripID>>().unwrap();
+                // TODO Handle browsing multiple trips
+                open_trip_transition(app, trips[0].0)
+            }
             Outcome::Changed(_) => {
                 if let Some(t) = DashTab::RiskSummaries.transition(ctx, app, &self.panel) {
                     return t;
