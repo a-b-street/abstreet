@@ -311,7 +311,7 @@ impl<ID, X: Copy + PartialOrd + Display, Y: Copy + PartialOrd + Display> Matrix<
                             (self.buckets_y[y], self.buckets_y[y + 1]),
                             count,
                         ),
-                        Some(bucket_label),
+                        if count != 0 { Some(bucket_label) } else { None },
                     ));
                 }
             }
