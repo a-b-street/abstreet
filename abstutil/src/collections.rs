@@ -208,6 +208,24 @@ impl<K: Clone + PartialEq, V> VecMap<K, V> {
         self.inner.push((key, ctor()));
         &mut self.inner.last_mut().unwrap().1
     }
+
+    /// Doesn't dedupe
+    pub fn push(&mut self, key: K, value: V) {
+        self.inner.push((key, value));
+    }
+
+    pub fn get(&self, key: &K) -> Option<&V> {
+        for (k, v) in &self.inner {
+            if k == key {
+                return Some(v);
+            }
+        }
+        None
+    }
+
+    pub fn len(&self) -> usize {
+        self.inner.len()
+    }
 }
 
 impl<K: Clone + PartialEq, V> Default for VecMap<K, V> {
