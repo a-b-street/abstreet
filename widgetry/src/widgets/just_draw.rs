@@ -1,8 +1,8 @@
 use geom::Polygon;
 
 use crate::{
-    Drawable, EventCtx, GeomBatch, GfxCtx, Outcome, ScreenDims, ScreenPt, ScreenRectangle, Text,
-    Widget, WidgetImpl, WidgetOutput,
+    ClickOutcome, Drawable, EventCtx, GeomBatch, GfxCtx, Outcome, ScreenDims, ScreenPt,
+    ScreenRectangle, Text, Widget, WidgetImpl, WidgetOutput,
 };
 
 // Just draw something, no interaction.
@@ -41,7 +41,7 @@ impl WidgetImpl for JustDraw {
 
 pub struct DrawWithTooltips {
     draw: Drawable,
-    tooltips: Vec<(Polygon, Text, Option<String>)>,
+    tooltips: Vec<(Polygon, Text, Option<ClickOutcome>)>,
     hover: Box<dyn Fn(&Polygon) -> GeomBatch>,
     hovering_on_idx: Option<usize>,
 
@@ -51,16 +51,16 @@ pub struct DrawWithTooltips {
 
 impl DrawWithTooltips {
     /// `batch`: the `GeomBatch` to draw
-    /// `tooltips`: (hitbox, text, clickable label) tuples where each `text` is shown when the user hovers over
-    ///             the respective `hitbox`. If a label is present and the user clicks the
-    ///             `hitbox`, then it acts like a button click. It's assumed the hitboxes are
-    ///             non-overlapping.
+    /// `tooltips`: (hitbox, text, clickable action) tuples where each `text` is shown when the
+    ///             user hovers over the respective `hitbox`. If an action is present and the user
+    ///             clicks the `hitbox`, then it acts like a button click. It's assumed the
+    ///             hitboxes are non-overlapping.
     /// `hover`: returns a GeomBatch to render upon hovering. Return an `GeomBox::new()` if
     ///          you want hovering to be a no-op
     pub fn new_widget(
         ctx: &EventCtx,
         batch: GeomBatch,
-        tooltips: Vec<(Polygon, Text, Option<String>)>,
+        tooltips: Vec<(Polygon, Text, Option<ClickOutcome>)>,
         hover: Box<dyn Fn(&Polygon) -> GeomBatch>,
     ) -> Widget {
         Widget::new(Box::new(DrawWithTooltips {
@@ -104,7 +104,10 @@ impl WidgetImpl for DrawWithTooltips {
         if let Some(idx) = self.hovering_on_idx {
             if ctx.normal_left_click() {
                 if let Some(ref label) = self.tooltips[idx].2 {
-                    output.outcome = Outcome::Clicked(label.clone());
+                    output.outcome = match label {
+                        ClickOutcome::Label(label) => Outcome::Clicked(label.clone()),
+                        ClickOutcome::Custom(data) => Outcome::ClickCustom(data.clone()),
+                    }
                 }
             }
         }

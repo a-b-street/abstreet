@@ -5,6 +5,8 @@
 //! screen or menu to choose a map, then a map viewer, then maybe a state to drill down into pieces
 //! of the map.
 
+use abstutil::CloneableAny;
+
 use crate::{Canvas, Color, EventCtx, GfxCtx, Outcome, Panel};
 
 /// Any data that should last the entire lifetime of the application should be stored in the struct
@@ -223,6 +225,16 @@ pub trait SimpleState<A> {
         action: &str,
         panel: &Panel,
     ) -> Transition<A>;
+    /// Called when something on the panel has been clicked.
+    fn on_click_custom(
+        &mut self,
+        _ctx: &mut EventCtx,
+        _app: &mut A,
+        _action: Box<dyn CloneableAny>,
+        _panel: &Panel,
+    ) -> Transition<A> {
+        Transition::Keep
+    }
     /// Called when something on the panel has changed. If a transition is returned, stop handling
     /// the event and immediately apply the transition.
     fn panel_changed(
@@ -264,6 +276,7 @@ impl<A: 'static> State<A> for SimpleStateWrapper<A> {
         }
         match self.panel.event(ctx) {
             Outcome::Clicked(action) => self.inner.on_click(ctx, app, &action, &self.panel),
+            Outcome::ClickCustom(data) => self.inner.on_click_custom(ctx, app, data, &self.panel),
             Outcome::Changed(_) => self
                 .inner
                 .panel_changed(ctx, app, &mut self.panel)

@@ -190,6 +190,8 @@ pub struct MapName {
     pub map: String,
 }
 
+impl abstutil::CloneableAny for MapName {}
+
 impl MapName {
     /// Create a MapName from a country code, city, and map name.
     pub fn new(country: &str, city: &str, map: &str) -> MapName {

@@ -11,6 +11,7 @@ extern crate anyhow;
 // I'm not generally a fan of wildcard exports, but they're more maintable here.
 pub use crate::serde::*;
 pub use cli::*;
+pub use clone::*;
 pub use collections::*;
 pub use logger::*;
 pub use process::*;
@@ -18,6 +19,7 @@ pub use time::*;
 pub use utils::*;
 
 mod cli;
+mod clone;
 mod collections;
 mod logger;
 mod process;

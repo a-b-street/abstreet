@@ -5,8 +5,9 @@ use abstutil::VecMap;
 use geom::{Distance, Percent};
 use map_model::City;
 use widgetry::{
-    Autocomplete, ControlState, DrawBaselayer, DrawWithTooltips, EventCtx, GeomBatch, GfxCtx,
-    Image, Key, Line, Outcome, Panel, RewriteColor, State, Text, TextExt, Transition, Widget,
+    Autocomplete, ClickOutcome, ControlState, DrawBaselayer, DrawWithTooltips, EventCtx, GeomBatch,
+    GfxCtx, Image, Key, Line, Outcome, Panel, RewriteColor, State, Text, TextExt, Transition,
+    Widget,
 };
 
 use crate::load::{FileLoader, MapLoader};
@@ -69,7 +70,7 @@ impl<A: AppLike + 'static> CityPicker<A> {
                             tooltips.push((
                                 polygon.clone(),
                                 Text::from(nice_map_name(&name)),
-                                Some(name.path()),
+                                Some(ClickOutcome::Custom(Box::new(name))),
                             ));
                             colors.push(polygon, color);
                         }
@@ -181,8 +182,8 @@ impl<A: AppLike + 'static> CityPicker<A> {
 
 impl<A: AppLike + 'static> State<A> for CityPicker<A> {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut A) -> Transition<A> {
-        if let Outcome::Clicked(x) = self.panel.event(ctx) {
-            match x.as_ref() {
+        match self.panel.event(ctx) {
+            Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
                     return Transition::Pop;
                 }
@@ -219,7 +220,12 @@ impl<A: AppLike + 'static> State<A> for CityPicker<A> {
                         x,
                     ));
                 }
+            },
+            Outcome::ClickCustom(data) => {
+                let name = data.as_any().downcast_ref::<MapName>().unwrap();
+                return chose_city(ctx, app, name.clone(), &mut self.on_load);
             }
+            _ => {}
         }
 
         Transition::Keep

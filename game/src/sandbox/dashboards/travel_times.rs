@@ -1,4 +1,4 @@
-use std::collections::{BTreeSet, HashMap};
+use std::collections::BTreeSet;
 use std::fs::File;
 use std::io::Write;
 
@@ -21,15 +21,16 @@ use crate::sandbox::dashboards::DashTab;
 
 pub struct TravelTimes {
     panel: Panel,
-    trip_lookup: HashMap<String, Vec<TripID>>,
 }
 
 impl TravelTimes {
     pub fn new_state(ctx: &mut EventCtx, app: &App, filter: Filter) -> Box<dyn State<App>> {
-        Box::new(TravelTimes::new(ctx, app, filter))
+        Box::new(TravelTimes {
+            panel: TravelTimes::make_panel(ctx, app, filter),
+        })
     }
 
-    fn new(ctx: &mut EventCtx, app: &App, filter: Filter) -> TravelTimes {
+    fn make_panel(ctx: &mut EventCtx, app: &App, filter: Filter) -> Panel {
         let mut filters = vec!["Filters".text_widget(ctx)];
         for mode in TripMode::all() {
             filters.push(Toggle::colored_checkbox(
@@ -48,14 +49,7 @@ impl TravelTimes {
                 .align_bottom(),
         );
 
-        let (problems, trip_lookup) = problem_matrix(
-            ctx,
-            app,
-            "delays",
-            filter.trip_problems(app, ProblemType::IntersectionDelay),
-        );
-
-        let panel = Panel::new_builder(Widget::col(vec![
+        Panel::new_builder(Widget::col(vec![
             DashTab::TravelTimes.picker(ctx, app),
             Widget::row(vec![
                 Widget::col(filters).section(ctx),
@@ -99,16 +93,19 @@ impl TravelTimes {
                                 filter.include_no_changes(),
                             ),
                         ]),
-                        problems.margin_left(32),
+                        problem_matrix(
+                            ctx,
+                            app,
+                            filter.trip_problems(app, ProblemType::IntersectionDelay),
+                        )
+                        .margin_left(32),
                     ])
                     .section(ctx),
                 ]),
             ]),
         ]))
         .exact_size_percent(90, 90)
-        .build(ctx);
-
-        TravelTimes { panel, trip_lookup }
+        .build(ctx)
     }
 }
 
@@ -129,11 +126,13 @@ impl State<App> for TravelTimes {
                     });
                 }
                 "close" => Transition::Pop,
-                x => {
-                    // TODO Handle browsing multiple trips
-                    return open_trip_transition(app, self.trip_lookup[x][0].0);
-                }
+                _ => unreachable!(),
             },
+            Outcome::ClickCustom(data) => {
+                let trips = data.as_any().downcast_ref::<Vec<TripID>>().unwrap();
+                // TODO Handle browsing multiple trips
+                open_trip_transition(app, trips[0].0)
+            }
             Outcome::Changed(_) => {
                 if let Some(t) = DashTab::TravelTimes.transition(ctx, app, &self.panel) {
                     return t;
@@ -149,9 +148,9 @@ impl State<App> for TravelTimes {
                         filter.modes.insert(m);
                     }
                 }
-                let mut new = TravelTimes::new(ctx, app, filter);
-                new.panel.restore(ctx, &self.panel);
-                *self = new;
+                let mut new_panel = TravelTimes::make_panel(ctx, app, filter);
+                new_panel.restore(ctx, &self.panel);
+                self.panel = new_panel;
                 Transition::Keep
             }
             _ => Transition::Keep,

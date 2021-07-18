@@ -368,7 +368,9 @@ impl Panel {
         self.top_level.restore(ctx, prev);
 
         // Since we just moved things around, let all widgets respond to the mouse being somewhere
-        ctx.no_op_event(true, |ctx| assert_eq!(self.event(ctx), Outcome::Nothing));
+        ctx.no_op_event(true, |ctx| {
+            assert!(matches!(self.event(ctx), Outcome::Nothing))
+        });
     }
 
     pub fn scroll_to_member(&mut self, ctx: &EventCtx, name: String) {
@@ -629,7 +631,9 @@ impl PanelBuilder {
         // Just trigger error if a button is double-defined
         panel.get_all_click_actions();
         // Let all widgets initially respond to the mouse being somewhere
-        ctx.no_op_event(true, |ctx| assert_eq!(panel.event(ctx), Outcome::Nothing));
+        ctx.no_op_event(true, |ctx| {
+            assert!(matches!(panel.event(ctx), Outcome::Nothing))
+        });
         panel
     }
 
