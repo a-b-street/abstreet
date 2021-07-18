@@ -460,7 +460,7 @@
                     <span class="kw">return</span> <span class="ident">Transition::Keep</span>;
                 }
             }
-            <span class="ident">Outcome::Nothing</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">routes</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">autocomplete_done</span>(<span class="string">&quot;search&quot;</span>) {
                     <span class="kw">if</span> <span class="op">!</span><span class="ident">routes</span>.<span class="ident">is_empty</span>() {
                         <span class="ident">routes</span>[<span class="number">0</span>]

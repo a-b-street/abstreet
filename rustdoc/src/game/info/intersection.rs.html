@@ -682,7 +682,7 @@
         <span class="ident">polygon</span>.<span class="ident">translate</span>(<span class="op">-</span><span class="ident">bounds</span>.<span class="ident">min_x</span>, <span class="op">-</span><span class="ident">bounds</span>.<span class="ident">min_y</span>).<span class="ident">scale</span>(<span class="ident">zoom</span>),
     );
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tooltips</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Polygon</span>, <span class="ident">Text</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tooltips</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">outlines</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
     <span class="kw">for</span> (<span class="ident">pl</span>, <span class="ident">demand</span>) <span class="kw">in</span> <span class="ident">demand_per_movement</span> {
         <span class="kw">let</span> <span class="ident">percent</span> <span class="op">=</span> (<span class="ident">demand</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> (<span class="ident">total_demand</span> <span class="kw">as</span> <span class="ident">f64</span>);
@@ -694,7 +694,7 @@
             <span class="ident">outlines</span>.<span class="ident">push</span>(<span class="ident">p</span>);
         }
         <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color::hex</span>(<span class="string">&quot;#A3A3A3&quot;</span>), <span class="ident">arrow</span>.<span class="ident">clone</span>());
-        <span class="ident">tooltips</span>.<span class="ident">push</span>((<span class="ident">arrow</span>, <span class="ident">Text::from</span>(<span class="ident">prettyprint_usize</span>(<span class="ident">demand</span>))));
+        <span class="ident">tooltips</span>.<span class="ident">push</span>((<span class="ident">arrow</span>, <span class="ident">Text::from</span>(<span class="ident">prettyprint_usize</span>(<span class="ident">demand</span>)), <span class="prelude-val">None</span>));
     }
     <span class="ident">batch</span>.<span class="ident">extend</span>(<span class="ident">Color::WHITE</span>, <span class="ident">outlines</span>);
 

@@ -284,6 +284,19 @@
 <span id="281">281</span>
 <span id="282">282</span>
 <span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! A widgetry application splits its state into two pieces: global shared state that lasts for the</span>
 <span class="doccomment">//! entire lifetime of the application, and a stack of smaller states, only one of which is active</span>
@@ -291,6 +304,8 @@
 <span class="doccomment">//! the map and pre-rendered geometry for it. The individual states might start with a splash</span>
 <span class="doccomment">//! screen or menu to choose a map, then a map viewer, then maybe a state to drill down into pieces</span>
 <span class="doccomment">//! of the map.</span>
+
+<span class="kw">use</span> <span class="ident">abstutil::CloneableAny</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Canvas</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>};
 
@@ -510,6 +525,16 @@
         <span class="ident">action</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
         <span class="ident">panel</span>: <span class="kw-2">&amp;</span><span class="ident">Panel</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>;
+    <span class="doccomment">/// Called when something on the panel has been clicked.</span>
+    <span class="kw">fn</span> <span class="ident">on_click_custom</span>(
+        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="ident">_ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
+        <span class="ident">_app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span>,
+        <span class="ident">_action</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">CloneableAny</span><span class="op">&gt;</span>,
+        <span class="ident">_panel</span>: <span class="kw-2">&amp;</span><span class="ident">Panel</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> {
+        <span class="ident">Transition::Keep</span>
+    }
     <span class="doccomment">/// Called when something on the panel has changed. If a transition is returned, stop handling</span>
     <span class="doccomment">/// the event and immediately apply the transition.</span>
     <span class="kw">fn</span> <span class="ident">panel_changed</span>(
@@ -551,6 +576,7 @@
         }
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
             <span class="ident">Outcome::Clicked</span>(<span class="ident">action</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">on_click</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="ident">action</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">panel</span>),
+            <span class="ident">Outcome::ClickCustom</span>(<span class="ident">data</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">on_click_custom</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">data</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">panel</span>),
             <span class="ident">Outcome::Changed</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>
                 .<span class="ident">inner</span>
                 .<span class="ident">panel_changed</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">panel</span>)

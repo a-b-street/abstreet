@@ -861,6 +861,9 @@
 <span id="858">858</span>
 <span id="859">859</span>
 <span id="860">860</span>
+<span id="861">861</span>
+<span id="862">862</span>
+<span id="863">863</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std::cell::RefCell</span>;
 <span class="kw">use</span> <span class="ident">std::collections::BTreeMap</span>;
@@ -886,6 +889,7 @@
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::common::Warping</span>;
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::edit::apply_map_edits</span>;
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::layer::Layer</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::sandbox::dashboards::DashTab</span>;
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::sandbox</span>::{<span class="ident">GameplayMode</span>, <span class="ident">TutorialState</span>};
 
 <span class="comment">// Convenient typedef</span>
@@ -1591,6 +1595,7 @@
     <span class="kw">pub</span> <span class="ident">high_scores</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">GameplayMode</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">HighScore</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">info_panel_tab</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">last_gmns_timing_csv</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">dash_tab</span>: <span class="ident">DashTab</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">SessionState</span> {
@@ -1606,6 +1611,7 @@
                 <span class="string">&quot;bus&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;status&quot;</span>,
             },
             <span class="ident">last_gmns_timing_csv</span>: <span class="prelude-val">None</span>,
+            <span class="ident">dash_tab</span>: <span class="ident">DashTab::TripTable</span>,
         }
     }
 }

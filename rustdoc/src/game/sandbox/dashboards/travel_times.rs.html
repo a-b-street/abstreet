@@ -657,6 +657,14 @@
 <span id="654">654</span>
 <span id="655">655</span>
 <span id="656">656</span>
+<span id="657">657</span>
+<span id="658">658</span>
+<span id="659">659</span>
+<span id="660">660</span>
+<span id="661">661</span>
+<span id="662">662</span>
+<span id="663">663</span>
+<span id="664">664</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
 <span class="kw">use</span> <span class="ident">std::fs::File</span>;
@@ -667,7 +675,7 @@
 <span class="kw">use</span> <span class="ident">abstutil::prettyprint_usize</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
 <span class="kw">use</span> <span class="ident">map_gui::tools::PopupMsg</span>;
-<span class="kw">use</span> <span class="ident">sim::TripMode</span>;
+<span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">TripID</span>, <span class="ident">TripMode</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">CompareTimes</span>, <span class="ident">DrawWithTooltips</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>,
     <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Toggle</span>, <span class="ident">Widget</span>,
@@ -676,6 +684,7 @@
 <span class="kw">use</span> <span class="kw">super</span><span class="ident">::trip_problems</span>::{<span class="ident">problem_matrix</span>, <span class="ident">ProblemType</span>, <span class="ident">TripProblemFilter</span>};
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::common::color_for_mode</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::sandbox::dashboards::generic_trip_table::open_trip_transition</span>;
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::sandbox::dashboards::DashTab</span>;
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TravelTimes</span> {
@@ -755,7 +764,7 @@
                         <span class="ident">problem_matrix</span>(
                             <span class="ident">ctx</span>,
                             <span class="ident">app</span>,
-                            <span class="kw-2">&amp;</span><span class="ident">filter</span>.<span class="ident">trip_problems</span>(<span class="ident">app</span>, <span class="ident">ProblemType::IntersectionDelay</span>),
+                            <span class="ident">filter</span>.<span class="ident">trip_problems</span>(<span class="ident">app</span>, <span class="ident">ProblemType::IntersectionDelay</span>),
                         )
                         .<span class="ident">margin_left</span>(<span class="number">32</span>),
                     ])
@@ -787,6 +796,11 @@
                 <span class="string">&quot;close&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition::Pop</span>,
                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
             },
+            <span class="ident">Outcome::ClickCustom</span>(<span class="ident">data</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">let</span> <span class="ident">trips</span> <span class="op">=</span> <span class="ident">data</span>.<span class="ident">as_any</span>().<span class="ident">downcast_ref</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TripID</span><span class="op">&gt;</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
+                <span class="comment">// TODO Handle browsing multiple trips</span>
+                <span class="ident">open_trip_transition</span>(<span class="ident">app</span>, <span class="ident">trips</span>[<span class="number">0</span>].<span class="number">0</span>)
+            }
             <span class="ident">Outcome::Changed</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident">DashTab::TravelTimes</span>.<span class="ident">transition</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">panel</span>) {
                     <span class="kw">return</span> <span class="ident">t</span>;
@@ -1122,6 +1136,7 @@
                     ))
                     .<span class="ident">fg</span>(<span class="ident">Color::hex</span>(<span class="string">&quot;#72CE36&quot;</span>)),
                 ]),
+                <span class="prelude-val">None</span>,
             ));
         }
         <span class="kw">if</span> <span class="ident">num_loss</span> <span class="op">&gt;</span> <span class="number">0</span> {
@@ -1156,6 +1171,7 @@
                     <span class="ident">Line</span>(<span class="macro">format!</span>(<span class="string">&quot;Lost {} in total&quot;</span>, <span class="ident">total_loss</span>.<span class="ident">to_rounded_string</span>(<span class="number">1</span>)))
                         .<span class="ident">fg</span>(<span class="ident">Color::hex</span>(<span class="string">&quot;#EB3223&quot;</span>)),
                 ]),
+                <span class="prelude-val">None</span>,
             ));
         }
         <span class="ident">x1</span> <span class="op">+</span><span class="op">=</span> <span class="ident">bar_width</span>;

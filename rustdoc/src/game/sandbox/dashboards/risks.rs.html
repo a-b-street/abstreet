@@ -221,6 +221,12 @@
 <span id="218">218</span>
 <span id="219">219</span>
 <span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
 <span class="kw">use</span> <span class="ident">std::fs::File</span>;
@@ -229,11 +235,12 @@
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
 
 <span class="kw">use</span> <span class="ident">map_gui::tools::PopupMsg</span>;
-<span class="kw">use</span> <span class="ident">sim::TripMode</span>;
+<span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">TripID</span>, <span class="ident">TripMode</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">Image</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">TextExt</span>, <span class="ident">Toggle</span>, <span class="ident">Widget</span>};
 
 <span class="kw">use</span> <span class="kw">super</span><span class="ident">::trip_problems</span>::{<span class="ident">problem_matrix</span>, <span class="ident">ProblemType</span>, <span class="ident">TripProblemFilter</span>};
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::sandbox::dashboards::generic_trip_table::open_trip_transition</span>;
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::sandbox::dashboards::DashTab</span>;
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RiskSummaries</span> {
@@ -293,7 +300,7 @@
                         <span class="ident">problem_matrix</span>(
                             <span class="ident">ctx</span>,
                             <span class="ident">app</span>,
-                            <span class="kw-2">&amp;</span><span class="ident">ped_filter</span>
+                            <span class="ident">ped_filter</span>
                                 .<span class="ident">trip_problems</span>(<span class="ident">app</span>, <span class="ident">ProblemType::ArterialIntersectionCrossing</span>),
                         ),
                     ])
@@ -325,7 +332,7 @@
                             <span class="ident">problem_matrix</span>(
                                 <span class="ident">ctx</span>,
                                 <span class="ident">app</span>,
-                                <span class="kw-2">&amp;</span><span class="ident">bike_filter</span>
+                                <span class="ident">bike_filter</span>
                                     .<span class="ident">trip_problems</span>(<span class="ident">app</span>, <span class="ident">ProblemType::ComplexIntersectionCrossing</span>),
                             ),
                         ])
@@ -338,7 +345,7 @@
                             <span class="ident">problem_matrix</span>(
                                 <span class="ident">ctx</span>,
                                 <span class="ident">app</span>,
-                                <span class="kw-2">&amp;</span><span class="ident">bike_filter</span>.<span class="ident">trip_problems</span>(<span class="ident">app</span>, <span class="ident">ProblemType::OvertakeDesired</span>),
+                                <span class="ident">bike_filter</span>.<span class="ident">trip_problems</span>(<span class="ident">app</span>, <span class="ident">ProblemType::OvertakeDesired</span>),
                             ),
                         ])
                         .<span class="ident">section</span>(<span class="ident">ctx</span>),
@@ -372,6 +379,11 @@
                 }
                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
             },
+            <span class="ident">Outcome::ClickCustom</span>(<span class="ident">data</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">let</span> <span class="ident">trips</span> <span class="op">=</span> <span class="ident">data</span>.<span class="ident">as_any</span>().<span class="ident">downcast_ref</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TripID</span><span class="op">&gt;</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
+                <span class="comment">// TODO Handle browsing multiple trips</span>
+                <span class="ident">open_trip_transition</span>(<span class="ident">app</span>, <span class="ident">trips</span>[<span class="number">0</span>].<span class="number">0</span>)
+            }
             <span class="ident">Outcome::Changed</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident">DashTab::RiskSummaries</span>.<span class="ident">transition</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">panel</span>) {
                     <span class="kw">return</span> <span class="ident">t</span>;

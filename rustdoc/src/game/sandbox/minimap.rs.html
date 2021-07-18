@@ -338,7 +338,6 @@
 <span id="335">335</span>
 <span id="336">336</span>
 <span id="337">337</span>
-<span id="338">338</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">abstutil::prettyprint_usize</span>;
 <span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">MinimapControls</span>, <span class="ident">Navigator</span>};
@@ -351,7 +350,6 @@
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::app::Transition</span>;
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::common::Warping</span>;
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::layer::PickLayer</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::sandbox::dashboards::TripTable</span>;
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MinimapController</span>;
 
@@ -436,7 +434,7 @@
             <span class="string">&quot;change layers&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition::Push</span>(<span class="ident">PickLayer::pick</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)));
             }
-            <span class="string">&quot;more data&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">Transition::Push</span>(<span class="ident">Box::new</span>(<span class="ident">TripTable::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)))),
+            <span class="string">&quot;more data&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">Transition::Push</span>(<span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">dash_tab</span>.<span class="ident">launch</span>(<span class="ident">ctx</span>, <span class="ident">app</span>))),
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
         }
     }

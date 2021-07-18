@@ -569,8 +569,9 @@
 <span class="kw">use</span> <span class="ident">map_gui::ID</span>;
 <span class="kw">use</span> <span class="ident">sim::AlertLocation</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">EdgeInsets</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>,
-    <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">PersistentSplit</span>, <span class="ident">ScreenDims</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">DrawWithTooltips</span>, <span class="ident">EdgeInsets</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>,
+    <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">PersistentSplit</span>, <span class="ident">ScreenDims</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>,
+    <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
@@ -818,7 +819,6 @@
             <span class="ident">progress_bar</span>.<span class="ident">push</span>(<span class="ident">cursor_fg</span>, <span class="ident">triangle_poly</span>);
         }
 
-        <span class="kw">use</span> <span class="ident">widgetry::DrawWithTooltips</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tooltip_text</span> <span class="op">=</span> <span class="ident">Text::from</span>(<span class="string">&quot;Finished Trips&quot;</span>);
         <span class="ident">tooltip_text</span>.<span class="ident">add_line</span>(<span class="macro">format!</span>(
             <span class="string">&quot;{} ({}% of total)&quot;</span>,
@@ -851,7 +851,7 @@
 
         <span class="kw">let</span> <span class="ident">bounds</span> <span class="op">=</span> <span class="ident">progress_bar</span>.<span class="ident">get_bounds</span>();
         <span class="kw">let</span> <span class="ident">bounding_box</span> <span class="op">=</span> <span class="ident">Polygon::rectangle</span>(<span class="ident">bounds</span>.<span class="ident">width</span>(), <span class="ident">bounds</span>.<span class="ident">height</span>());
-        <span class="kw">let</span> <span class="ident">tooltip</span> <span class="op">=</span> <span class="macro">vec!</span>[(<span class="ident">bounding_box</span>, <span class="ident">tooltip_text</span>)];
+        <span class="kw">let</span> <span class="ident">tooltip</span> <span class="op">=</span> <span class="macro">vec!</span>[(<span class="ident">bounding_box</span>, <span class="ident">tooltip_text</span>, <span class="prelude-val">None</span>)];
         <span class="ident">DrawWithTooltips::new_widget</span>(<span class="ident">ctx</span>, <span class="ident">progress_bar</span>, <span class="ident">tooltip</span>, <span class="ident">Box::new</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">GeomBatch::new</span>()))
     }
 

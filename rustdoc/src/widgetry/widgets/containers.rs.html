@@ -116,7 +116,7 @@
     <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">output</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">WidgetOutput</span>) {
         <span class="kw">for</span> <span class="ident">w</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">members</span> {
             <span class="ident">w</span>.<span class="ident">widget</span>.<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="ident">output</span>);
-            <span class="kw">if</span> <span class="ident">output</span>.<span class="ident">outcome</span> <span class="op">!</span><span class="op">=</span> <span class="ident">Outcome::Nothing</span> {
+            <span class="kw">if</span> <span class="op">!</span><span class="macro">matches!</span>(<span class="ident">output</span>.<span class="ident">outcome</span>, <span class="ident">Outcome::Nothing</span>) {
                 <span class="kw">return</span>;
             }
         }

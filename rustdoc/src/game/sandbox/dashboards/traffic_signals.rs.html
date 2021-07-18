@@ -273,6 +273,7 @@
 
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::app</span>::{<span class="ident">App</span>, <span class="ident">ShowEverything</span>, <span class="ident">Transition</span>};
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::common::CommonState</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::sandbox::dashboards::DashTab</span>;
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TrafficSignalDemand</span> {
     <span class="ident">panel</span>: <span class="ident">Panel</span>,
@@ -300,12 +301,7 @@
             <span class="ident">draw_all</span>,
             <span class="ident">selected</span>: <span class="prelude-val">None</span>,
             <span class="ident">panel</span>: <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-                <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                    <span class="ident">Line</span>(<span class="string">&quot;Traffic signal demand over time&quot;</span>)
-                        .<span class="ident">small_heading</span>()
-                        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                    <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
-                ]),
+                <span class="ident">DashTab::TrafficSignals</span>.<span class="ident">picker</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
                 <span class="ident">Text::from_all</span>(<span class="macro">vec!</span>[
                     <span class="ident">Line</span>(<span class="string">&quot;Press &quot;</span>),
                     <span class="ident">Key::LeftArrow</span>.<span class="ident">txt</span>(<span class="ident">ctx</span>),
@@ -372,6 +368,10 @@
                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
             },
             <span class="ident">Outcome::Changed</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">tab</span>) <span class="op">=</span> <span class="ident">DashTab::TrafficSignals</span>.<span class="ident">tab_changed</span>(<span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">panel</span>) {
+                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">suspended_sim</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>();
+                    <span class="kw">return</span> <span class="ident">Transition::Replace</span>(<span class="ident">tab</span>.<span class="ident">launch</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
+                }
                 <span class="ident">changed</span> <span class="op">=</span> <span class="bool-val">true</span>;
             }
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}

@@ -418,6 +418,8 @@
 <span id="415">415</span>
 <span id="416">416</span>
 <span id="417">417</span>
+<span id="418">418</span>
+<span id="419">419</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Generate paths for different A/B Street files</span>
 
@@ -610,6 +612,8 @@
     <span class="doccomment">/// The name of the map within the city, in filename-friendly form -- for example, &quot;downtown&quot;</span>
     <span class="kw">pub</span> <span class="ident">map</span>: <span class="ident">String</span>,
 }
+
+<span class="kw">impl</span> <span class="ident">abstutil::CloneableAny</span> <span class="kw">for</span> <span class="ident">MapName</span> {}
 
 <span class="kw">impl</span> <span class="ident">MapName</span> {
     <span class="doccomment">/// Create a MapName from a country code, city, and map name.</span>

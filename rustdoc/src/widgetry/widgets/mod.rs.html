@@ -857,6 +857,14 @@
 <span id="854">854</span>
 <span id="855">855</span>
 <span id="856">856</span>
+<span id="857">857</span>
+<span id="858">858</span>
+<span id="859">859</span>
+<span id="860">860</span>
+<span id="861">861</span>
+<span id="862">862</span>
+<span id="863">863</span>
+<span id="864">864</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 
@@ -867,6 +875,7 @@
     <span class="ident">AlignItems</span>, <span class="ident">Dimension</span>, <span class="ident">FlexDirection</span>, <span class="ident">FlexWrap</span>, <span class="ident">JustifyContent</span>, <span class="ident">PositionType</span>, <span class="ident">Style</span>,
 };
 
+<span class="kw">use</span> <span class="ident">abstutil::CloneableAny</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">CornerRadii</span>, <span class="ident">Distance</span>, <span class="ident">Percent</span>, <span class="ident">Polygon</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::widgets::containers</span>::{<span class="ident">Container</span>, <span class="ident">Nothing</span>};
@@ -927,15 +936,22 @@
 }
 
 <span class="doccomment">/// The result of a Panel handling an event</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Outcome</span> {
     <span class="doccomment">/// An action was done</span>
     <span class="ident">Clicked</span>(<span class="ident">String</span>),
+    <span class="doccomment">/// An action was done, with custom data. The caller must cast to the proper type.</span>
+    <span class="ident">ClickCustom</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">CloneableAny</span><span class="op">&gt;</span>),
     <span class="doccomment">/// A dropdown, checkbox, spinner, etc changed values. The name of the changed widget is</span>
     <span class="doccomment">/// returned, but not the value, since its type is generic.</span>
     <span class="ident">Changed</span>(<span class="ident">String</span>),
     <span class="doccomment">/// Nothing happened</span>
     <span class="ident">Nothing</span>,
+}
+
+<span class="doccomment">/// When an action happens through a button-like widget, what data is plumbed back?</span>
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">ClickOutcome</span> {
+    <span class="ident">Label</span>(<span class="ident">String</span>),
+    <span class="ident">Custom</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">CloneableAny</span><span class="op">&gt;</span>),
 }
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">WidgetOutput</span> {

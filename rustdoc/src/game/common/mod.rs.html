@@ -463,10 +463,6 @@
 <span id="460">460</span>
 <span id="461">461</span>
 <span id="462">462</span>
-<span id="463">463</span>
-<span id="464">464</span>
-<span id="465">465</span>
-<span id="466">466</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
 
@@ -526,12 +522,8 @@
             <span class="comment">// TODO Also have a hotkey binding for this?</span>
             <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">per_obj</span>.<span class="ident">left_click</span>(<span class="ident">ctx</span>, <span class="string">&quot;show info&quot;</span>) {
                 <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-                <span class="self">self</span>.<span class="ident">info_panel</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">InfoPanel::new</span>(
-                    <span class="ident">ctx</span>,
-                    <span class="ident">app</span>,
-                    <span class="ident">Tab::from_id</span>(<span class="ident">app</span>, <span class="ident">id</span>.<span class="ident">clone</span>()),
-                    <span class="ident">ctx_actions</span>,
-                ));
+                <span class="self">self</span>.<span class="ident">info_panel</span> <span class="op">=</span>
+                    <span class="prelude-val">Some</span>(<span class="ident">InfoPanel::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">Tab::from_id</span>(<span class="ident">app</span>, <span class="ident">id</span>), <span class="ident">ctx_actions</span>));
                 <span class="kw">return</span> <span class="prelude-val">None</span>;
             }
         }
