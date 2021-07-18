@@ -14,6 +14,7 @@ use widgetry::{
 
 use crate::app::{App, Transition};
 use crate::common::{checkbox_per_mode, CommonState};
+use crate::sandbox::dashboards::DashTab;
 
 pub struct CommuterPatterns {
     bldg_to_block: HashMap<BuildingID, BlockID>,
@@ -335,14 +336,21 @@ impl State<App> for CommuterPatterns {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         ctx.canvas_movement();
 
-        if let Outcome::Clicked(x) = self.panel.event(ctx) {
-            match x.as_ref() {
+        match self.panel.event(ctx) {
+            Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
                     app.primary.sim = app.primary.suspended_sim.take().unwrap();
                     return Transition::Pop;
                 }
                 _ => unreachable!(),
+            },
+            Outcome::Changed(_) => {
+                if let Some(tab) = DashTab::CommuterPatterns.tab_changed(app, &self.panel) {
+                    app.primary.sim = app.primary.suspended_sim.take().unwrap();
+                    return Transition::Replace(tab.launch(ctx, app));
+                }
             }
+            _ => {}
         }
 
         let block_selection = if let Some(Some(b)) = ctx
@@ -674,12 +682,7 @@ fn partition_sidewalk_loops(app: &App) -> Vec<Loop> {
 
 fn make_panel(ctx: &mut EventCtx, app: &App) -> Panel {
     Panel::new_builder(Widget::col(vec![
-        Widget::row(vec![
-            Line("Commute map by block")
-                .small_heading()
-                .into_widget(ctx),
-            ctx.style().btn_close_widget(ctx),
-        ]),
+        DashTab::CommuterPatterns.picker(ctx, app),
         Toggle::choice(ctx, "from / to this block", "from", "to", Key::Space, true),
         Toggle::switch(ctx, "include borders", None, true),
         Widget::row(vec![
