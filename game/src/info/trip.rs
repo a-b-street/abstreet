@@ -714,7 +714,6 @@ fn make_trip_details(
     map_for_pathfinding: &Map,
     progress_along_path: Option<f64>,
 ) -> Widget {
-    let map = &app.primary.map;
     let sim = &app.primary.sim;
     let trip = sim.trip_info(trip_id);
     let end_time = phases.last().as_ref().and_then(|p| p.end_time);
@@ -777,7 +776,7 @@ fn make_trip_details(
                     color,
                     p.phase_type == TripPhaseType::Walking,
                     path,
-                    map,
+                    map_for_pathfinding
                 ));
             }
 
