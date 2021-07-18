@@ -1,11 +1,12 @@
 use std::collections::BTreeMap;
 
 use abstio::{CityName, Manifest, MapName};
-use geom::{Distance, Percent, Polygon, Pt2D};
+use abstutil::VecMap;
+use geom::{Distance, Percent};
 use map_model::City;
 use widgetry::{
-    Autocomplete, Color, ControlState, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, Image, Key,
-    Line, Outcome, Panel, RewriteColor, ScreenPt, State, Text, TextExt, Transition, Widget,
+    Autocomplete, ControlState, DrawBaselayer, DrawWithTooltips, EventCtx, GeomBatch, GfxCtx,
+    Image, Key, Line, Outcome, Panel, RewriteColor, State, Text, TextExt, Transition, Widget,
 };
 
 use crate::load::{FileLoader, MapLoader};
@@ -16,9 +17,6 @@ use crate::AppLike;
 /// Lets the player switch maps.
 pub struct CityPicker<A: AppLike> {
     panel: Panel,
-    // In untranslated screen-space
-    districts: Vec<(MapName, Color, Polygon)>,
-    selected: Option<usize>,
     // Wrapped in an Option just to make calling from event() work.
     on_load: Option<Box<dyn FnOnce(&mut EventCtx, &mut A) -> Transition<A>>>,
 }
@@ -46,14 +44,13 @@ impl<A: AppLike + 'static> CityPicker<A> {
             )),
             Box::new(move |ctx, app, _, maybe_city| {
                 // If city.bin exists, use it to draw the district map.
-                let mut batch = GeomBatch::new();
-                let mut districts = Vec::new();
-                if let Ok(city) = maybe_city {
+                let district_picker = if let Ok(city) = maybe_city {
                     let bounds = city.boundary.get_bounds();
 
                     let zoom = (0.8 * ctx.canvas.window_width / bounds.width())
                         .min(0.8 * ctx.canvas.window_height / bounds.height());
 
+                    let mut batch = GeomBatch::new();
                     batch.push(app.cs().map_background.clone(), city.boundary);
                     for (area_type, polygon) in city.areas {
                         batch.push(DrawArea::fill(area_type, app.cs()), polygon);
@@ -62,15 +59,33 @@ impl<A: AppLike + 'static> CityPicker<A> {
                     // If somebody has just generated a new map somewhere with an existing
                     // city.bin, but hasn't updated city.bin yet, that new map will be invisible on
                     // the city-wide diagram.
+                    let mut tooltips = Vec::new();
+                    let mut colors = VecMap::new();
                     for (name, polygon) in city.districts {
                         if &name != app.map().get_name() {
-                            let color = app.cs().rotating_color_agents(districts.len());
+                            let color = app.cs().rotating_color_agents(colors.len());
                             batch.push(color, polygon.to_outline(Distance::meters(200.0)).unwrap());
-                            districts.push((name, color, polygon.scale(zoom)));
+                            let polygon = polygon.scale(zoom);
+                            tooltips.push((
+                                polygon.clone(),
+                                Text::from(nice_map_name(&name)),
+                                Some(name.path()),
+                            ));
+                            colors.push(polygon, color);
                         }
                     }
-                    batch = batch.scale(zoom);
-                }
+                    DrawWithTooltips::new_widget(
+                        ctx,
+                        batch.scale(zoom),
+                        tooltips,
+                        Box::new(move |poly| {
+                            let color = colors.get(poly).unwrap();
+                            GeomBatch::from(vec![(color.alpha(0.5), poly.clone())])
+                        }),
+                    )
+                } else {
+                    Widget::nothing()
+                };
 
                 // Use the filesystem to list the buttons on the side.
                 // (There's no point in listing these from city.bin if it exists -- if somebody
@@ -129,8 +144,6 @@ impl<A: AppLike + 'static> CityPicker<A> {
                 );
 
                 Transition::Replace(Box::new(CityPicker {
-                    districts,
-                    selected: None,
                     on_load: Some(on_load),
                     panel: Panel::new_builder(Widget::col(vec![
                         Widget::row(vec![
@@ -139,7 +152,7 @@ impl<A: AppLike + 'static> CityPicker<A> {
                         ]),
                         Widget::row(vec![
                             Widget::col(other_places).centered_vert(),
-                            batch.into_widget(ctx).named("picker"),
+                            district_picker,
                             Widget::col(this_city).centered_vert(),
                         ]),
                         "Don't see the place you want?".text_widget(ctx),
@@ -209,34 +222,6 @@ impl<A: AppLike + 'static> State<A> for CityPicker<A> {
             }
         }
 
-        if ctx.redo_mouseover() {
-            self.selected = None;
-            if let Some(cursor) = ctx.canvas.get_cursor_in_screen_space() {
-                let rect = self.panel.rect_of("picker");
-                if rect.contains(cursor) {
-                    let pt = Pt2D::new(cursor.x - rect.x1, cursor.y - rect.y1);
-                    for (idx, (_, _, poly)) in self.districts.iter().enumerate() {
-                        if poly.contains_pt(pt) {
-                            self.selected = Some(idx);
-                            break;
-                        }
-                    }
-                } else if let Some(btn) = self.panel.currently_hovering() {
-                    for (idx, (name, _, _)) in self.districts.iter().enumerate() {
-                        if &name.path() == btn {
-                            self.selected = Some(idx);
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-        if let Some(idx) = self.selected {
-            if ctx.normal_left_click() {
-                return chose_city(ctx, app, self.districts[idx].0.clone(), &mut self.on_load);
-            }
-        }
-
         Transition::Keep
     }
 
@@ -247,21 +232,6 @@ impl<A: AppLike + 'static> State<A> for CityPicker<A> {
     fn draw(&self, g: &mut GfxCtx, app: &A) {
         grey_out_map(g, app);
         self.panel.draw(g);
-
-        if let Some(idx) = self.selected {
-            let (name, color, poly) = &self.districts[idx];
-            let rect = self.panel.rect_of("picker");
-            g.fork(
-                Pt2D::new(0.0, 0.0),
-                ScreenPt::new(rect.x1, rect.y1),
-                1.0,
-                None,
-            );
-            g.draw_polygon(color.alpha(0.5), poly.clone());
-            g.unfork();
-
-            g.draw_mouse_tooltip(Text::from(nice_map_name(name)));
-        }
     }
 }
 
