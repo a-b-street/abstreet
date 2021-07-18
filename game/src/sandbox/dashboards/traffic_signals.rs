@@ -13,6 +13,7 @@ use widgetry::{
 
 use crate::app::{App, ShowEverything, Transition};
 use crate::common::CommonState;
+use crate::sandbox::dashboards::DashTab;
 
 pub struct TrafficSignalDemand {
     panel: Panel,
@@ -40,12 +41,7 @@ impl TrafficSignalDemand {
             draw_all,
             selected: None,
             panel: Panel::new_builder(Widget::col(vec![
-                Widget::row(vec![
-                    Line("Traffic signal demand over time")
-                        .small_heading()
-                        .into_widget(ctx),
-                    ctx.style().btn_close_widget(ctx),
-                ]),
+                DashTab::TrafficSignals.picker(ctx, app),
                 Text::from_all(vec![
                     Line("Press "),
                     Key::LeftArrow.txt(ctx),
@@ -112,6 +108,10 @@ impl State<App> for TrafficSignalDemand {
                 _ => unreachable!(),
             },
             Outcome::Changed(_) => {
+                if let Some(tab) = DashTab::TrafficSignals.tab_changed(app, &self.panel) {
+                    app.primary.sim = app.primary.suspended_sim.take().unwrap();
+                    return Transition::Replace(tab.launch(ctx, app));
+                }
                 changed = true;
             }
             _ => {}

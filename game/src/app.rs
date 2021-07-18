@@ -22,6 +22,7 @@ use crate::challenges::HighScore;
 use crate::common::Warping;
 use crate::edit::apply_map_edits;
 use crate::layer::Layer;
+use crate::sandbox::dashboards::DashTab;
 use crate::sandbox::{GameplayMode, TutorialState};
 
 // Convenient typedef
@@ -727,6 +728,7 @@ pub struct SessionState {
     pub high_scores: BTreeMap<GameplayMode, Vec<HighScore>>,
     pub info_panel_tab: BTreeMap<&'static str, &'static str>,
     pub last_gmns_timing_csv: Option<String>,
+    pub dash_tab: DashTab,
 }
 
 impl SessionState {
@@ -742,6 +744,7 @@ impl SessionState {
                 "bus" => "status",
             },
             last_gmns_timing_csv: None,
+            dash_tab: DashTab::TripTable,
         }
     }
 }

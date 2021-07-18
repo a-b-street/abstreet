@@ -1,8 +1,7 @@
 pub use commuter::CommuterPatterns;
 pub use traffic_signals::TrafficSignalDemand;
-pub use trip_table::TripTable;
 
-use widgetry::{Choice, EventCtx, Image, Line, Panel, TextExt, Widget};
+use widgetry::{Choice, EventCtx, Image, Line, Panel, State, TextExt, Widget};
 
 use crate::app::App;
 use crate::app::Transition;
@@ -61,19 +60,9 @@ impl DashTab {
         ])
     }
 
-    pub fn transition(
-        self,
-        ctx: &mut EventCtx,
-        app: &mut App,
-        panel: &Panel,
-    ) -> Option<Transition> {
-        let tab = panel.dropdown_value("tab");
-        if tab == self {
-            return None;
-        }
-
-        Some(Transition::Replace(match tab {
-            DashTab::TripTable => Box::new(TripTable::new(ctx, app)),
+    pub fn launch(self, ctx: &mut EventCtx, app: &mut App) -> Box<dyn State<App>> {
+        match self {
+            DashTab::TripTable => Box::new(trip_table::TripTable::new(ctx, app)),
             DashTab::TravelTimes => {
                 travel_times::TravelTimes::new_state(ctx, app, travel_times::Filter::new())
             }
@@ -84,6 +73,25 @@ impl DashTab {
             DashTab::CommuterPatterns => CommuterPatterns::new_state(ctx, app),
             DashTab::TrafficSignals => TrafficSignalDemand::new_state(ctx, app),
             DashTab::ModeShift => mode_shift::ModeShift::new_state(ctx, app),
-        }))
+        }
+    }
+
+    pub fn tab_changed(self, app: &mut App, panel: &Panel) -> Option<DashTab> {
+        let tab: DashTab = panel.dropdown_value("tab");
+        if tab == self {
+            return None;
+        }
+        app.session.dash_tab = tab;
+        Some(tab)
+    }
+
+    pub fn transition(
+        self,
+        ctx: &mut EventCtx,
+        app: &mut App,
+        panel: &Panel,
+    ) -> Option<Transition> {
+        let tab = self.tab_changed(app, panel)?;
+        Some(Transition::Replace(tab.launch(ctx, app)))
     }
 }

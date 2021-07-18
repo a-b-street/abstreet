@@ -9,7 +9,6 @@ use crate::app::App;
 use crate::app::Transition;
 use crate::common::Warping;
 use crate::layer::PickLayer;
-use crate::sandbox::dashboards::TripTable;
 
 pub struct MinimapController;
 
@@ -94,7 +93,7 @@ impl MinimapControls<App> for MinimapController {
             "change layers" => {
                 return Some(Transition::Push(PickLayer::pick(ctx, app)));
             }
-            "more data" => Some(Transition::Push(Box::new(TripTable::new(ctx, app)))),
+            "more data" => Some(Transition::Push(app.session.dash_tab.launch(ctx, app))),
             _ => unreachable!(),
         }
     }
