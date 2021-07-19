@@ -597,8 +597,9 @@ fn recalculate_intersection_polygon(
         intersection.orig_id,
         intersection_roads,
         &mut roads,
+        // For consolidated intersections, it appears we don't need to pass in
+        // trim_roads_for_merging. May revisit this later if needed.
         &BTreeMap::new(),
-        //intersection.merged,
     )
     .unwrap()
     .0;
