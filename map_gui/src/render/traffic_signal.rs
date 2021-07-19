@@ -166,7 +166,7 @@ pub fn draw_signal_stage(
                 if turn.between_sidewalks() {
                     continue;
                 }
-                match stage.get_priority_of_turn(turn.id, signal) {
+                match stage.get_priority_of_turn(turn.id, signal, app.map()) {
                     TurnPriority::Protected => {
                         batch.push(
                             app.cs().signal_protected_turn,

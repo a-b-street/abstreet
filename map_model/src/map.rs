@@ -599,15 +599,18 @@ impl Map {
     // None for SharedSidewalkCorners
     pub fn get_movement(&self, t: TurnID) -> Option<MovementID> {
         if let Some(ts) = self.maybe_get_traffic_signal(t.parent) {
-            if self.get_t(t).turn_type == TurnType::SharedSidewalkCorner {
+            let turn = self.get_t(t);
+            if turn.turn_type == TurnType::SharedSidewalkCorner {
                 return None;
+            }
+            if turn.turn_type == TurnType::Conditional {
+                return Some(t.to_movement(self));
             }
             for m in ts.movements.values() {
                 if m.members.contains(&t) {
                     return Some(m.id);
                 }
             }
-            panic!("{} doesn't belong to any movements", t);
         }
         None
     }
@@ -779,7 +782,7 @@ impl Map {
                 src: l1.id,
                 dst: l2.id,
             },
-            turn_type: TurnType::Straight,
+            turn_type: TurnType::Conditional,
             other_crosswalk_ids: BTreeSet::new(),
             geom: PolyLine::must_new(vec![l1.last_pt(), l2.first_pt()]),
         };

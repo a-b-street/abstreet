@@ -443,8 +443,6 @@ impl Router {
                     .as_ref()
                     .map(|(_, _, l, _)| !map.get_l(*l).is_biking())
                     .unwrap_or(true)
-                && map.get_i(map.get_l(orig_target_lane).src_i).is_stop_sign()
-                && map.get_i(map.get_l(orig_target_lane).dst_i).is_stop_sign()
             {
                 if let Some((parking_lane, _, _)) =
                     parent.lanes_ltr().into_iter().find(|(l, d, lt)| {

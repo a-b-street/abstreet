@@ -223,7 +223,7 @@ impl IntersectionSimState {
             let stage = &signal.stages[current_stage];
             let reserved = &self.state[&i].reserved;
             for (req, _, _) in all {
-                match stage.get_priority_of_turn(req.turn, signal) {
+                match stage.get_priority_of_turn(req.turn, signal, map) {
                     TurnPriority::Protected => {
                         protected.push(req);
                     }
@@ -341,7 +341,7 @@ impl IntersectionSimState {
                     }
                     // Should we only allow protected to extend or any not banned?
                     // currently only the protected demand control extended.
-                    old_stage.get_priority_of_turn(req.turn, signal) != TurnPriority::Protected
+                    old_stage.get_priority_of_turn(req.turn, signal, map) != TurnPriority::Protected
                 }) {
                     signal_state.extensions_count = 0;
                     duration = advance(signal_state, signal, !ped_waiting);
@@ -859,7 +859,7 @@ impl IntersectionSimState {
         let (our_time, _) = state.waiting[req];
 
         // Can't go at all this stage.
-        let our_priority = stage.get_priority_of_turn(req.turn, signal);
+        let our_priority = stage.get_priority_of_turn(req.turn, signal, map);
         if our_priority == TurnPriority::Banned {
             return false;
         }

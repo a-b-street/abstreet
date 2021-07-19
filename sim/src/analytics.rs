@@ -133,7 +133,7 @@ impl Analytics {
                     if let Some(id) = map.get_movement(t) {
                         *self.demand.entry(id).or_insert(0) -= 1;
 
-                        let m = map.get_traffic_signal(t.parent).compressed_id(t);
+                        let m = map.get_traffic_signal(t.parent).compressed_id(t, map);
                         self.traffic_signal_thruput.record(time, m, a.to_type(), 1);
                         if let Some(n) = passengers {
                             self.traffic_signal_thruput
@@ -216,7 +216,12 @@ impl Analytics {
                     self.intersection_delays
                         .entry(turn_id.parent)
                         .or_insert_with(Vec::new)
-                        .push((ts.compressed_id(turn_id).idx, time, delay, agent.to_type()));
+                        .push((
+                            ts.compressed_id(turn_id, map).idx,
+                            time,
+                            delay,
+                            agent.to_type(),
+                        ));
                 }
             }
         }

@@ -196,9 +196,14 @@ impl Demand {
                             continue;
                         }
                         if let Some(demand) = all_demand.get_mut(&t.parent) {
-                            demand
-                                .raw
-                                .push((now, map.get_traffic_signal(t.parent).turn_to_movement(*t)));
+                            // The paths should ever include conditional turns, so turn_to_movement
+                            // must succeed.
+                            demand.raw.push((
+                                now,
+                                map.get_traffic_signal(t.parent)
+                                    .turn_to_movement(*t)
+                                    .unwrap(),
+                            ));
                         }
                     }
                 }

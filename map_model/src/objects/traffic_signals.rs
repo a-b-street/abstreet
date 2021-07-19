@@ -275,12 +275,12 @@ impl ControlTrafficSignal {
         Ok(())
     }
 
-    pub fn turn_to_movement(&self, turn: TurnID) -> MovementID {
-        if let Some(m) = self.movements.values().find(|m| m.members.contains(&turn)) {
-            m.id
-        } else {
-            panic!("{} doesn't belong to any movements in {}", turn, self.id)
-        }
+    /// This may fail for conditional turns.
+    pub fn turn_to_movement(&self, turn: TurnID) -> Option<MovementID> {
+        self.movements
+            .values()
+            .find(|m| m.members.contains(&turn))
+            .map(|m| m.id)
     }
 
     pub fn missing_turns(&self) -> BTreeSet<MovementID> {
@@ -296,7 +296,7 @@ impl ControlTrafficSignal {
         missing
     }
 
-    pub fn compressed_id(&self, turn: TurnID) -> CompressedMovementID {
+    pub fn compressed_id(&self, turn: TurnID, map: &Map) -> CompressedMovementID {
         for (idx, m) in self.movements.values().enumerate() {
             if m.members.contains(&turn) {
                 return CompressedMovementID {
@@ -305,10 +305,19 @@ impl ControlTrafficSignal {
                 };
             }
         }
-        panic!(
-            "{} doesn't belong to any turn movements in {}",
-            turn, self.id
-        )
+
+        // Fallback for conditional turns
+        assert_eq!(map.get_t(turn).turn_type, TurnType::Conditional);
+        let mvmnt = turn.to_movement(map);
+        for (idx, m) in self.movements.keys().enumerate() {
+            if m == &mvmnt {
+                return CompressedMovementID {
+                    i: self.id,
+                    idx: u8::try_from(idx).unwrap(),
+                };
+            }
+        }
+        unreachable!()
     }
 
     /// How long a full cycle of the signal lasts, assuming no actuated timings.
@@ -345,8 +354,20 @@ impl Stage {
         true
     }
 
-    pub fn get_priority_of_turn(&self, t: TurnID, parent: &ControlTrafficSignal) -> TurnPriority {
-        self.get_priority_of_movement(parent.turn_to_movement(t))
+    pub fn get_priority_of_turn(
+        &self,
+        t: TurnID,
+        parent: &ControlTrafficSignal,
+        map: &Map,
+    ) -> TurnPriority {
+        if let Some(mvmnt) = parent.turn_to_movement(t) {
+            self.get_priority_of_movement(mvmnt)
+        } else {
+            // If the turn isn't marked in this signal, it must be a conditional one. Map it to the
+            // equivalent movement.
+            assert_eq!(map.get_t(t).turn_type, TurnType::Conditional);
+            self.get_priority_of_movement(t.to_movement(map))
+        }
     }
 
     pub fn get_priority_of_movement(&self, m: MovementID) -> TurnPriority {
