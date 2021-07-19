@@ -1871,44 +1871,44 @@
       "compressed_size_bytes": 1859130
     },
     "data/input/us/phoenix/osm/arizona-latest.osm.pbf": {
-      "checksum": "7ca801721f2f13ee6bb3d7f894a60d05",
-      "uncompressed_size_bytes": 175379158,
-      "compressed_size_bytes": 175232726
+      "checksum": "82e8e52d2f0b0fdd288a03f789a214e0",
+      "uncompressed_size_bytes": 214710754,
+      "compressed_size_bytes": 214535320
     },
     "data/input/us/phoenix/osm/gilbert.osm": {
-      "checksum": "ae5d4f4322147525fc6f6f67b066be68",
-      "uncompressed_size_bytes": 2176986,
-      "compressed_size_bytes": 212077
+      "checksum": "f582f702337cb7794275208a8c213586",
+      "uncompressed_size_bytes": 2200271,
+      "compressed_size_bytes": 214562
     },
     "data/input/us/phoenix/osm/loop101.osm": {
-      "checksum": "2cc9e883d2465ad98e5e903b2e92446d",
-      "uncompressed_size_bytes": 171331716,
-      "compressed_size_bytes": 13420769
+      "checksum": "d479c60413ccc63dc3aa948e374635d8",
+      "uncompressed_size_bytes": 173898696,
+      "compressed_size_bytes": 13631647
     },
     "data/input/us/phoenix/osm/tempe.osm": {
-      "checksum": "c9c02b15ae350e6f288d7f9088bfc7e4",
-      "uncompressed_size_bytes": 7649993,
-      "compressed_size_bytes": 739378
+      "checksum": "1e21950e6a0da7e9e92f8c8e85f4d635",
+      "uncompressed_size_bytes": 8888304,
+      "compressed_size_bytes": 818066
     },
     "data/input/us/phoenix/raw_maps/gilbert.bin": {
-      "checksum": "b122e1d070caefe71981bfd11004d59e",
-      "uncompressed_size_bytes": 662174,
-      "compressed_size_bytes": 115815
+      "checksum": "8fe260f7fd30d92fb9e4bd81cff4af90",
+      "uncompressed_size_bytes": 668647,
+      "compressed_size_bytes": 116918
     },
     "data/input/us/phoenix/raw_maps/loop101.bin": {
-      "checksum": "21b046cfda3123466377622219d19558",
-      "uncompressed_size_bytes": 41586153,
-      "compressed_size_bytes": 6801105
+      "checksum": "352552110f21aef6af53bf2b48eb10a2",
+      "uncompressed_size_bytes": 41996184,
+      "compressed_size_bytes": 6900422
     },
     "data/input/us/phoenix/raw_maps/tempe.bin": {
-      "checksum": "3a54fd0bef68ca9ef83c7c12e3284d64",
-      "uncompressed_size_bytes": 1759764,
-      "compressed_size_bytes": 335298
+      "checksum": "a0bfb6039ef327e099c5184fb748819f",
+      "uncompressed_size_bytes": 2074231,
+      "compressed_size_bytes": 389146
     },
     "data/input/us/phoenix/screenshots/tempe.zip": {
-      "checksum": "fe78c13c726f7cc69ac01ddbab357413",
-      "uncompressed_size_bytes": 7304603,
-      "compressed_size_bytes": 7302353
+      "checksum": "c67f95d0fe1cfa34b0037f67bb91d8fe",
+      "uncompressed_size_bytes": 7933838,
+      "compressed_size_bytes": 7931659
     },
     "data/input/us/providence/osm/downtown.osm": {
       "checksum": "463b986adc83ae4d1174496a4ce744d1",
@@ -3956,19 +3956,19 @@
       "compressed_size_bytes": 5080695
     },
     "data/system/us/phoenix/maps/gilbert.bin": {
-      "checksum": "229484e4f6ff69204827852d42586360",
-      "uncompressed_size_bytes": 3262721,
-      "compressed_size_bytes": 1104420
+      "checksum": "634e722ba56947f4911b1a377da2f007",
+      "uncompressed_size_bytes": 3286507,
+      "compressed_size_bytes": 1110945
     },
     "data/system/us/phoenix/maps/loop101.bin": {
-      "checksum": "9a9e1420a1b7cfa822343659b0d55d54",
-      "uncompressed_size_bytes": 53170894,
-      "compressed_size_bytes": 17338910
+      "checksum": "2fc087e01739f1c2fe82ece828ab11b3",
+      "uncompressed_size_bytes": 53558330,
+      "compressed_size_bytes": 17473011
     },
     "data/system/us/phoenix/maps/tempe.bin": {
-      "checksum": "36f55656e2c104ae72e92cbe0f708f01",
-      "uncompressed_size_bytes": 8288084,
-      "compressed_size_bytes": 2803967
+      "checksum": "8380d27729bf9ecd2c95d3056670eb4f",
+      "uncompressed_size_bytes": 8418659,
+      "compressed_size_bytes": 2846195
     },
     "data/system/us/providence/maps/downtown.bin": {
       "checksum": "88a52da711f50cb796b36f00702c1801",
