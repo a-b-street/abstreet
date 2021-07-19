@@ -481,19 +481,6 @@
 <span id="478">478</span>
 <span id="479">479</span>
 <span id="480">480</span>
-<span id="481">481</span>
-<span id="482">482</span>
-<span id="483">483</span>
-<span id="484">484</span>
-<span id="485">485</span>
-<span id="486">486</span>
-<span id="487">487</span>
-<span id="488">488</span>
-<span id="489">489</span>
-<span id="490">490</span>
-<span id="491">491</span>
-<span id="492">492</span>
-<span id="493">493</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
 <span class="kw">use</span> <span class="ident">std::fmt</span>;
@@ -900,12 +887,6 @@
     <span class="doccomment">/// For a given lane type, returns some likely widths. This may depend on the type of the road,</span>
     <span class="doccomment">/// so the OSM tags are also passed in. The first value returned will be used as a default.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">typical_lane_widths</span>(<span class="ident">lt</span>: <span class="ident">LaneType</span>, <span class="ident">tags</span>: <span class="kw-2">&amp;</span><span class="ident">Tags</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Distance</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>)<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">rank</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="ident">tags</span>.<span class="ident">get</span>(<span class="ident">osm::HIGHWAY</span>) {
-            <span class="ident">osm::RoadRank::from_highway</span>(<span class="ident">x</span>)
-        } <span class="kw">else</span> {
-            <span class="ident">osm::RoadRank::Local</span>
-        };
-
         <span class="comment">// These&#39;re cobbled together from various sources</span>
         <span class="kw">match</span> <span class="ident">lt</span> {
             <span class="comment">// https://en.wikipedia.org/wiki/Lane#Lane_width</span>
@@ -916,14 +897,7 @@
                     (<span class="ident">Distance::feet</span>(<span class="number">10.0</span>), <span class="string">&quot;typical&quot;</span>),
                     (<span class="ident">Distance::feet</span>(<span class="number">12.0</span>), <span class="string">&quot;highway&quot;</span>),
                 ];
-                <span class="kw">if</span> <span class="ident">rank</span> <span class="op">=</span><span class="op">=</span> <span class="ident">osm::RoadRank::Highway</span>
-                    <span class="op">&amp;&amp;</span> <span class="ident">tags</span>
-                        .<span class="ident">get</span>(<span class="ident">osm::HIGHWAY</span>)
-                        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="op">!</span><span class="ident">x</span>.<span class="ident">ends_with</span>(<span class="string">&quot;_link&quot;</span>))
-                        .<span class="ident">unwrap_or</span>(<span class="bool-val">true</span>)
-                {
-                    <span class="ident">choices</span>.<span class="ident">rotate_right</span>(<span class="number">1</span>);
-                } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">is</span>(<span class="ident">osm::HIGHWAY</span>, <span class="string">&quot;service&quot;</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">tags</span>.<span class="ident">is</span>(<span class="string">&quot;narrow&quot;</span>, <span class="string">&quot;yes&quot;</span>) {
+                <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">is</span>(<span class="ident">osm::HIGHWAY</span>, <span class="string">&quot;service&quot;</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">tags</span>.<span class="ident">is</span>(<span class="string">&quot;narrow&quot;</span>, <span class="string">&quot;yes&quot;</span>) {
                     <span class="ident">choices</span>.<span class="ident">swap</span>(<span class="number">1</span>, <span class="number">0</span>);
                 }
                 <span class="ident">choices</span>

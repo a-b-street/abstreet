@@ -637,6 +637,12 @@
 <span id="634">634</span>
 <span id="635">635</span>
 <span id="636">636</span>
+<span id="637">637</span>
+<span id="638">638</span>
+<span id="639">639</span>
+<span id="640">640</span>
+<span id="641">641</span>
+<span id="642">642</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
@@ -1076,7 +1082,7 @@
     <span class="kw">if</span> (<span class="ident">highway</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;footway&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">highway</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;path&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">highway</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;steps&quot;</span>)
         <span class="op">&amp;&amp;</span> <span class="ident">opts</span>.<span class="ident">map_config</span>.<span class="ident">inferred_sidewalks</span>
     {
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">tags</span>.<span class="ident">is_any</span>(<span class="string">&quot;bicycle&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;designated&quot;</span>, <span class="string">&quot;yes&quot;</span>]) {
+        <span class="kw">if</span> <span class="op">!</span><span class="ident">tags</span>.<span class="ident">is_any</span>(<span class="string">&quot;bicycle&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;designated&quot;</span>, <span class="string">&quot;yes&quot;</span>, <span class="string">&quot;dismount&quot;</span>]) {
             <span class="kw">return</span> <span class="bool-val">false</span>;
         }
     }
@@ -1090,9 +1096,15 @@
     <span class="comment">// Import most service roads. Always ignore driveways, golf cart paths, and always reserve</span>
     <span class="comment">// parking_aisles for parking lots.</span>
     <span class="kw">if</span> <span class="ident">highway</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;service&quot;</span> <span class="op">&amp;&amp;</span> <span class="ident">tags</span>.<span class="ident">is_any</span>(<span class="string">&quot;service&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;driveway&quot;</span>, <span class="string">&quot;parking_aisle&quot;</span>]) {
-        <span class="kw">return</span> <span class="bool-val">false</span>;
+        <span class="comment">// An exception -- keep driveways signed for bikes</span>
+        <span class="kw">if</span> <span class="op">!</span>(<span class="ident">tags</span>.<span class="ident">is</span>(<span class="string">&quot;service&quot;</span>, <span class="string">&quot;driveway&quot;</span>) <span class="op">&amp;&amp;</span> <span class="ident">tags</span>.<span class="ident">is</span>(<span class="string">&quot;bicycle&quot;</span>, <span class="string">&quot;designated&quot;</span>)) {
+            <span class="kw">return</span> <span class="bool-val">false</span>;
+        }
     }
     <span class="kw">if</span> <span class="ident">highway</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;service&quot;</span> <span class="op">&amp;&amp;</span> <span class="ident">tags</span>.<span class="ident">is</span>(<span class="string">&quot;golf&quot;</span>, <span class="string">&quot;cartpath&quot;</span>) {
+        <span class="kw">return</span> <span class="bool-val">false</span>;
+    }
+    <span class="kw">if</span> <span class="ident">highway</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;service&quot;</span> <span class="op">&amp;&amp;</span> <span class="ident">tags</span>.<span class="ident">is</span>(<span class="string">&quot;access&quot;</span>, <span class="string">&quot;customers&quot;</span>) {
         <span class="kw">return</span> <span class="bool-val">false</span>;
     }
 

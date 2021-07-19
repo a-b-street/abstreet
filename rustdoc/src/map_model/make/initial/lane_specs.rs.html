@@ -585,7 +585,7 @@
         <span class="comment">// allowed.</span>
         <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">is</span>(<span class="string">&quot;bicycle&quot;</span>, <span class="string">&quot;no&quot;</span>)
             <span class="op">|</span><span class="op">|</span> (<span class="ident">tags</span>.<span class="ident">is</span>(<span class="ident">osm::HIGHWAY</span>, <span class="string">&quot;footway&quot;</span>)
-                <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">tags</span>.<span class="ident">is_any</span>(<span class="string">&quot;bicycle&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;designated&quot;</span>, <span class="string">&quot;yes&quot;</span>]))
+                <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">tags</span>.<span class="ident">is_any</span>(<span class="string">&quot;bicycle&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;designated&quot;</span>, <span class="string">&quot;yes&quot;</span>, <span class="string">&quot;dismount&quot;</span>]))
         {
             <span class="kw">return</span> <span class="macro">vec!</span>[<span class="ident">fwd</span>(<span class="ident">LaneType::Sidewalk</span>)];
         }
