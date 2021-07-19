@@ -13,10 +13,10 @@ const DEBUG_OUTPUT: bool = false;
 pub fn snap_cycleways(map: &mut RawMap) {
     #![allow(clippy::logic_bug)]
     // A gradual experiment...
-    if false
-        && map.name != MapName::seattle("montlake")
-        && map.name != MapName::seattle("udistrict")
-    {
+    if !(map.name == MapName::seattle("montlake") || map.name == MapName::seattle("udistrict")) {
+        return;
+    }
+    if true {
         return;
     }
 

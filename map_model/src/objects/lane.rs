@@ -403,12 +403,6 @@ impl LaneSpec {
     /// For a given lane type, returns some likely widths. This may depend on the type of the road,
     /// so the OSM tags are also passed in. The first value returned will be used as a default.
     pub fn typical_lane_widths(lt: LaneType, tags: &Tags) -> Vec<(Distance, &'static str)> {
-        let rank = if let Some(x) = tags.get(osm::HIGHWAY) {
-            osm::RoadRank::from_highway(x)
-        } else {
-            osm::RoadRank::Local
-        };
-
         // These're cobbled together from various sources
         match lt {
             // https://en.wikipedia.org/wiki/Lane#Lane_width
@@ -419,14 +413,7 @@ impl LaneSpec {
                     (Distance::feet(10.0), "typical"),
                     (Distance::feet(12.0), "highway"),
                 ];
-                if rank == osm::RoadRank::Highway
-                    && tags
-                        .get(osm::HIGHWAY)
-                        .map(|x| !x.ends_with("_link"))
-                        .unwrap_or(true)
-                {
-                    choices.rotate_right(1);
-                } else if tags.is(osm::HIGHWAY, "service") || tags.is("narrow", "yes") {
+                if tags.is(osm::HIGHWAY, "service") || tags.is("narrow", "yes") {
                     choices.swap(1, 0);
                 }
                 choices

@@ -35,7 +35,7 @@ pub fn get_lane_specs_ltr(tags: &Tags, cfg: &MapConfig) -> Vec<LaneSpec> {
         // allowed.
         if tags.is("bicycle", "no")
             || (tags.is(osm::HIGHWAY, "footway")
-                && !tags.is_any("bicycle", vec!["designated", "yes"]))
+                && !tags.is_any("bicycle", vec!["designated", "yes", "dismount"]))
         {
             return vec![fwd(LaneType::Sidewalk)];
         }
