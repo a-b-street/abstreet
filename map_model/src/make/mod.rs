@@ -118,7 +118,6 @@ impl Map {
                 incoming_lanes: Vec::new(),
                 outgoing_lanes: Vec::new(),
                 roads: i.roads.iter().map(|id| road_id_mapping[id]).collect(),
-                // TODO Keep trim_roads_for_merging?
                 merged: !raw.intersections[&i.id].trim_roads_for_merging.is_empty(),
             });
             intersection_id_mapping.insert(i.id, id);

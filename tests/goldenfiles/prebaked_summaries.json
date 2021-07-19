@@ -4,56 +4,49 @@
     "scenario": "weekday",
     "finished_trips": 76618,
     "cancelled_trips": 0,
-    "total_trip_duration_seconds": 45457701.20759995
+    "total_trip_duration_seconds": 46047737.44350003
   },
   {
     "map": "greenlake (in seattle (us))",
     "scenario": "weekday",
     "finished_trips": 136848,
     "cancelled_trips": 30,
-    "total_trip_duration_seconds": 79580364.40930083
+    "total_trip_duration_seconds": 78232736.04019925
   },
   {
     "map": "montlake (in seattle (us))",
     "scenario": "weekday",
     "finished_trips": 36723,
     "cancelled_trips": 73,
-    "total_trip_duration_seconds": 19724275.440800197
+    "total_trip_duration_seconds": 19694209.279900048
   },
   {
     "map": "lakeslice (in seattle (us))",
     "scenario": "weekday",
     "finished_trips": 260931,
     "cancelled_trips": 4885,
-    "total_trip_duration_seconds": 204868704.89849666
-  },
-  {
-    "map": "phinney (in seattle (us))",
-    "scenario": "weekday",
-    "finished_trips": 138499,
-    "cancelled_trips": 0,
-    "total_trip_duration_seconds": 86802602.80429807
+    "total_trip_duration_seconds": 204353658.49570182
   },
   {
     "map": "qa (in seattle (us))",
     "scenario": "weekday",
     "finished_trips": 53866,
     "cancelled_trips": 0,
-    "total_trip_duration_seconds": 19805229.338499893
+    "total_trip_duration_seconds": 19769536.95049988
   },
   {
     "map": "rainier_valley (in seattle (us))",
     "scenario": "weekday",
     "finished_trips": 68100,
     "cancelled_trips": 0,
-    "total_trip_duration_seconds": 41738712.882400125
+    "total_trip_duration_seconds": 41603896.18329961
   },
   {
     "map": "wallingford (in seattle (us))",
     "scenario": "weekday",
     "finished_trips": 133431,
     "cancelled_trips": 0,
-    "total_trip_duration_seconds": 69044674.2322003
+    "total_trip_duration_seconds": 78316878.12640005
   },
   {
     "map": "center (in poundbury (gb))",

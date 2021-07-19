@@ -95,15 +95,6 @@ pub fn intersection_polygon(
         .collect::<Vec<_>>();
 
     if !trim_roads_for_merging.is_empty() {
-        // TODO Keep this or not?
-        /*if let Some(fixed) = convex_hull_merged_intersection(
-            result.clone(),
-            intersection_id,
-            intersection_roads,
-            roads,
-        ) {
-            return Ok((fixed, debug));
-        }*/
         pretrimmed_geometry(roads, intersection_id, &lines)
     } else if let Some(result) = on_off_ramp(roads, intersection_id, lines.clone()) {
         Ok(result)
@@ -646,37 +637,4 @@ fn on_off_ramp(
 
     //let dummy = Circle::new(orig_lines[0].3.last_pt(), Distance::meters(3.0)).to_polygon();
     //Some((close_off_polygon(dummy.into_points()), debug))
-}
-
-// The polygon produced by generalized_trim_back for merged intersections is usually jagged. A
-// simple fix is to take the convex hull of the result. But this is only valid when the trimmed
-// road center-lines still hit the polygon only at the border.
-fn convex_hull_merged_intersection(
-    input: Polygon,
-    intersection_id: osm::NodeID,
-    intersection_roads: BTreeSet<OriginalRoad>,
-    roads: &BTreeMap<OriginalRoad, Road>,
-) -> Option<Polygon> {
-    let candidate = Polygon::convex_hull(vec![input]);
-    let candidate_ring = candidate.clone().into_ring();
-
-    for id in intersection_roads {
-        let r = &roads[&id];
-        let trimmed_endpt = if r.src_i == intersection_id {
-            r.trimmed_center_pts.first_pt()
-        } else {
-            r.trimmed_center_pts.last_pt()
-        };
-        // If we wanted to be more paranoid here, we could also check the left and right shifted
-        // polylines.
-
-        // Assume the convex hull could only ever "grow" the input, never "shrink" it. So it should
-        // suffice to see if the trimmed endpoint is in the interior of the polygon.
-        if candidate.contains_pt(trimmed_endpt) && !candidate_ring.contains_pt(trimmed_endpt) {
-            // We could also trim this road based on the new hit. Except that would then require
-            // modifying the polygon a bit!
-            return None;
-        }
-    }
-    Some(candidate)
 }
