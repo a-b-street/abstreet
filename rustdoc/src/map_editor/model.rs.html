@@ -619,8 +619,9 @@
 <span id="616">616</span>
 <span id="617">617</span>
 <span id="618">618</span>
+<span id="619">619</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
+<span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashMap</span>};
 <span class="kw">use</span> <span class="ident">std::io::Write</span>;
 
 <span class="kw">use</span> <span class="ident">abstio</span>::{<span class="ident">CityName</span>, <span class="ident">MapName</span>};
@@ -815,6 +816,7 @@
                 <span class="ident">point</span>,
                 <span class="ident">intersection_type</span>: <span class="ident">IntersectionType::StopSign</span>,
                 <span class="ident">elevation</span>: <span class="ident">Distance::ZERO</span>,
+                <span class="ident">trim_roads_for_merging</span>: <span class="ident">BTreeMap::new</span>(),
             },
         );
         <span class="self">self</span>.<span class="ident">intersection_added</span>(<span class="ident">ctx</span>, <span class="ident">id</span>);

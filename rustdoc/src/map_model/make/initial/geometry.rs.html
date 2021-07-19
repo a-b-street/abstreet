@@ -634,6 +634,13 @@
 <span id="631">631</span>
 <span id="632">632</span>
 <span id="633">633</span>
+<span id="634">634</span>
+<span id="635">635</span>
+<span id="636">636</span>
+<span id="637">637</span>
+<span id="638">638</span>
+<span id="639">639</span>
+<span id="640">640</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! OSM describes roads as center-lines that intersect. Turn these into road and intersection</span>
 <span class="doccomment">//! polygons roughly by</span>
@@ -664,10 +671,28 @@
     <span class="ident">intersection_id</span>: <span class="ident">osm::NodeID</span>,
     <span class="ident">intersection_roads</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">OriginalRoad</span><span class="op">&gt;</span>,
     <span class="ident">roads</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">OriginalRoad</span>, <span class="ident">Road</span><span class="op">&gt;</span>,
-    <span class="ident">merged</span>: <span class="ident">bool</span>,
+    <span class="ident">trim_roads_for_merging</span>: <span class="kw-2">&amp;</span><span class="ident">BTreeMap</span><span class="op">&lt;</span>(<span class="ident">osm::WayID</span>, <span class="ident">bool</span>), <span class="ident">Pt2D</span><span class="op">&gt;</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">Polygon</span>, <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">Polygon</span>)<span class="op">&gt;</span>)<span class="op">&gt;</span> {
     <span class="kw">if</span> <span class="ident">intersection_roads</span>.<span class="ident">is_empty</span>() {
         <span class="macro">panic!</span>(<span class="string">&quot;{} has no roads&quot;</span>, <span class="ident">intersection_id</span>);
+    }
+
+    <span class="comment">// First pre-trim roads if it&#39;s a consolidated intersection.</span>
+    <span class="kw">for</span> <span class="ident">id</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">intersection_roads</span> {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">endpt</span>) <span class="op">=</span> <span class="ident">trim_roads_for_merging</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span>(<span class="ident">id</span>.<span class="ident">osm_way_id</span>, <span class="ident">id</span>.<span class="ident">i1</span> <span class="op">=</span><span class="op">=</span> <span class="ident">intersection_id</span>))
+        {
+            <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">roads</span>.<span class="ident">get_mut</span>(<span class="ident">id</span>).<span class="ident">unwrap</span>();
+            <span class="kw">if</span> <span class="ident">road</span>.<span class="ident">src_i</span> <span class="op">=</span><span class="op">=</span> <span class="ident">intersection_id</span> {
+                <span class="ident">road</span>.<span class="ident">trimmed_center_pts</span> <span class="op">=</span> <span class="ident">road</span>
+                    .<span class="ident">trimmed_center_pts</span>
+                    .<span class="ident">get_slice_starting_at</span>(<span class="kw-2">*</span><span class="ident">endpt</span>)
+                    .<span class="ident">unwrap</span>();
+            } <span class="kw">else</span> {
+                <span class="macro">assert_eq!</span>(<span class="ident">road</span>.<span class="ident">dst_i</span>, <span class="ident">intersection_id</span>);
+                <span class="ident">road</span>.<span class="ident">trimmed_center_pts</span> <span class="op">=</span>
+                    <span class="ident">road</span>.<span class="ident">trimmed_center_pts</span>.<span class="ident">get_slice_ending_at</span>(<span class="kw-2">*</span><span class="ident">endpt</span>).<span class="ident">unwrap</span>();
+            }
+        }
     }
 
     <span class="comment">// Turn all of the incident roads into two PolyLines (the &quot;forwards&quot; and &quot;backwards&quot; borders of</span>
@@ -675,8 +700,7 @@
     <span class="comment">// at the intersection</span>
     <span class="comment">// TODO Maybe express the two incoming PolyLines as the &quot;right&quot; and &quot;left&quot;</span>
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lines</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">OriginalRoad</span>, <span class="ident">Pt2D</span>, <span class="ident">PolyLine</span>, <span class="ident">PolyLine</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-    <span class="comment">// This is guaranteed to get set, since intersection_roads is non-empty</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">intersection_center</span> <span class="op">=</span> <span class="ident">Pt2D::new</span>(<span class="number">0.0</span>, <span class="number">0.0</span>);
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">endpoints_for_center</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
     <span class="kw">for</span> <span class="ident">id</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">intersection_roads</span> {
         <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">roads</span>[<span class="ident">id</span>];
 
@@ -693,8 +717,12 @@
         <span class="kw">let</span> <span class="ident">pl_normal</span> <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">shift_right</span>(<span class="ident">r</span>.<span class="ident">half_width</span>)<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">pl_reverse</span> <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">shift_left</span>(<span class="ident">r</span>.<span class="ident">half_width</span>)<span class="question-mark">?</span>;
         <span class="ident">lines</span>.<span class="ident">push</span>((<span class="kw-2">*</span><span class="ident">id</span>, <span class="ident">pl</span>.<span class="ident">first_pt</span>(), <span class="ident">pl_normal</span>, <span class="ident">pl_reverse</span>));
-        <span class="ident">intersection_center</span> <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">last_pt</span>();
+        <span class="ident">endpoints_for_center</span>.<span class="ident">push</span>(<span class="ident">pl</span>.<span class="ident">last_pt</span>());
     }
+    <span class="comment">// In most cases, this will just be the same point repeated a few times, so Pt2D::center is a</span>
+    <span class="comment">// no-op. But when we have pretrimmed roads, this is much closer to the real &quot;center&quot; of the</span>
+    <span class="comment">// polygon we&#39;re attempting to create.</span>
+    <span class="kw">let</span> <span class="ident">intersection_center</span> <span class="op">=</span> <span class="ident">Pt2D::center</span>(<span class="kw-2">&amp;</span><span class="ident">endpoints_for_center</span>);
 
     <span class="comment">// Sort the polylines by the angle their first point makes to the common point. Use the first</span>
     <span class="comment">// point (farthest away from the intersection) to have the best chance of figuring out the true</span>
@@ -709,24 +737,17 @@
         .<span class="ident">iter</span>()
         .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">r</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>)<span class="op">|</span> (<span class="kw-2">*</span><span class="ident">r</span>, <span class="ident">roads</span>[<span class="ident">r</span>].<span class="ident">trimmed_center_pts</span>.<span class="ident">clone</span>()))
         .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">result</span>) <span class="op">=</span> <span class="ident">on_off_ramp</span>(<span class="ident">roads</span>, <span class="ident">intersection_id</span>, <span class="ident">lines</span>.<span class="ident">clone</span>()) {
+
+    <span class="kw">if</span> <span class="op">!</span><span class="ident">trim_roads_for_merging</span>.<span class="ident">is_empty</span>() {
+        <span class="ident">pretrimmed_geometry</span>(<span class="ident">roads</span>, <span class="ident">intersection_id</span>, <span class="kw-2">&amp;</span><span class="ident">lines</span>)
+    } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">result</span>) <span class="op">=</span> <span class="ident">on_off_ramp</span>(<span class="ident">roads</span>, <span class="ident">intersection_id</span>, <span class="ident">lines</span>.<span class="ident">clone</span>()) {
         <span class="prelude-val">Ok</span>(<span class="ident">result</span>)
     } <span class="kw">else</span> {
+        <span class="comment">// on_off_ramp failed, so first restore lines</span>
         <span class="kw">for</span> (<span class="ident">r</span>, <span class="ident">trimmed_center_pts</span>) <span class="kw">in</span> <span class="ident">rollback</span> {
             <span class="ident">roads</span>.<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">r</span>).<span class="ident">unwrap</span>().<span class="ident">trimmed_center_pts</span> <span class="op">=</span> <span class="ident">trimmed_center_pts</span>;
         }
-        <span class="kw">let</span> (<span class="ident">result</span>, <span class="ident">debug</span>) <span class="op">=</span> <span class="ident">generalized_trim_back</span>(<span class="ident">roads</span>, <span class="ident">intersection_id</span>, <span class="kw-2">&amp;</span><span class="ident">lines</span>)<span class="question-mark">?</span>;
-        <span class="kw">if</span> <span class="ident">merged</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">fixed</span>) <span class="op">=</span> <span class="ident">convex_hull_merged_intersection</span>(
-                <span class="ident">result</span>.<span class="ident">clone</span>(),
-                <span class="ident">intersection_id</span>,
-                <span class="ident">intersection_roads</span>,
-                <span class="ident">roads</span>,
-            ) {
-                <span class="kw">return</span> <span class="prelude-val">Ok</span>((<span class="ident">fixed</span>, <span class="ident">debug</span>));
-            }
-        }
-        <span class="prelude-val">Ok</span>((<span class="ident">result</span>, <span class="ident">debug</span>))
+        <span class="ident">generalized_trim_back</span>(<span class="ident">roads</span>, <span class="ident">intersection_id</span>, <span class="kw-2">&amp;</span><span class="ident">lines</span>)
     }
 }
 
@@ -938,6 +959,32 @@
     let center = Pt2D::center(&amp;endpoints);
     endpoints.sort_by_key(|pt| pt.angle_to(center).normalized_degrees() as i64);
     (close_off_polygon(endpoints), debug)*/</span>
+}
+
+<span class="kw">fn</span> <span class="ident">pretrimmed_geometry</span>(
+    <span class="ident">roads</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">OriginalRoad</span>, <span class="ident">Road</span><span class="op">&gt;</span>,
+    <span class="ident">i</span>: <span class="ident">osm::NodeID</span>,
+    <span class="ident">lines</span>: <span class="kw-2">&amp;</span>[(<span class="ident">OriginalRoad</span>, <span class="ident">Pt2D</span>, <span class="ident">PolyLine</span>, <span class="ident">PolyLine</span>)],
+) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">Polygon</span>, <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">Polygon</span>)<span class="op">&gt;</span>)<span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">endpoints</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+    <span class="kw">for</span> (<span class="ident">r</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="ident">lines</span> {
+        <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">roads</span>[<span class="ident">r</span>];
+        <span class="comment">// Shift those final centers out again to find the main endpoints for the polygon.</span>
+        <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">dst_i</span> <span class="op">=</span><span class="op">=</span> <span class="ident">i</span> {
+            <span class="ident">endpoints</span>.<span class="ident">push</span>(<span class="ident">r</span>.<span class="ident">trimmed_center_pts</span>.<span class="ident">shift_right</span>(<span class="ident">r</span>.<span class="ident">half_width</span>)<span class="question-mark">?</span>.<span class="ident">last_pt</span>());
+            <span class="ident">endpoints</span>.<span class="ident">push</span>(<span class="ident">r</span>.<span class="ident">trimmed_center_pts</span>.<span class="ident">shift_left</span>(<span class="ident">r</span>.<span class="ident">half_width</span>)<span class="question-mark">?</span>.<span class="ident">last_pt</span>());
+        } <span class="kw">else</span> {
+            <span class="ident">endpoints</span>.<span class="ident">push</span>(<span class="ident">r</span>.<span class="ident">trimmed_center_pts</span>.<span class="ident">shift_left</span>(<span class="ident">r</span>.<span class="ident">half_width</span>)<span class="question-mark">?</span>.<span class="ident">first_pt</span>());
+            <span class="ident">endpoints</span>.<span class="ident">push</span>(<span class="ident">r</span>.<span class="ident">trimmed_center_pts</span>.<span class="ident">shift_right</span>(<span class="ident">r</span>.<span class="ident">half_width</span>)<span class="question-mark">?</span>.<span class="ident">first_pt</span>());
+        }
+    }
+
+    <span class="comment">// TODO Do all of the crazy deduping that generalized_trim_back does?</span>
+    <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">Ring::new</span>(<span class="ident">close_off_polygon</span>(<span class="ident">Pt2D::approx_dedupe</span>(
+        <span class="ident">endpoints</span>,
+        <span class="ident">Distance::meters</span>(<span class="number">0.1</span>),
+    )))<span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>((<span class="ident">result</span>.<span class="ident">into_polygon</span>(), <span class="ident">Vec::new</span>()))
 }
 
 <span class="kw">fn</span> <span class="ident">deadend</span>(
@@ -1234,39 +1281,6 @@
 
     <span class="comment">//let dummy = Circle::new(orig_lines[0].3.last_pt(), Distance::meters(3.0)).to_polygon();</span>
     <span class="comment">//Some((close_off_polygon(dummy.into_points()), debug))</span>
-}
-
-<span class="comment">// The polygon produced by generalized_trim_back for merged intersections is usually jagged. A</span>
-<span class="comment">// simple fix is to take the convex hull of the result. But this is only valid when the trimmed</span>
-<span class="comment">// road center-lines still hit the polygon only at the border.</span>
-<span class="kw">fn</span> <span class="ident">convex_hull_merged_intersection</span>(
-    <span class="ident">input</span>: <span class="ident">Polygon</span>,
-    <span class="ident">intersection_id</span>: <span class="ident">osm::NodeID</span>,
-    <span class="ident">intersection_roads</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">OriginalRoad</span><span class="op">&gt;</span>,
-    <span class="ident">roads</span>: <span class="kw-2">&amp;</span><span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">OriginalRoad</span>, <span class="ident">Road</span><span class="op">&gt;</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">candidate</span> <span class="op">=</span> <span class="ident">Polygon::convex_hull</span>(<span class="macro">vec!</span>[<span class="ident">input</span>]);
-    <span class="kw">let</span> <span class="ident">candidate_ring</span> <span class="op">=</span> <span class="ident">candidate</span>.<span class="ident">clone</span>().<span class="ident">into_ring</span>();
-
-    <span class="kw">for</span> <span class="ident">id</span> <span class="kw">in</span> <span class="ident">intersection_roads</span> {
-        <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">roads</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>];
-        <span class="kw">let</span> <span class="ident">trimmed_endpt</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">src_i</span> <span class="op">=</span><span class="op">=</span> <span class="ident">intersection_id</span> {
-            <span class="ident">r</span>.<span class="ident">trimmed_center_pts</span>.<span class="ident">first_pt</span>()
-        } <span class="kw">else</span> {
-            <span class="ident">r</span>.<span class="ident">trimmed_center_pts</span>.<span class="ident">last_pt</span>()
-        };
-        <span class="comment">// If we wanted to be more paranoid here, we could also check the left and right shifted</span>
-        <span class="comment">// polylines.</span>
-
-        <span class="comment">// Assume the convex hull could only ever &quot;grow&quot; the input, never &quot;shrink&quot; it. So it should</span>
-        <span class="comment">// suffice to see if the trimmed endpoint is in the interior of the polygon.</span>
-        <span class="kw">if</span> <span class="ident">candidate</span>.<span class="ident">contains_pt</span>(<span class="ident">trimmed_endpt</span>) <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">candidate_ring</span>.<span class="ident">contains_pt</span>(<span class="ident">trimmed_endpt</span>) {
-            <span class="comment">// We could also trim this road based on the new hit. Except that would then require</span>
-            <span class="comment">// modifying the polygon a bit!</span>
-            <span class="kw">return</span> <span class="prelude-val">None</span>;
-        }
-    }
-    <span class="prelude-val">Some</span>(<span class="ident">candidate</span>)
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="map_model" data-search-index-js="../../../../search-index.js" data-search-js="../../../../search.js"></div>

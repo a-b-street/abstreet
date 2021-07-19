@@ -169,11 +169,6 @@
 <span id="166">166</span>
 <span id="167">167</span>
 <span id="168">168</span>
-<span id="169">169</span>
-<span id="170">170</span>
-<span id="171">171</span>
-<span id="172">172</span>
-<span id="173">173</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Naming is confusing, but RawMap -&gt; InitialMap -&gt; Map. InitialMap is separate pretty much just</span>
 <span class="doccomment">//! for the step of producing &lt;https://a-b-street.github.io/docs/tech/map/importing/geometry.html&gt;.</span>
@@ -238,12 +233,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">InitialMap</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(
-        <span class="ident">raw</span>: <span class="kw-2">&amp;</span><span class="ident">RawMap</span>,
-        <span class="ident">bounds</span>: <span class="kw-2">&amp;</span><span class="ident">Bounds</span>,
-        <span class="ident">merged_intersections</span>: <span class="kw-2">&amp;</span><span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">osm::NodeID</span><span class="op">&gt;</span>,
-        <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">InitialMap</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">raw</span>: <span class="kw-2">&amp;</span><span class="ident">RawMap</span>, <span class="ident">bounds</span>: <span class="kw-2">&amp;</span><span class="ident">Bounds</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">InitialMap</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">m</span> <span class="op">=</span> <span class="ident">InitialMap</span> {
             <span class="ident">roads</span>: <span class="ident">BTreeMap::new</span>(),
             <span class="ident">intersections</span>: <span class="ident">BTreeMap::new</span>(),
@@ -287,7 +277,7 @@
                 <span class="ident">i</span>.<span class="ident">id</span>,
                 <span class="ident">i</span>.<span class="ident">roads</span>.<span class="ident">clone</span>(),
                 <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">m</span>.<span class="ident">roads</span>,
-                <span class="ident">merged_intersections</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">i</span>.<span class="ident">id</span>),
+                <span class="kw-2">&amp;</span><span class="ident">raw</span>.<span class="ident">intersections</span>[<span class="kw-2">&amp;</span><span class="ident">i</span>.<span class="ident">id</span>].<span class="ident">trim_roads_for_merging</span>,
             ) {
                 <span class="prelude-val">Ok</span>((<span class="ident">poly</span>, <span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="ident">i</span>.<span class="ident">polygon</span> <span class="op">=</span> <span class="ident">poly</span>;
@@ -335,7 +325,7 @@
                 <span class="ident">i</span>.<span class="ident">id</span>,
                 <span class="ident">i</span>.<span class="ident">roads</span>.<span class="ident">clone</span>(),
                 <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">m</span>.<span class="ident">roads</span>,
-                <span class="ident">merged_intersections</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">i</span>.<span class="ident">id</span>),
+                <span class="kw-2">&amp;</span><span class="ident">raw</span>.<span class="ident">intersections</span>[<span class="kw-2">&amp;</span><span class="ident">i</span>.<span class="ident">id</span>].<span class="ident">trim_roads_for_merging</span>,
             )
             .<span class="ident">unwrap</span>()
             .<span class="number">0</span>;
