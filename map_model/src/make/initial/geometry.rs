@@ -56,8 +56,7 @@ pub fn intersection_polygon(
     // at the intersection
     // TODO Maybe express the two incoming PolyLines as the "right" and "left"
     let mut lines: Vec<(OriginalRoad, Pt2D, PolyLine, PolyLine)> = Vec::new();
-    // This is guaranteed to get set, since intersection_roads is non-empty
-    let mut intersection_center = Pt2D::new(0.0, 0.0);
+    let mut endpoints_for_center = Vec::new();
     for id in &intersection_roads {
         let r = &roads[id];
 
@@ -74,8 +73,12 @@ pub fn intersection_polygon(
         let pl_normal = pl.shift_right(r.half_width)?;
         let pl_reverse = pl.shift_left(r.half_width)?;
         lines.push((*id, pl.first_pt(), pl_normal, pl_reverse));
-        intersection_center = pl.last_pt();
+        endpoints_for_center.push(pl.last_pt());
     }
+    // In most cases, this will just be the same point repeated a few times, so Pt2D::center is a
+    // no-op. But when we have pretrimmed roads, this is much closer to the real "center" of the
+    // polygon we're attempting to create.
+    let intersection_center = Pt2D::center(&endpoints_for_center);
 
     // Sort the polylines by the angle their first point makes to the common point. Use the first
     // point (farthest away from the intersection) to have the best chance of figuring out the true
