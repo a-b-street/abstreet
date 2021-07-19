@@ -67,7 +67,8 @@ pub(crate) struct Ctx<'a> {
     pub parking: &'a mut ParkingSimState,
     pub intersections: &'a mut IntersectionSimState,
     pub scheduler: &'a mut Scheduler,
-    pub map: &'a Map,
+    // Mutable because the router may need to call create_conditional_turns
+    pub map: &'a mut Map,
     /// If present, live map edits are being processed, and the agents specified are in the process
     /// of being deleted. Some regular work should maybe be skipped.
     pub handling_live_edits: Option<BTreeSet<AgentID>>,
@@ -382,7 +383,7 @@ impl Sim {
     // said to halt the sim.
     fn minimal_step(
         &mut self,
-        map: &Map,
+        map: &mut Map,
         max_dt: Duration,
         maybe_cb: &mut Option<Box<dyn SimCallback>>,
     ) -> bool {
@@ -420,7 +421,7 @@ impl Sim {
     // If true, halt simulation because the callback said so.
     fn do_step(
         &mut self,
-        map: &Map,
+        map: &mut Map,
         time: Time,
         cmd: Command,
         maybe_cb: &mut Option<Box<dyn SimCallback>>,
@@ -567,6 +568,15 @@ impl Sim {
                         SidewalkPOI::Building(b1),
                         SidewalkPOI::ParkingSpot(ParkingSpot::Offstreet(b2, idx)),
                     ) if b1 == b2 => {
+                        // Appease the borrow checker
+                        let mut ctx = Ctx {
+                            parking: &mut self.parking,
+                            intersections: &mut self.intersections,
+                            scheduler: &mut self.scheduler,
+                            map,
+                            handling_live_edits: None,
+                        };
+
                         self.trips.ped_reached_parking_spot(
                             self.time,
                             create_ped.id,
@@ -657,7 +667,7 @@ impl Sim {
 
     pub fn timed_step(
         &mut self,
-        map: &Map,
+        map: &mut Map,
         dt: Duration,
         maybe_cb: &mut Option<Box<dyn SimCallback>>,
         timer: &mut Timer,
@@ -702,7 +712,7 @@ impl Sim {
         }
         timer.stop(format!("Advance sim to {}", end_time));
     }
-    pub fn tiny_step(&mut self, map: &Map, maybe_cb: &mut Option<Box<dyn SimCallback>>) {
+    pub fn tiny_step(&mut self, map: &mut Map, maybe_cb: &mut Option<Box<dyn SimCallback>>) {
         self.timed_step(
             map,
             Duration::seconds(0.1),
@@ -713,7 +723,7 @@ impl Sim {
 
     pub fn time_limited_step(
         &mut self,
-        map: &Map,
+        map: &mut Map,
         dt: Duration,
         real_time_limit: Duration,
         maybe_cb: &mut Option<Box<dyn SimCallback>>,
@@ -832,7 +842,7 @@ impl Sim {
 
     /// Respond to arbitrary map edits without resetting the simulation. Returns the number of
     /// (trips cancelled, parked cars displaced).
-    pub fn handle_live_edits(&mut self, map: &Map, timer: &mut Timer) -> (usize, usize) {
+    pub fn handle_live_edits(&mut self, map: &mut Map, timer: &mut Timer) -> (usize, usize) {
         self.edits_name = map.get_edits().edits_name.clone();
 
         let (affected, num_parked_cars) = self.find_trips_affected_by_live_edits(map, timer);
@@ -955,7 +965,7 @@ impl Sim {
 
 // Invasive debugging
 impl Sim {
-    pub fn delete_car(&mut self, id: CarID, map: &Map) {
+    pub fn delete_car(&mut self, id: CarID, map: &mut Map) {
         if let Some(trip) = self.agent_to_trip(AgentID::Car(id)) {
             let mut ctx = Ctx {
                 parking: &mut self.parking,

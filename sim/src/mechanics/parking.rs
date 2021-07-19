@@ -75,6 +75,7 @@ pub trait ParkingSim {
     fn collect_events(&mut self) -> Vec<Event>;
     fn all_parked_car_positions(&self, map: &Map) -> Vec<(Position, PersonID)>;
     fn bldg_to_parked_cars(&self, b: BuildingID) -> Vec<CarID>;
+    fn is_street_parking_empty(&self, l: LaneID) -> bool;
 }
 
 #[enum_dispatch]
@@ -653,6 +654,15 @@ impl ParkingSim for NormalParkingSimState {
         }
         cars
     }
+
+    fn is_street_parking_empty(&self, l: LaneID) -> bool {
+        for spot in self.onstreet_lanes[&l].spots() {
+            if !self.is_free(spot) {
+                return false;
+            }
+        }
+        true
+    }
 }
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -1068,5 +1078,10 @@ impl ParkingSim for InfiniteParkingSimState {
             }
         }
         cars
+    }
+
+    fn is_street_parking_empty(&self, _: LaneID) -> bool {
+        // All parking is offstreet, so... easy!
+        true
     }
 }

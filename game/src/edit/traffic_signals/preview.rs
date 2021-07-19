@@ -99,7 +99,7 @@ pub fn make_previewer(
                             step += signal.stages[idx].stage_type.simple_duration();
                         }
                         app.primary.sim.timed_step(
-                            &app.primary.map,
+                            &mut app.primary.map,
                             step,
                             &mut app.primary.sim_cb,
                             &mut Timer::throwaway(),

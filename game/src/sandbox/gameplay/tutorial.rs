@@ -822,7 +822,7 @@ impl TutorialState {
             (cb)(app);
             app.primary
                 .sim
-                .tiny_step(&app.primary.map, &mut app.primary.sim_cb);
+                .tiny_step(&mut app.primary.map, &mut app.primary.sim_cb);
         }
         // If this stage has a scenario, it's instantiated when SandboxMode gets created.
 
@@ -1111,7 +1111,9 @@ impl TutorialState {
                         &mut rng,
                         &mut Timer::new("spawn trip"),
                     );
-                    app.primary.sim.tiny_step(map, &mut app.primary.sim_cb);
+                    app.primary
+                        .sim
+                        .tiny_step(&mut app.primary.map, &mut app.primary.sim_cb);
 
                     // And add some noise
                     spawn_agents_around(

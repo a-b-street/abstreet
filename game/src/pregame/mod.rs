@@ -361,7 +361,7 @@ impl Screensaver {
                 *self = Screensaver::bounce(ctx, app, rng);
             }
             app.primary.sim.time_limited_step(
-                &app.primary.map,
+                &mut app.primary.map,
                 SIM_SPEED * dt,
                 Duration::seconds(0.033),
                 &mut app.primary.sim_cb,

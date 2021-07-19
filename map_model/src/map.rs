@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 
 use abstio::{CityName, MapName};
 use abstutil::{MultiMap, Tags, Timer};
-use geom::{Bounds, Distance, Duration, GPSBounds, Polygon, Pt2D, Ring, Time};
+use geom::{Bounds, Distance, Duration, GPSBounds, PolyLine, Polygon, Pt2D, Ring, Time};
 
 use crate::raw::{OriginalRoad, RawMap};
 use crate::{
@@ -754,5 +754,53 @@ impl Map {
             mapping.insert(self.get_l(b.sidewalk_pos.lane()).parent, b.id);
         }
         self.road_to_buildings = mapping;
+    }
+
+    /// If it doesn't already exist, generates a turn from l1->l2 and from l2->l3. Looking up the
+    /// two turns returned will work, but listing possible turns from a lane shouldn't include the
+    /// new turns.
+    pub fn create_conditional_turns(
+        &mut self,
+        l1: LaneID,
+        l2: LaneID,
+        l3: LaneID,
+    ) -> (TurnID, TurnID) {
+        let l1 = self.get_l(l1);
+        let l2 = self.get_l(l2);
+        let l3 = self.get_l(l3);
+
+        assert_eq!(l1.dst_i, l2.src_i);
+        assert_eq!(l2.dst_i, l3.src_i);
+        assert!(l2.is_parking());
+
+        let turn1 = Turn {
+            id: TurnID {
+                parent: l1.dst_i,
+                src: l1.id,
+                dst: l2.id,
+            },
+            turn_type: TurnType::Straight,
+            other_crosswalk_ids: BTreeSet::new(),
+            geom: PolyLine::must_new(vec![l1.last_pt(), l2.first_pt()]),
+        };
+        let turn2 = Turn {
+            id: TurnID {
+                parent: l2.dst_i,
+                src: l2.id,
+                dst: l3.id,
+            },
+            // This tells most of map_model to ignore the turn
+            turn_type: TurnType::Conditional,
+            other_crosswalk_ids: BTreeSet::new(),
+            geom: PolyLine::must_new(vec![l2.last_pt(), l3.first_pt()]),
+        };
+        let (t1, t2) = (turn1.id, turn2.id);
+        for turn in [turn1, turn2] {
+            let i = &mut self.intersections[turn.id.parent.0];
+            if !i.turns.contains(&turn) {
+                i.turns.push(turn);
+            }
+        }
+        (t1, t2)
     }
 }

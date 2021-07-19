@@ -411,7 +411,9 @@ pub fn spawn_agents_around(i: IntersectionID, app: &mut App) {
         retry_if_no_room,
         &mut timer,
     );
-    app.primary.sim.tiny_step(map, &mut app.primary.sim_cb);
+    app.primary
+        .sim
+        .tiny_step(&mut app.primary.map, &mut app.primary.sim_cb);
 }
 
 pub fn actions(_: &App, id: ID) -> Vec<(Key, String)> {

@@ -13,7 +13,7 @@ use map_model::{IntersectionID, Map};
 use sim::{IndividTrip, PersonSpec, Scenario, TripEndpoint, TripMode, TripPurpose};
 
 fn main() -> Result<()> {
-    test_lane_changing(&import_map(abstio::path(
+    test_lane_changing(&mut import_map(abstio::path(
         "../tests/input/lane_selection.osm",
     )))?;
     test_map_importer()?;
@@ -84,7 +84,7 @@ fn dump_turn_goldenfile(map: &Map) -> Result<()> {
 fn smoke_test() -> Result<()> {
     let mut timer = Timer::new("run a smoke-test for all maps");
     for name in MapName::list_all_maps_locally() {
-        let map = map_model::Map::load_synchronously(name.path(), &mut timer);
+        let mut map = map_model::Map::load_synchronously(name.path(), &mut timer);
         let scenario = if map.get_city_name() == &CityName::seattle() {
             abstio::read_binary(abstio::path_scenario(&name, "weekday"), &mut timer)
         } else {
@@ -98,7 +98,7 @@ fn smoke_test() -> Result<()> {
         // Bit of an abuse of this, but just need to fix the rng seed.
         let mut rng = sim::SimFlags::for_test("smoke_test").make_rng();
         scenario.instantiate(&mut sim, &map, &mut rng, &mut timer);
-        sim.timed_step(&map, Duration::hours(1), &mut None, &mut timer);
+        sim.timed_step(&mut map, Duration::hours(1), &mut None, &mut timer);
 
         #[allow(clippy::collapsible_if)]
         if (name.city == CityName::seattle()
@@ -166,7 +166,7 @@ fn check_proposals() -> Result<()> {
 
 /// Verify lane-chaging behavior is overall reasonable, by asserting all cars and bikes can
 /// complete their trip under a time limit.
-fn test_lane_changing(map: &Map) -> Result<()> {
+fn test_lane_changing(map: &mut Map) -> Result<()> {
     // This uses a fixed RNG seed
     let mut rng = sim::SimFlags::for_test("smoke_test").make_rng();
 

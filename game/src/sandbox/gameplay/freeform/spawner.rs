@@ -118,7 +118,9 @@ impl State<App> for AgentSpawner {
                         &mut rng,
                         &mut Timer::new("spawn trip"),
                     );
-                    app.primary.sim.tiny_step(map, &mut app.primary.sim_cb);
+                    app.primary
+                        .sim
+                        .tiny_step(&mut app.primary.map, &mut app.primary.sim_cb);
                     app.recalculate_current_selection(ctx);
                     return Transition::Pop;
                 }

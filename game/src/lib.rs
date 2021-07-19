@@ -359,7 +359,7 @@ fn finish_app_setup(
         // flopping day/night mode.
         if let Some(ref mut secondary) = app.secondary {
             secondary.sim.timed_step(
-                &secondary.map,
+                &mut secondary.map,
                 // And actually, make it easier to distinguish the two maps by setting the
                 // alternate in the future slightly!
                 Duration::hours(6) + Duration::minutes(30),

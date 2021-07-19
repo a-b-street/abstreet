@@ -560,7 +560,7 @@ impl State<App> for SandboxLoader {
                         );
                         app.primary
                             .sim
-                            .tiny_step(&app.primary.map, &mut app.primary.sim_cb);
+                            .tiny_step(&mut app.primary.map, &mut app.primary.sim_cb);
                     });
 
                     self.stage = Some(LoadStage::LoadingPrebaked(scenario_name));

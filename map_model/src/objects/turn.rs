@@ -38,6 +38,12 @@ pub enum TurnType {
     Right,
     Left,
     UTurn,
+    /// These turns can't always be followed. The current example is a turn from vehicle lanes
+    /// to/from a street parking lane. The live simulation state (is there anything parked there?)
+    /// matters, and also the vehicle wanting to make the turn. These turns are lazily populated in
+    /// the Map, but shouldn't be serialized. Query functions that list turns should also exclude
+    /// them.
+    Conditional,
 }
 
 // TODO This concept may be dated, now that Movements exist. Within a movement, the lane-changing

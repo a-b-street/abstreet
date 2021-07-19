@@ -202,6 +202,8 @@ impl TurnExplorer {
             TurnType::Right => Color::GREEN,
             TurnType::Left => Color::RED,
             TurnType::UTurn => Color::PURPLE,
+            // The map shouldn't ever leak these turns
+            TurnType::Conditional => unreachable!(),
         }
     }
 }

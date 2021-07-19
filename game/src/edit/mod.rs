@@ -103,7 +103,7 @@ impl EditMode {
                 let (trips, parked_cars) = app
                     .primary
                     .sim
-                    .handle_live_edits(&app.primary.map, &mut timer);
+                    .handle_live_edits(&mut app.primary.map, &mut timer);
                 if trips == 0 && parked_cars == 0 {
                     Transition::Pop
                 } else {

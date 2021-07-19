@@ -448,7 +448,7 @@ pub fn jump_to_time_upon_startup(
             let deadline = Duration::seconds(0.5);
             app.primary
                 .sim
-                .time_limited_step(&app.primary.map, dt, deadline, &mut None);
+                .time_limited_step(&mut app.primary.map, dt, deadline, &mut None);
             let target = Time::START_OF_DAY + dt;
             if app.primary.sim.time() != target {
                 vec![Transition::Push(TimeWarpScreen::new_state(

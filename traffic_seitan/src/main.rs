@@ -28,7 +28,7 @@ fn main() {
         edits.edits_name = "traffic_seitan".to_string();
         map.must_apply_edits(edits);
         map.recalculate_pathfinding_after_edits(&mut timer);
-        sim.handle_live_edits(&map, &mut timer);
+        sim.handle_live_edits(&mut map, &mut timer);
     }
 
     if let Err(err) = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {

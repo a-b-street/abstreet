@@ -7,8 +7,8 @@ use serde::{Deserialize, Serialize};
 
 use geom::Distance;
 use map_model::{
-    BuildingID, IntersectionID, LaneID, Map, Path, PathConstraints, PathRequest, PathStep,
-    Position, Traversable, Turn, TurnID,
+    BuildingID, IntersectionID, LaneID, LaneType, Map, Path, PathConstraints, PathRequest,
+    PathStep, Position, Traversable, Turn, TurnID,
 };
 
 use crate::mechanics::Queue;
@@ -177,10 +177,15 @@ impl Router {
         if let Traversable::Lane(l) = self.head() {
             let lane = map.get_l(l);
             if !vehicle.vehicle_type.to_constraints().can_use(lane, map) {
-                panic!(
-                    "{} just wound up on {}, a {:?} (check the OSM tags)",
-                    vehicle.id, l, lane.lane_type
-                );
+                // There's an exception. We could assert the parking lane is still empty, but there
+                // could be a race between deciding on the conditional turn and finishing it; we
+                // don't "lock" the parking lane.
+                if !(vehicle.vehicle_type == VehicleType::Bike && lane.is_parking()) {
+                    panic!(
+                        "{} just wound up on {}, a {:?} (check the OSM tags)",
+                        vehicle.id, l, lane.lane_type
+                    );
+                }
             }
         }
 
@@ -337,9 +342,10 @@ impl Router {
 
     pub fn opportunistically_lanechange(
         &mut self,
-        queues: &HashMap<Traversable, Queue>,
-        map: &Map,
+        queues: &mut HashMap<Traversable, Queue>,
+        map: &mut Map,
         handle_uber_turns: bool,
+        parking: &ParkingSimState,
     ) {
         // if we're already in the uber-turn, we're committed, but if we're about to enter one, lock
         // in the best path through it now.
@@ -398,7 +404,7 @@ impl Router {
             // Look for other candidates, and assign a cost to each.
             let mut original_cost = None;
             let dir = map.get_l(orig_target_lane).dir;
-            let best = parent
+            let mut best = parent
                 .lanes_ltr()
                 .into_iter()
                 .filter(|(l, d, _)| dir == *d && constraints.can_use(map.get_l(*l), map))
@@ -426,9 +432,43 @@ impl Router {
                     if turn1.id == current_turn {
                         original_cost = Some(cost);
                     }
-                    (cost, turn1, l, turn2)
+                    (cost, turn1.id, l, turn2.id)
                 })
                 .min_by_key(|(cost, _, _, _)| *cost);
+            // Try to use an empty parking lane.
+            // TODO Don't use parking lanes right before or after a traffic signal; the
+            // turn->movement mapping fails.
+            if self.owner.vehicle_type == VehicleType::Bike
+                && best
+                    .as_ref()
+                    .map(|(_, _, l, _)| !map.get_l(*l).is_biking())
+                    .unwrap_or(true)
+                && map.get_i(map.get_l(orig_target_lane).src_i).is_stop_sign()
+                && map.get_i(map.get_l(orig_target_lane).dst_i).is_stop_sign()
+            {
+                if let Some((parking_lane, _, _)) =
+                    parent.lanes_ltr().into_iter().find(|(l, d, lt)| {
+                        dir == *d && *lt == LaneType::Parking && parking.is_street_parking_empty(*l)
+                    })
+                {
+                    let (t1, t2) =
+                        map.create_conditional_turns(current_turn.src, parking_lane, next_lane);
+
+                    for on in [
+                        Traversable::Lane(parking_lane),
+                        Traversable::Turn(t1),
+                        Traversable::Turn(t2),
+                    ] {
+                        if !queues.contains_key(&on) {
+                            queues.insert(on, Queue::new(on, map));
+                        }
+                    }
+
+                    // TODO Blindly override best? Figure out the scoring
+                    let score = (0, 0, 0, 0);
+                    best = Some((score, t1, parking_lane, t2));
+                }
+            }
 
             if best.is_none() {
                 error!("no valid paths found: {:?}", self.owner);
@@ -450,14 +490,14 @@ impl Router {
                     orig_target_lane, best_lane, original_cost, best_cost
                 );
                 self.path
-                    .modify_step(1 + segment * 2, PathStep::Turn(turn1.id), map);
+                    .modify_step(1 + segment * 2, PathStep::Turn(turn1), map);
                 self.path
                     .modify_step(2 + segment * 2, PathStep::Lane(best_lane), map);
                 self.path
-                    .modify_step(3 + segment * 2, PathStep::Turn(turn2.id), map);
+                    .modify_step(3 + segment * 2, PathStep::Turn(turn2), map);
             }
 
-            if self.path.is_upcoming_uber_turn_component(turn2.id) {
+            if self.path.is_upcoming_uber_turn_component(turn2) {
                 segment += 1;
             } else {
                 // finished

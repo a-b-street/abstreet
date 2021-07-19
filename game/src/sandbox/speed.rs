@@ -399,7 +399,7 @@ impl TimePanel {
                     if dt == Duration::seconds(0.1) {
                         app.primary
                             .sim
-                            .tiny_step(&app.primary.map, &mut app.primary.sim_cb);
+                            .tiny_step(&mut app.primary.map, &mut app.primary.sim_cb);
                         app.recalculate_current_selection(ctx);
                         return Some(Transition::KeepWithMouseover);
                     }
@@ -484,7 +484,7 @@ impl TimePanel {
                 // TODO This should match the update frequency in widgetry. Plumb along the deadline
                 // or frequency to here.
                 app.primary.sim.time_limited_step(
-                    &app.primary.map,
+                    &mut app.primary.map,
                     dt,
                     Duration::seconds(0.033),
                     &mut app.primary.sim_cb,

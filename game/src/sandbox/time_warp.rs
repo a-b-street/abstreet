@@ -270,7 +270,7 @@ impl State<App> for TimeWarpScreen {
         if ctx.input.nonblocking_is_update_event().is_some() {
             ctx.input.use_update_event();
             app.primary.sim.time_limited_step(
-                &app.primary.map,
+                &mut app.primary.map,
                 self.target - app.primary.sim.time(),
                 Duration::seconds(0.033),
                 &mut app.primary.sim_cb,

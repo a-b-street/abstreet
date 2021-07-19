@@ -14,7 +14,7 @@ pub fn prebake_all() {
     let mut timer = Timer::new("prebake all challenge results");
 
     {
-        let map =
+        let mut map =
             map_model::Map::load_synchronously(MapName::seattle("montlake").path(), &mut timer);
         for generator in TutorialState::scenarios_to_prebake(&map) {
             let scenario = generator.generate(
@@ -23,7 +23,7 @@ pub fn prebake_all() {
                 &mut timer,
             );
             // Don't record a summary for this
-            prebake(&map, scenario, &mut timer);
+            prebake(&mut map, scenario, &mut timer);
         }
     }
 
@@ -38,13 +38,13 @@ pub fn prebake_all() {
         MapName::seattle("rainier_valley"),
         MapName::seattle("wallingford"),
     ] {
-        let map = map_model::Map::load_synchronously(name.path(), &mut timer);
+        let mut map = map_model::Map::load_synchronously(name.path(), &mut timer);
         let scenario: Scenario =
             abstio::read_binary(abstio::path_scenario(map.get_name(), "weekday"), &mut timer);
-        summaries.push(prebake(&map, scenario, &mut timer));
+        summaries.push(prebake(&mut map, scenario, &mut timer));
     }
 
-    let pbury_map = map_model::Map::load_synchronously(
+    let mut pbury_map = map_model::Map::load_synchronously(
         MapName::new("gb", "poundbury", "center").path(),
         &mut timer,
     );
@@ -53,7 +53,7 @@ pub fn prebake_all() {
             abstio::path_scenario(pbury_map.get_name(), scenario_name),
             &mut timer,
         );
-        summaries.push(prebake(&pbury_map, scenario, &mut timer));
+        summaries.push(prebake(&mut pbury_map, scenario, &mut timer));
     }
 
     // Assume this is being run from the 'game' directory. This other tests directory is the most
@@ -64,7 +64,7 @@ pub fn prebake_all() {
     );
 }
 
-fn prebake(map: &Map, scenario: Scenario, timer: &mut Timer) -> PrebakeSummary {
+fn prebake(map: &mut Map, scenario: Scenario, timer: &mut Timer) -> PrebakeSummary {
     timer.start(format!(
         "prebake for {} / {}",
         scenario.map_name.describe(),

@@ -671,10 +671,10 @@ impl ContextualActions for Actions {
                 Transition::Keep
             }
             (ID::Car(c), "forcibly delete this car") => {
-                app.primary.sim.delete_car(c, &app.primary.map);
+                app.primary.sim.delete_car(c, &mut app.primary.map);
                 app.primary
                     .sim
-                    .tiny_step(&app.primary.map, &mut app.primary.sim_cb);
+                    .tiny_step(&mut app.primary.map, &mut app.primary.sim_cb);
                 app.primary.current_selection = None;
                 Transition::Keep
             }

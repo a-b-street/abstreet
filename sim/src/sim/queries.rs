@@ -475,7 +475,8 @@ impl Sim {
         let mut results = Vec::new();
         if let Traversable::Lane(l) = on {
             if map.get_l(l).is_parking() {
-                return self.parking.get_draw_cars(l, map);
+                results.extend(self.parking.get_draw_cars(l, map));
+                // Keep going; parking lanes may have bikes use them too.
             }
             results.extend(self.parking.get_draw_cars_in_lots(l, map));
         }

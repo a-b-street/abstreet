@@ -383,9 +383,10 @@ impl DrivingSimState {
                     car.state = CarState::WaitingToAdvance { blocked_since: now };
                     if self.recalc_lanechanging {
                         car.router.opportunistically_lanechange(
-                            &self.queues,
+                            &mut self.queues,
                             ctx.map,
                             self.handle_uber_turns,
+                            ctx.parking,
                         );
                     }
                     ctx.scheduler.push(now, Command::UpdateCar(car.vehicle.id));
@@ -1045,9 +1046,10 @@ impl DrivingSimState {
                                     if self.recalc_lanechanging && ctx.handling_live_edits.is_none()
                                     {
                                         follower.router.opportunistically_lanechange(
-                                            &self.queues,
+                                            &mut self.queues,
                                             ctx.map,
                                             self.handle_uber_turns,
+                                            ctx.parking,
                                         );
                                     }
                                     ctx.scheduler
