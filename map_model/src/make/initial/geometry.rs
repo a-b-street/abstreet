@@ -27,10 +27,28 @@ pub fn intersection_polygon(
     intersection_id: osm::NodeID,
     intersection_roads: BTreeSet<OriginalRoad>,
     roads: &mut BTreeMap<OriginalRoad, Road>,
-    merged: bool,
+    trim_roads_for_merging: &BTreeMap<(osm::WayID, bool), Pt2D>,
 ) -> Result<(Polygon, Vec<(String, Polygon)>)> {
     if intersection_roads.is_empty() {
         panic!("{} has no roads", intersection_id);
+    }
+
+    // First pre-trim roads if it's a consolidated intersection.
+    for id in &intersection_roads {
+        if let Some(endpt) = trim_roads_for_merging.get(&(id.osm_way_id, id.i1 == intersection_id))
+        {
+            let road = roads.get_mut(id).unwrap();
+            if road.src_i == intersection_id {
+                road.trimmed_center_pts = road
+                    .trimmed_center_pts
+                    .get_slice_starting_at(*endpt)
+                    .unwrap();
+            } else {
+                assert_eq!(road.dst_i, intersection_id);
+                road.trimmed_center_pts =
+                    road.trimmed_center_pts.get_slice_ending_at(*endpt).unwrap();
+            }
+        }
     }
 
     // Turn all of the incident roads into two PolyLines (the "forwards" and "backwards" borders of
@@ -72,24 +90,26 @@ pub fn intersection_polygon(
         .iter()
         .map(|(r, _, _, _)| (*r, roads[r].trimmed_center_pts.clone()))
         .collect::<Vec<_>>();
-    if let Some(result) = on_off_ramp(roads, intersection_id, lines.clone()) {
+
+    if !trim_roads_for_merging.is_empty() {
+        // TODO Keep this or not?
+        /*if let Some(fixed) = convex_hull_merged_intersection(
+            result.clone(),
+            intersection_id,
+            intersection_roads,
+            roads,
+        ) {
+            return Ok((fixed, debug));
+        }*/
+        pretrimmed_geometry(roads, intersection_id, &lines)
+    } else if let Some(result) = on_off_ramp(roads, intersection_id, lines.clone()) {
         Ok(result)
     } else {
+        // on_off_ramp failed, so first restore lines
         for (r, trimmed_center_pts) in rollback {
             roads.get_mut(&r).unwrap().trimmed_center_pts = trimmed_center_pts;
         }
-        let (result, debug) = generalized_trim_back(roads, intersection_id, &lines)?;
-        if merged {
-            if let Some(fixed) = convex_hull_merged_intersection(
-                result.clone(),
-                intersection_id,
-                intersection_roads,
-                roads,
-            ) {
-                return Ok((fixed, debug));
-            }
-        }
-        Ok((result, debug))
+        generalized_trim_back(roads, intersection_id, &lines)
     }
 }
 
@@ -301,6 +321,32 @@ fn generalized_trim_back(
     let center = Pt2D::center(&endpoints);
     endpoints.sort_by_key(|pt| pt.angle_to(center).normalized_degrees() as i64);
     (close_off_polygon(endpoints), debug)*/
+}
+
+fn pretrimmed_geometry(
+    roads: &mut BTreeMap<OriginalRoad, Road>,
+    i: osm::NodeID,
+    lines: &[(OriginalRoad, Pt2D, PolyLine, PolyLine)],
+) -> Result<(Polygon, Vec<(String, Polygon)>)> {
+    let mut endpoints: Vec<Pt2D> = Vec::new();
+    for (r, _, _, _) in lines {
+        let r = &roads[r];
+        // Shift those final centers out again to find the main endpoints for the polygon.
+        if r.dst_i == i {
+            endpoints.push(r.trimmed_center_pts.shift_right(r.half_width)?.last_pt());
+            endpoints.push(r.trimmed_center_pts.shift_left(r.half_width)?.last_pt());
+        } else {
+            endpoints.push(r.trimmed_center_pts.shift_left(r.half_width)?.first_pt());
+            endpoints.push(r.trimmed_center_pts.shift_right(r.half_width)?.first_pt());
+        }
+    }
+
+    // TODO Do all of the crazy deduping that generalized_trim_back does?
+    let result = Ring::new(close_off_polygon(Pt2D::approx_dedupe(
+        endpoints,
+        Distance::meters(0.1),
+    )))?;
+    Ok((result.into_polygon(), Vec::new()))
 }
 
 fn deadend(

@@ -184,10 +184,14 @@ impl RawMap {
             );
         }
 
-        // We don't yet know if there are short roads that we'll merge
-        let merged = false;
-        let (poly, debug) =
-            initial::intersection_polygon(id, intersection_roads, &mut roads, merged).unwrap();
+        // trim_roads_for_merging will be empty unless we've called merge_short_road
+        let (poly, debug) = initial::intersection_polygon(
+            id,
+            intersection_roads,
+            &mut roads,
+            &self.intersections[&id].trim_roads_for_merging,
+        )
+        .unwrap();
         (
             poly,
             roads
@@ -212,13 +216,12 @@ impl RawMap {
             }
         }
         for id in [road.i1, road.i2] {
-            // We don't yet know if there are short roads that we'll merge
-            let merged = false;
             initial::intersection_polygon(
                 id,
                 self.roads_per_intersection(id).into_iter().collect(),
                 &mut roads,
-                merged,
+                // TODO Not sure if we should use this or not
+                &BTreeMap::new(),
             )
             .unwrap();
         }
@@ -328,10 +331,44 @@ impl RawMap {
         if i1 == i2 {
             bail!("Can't merge {} -- it's a loop on {}", short, i1);
         }
-        let i1_pt = self.intersections[&i1].point;
         // Remember the original connections to i1 before we merge. None of these will change IDs.
         let mut connected_to_i1 = self.roads_per_intersection(i1);
         connected_to_i1.retain(|x| *x != short);
+
+        // Retain some geometry...
+        {
+            let mut trim_roads_for_merging = BTreeMap::new();
+            for i in vec![i1, i2] {
+                for r in self.roads_per_intersection(i) {
+                    // If we keep this in there, it might accidentally overwrite the
+                    // trim_roads_for_merging key for a surviving road!
+                    if r == short {
+                        continue;
+                    }
+
+                    if let Some(pl) = self.trimmed_road_geometry(r) {
+                        if r.i1 == i {
+                            if trim_roads_for_merging.contains_key(&(r.osm_way_id, true)) {
+                                panic!("ahhhh dupe for {}", r);
+                            }
+                            trim_roads_for_merging.insert((r.osm_way_id, true), pl.first_pt());
+                        } else {
+                            if trim_roads_for_merging.contains_key(&(r.osm_way_id, false)) {
+                                panic!("ahhhh dupe for {}", r);
+                            }
+                            trim_roads_for_merging.insert((r.osm_way_id, false), pl.last_pt());
+                        }
+                    } else {
+                        panic!("no trimmed_road_geometry for {}", r);
+                    }
+                }
+            }
+            self.intersections
+                .get_mut(&i1)
+                .unwrap()
+                .trim_roads_for_merging
+                .extend(trim_roads_for_merging);
+        }
 
         self.roads.remove(&short).unwrap();
 
@@ -346,26 +383,6 @@ impl RawMap {
             }
         }
 
-        // When we delete the short road, we modify the polyline of all of the connected surviving
-        // roads. There are a bunch of ways we could modify them, and also decide which ones to
-        // even modify. These combinations are captured here.
-        #[allow(dead_code)]
-        enum ModifyGeom {
-            AddOnePoint,
-            // Destructive -- this often dramatically warps the angle of connecting roads
-            ChangeEndpoint,
-            AddAllPoints,
-        }
-        #[allow(dead_code)]
-        enum ModifyWhichRoads {
-            None,
-            All,
-            ArbitrarilyOne,
-            OnlyNormalRoads,
-        }
-        let modify_geom = ModifyGeom::AddOnePoint;
-        let modify_which = ModifyWhichRoads::All;
-
         // Fix up all roads connected to i2. Delete them and create a new copy; the ID changes,
         // since one intersection changes.
         let mut deleted = vec![short];
@@ -374,51 +391,13 @@ impl RawMap {
         let mut new_to_old = BTreeMap::new();
         for r in self.roads_per_intersection(i2) {
             deleted.push(r);
-            let mut road = self.roads.remove(&r).unwrap();
+            let road = self.roads.remove(&r).unwrap();
             let mut new_id = r;
             if r.i1 == i2 {
                 new_id.i1 = i1;
-
-                if match modify_which {
-                    ModifyWhichRoads::None => false,
-                    ModifyWhichRoads::All => true,
-                    ModifyWhichRoads::ArbitrarilyOne => created.is_empty(),
-                    ModifyWhichRoads::OnlyNormalRoads => {
-                        !road.osm_tags.is("junction", "intersection")
-                    }
-                } {
-                    match modify_geom {
-                        ModifyGeom::AddOnePoint => {
-                            road.center_points.insert(0, i1_pt);
-                        }
-                        ModifyGeom::ChangeEndpoint => {
-                            road.center_points[0] = i1_pt;
-                        }
-                        ModifyGeom::AddAllPoints => todo!(),
-                    }
-                }
             } else {
                 assert_eq!(r.i2, i2);
                 new_id.i2 = i1;
-
-                if match modify_which {
-                    ModifyWhichRoads::None => false,
-                    ModifyWhichRoads::All => true,
-                    ModifyWhichRoads::ArbitrarilyOne => created.is_empty(),
-                    ModifyWhichRoads::OnlyNormalRoads => {
-                        !road.osm_tags.is("junction", "intersection")
-                    }
-                } {
-                    match modify_geom {
-                        ModifyGeom::AddOnePoint => {
-                            road.center_points.push(i1_pt);
-                        }
-                        ModifyGeom::ChangeEndpoint => {
-                            *road.center_points.last_mut().unwrap() = i1_pt;
-                        }
-                        ModifyGeom::AddAllPoints => todo!(),
-                    }
-                }
             }
             old_to_new.insert(r, new_id);
             new_to_old.insert(new_id, r);
@@ -569,6 +548,9 @@ pub struct RawIntersection {
     pub point: Pt2D,
     pub intersection_type: IntersectionType,
     pub elevation: Distance,
+
+    // true if src_i matches this intersection (or the deleted/consolidated one, whatever)
+    pub trim_roads_for_merging: BTreeMap<(osm::WayID, bool), Pt2D>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
