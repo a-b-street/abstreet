@@ -59,8 +59,7 @@ impl Map {
         remove_disconnected::remove_disconnected_roads(&mut raw, timer);
 
         timer.start("merging short roads");
-        let merged_intersections =
-            merge_intersections::merge_short_roads(&mut raw, opts.consolidate_all_intersections);
+        merge_intersections::merge_short_roads(&mut raw, opts.consolidate_all_intersections);
         timer.stop("merging short roads");
 
         timer.start("collapsing degenerate intersections");
@@ -70,7 +69,7 @@ impl Map {
         timer.start("raw_map to InitialMap");
         let gps_bounds = raw.gps_bounds.clone();
         let bounds = gps_bounds.to_bounds();
-        let initial_map = initial::InitialMap::new(&raw, &bounds, &merged_intersections, timer);
+        let initial_map = initial::InitialMap::new(&raw, &bounds, timer);
         timer.stop("raw_map to InitialMap");
 
         let mut map = Map {
@@ -119,7 +118,8 @@ impl Map {
                 incoming_lanes: Vec::new(),
                 outgoing_lanes: Vec::new(),
                 roads: i.roads.iter().map(|id| road_id_mapping[id]).collect(),
-                merged: merged_intersections.contains(&i.id),
+                // TODO Keep trim_roads_for_merging?
+                merged: !raw.intersections[&i.id].trim_roads_for_merging.is_empty(),
             });
             intersection_id_mapping.insert(i.id, id);
         }
