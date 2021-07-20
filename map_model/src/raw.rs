@@ -167,7 +167,7 @@ impl RawMap {
         }
     }
 
-    /// (Intersection polygon, polygons for roads, list of labeled polylines to debug)
+    /// (Intersection polygon, polygons for roads, list of labeled polygons to debug)
     pub fn preview_intersection(
         &self,
         id: osm::NodeID,

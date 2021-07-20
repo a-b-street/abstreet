@@ -6,7 +6,7 @@ use abstutil::{Tags, Timer};
 use geom::{Bounds, Circle, Distance, FindClosest, GPSBounds, HashablePt2D, LonLat, Polygon, Pt2D};
 use map_model::raw::{OriginalRoad, RawBuilding, RawIntersection, RawMap, RawRoad};
 use map_model::{osm, IntersectionType};
-use widgetry::{Color, EventCtx};
+use widgetry::{Color, Drawable, EventCtx, GeomBatch, Line, Text};
 
 use crate::world::{Object, ObjectID, World};
 
@@ -19,6 +19,7 @@ pub struct Model {
     pub map: RawMap,
     showing_pts: Option<OriginalRoad>,
     pub world: World<ID>,
+    pub draw_extra: Drawable,
 
     include_bldgs: bool,
     intersection_geom: bool,
@@ -26,7 +27,7 @@ pub struct Model {
 
 // Construction
 impl Model {
-    pub fn blank() -> Model {
+    pub fn blank(ctx: &EventCtx) -> Model {
         Model {
             map: RawMap::blank(MapName {
                 city: CityName {
@@ -36,6 +37,7 @@ impl Model {
                 map: String::new(),
             }),
             showing_pts: None,
+            draw_extra: Drawable::empty(ctx),
 
             include_bldgs: false,
             world: World::new(),
@@ -45,7 +47,7 @@ impl Model {
 
     pub fn import(ctx: &EventCtx, path: String, include_bldgs: bool) -> Model {
         let mut timer = Timer::new("import map");
-        let mut model = Model::blank();
+        let mut model = Model::blank(ctx);
         model.include_bldgs = include_bldgs;
 
         model.map = if path.ends_with(".osm") {
@@ -237,6 +239,23 @@ impl Model {
             self.world.delete(ID::Intersection(id));
             self.intersection_added(ctx, id);
         }
+
+        // Also clear out any debugged intersections
+        self.draw_extra = Drawable::empty(ctx);
+    }
+
+    pub fn debug_intersection_geometry(&mut self, ctx: &EventCtx, id: osm::NodeID) {
+        let mut batch = GeomBatch::new();
+        let (_, _, labels) = self.map.preview_intersection(id);
+        for (label, polygon) in labels {
+            let txt_batch = Text::from(Line(label).fg(Color::CYAN))
+                .render_autocropped(ctx)
+                .scale(0.1)
+                .centered_on(polygon.polylabel());
+            batch.push(Color::BLUE, polygon);
+            batch.append(txt_batch);
+        }
+        self.draw_extra = batch.upload(ctx);
     }
 }
 

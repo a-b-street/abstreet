@@ -86,8 +86,23 @@ pub fn intersection_polygon(
     // intersection become less meaningful.
     lines.sort_by_key(|(_, pt, _, _)| pt.angle_to(intersection_center).normalized_degrees() as i64);
 
+    let mut debug = Vec::new();
+    // Debug the sorted order.
+    if true {
+        debug.push((
+            "center".to_string(),
+            Circle::new(intersection_center, Distance::meters(1.0)).to_polygon(),
+        ));
+        for (idx, (_, pt, _, _)) in lines.iter().enumerate() {
+            debug.push((
+                idx.to_string(),
+                Circle::new(*pt, Distance::meters(1.0)).to_polygon(),
+            ));
+        }
+    }
+
     if lines.len() == 1 {
-        return deadend(roads, intersection_id, &lines);
+        return deadend(roads, intersection_id, &lines, debug);
     }
     let rollback = lines
         .iter()
@@ -95,15 +110,15 @@ pub fn intersection_polygon(
         .collect::<Vec<_>>();
 
     if !trim_roads_for_merging.is_empty() {
-        pretrimmed_geometry(roads, intersection_id, &lines)
-    } else if let Some(result) = on_off_ramp(roads, intersection_id, lines.clone()) {
+        pretrimmed_geometry(roads, intersection_id, &lines, debug)
+    } else if let Some(result) = on_off_ramp(roads, intersection_id, lines.clone(), debug.clone()) {
         Ok(result)
     } else {
         // on_off_ramp failed, so first restore lines
         for (r, trimmed_center_pts) in rollback {
             roads.get_mut(&r).unwrap().trimmed_center_pts = trimmed_center_pts;
         }
-        generalized_trim_back(roads, intersection_id, &lines)
+        generalized_trim_back(roads, intersection_id, &lines, debug)
     }
 }
 
@@ -111,9 +126,8 @@ fn generalized_trim_back(
     roads: &mut BTreeMap<OriginalRoad, Road>,
     i: osm::NodeID,
     lines: &[(OriginalRoad, Pt2D, PolyLine, PolyLine)],
+    mut debug: Vec<(String, Polygon)>,
 ) -> Result<(Polygon, Vec<(String, Polygon)>)> {
-    let mut debug = Vec::new();
-
     let mut road_lines: Vec<(OriginalRoad, PolyLine)> = Vec::new();
     for (r, _, pl1, pl2) in lines {
         road_lines.push((*r, pl1.clone()));
@@ -321,6 +335,7 @@ fn pretrimmed_geometry(
     roads: &mut BTreeMap<OriginalRoad, Road>,
     i: osm::NodeID,
     lines: &[(OriginalRoad, Pt2D, PolyLine, PolyLine)],
+    debug: Vec<(String, Polygon)>,
 ) -> Result<(Polygon, Vec<(String, Polygon)>)> {
     let mut endpoints: Vec<Pt2D> = Vec::new();
     for (r, _, _, _) in lines {
@@ -340,13 +355,14 @@ fn pretrimmed_geometry(
         endpoints,
         Distance::meters(0.1),
     )))?;
-    Ok((result.into_polygon(), Vec::new()))
+    Ok((result.into_polygon(), debug))
 }
 
 fn deadend(
     roads: &mut BTreeMap<OriginalRoad, Road>,
     i: osm::NodeID,
     lines: &[(OriginalRoad, Pt2D, PolyLine, PolyLine)],
+    debug: Vec<(String, Polygon)>,
 ) -> Result<(Polygon, Vec<(String, Polygon)>)> {
     let len = DEGENERATE_INTERSECTION_HALF_LENGTH * 4.0;
 
@@ -395,7 +411,7 @@ fn deadend(
     endpts.dedup();
     Ok((
         Ring::must_new(close_off_polygon(endpts)).into_polygon(),
-        Vec::new(),
+        debug,
     ))
 }
 
@@ -422,6 +438,7 @@ fn on_off_ramp(
     roads: &mut BTreeMap<OriginalRoad, Road>,
     i: osm::NodeID,
     lines: Vec<(OriginalRoad, Pt2D, PolyLine, PolyLine)>,
+    mut debug: Vec<(String, Polygon)>,
 ) -> Option<(Polygon, Vec<(String, Polygon)>)> {
     if lines.len() != 3 {
         return None;
@@ -450,8 +467,6 @@ fn on_off_ramp(
     if !ok {
         return None;
     }
-
-    let mut debug = Vec::new();
 
     let mut pieces = Vec::new();
     // TODO Use this abstraction for all the code here?

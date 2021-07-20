@@ -66,7 +66,7 @@ impl MainState {
         let model = if let Some(path) = load {
             Model::import(ctx, path, include_bldgs)
         } else {
-            Model::blank()
+            Model::blank(ctx)
         };
         if !model.map.name.map.is_empty() {
             CameraState::load(ctx, &model.map.name);
@@ -187,6 +187,8 @@ impl State<App> for MainState {
                             app.model.world.handle_mouseover(ctx);
                         } else if ctx.input.pressed(Key::T) {
                             app.model.toggle_i(ctx, i);
+                        } else if ctx.input.pressed(Key::P) {
+                            app.model.debug_intersection_geometry(ctx, i);
                         }
 
                         let mut txt = Text::new();
@@ -209,6 +211,11 @@ impl State<App> for MainState {
                             Line("- Press "),
                             Key::T.txt(ctx),
                             Line(" to toggle stop sign / traffic signal"),
+                        ]);
+                        txt.add_appended(vec![
+                            Line("- Press "),
+                            Key::P.txt(ctx),
+                            Line(" to debug intersection geometry"),
                         ]);
                         let instructions = txt.into_widget(ctx);
                         self.panel.replace(ctx, "instructions", instructions);
@@ -464,6 +471,7 @@ impl State<App> for MainState {
             app.model.map.boundary_polygon.clone(),
         );
         app.model.world.draw(g, |_| true);
+        g.redraw(&app.model.draw_extra);
 
         match self.mode {
             Mode::CreatingRoad(i1) => {
