@@ -1,9 +1,11 @@
 use std::cell::RefCell;
 use std::collections::HashMap;
 
-use geom::{Angle, ArrowCap, Distance, Line, PolyLine, Polygon, Pt2D};
-use map_model::{Direction, DrivingSide, Lane, LaneID, LaneType, Map, Road, RoadID, TurnID};
-use widgetry::{Drawable, GeomBatch, GfxCtx, Prerender, RewriteColor};
+use geom::{Angle, ArrowCap, Circle, Distance, Line, PolyLine, Polygon, Pt2D};
+use map_model::{
+    BufferType, Direction, DrivingSide, Lane, LaneID, LaneType, Map, Road, RoadID, TurnID,
+};
+use widgetry::{Color, Drawable, GeomBatch, GfxCtx, Prerender, RewriteColor};
 
 use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
 use crate::{AppLike, ID};
@@ -171,6 +173,9 @@ impl DrawLane {
                         perp_line(Line::must_new(pt, pt2), lane.width).make_polygons(track_width),
                     );
                 }
+            }
+            LaneType::Buffer(style) => {
+                calculate_buffer_markings(app, style, lane, road, &mut batch);
             }
         }
 
@@ -383,4 +388,91 @@ fn calculate_one_way_markings(lane: &Lane, parent: &Road) -> Vec<Polygon> {
         );
     }
     results
+}
+
+fn calculate_buffer_markings(
+    app: &dyn AppLike,
+    style: BufferType,
+    lane: &Lane,
+    road: &Road,
+    batch: &mut GeomBatch,
+) {
+    let color = app.cs().general_road_marking(road.get_rank());
+    let sidelines;
+    let stripes;
+    match style {
+        BufferType::Stripes => {
+            sidelines = true;
+            stripes = true;
+        }
+        BufferType::FlexPosts => {
+            for (pt, _) in lane
+                .lane_center_pts
+                .step_along(Distance::meters(5.0), Distance::meters(2.0))
+            {
+                batch.push(
+                    Color::grey(0.8),
+                    Circle::new(pt, 0.3 * lane.width).to_polygon(),
+                );
+            }
+            sidelines = true;
+            stripes = true;
+        }
+        BufferType::Planters => {
+            for poly in lane.lane_center_pts.dashed_lines(
+                0.6 * lane.width,
+                Distance::meters(4.0),
+                Distance::meters(2.5),
+            ) {
+                batch.push(Color::GREEN, poly.clone());
+                if let Ok(border) = poly.to_outline(Distance::meters(0.25)) {
+                    batch.push(Color::grey(0.8), border);
+                }
+            }
+            sidelines = false;
+            stripes = true;
+        }
+        BufferType::JerseyBarrier => {
+            // TODO Round the ends? Show height somehow? Or more diagonalish?
+            // do the extrude style...
+            let buffer_ends = Distance::meters(1.0);
+            if let Ok(pl) = lane
+                .lane_center_pts
+                .maybe_exact_slice(buffer_ends, lane.lane_center_pts.length() - buffer_ends)
+            {
+                batch.push(Color::grey(0.8), pl.make_polygons(0.8 * lane.width));
+            }
+            sidelines = false;
+            stripes = false;
+        }
+    };
+    if stripes {
+            for (center, angle) in lane
+                .lane_center_pts
+                .step_along(Distance::meters(3.0), Distance::meters(5.0))
+            {
+                let left = center.project_away(lane.width / 2.0, angle.rotate_degs(45.0));
+                let right =
+                    center.project_away(lane.width / 2.0, angle.rotate_degs(45.0).opposite());
+                batch.push(
+                    color,
+                    Line::must_new(left, right).make_polygons(Distance::meters(0.3)),
+                );
+            }
+    }
+    if sidelines {
+        let thickness = Distance::meters(0.25);
+        batch.push(
+            color,
+            lane.lane_center_pts
+                .must_shift_right((lane.width - thickness) / 2.0)
+                .make_polygons(thickness),
+        );
+        batch.push(
+            color,
+            lane.lane_center_pts
+                .must_shift_left((lane.width - thickness) / 2.0)
+                .make_polygons(thickness),
+        );
+    }
 }

@@ -79,6 +79,10 @@ fn lane(lane: &Lane) -> Option<serde_json::Map<String, serde_json::value::Value>
             LaneType::LightRail => {
                 return None;
             }
+            // TODO
+            LaneType::Buffer(_) => {
+                return None;
+            }
         },
     );
     if lane.lane_type == LaneType::SharedLeftTurn {

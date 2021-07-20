@@ -55,6 +55,7 @@ fn lane(lane: &Lane, dir: Direction) -> serde_json::Map<String, serde_json::valu
         LaneType::SharedLeftTurn => ("TODO", "TODO"),
         LaneType::Construction => ("TODO", "TODO"),
         LaneType::LightRail => ("TODO", "TODO"),
+        LaneType::Buffer(_) => ("TODO", "TODO"),
     };
     segment.insert("type".to_string(), segment_type.into());
     segment.insert("variant".to_string(), variant.into());

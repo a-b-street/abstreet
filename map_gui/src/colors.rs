@@ -352,6 +352,7 @@ impl ColorScheme {
                 LaneType::SharedLeftTurn => self.driving_lane,
                 LaneType::Construction => self.parking_lane,
                 LaneType::LightRail => unreachable!(),
+                LaneType::Buffer(_) => self.driving_lane,
             },
         }
     }
