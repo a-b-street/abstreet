@@ -133,10 +133,18 @@ impl DrawMap {
         let draw_all_areas = all_areas.upload(ctx);
         timer.stop("upload all areas");
 
-        let boundary_polygon = ctx.upload(GeomBatch::from(vec![(
-            cs.map_background.clone(),
-            map.get_boundary_polygon().clone(),
-        )]));
+        let boundary_polygon = {
+            let mut batch = GeomBatch::from(vec![(
+                cs.map_background.clone(),
+                map.get_boundary_polygon().clone(),
+            )]);
+            for zone in map.all_zones() {
+                if let Some(poly) = zone.surrounding_land(map) {
+                    batch.push(Color::BLUE.alpha(0.5), poly);
+                }
+            }
+            batch.upload(ctx)
+        };
 
         timer.start("create quadtree");
         let mut quadtree = QuadTree::default(map.get_bounds().as_bbox());

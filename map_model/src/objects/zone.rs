@@ -10,6 +10,8 @@ use std::collections::BTreeSet;
 use enumset::EnumSet;
 use serde::{Deserialize, Serialize};
 
+use geom::Polygon;
+
 use crate::{IntersectionID, Map, PathConstraints, RoadID};
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
@@ -56,6 +58,21 @@ impl Zone {
         }
 
         zones
+    }
+
+    pub fn surrounding_land(&self, map: &Map) -> Option<Polygon> {
+        // Look for all buildings associated with roads in this zone
+        let mut building_polygons = Vec::new();
+        for r in &self.members {
+            for b in map.road_to_buildings(*r) {
+                building_polygons.push(map.get_b(*b).polygon.clone());
+            }
+        }
+        if building_polygons.is_empty() {
+            None
+        } else {
+            Some(Polygon::convex_hull(building_polygons))
+        }
     }
 }
 
