@@ -1087,6 +1087,11 @@ fn reimport_map(
         Box::new(|ctx, app, success, _| {
             if !success {
                 if let Some(ways) = rollback {
+                    if let Err(err) =
+                        std::fs::copy("merge_osm_ways.json", "BROKEN_merge_osm_ways.json")
+                    {
+                        warn!("No merged road file? {}", err);
+                    }
                     abstio::write_json("merge_osm_ways.json".to_string(), &ways);
                 }
             }

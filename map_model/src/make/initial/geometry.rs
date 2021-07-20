@@ -564,8 +564,7 @@ fn on_off_ramp(
         }
         roads.get_mut(&thin.id).unwrap().trimmed_center_pts = trimmed_thin;
 
-        // Trim the thick
-        // extra ends at the intersection
+        // Trim the thick extra ends at the intersection
         let extra = if roads[&thick_id].dst_i == i {
             roads[&thick_id]
                 .trimmed_center_pts
