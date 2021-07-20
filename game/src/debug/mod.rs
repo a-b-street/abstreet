@@ -402,7 +402,7 @@ impl State<App> for DebugMode {
                     {
                         warn!("No merged road file? {}", err);
                     }
-                    return Transition::Push(reimport_map(ctx, app));
+                    return Transition::Push(reimport_map(ctx, app, None));
                 }
                 _ => unreachable!(),
             },
@@ -808,9 +808,10 @@ impl ContextualActions for Actions {
                 let mut ways: Vec<map_model::raw::OriginalRoad> =
                     abstio::maybe_read_json("merge_osm_ways.json".to_string(), &mut timer)
                         .unwrap_or_else(|_| Vec::new());
+                let orig_ways = ways.clone();
                 ways.push(app.primary.map.get_parent(l).orig_id);
                 abstio::write_json("merge_osm_ways.json".to_string(), &ways);
-                Transition::Push(reimport_map(ctx, app))
+                Transition::Push(reimport_map(ctx, app, Some(orig_ways)))
             }
             (ID::Area(a), "debug area geometry") => {
                 let pts = &app.primary.map.get_a(a).polygon.points();
@@ -1068,7 +1069,11 @@ fn draw_arterial_crosswalks(ctx: &mut EventCtx, app: &App) -> Drawable {
 }
 
 #[cfg(not(target_arch = "wasm32"))]
-fn reimport_map(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
+fn reimport_map(
+    ctx: &mut EventCtx,
+    app: &App,
+    rollback: Option<Vec<map_model::raw::OriginalRoad>>,
+) -> Box<dyn State<App>> {
     map_gui::tools::RunCommand::new_state(
         ctx,
         false,
@@ -1079,7 +1084,13 @@ fn reimport_map(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
             format!("--city={}", app.primary.map.get_name().city.to_path()),
             "--skip_ch".to_string(),
         ],
-        Box::new(|ctx, app, _, _| {
+        Box::new(|ctx, app, success, _| {
+            if !success {
+                if let Some(ways) = rollback {
+                    abstio::write_json("merge_osm_ways.json".to_string(), &ways);
+                }
+            }
+
             Transition::Push(MapLoader::force_reload(
                 ctx,
                 app.primary.map.get_name().clone(),
