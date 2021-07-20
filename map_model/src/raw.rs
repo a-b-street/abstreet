@@ -307,6 +307,19 @@ impl RawMap {
         Vec<OriginalRoad>,
         Vec<OriginalRoad>,
     )> {
+        // If either intersection attached to this road has been deleted, then we're probably
+        // dealing with a short segment in the middle of a cluster of intersections. Just delete
+        // the segment and move on.
+        if !self.intersections.contains_key(&short.i1)
+            || !self.intersections.contains_key(&short.i2)
+        {
+            self.roads.remove(&short).unwrap();
+            bail!(
+                "One endpoint of {} has already been deleted, skipping",
+                short
+            );
+        }
+
         // First a sanity check.
         {
             let i1 = &self.intersections[&short.i1];
@@ -343,6 +356,12 @@ impl RawMap {
                     // If we keep this in there, it might accidentally overwrite the
                     // trim_roads_for_merging key for a surviving road!
                     if r == short {
+                        continue;
+                    }
+                    // If we're going to delete this later, don't bother!
+                    // TODO When we do automatic consolidation and don't just look for this tag,
+                    // we'll need to get more clever here, or temporarily apply this tag.
+                    if self.roads[&r].osm_tags.is("junction", "intersection") {
                         continue;
                     }
 
