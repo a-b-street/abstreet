@@ -481,16 +481,16 @@ impl LaneSpec {
                 (Distance::feet(6.0), "wide"),
             ],
             LaneType::Shoulder => vec![(SHOULDER_THICKNESS, "default")],
-            // TODO Total guesses
-            LaneType::Buffer(BufferType::Stripes) => vec![(Distance::meters(0.5), "default")],
+            // Pretty wild guesses
+            LaneType::Buffer(BufferType::Stripes) => vec![(Distance::meters(1.5), "default")],
             LaneType::Buffer(BufferType::FlexPosts) => {
-                vec![(Distance::meters(0.5), "default")]
+                vec![(Distance::meters(1.5), "default")]
             }
             LaneType::Buffer(BufferType::Planters) => {
-                vec![(Distance::meters(1.0), "default")]
+                vec![(Distance::meters(2.0), "default")]
             }
             LaneType::Buffer(BufferType::JerseyBarrier) => {
-                vec![(Distance::meters(1.0), "default")]
+                vec![(Distance::meters(1.5), "default")]
             }
         }
     }

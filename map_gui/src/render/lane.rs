@@ -398,68 +398,8 @@ fn calculate_buffer_markings(
     batch: &mut GeomBatch,
 ) {
     let color = app.cs().general_road_marking(road.get_rank());
-    let sidelines;
-    let stripes;
-    match style {
-        BufferType::Stripes => {
-            sidelines = true;
-            stripes = true;
-        }
-        BufferType::FlexPosts => {
-            for (pt, _) in lane
-                .lane_center_pts
-                .step_along(Distance::meters(5.0), Distance::meters(2.0))
-            {
-                batch.push(
-                    Color::grey(0.8),
-                    Circle::new(pt, 0.3 * lane.width).to_polygon(),
-                );
-            }
-            sidelines = true;
-            stripes = true;
-        }
-        BufferType::Planters => {
-            for poly in lane.lane_center_pts.dashed_lines(
-                0.6 * lane.width,
-                Distance::meters(4.0),
-                Distance::meters(2.5),
-            ) {
-                batch.push(Color::GREEN, poly.clone());
-                if let Ok(border) = poly.to_outline(Distance::meters(0.25)) {
-                    batch.push(Color::grey(0.8), border);
-                }
-            }
-            sidelines = false;
-            stripes = true;
-        }
-        BufferType::JerseyBarrier => {
-            // TODO Round the ends? Show height somehow? Or more diagonalish?
-            // do the extrude style...
-            let buffer_ends = Distance::meters(1.0);
-            if let Ok(pl) = lane
-                .lane_center_pts
-                .maybe_exact_slice(buffer_ends, lane.lane_center_pts.length() - buffer_ends)
-            {
-                batch.push(Color::grey(0.8), pl.make_polygons(0.8 * lane.width));
-            }
-            sidelines = false;
-            stripes = false;
-        }
-    };
-    if stripes {
-        for (center, angle) in lane
-            .lane_center_pts
-            .step_along(Distance::meters(3.0), Distance::meters(5.0))
-        {
-            let left = center.project_away(lane.width / 2.0, angle.rotate_degs(45.0));
-            let right = center.project_away(lane.width / 2.0, angle.rotate_degs(45.0).opposite());
-            batch.push(
-                color,
-                Line::must_new(left, right).make_polygons(Distance::meters(0.3)),
-            );
-        }
-    }
-    if sidelines {
+
+    let side_lines = |batch: &mut GeomBatch| {
         let thickness = Distance::meters(0.25);
         batch.push(
             color,
@@ -473,5 +413,64 @@ fn calculate_buffer_markings(
                 .must_shift_left((lane.width - thickness) / 2.0)
                 .make_polygons(thickness),
         );
+    };
+
+    let stripes = |batch: &mut GeomBatch, step_size, buffer_ends| {
+        for (center, angle) in lane.lane_center_pts.step_along(step_size, buffer_ends) {
+            let left = center.project_away(lane.width / 2.0, angle.rotate_degs(45.0));
+            let right = center.project_away(lane.width / 2.0, angle.rotate_degs(45.0).opposite());
+            batch.push(
+                color,
+                Line::must_new(left, right).make_polygons(Distance::meters(0.3)),
+            );
+        }
+    };
+
+    let dark_grey = Color::grey(0.6);
+    let light_grey = Color::grey(0.8);
+    match style {
+        BufferType::Stripes => {
+            side_lines(batch);
+            stripes(batch, Distance::meters(3.0), Distance::meters(5.0));
+        }
+        BufferType::FlexPosts => {
+            side_lines(batch);
+            stripes(batch, Distance::meters(3.0), Distance::meters(2.5));
+            for (pt, _) in lane
+                .lane_center_pts
+                .step_along(Distance::meters(3.0), Distance::meters(2.5 + 1.5))
+            {
+                let circle = Circle::new(pt, 0.3 * lane.width);
+                batch.push(light_grey, circle.to_polygon());
+                if let Ok(poly) = circle.to_outline(Distance::meters(0.25)) {
+                    batch.push(dark_grey, poly);
+                }
+            }
+        }
+        BufferType::Planters => {
+            side_lines(batch);
+            // TODO Center the planters between the stripes
+            stripes(batch, Distance::meters(3.0), Distance::meters(5.0));
+            for poly in lane.lane_center_pts.dashed_lines(
+                0.6 * lane.width,
+                Distance::meters(2.0),
+                Distance::meters(2.5),
+            ) {
+                batch.push(Color::hex("#108833"), poly.clone());
+                if let Ok(border) = poly.to_outline(Distance::meters(0.25)) {
+                    batch.push(Color::hex("#A8882A"), border);
+                }
+            }
+        }
+        BufferType::JerseyBarrier => {
+            let buffer_ends = Distance::meters(2.0);
+            if let Ok(pl) = lane
+                .lane_center_pts
+                .maybe_exact_slice(buffer_ends, lane.lane_center_pts.length() - buffer_ends)
+            {
+                batch.push(dark_grey, pl.make_polygons(0.8 * lane.width));
+                batch.push(light_grey, pl.make_polygons(0.5 * lane.width));
+            }
+        }
     }
 }
