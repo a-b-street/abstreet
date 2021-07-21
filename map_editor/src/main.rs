@@ -115,6 +115,10 @@ impl MainState {
                             .text("adjust boundary")
                             .build_def(ctx),
                         ctx.style()
+                            .btn_outline
+                            .text("auto mark junctions")
+                            .build_def(ctx),
+                        ctx.style()
                             .btn_solid_primary
                             .text("export to OSM")
                             .build_def(ctx),
@@ -324,6 +328,12 @@ impl State<App> for MainState {
                                 }
                                 "adjust boundary" => {
                                     self.mode = Mode::SetBoundaryPt1;
+                                }
+                                "auto mark junctions" => {
+                                    for r in app.model.map.auto_mark_junctions() {
+                                        app.model.road_deleted(r);
+                                        app.model.road_added(ctx, r);
+                                    }
                                 }
                                 "export to OSM" => {
                                     app.model.export_to_osm();

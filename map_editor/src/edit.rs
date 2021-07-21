@@ -28,6 +28,9 @@ impl EditRoad {
         for (k, v) in road.osm_tags.inner() {
             txt.add_line(Line(format!("{} = {}", k, v)).secondary());
         }
+        if let Ok((pl, _)) = road.get_geometry(r, &app.model.map.config) {
+            txt.add_line(Line(format!("Length: {}", pl.length())));
+        }
         let info = txt.into_widget(ctx);
 
         let controls = Widget::col(vec![

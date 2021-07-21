@@ -474,6 +474,47 @@ impl RawMap {
 
         Ok((i1, i2, deleted, created))
     }
+
+    /// Look for short roads that should be merged, and mark them as junction=intersection.
+    pub fn auto_mark_junctions(&mut self) -> Vec<OriginalRoad> {
+        let threshold = Distance::meters(20.0);
+
+        // Simplest start: look for short roads connected to traffic signals.
+        //
+        // (This will miss sequences of short roads with stop signs in between a cluster of traffic
+        // signals)
+        //
+        // After trying out around Loop 101, what we really want to do is find clumps of 2 or 4
+        // traffic signals, find all the segments between them, and merge those.
+        let mut results = Vec::new();
+        for (id, road) in &self.roads {
+            if road.osm_tags.is("junction", "intersection") {
+                continue;
+            }
+            let i1 = self.intersections[&id.i1].intersection_type;
+            let i2 = self.intersections[&id.i2].intersection_type;
+            if i1 == IntersectionType::Border || i2 == IntersectionType::Border {
+                continue;
+            }
+            if i1 != IntersectionType::TrafficSignal && i2 != IntersectionType::TrafficSignal {
+                continue;
+            }
+            if let Ok((pl, _)) = road.get_geometry(*id, &self.config) {
+                if pl.length() <= threshold {
+                    results.push(*id);
+                }
+            }
+        }
+
+        for id in &results {
+            self.roads
+                .get_mut(id)
+                .unwrap()
+                .osm_tags
+                .insert("junction", "intersection");
+        }
+        results
+    }
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
