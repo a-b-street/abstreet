@@ -474,6 +474,7 @@ fn make_main_panel(
         (LaneType::Buffer(BufferType::FlexPosts), None),
         (LaneType::Buffer(BufferType::Planters), None),
         (LaneType::Buffer(BufferType::JerseyBarrier), None),
+        (LaneType::Buffer(BufferType::Curb), None),
     ]
     .into_iter()
     .map(|(lt, key)| {
@@ -684,6 +685,7 @@ fn lane_type_to_icon(lt: LaneType) -> Option<&'static str> {
         LaneType::Buffer(BufferType::JerseyBarrier) => {
             Some("system/assets/edit/buffer/jersey_barrier.svg")
         }
+        LaneType::Buffer(BufferType::Curb) => Some("system/assets/edit/buffer/curb.svg"),
         // Don't allow creating these yet
         LaneType::LightRail => None,
     }

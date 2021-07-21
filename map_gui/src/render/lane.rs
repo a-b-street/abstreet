@@ -472,5 +472,8 @@ fn calculate_buffer_markings(
                 batch.push(light_grey, pl.make_polygons(0.5 * lane.width));
             }
         }
+        BufferType::Curb => {
+            batch.push(dark_grey, lane.lane_center_pts.make_polygons(lane.width));
+        }
     }
 }

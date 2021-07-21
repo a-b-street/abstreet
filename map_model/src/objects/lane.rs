@@ -61,6 +61,8 @@ pub enum BufferType {
     Planters,
     /// Solid barrier, no gaps.
     JerseyBarrier,
+    /// A raised curb
+    Curb,
 }
 
 impl LaneType {
@@ -113,6 +115,7 @@ impl LaneType {
             LaneType::Buffer(BufferType::FlexPosts) => "flex post barriers",
             LaneType::Buffer(BufferType::Planters) => "planter barriers",
             LaneType::Buffer(BufferType::JerseyBarrier) => "a Jersey barrier",
+            LaneType::Buffer(BufferType::Curb) => "a raised curb",
         }
     }
 
@@ -131,6 +134,7 @@ impl LaneType {
             LaneType::Buffer(BufferType::FlexPosts) => "flex posts",
             LaneType::Buffer(BufferType::Planters) => "planters",
             LaneType::Buffer(BufferType::JerseyBarrier) => "Jersey barrier",
+            LaneType::Buffer(BufferType::Curb) => "curb",
         }
     }
 
@@ -149,6 +153,7 @@ impl LaneType {
             "flex posts" => Some(LaneType::Buffer(BufferType::FlexPosts)),
             "planters" => Some(LaneType::Buffer(BufferType::Planters)),
             "Jersey barrier" => Some(LaneType::Buffer(BufferType::JerseyBarrier)),
+            "curb" => Some(LaneType::Buffer(BufferType::Curb)),
             _ => None,
         }
     }
@@ -492,6 +497,7 @@ impl LaneSpec {
             LaneType::Buffer(BufferType::JerseyBarrier) => {
                 vec![(Distance::meters(1.5), "default")]
             }
+            LaneType::Buffer(BufferType::Curb) => vec![(Distance::meters(0.5), "default")],
         }
     }
 }
