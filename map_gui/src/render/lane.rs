@@ -447,18 +447,17 @@ fn calculate_buffer_markings(
         }
     };
     if stripes {
-            for (center, angle) in lane
-                .lane_center_pts
-                .step_along(Distance::meters(3.0), Distance::meters(5.0))
-            {
-                let left = center.project_away(lane.width / 2.0, angle.rotate_degs(45.0));
-                let right =
-                    center.project_away(lane.width / 2.0, angle.rotate_degs(45.0).opposite());
-                batch.push(
-                    color,
-                    Line::must_new(left, right).make_polygons(Distance::meters(0.3)),
-                );
-            }
+        for (center, angle) in lane
+            .lane_center_pts
+            .step_along(Distance::meters(3.0), Distance::meters(5.0))
+        {
+            let left = center.project_away(lane.width / 2.0, angle.rotate_degs(45.0));
+            let right = center.project_away(lane.width / 2.0, angle.rotate_degs(45.0).opposite());
+            batch.push(
+                color,
+                Line::must_new(left, right).make_polygons(Distance::meters(0.3)),
+            );
+        }
     }
     if sidelines {
         let thickness = Distance::meters(0.25);
