@@ -463,28 +463,33 @@ fn group_bldgs(
 
     for group in partition_sidewalk_loops(app) {
         let block_id = blocks.len();
-        let mut polygons = Vec::new();
+        let mut hull_points = Vec::new();
         let mut lanes = HashSet::new();
         for b in &group.bldgs {
             bldg_to_block.insert(*b, block_id);
             let bldg = app.primary.map.get_b(*b);
             if group.proper {
                 lanes.insert(bldg.sidewalk());
-            } else {
-                polygons.push(bldg.polygon.clone());
             }
+            hull_points.append(&mut bldg.polygon.points().clone());
         }
         if group.proper {
             // TODO Even better, glue the loop of sidewalks together and fill that area.
             for l in lanes {
-                polygons.push(app.primary.draw_map.get_l(l).polygon.clone());
+                let lane_line = app
+                    .primary
+                    .map
+                    .get_l(l)
+                    .lane_center_pts
+                    .interpolate_points(Distance::meters(20.0));
+                hull_points.append(&mut lane_line.points().clone());
             }
         }
         blocks.push(Block {
             id: block_id,
             bldgs: group.bldgs,
             borders: HashSet::new(),
-            shape: Polygon::convex_hull(polygons),
+            shape: Polygon::concave_hull(hull_points, 10),
         });
     }
 

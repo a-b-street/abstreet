@@ -119,7 +119,6 @@ mod tests {
         for _ in 0..1_000 {
             let input = rng.gen_range(-214_000.00..214_000.0);
             let trimmed = trim_f64(input);
-            println!("{} -> {}", input, trimmed);
             let json_roundtrip: f64 =
                 abstutil::from_json(abstutil::to_json(&trimmed).as_bytes()).unwrap();
             let bincode_roundtrip: f64 =

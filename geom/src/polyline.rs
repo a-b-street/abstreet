@@ -912,6 +912,57 @@ impl PolyLine {
         }
         result
     }
+
+    ///
+    /// ```
+    /// use geom::{PolyLine, Pt2D, Distance};
+    ///
+    /// let polyline = PolyLine::must_new(vec![
+    ///     Pt2D::new(0.0, 0.0),
+    ///     Pt2D::new(0.0, 10.0),
+    ///     Pt2D::new(10.0, 20.0),
+    /// ]);
+    ///
+    /// assert_eq!(
+    ///     polyline.interpolate_points(Distance::meters(20.0)).points(),
+    ///     &vec![
+    ///         Pt2D::new(0.0, 0.0),
+    ///         Pt2D::new(0.0, 10.0),
+    ///         Pt2D::new(10.0, 20.0),
+    ///     ]
+    /// );
+    ///
+    /// assert_eq!(
+    ///     polyline.interpolate_points(Distance::meters(10.0)).points(),
+    ///     &vec![
+    ///         Pt2D::new(0.0, 0.0),
+    ///         Pt2D::new(0.0, 10.0),
+    ///         Pt2D::new(5.0, 15.0),
+    ///         Pt2D::new(10.0, 20.0),
+    ///     ]
+    /// );
+    ///
+    /// ```
+    pub fn interpolate_points(&self, max_step: Distance) -> PolyLine {
+        if self.pts.len() < 2 {
+            return self.clone();
+        }
+
+        let mut output = vec![];
+        for line in self.lines() {
+            let points = (line.length() / max_step).ceil();
+            let step_size = line.length() / points;
+            for i in 0..(points as usize) {
+                output.push(line.must_dist_along(step_size * i as f64));
+            }
+        }
+
+        output.push(*self.pts.last().unwrap());
+
+        dbg!(&output);
+
+        PolyLine::new(output).unwrap()
+    }
 }
 
 impl fmt::Display for PolyLine {
