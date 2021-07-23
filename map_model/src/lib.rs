@@ -49,7 +49,7 @@ pub use crate::objects::building::{
 pub use crate::objects::bus_stop::{BusRoute, BusRouteID, BusStop, BusStopID};
 pub use crate::objects::intersection::{Intersection, IntersectionID, IntersectionType};
 pub use crate::objects::lane::{
-    Lane, LaneID, LaneSpec, LaneType, NORMAL_LANE_THICKNESS, PARKING_LOT_SPOT_LENGTH,
+    BufferType, Lane, LaneID, LaneSpec, LaneType, NORMAL_LANE_THICKNESS, PARKING_LOT_SPOT_LENGTH,
     SIDEWALK_THICKNESS,
 };
 pub use crate::objects::parking_lot::{ParkingLot, ParkingLotID};

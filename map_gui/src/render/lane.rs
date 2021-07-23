@@ -1,9 +1,11 @@
 use std::cell::RefCell;
 use std::collections::HashMap;
 
-use geom::{Angle, ArrowCap, Distance, Line, PolyLine, Polygon, Pt2D};
-use map_model::{Direction, DrivingSide, Lane, LaneID, LaneType, Map, Road, RoadID, TurnID};
-use widgetry::{Drawable, GeomBatch, GfxCtx, Prerender, RewriteColor};
+use geom::{Angle, ArrowCap, Circle, Distance, Line, PolyLine, Polygon, Pt2D};
+use map_model::{
+    BufferType, Direction, DrivingSide, Lane, LaneID, LaneType, Map, Road, RoadID, TurnID,
+};
+use widgetry::{Color, Drawable, GeomBatch, GfxCtx, Prerender, RewriteColor};
 
 use crate::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
 use crate::{AppLike, ID};
@@ -171,6 +173,9 @@ impl DrawLane {
                         perp_line(Line::must_new(pt, pt2), lane.width).make_polygons(track_width),
                     );
                 }
+            }
+            LaneType::Buffer(style) => {
+                calculate_buffer_markings(app, style, lane, road, &mut batch);
             }
         }
 
@@ -383,4 +388,97 @@ fn calculate_one_way_markings(lane: &Lane, parent: &Road) -> Vec<Polygon> {
         );
     }
     results
+}
+
+fn calculate_buffer_markings(
+    app: &dyn AppLike,
+    style: BufferType,
+    lane: &Lane,
+    road: &Road,
+    batch: &mut GeomBatch,
+) {
+    let color = app.cs().general_road_marking(road.get_rank());
+
+    let side_lines = |batch: &mut GeomBatch| {
+        let thickness = Distance::meters(0.25);
+        batch.push(
+            color,
+            lane.lane_center_pts
+                .must_shift_right((lane.width - thickness) / 2.0)
+                .make_polygons(thickness),
+        );
+        batch.push(
+            color,
+            lane.lane_center_pts
+                .must_shift_left((lane.width - thickness) / 2.0)
+                .make_polygons(thickness),
+        );
+    };
+
+    let stripes = |batch: &mut GeomBatch, step_size, buffer_ends| {
+        for (center, angle) in lane.lane_center_pts.step_along(step_size, buffer_ends) {
+            // Extend the stripes into the side lines
+            let thickness = Distance::meters(0.25);
+            let left = center.project_away(lane.width / 2.0 + thickness, angle.rotate_degs(45.0));
+            let right = center.project_away(
+                lane.width / 2.0 + thickness,
+                angle.rotate_degs(45.0).opposite(),
+            );
+            batch.push(
+                color,
+                Line::must_new(left, right).make_polygons(Distance::meters(0.3)),
+            );
+        }
+    };
+
+    let dark_grey = Color::grey(0.6);
+    let light_grey = Color::grey(0.8);
+    match style {
+        BufferType::Stripes => {
+            side_lines(batch);
+            stripes(batch, Distance::meters(3.0), Distance::meters(5.0));
+        }
+        BufferType::FlexPosts => {
+            side_lines(batch);
+            stripes(batch, Distance::meters(3.0), Distance::meters(2.5));
+            for (pt, _) in lane
+                .lane_center_pts
+                .step_along(Distance::meters(3.0), Distance::meters(2.5 + 1.5))
+            {
+                let circle = Circle::new(pt, 0.3 * lane.width);
+                batch.push(light_grey, circle.to_polygon());
+                if let Ok(poly) = circle.to_outline(Distance::meters(0.25)) {
+                    batch.push(dark_grey, poly);
+                }
+            }
+        }
+        BufferType::Planters => {
+            side_lines(batch);
+            // TODO Center the planters between the stripes
+            stripes(batch, Distance::meters(3.0), Distance::meters(5.0));
+            for poly in lane.lane_center_pts.dashed_lines(
+                0.6 * lane.width,
+                Distance::meters(2.0),
+                Distance::meters(2.5),
+            ) {
+                batch.push(Color::hex("#108833"), poly.clone());
+                if let Ok(border) = poly.to_outline(Distance::meters(0.25)) {
+                    batch.push(Color::hex("#A8882A"), border);
+                }
+            }
+        }
+        BufferType::JerseyBarrier => {
+            let buffer_ends = Distance::meters(2.0);
+            if let Ok(pl) = lane
+                .lane_center_pts
+                .maybe_exact_slice(buffer_ends, lane.lane_center_pts.length() - buffer_ends)
+            {
+                batch.push(dark_grey, pl.make_polygons(0.8 * lane.width));
+                batch.push(light_grey, pl.make_polygons(0.5 * lane.width));
+            }
+        }
+        BufferType::Curb => {
+            batch.push(dark_grey, lane.lane_center_pts.make_polygons(lane.width));
+        }
+    }
 }

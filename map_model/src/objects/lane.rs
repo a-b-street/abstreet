@@ -48,6 +48,21 @@ pub enum LaneType {
     SharedLeftTurn,
     Construction,
     LightRail,
+    Buffer(BufferType),
+}
+
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
+pub enum BufferType {
+    /// Just paint!
+    Stripes,
+    /// Flex posts, wands, cones, other "weak" forms of protection. Can weave through them.
+    FlexPosts,
+    /// Sturdier planters, with gaps.
+    Planters,
+    /// Solid barrier, no gaps.
+    JerseyBarrier,
+    /// A raised curb
+    Curb,
 }
 
 impl LaneType {
@@ -62,6 +77,7 @@ impl LaneType {
             LaneType::SharedLeftTurn => false,
             LaneType::Construction => false,
             LaneType::LightRail => true,
+            LaneType::Buffer(_) => false,
         }
     }
 
@@ -76,6 +92,7 @@ impl LaneType {
             LaneType::SharedLeftTurn => false,
             LaneType::Construction => false,
             LaneType::LightRail => true,
+            LaneType::Buffer(_) => false,
         }
     }
 
@@ -94,6 +111,11 @@ impl LaneType {
             LaneType::SharedLeftTurn => "a shared left-turn lane",
             LaneType::Construction => "a lane that's closed for construction",
             LaneType::LightRail => "a light rail track",
+            LaneType::Buffer(BufferType::Stripes) => "striped pavement",
+            LaneType::Buffer(BufferType::FlexPosts) => "flex post barriers",
+            LaneType::Buffer(BufferType::Planters) => "planter barriers",
+            LaneType::Buffer(BufferType::JerseyBarrier) => "a Jersey barrier",
+            LaneType::Buffer(BufferType::Curb) => "a raised curb",
         }
     }
 
@@ -108,6 +130,11 @@ impl LaneType {
             LaneType::SharedLeftTurn => "left-turn lane",
             LaneType::Construction => "construction",
             LaneType::LightRail => "light rail track",
+            LaneType::Buffer(BufferType::Stripes) => "stripes",
+            LaneType::Buffer(BufferType::FlexPosts) => "flex posts",
+            LaneType::Buffer(BufferType::Planters) => "planters",
+            LaneType::Buffer(BufferType::JerseyBarrier) => "Jersey barrier",
+            LaneType::Buffer(BufferType::Curb) => "curb",
         }
     }
 
@@ -122,6 +149,11 @@ impl LaneType {
             "left-turn lane" => Some(LaneType::SharedLeftTurn),
             "construction" => Some(LaneType::Construction),
             "light rail track" => Some(LaneType::LightRail),
+            "stripes" => Some(LaneType::Buffer(BufferType::Stripes)),
+            "flex posts" => Some(LaneType::Buffer(BufferType::FlexPosts)),
+            "planters" => Some(LaneType::Buffer(BufferType::Planters)),
+            "Jersey barrier" => Some(LaneType::Buffer(BufferType::JerseyBarrier)),
+            "curb" => Some(LaneType::Buffer(BufferType::Curb)),
             _ => None,
         }
     }
@@ -454,6 +486,18 @@ impl LaneSpec {
                 (Distance::feet(6.0), "wide"),
             ],
             LaneType::Shoulder => vec![(SHOULDER_THICKNESS, "default")],
+            // Pretty wild guesses
+            LaneType::Buffer(BufferType::Stripes) => vec![(Distance::meters(1.5), "default")],
+            LaneType::Buffer(BufferType::FlexPosts) => {
+                vec![(Distance::meters(1.5), "default")]
+            }
+            LaneType::Buffer(BufferType::Planters) => {
+                vec![(Distance::meters(2.0), "default")]
+            }
+            LaneType::Buffer(BufferType::JerseyBarrier) => {
+                vec![(Distance::meters(1.5), "default")]
+            }
+            LaneType::Buffer(BufferType::Curb) => vec![(Distance::meters(0.5), "default")],
         }
     }
 }
