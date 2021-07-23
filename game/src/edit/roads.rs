@@ -482,8 +482,8 @@ fn make_main_panel(
             .style()
             .btn_plain
             .icon(lane_type_to_icon(lt).unwrap())
-            .hotkey(if current_lane.is_some() && key.is_some() {
-                Some(key.unwrap().into())
+            .hotkey(if current_lane.is_some() {
+                key.map(|k| k.into())
             } else {
                 None
             });

@@ -417,8 +417,13 @@ fn calculate_buffer_markings(
 
     let stripes = |batch: &mut GeomBatch, step_size, buffer_ends| {
         for (center, angle) in lane.lane_center_pts.step_along(step_size, buffer_ends) {
-            let left = center.project_away(lane.width / 2.0, angle.rotate_degs(45.0));
-            let right = center.project_away(lane.width / 2.0, angle.rotate_degs(45.0).opposite());
+            // Extend the stripes into the side lines
+            let thickness = Distance::meters(0.25);
+            let left = center.project_away(lane.width / 2.0 + thickness, angle.rotate_degs(45.0));
+            let right = center.project_away(
+                lane.width / 2.0 + thickness,
+                angle.rotate_degs(45.0).opposite(),
+            );
             batch.push(
                 color,
                 Line::must_new(left, right).make_polygons(Distance::meters(0.3)),
