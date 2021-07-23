@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["calculate_driving_lines",""],["calculate_one_way_markings",""],["calculate_parking_lines",""],["calculate_sidewalk_lines",""],["calculate_turn_markings",""],["perp_line",""]],"struct":[["DrawLane",""]]});
+initSidebarItems({"fn":[["calculate_buffer_markings",""],["calculate_driving_lines",""],["calculate_one_way_markings",""],["calculate_parking_lines",""],["calculate_sidewalk_lines",""],["calculate_turn_markings",""],["perp_line",""]],"struct":[["DrawLane",""]]});

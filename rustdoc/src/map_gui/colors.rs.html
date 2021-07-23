@@ -655,6 +655,7 @@
 <span id="652">652</span>
 <span id="653">653</span>
 <span id="654">654</span>
+<span id="655">655</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! A color scheme groups colors used for different map, dynamic, and UI elements in one place, to</span>
 <span class="doccomment">//! encourage deduplication. The player can also switch between different color schemes.</span>
@@ -1010,6 +1011,7 @@
                 <span class="ident">LaneType::SharedLeftTurn</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">driving_lane</span>,
                 <span class="ident">LaneType::Construction</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">parking_lane</span>,
                 <span class="ident">LaneType::LightRail</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
+                <span class="ident">LaneType::Buffer</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">driving_lane</span>,
             },
         }
     }

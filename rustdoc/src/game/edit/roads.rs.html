@@ -808,13 +808,33 @@
 <span id="805">805</span>
 <span id="806">806</span>
 <span id="807">807</span>
+<span id="808">808</span>
+<span id="809">809</span>
+<span id="810">810</span>
+<span id="811">811</span>
+<span id="812">812</span>
+<span id="813">813</span>
+<span id="814">814</span>
+<span id="815">815</span>
+<span id="816">816</span>
+<span id="817">817</span>
+<span id="818">818</span>
+<span id="819">819</span>
+<span id="820">820</span>
+<span id="821">821</span>
+<span id="822">822</span>
+<span id="823">823</span>
+<span id="824">824</span>
+<span id="825">825</span>
+<span id="826">826</span>
+<span id="827">827</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">CornerRadii</span>, <span class="ident">Distance</span>};
 <span class="kw">use</span> <span class="ident">map_gui::render</span>::{<span class="ident">Renderable</span>, <span class="ident">OUTLINE_THICKNESS</span>};
 <span class="kw">use</span> <span class="ident">map_gui::tools::PopupMsg</span>;
 <span class="kw">use</span> <span class="ident">map_gui::ID</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{
-    <span class="ident">Direction</span>, <span class="ident">EditCmd</span>, <span class="ident">EditRoad</span>, <span class="ident">LaneID</span>, <span class="ident">LaneSpec</span>, <span class="ident">LaneType</span>, <span class="ident">MapEdits</span>, <span class="ident">Road</span>, <span class="ident">RoadID</span>,
+    <span class="ident">BufferType</span>, <span class="ident">Direction</span>, <span class="ident">EditCmd</span>, <span class="ident">EditRoad</span>, <span class="ident">LaneID</span>, <span class="ident">LaneSpec</span>, <span class="ident">LaneType</span>, <span class="ident">MapEdits</span>, <span class="ident">Road</span>, <span class="ident">RoadID</span>,
     <span class="ident">NORMAL_LANE_THICKNESS</span>,
 };
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
@@ -1275,12 +1295,17 @@
 
     <span class="kw">let</span> <span class="ident">current_lts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LaneType</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">road</span>.<span class="ident">lanes_ltr</span>().<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">lt</span>)<span class="op">|</span> <span class="ident">lt</span>).<span class="ident">collect</span>();
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">available_lane_types_row</span> <span class="op">=</span> <span class="macro">vec!</span>[
-        (<span class="ident">LaneType::Driving</span>, <span class="ident">Key::D</span>),
-        (<span class="ident">LaneType::Biking</span>, <span class="ident">Key::B</span>),
-        (<span class="ident">LaneType::Bus</span>, <span class="ident">Key::T</span>),
-        (<span class="ident">LaneType::Parking</span>, <span class="ident">Key::P</span>),
-        (<span class="ident">LaneType::Construction</span>, <span class="ident">Key::C</span>),
-        (<span class="ident">LaneType::Sidewalk</span>, <span class="ident">Key::S</span>),
+        (<span class="ident">LaneType::Driving</span>, <span class="prelude-val">Some</span>(<span class="ident">Key::D</span>)),
+        (<span class="ident">LaneType::Biking</span>, <span class="prelude-val">Some</span>(<span class="ident">Key::B</span>)),
+        (<span class="ident">LaneType::Bus</span>, <span class="prelude-val">Some</span>(<span class="ident">Key::T</span>)),
+        (<span class="ident">LaneType::Parking</span>, <span class="prelude-val">Some</span>(<span class="ident">Key::P</span>)),
+        (<span class="ident">LaneType::Construction</span>, <span class="prelude-val">Some</span>(<span class="ident">Key::C</span>)),
+        (<span class="ident">LaneType::Sidewalk</span>, <span class="prelude-val">Some</span>(<span class="ident">Key::S</span>)),
+        (<span class="ident">LaneType::Buffer</span>(<span class="ident">BufferType::Stripes</span>), <span class="prelude-val">None</span>),
+        (<span class="ident">LaneType::Buffer</span>(<span class="ident">BufferType::FlexPosts</span>), <span class="prelude-val">None</span>),
+        (<span class="ident">LaneType::Buffer</span>(<span class="ident">BufferType::Planters</span>), <span class="prelude-val">None</span>),
+        (<span class="ident">LaneType::Buffer</span>(<span class="ident">BufferType::JerseyBarrier</span>), <span class="prelude-val">None</span>),
+        (<span class="ident">LaneType::Buffer</span>(<span class="ident">BufferType::Curb</span>), <span class="prelude-val">None</span>),
     ]
     .<span class="ident">into_iter</span>()
     .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">lt</span>, <span class="ident">key</span>)<span class="op">|</span> {
@@ -1289,7 +1314,7 @@
             .<span class="ident">btn_plain</span>
             .<span class="ident">icon</span>(<span class="ident">lane_type_to_icon</span>(<span class="ident">lt</span>).<span class="ident">unwrap</span>())
             .<span class="ident">hotkey</span>(<span class="kw">if</span> <span class="ident">current_lane</span>.<span class="ident">is_some</span>() {
-                <span class="prelude-val">Some</span>(<span class="ident">key</span>.<span class="ident">into</span>())
+                <span class="ident">key</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">k</span><span class="op">|</span> <span class="ident">k</span>.<span class="ident">into</span>())
             } <span class="kw">else</span> {
                 <span class="prelude-val">None</span>
             });
@@ -1485,6 +1510,13 @@
         <span class="ident">LaneType::Bus</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/edit/bus.svg&quot;</span>),
         <span class="ident">LaneType::SharedLeftTurn</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/map/shared_left_turn.svg&quot;</span>),
         <span class="ident">LaneType::Construction</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/edit/construction.svg&quot;</span>),
+        <span class="ident">LaneType::Buffer</span>(<span class="ident">BufferType::Stripes</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/edit/buffer/stripes.svg&quot;</span>),
+        <span class="ident">LaneType::Buffer</span>(<span class="ident">BufferType::FlexPosts</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/edit/buffer/flex_posts.svg&quot;</span>),
+        <span class="ident">LaneType::Buffer</span>(<span class="ident">BufferType::Planters</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/edit/buffer/planters.svg&quot;</span>),
+        <span class="ident">LaneType::Buffer</span>(<span class="ident">BufferType::JerseyBarrier</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/edit/buffer/jersey_barrier.svg&quot;</span>)
+        }
+        <span class="ident">LaneType::Buffer</span>(<span class="ident">BufferType::Curb</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/edit/buffer/curb.svg&quot;</span>),
         <span class="comment">// Don&#39;t allow creating these yet</span>
         <span class="ident">LaneType::LightRail</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
     }
@@ -1580,6 +1612,10 @@
                 <span class="ident">road</span>.<span class="ident">lanes_ltr</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>().<span class="ident">dir</span>
             }
         }
+        <span class="ident">LaneType::Buffer</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="comment">// TODO Look for the bike lane that&#39;s missing a buffer</span>
+            <span class="ident">Direction::Fwd</span>
+        }
         <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
     };
 
@@ -1602,6 +1638,10 @@
             } <span class="kw">else</span> {
                 <span class="ident">road</span>.<span class="ident">lanes_ltr</span>.<span class="ident">len</span>()
             }
+        }
+        <span class="ident">LaneType::Buffer</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="comment">// TODO Look for the bike lane that&#39;s missing a buffer</span>
+            <span class="number">0</span>
         }
         <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
     };
