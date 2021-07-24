@@ -29,16 +29,8 @@ pub enum ColorSchemeChoice {
     DayMode,
     NightMode,
     Pregame,
-    SAMGreenDay,
-    SAMDesertDay,
-    Brian,
-    Osm,
-    Starcat,
     Textured,
-    MapboxLight,
-    MapboxDark,
     FadedZoom,
-    NegativeSpace,
 }
 
 impl ColorSchemeChoice {
@@ -47,16 +39,8 @@ impl ColorSchemeChoice {
             Choice::new("day mode", ColorSchemeChoice::DayMode),
             Choice::new("night mode", ColorSchemeChoice::NightMode),
             Choice::new("pregame", ColorSchemeChoice::Pregame),
-            Choice::new("sam green day", ColorSchemeChoice::SAMGreenDay),
-            Choice::new("sam desert day", ColorSchemeChoice::SAMDesertDay),
-            Choice::new("Brian's style", ColorSchemeChoice::Brian),
-            Choice::new("osm", ColorSchemeChoice::Osm),
-            Choice::new("starcat", ColorSchemeChoice::Starcat),
             Choice::new("textured", ColorSchemeChoice::Textured),
-            Choice::new("mapbox light", ColorSchemeChoice::MapboxLight),
-            Choice::new("mapbox dark", ColorSchemeChoice::MapboxDark),
             Choice::new("faded zoom", ColorSchemeChoice::FadedZoom),
-            Choice::new("negative space", ColorSchemeChoice::NegativeSpace),
         ]
     }
 }
@@ -165,16 +149,8 @@ impl ColorScheme {
             ColorSchemeChoice::DayMode => ColorScheme::day_mode(),
             ColorSchemeChoice::NightMode => ColorScheme::night_mode(),
             ColorSchemeChoice::Pregame => ColorScheme::pregame(),
-            ColorSchemeChoice::SAMGreenDay => ColorScheme::sam_green_day(),
-            ColorSchemeChoice::SAMDesertDay => ColorScheme::sam_desert_day(),
-            ColorSchemeChoice::Brian => ColorScheme::brian(),
-            ColorSchemeChoice::Osm => ColorScheme::osm(),
-            ColorSchemeChoice::Starcat => ColorScheme::starcat(),
             ColorSchemeChoice::Textured => ColorScheme::textured(),
-            ColorSchemeChoice::MapboxLight => ColorScheme::mapbox_light(),
-            ColorSchemeChoice::MapboxDark => ColorScheme::mapbox_dark(),
             ColorSchemeChoice::FadedZoom => ColorScheme::faded_zoom(),
-            ColorSchemeChoice::NegativeSpace => ColorScheme::negative_space(),
         };
         cs.scheme = scheme;
         ctx.set_style(cs.gui_style.clone());
@@ -318,10 +294,6 @@ impl ColorScheme {
     }
 
     pub fn unzoomed_road_surface(&self, rank: RoadRank) -> Color {
-        if self.scheme == ColorSchemeChoice::NegativeSpace {
-            return Color::BLACK;
-        }
-
         match rank {
             RoadRank::Highway => self.unzoomed_highway,
             RoadRank::Arterial => self.unzoomed_arterial,
@@ -342,7 +314,6 @@ impl ColorScheme {
                     RoadRank::Local => hex("#FFFFFF"),
                 },
             },
-            ColorSchemeChoice::NegativeSpace => Color::BLACK,
             _ => match lane {
                 LaneType::Driving => self.driving_lane,
                 LaneType::Bus => self.bus_lane,
@@ -495,123 +466,11 @@ impl ColorScheme {
         cs
     }
 
-    fn sam_green_day() -> ColorScheme {
-        let mut cs = ColorScheme::day_mode();
-        cs.map_background = hex("#CFE2C4").into();
-        cs.water = hex("#B4D3E5").into();
-        cs.driving_lane = hex("#C6CDD5");
-        cs.residential_building = hex("#CCD4BD");
-        cs.sidewalk = hex("#98A1AA");
-        cs
-    }
-
-    fn sam_desert_day() -> ColorScheme {
-        let mut cs = ColorScheme::day_mode();
-        cs.map_background = hex("#FEE4D7").into();
-        cs.grass = hex("#F6C6AF").into();
-        cs.dialog_bg = hex("#F6C6AF");
-        cs.driving_lane = hex("#BECBD3");
-        cs.residential_building = hex("#DEAA95");
-        cs.sidewalk = hex("#8B9EA8");
-        cs
-    }
-
-    fn brian() -> ColorScheme {
-        let mut cs = ColorScheme::day_mode();
-        cs.agent_colors = vec![
-            /*hex("#DD5444"),
-            hex("#C23E46"),
-            hex("#821B38"),
-            hex("#BC3101"),*/
-            hex("#F44273"),
-            hex("#B53A7E"),
-            hex("#FF616E"),
-            hex("#FA8D37"),
-        ];
-        cs.grass = hex("#84BA3B").into(); // #2F8C2C
-        cs.dialog_bg = hex("#84BA3B");
-        cs.residential_building = hex("#367335"); // #194C18
-        cs.normal_intersection = hex("#4B5485");
-        cs.driving_lane = hex("#384173");
-        cs.parking_lane = hex("#4B5485");
-        cs.sidewalk = hex("#89ABD9");
-        cs.sidewalk_lines = Some(hex("#4B5485"));
-        cs.general_road_marking = hex("#89ABD9");
-        cs.map_background = hex("#589D54").into(); // #153F14
-        cs.ped_crowd = hex("#DD5444");
-        cs.road_center_line = hex("#BCFF00");
-        cs
-    }
-
-    fn osm() -> ColorScheme {
-        let mut cs = ColorScheme::day_mode();
-        // TODO normal_intersection, driving_lane, parking_lane depends on osm rank
-        cs.general_road_marking = Color::BLACK;
-        cs.road_center_line = Color::rgb(202, 177, 39);
-        cs
-    }
-
-    fn starcat() -> ColorScheme {
-        let mut cs = ColorScheme::day_mode();
-        cs.grass = hex("#3F8C0C").into();
-        cs.dialog_bg = hex("#3F8C0C");
-        cs.residential_building = hex("#8099A8"); // #5E7486
-        cs.map_background = hex("#737373").into();
-        cs.driving_lane = hex("#2A2A2A"); // TODO for arterial
-        cs.road_center_line = hex("#DB952E");
-        cs.general_road_marking = hex("#D6D6D6");
-        cs.sidewalk = cs.general_road_marking;
-        cs.sidewalk_lines = Some(hex("#707070"));
-        cs.bike_lane = hex("#72CE36");
-        cs.bus_lane = hex("#AD302D");
-        cs
-    }
-
     fn textured() -> ColorScheme {
         let mut cs = ColorScheme::day_mode();
         cs.grass = Texture::GRASS.into();
         cs.water = Texture::STILL_WATER.into();
         cs.map_background = Texture::CONCRETE.into();
-        cs
-    }
-
-    fn mapbox_light() -> ColorScheme {
-        let mut cs = ColorScheme::day_mode();
-        cs.map_background = hex("#F2F3F1").into();
-        cs.unzoomed_highway = Color::WHITE;
-        cs.unzoomed_arterial = Color::WHITE;
-        cs.unzoomed_residential = Color::WHITE;
-        cs.grass = hex("#ECEEED").into();
-        cs.water = hex("#CAD2D3").into();
-        cs.residential_building = hex("#E9E9E7");
-        cs.commercial_building = hex("#E9E9E7");
-        cs
-    }
-
-    fn mapbox_dark() -> ColorScheme {
-        let mut cs = ColorScheme::day_mode();
-        cs.map_background = hex("#343332").into();
-        let road = hex("#454545");
-        cs.unzoomed_highway = road;
-        cs.unzoomed_arterial = road;
-        cs.unzoomed_residential = road;
-        cs.grass = hex("#323432").into();
-        cs.water = hex("#181919").into();
-        cs.residential_building = hex("#2C2C2B");
-        cs.commercial_building = hex("#2C2C2B");
-
-        // TODO Things like this could be refactored in zoomed_road_surface
-        cs.driving_lane = road;
-        cs.parking_lane = road;
-        cs.bike_lane = road;
-        cs.bus_lane = road;
-        cs.sidewalk = Color::grey(0.3);
-        cs.sidewalk_lines = Some(road);
-        cs.normal_intersection = road;
-        cs.general_road_marking = cs.building_outline;
-        cs.road_center_line = cs.general_road_marking;
-        cs.stop_sign = Color::rgb_f(0.67, 0.55, 0.55);
-
         cs
     }
 
@@ -629,27 +488,6 @@ impl ColorScheme {
         cs.residential_building = hex("#DCD9D6");
         cs.commercial_building = cs.residential_building;
 
-        cs
-    }
-
-    fn negative_space() -> ColorScheme {
-        let mut cs = ColorScheme::day_mode();
-        let nonempty_space = Color::BLACK;
-        cs.map_background = Color::WHITE.into();
-        cs.residential_building = nonempty_space;
-        cs.commercial_building = nonempty_space;
-        cs.building_outline = nonempty_space;
-        cs.normal_intersection = nonempty_space;
-        cs.general_road_marking = nonempty_space;
-        cs.road_center_line = nonempty_space;
-        cs.stop_sign = nonempty_space;
-        cs.stop_sign_pole = nonempty_space;
-        cs.sidewalk_lines = Some(nonempty_space);
-        cs.parking_lot = nonempty_space;
-        cs.grass = nonempty_space.into();
-        cs.water = nonempty_space.into();
-        // TODO Why is this showing up?!
-        cs.light_rail_track = Color::CLEAR;
         cs
     }
 }

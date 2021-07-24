@@ -351,7 +351,7 @@ impl RawMap {
         // Retain some geometry...
         {
             let mut trim_roads_for_merging = BTreeMap::new();
-            for i in vec![i1, i2] {
+            for i in [i1, i2] {
                 for r in self.roads_per_intersection(i) {
                     // If we keep this in there, it might accidentally overwrite the
                     // trim_roads_for_merging key for a surviving road!
