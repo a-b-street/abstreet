@@ -1027,6 +1027,11 @@
 <span id="1024">1024</span>
 <span id="1025">1025</span>
 <span id="1026">1026</span>
+<span id="1027">1027</span>
+<span id="1028">1028</span>
+<span id="1029">1029</span>
+<span id="1030">1030</span>
+<span id="1031">1031</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 <span class="kw">use</span> <span class="ident">std::fmt</span>;
@@ -1436,6 +1441,11 @@
     }
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">must_shift_left</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">width</span>: <span class="ident">Distance</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PolyLine</span> {
         <span class="self">self</span>.<span class="ident">shift_left</span>(<span class="ident">width</span>).<span class="ident">unwrap</span>()
+    }
+
+    <span class="doccomment">/// Perpendicularly shifts the polyline to the right if positive or left if negative.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">shift_either_direction</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">width</span>: <span class="ident">Distance</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PolyLine</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">shift_with_corrections</span>(<span class="ident">width</span>)
     }
 
     <span class="comment">// Things to remember about shifting polylines:</span>

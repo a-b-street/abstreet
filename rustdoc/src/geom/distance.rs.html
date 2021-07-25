@@ -291,6 +291,12 @@
 <span id="288">288</span>
 <span id="289">289</span>
 <span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">cmp</span>, <span class="ident">f64</span>, <span class="ident">fmt</span>, <span class="ident">ops</span>};
 
@@ -486,6 +492,12 @@
 
     <span class="kw">fn</span> <span class="ident">mul</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">Distance</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Distance</span> {
         <span class="ident">Distance::meters</span>(<span class="self">self</span> <span class="op">*</span> <span class="ident">other</span>.<span class="number">0</span>)
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">ops::MulAssign</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Distance</span> {
+    <span class="kw">fn</span> <span class="ident">mul_assign</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">other</span>: <span class="ident">f64</span>) {
+        <span class="kw-2">*</span><span class="self">self</span> <span class="op">=</span> <span class="kw-2">*</span><span class="self">self</span> <span class="op">*</span> <span class="ident">other</span>;
     }
 }
 

@@ -504,6 +504,38 @@
 <span id="501">501</span>
 <span id="502">502</span>
 <span id="503">503</span>
+<span id="504">504</span>
+<span id="505">505</span>
+<span id="506">506</span>
+<span id="507">507</span>
+<span id="508">508</span>
+<span id="509">509</span>
+<span id="510">510</span>
+<span id="511">511</span>
+<span id="512">512</span>
+<span id="513">513</span>
+<span id="514">514</span>
+<span id="515">515</span>
+<span id="516">516</span>
+<span id="517">517</span>
+<span id="518">518</span>
+<span id="519">519</span>
+<span id="520">520</span>
+<span id="521">521</span>
+<span id="522">522</span>
+<span id="523">523</span>
+<span id="524">524</span>
+<span id="525">525</span>
+<span id="526">526</span>
+<span id="527">527</span>
+<span id="528">528</span>
+<span id="529">529</span>
+<span id="530">530</span>
+<span id="531">531</span>
+<span id="532">532</span>
+<span id="533">533</span>
+<span id="534">534</span>
+<span id="535">535</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std::cell::RefCell</span>;
 
@@ -553,13 +585,12 @@
             },
             <span class="ident">i</span>.<span class="ident">polygon</span>.<span class="ident">clone</span>(),
         );
-        <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">sidewalk_lines</span>.<span class="ident">is_some</span>() {
-            <span class="ident">default_geom</span>.<span class="ident">extend</span>(
-                <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">zoomed_road_surface</span>(<span class="ident">LaneType::Sidewalk</span>, <span class="ident">rank</span>),
-                <span class="ident">calculate_corners</span>(<span class="ident">i</span>, <span class="ident">map</span>),
-            );
-        } <span class="kw">else</span> {
-            <span class="ident">calculate_corners_with_borders</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">default_geom</span>, <span class="ident">app</span>, <span class="ident">i</span>);
+        <span class="ident">default_geom</span>.<span class="ident">extend</span>(
+            <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">zoomed_road_surface</span>(<span class="ident">LaneType::Sidewalk</span>, <span class="ident">rank</span>),
+            <span class="ident">calculate_corners</span>(<span class="ident">i</span>, <span class="ident">map</span>),
+        );
+        <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">sidewalk_lines</span>.<span class="ident">is_none</span>() {
+            <span class="ident">default_geom</span>.<span class="ident">extend</span>(<span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">curb</span>, <span class="ident">calculate_corner_curbs</span>(<span class="ident">i</span>, <span class="ident">map</span>));
         }
 
         <span class="kw">for</span> <span class="ident">turn</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">get_turns_in_intersection</span>(<span class="ident">i</span>.<span class="ident">id</span>) {
@@ -786,40 +817,73 @@
     <span class="ident">corners</span>
 }
 
-<span class="comment">// calculate_corners smooths edges, but we don&#39;t want to do that when drawing explicit borders.</span>
-<span class="kw">fn</span> <span class="ident">calculate_corners_with_borders</span>(<span class="ident">batch</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GeomBatch</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">AppLike</span>, <span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">Intersection</span>) {
-    <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">map</span>();
-    <span class="kw">let</span> <span class="ident">rank</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">get_rank</span>(<span class="ident">map</span>);
-    <span class="kw">let</span> <span class="ident">surface_color</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">zoomed_road_surface</span>(<span class="ident">LaneType::Sidewalk</span>, <span class="ident">rank</span>);
-    <span class="kw">let</span> <span class="ident">border_color</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">general_road_marking</span>(<span class="ident">rank</span>);
+<span class="kw">fn</span> <span class="ident">calculate_corner_curbs</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">Intersection</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span> {
+    <span class="kw">if</span> <span class="ident">i</span>.<span class="ident">is_footway</span>(<span class="ident">map</span>) {
+        <span class="kw">return</span> <span class="ident">Vec::new</span>();
+    }
+
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">curbs</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+
+    <span class="kw">let</span> <span class="ident">thickness</span> <span class="op">=</span> <span class="ident">Distance::meters</span>(<span class="number">0.2</span>);
+    <span class="kw">let</span> <span class="ident">shift</span> <span class="op">=</span> <span class="op">|</span><span class="ident">width</span><span class="op">|</span> (<span class="ident">width</span> <span class="op">-</span> <span class="ident">thickness</span>) <span class="op">/</span> <span class="number">2.0</span>;
 
     <span class="kw">for</span> <span class="ident">turn</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">get_turns_in_intersection</span>(<span class="ident">i</span>.<span class="ident">id</span>) {
-        <span class="kw">if</span> <span class="ident">turn</span>.<span class="ident">turn_type</span> <span class="op">!</span><span class="op">=</span> <span class="ident">TurnType::SharedSidewalkCorner</span> {
-            <span class="kw">continue</span>;
-        }
-        <span class="comment">// Avoid double-rendering</span>
-        <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">src</span>).<span class="ident">dst_i</span> <span class="op">!</span><span class="op">=</span> <span class="ident">i</span>.<span class="ident">id</span> {
-            <span class="kw">continue</span>;
-        }
-        <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span> <span class="ident">map</span>
-            .<span class="ident">get_l</span>(<span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">src</span>)
-            .<span class="ident">width</span>
-            .<span class="ident">min</span>(<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">dst</span>).<span class="ident">width</span>);
+        <span class="kw">if</span> <span class="ident">turn</span>.<span class="ident">turn_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">TurnType::SharedSidewalkCorner</span> {
+            <span class="comment">// Avoid double-rendering</span>
+            <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">src</span>).<span class="ident">dst_i</span> <span class="op">!</span><span class="op">=</span> <span class="ident">i</span>.<span class="ident">id</span> {
+                <span class="kw">continue</span>;
+            }
+            <span class="kw">let</span> <span class="ident">l1</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">src</span>);
+            <span class="kw">let</span> <span class="ident">l2</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">dst</span>);
 
-        <span class="comment">// TODO This leaves gaps.</span>
-        <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">surface_color</span>, <span class="ident">turn</span>.<span class="ident">geom</span>.<span class="ident">make_polygons</span>(<span class="ident">width</span>));
+            <span class="comment">// Special case for dead-ends: just thicken the geometry.</span>
+            <span class="comment">/*if i.roads.len() == 1 {
+                corners.push(turn.geom.make_polygons(l1.width.min(l2.width)));
+                continue;
+            }*/</span>
 
-        <span class="kw">let</span> <span class="ident">thickness</span> <span class="op">=</span> <span class="ident">Distance::meters</span>(<span class="number">0.2</span>);
-        <span class="kw">let</span> <span class="ident">shift</span> <span class="op">=</span> (<span class="ident">width</span> <span class="op">-</span> <span class="ident">thickness</span>) <span class="op">/</span> <span class="number">2.0</span>;
-        <span class="ident">batch</span>.<span class="ident">push</span>(
-            <span class="ident">border_color</span>,
-            <span class="ident">turn</span>.<span class="ident">geom</span>.<span class="ident">must_shift_right</span>(<span class="ident">shift</span>).<span class="ident">make_polygons</span>(<span class="ident">thickness</span>),
-        );
-        <span class="ident">batch</span>.<span class="ident">push</span>(
-            <span class="ident">border_color</span>,
-            <span class="ident">turn</span>.<span class="ident">geom</span>.<span class="ident">must_shift_left</span>(<span class="ident">shift</span>).<span class="ident">make_polygons</span>(<span class="ident">thickness</span>),
-        );
+            <span class="kw">if</span> <span class="ident">l1</span>.<span class="ident">width</span> <span class="op">=</span><span class="op">=</span> <span class="ident">l2</span>.<span class="ident">width</span> {
+                <span class="comment">// When two sidewalks or two shoulders meet, use the turn geometry to create some</span>
+                <span class="comment">// nice rounding.</span>
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">width</span> <span class="op">=</span> <span class="ident">shift</span>(<span class="ident">l1</span>.<span class="ident">width</span>);
+                <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_config</span>().<span class="ident">driving_side</span> <span class="op">=</span><span class="op">=</span> <span class="ident">DrivingSide::Right</span> {
+                    <span class="ident">width</span> <span class="kw-2">*</span><span class="op">=</span> <span class="op">-</span><span class="number">1.0</span>;
+                }
+
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pl</span>) <span class="op">=</span> (<span class="op">|</span><span class="op">|</span> {
+                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span> <span class="op">=</span> <span class="ident">turn</span>.<span class="ident">geom</span>.<span class="ident">shift_either_direction</span>(<span class="ident">width</span>).<span class="ident">ok</span>()<span class="question-mark">?</span>.<span class="ident">into_points</span>();
+                    <span class="kw">let</span> <span class="ident">first_line</span> <span class="op">=</span> <span class="ident">l2</span>.<span class="ident">first_line</span>().<span class="ident">shift_either_direction</span>(<span class="ident">width</span>);
+                    <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">first_line</span>.<span class="ident">pt1</span>());
+                    <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">first_line</span>.<span class="ident">unbounded_dist_along</span>(<span class="ident">thickness</span>));
+                    <span class="kw">let</span> <span class="ident">last_line</span> <span class="op">=</span> <span class="ident">l1</span>.<span class="ident">last_line</span>().<span class="ident">shift_either_direction</span>(<span class="ident">width</span>).<span class="ident">reverse</span>();
+                    <span class="ident">pts</span>.<span class="ident">insert</span>(<span class="number">0</span>, <span class="ident">last_line</span>.<span class="ident">pt1</span>());
+                    <span class="ident">pts</span>.<span class="ident">insert</span>(<span class="number">0</span>, <span class="ident">last_line</span>.<span class="ident">unbounded_dist_along</span>(<span class="ident">thickness</span>));
+                    <span class="ident">PolyLine::deduping_new</span>(<span class="ident">pts</span>).<span class="ident">ok</span>()
+                })() {
+                    <span class="ident">curbs</span>.<span class="ident">push</span>(<span class="ident">pl</span>.<span class="ident">make_polygons</span>(<span class="ident">thickness</span>));
+                }
+            } <span class="kw">else</span> {
+                <span class="comment">// When a sidewalk and a shoulder meet, use a simpler shape to connect them.</span>
+                <span class="kw">let</span> <span class="ident">direction</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_config</span>().<span class="ident">driving_side</span> <span class="op">=</span><span class="op">=</span> <span class="ident">DrivingSide::Right</span> {
+                    <span class="op">-</span><span class="number">1.0</span>
+                } <span class="kw">else</span> {
+                    <span class="number">1.0</span>
+                };
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">pl</span>) <span class="op">=</span> <span class="ident">PolyLine::new</span>(<span class="macro">vec!</span>[
+                    <span class="ident">l1</span>.<span class="ident">last_line</span>()
+                        .<span class="ident">shift_either_direction</span>(<span class="ident">direction</span> <span class="op">*</span> <span class="ident">shift</span>(<span class="ident">l1</span>.<span class="ident">width</span>))
+                        .<span class="ident">pt2</span>(),
+                    <span class="ident">l2</span>.<span class="ident">first_line</span>()
+                        .<span class="ident">shift_either_direction</span>(<span class="ident">direction</span> <span class="op">*</span> <span class="ident">shift</span>(<span class="ident">l2</span>.<span class="ident">width</span>))
+                        .<span class="ident">pt1</span>(),
+                ]) {
+                    <span class="ident">curbs</span>.<span class="ident">push</span>(<span class="ident">pl</span>.<span class="ident">make_polygons</span>(<span class="ident">thickness</span>));
+                }
+            }
+        }
     }
+
+    <span class="ident">curbs</span>
 }
 
 <span class="comment">// TODO This assumes the lanes change direction only at one point. A two-way cycletrack right at</span>

@@ -483,8 +483,6 @@
 <span id="480">480</span>
 <span id="481">481</span>
 <span id="482">482</span>
-<span id="483">483</span>
-<span id="484">484</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std::cell::RefCell</span>;
 <span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
@@ -536,19 +534,17 @@
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">c</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">sidewalk_lines</span> {
                     <span class="ident">batch</span>.<span class="ident">extend</span>(<span class="ident">c</span>, <span class="ident">calculate_sidewalk_lines</span>(<span class="ident">lane</span>));
                 } <span class="kw">else</span> {
-                    <span class="comment">// Otherwise, draw a border at both edges</span>
+                    <span class="comment">// Create a sense of depth at the curb</span>
                     <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span> <span class="ident">Distance::meters</span>(<span class="number">0.2</span>);
-                    <span class="kw">let</span> <span class="ident">shift</span> <span class="op">=</span> (<span class="ident">lane</span>.<span class="ident">width</span> <span class="op">-</span> <span class="ident">width</span>) <span class="op">/</span> <span class="number">2.0</span>;
+                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">shift</span> <span class="op">=</span> (<span class="ident">lane</span>.<span class="ident">width</span> <span class="op">-</span> <span class="ident">width</span>) <span class="op">/</span> <span class="number">2.0</span>;
+                    <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_config</span>().<span class="ident">driving_side</span> <span class="op">=</span><span class="op">=</span> <span class="ident">DrivingSide::Right</span> {
+                        <span class="ident">shift</span> <span class="kw-2">*</span><span class="op">=</span> <span class="op">-</span><span class="number">1.0</span>;
+                    }
                     <span class="ident">batch</span>.<span class="ident">push</span>(
-                        <span class="ident">general_road_marking</span>,
+                        <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">curb</span>,
                         <span class="ident">lane</span>.<span class="ident">lane_center_pts</span>
-                            .<span class="ident">must_shift_right</span>(<span class="ident">shift</span>)
-                            .<span class="ident">make_polygons</span>(<span class="ident">width</span>),
-                    );
-                    <span class="ident">batch</span>.<span class="ident">push</span>(
-                        <span class="ident">general_road_marking</span>,
-                        <span class="ident">lane</span>.<span class="ident">lane_center_pts</span>
-                            .<span class="ident">must_shift_left</span>(<span class="ident">shift</span>)
+                            .<span class="ident">shift_either_direction</span>(<span class="ident">shift</span>)
+                            .<span class="ident">unwrap</span>()
                             .<span class="ident">make_polygons</span>(<span class="ident">width</span>),
                     );
                 }

@@ -432,6 +432,7 @@
 <span id="429">429</span>
 <span id="430">430</span>
 <span id="431">431</span>
+<span id="432">432</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
@@ -547,6 +548,7 @@
                 <span class="ident">options</span>.<span class="ident">push</span>(<span class="ident">c</span>.<span class="ident">label</span>.<span class="ident">clone</span>());
                 <span class="kw">if</span> <span class="ident">c</span>.<span class="ident">label</span> <span class="op">=</span><span class="op">=</span> <span class="ident">x</span> {
                     <span class="self">self</span>.<span class="ident">color_scheme</span> <span class="op">=</span> <span class="ident">c</span>.<span class="ident">data</span>;
+                    <span class="self">self</span>.<span class="ident">toggle_day_night_colors</span> <span class="op">=</span> <span class="bool-val">false</span>;
                     <span class="ident">ok</span> <span class="op">=</span> <span class="bool-val">true</span>;
                     <span class="kw">break</span>;
                 }
