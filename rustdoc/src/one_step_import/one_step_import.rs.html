@@ -136,6 +136,7 @@
 <span id="133">133</span>
 <span id="134">134</span>
 <span id="135">135</span>
+<span id="136">136</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std::io::Write</span>;
 <span class="kw">use</span> <span class="ident">std::path::Path</span>;
@@ -208,7 +209,8 @@
         }
         <span class="ident">filter</span>.<span class="ident">pop</span>();
         <span class="ident">filter</span>.<span class="ident">push</span>(<span class="string">&#39;&quot;&#39;</span>);
-        <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;(\n   nwr({});\n   &lt;;\n);\nout meta;\n&quot;</span>, <span class="ident">filter</span>);
+        <span class="comment">// See https://wiki.openstreetmap.org/wiki/Overpass_API/Overpass_QL</span>
+        <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;(\n   nwr({});\n     node(w)-&gt;.x;\n   &lt;;\n);\nout meta;\n&quot;</span>, <span class="ident">filter</span>);
         <span class="ident">abstio::download_to_file</span>(<span class="string">&quot;https://overpass-api.de/api/interpreter&quot;</span>, <span class="prelude-val">Some</span>(<span class="ident">query</span>), <span class="kw-2">&amp;</span><span class="ident">osm</span>)
             .<span class="kw">await</span><span class="question-mark">?</span>;
     } <span class="kw">else</span> {
