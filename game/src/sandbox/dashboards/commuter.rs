@@ -2,7 +2,7 @@ use std::collections::{BTreeSet, HashMap, HashSet};
 
 use maplit::hashset;
 
-use abstutil::{prettyprint_usize, Counter, MultiMap};
+use abstutil::{prettyprint_usize, Counter, MultiMap, Timer};
 use geom::{Distance, PolyLine, Polygon, Time};
 use map_gui::tools::ColorLegend;
 use map_model::{osm, BuildingID, BuildingType, IntersectionID, LaneID, Map, RoadID, TurnType};
@@ -71,8 +71,10 @@ type BlockID = usize;
 
 impl CommuterPatterns {
     pub fn new_state(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State<App>> {
-        let (bldg_to_block, border_to_block, blocks) =
-            ctx.loading_screen("group buildings into blocks", |_, _| group_bldgs(app));
+        let (bldg_to_block, border_to_block, blocks) = ctx
+            .loading_screen("group buildings into blocks", |_, timer| {
+                group_bldgs(app, timer)
+            });
 
         let mut trips_from_block: Vec<Vec<TripInfo>> = std::iter::repeat_with(Vec::new)
             .take(blocks.len())
@@ -453,6 +455,7 @@ impl State<App> for CommuterPatterns {
 // the same sidewalk.
 fn group_bldgs(
     app: &App,
+    timer: &mut Timer,
 ) -> (
     HashMap<BuildingID, BlockID>,
     HashMap<IntersectionID, BlockID>,
@@ -461,36 +464,45 @@ fn group_bldgs(
     let mut bldg_to_block = HashMap::new();
     let mut blocks = Vec::new();
 
-    for group in partition_sidewalk_loops(app) {
-        let block_id = blocks.len();
-        let mut hull_points = Vec::new();
-        let mut lanes = HashSet::new();
-        for b in &group.bldgs {
-            bldg_to_block.insert(*b, block_id);
-            let bldg = app.primary.map.get_b(*b);
+    let map = &app.primary.map;
+    for block in timer.parallelize(
+        "draw neighborhoods",
+        partition_sidewalk_loops(app)
+            .into_iter()
+            .enumerate()
+            .collect(),
+        |(block_id, group)| {
+            let mut hull_points = Vec::new();
+            let mut lanes = HashSet::new();
+            for b in &group.bldgs {
+                let bldg = map.get_b(*b);
+                if group.proper {
+                    lanes.insert(bldg.sidewalk());
+                }
+                hull_points.append(&mut bldg.polygon.points().clone());
+            }
             if group.proper {
-                lanes.insert(bldg.sidewalk());
+                // TODO Even better, glue the loop of sidewalks together and fill that area.
+                for l in lanes {
+                    let lane_line = map
+                        .get_l(l)
+                        .lane_center_pts
+                        .interpolate_points(Distance::meters(20.0));
+                    hull_points.append(&mut lane_line.points().clone());
+                }
             }
-            hull_points.append(&mut bldg.polygon.points().clone());
-        }
-        if group.proper {
-            // TODO Even better, glue the loop of sidewalks together and fill that area.
-            for l in lanes {
-                let lane_line = app
-                    .primary
-                    .map
-                    .get_l(l)
-                    .lane_center_pts
-                    .interpolate_points(Distance::meters(20.0));
-                hull_points.append(&mut lane_line.points().clone());
+            Block {
+                id: block_id,
+                bldgs: group.bldgs,
+                borders: HashSet::new(),
+                shape: Polygon::concave_hull(hull_points, 10),
             }
+        },
+    ) {
+        for b in &block.bldgs {
+            bldg_to_block.insert(*b, block.id);
         }
-        blocks.push(Block {
-            id: block_id,
-            bldgs: group.bldgs,
-            borders: HashSet::new(),
-            shape: Polygon::concave_hull(hull_points, 10),
-        });
+        blocks.push(block);
     }
 
     let mut border_to_block = HashMap::new();

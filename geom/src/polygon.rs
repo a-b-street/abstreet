@@ -3,7 +3,6 @@ use std::fmt;
 
 use anyhow::Result;
 use geo::algorithm::area::Area;
-use geo::algorithm::concave_hull::ConcaveHull;
 use geo::algorithm::convex_hull::ConvexHull;
 use geo::algorithm::intersects::Intersects;
 use geo_booleanop::boolean::BooleanOp;

@@ -959,8 +959,6 @@ impl PolyLine {
 
         output.push(*self.pts.last().unwrap());
 
-        dbg!(&output);
-
         PolyLine::new(output).unwrap()
     }
 }
