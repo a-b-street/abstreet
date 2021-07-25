@@ -297,12 +297,6 @@ fn calculate_corner_curbs(i: &Intersection, map: &Map) -> Vec<Polygon> {
             let l1 = map.get_l(turn.id.src);
             let l2 = map.get_l(turn.id.dst);
 
-            // Special case for dead-ends: just thicken the geometry.
-            /*if i.roads.len() == 1 {
-                corners.push(turn.geom.make_polygons(l1.width.min(l2.width)));
-                continue;
-            }*/
-
             if l1.width == l2.width {
                 // When two sidewalks or two shoulders meet, use the turn geometry to create some
                 // nice rounding.
@@ -330,13 +324,17 @@ fn calculate_corner_curbs(i: &Intersection, map: &Map) -> Vec<Polygon> {
                 } else {
                     1.0
                 };
-                if let Ok(pl) = PolyLine::new(vec![
-                    l1.last_line()
-                        .shift_either_direction(direction * shift(l1.width))
-                        .pt2(),
-                    l2.first_line()
-                        .shift_either_direction(direction * shift(l2.width))
-                        .pt1(),
+                let last_line = l1
+                    .last_line()
+                    .shift_either_direction(direction * shift(l1.width));
+                let first_line = l2
+                    .first_line()
+                    .shift_either_direction(direction * shift(l2.width));
+                if let Ok(pl) = PolyLine::deduping_new(vec![
+                    last_line.reverse().unbounded_dist_along(thickness),
+                    last_line.pt2(),
+                    first_line.pt1(),
+                    first_line.unbounded_dist_along(thickness),
                 ]) {
                     curbs.push(pl.make_polygons(thickness));
                 }

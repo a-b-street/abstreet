@@ -44,9 +44,12 @@ impl DrawLane {
         let general_road_marking = app.cs().general_road_marking(road.get_rank());
 
         match lane.lane_type {
-            LaneType::Sidewalk => {
+            LaneType::Sidewalk | LaneType::Shoulder => {
                 if let Some(c) = app.cs().sidewalk_lines {
-                    batch.extend(c, calculate_sidewalk_lines(lane));
+                    // Don't draw these for shoulders
+                    if lane.is_sidewalk() {
+                        batch.extend(c, calculate_sidewalk_lines(lane));
+                    }
                 } else {
                     // Create a sense of depth at the curb
                     let width = Distance::meters(0.2);
@@ -63,7 +66,6 @@ impl DrawLane {
                     );
                 }
             }
-            LaneType::Shoulder => {}
             LaneType::Parking => {
                 batch.extend(general_road_marking, calculate_parking_lines(lane, map));
             }
