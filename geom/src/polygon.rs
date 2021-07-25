@@ -343,9 +343,10 @@ impl Polygon {
         mp.convex_hull().into()
     }
 
-    pub fn concave_hull(list: Vec<Polygon>, concavity: f64) -> Polygon {
-        let mp: geo::MultiPolygon<f64> = list.into_iter().map(|p| to_geo(p.points())).collect();
-        mp.concave_hull(concavity).into()
+    pub fn concave_hull(points: Vec<Pt2D>, concavity: u32) -> Polygon {
+        use geo::k_nearest_concave_hull::KNearestConcaveHull;
+        let points: Vec<geo::Point<f64>> = points.iter().map(|p| geo::Point::from(*p)).collect();
+        points.k_nearest_concave_hull(concavity).into()
     }
 
     pub fn polylabel(&self) -> Pt2D {

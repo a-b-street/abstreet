@@ -1333,8 +1333,7 @@ dependencies = [
 [[package]]
 name = "geo"
 version = "0.18.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "02bf7fb342abefefb0abbb8d033f37233e6f857a1a970805d15f96560834d699"
+source = "git+https://github.com/georust/geo?branch=mkirk/concave-hull-fix-empty-crash#243ad260ba9dec5fe6ab5d184ac625f6ed01b53b"
 dependencies = [
  "geo-types",
  "geographiclib-rs",
@@ -1358,8 +1357,7 @@ dependencies = [
 [[package]]
 name = "geo-types"
 version = "0.7.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d8bd2e95dd9f5c8ff74159ed9205ad7fd239a9569173a550863976421b45d2bb"
+source = "git+https://github.com/georust/geo?branch=mkirk/concave-hull-fix-empty-crash#243ad260ba9dec5fe6ab5d184ac625f6ed01b53b"
 dependencies = [
  "approx",
  "num-traits 0.2.14",
