@@ -534,8 +534,6 @@
 <span id="531">531</span>
 <span id="532">532</span>
 <span id="533">533</span>
-<span id="534">534</span>
-<span id="535">535</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std::cell::RefCell</span>;
 
@@ -836,12 +834,6 @@
             <span class="kw">let</span> <span class="ident">l1</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">src</span>);
             <span class="kw">let</span> <span class="ident">l2</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">dst</span>);
 
-            <span class="comment">// Special case for dead-ends: just thicken the geometry.</span>
-            <span class="comment">/*if i.roads.len() == 1 {
-                corners.push(turn.geom.make_polygons(l1.width.min(l2.width)));
-                continue;
-            }*/</span>
-
             <span class="kw">if</span> <span class="ident">l1</span>.<span class="ident">width</span> <span class="op">=</span><span class="op">=</span> <span class="ident">l2</span>.<span class="ident">width</span> {
                 <span class="comment">// When two sidewalks or two shoulders meet, use the turn geometry to create some</span>
                 <span class="comment">// nice rounding.</span>
@@ -869,13 +861,17 @@
                 } <span class="kw">else</span> {
                     <span class="number">1.0</span>
                 };
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">pl</span>) <span class="op">=</span> <span class="ident">PolyLine::new</span>(<span class="macro">vec!</span>[
-                    <span class="ident">l1</span>.<span class="ident">last_line</span>()
-                        .<span class="ident">shift_either_direction</span>(<span class="ident">direction</span> <span class="op">*</span> <span class="ident">shift</span>(<span class="ident">l1</span>.<span class="ident">width</span>))
-                        .<span class="ident">pt2</span>(),
-                    <span class="ident">l2</span>.<span class="ident">first_line</span>()
-                        .<span class="ident">shift_either_direction</span>(<span class="ident">direction</span> <span class="op">*</span> <span class="ident">shift</span>(<span class="ident">l2</span>.<span class="ident">width</span>))
-                        .<span class="ident">pt1</span>(),
+                <span class="kw">let</span> <span class="ident">last_line</span> <span class="op">=</span> <span class="ident">l1</span>
+                    .<span class="ident">last_line</span>()
+                    .<span class="ident">shift_either_direction</span>(<span class="ident">direction</span> <span class="op">*</span> <span class="ident">shift</span>(<span class="ident">l1</span>.<span class="ident">width</span>));
+                <span class="kw">let</span> <span class="ident">first_line</span> <span class="op">=</span> <span class="ident">l2</span>
+                    .<span class="ident">first_line</span>()
+                    .<span class="ident">shift_either_direction</span>(<span class="ident">direction</span> <span class="op">*</span> <span class="ident">shift</span>(<span class="ident">l2</span>.<span class="ident">width</span>));
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">pl</span>) <span class="op">=</span> <span class="ident">PolyLine::deduping_new</span>(<span class="macro">vec!</span>[
+                    <span class="ident">last_line</span>.<span class="ident">reverse</span>().<span class="ident">unbounded_dist_along</span>(<span class="ident">thickness</span>),
+                    <span class="ident">last_line</span>.<span class="ident">pt2</span>(),
+                    <span class="ident">first_line</span>.<span class="ident">pt1</span>(),
+                    <span class="ident">first_line</span>.<span class="ident">unbounded_dist_along</span>(<span class="ident">thickness</span>),
                 ]) {
                     <span class="ident">curbs</span>.<span class="ident">push</span>(<span class="ident">pl</span>.<span class="ident">make_polygons</span>(<span class="ident">thickness</span>));
                 }
