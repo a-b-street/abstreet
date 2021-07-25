@@ -74,7 +74,7 @@ impl Duration {
         self.0
     }
 
-    /// Splits the duration into (hours, minutes, seconds, centiseconds).
+    /// Splits the duration into (hours, minutes, seconds, deciseconds).
     // TODO Could share some of this with Time -- the representations are the same
     fn get_parts(self) -> (usize, usize, usize, usize) {
         // Force positive
@@ -85,13 +85,13 @@ impl Duration {
         remainder -= minutes * 60.0;
         let seconds = remainder.floor();
         remainder -= seconds;
-        let centis = (remainder / 0.01).round();
+        let decis = (remainder / 0.1).round();
 
         (
             hours as usize,
             minutes as usize,
             seconds as usize,
-            centis as usize,
+            decis as usize,
         )
     }
 
@@ -236,7 +236,7 @@ impl Duration {
                 (whole, part, unit)
             } else {
                 let whole = seconds as f64;
-                let part = remainder as f64 / 100.0;
+                let part = remainder as f64 / 10.0;
                 let unit = "s";
                 (whole, part, unit)
             }
@@ -267,7 +267,7 @@ impl Duration {
             if fmt.round_durations {
                 s = format!("{}{}s", s, seconds);
             } else {
-                s = format!("{}{}.{:01}s", s, seconds, remainder);
+                s = format!("{}{}.{:1}s", s, seconds, remainder);
             }
         } else if seconds != 0 {
             s = format!("{}{}s", s, seconds);
@@ -411,7 +411,7 @@ mod tests {
         assert_eq!("0s", Duration::ZERO.to_string(&dont_round));
         assert_eq!("0s", Duration::seconds(0.001).to_string(&dont_round));
         assert_eq!(
-            "1min 30.12s",
+            "1min 30.1s",
             Duration::seconds(90.123).to_string(&dont_round)
         );
         assert_eq!("1min 30s", Duration::seconds(90.123).to_string(&round));

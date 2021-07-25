@@ -70,7 +70,10 @@ async fn main() -> Result<()> {
         filter.pop();
         filter.push('"');
         // See https://wiki.openstreetmap.org/wiki/Overpass_API/Overpass_QL
-        let query = format!("(\n   nwr({});\n     node(w)->.x;\n   <;\n);\nout meta;\n", filter);
+        let query = format!(
+            "(\n   nwr({});\n     node(w)->.x;\n   <;\n);\nout meta;\n",
+            filter
+        );
         abstio::download_to_file("https://overpass-api.de/api/interpreter", Some(query), &osm)
             .await?;
     } else {
