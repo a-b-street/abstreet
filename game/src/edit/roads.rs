@@ -229,8 +229,13 @@ impl State<App> for RoadEditor {
                     });
                 } else if let Some(lt) = x.strip_prefix("change to ") {
                     let lt = LaneType::from_short_name(lt).unwrap();
+                    let width =
+                        LaneSpec::typical_lane_widths(lt, &app.primary.map.get_r(self.r).osm_tags)
+                            [0]
+                        .0;
                     return self.modify_current_lane(ctx, app, Some(0), |new, idx| {
                         new.lanes_ltr[idx].lt = lt;
+                        new.lanes_ltr[idx].width = width;
                     });
                 } else if let Some(lt) = x.strip_prefix("add ") {
                     let lt = LaneType::from_short_name(lt).unwrap();
