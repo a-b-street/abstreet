@@ -196,9 +196,12 @@ impl PersonFactory {
                 self.find_building_for_activity(activity, current_location, map, rng)
             {
                 TripEndpoint::Bldg(destination)
-            } else {
+            } else if let Some(i) = commuter_borders.choose(rng) {
                 // No buildings satisfy the activity. Just go somewhere off-map.
-                TripEndpoint::Border(*commuter_borders.choose(rng).unwrap())
+                TripEndpoint::Border(*i)
+            } else {
+                // Broken map without borders. Don't crash, just skip the person
+                continue;
             };
 
             let mode = pick_mode(current_location, goto, map, rng, config);

@@ -119,9 +119,8 @@ impl ScenarioGenerator {
             .filter(|b| b.is_incoming_border())
             .map(|b| TripEndpoint::Border(b.id))
             .collect();
-        assert!(!commuter_borders.is_empty());
         let person_params = (0..num_trips)
-            .map(|_| {
+            .filter_map(|_| {
                 let (is_local_resident, is_local_worker) = (
                     rng.gen_bool(prob_local_resident),
                     rng.gen_bool(prob_local_worker),
@@ -130,20 +129,20 @@ impl ScenarioGenerator {
                     if let Some(residence) = residents.pop() {
                         TripEndpoint::Bldg(residence)
                     } else {
-                        *commuter_borders.choose(rng).unwrap()
+                        *commuter_borders.choose(rng)?
                     }
                 } else {
-                    *commuter_borders.choose(rng).unwrap()
+                    *commuter_borders.choose(rng)?
                 };
 
                 let work = if is_local_worker {
                     if let Some(workplace) = workers.pop() {
                         TripEndpoint::Bldg(workplace)
                     } else {
-                        *commuter_borders.choose(rng).unwrap()
+                        *commuter_borders.choose(rng)?
                     }
                 } else {
-                    *commuter_borders.choose(rng).unwrap()
+                    *commuter_borders.choose(rng)?
                 };
 
                 match (&home, &work) {
@@ -163,7 +162,7 @@ impl ScenarioGenerator {
                     (_, TripEndpoint::SuddenlyAppear(_)) => unreachable!(),
                 };
 
-                (home, work, fork_rng(rng))
+                Some((home, work, fork_rng(rng)))
             })
             .collect();
 
