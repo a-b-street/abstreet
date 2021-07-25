@@ -46,13 +46,12 @@ impl DrawIntersection {
             },
             i.polygon.clone(),
         );
-        if app.cs().sidewalk_lines.is_some() {
-            default_geom.extend(
-                app.cs().zoomed_road_surface(LaneType::Sidewalk, rank),
-                calculate_corners(i, map),
-            );
-        } else {
-            calculate_corners_with_borders(&mut default_geom, app, i);
+        default_geom.extend(
+            app.cs().zoomed_road_surface(LaneType::Sidewalk, rank),
+            calculate_corners(i, map),
+        );
+        if app.cs().sidewalk_lines.is_none() {
+            default_geom.extend(app.cs().curb, calculate_corner_curbs(i, map));
         }
 
         for turn in map.get_turns_in_intersection(i.id) {
@@ -279,40 +278,73 @@ pub fn calculate_corners(i: &Intersection, map: &Map) -> Vec<Polygon> {
     corners
 }
 
-// calculate_corners smooths edges, but we don't want to do that when drawing explicit borders.
-fn calculate_corners_with_borders(batch: &mut GeomBatch, app: &dyn AppLike, i: &Intersection) {
-    let map = app.map();
-    let rank = i.get_rank(map);
-    let surface_color = app.cs().zoomed_road_surface(LaneType::Sidewalk, rank);
-    let border_color = app.cs().general_road_marking(rank);
+fn calculate_corner_curbs(i: &Intersection, map: &Map) -> Vec<Polygon> {
+    if i.is_footway(map) {
+        return Vec::new();
+    }
+
+    let mut curbs = Vec::new();
+
+    let thickness = Distance::meters(0.2);
+    let shift = |width| (width - thickness) / 2.0;
 
     for turn in map.get_turns_in_intersection(i.id) {
-        if turn.turn_type != TurnType::SharedSidewalkCorner {
-            continue;
-        }
-        // Avoid double-rendering
-        if map.get_l(turn.id.src).dst_i != i.id {
-            continue;
-        }
-        let width = map
-            .get_l(turn.id.src)
-            .width
-            .min(map.get_l(turn.id.dst).width);
+        if turn.turn_type == TurnType::SharedSidewalkCorner {
+            // Avoid double-rendering
+            if map.get_l(turn.id.src).dst_i != i.id {
+                continue;
+            }
+            let l1 = map.get_l(turn.id.src);
+            let l2 = map.get_l(turn.id.dst);
 
-        // TODO This leaves gaps.
-        batch.push(surface_color, turn.geom.make_polygons(width));
+            // Special case for dead-ends: just thicken the geometry.
+            /*if i.roads.len() == 1 {
+                corners.push(turn.geom.make_polygons(l1.width.min(l2.width)));
+                continue;
+            }*/
 
-        let thickness = Distance::meters(0.2);
-        let shift = (width - thickness) / 2.0;
-        batch.push(
-            border_color,
-            turn.geom.must_shift_right(shift).make_polygons(thickness),
-        );
-        batch.push(
-            border_color,
-            turn.geom.must_shift_left(shift).make_polygons(thickness),
-        );
+            if l1.width == l2.width {
+                // When two sidewalks or two shoulders meet, use the turn geometry to create some
+                // nice rounding.
+                let mut width = shift(l1.width);
+                if map.get_config().driving_side == DrivingSide::Right {
+                    width *= -1.0;
+                }
+
+                if let Some(pl) = (|| {
+                    let mut pts = turn.geom.shift_either_direction(width).ok()?.into_points();
+                    let first_line = l2.first_line().shift_either_direction(width);
+                    pts.push(first_line.pt1());
+                    pts.push(first_line.unbounded_dist_along(thickness));
+                    let last_line = l1.last_line().shift_either_direction(width).reverse();
+                    pts.insert(0, last_line.pt1());
+                    pts.insert(0, last_line.unbounded_dist_along(thickness));
+                    PolyLine::deduping_new(pts).ok()
+                })() {
+                    curbs.push(pl.make_polygons(thickness));
+                }
+            } else {
+                // When a sidewalk and a shoulder meet, use a simpler shape to connect them.
+                let direction = if map.get_config().driving_side == DrivingSide::Right {
+                    -1.0
+                } else {
+                    1.0
+                };
+                if let Ok(pl) = PolyLine::new(vec![
+                    l1.last_line()
+                        .shift_either_direction(direction * shift(l1.width))
+                        .pt2(),
+                    l2.first_line()
+                        .shift_either_direction(direction * shift(l2.width))
+                        .pt1(),
+                ]) {
+                    curbs.push(pl.make_polygons(thickness));
+                }
+            }
+        }
     }
+
+    curbs
 }
 
 // TODO This assumes the lanes change direction only at one point. A two-way cycletrack right at

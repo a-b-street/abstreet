@@ -48,19 +48,17 @@ impl DrawLane {
                 if let Some(c) = app.cs().sidewalk_lines {
                     batch.extend(c, calculate_sidewalk_lines(lane));
                 } else {
-                    // Otherwise, draw a border at both edges
+                    // Create a sense of depth at the curb
                     let width = Distance::meters(0.2);
-                    let shift = (lane.width - width) / 2.0;
+                    let mut shift = (lane.width - width) / 2.0;
+                    if map.get_config().driving_side == DrivingSide::Right {
+                        shift *= -1.0;
+                    }
                     batch.push(
-                        general_road_marking,
+                        app.cs().curb,
                         lane.lane_center_pts
-                            .must_shift_right(shift)
-                            .make_polygons(width),
-                    );
-                    batch.push(
-                        general_road_marking,
-                        lane.lane_center_pts
-                            .must_shift_left(shift)
+                            .shift_either_direction(shift)
+                            .unwrap()
                             .make_polygons(width),
                     );
                 }

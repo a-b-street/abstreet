@@ -408,6 +408,11 @@ impl PolyLine {
         self.shift_left(width).unwrap()
     }
 
+    /// Perpendicularly shifts the polyline to the right if positive or left if negative.
+    pub fn shift_either_direction(&self, width: Distance) -> Result<PolyLine> {
+        self.shift_with_corrections(width)
+    }
+
     // Things to remember about shifting polylines:
     // - the length before and after probably don't match up
     // - the number of points may not match

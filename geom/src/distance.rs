@@ -195,6 +195,12 @@ impl ops::Mul<Distance> for f64 {
     }
 }
 
+impl ops::MulAssign<f64> for Distance {
+    fn mul_assign(&mut self, other: f64) {
+        *self = *self * other;
+    }
+}
+
 impl ops::Div<Distance> for Distance {
     type Output = f64;
 

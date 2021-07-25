@@ -112,6 +112,7 @@ impl Options {
                 options.push(c.label.clone());
                 if c.label == x {
                     self.color_scheme = c.data;
+                    self.toggle_day_night_colors = false;
                     ok = true;
                     break;
                 }
