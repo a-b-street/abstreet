@@ -1,7 +1,9 @@
+use std::collections::HashSet;
+
 use abstutil::Counter;
 use geom::{Distance, Duration};
 use map_gui::tools::ColorNetwork;
-use map_model::PathStepV2;
+use map_model::{PathStepV2, RoadID};
 use sim::{TripEndpoint, TripID, TripMode};
 use widgetry::table::{Col, Filter, Table};
 use widgetry::{
@@ -289,6 +291,20 @@ fn show_route_gaps(ctx: &mut EventCtx, app: &App, table: &Table<App, Entry, Filt
     ctx.loading_screen("calculate all routes", |ctx, timer| {
         let map = &app.primary.map;
         let sim = &app.primary.sim;
+
+        // Find all high-stress roads, since we'll filter by them next
+        let high_stress: HashSet<RoadID> = map
+            .all_roads()
+            .into_iter()
+            .filter_map(|r| {
+                if r.high_stress_for_bikes(map) {
+                    Some(r.id)
+                } else {
+                    None
+                }
+            })
+            .collect();
+
         let mut road_counter = Counter::new();
         for path in timer
             .parallelize("calculate routes", table.get_filtered_data(app), |entry| {
@@ -302,8 +318,9 @@ fn show_route_gaps(ctx: &mut EventCtx, app: &App, table: &Table<App, Entry, Filt
             for step in path.get_steps() {
                 // No Contraflow steps for bike paths
                 if let PathStepV2::Along(dr) = step {
-                    // TODO Filter by high-stress roads only!
-                    road_counter.inc(dr.id);
+                    if high_stress.contains(&dr.id) {
+                        road_counter.inc(dr.id);
+                    }
                 }
             }
         }

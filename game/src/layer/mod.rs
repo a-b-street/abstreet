@@ -129,6 +129,7 @@ impl PickLayer {
                     btn("parking efficiency", Key::O),
                     btn("blackholes", Key::L),
                     btn("problem map", Key::K),
+                    btn("high stress", Key::H),
                     if app.primary.sim.get_pandemic_model().is_some() {
                         btn("pandemic model", Key::Y)
                     } else {
@@ -183,6 +184,9 @@ impl State<App> for PickLayer {
                 }
                 "no sidewalks" => {
                     app.primary.layer = Some(Box::new(map::Static::no_sidewalks(ctx, app)));
+                }
+                "high stress" => {
+                    app.primary.layer = Some(Box::new(map::Static::high_stress(ctx, app)));
                 }
                 "favorite buildings" => {
                     app.primary.layer = Some(Box::new(favorites::ShowFavorites::new(ctx, app)));
