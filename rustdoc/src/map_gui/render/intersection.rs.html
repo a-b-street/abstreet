@@ -587,7 +587,7 @@
             <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">zoomed_road_surface</span>(<span class="ident">LaneType::Sidewalk</span>, <span class="ident">rank</span>),
             <span class="ident">calculate_corners</span>(<span class="ident">i</span>, <span class="ident">map</span>),
         );
-        <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">sidewalk_lines</span>.<span class="ident">is_none</span>() {
+        <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">experiment</span> {
             <span class="ident">default_geom</span>.<span class="ident">extend</span>(<span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">curb</span>, <span class="ident">calculate_corner_curbs</span>(<span class="ident">i</span>, <span class="ident">map</span>));
         }
 
