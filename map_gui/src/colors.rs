@@ -313,9 +313,9 @@ impl ColorScheme {
     pub fn zoomed_road_surface(&self, lane: LaneType, rank: RoadRank) -> Color {
         let main_asphalt = if self.experiment {
             match rank {
-                RoadRank::Highway => hex("#7F7F7F"),
-                RoadRank::Arterial => hex("#7F7F7F"),
-                RoadRank::Local => hex("#7F7F7F"),
+                RoadRank::Highway => Color::grey(0.3),
+                RoadRank::Arterial => Color::grey(0.4),
+                RoadRank::Local => Color::grey(0.5),
             }
         } else {
             self.driving_lane
@@ -339,9 +339,10 @@ impl ColorScheme {
         }
     }
     pub fn zoomed_intersection_surface(&self, rank: RoadRank) -> Color {
-        match self.scheme {
-            ColorSchemeChoice::FadedZoom => self.zoomed_road_surface(LaneType::Driving, rank),
-            _ => self.normal_intersection,
+        if self.experiment {
+            self.zoomed_road_surface(LaneType::Driving, rank)
+        } else {
+            self.normal_intersection
         }
     }
 
