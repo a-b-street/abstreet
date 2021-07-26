@@ -287,6 +287,10 @@
 <span id="284">284</span>
 <span id="285">285</span>
 <span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">grey_out_map</span>, <span class="ident">HeatmapOptions</span>};
 <span class="kw">use</span> <span class="ident">sim::AgentType</span>;
@@ -419,6 +423,7 @@
                     <span class="ident">btn</span>(<span class="string">&quot;parking efficiency&quot;</span>, <span class="ident">Key::O</span>),
                     <span class="ident">btn</span>(<span class="string">&quot;blackholes&quot;</span>, <span class="ident">Key::L</span>),
                     <span class="ident">btn</span>(<span class="string">&quot;problem map&quot;</span>, <span class="ident">Key::K</span>),
+                    <span class="ident">btn</span>(<span class="string">&quot;high stress&quot;</span>, <span class="ident">Key::H</span>),
                     <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_pandemic_model</span>().<span class="ident">is_some</span>() {
                         <span class="ident">btn</span>(<span class="string">&quot;pandemic model&quot;</span>, <span class="ident">Key::Y</span>)
                     } <span class="kw">else</span> {
@@ -473,6 +478,9 @@
                 }
                 <span class="string">&quot;no sidewalks&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box::new</span>(<span class="ident">map::Static::no_sidewalks</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)));
+                }
+                <span class="string">&quot;high stress&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box::new</span>(<span class="ident">map::Static::high_stress</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)));
                 }
                 <span class="string">&quot;favorite buildings&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box::new</span>(<span class="ident">favorites::ShowFavorites::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)));
