@@ -48,6 +48,11 @@ impl ColorSchemeChoice {
 pub struct ColorScheme {
     scheme: ColorSchemeChoice,
 
+    /// Enable new stuff if true. This is temporary, to iterate quickly on
+    /// https://github.com/a-b-street/abstreet/pull/715. Once the dust settles there, the ideas
+    /// there will be baked in as defaults and this flag goes away.
+    pub experiment: bool,
+
     // UI
     pub panel_bg: Color,
     pub inner_panel_bg: Color,
@@ -68,7 +73,7 @@ pub struct ColorScheme {
     parking_lane: Color,
     bike_lane: Color,
     sidewalk: Color,
-    pub sidewalk_lines: Option<Color>,
+    pub sidewalk_lines: Color,
     general_road_marking: Color,
     road_center_line: Color,
     pub curb: Color,
@@ -175,6 +180,8 @@ impl ColorScheme {
         ColorScheme {
             scheme: ColorSchemeChoice::DayMode,
 
+            experiment: false,
+
             // UI
             panel_bg: gui_style.panel_bg,
             inner_panel_bg: gui_style.section_bg,
@@ -195,7 +202,7 @@ impl ColorScheme {
             parking_lane: Color::grey(0.2),
             bike_lane: Color::rgb(15, 125, 75),
             sidewalk: Color::grey(0.8),
-            sidewalk_lines: Some(Color::grey(0.7)),
+            sidewalk_lines: Color::grey(0.7),
             general_road_marking: Color::WHITE,
             road_center_line: Color::YELLOW,
             curb: hex("#666666"),
@@ -304,29 +311,31 @@ impl ColorScheme {
     }
 
     pub fn zoomed_road_surface(&self, lane: LaneType, rank: RoadRank) -> Color {
-        match self.scheme {
-            ColorSchemeChoice::FadedZoom => match lane {
-                LaneType::Sidewalk | LaneType::Shoulder => match rank {
-                    RoadRank::Highway | RoadRank::Arterial => hex("#F2F2F2"),
-                    RoadRank::Local => hex("#DBDDE5"),
-                },
-                _ => match rank {
-                    RoadRank::Highway => hex("#F89E59"),
-                    RoadRank::Arterial => hex("#F2D163"),
-                    RoadRank::Local => hex("#FFFFFF"),
-                },
-            },
-            _ => match lane {
-                LaneType::Driving => self.driving_lane,
-                LaneType::Bus => self.bus_lane,
-                LaneType::Parking => self.parking_lane,
-                LaneType::Sidewalk | LaneType::Shoulder => self.sidewalk,
-                LaneType::Biking => self.bike_lane,
-                LaneType::SharedLeftTurn => self.driving_lane,
-                LaneType::Construction => self.parking_lane,
-                LaneType::LightRail => unreachable!(),
-                LaneType::Buffer(_) => self.driving_lane,
-            },
+        let main_asphalt = if self.experiment {
+            match rank {
+                RoadRank::Highway => hex("#7F7F7F"),
+                RoadRank::Arterial => hex("#7F7F7F"),
+                RoadRank::Local => hex("#7F7F7F"),
+            }
+        } else {
+            self.driving_lane
+        };
+        let parking_asphalt = if self.experiment {
+            main_asphalt
+        } else {
+            self.parking_lane
+        };
+
+        match lane {
+            LaneType::Driving => main_asphalt,
+            LaneType::Bus => self.bus_lane,
+            LaneType::Parking => parking_asphalt,
+            LaneType::Sidewalk | LaneType::Shoulder => self.sidewalk,
+            LaneType::Biking => self.bike_lane,
+            LaneType::SharedLeftTurn => main_asphalt,
+            LaneType::Construction => parking_asphalt,
+            LaneType::LightRail => unreachable!(),
+            LaneType::Buffer(_) => main_asphalt,
         }
     }
     pub fn zoomed_intersection_surface(&self, rank: RoadRank) -> Color {
@@ -336,30 +345,14 @@ impl ColorScheme {
         }
     }
 
-    pub fn road_center_line(&self, rank: RoadRank) -> Color {
-        match self.scheme {
-            ColorSchemeChoice::FadedZoom => match rank {
-                RoadRank::Highway => hex("#60564D"),
-                RoadRank::Arterial => hex("#585858"),
-                RoadRank::Local => hex("#1C1C1C"),
-            },
-            _ => self.road_center_line,
-        }
+    // TODO Maybe this'll be the same everywhere
+    pub fn road_center_line(&self, _: RoadRank) -> Color {
+        self.road_center_line
     }
 
-    pub fn general_road_marking(&self, rank: RoadRank) -> Color {
-        match self.scheme {
-            ColorSchemeChoice::FadedZoom => match rank {
-                RoadRank::Highway => hex("#60564D"),
-                RoadRank::Arterial => hex("#FFFFFF"),
-                RoadRank::Local => hex("#BABBBF"),
-            },
-            _ => self.general_road_marking,
-        }
-    }
-
-    pub fn solid_road_center(&self) -> bool {
-        self.scheme == ColorSchemeChoice::FadedZoom
+    // TODO Maybe this'll be the same everywhere
+    pub fn general_road_marking(&self, _: RoadRank) -> Color {
+        self.general_road_marking
     }
 
     // These two could try to use serde, but... Color serializes with a separate RGB by default,
@@ -478,17 +471,16 @@ impl ColorScheme {
 
     fn faded_zoom() -> ColorScheme {
         let mut cs = ColorScheme::day_mode();
-        cs.unzoomed_highway = hex("#F89E59");
-        cs.unzoomed_arterial = hex("#F2D163");
-        cs.unzoomed_residential = hex("#FFFFFF");
-        cs.sidewalk_lines = None;
+        cs.experiment = true;
 
-        cs.map_background = hex("#E5E4E1").into();
-        cs.grass = hex("#B6E59E").into();
-        cs.water = hex("#75CFF0").into();
+        cs.map_background = hex("#EEE5C8").into();
+        cs.grass = hex("#BED4A3").into();
+        cs.water = hex("#6384D6").into();
 
-        cs.residential_building = hex("#DCD9D6");
-        cs.commercial_building = cs.residential_building;
+        cs.sidewalk = hex("#A9A9A9");
+        cs.sidewalk_lines = hex("#989898");
+
+        cs.unzoomed_arterial = hex("#F6A483");
 
         cs
     }

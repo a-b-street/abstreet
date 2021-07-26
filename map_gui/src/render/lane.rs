@@ -45,12 +45,11 @@ impl DrawLane {
 
         match lane.lane_type {
             LaneType::Sidewalk | LaneType::Shoulder => {
-                if let Some(c) = app.cs().sidewalk_lines {
-                    // Don't draw these for shoulders
-                    if lane.is_sidewalk() {
-                        batch.extend(c, calculate_sidewalk_lines(lane));
-                    }
-                } else {
+                // Don't draw these for shoulders
+                if lane.is_sidewalk() {
+                    batch.extend(app.cs().sidewalk_lines, calculate_sidewalk_lines(lane));
+                }
+                if app.cs().experiment {
                     // Create a sense of depth at the curb
                     let width = Distance::meters(0.2);
                     let mut shift = (lane.width - width) / 2.0;
