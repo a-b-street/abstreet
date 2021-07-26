@@ -833,6 +833,20 @@
 <span id="830">830</span>
 <span id="831">831</span>
 <span id="832">832</span>
+<span id="833">833</span>
+<span id="834">834</span>
+<span id="835">835</span>
+<span id="836">836</span>
+<span id="837">837</span>
+<span id="838">838</span>
+<span id="839">839</span>
+<span id="840">840</span>
+<span id="841">841</span>
+<span id="842">842</span>
+<span id="843">843</span>
+<span id="844">844</span>
+<span id="845">845</span>
+<span id="846">846</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">CornerRadii</span>, <span class="ident">Distance</span>};
 <span class="kw">use</span> <span class="ident">map_gui::render</span>::{<span class="ident">Renderable</span>, <span class="ident">OUTLINE_THICKNESS</span>};
@@ -849,6 +863,7 @@
 };
 
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::common::Warping</span>;
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::edit::zones::ZoneEditor</span>;
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::edit</span>::{<span class="ident">apply_map_edits</span>, <span class="ident">can_edit_lane</span>, <span class="ident">speed_limit_choices</span>};
 
@@ -1024,6 +1039,15 @@
 
                     <span class="self">self</span>.<span class="ident">current_lane</span> <span class="op">=</span> <span class="prelude-val">None</span>;
                     <span class="self">self</span>.<span class="ident">recalc_all_panels</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+                }
+                <span class="string">&quot;jump to road&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">Warping::new_state</span>(
+                        <span class="ident">ctx</span>,
+                        <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">canonical_point</span>(<span class="ident">ID::Road</span>(<span class="self">self</span>.<span class="ident">r</span>)).<span class="ident">unwrap</span>(),
+                        <span class="prelude-val">Some</span>(<span class="number">10.0</span>),
+                        <span class="prelude-val">Some</span>(<span class="ident">ID::Road</span>(<span class="self">self</span>.<span class="ident">r</span>)),
+                        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">app</span>.<span class="ident">primary</span>,
+                    ));
                 }
                 <span class="string">&quot;Apply to multiple road segments&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">return</span> <span class="ident">Transition::Push</span>(
@@ -1211,7 +1235,11 @@
 
     <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
         <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-            <span class="ident">Line</span>(<span class="string">&quot;Editing road&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+            <span class="ident">Line</span>(<span class="macro">format!</span>(<span class="string">&quot;Edit {}&quot;</span>, <span class="ident">r</span>)).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+            <span class="ident">ctx</span>.<span class="ident">style</span>()
+                .<span class="ident">btn_plain</span>
+                .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/location.svg&quot;</span>)
+                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;jump to road&quot;</span>),
             <span class="ident">ctx</span>.<span class="ident">style</span>()
                 .<span class="ident">btn_plain</span>
                 .<span class="ident">text</span>(<span class="string">&quot;+ Apply to multiple&quot;</span>)

@@ -245,6 +245,30 @@
 <span id="242">242</span>
 <span id="243">243</span>
 <span id="244">244</span>
+<span id="245">245</span>
+<span id="246">246</span>
+<span id="247">247</span>
+<span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
+<span id="251">251</span>
+<span id="252">252</span>
+<span id="253">253</span>
+<span id="254">254</span>
+<span id="255">255</span>
+<span id="256">256</span>
+<span id="257">257</span>
+<span id="258">258</span>
+<span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! After a single road has been edited, these states let the changes be copied to all similar road</span>
 <span class="doccomment">//! segments. Note that only lane configuration is copied, not speed limit or access restrictions.</span>
@@ -262,6 +286,7 @@
 
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::app::App</span>;
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::app::Transition</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::common::Warping</span>;
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::edit::apply_map_edits</span>;
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SelectSegments</span> {
@@ -279,12 +304,14 @@
 <span class="kw">impl</span> <span class="ident">SelectSegments</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(
         <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
-        <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
+        <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>,
         <span class="ident">base_road</span>: <span class="ident">RoadID</span>,
         <span class="ident">orig_state</span>: <span class="ident">EditRoad</span>,
         <span class="ident">new_state</span>: <span class="ident">EditRoad</span>,
         <span class="ident">base_edits</span>: <span class="ident">MapEdits</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+
         <span class="comment">// Find all road segments matching the original state and name. base_road has already</span>
         <span class="comment">// changed to new_state, so no need to exclude it.</span>
         <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>;
@@ -349,13 +376,23 @@
             <span class="ident">Line</span>(<span class="string">&quot;Apply changes to similar roads&quot;</span>)
                 .<span class="ident">small_heading</span>()
                 .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-            <span class="macro">format!</span>(
-                <span class="string">&quot;{} / {} roads similar to #{} are selected&quot;</span>,
-                <span class="self">self</span>.<span class="ident">current</span>.<span class="ident">len</span>(),
-                <span class="self">self</span>.<span class="ident">candidates</span>.<span class="ident">len</span>(),
-                <span class="self">self</span>.<span class="ident">base_road</span>.<span class="number">0</span>
-            )
-            .<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
+            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
+                <span class="macro">format!</span>(
+                    <span class="string">&quot;{} / {} roads similar to&quot;</span>,
+                    <span class="self">self</span>.<span class="ident">current</span>.<span class="ident">len</span>(),
+                    <span class="self">self</span>.<span class="ident">candidates</span>.<span class="ident">len</span>(),
+                )
+                .<span class="ident">text_widget</span>(<span class="ident">ctx</span>)
+                .<span class="ident">centered_vert</span>(),
+                <span class="ident">ctx</span>.<span class="ident">style</span>()
+                    .<span class="ident">btn_plain</span>
+                    .<span class="ident">icon_text</span>(
+                        <span class="string">&quot;system/assets/tools/location.svg&quot;</span>,
+                        <span class="macro">format!</span>(<span class="string">&quot;#{}&quot;</span>, <span class="self">self</span>.<span class="ident">base_road</span>.<span class="number">0</span>),
+                    )
+                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;jump to changed road&quot;</span>),
+                <span class="string">&quot;are selected&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
+            ]),
             <span class="comment">// TODO Explain that this is only for lane configuration, NOT speed limit</span>
             <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
                 <span class="string">&quot;Click to select/unselect&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
@@ -425,6 +462,17 @@
                 }
                 <span class="string">&quot;Cancel&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">return</span> <span class="ident">Transition::Pop</span>;
+                }
+                <span class="string">&quot;jump to changed road&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">Warping::new_state</span>(
+                        <span class="ident">ctx</span>,
+                        <span class="ident">app</span>.<span class="ident">primary</span>
+                            .<span class="ident">canonical_point</span>(<span class="ident">ID::Road</span>(<span class="self">self</span>.<span class="ident">base_road</span>))
+                            .<span class="ident">unwrap</span>(),
+                        <span class="prelude-val">Some</span>(<span class="number">10.0</span>),
+                        <span class="prelude-val">Some</span>(<span class="ident">ID::Road</span>(<span class="self">self</span>.<span class="ident">base_road</span>)),
+                        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">app</span>.<span class="ident">primary</span>,
+                    ));
                 }
                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
             }
