@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["make_table",""],["produce_raw_data",""]],"struct":[["Entry",""],["Filters",""],["ModeShift",""]]});
+initSidebarItems({"fn":[["make_table",""],["produce_raw_data",""],["show_route_gaps",""]],"struct":[["Entry",""],["Filters",""],["ModeShift",""]]});

@@ -296,6 +296,13 @@
 <span id="293">293</span>
 <span id="294">294</span>
 <span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">abstutil::prettyprint_usize</span>;
 <span class="kw">use</span> <span class="ident">geom::Polygon</span>;
@@ -376,7 +383,8 @@
         <span class="ident">panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">id</span>, <span class="ident">new_widget</span>);
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">render</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">A</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+    <span class="doccomment">/// Get all entries, filtered and sorted according to the current settings.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_filtered_data</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">A</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">T</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">data</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
 
         <span class="comment">// Filter</span>
@@ -385,7 +393,6 @@
                 <span class="ident">data</span>.<span class="ident">push</span>(<span class="ident">row</span>);
             }
         }
-        <span class="kw">let</span> <span class="ident">num_filtered</span> <span class="op">=</span> <span class="ident">data</span>.<span class="ident">len</span>();
 
         <span class="comment">// Sort</span>
         <span class="kw">for</span> <span class="ident">col</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">columns</span> {
@@ -400,6 +407,13 @@
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">descending</span> {
             <span class="ident">data</span>.<span class="ident">reverse</span>();
         }
+
+        <span class="ident">data</span>
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">render</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">A</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+        <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_filtered_data</span>(<span class="ident">app</span>);
+        <span class="kw">let</span> <span class="ident">num_filtered</span> <span class="op">=</span> <span class="ident">data</span>.<span class="ident">len</span>();
 
         <span class="comment">// Render the headers</span>
         <span class="kw">let</span> <span class="ident">headers</span> <span class="op">=</span> <span class="self">self</span>
