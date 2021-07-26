@@ -488,6 +488,7 @@
 <span id="485">485</span>
 <span id="486">486</span>
 <span id="487">487</span>
+<span id="488">488</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! A color scheme groups colors used for different map, dynamic, and UI elements in one place, to</span>
 <span class="doccomment">//! encourage deduplication. The player can also switch between different color schemes.</span>
@@ -804,9 +805,9 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">zoomed_road_surface</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">lane</span>: <span class="ident">LaneType</span>, <span class="ident">rank</span>: <span class="ident">RoadRank</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Color</span> {
         <span class="kw">let</span> <span class="ident">main_asphalt</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">experiment</span> {
             <span class="kw">match</span> <span class="ident">rank</span> {
-                <span class="ident">RoadRank::Highway</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">hex</span>(<span class="string">&quot;#7F7F7F&quot;</span>),
-                <span class="ident">RoadRank::Arterial</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">hex</span>(<span class="string">&quot;#7F7F7F&quot;</span>),
-                <span class="ident">RoadRank::Local</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">hex</span>(<span class="string">&quot;#7F7F7F&quot;</span>),
+                <span class="ident">RoadRank::Highway</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Color::grey</span>(<span class="number">0.3</span>),
+                <span class="ident">RoadRank::Arterial</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Color::grey</span>(<span class="number">0.4</span>),
+                <span class="ident">RoadRank::Local</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Color::grey</span>(<span class="number">0.5</span>),
             }
         } <span class="kw">else</span> {
             <span class="self">self</span>.<span class="ident">driving_lane</span>
@@ -830,9 +831,10 @@
         }
     }
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">zoomed_intersection_surface</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">rank</span>: <span class="ident">RoadRank</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Color</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">scheme</span> {
-            <span class="ident">ColorSchemeChoice::FadedZoom</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">zoomed_road_surface</span>(<span class="ident">LaneType::Driving</span>, <span class="ident">rank</span>),
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">normal_intersection</span>,
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">experiment</span> {
+            <span class="self">self</span>.<span class="ident">zoomed_road_surface</span>(<span class="ident">LaneType::Driving</span>, <span class="ident">rank</span>)
+        } <span class="kw">else</span> {
+            <span class="self">self</span>.<span class="ident">normal_intersection</span>
         }
     }
 
