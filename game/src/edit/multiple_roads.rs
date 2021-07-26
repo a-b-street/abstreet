@@ -8,8 +8,8 @@ use map_gui::tools::PopupMsg;
 use map_gui::ID;
 use map_model::{EditRoad, MapEdits, RoadID};
 use widgetry::{
-    Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
-    State, TextExt, VerticalAlignment, Widget,
+    Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State,
+    Text, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::App;
@@ -81,7 +81,7 @@ impl SelectSegments {
         // Update the drawn view
         let mut batch = GeomBatch::new();
         let map = &app.primary.map;
-        let color = Color::hex("#204AA1");
+        let color = ctx.style().primary_fg;
         // Some alpha is always useful, in case the player wants to peek at the lanes beneath
         batch.push(
             color.alpha(0.8),
@@ -218,18 +218,24 @@ impl State<App> for SelectSegments {
                     self.selected = Some(r);
                     ctx.hide_cursor();
                 }
+                if r == self.base_road {
+                    self.selected = Some(r);
+                }
             }
         }
 
         ctx.canvas_movement();
 
         if let Some(r) = self.selected {
-            if self.current.contains(&r) && app.per_obj.left_click(ctx, "exclude road") {
-                self.current.remove(&r);
-                self.recalculate(ctx, app);
-            } else if !self.current.contains(&r) && app.per_obj.left_click(ctx, "include road") {
-                self.current.insert(r);
-                self.recalculate(ctx, app);
+            if r != self.base_road {
+                if self.current.contains(&r) && app.per_obj.left_click(ctx, "exclude road") {
+                    self.current.remove(&r);
+                    self.recalculate(ctx, app);
+                } else if !self.current.contains(&r) && app.per_obj.left_click(ctx, "include road")
+                {
+                    self.current.insert(r);
+                    self.recalculate(ctx, app);
+                }
             }
         }
 
@@ -257,6 +263,10 @@ impl State<App> for SelectSegments {
                 g.fork_screenspace();
                 batch.draw(g);
                 g.unfork();
+            }
+
+            if r == self.base_road {
+                g.draw_mouse_tooltip(Text::from(format!("Edited {}", r)));
             }
         }
     }
