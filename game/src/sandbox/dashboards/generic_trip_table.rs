@@ -1,6 +1,6 @@
 use geom::{Distance, Pt2D};
 use sim::{TripEndpoint, TripID};
-use widgetry::{GeomBatch, GfxCtx, Panel, ScreenPt};
+use widgetry::{Drawable, GeomBatch, GfxCtx, Panel, ScreenPt};
 
 use crate::app::{App, Transition};
 use crate::common::color_for_trip_phase;
@@ -26,7 +26,13 @@ pub(crate) fn open_trip_transition(app: &App, idx: usize) -> Transition {
     ])
 }
 
-pub(crate) fn preview_trip(g: &mut GfxCtx, app: &App, panel: &Panel, mut batch: GeomBatch) {
+pub(crate) fn preview_trip(
+    g: &mut GfxCtx,
+    app: &App,
+    panel: &Panel,
+    mut batch: GeomBatch,
+    draw_extra: Option<&Drawable>,
+) {
     let inner_rect = panel.rect_of("preview").clone();
     let map_bounds = *app.primary.map.get_bounds();
     let zoom = 0.15 * g.canvas.window_width / map_bounds.width().max(map_bounds.height());
@@ -53,6 +59,9 @@ pub(crate) fn preview_trip(g: &mut GfxCtx, app: &App, panel: &Panel, mut batch: 
         }
     }
     batch.draw(g);
+    if let Some(ref draw) = draw_extra {
+        g.redraw(draw);
+    }
 
     g.disable_clipping();
     g.unfork();

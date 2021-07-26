@@ -77,7 +77,8 @@ impl<A, T, F> Table<A, T, F> {
         panel.replace(ctx, &self.id, new_widget);
     }
 
-    pub fn render(&self, ctx: &mut EventCtx, app: &A) -> Widget {
+    /// Get all entries, filtered and sorted according to the current settings.
+    pub fn get_filtered_data(&self, app: &A) -> Vec<&T> {
         let mut data: Vec<&T> = Vec::new();
 
         // Filter
@@ -86,7 +87,6 @@ impl<A, T, F> Table<A, T, F> {
                 data.push(row);
             }
         }
-        let num_filtered = data.len();
 
         // Sort
         for col in &self.columns {
@@ -101,6 +101,13 @@ impl<A, T, F> Table<A, T, F> {
         if self.descending {
             data.reverse();
         }
+
+        data
+    }
+
+    pub fn render(&self, ctx: &mut EventCtx, app: &A) -> Widget {
+        let data = self.get_filtered_data(app);
+        let num_filtered = data.len();
 
         // Render the headers
         let headers = self

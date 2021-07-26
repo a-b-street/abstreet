@@ -100,7 +100,7 @@ impl State<App> for ParkingOverhead {
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.panel.draw(g);
-        preview_trip(g, app, &self.panel, GeomBatch::new());
+        preview_trip(g, app, &self.panel, GeomBatch::new(), None);
     }
 }
 

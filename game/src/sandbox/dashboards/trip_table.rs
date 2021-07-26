@@ -204,7 +204,7 @@ impl State<App> for TripTable {
                 batch.push(Color::BLUE.alpha(0.5), p);
             }
         }
-        preview_trip(g, app, &self.panel, batch);
+        preview_trip(g, app, &self.panel, batch, None);
     }
 }
 

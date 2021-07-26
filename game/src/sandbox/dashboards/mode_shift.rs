@@ -1,9 +1,12 @@
+use abstutil::Counter;
 use geom::{Distance, Duration};
+use map_gui::tools::ColorNetwork;
+use map_model::PathStepV2;
 use sim::{TripEndpoint, TripID, TripMode};
 use widgetry::table::{Col, Filter, Table};
 use widgetry::{
-    EventCtx, Filler, GeomBatch, GfxCtx, Line, Outcome, Panel, Spinner, State, Text, TextExt,
-    Widget,
+    Drawable, EventCtx, Filler, GeomBatch, GfxCtx, Line, Outcome, Panel, Spinner, State, Text,
+    TextExt, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -14,6 +17,7 @@ pub struct ModeShift {
     tab: DashTab,
     table: Table<App, Entry, Filters>,
     panel: Panel,
+    show_route_gaps: Drawable,
 }
 
 impl ModeShift {
@@ -27,6 +31,10 @@ impl ModeShift {
                     Line("Off-map starts/ends are excluded."),
                 ])
                 .into_widget(ctx),
+                ctx.style()
+                    .btn_outline
+                    .text("Show most important gaps in cycling infrastructure")
+                    .build_def(ctx),
                 table.render(ctx, app),
                 Filler::square_width(ctx, 0.15).named("preview"),
             ])
@@ -41,6 +49,7 @@ impl ModeShift {
             tab: DashTab::ModeShift,
             table,
             panel,
+            show_route_gaps: Drawable::empty(ctx),
         })
     }
 }
@@ -55,6 +64,9 @@ impl State<App> for ModeShift {
                     return open_trip_transition(app, idx);
                 } else if x == "close" {
                     return Transition::Pop;
+                } else if x == "Show most important gaps in cycling infrastructure" {
+                    // TODO Automatically recalculate as filters change? Too slow.
+                    self.show_route_gaps = show_route_gaps(ctx, app, &self.table);
                 } else {
                     unreachable!()
                 }
@@ -76,7 +88,13 @@ impl State<App> for ModeShift {
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.panel.draw(g);
         // TODO This only draws a route if the trip has already happened in the simulation
-        preview_trip(g, app, &self.panel, GeomBatch::new());
+        preview_trip(
+            g,
+            app,
+            &self.panel,
+            GeomBatch::new(),
+            Some(&self.show_route_gaps),
+        );
     }
 }
 
@@ -265,4 +283,33 @@ fn make_table(ctx: &mut EventCtx, app: &App) -> Table<App, Entry, Filters> {
     );
 
     table
+}
+
+fn show_route_gaps(ctx: &mut EventCtx, app: &App, table: &Table<App, Entry, Filters>) -> Drawable {
+    ctx.loading_screen("calculate all routes", |ctx, timer| {
+        let map = &app.primary.map;
+        let sim = &app.primary.sim;
+        let mut road_counter = Counter::new();
+        for path in timer
+            .parallelize("calculate routes", table.get_filtered_data(app), |entry| {
+                let info = sim.trip_info(entry.trip);
+                TripEndpoint::path_req(info.start, info.end, TripMode::Bike, map)
+                    .and_then(|req| map.pathfind_v2(req).ok())
+            })
+            .into_iter()
+            .flatten()
+        {
+            for step in path.get_steps() {
+                // No Contraflow steps for bike paths
+                if let PathStepV2::Along(dr) = step {
+                    // TODO Filter by high-stress roads only!
+                    road_counter.inc(dr.id);
+                }
+            }
+        }
+
+        let mut colorer = ColorNetwork::new(app);
+        colorer.ranked_roads(road_counter, &app.cs.good_to_bad_red);
+        colorer.build(ctx).0
+    })
 }

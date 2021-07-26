@@ -15,8 +15,8 @@ use crate::{
     osm, Area, AreaID, AreaType, Building, BuildingID, BuildingType, BusRoute, BusRouteID, BusStop,
     BusStopID, ControlStopSign, ControlTrafficSignal, DirectedRoadID, Intersection, IntersectionID,
     Lane, LaneID, LaneType, Map, MapEdits, MovementID, OffstreetParking, ParkingLot, ParkingLotID,
-    Path, PathConstraints, PathRequest, Pathfinder, Position, Road, RoadID, RoutingParams, Turn,
-    TurnID, TurnType, Zone,
+    Path, PathConstraints, PathRequest, PathV2, Pathfinder, Position, Road, RoadID, RoutingParams,
+    Turn, TurnID, TurnType, Zone,
 };
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -561,20 +561,26 @@ impl Map {
     }
 
     pub fn pathfind(&self, req: PathRequest) -> Result<Path> {
-        assert!(!self.pathfinder_dirty);
-        let path = self
-            .pathfinder
-            .pathfind(req.clone(), self)
-            .ok_or_else(|| anyhow!("can't fulfill {}", req))?;
-        path.into_v1(self)
+        self.pathfind_v2(req)?.into_v1(self)
     }
     pub fn pathfind_with_params(&self, req: PathRequest, params: &RoutingParams) -> Result<Path> {
+        self.pathfind_v2_with_params(req, params)?.into_v1(self)
+    }
+    pub fn pathfind_v2(&self, req: PathRequest) -> Result<PathV2> {
         assert!(!self.pathfinder_dirty);
-        let path = self
-            .pathfinder
+        self.pathfinder
+            .pathfind(req.clone(), self)
+            .ok_or_else(|| anyhow!("can't fulfill {}", req))
+    }
+    pub fn pathfind_v2_with_params(
+        &self,
+        req: PathRequest,
+        params: &RoutingParams,
+    ) -> Result<PathV2> {
+        assert!(!self.pathfinder_dirty);
+        self.pathfinder
             .pathfind_with_params(req.clone(), params, self)
-            .ok_or_else(|| anyhow!("can't fulfill {}", req))?;
-        path.into_v1(self)
+            .ok_or_else(|| anyhow!("can't fulfill {}", req))
     }
     pub fn should_use_transit(
         &self,
