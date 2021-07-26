@@ -488,6 +488,7 @@
 <span id="485">485</span>
 <span id="486">486</span>
 <span id="487">487</span>
+<span id="488">488</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std::marker::PhantomData</span>;
 
@@ -929,12 +930,13 @@
         <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="ident">draw_map</span>.<span class="ident">draw_all_areas</span>);
         <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="ident">draw_map</span>.<span class="ident">draw_all_unzoomed_parking_lots</span>);
         <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="ident">draw_map</span>.<span class="ident">draw_all_unzoomed_roads_and_intersections</span>);
-        <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="ident">draw_map</span>.<span class="ident">draw_all_buildings</span>);
+        <span class="kw">if</span> <span class="op">!</span><span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">experiment</span> {
+            <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="ident">draw_map</span>.<span class="ident">draw_all_buildings</span>);
+        }
         <span class="kw">for</span> <span class="ident">draw</span> <span class="kw">in</span> <span class="ident">extra</span> {
             <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="ident">draw</span>);
         }
         <span class="self">self</span>.<span class="ident">controls</span>.<span class="ident">draw_extra</span>(<span class="ident">g</span>, <span class="ident">app</span>);
-        <span class="comment">// Not the building or parking lot paths</span>
 
         <span class="comment">// The cursor</span>
         <span class="kw">let</span> (<span class="ident">x1</span>, <span class="ident">y1</span>) <span class="op">=</span> {
