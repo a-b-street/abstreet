@@ -13,6 +13,7 @@ use widgetry::{
 };
 
 use crate::app::{App, Transition};
+use crate::common::Warping;
 use crate::edit::zones::ZoneEditor;
 use crate::edit::{apply_map_edits, can_edit_lane, speed_limit_choices};
 
@@ -188,6 +189,15 @@ impl State<App> for RoadEditor {
 
                     self.current_lane = None;
                     self.recalc_all_panels(ctx, app);
+                }
+                "jump to road" => {
+                    return Transition::Push(Warping::new_state(
+                        ctx,
+                        app.primary.canonical_point(ID::Road(self.r)).unwrap(),
+                        Some(10.0),
+                        Some(ID::Road(self.r)),
+                        &mut app.primary,
+                    ));
                 }
                 "Apply to multiple road segments" => {
                     return Transition::Push(
@@ -375,7 +385,11 @@ fn make_top_panel(
 
     Panel::new_builder(Widget::col(vec![
         Widget::row(vec![
-            Line("Editing road").small_heading().into_widget(ctx),
+            Line(format!("Edit {}", r)).small_heading().into_widget(ctx),
+            ctx.style()
+                .btn_plain
+                .icon("system/assets/tools/location.svg")
+                .build_widget(ctx, "jump to road"),
             ctx.style()
                 .btn_plain
                 .text("+ Apply to multiple")

@@ -14,6 +14,7 @@ use widgetry::{
 
 use crate::app::App;
 use crate::app::Transition;
+use crate::common::Warping;
 use crate::edit::apply_map_edits;
 
 pub struct SelectSegments {
@@ -31,12 +32,14 @@ pub struct SelectSegments {
 impl SelectSegments {
     pub fn new_state(
         ctx: &mut EventCtx,
-        app: &App,
+        app: &mut App,
         base_road: RoadID,
         orig_state: EditRoad,
         new_state: EditRoad,
         base_edits: MapEdits,
     ) -> Box<dyn State<App>> {
+        app.primary.current_selection = None;
+
         // Find all road segments matching the original state and name. base_road has already
         // changed to new_state, so no need to exclude it.
         let map = &app.primary.map;
@@ -101,13 +104,23 @@ impl SelectSegments {
             Line("Apply changes to similar roads")
                 .small_heading()
                 .into_widget(ctx),
-            format!(
-                "{} / {} roads similar to #{} are selected",
-                self.current.len(),
-                self.candidates.len(),
-                self.base_road.0
-            )
-            .text_widget(ctx),
+            Widget::row(vec![
+                format!(
+                    "{} / {} roads similar to",
+                    self.current.len(),
+                    self.candidates.len(),
+                )
+                .text_widget(ctx)
+                .centered_vert(),
+                ctx.style()
+                    .btn_plain
+                    .icon_text(
+                        "system/assets/tools/location.svg",
+                        format!("#{}", self.base_road.0),
+                    )
+                    .build_widget(ctx, "jump to changed road"),
+                "are selected".text_widget(ctx).centered_vert(),
+            ]),
             // TODO Explain that this is only for lane configuration, NOT speed limit
             Widget::row(vec![
                 "Click to select/unselect".text_widget(ctx).centered_vert(),
@@ -177,6 +190,17 @@ impl State<App> for SelectSegments {
                 }
                 "Cancel" => {
                     return Transition::Pop;
+                }
+                "jump to changed road" => {
+                    return Transition::Push(Warping::new_state(
+                        ctx,
+                        app.primary
+                            .canonical_point(ID::Road(self.base_road))
+                            .unwrap(),
+                        Some(10.0),
+                        Some(ID::Road(self.base_road)),
+                        &mut app.primary,
+                    ));
                 }
                 _ => unreachable!(),
             }
