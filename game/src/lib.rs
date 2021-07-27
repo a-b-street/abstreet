@@ -360,9 +360,7 @@ fn finish_app_setup(
         if let Some(ref mut secondary) = app.secondary {
             secondary.sim.timed_step(
                 &secondary.map,
-                // And actually, make it easier to distinguish the two maps by setting the
-                // alternate in the future slightly!
-                Duration::hours(6) + Duration::minutes(30),
+                Duration::hours(6),
                 &mut None,
                 &mut Timer::throwaway(),
             );

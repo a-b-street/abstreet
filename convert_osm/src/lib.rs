@@ -18,7 +18,6 @@ mod extract;
 pub mod osm_geom;
 mod parking;
 pub mod reader;
-mod snappy;
 mod split_ways;
 mod transit;
 
@@ -122,10 +121,6 @@ pub fn convert(opts: Options, timer: &mut abstutil::Timer) -> RawMap {
     if let Some(ref path) = opts.extra_buildings {
         add_extra_buildings(&mut map, path).unwrap();
     }
-
-    timer.start("snap cycleways");
-    snappy::snap_cycleways(&mut map);
-    timer.stop("snap cycleways");
 
     map.config = opts.map_config;
     map

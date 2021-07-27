@@ -4,8 +4,9 @@ use abstio::MapName;
 use abstutil::MultiMap;
 use geom::{Distance, FindClosest, Line, PolyLine};
 use kml::{ExtraShape, ExtraShapes};
-use map_model::raw::{OriginalRoad, RawMap};
-use map_model::Direction;
+
+use crate::raw::{OriginalRoad, RawMap};
+use crate::Direction;
 
 const DEBUG_OUTPUT: bool = false;
 

@@ -529,6 +529,11 @@ impl RawMap {
         crate::make::collapse_intersections::trim_deadends(self);
         timer.stop("trimming dead-end cycleways");
 
+        // Not sure yet about the right order for these
+        timer.start("snap separate cycleways");
+        crate::make::snappy::snap_cycleways(self);
+        timer.stop("snap separate cycleways");
+
         crate::make::remove_disconnected::remove_disconnected_roads(self, timer);
 
         timer.start("merging short roads");

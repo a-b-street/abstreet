@@ -2206,6 +2206,7 @@ dependencies = [
  "enumset",
  "fast_paths",
  "geom",
+ "kml",
  "log",
  "nbez",
  "petgraph",

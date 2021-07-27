@@ -26,6 +26,7 @@ mod medians;
 pub mod merge_intersections;
 mod parking_lots;
 pub mod remove_disconnected;
+pub mod snappy;
 pub mod traffic_signals;
 mod transit;
 pub mod turns;
