@@ -10,7 +10,7 @@ use petgraph::graphmap::DiGraphMap;
 use serde::{Deserialize, Serialize};
 
 use abstio::{CityName, MapName};
-use abstutil::{deserialize_btreemap, serialize_btreemap, Tags};
+use abstutil::{deserialize_btreemap, serialize_btreemap, Tags, Timer};
 use geom::{Distance, GPSBounds, PolyLine, Polygon, Pt2D};
 
 use crate::make::initial::lane_specs::get_lane_specs_ltr;
@@ -291,7 +291,7 @@ impl RawMap {
         }
         petgraph::algo::dijkstra(&graph, from, Some(to), |(_, _, r)| {
             // TODO Expensive!
-            PolyLine::unchecked_new(self.roads[r].center_points.clone()).length()
+            self.roads[r].length()
         })
         .get(&to)
         .cloned()
@@ -516,9 +516,28 @@ impl RawMap {
         results
     }
 
-    /// Merge all short roads, in the same order that happens during RawMap -> Map.
-    pub fn merge_short_roads(&mut self) {
-        crate::make::merge_intersections::merge_short_roads(self, false);
+    /// Run a sequence of transformations to the RawMap before converting it to a full Map.
+    ///
+    /// We don't want to run these during the OSM->RawMap import stage, because we want to use the
+    /// map_editor tool to debug the RawMap.
+    pub fn run_all_simplifications(
+        &mut self,
+        consolidate_all_intersections: bool,
+        timer: &mut Timer,
+    ) {
+        timer.start("trimming dead-end cycleways");
+        crate::make::collapse_intersections::trim_deadends(self);
+        timer.stop("trimming dead-end cycleways");
+
+        crate::make::remove_disconnected::remove_disconnected_roads(self, timer);
+
+        timer.start("merging short roads");
+        crate::make::merge_intersections::merge_short_roads(self, consolidate_all_intersections);
+        timer.stop("merging short roads");
+
+        timer.start("collapsing degenerate intersections");
+        crate::make::collapse_intersections::collapse(self);
+        timer.stop("collapsing degenerate intersections");
     }
 }
 
@@ -603,6 +622,10 @@ impl RawRoad {
             }
         }
         bike
+    }
+
+    pub fn length(&self) -> Distance {
+        PolyLine::unchecked_new(self.center_points.clone()).length()
     }
 }
 

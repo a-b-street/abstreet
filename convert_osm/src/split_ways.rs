@@ -1,7 +1,7 @@
 use std::collections::{hash_map::Entry, BTreeMap, HashMap};
 
 use abstutil::{Counter, Timer};
-use geom::{Distance, HashablePt2D, PolyLine, Pt2D};
+use geom::{Distance, HashablePt2D, Pt2D};
 use map_model::raw::{OriginalRoad, RawIntersection, RawMap, RawRoad};
 use map_model::{osm, Amenity, Direction, IntersectionType};
 
@@ -263,5 +263,5 @@ fn dedupe_angles(pts: Vec<Pt2D>) -> Vec<Pt2D> {
 fn should_collapse_roundabout(r: &RawRoad) -> bool {
     r.osm_tags.is("junction", "roundabout")
         && r.center_points[0] == *r.center_points.last().unwrap()
-        && PolyLine::unchecked_new(r.center_points.clone()).length() < Distance::meters(30.0)
+        && r.length() < Distance::meters(30.0)
 }

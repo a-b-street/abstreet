@@ -137,7 +137,7 @@ fn scrape_output(map: &mut RawMap, ids: Vec<OriginalRoad>) -> Result<()> {
     // geometry. If we did this after trimming, we'd miss some of the horizontal distance.
     for (id, road) in &mut map.roads {
         let rise = map.intersections[&id.i2].elevation - map.intersections[&id.i1].elevation;
-        let run = PolyLine::unchecked_new(road.center_points.clone()).length();
+        let run = road.length();
         if !(rise / run).is_finite() {
             // TODO Warn?
             continue;

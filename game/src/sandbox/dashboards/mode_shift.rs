@@ -295,7 +295,7 @@ fn show_route_gaps(ctx: &mut EventCtx, app: &App, table: &Table<App, Entry, Filt
         // Find all high-stress roads, since we'll filter by them next
         let high_stress: HashSet<RoadID> = map
             .all_roads()
-            .into_iter()
+            .iter()
             .filter_map(|r| {
                 if r.high_stress_for_bikes(map) {
                     Some(r.id)

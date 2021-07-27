@@ -118,7 +118,10 @@ impl MainState {
                             .btn_outline
                             .text("auto mark junctions")
                             .build_def(ctx),
-                        ctx.style().btn_outline.text("run merging").build_def(ctx),
+                        ctx.style()
+                            .btn_outline
+                            .text("simplify RawMap")
+                            .build_def(ctx),
                         ctx.style()
                             .btn_solid_primary
                             .text("export to OSM")
@@ -336,9 +339,9 @@ impl State<App> for MainState {
                                         app.model.road_added(ctx, r);
                                     }
                                 }
-                                "run merging" => {
-                                    ctx.loading_screen("merge all short roads", |ctx, timer| {
-                                        app.model.map.merge_short_roads();
+                                "simplify RawMap" => {
+                                    ctx.loading_screen("simplify", |ctx, timer| {
+                                        app.model.map.run_all_simplifications(false, timer);
                                         app.model.recreate_world(ctx, timer);
                                     });
                                 }

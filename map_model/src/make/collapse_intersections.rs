@@ -1,9 +1,11 @@
-use std::collections::HashSet;
+use std::collections::BTreeSet;
+
+use geom::Distance;
 
 use crate::make::initial::lane_specs::get_lane_specs_ltr;
 use crate::osm::NodeID;
 use crate::raw::{OriginalRoad, RawMap, RawRoad};
-use crate::LaneType;
+use crate::{osm, LaneType};
 
 /// Collapse degenerate intersections between two cycleways.
 pub fn collapse(raw: &mut RawMap) {
@@ -49,7 +51,7 @@ fn collapse_intersection(raw: &mut RawMap, i: NodeID) {
     let r2 = roads[1];
 
     // Skip loops; they break. Easiest way to detect is see how many total vertices we've got.
-    let mut endpts = HashSet::new();
+    let mut endpts = BTreeSet::new();
     endpts.insert(r1.i1);
     endpts.insert(r1.i2);
     endpts.insert(r2.i1);
@@ -99,4 +101,39 @@ fn collapse_intersection(raw: &mut RawMap, i: NodeID) {
         },
         new_road,
     );
+}
+
+/// Some cycleways intersect footways with detailed curb mapping. The current rules for figuring
+/// out which walking paths also allow bikes are imperfect, so we wind up with short dead-end
+/// "stubs." Trim those.
+///
+/// Also do the same thing for extremely short dead-end service roads.
+pub fn trim_deadends(raw: &mut RawMap) {
+    let mut remove_roads = BTreeSet::new();
+    let mut remove_intersections = BTreeSet::new();
+    for id in raw.intersections.keys() {
+        let roads = raw.roads_per_intersection(*id);
+        if roads.len() != 1 {
+            continue;
+        }
+        let road = &raw.roads[&roads[0]];
+        if is_cycleway(road, raw) || is_short_service_road(road) {
+            remove_roads.insert(roads[0]);
+            remove_intersections.insert(*id);
+        }
+    }
+
+    for r in remove_roads {
+        raw.roads.remove(&r).unwrap();
+    }
+    for i in remove_intersections {
+        raw.delete_intersection(i);
+    }
+
+    // It's possible we need to do this in a fixed-point until there are no changes, but meh.
+    // Results look good so far.
+}
+
+fn is_short_service_road(road: &RawRoad) -> bool {
+    road.osm_tags.is(osm::HIGHWAY, "service") && road.length() < Distance::meters(10.0)
 }
