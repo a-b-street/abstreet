@@ -208,6 +208,13 @@
 <span id="205">205</span>
 <span id="206">206</span>
 <span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashMap</span>};
 
@@ -217,7 +224,7 @@
 <span class="kw">use</span> <span class="ident">kml</span>::{<span class="ident">ExtraShape</span>, <span class="ident">ExtraShapes</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::raw</span>::{<span class="ident">OriginalRoad</span>, <span class="ident">RawMap</span>};
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::Direction</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Direction</span>, <span class="ident">DrivingSide</span>};
 
 <span class="kw">const</span> <span class="ident">DEBUG_OUTPUT</span>: <span class="ident">bool</span> <span class="op">=</span> <span class="bool-val">false</span>;
 
@@ -292,18 +299,25 @@
                 } <span class="kw">else</span> {
                     <span class="string">&quot;left&quot;</span>
                 };
-                <span class="ident">map</span>.<span class="ident">roads</span>
-                    .<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">road_id</span>)
-                    .<span class="ident">unwrap</span>()
-                    .<span class="ident">osm_tags</span>
-                    .<span class="ident">insert</span>(<span class="macro">format!</span>(<span class="string">&quot;cycleway:{}&quot;</span>, <span class="ident">dir</span>), <span class="string">&quot;track&quot;</span>);
+                <span class="kw">let</span> <span class="ident">tags</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">map</span>.<span class="ident">roads</span>.<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">road_id</span>).<span class="ident">unwrap</span>().<span class="ident">osm_tags</span>;
+                <span class="ident">tags</span>.<span class="ident">insert</span>(<span class="macro">format!</span>(<span class="string">&quot;cycleway:{}&quot;</span>, <span class="ident">dir</span>), <span class="string">&quot;track&quot;</span>);
                 <span class="kw">if</span> <span class="op">!</span><span class="ident">deleted_cycleway</span>.<span class="ident">osm_tags</span>.<span class="ident">is</span>(<span class="string">&quot;oneway&quot;</span>, <span class="string">&quot;yes&quot;</span>) {
-                    <span class="ident">map</span>.<span class="ident">roads</span>
-                        .<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">road_id</span>)
-                        .<span class="ident">unwrap</span>()
-                        .<span class="ident">osm_tags</span>
-                        .<span class="ident">insert</span>(<span class="macro">format!</span>(<span class="string">&quot;cycleway:{}:oneway&quot;</span>, <span class="ident">dir</span>), <span class="string">&quot;no&quot;</span>);
+                    <span class="ident">tags</span>.<span class="ident">insert</span>(<span class="macro">format!</span>(<span class="string">&quot;cycleway:{}:oneway&quot;</span>, <span class="ident">dir</span>), <span class="string">&quot;no&quot;</span>);
                 }
+
+                <span class="comment">// I _think_ the second direction is supposed to be relative to the direction of</span>
+                <span class="comment">// travel for the cycleway. But not sure.</span>
+                <span class="kw">let</span> <span class="ident">traffic_side</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">config</span>.<span class="ident">driving_side</span> <span class="op">=</span><span class="op">=</span> <span class="ident">DrivingSide::Right</span> {
+                    <span class="string">&quot;left&quot;</span>
+                } <span class="kw">else</span> {
+                    <span class="string">&quot;right&quot;</span>
+                };
+                <span class="comment">// TODO Copy over separation tags from this separate way. To quickly test right</span>
+                <span class="comment">// now, just pretend we always have flex posts...</span>
+                <span class="ident">tags</span>.<span class="ident">insert</span>(
+                    <span class="macro">format!</span>(<span class="string">&quot;cycleway:{}:separation:{}&quot;</span>, <span class="ident">dir</span>, <span class="ident">traffic_side</span>),
+                    <span class="string">&quot;bollard&quot;</span>,
+                );
             }
         }
     }

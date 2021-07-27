@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["assemble_ltr",""],["get_lane_specs_ltr",""]]});
+initSidebarItems({"fn":[["assemble_ltr",""],["get_lane_specs_ltr",""],["osm_separation_type",""]]});
