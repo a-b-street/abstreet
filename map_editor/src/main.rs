@@ -118,6 +118,7 @@ impl MainState {
                             .btn_outline
                             .text("auto mark junctions")
                             .build_def(ctx),
+                        ctx.style().btn_outline.text("run merging").build_def(ctx),
                         ctx.style()
                             .btn_solid_primary
                             .text("export to OSM")
@@ -334,6 +335,12 @@ impl State<App> for MainState {
                                         app.model.road_deleted(r);
                                         app.model.road_added(ctx, r);
                                     }
+                                }
+                                "run merging" => {
+                                    ctx.loading_screen("merge all short roads", |ctx, timer| {
+                                        app.model.map.merge_short_roads();
+                                        app.model.recreate_world(ctx, timer);
+                                    });
                                 }
                                 "export to OSM" => {
                                     app.model.export_to_osm();

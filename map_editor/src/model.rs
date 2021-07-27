@@ -77,26 +77,32 @@ impl Model {
             abstio::read_binary(path, &mut timer)
         };
 
-        if model.include_bldgs {
-            for id in model.map.buildings.keys().cloned().collect::<Vec<_>>() {
-                model.bldg_added(ctx, id);
+        model.recreate_world(ctx, &mut timer);
+        model
+    }
+
+    pub fn recreate_world(&mut self, ctx: &EventCtx, timer: &mut Timer) {
+        self.showing_pts = None;
+        self.world = World::new();
+
+        if self.include_bldgs {
+            for id in self.map.buildings.keys().cloned().collect::<Vec<_>>() {
+                self.bldg_added(ctx, id);
             }
         }
         timer.start_iter(
             "fill out world with intersections",
-            model.map.intersections.len(),
+            self.map.intersections.len(),
         );
-        for id in model.map.intersections.keys().cloned().collect::<Vec<_>>() {
+        for id in self.map.intersections.keys().cloned().collect::<Vec<_>>() {
             timer.next();
-            model.intersection_added(ctx, id);
+            self.intersection_added(ctx, id);
         }
-        timer.start_iter("fill out world with roads", model.map.roads.len());
-        for id in model.map.roads.keys().cloned().collect::<Vec<_>>() {
+        timer.start_iter("fill out world with roads", self.map.roads.len());
+        for id in self.map.roads.keys().cloned().collect::<Vec<_>>() {
             timer.next();
-            model.road_added(ctx, id);
+            self.road_added(ctx, id);
         }
-
-        model
     }
 }
 

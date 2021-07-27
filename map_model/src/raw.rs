@@ -515,6 +515,11 @@ impl RawMap {
         }
         results
     }
+
+    /// Merge all short roads, in the same order that happens during RawMap -> Map.
+    pub fn merge_short_roads(&mut self) {
+        crate::make::merge_intersections::merge_short_roads(self, false);
+    }
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]

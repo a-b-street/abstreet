@@ -23,7 +23,7 @@ mod buildings;
 mod collapse_intersections;
 pub mod initial;
 mod medians;
-mod merge_intersections;
+pub mod merge_intersections;
 mod parking_lots;
 mod remove_disconnected;
 pub mod traffic_signals;
