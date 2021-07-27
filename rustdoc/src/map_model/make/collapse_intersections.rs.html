@@ -103,13 +103,52 @@
 <span id="100">100</span>
 <span id="101">101</span>
 <span id="102">102</span>
+<span id="103">103</span>
+<span id="104">104</span>
+<span id="105">105</span>
+<span id="106">106</span>
+<span id="107">107</span>
+<span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
+<span id="112">112</span>
+<span id="113">113</span>
+<span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
+<span id="117">117</span>
+<span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
+<span id="126">126</span>
+<span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
+<span id="131">131</span>
+<span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
 </pre><div class="example-wrap"><pre class="rust ">
-<span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
+<span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
+
+<span class="kw">use</span> <span class="ident">geom::Distance</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::make::initial::lane_specs::get_lane_specs_ltr</span>;
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::osm::NodeID</span>;
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::raw</span>::{<span class="ident">OriginalRoad</span>, <span class="ident">RawMap</span>, <span class="ident">RawRoad</span>};
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::LaneType</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">osm</span>, <span class="ident">LaneType</span>};
 
 <span class="doccomment">/// Collapse degenerate intersections between two cycleways.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">collapse</span>(<span class="ident">raw</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">RawMap</span>) {
@@ -155,7 +194,7 @@
     <span class="kw">let</span> <span class="ident">r2</span> <span class="op">=</span> <span class="ident">roads</span>[<span class="number">1</span>];
 
     <span class="comment">// Skip loops; they break. Easiest way to detect is see how many total vertices we&#39;ve got.</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">endpts</span> <span class="op">=</span> <span class="ident">HashSet::new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">endpts</span> <span class="op">=</span> <span class="ident">BTreeSet::new</span>();
     <span class="ident">endpts</span>.<span class="ident">insert</span>(<span class="ident">r1</span>.<span class="ident">i1</span>);
     <span class="ident">endpts</span>.<span class="ident">insert</span>(<span class="ident">r1</span>.<span class="ident">i2</span>);
     <span class="ident">endpts</span>.<span class="ident">insert</span>(<span class="ident">r2</span>.<span class="ident">i1</span>);
@@ -205,6 +244,41 @@
         },
         <span class="ident">new_road</span>,
     );
+}
+
+<span class="doccomment">/// Some cycleways intersect footways with detailed curb mapping. The current rules for figuring</span>
+<span class="doccomment">/// out which walking paths also allow bikes are imperfect, so we wind up with short dead-end</span>
+<span class="doccomment">/// &quot;stubs.&quot; Trim those.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Also do the same thing for extremely short dead-end service roads.</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">trim_deadends</span>(<span class="ident">raw</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">RawMap</span>) {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">remove_roads</span> <span class="op">=</span> <span class="ident">BTreeSet::new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">remove_intersections</span> <span class="op">=</span> <span class="ident">BTreeSet::new</span>();
+    <span class="kw">for</span> <span class="ident">id</span> <span class="kw">in</span> <span class="ident">raw</span>.<span class="ident">intersections</span>.<span class="ident">keys</span>() {
+        <span class="kw">let</span> <span class="ident">roads</span> <span class="op">=</span> <span class="ident">raw</span>.<span class="ident">roads_per_intersection</span>(<span class="kw-2">*</span><span class="ident">id</span>);
+        <span class="kw">if</span> <span class="ident">roads</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">1</span> {
+            <span class="kw">continue</span>;
+        }
+        <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">raw</span>.<span class="ident">roads</span>[<span class="kw-2">&amp;</span><span class="ident">roads</span>[<span class="number">0</span>]];
+        <span class="kw">if</span> <span class="ident">is_cycleway</span>(<span class="ident">road</span>, <span class="ident">raw</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">is_short_service_road</span>(<span class="ident">road</span>) {
+            <span class="ident">remove_roads</span>.<span class="ident">insert</span>(<span class="ident">roads</span>[<span class="number">0</span>]);
+            <span class="ident">remove_intersections</span>.<span class="ident">insert</span>(<span class="kw-2">*</span><span class="ident">id</span>);
+        }
+    }
+
+    <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">remove_roads</span> {
+        <span class="ident">raw</span>.<span class="ident">roads</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">r</span>).<span class="ident">unwrap</span>();
+    }
+    <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="ident">remove_intersections</span> {
+        <span class="ident">raw</span>.<span class="ident">delete_intersection</span>(<span class="ident">i</span>);
+    }
+
+    <span class="comment">// It&#39;s possible we need to do this in a fixed-point until there are no changes, but meh.</span>
+    <span class="comment">// Results look good so far.</span>
+}
+
+<span class="kw">fn</span> <span class="ident">is_short_service_road</span>(<span class="ident">road</span>: <span class="kw-2">&amp;</span><span class="ident">RawRoad</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="ident">road</span>.<span class="ident">osm_tags</span>.<span class="ident">is</span>(<span class="ident">osm::HIGHWAY</span>, <span class="string">&quot;service&quot;</span>) <span class="op">&amp;&amp;</span> <span class="ident">road</span>.<span class="ident">length</span>() <span class="op">&lt;</span> <span class="ident">Distance::meters</span>(<span class="number">10.0</span>)
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_model" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>

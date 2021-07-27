@@ -300,7 +300,7 @@
     <span class="comment">// geometry. If we did this after trimming, we&#39;d miss some of the horizontal distance.</span>
     <span class="kw">for</span> (<span class="ident">id</span>, <span class="ident">road</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">map</span>.<span class="ident">roads</span> {
         <span class="kw">let</span> <span class="ident">rise</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">intersections</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>.<span class="ident">i2</span>].<span class="ident">elevation</span> <span class="op">-</span> <span class="ident">map</span>.<span class="ident">intersections</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>.<span class="ident">i1</span>].<span class="ident">elevation</span>;
-        <span class="kw">let</span> <span class="ident">run</span> <span class="op">=</span> <span class="ident">PolyLine::unchecked_new</span>(<span class="ident">road</span>.<span class="ident">center_points</span>.<span class="ident">clone</span>()).<span class="ident">length</span>();
+        <span class="kw">let</span> <span class="ident">run</span> <span class="op">=</span> <span class="ident">road</span>.<span class="ident">length</span>();
         <span class="kw">if</span> <span class="op">!</span>(<span class="ident">rise</span> <span class="op">/</span> <span class="ident">run</span>).<span class="ident">is_finite</span>() {
             <span class="comment">// TODO Warn?</span>
             <span class="kw">continue</span>;

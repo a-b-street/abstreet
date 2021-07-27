@@ -697,6 +697,29 @@
 <span id="694">694</span>
 <span id="695">695</span>
 <span id="696">696</span>
+<span id="697">697</span>
+<span id="698">698</span>
+<span id="699">699</span>
+<span id="700">700</span>
+<span id="701">701</span>
+<span id="702">702</span>
+<span id="703">703</span>
+<span id="704">704</span>
+<span id="705">705</span>
+<span id="706">706</span>
+<span id="707">707</span>
+<span id="708">708</span>
+<span id="709">709</span>
+<span id="710">710</span>
+<span id="711">711</span>
+<span id="712">712</span>
+<span id="713">713</span>
+<span id="714">714</span>
+<span id="715">715</span>
+<span id="716">716</span>
+<span id="717">717</span>
+<span id="718">718</span>
+<span id="719">719</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! The convert_osm crate produces a RawMap from OSM and other data. Storing this intermediate</span>
 <span class="doccomment">//! structure is useful to iterate quickly on parts of the map importing pipeline without having to</span>
@@ -710,7 +733,7 @@
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
 <span class="kw">use</span> <span class="ident">abstio</span>::{<span class="ident">CityName</span>, <span class="ident">MapName</span>};
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">deserialize_btreemap</span>, <span class="ident">serialize_btreemap</span>, <span class="ident">Tags</span>};
+<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">deserialize_btreemap</span>, <span class="ident">serialize_btreemap</span>, <span class="ident">Tags</span>, <span class="ident">Timer</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">GPSBounds</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::make::initial::lane_specs::get_lane_specs_ltr</span>;
@@ -991,7 +1014,7 @@
         }
         <span class="ident">petgraph::algo::dijkstra</span>(<span class="kw-2">&amp;</span><span class="ident">graph</span>, <span class="ident">from</span>, <span class="prelude-val">Some</span>(<span class="ident">to</span>), <span class="op">|</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">r</span>)<span class="op">|</span> {
             <span class="comment">// TODO Expensive!</span>
-            <span class="ident">PolyLine::unchecked_new</span>(<span class="self">self</span>.<span class="ident">roads</span>[<span class="ident">r</span>].<span class="ident">center_points</span>.<span class="ident">clone</span>()).<span class="ident">length</span>()
+            <span class="self">self</span>.<span class="ident">roads</span>[<span class="ident">r</span>].<span class="ident">length</span>()
         })
         .<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">to</span>)
         .<span class="ident">cloned</span>()
@@ -1216,9 +1239,28 @@
         <span class="ident">results</span>
     }
 
-    <span class="doccomment">/// Merge all short roads, in the same order that happens during RawMap -&gt; Map.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">merge_short_roads</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
-        <span class="kw">crate</span><span class="ident">::make::merge_intersections::merge_short_roads</span>(<span class="self">self</span>, <span class="bool-val">false</span>);
+    <span class="doccomment">/// Run a sequence of transformations to the RawMap before converting it to a full Map.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// We don&#39;t want to run these during the OSM-&gt;RawMap import stage, because we want to use the</span>
+    <span class="doccomment">/// map_editor tool to debug the RawMap.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">run_all_simplifications</span>(
+        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="ident">consolidate_all_intersections</span>: <span class="ident">bool</span>,
+        <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>,
+    ) {
+        <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;trimming dead-end cycleways&quot;</span>);
+        <span class="kw">crate</span><span class="ident">::make::collapse_intersections::trim_deadends</span>(<span class="self">self</span>);
+        <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;trimming dead-end cycleways&quot;</span>);
+
+        <span class="kw">crate</span><span class="ident">::make::remove_disconnected::remove_disconnected_roads</span>(<span class="self">self</span>, <span class="ident">timer</span>);
+
+        <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;merging short roads&quot;</span>);
+        <span class="kw">crate</span><span class="ident">::make::merge_intersections::merge_short_roads</span>(<span class="self">self</span>, <span class="ident">consolidate_all_intersections</span>);
+        <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;merging short roads&quot;</span>);
+
+        <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;collapsing degenerate intersections&quot;</span>);
+        <span class="kw">crate</span><span class="ident">::make::collapse_intersections::collapse</span>(<span class="self">self</span>);
+        <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;collapsing degenerate intersections&quot;</span>);
     }
 }
 
@@ -1303,6 +1345,10 @@
             }
         }
         <span class="ident">bike</span>
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">length</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Distance</span> {
+        <span class="ident">PolyLine::unchecked_new</span>(<span class="self">self</span>.<span class="ident">center_points</span>.<span class="ident">clone</span>()).<span class="ident">length</span>()
     }
 }
 

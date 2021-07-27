@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["collapse","Collapse degenerate intersections between two cycleways."],["collapse_intersection",""],["is_cycleway",""]]});
+initSidebarItems({"fn":[["collapse","Collapse degenerate intersections between two cycleways."],["collapse_intersection",""],["is_cycleway",""],["is_short_service_road",""],["trim_deadends","Some cycleways intersect footways with detailed curb mapping. The current rules for figuring out which walking paths also allow bikes are imperfect, so we wind up with short dead-end “stubs.” Trim those."]]});

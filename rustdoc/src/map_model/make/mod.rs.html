@@ -455,15 +455,6 @@
 <span id="452">452</span>
 <span id="453">453</span>
 <span id="454">454</span>
-<span id="455">455</span>
-<span id="456">456</span>
-<span id="457">457</span>
-<span id="458">458</span>
-<span id="459">459</span>
-<span id="460">460</span>
-<span id="461">461</span>
-<span id="462">462</span>
-<span id="463">463</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! See &lt;https://a-b-street.github.io/docs/tech/map/importing/index.html&gt; for an overview. This module</span>
 <span class="doccomment">//! covers the RawMap-&gt;Map stage.</span>
@@ -487,12 +478,12 @@
 
 <span class="kw">mod</span> <span class="ident">bridges</span>;
 <span class="kw">mod</span> <span class="ident">buildings</span>;
-<span class="kw">mod</span> <span class="ident">collapse_intersections</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">collapse_intersections</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">initial</span>;
 <span class="kw">mod</span> <span class="ident">medians</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">merge_intersections</span>;
 <span class="kw">mod</span> <span class="ident">parking_lots</span>;
-<span class="kw">mod</span> <span class="ident">remove_disconnected</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">remove_disconnected</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">traffic_signals</span>;
 <span class="kw">mod</span> <span class="ident">transit</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">turns</span>;
@@ -522,16 +513,7 @@
 
 <span class="kw">impl</span> <span class="ident">Map</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">create_from_raw</span>(<span class="kw-2">mut</span> <span class="ident">raw</span>: <span class="ident">RawMap</span>, <span class="ident">opts</span>: <span class="ident">RawToMapOptions</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Map</span> {
-        <span class="comment">// Better to defer this and see RawMaps with more debug info in map_editor</span>
-        <span class="ident">remove_disconnected::remove_disconnected_roads</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">raw</span>, <span class="ident">timer</span>);
-
-        <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;merging short roads&quot;</span>);
-        <span class="ident">merge_intersections::merge_short_roads</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">raw</span>, <span class="ident">opts</span>.<span class="ident">consolidate_all_intersections</span>);
-        <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;merging short roads&quot;</span>);
-
-        <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;collapsing degenerate intersections&quot;</span>);
-        <span class="ident">collapse_intersections::collapse</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">raw</span>);
-        <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;collapsing degenerate intersections&quot;</span>);
+        <span class="ident">raw</span>.<span class="ident">run_all_simplifications</span>(<span class="ident">opts</span>.<span class="ident">consolidate_all_intersections</span>, <span class="ident">timer</span>);
 
         <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;raw_map to InitialMap&quot;</span>);
         <span class="kw">let</span> <span class="ident">gps_bounds</span> <span class="op">=</span> <span class="ident">raw</span>.<span class="ident">gps_bounds</span>.<span class="ident">clone</span>();

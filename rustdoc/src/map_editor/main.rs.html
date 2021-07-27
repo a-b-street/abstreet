@@ -528,6 +528,9 @@
 <span id="525">525</span>
 <span id="526">526</span>
 <span id="527">527</span>
+<span id="528">528</span>
+<span id="529">529</span>
+<span id="530">530</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! The map_editor renders and lets you edit RawMaps, which are a format in between OSM and the</span>
 <span class="doccomment">//! full Map. It&#39;s useful for debugging maps imported from OSM, and for drawing synthetic maps for</span>
@@ -649,7 +652,10 @@
                             .<span class="ident">btn_outline</span>
                             .<span class="ident">text</span>(<span class="string">&quot;auto mark junctions&quot;</span>)
                             .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-                        <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline</span>.<span class="ident">text</span>(<span class="string">&quot;run merging&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+                        <span class="ident">ctx</span>.<span class="ident">style</span>()
+                            .<span class="ident">btn_outline</span>
+                            .<span class="ident">text</span>(<span class="string">&quot;simplify RawMap&quot;</span>)
+                            .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                         <span class="ident">ctx</span>.<span class="ident">style</span>()
                             .<span class="ident">btn_solid_primary</span>
                             .<span class="ident">text</span>(<span class="string">&quot;export to OSM&quot;</span>)
@@ -867,9 +873,9 @@
                                         <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">road_added</span>(<span class="ident">ctx</span>, <span class="ident">r</span>);
                                     }
                                 }
-                                <span class="string">&quot;run merging&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                                    <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;merge all short roads&quot;</span>, <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">timer</span><span class="op">|</span> {
-                                        <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">map</span>.<span class="ident">merge_short_roads</span>();
+                                <span class="string">&quot;simplify RawMap&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                                    <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;simplify&quot;</span>, <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">timer</span><span class="op">|</span> {
+                                        <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">map</span>.<span class="ident">run_all_simplifications</span>(<span class="bool-val">false</span>, <span class="ident">timer</span>);
                                         <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">recreate_world</span>(<span class="ident">ctx</span>, <span class="ident">timer</span>);
                                     });
                                 }
