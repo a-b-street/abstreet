@@ -97,7 +97,7 @@ fn make_route(
     // Start or end at a border?
     let mut end_border = None;
     let start = if let Some(i) = r.border_start {
-        let i = map.get_i(map.find_i_by_osm_id(i).unwrap());
+        let i = map.get_i(map.find_i_by_osm_id(i)?);
         if !i.is_border() {
             panic!("Route starts at {}, but isn't a border?", i.orig_id);
         }
@@ -117,7 +117,7 @@ fn make_route(
         pick_start_lane(map.get_bs(stops[0]).driving_pos, route_type, map)?
     };
     if let Some(i) = r.border_end {
-        let i = map.get_i(map.find_i_by_osm_id(i).unwrap());
+        let i = map.get_i(map.find_i_by_osm_id(i)?);
         if !i.is_border() {
             panic!("Route ends at {}, but isn't a border?", i.orig_id);
         }
