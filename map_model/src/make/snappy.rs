@@ -6,7 +6,7 @@ use geom::{Distance, FindClosest, Line, PolyLine};
 use kml::{ExtraShape, ExtraShapes};
 
 use crate::raw::{OriginalRoad, RawMap};
-use crate::Direction;
+use crate::{Direction, DrivingSide};
 
 const DEBUG_OUTPUT: bool = false;
 
@@ -81,18 +81,25 @@ pub fn snap_cycleways(map: &mut RawMap) {
                 } else {
                     "left"
                 };
-                map.roads
-                    .get_mut(&road_id)
-                    .unwrap()
-                    .osm_tags
-                    .insert(format!("cycleway:{}", dir), "track");
+                let tags = &mut map.roads.get_mut(&road_id).unwrap().osm_tags;
+                tags.insert(format!("cycleway:{}", dir), "track");
                 if !deleted_cycleway.osm_tags.is("oneway", "yes") {
-                    map.roads
-                        .get_mut(&road_id)
-                        .unwrap()
-                        .osm_tags
-                        .insert(format!("cycleway:{}:oneway", dir), "no");
+                    tags.insert(format!("cycleway:{}:oneway", dir), "no");
                 }
+
+                // I _think_ the second direction is supposed to be relative to the direction of
+                // travel for the cycleway. But not sure.
+                let traffic_side = if map.config.driving_side == DrivingSide::Right {
+                    "left"
+                } else {
+                    "right"
+                };
+                // TODO Copy over separation tags from this separate way. To quickly test right
+                // now, just pretend we always have flex posts...
+                tags.insert(
+                    format!("cycleway:{}:separation:{}", dir, traffic_side),
+                    "bollard",
+                );
             }
         }
     }

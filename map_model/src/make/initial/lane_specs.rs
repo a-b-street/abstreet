@@ -3,7 +3,7 @@ use std::iter;
 
 use abstutil::Tags;
 
-use crate::{osm, Direction, DrivingSide, LaneSpec, LaneType, MapConfig};
+use crate::{osm, BufferType, Direction, DrivingSide, LaneSpec, LaneType, MapConfig};
 
 pub fn get_lane_specs_ltr(tags: &Tags, cfg: &MapConfig) -> Vec<LaneSpec> {
     let fwd = |lt: LaneType| LaneSpec {
@@ -232,6 +232,31 @@ pub fn get_lane_specs_ltr(tags: &Tags, cfg: &MapConfig) -> Vec<LaneSpec> {
         }
     }
 
+    // My brain hurts. How does the above combinatorial explosion play with
+    // https://wiki.openstreetmap.org/wiki/Proposed_features/cycleway:separation? Let's take the
+    // "post-processing" approach.
+    // TODO This skips the buffer between the cycleway and the sidewalk, for now. Only focusing on
+    // the common case of buffer from vehicles.
+    // TODO Not doing left-handed driving yet (separation:right)
+    if let Some(buffer) = tags
+        .get("cycleway:right:separation:left")
+        .and_then(osm_separation_type)
+    {
+        // TODO These shouldn't fail, but snapping is imperfect... like around
+        // https://www.openstreetmap.org/way/486283205
+        if let Some(idx) = fwd_side.iter().position(|x| x.lt == LaneType::Biking) {
+            fwd_side.insert(idx, fwd(LaneType::Buffer(buffer)));
+        }
+    }
+    if let Some(buffer) = tags
+        .get("cycleway:left:separation:left")
+        .and_then(osm_separation_type)
+    {
+        if let Some(idx) = back_side.iter().position(|x| x.lt == LaneType::Biking) {
+            back_side.insert(idx, back(LaneType::Buffer(buffer)));
+        }
+    }
+
     if driving_lane == LaneType::Driving {
         let has_parking = vec!["parallel", "diagonal", "perpendicular"];
         let parking_lane_fwd = tags.is_any(osm::PARKING_RIGHT, has_parking.clone())
@@ -322,6 +347,22 @@ fn assemble_ltr(
             fwd_side.extend(back_side);
             fwd_side
         }
+    }
+}
+
+// See https://wiki.openstreetmap.org/wiki/Proposed_features/cycleway:separation#Typical_values.
+// Lots of these mappings are pretty wacky right now. We need more BufferTypes.
+fn osm_separation_type(x: &String) -> Option<BufferType> {
+    match x.as_ref() {
+        "bollard" | "vertical_panel" => Some(BufferType::FlexPosts),
+        "kerb" | "separation_kerb" => Some(BufferType::Curb),
+        "grass_verge" | "planter" | "tree_row" => Some(BufferType::Planters),
+        "guard_rail" | "jersey_barrier" | "railing" => Some(BufferType::JerseyBarrier),
+        // TODO Make sure there's a parking lane on that side... also mapped? Any flex posts in
+        // between?
+        "parking_lane" => None,
+        "barred_area" | "dashed_line" | "solid_line" => Some(BufferType::Stripes),
+        _ => None,
     }
 }
 
