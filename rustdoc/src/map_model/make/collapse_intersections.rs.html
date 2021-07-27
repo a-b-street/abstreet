@@ -187,7 +187,7 @@
     <span class="ident">bike</span>
 }
 
-<span class="kw">fn</span> <span class="ident">collapse_intersection</span>(<span class="ident">raw</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">RawMap</span>, <span class="ident">i</span>: <span class="ident">NodeID</span>) {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">collapse_intersection</span>(<span class="ident">raw</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">RawMap</span>, <span class="ident">i</span>: <span class="ident">NodeID</span>) {
     <span class="kw">let</span> <span class="ident">roads</span> <span class="op">=</span> <span class="ident">raw</span>.<span class="ident">roads_per_intersection</span>(<span class="ident">i</span>);
     <span class="macro">assert_eq!</span>(<span class="ident">roads</span>.<span class="ident">len</span>(), <span class="number">2</span>);
     <span class="kw">let</span> <span class="ident">r1</span> <span class="op">=</span> <span class="ident">roads</span>[<span class="number">0</span>];

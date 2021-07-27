@@ -725,6 +725,11 @@
 <span id="722">722</span>
 <span id="723">723</span>
 <span id="724">724</span>
+<span id="725">725</span>
+<span id="726">726</span>
+<span id="727">727</span>
+<span id="728">728</span>
+<span id="729">729</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! The convert_osm crate produces a RawMap from OSM and other data. Storing this intermediate</span>
 <span class="doccomment">//! structure is useful to iterate quickly on parts of the map importing pipeline without having to</span>
@@ -1253,14 +1258,19 @@
         <span class="ident">consolidate_all_intersections</span>: <span class="ident">bool</span>,
         <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>,
     ) {
-        <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;trimming dead-end cycleways&quot;</span>);
+        <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;trimming dead-end cycleways (round 1)&quot;</span>);
         <span class="kw">crate</span><span class="ident">::make::collapse_intersections::trim_deadends</span>(<span class="self">self</span>);
-        <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;trimming dead-end cycleways&quot;</span>);
+        <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;trimming dead-end cycleways (round 1)&quot;</span>);
 
-        <span class="comment">// Not sure yet about the right order for these</span>
         <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;snap separate cycleways&quot;</span>);
         <span class="kw">crate</span><span class="ident">::make::snappy::snap_cycleways</span>(<span class="self">self</span>);
         <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;snap separate cycleways&quot;</span>);
+
+        <span class="comment">// More dead-ends can be created after snapping cycleways. But also, snapping can be easier</span>
+        <span class="comment">// to do after trimming some dead-ends. So... just run it twice.</span>
+        <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;trimming dead-end cycleways (round 2)&quot;</span>);
+        <span class="kw">crate</span><span class="ident">::make::collapse_intersections::trim_deadends</span>(<span class="self">self</span>);
+        <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;trimming dead-end cycleways (round 2)&quot;</span>);
 
         <span class="kw">crate</span><span class="ident">::make::remove_disconnected::remove_disconnected_roads</span>(<span class="self">self</span>, <span class="ident">timer</span>);
 

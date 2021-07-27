@@ -215,6 +215,25 @@
 <span id="212">212</span>
 <span id="213">213</span>
 <span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashMap</span>};
 
@@ -271,7 +290,10 @@
     <span class="kw">let</span> <span class="ident">matches</span> <span class="op">=</span> <span class="ident">v1</span>(<span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="ident">cycleways</span>, <span class="kw-2">&amp;</span><span class="ident">road_edges</span>);
 
     <span class="comment">// Go apply the matches!</span>
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">snapped_ids</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
     <span class="kw">for</span> (<span class="ident">cycleway_id</span>, <span class="ident">roads</span>) <span class="kw">in</span> <span class="ident">matches</span>.<span class="ident">consume</span>() {
+        <span class="ident">snapped_ids</span>.<span class="ident">push</span>(<span class="ident">cycleway_id</span>);
+
         <span class="kw">if</span> <span class="ident">DEBUG_OUTPUT</span> {
             <span class="comment">// Just mark what we snapped in an easy-to-debug way</span>
             <span class="ident">map</span>.<span class="ident">roads</span>
@@ -292,6 +314,7 @@
         } <span class="kw">else</span> {
             <span class="comment">// Remove the separate cycleway</span>
             <span class="kw">let</span> <span class="ident">deleted_cycleway</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">roads</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">cycleway_id</span>).<span class="ident">unwrap</span>();
+
             <span class="comment">// Add it as an attribute to the roads instead</span>
             <span class="kw">for</span> (<span class="ident">road_id</span>, <span class="ident">dir</span>) <span class="kw">in</span> <span class="ident">roads</span> {
                 <span class="kw">let</span> <span class="ident">dir</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">dir</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Direction::Fwd</span> {
@@ -318,6 +341,21 @@
                     <span class="macro">format!</span>(<span class="string">&quot;cycleway:{}:separation:{}&quot;</span>, <span class="ident">dir</span>, <span class="ident">traffic_side</span>),
                     <span class="string">&quot;bollard&quot;</span>,
                 );
+            }
+        }
+    }
+
+    <span class="kw">if</span> <span class="op">!</span><span class="ident">DEBUG_OUTPUT</span> {
+        <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">snapped_ids</span> {
+            <span class="comment">// After removing the separate cycleway, likely its two intersections become degenerate</span>
+            <span class="comment">// and will be super close to a &quot;real&quot; intersection. Collapse the intersection.</span>
+            <span class="comment">//</span>
+            <span class="comment">// Do all of these in one batch after snapping everything. Otherwise, some cycleway IDs</span>
+            <span class="comment">// totally disappear.</span>
+            <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> [<span class="ident">r</span>.<span class="ident">i1</span>, <span class="ident">r</span>.<span class="ident">i2</span>] {
+                <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">roads_per_intersection</span>(<span class="ident">i</span>).<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="number">2</span> {
+                    <span class="kw">crate</span><span class="ident">::make::collapse_intersections::collapse_intersection</span>(<span class="ident">map</span>, <span class="ident">i</span>);
+                }
             }
         }
     }
