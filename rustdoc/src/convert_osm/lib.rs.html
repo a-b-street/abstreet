@@ -172,11 +172,6 @@
 <span id="169">169</span>
 <span id="170">170</span>
 <span id="171">171</span>
-<span id="172">172</span>
-<span id="173">173</span>
-<span id="174">174</span>
-<span id="175">175</span>
-<span id="176">176</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="attribute">#[<span class="ident">macro_use</span>]</span>
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">anyhow</span>;
@@ -198,7 +193,6 @@
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">osm_geom</span>;
 <span class="kw">mod</span> <span class="ident">parking</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">reader</span>;
-<span class="kw">mod</span> <span class="ident">snappy</span>;
 <span class="kw">mod</span> <span class="ident">split_ways</span>;
 <span class="kw">mod</span> <span class="ident">transit</span>;
 
@@ -302,10 +296,6 @@
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">path</span>) <span class="op">=</span> <span class="ident">opts</span>.<span class="ident">extra_buildings</span> {
         <span class="ident">add_extra_buildings</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">map</span>, <span class="ident">path</span>).<span class="ident">unwrap</span>();
     }
-
-    <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;snap cycleways&quot;</span>);
-    <span class="ident">snappy::snap_cycleways</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">map</span>);
-    <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;snap cycleways&quot;</span>);
 
     <span class="ident">map</span>.<span class="ident">config</span> <span class="op">=</span> <span class="ident">opts</span>.<span class="ident">map_config</span>;
     <span class="ident">map</span>
