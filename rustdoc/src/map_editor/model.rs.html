@@ -639,6 +639,12 @@
 <span id="636">636</span>
 <span id="637">637</span>
 <span id="638">638</span>
+<span id="639">639</span>
+<span id="640">640</span>
+<span id="641">641</span>
+<span id="642">642</span>
+<span id="643">643</span>
+<span id="644">644</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashMap</span>};
 <span class="kw">use</span> <span class="ident">std::io::Write</span>;
@@ -719,26 +725,32 @@
             <span class="ident">abstio::read_binary</span>(<span class="ident">path</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>)
         };
 
-        <span class="kw">if</span> <span class="ident">model</span>.<span class="ident">include_bldgs</span> {
-            <span class="kw">for</span> <span class="ident">id</span> <span class="kw">in</span> <span class="ident">model</span>.<span class="ident">map</span>.<span class="ident">buildings</span>.<span class="ident">keys</span>().<span class="ident">cloned</span>().<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>() {
-                <span class="ident">model</span>.<span class="ident">bldg_added</span>(<span class="ident">ctx</span>, <span class="ident">id</span>);
+        <span class="ident">model</span>.<span class="ident">recreate_world</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>);
+        <span class="ident">model</span>
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">recreate_world</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) {
+        <span class="self">self</span>.<span class="ident">showing_pts</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+        <span class="self">self</span>.<span class="ident">world</span> <span class="op">=</span> <span class="ident">World::new</span>();
+
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">include_bldgs</span> {
+            <span class="kw">for</span> <span class="ident">id</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">buildings</span>.<span class="ident">keys</span>().<span class="ident">cloned</span>().<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>() {
+                <span class="self">self</span>.<span class="ident">bldg_added</span>(<span class="ident">ctx</span>, <span class="ident">id</span>);
             }
         }
         <span class="ident">timer</span>.<span class="ident">start_iter</span>(
             <span class="string">&quot;fill out world with intersections&quot;</span>,
-            <span class="ident">model</span>.<span class="ident">map</span>.<span class="ident">intersections</span>.<span class="ident">len</span>(),
+            <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">intersections</span>.<span class="ident">len</span>(),
         );
-        <span class="kw">for</span> <span class="ident">id</span> <span class="kw">in</span> <span class="ident">model</span>.<span class="ident">map</span>.<span class="ident">intersections</span>.<span class="ident">keys</span>().<span class="ident">cloned</span>().<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>() {
+        <span class="kw">for</span> <span class="ident">id</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">intersections</span>.<span class="ident">keys</span>().<span class="ident">cloned</span>().<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>() {
             <span class="ident">timer</span>.<span class="ident">next</span>();
-            <span class="ident">model</span>.<span class="ident">intersection_added</span>(<span class="ident">ctx</span>, <span class="ident">id</span>);
+            <span class="self">self</span>.<span class="ident">intersection_added</span>(<span class="ident">ctx</span>, <span class="ident">id</span>);
         }
-        <span class="ident">timer</span>.<span class="ident">start_iter</span>(<span class="string">&quot;fill out world with roads&quot;</span>, <span class="ident">model</span>.<span class="ident">map</span>.<span class="ident">roads</span>.<span class="ident">len</span>());
-        <span class="kw">for</span> <span class="ident">id</span> <span class="kw">in</span> <span class="ident">model</span>.<span class="ident">map</span>.<span class="ident">roads</span>.<span class="ident">keys</span>().<span class="ident">cloned</span>().<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>() {
+        <span class="ident">timer</span>.<span class="ident">start_iter</span>(<span class="string">&quot;fill out world with roads&quot;</span>, <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">roads</span>.<span class="ident">len</span>());
+        <span class="kw">for</span> <span class="ident">id</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">roads</span>.<span class="ident">keys</span>().<span class="ident">cloned</span>().<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>() {
             <span class="ident">timer</span>.<span class="ident">next</span>();
-            <span class="ident">model</span>.<span class="ident">road_added</span>(<span class="ident">ctx</span>, <span class="ident">id</span>);
+            <span class="self">self</span>.<span class="ident">road_added</span>(<span class="ident">ctx</span>, <span class="ident">id</span>);
         }
-
-        <span class="ident">model</span>
     }
 }
 
