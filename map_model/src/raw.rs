@@ -525,14 +525,19 @@ impl RawMap {
         consolidate_all_intersections: bool,
         timer: &mut Timer,
     ) {
-        timer.start("trimming dead-end cycleways");
+        timer.start("trimming dead-end cycleways (round 1)");
         crate::make::collapse_intersections::trim_deadends(self);
-        timer.stop("trimming dead-end cycleways");
+        timer.stop("trimming dead-end cycleways (round 1)");
 
-        // Not sure yet about the right order for these
         timer.start("snap separate cycleways");
         crate::make::snappy::snap_cycleways(self);
         timer.stop("snap separate cycleways");
+
+        // More dead-ends can be created after snapping cycleways. But also, snapping can be easier
+        // to do after trimming some dead-ends. So... just run it twice.
+        timer.start("trimming dead-end cycleways (round 2)");
+        crate::make::collapse_intersections::trim_deadends(self);
+        timer.stop("trimming dead-end cycleways (round 2)");
 
         crate::make::remove_disconnected::remove_disconnected_roads(self, timer);
 

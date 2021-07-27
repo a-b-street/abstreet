@@ -53,7 +53,10 @@ pub fn snap_cycleways(map: &mut RawMap) {
     let matches = v1(map, &cycleways, &road_edges);
 
     // Go apply the matches!
+    let mut snapped_ids = Vec::new();
     for (cycleway_id, roads) in matches.consume() {
+        snapped_ids.push(cycleway_id);
+
         if DEBUG_OUTPUT {
             // Just mark what we snapped in an easy-to-debug way
             map.roads
@@ -74,6 +77,7 @@ pub fn snap_cycleways(map: &mut RawMap) {
         } else {
             // Remove the separate cycleway
             let deleted_cycleway = map.roads.remove(&cycleway_id).unwrap();
+
             // Add it as an attribute to the roads instead
             for (road_id, dir) in roads {
                 let dir = if dir == Direction::Fwd {
@@ -100,6 +104,21 @@ pub fn snap_cycleways(map: &mut RawMap) {
                     format!("cycleway:{}:separation:{}", dir, traffic_side),
                     "bollard",
                 );
+            }
+        }
+    }
+
+    if !DEBUG_OUTPUT {
+        for r in snapped_ids {
+            // After removing the separate cycleway, likely its two intersections become degenerate
+            // and will be super close to a "real" intersection. Collapse the intersection.
+            //
+            // Do all of these in one batch after snapping everything. Otherwise, some cycleway IDs
+            // totally disappear.
+            for i in [r.i1, r.i2] {
+                if map.roads_per_intersection(i).len() == 2 {
+                    crate::make::collapse_intersections::collapse_intersection(map, i);
+                }
             }
         }
     }

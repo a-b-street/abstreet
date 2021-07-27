@@ -44,7 +44,7 @@ fn is_cycleway(road: &RawRoad, raw: &RawMap) -> bool {
     bike
 }
 
-fn collapse_intersection(raw: &mut RawMap, i: NodeID) {
+pub fn collapse_intersection(raw: &mut RawMap, i: NodeID) {
     let roads = raw.roads_per_intersection(i);
     assert_eq!(roads.len(), 2);
     let r1 = roads[0];
