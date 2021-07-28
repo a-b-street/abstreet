@@ -464,7 +464,7 @@
     <span class="comment">// Start or end at a border?</span>
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">end_border</span> <span class="op">=</span> <span class="prelude-val">None</span>;
     <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">i</span>) <span class="op">=</span> <span class="ident">r</span>.<span class="ident">border_start</span> {
-        <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">map</span>.<span class="ident">find_i_by_osm_id</span>(<span class="ident">i</span>).<span class="ident">unwrap</span>());
+        <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">map</span>.<span class="ident">find_i_by_osm_id</span>(<span class="ident">i</span>)<span class="question-mark">?</span>);
         <span class="kw">if</span> <span class="op">!</span><span class="ident">i</span>.<span class="ident">is_border</span>() {
             <span class="macro">panic!</span>(<span class="string">&quot;Route starts at {}, but isn&#39;t a border?&quot;</span>, <span class="ident">i</span>.<span class="ident">orig_id</span>);
         }
@@ -484,7 +484,7 @@
         <span class="ident">pick_start_lane</span>(<span class="ident">map</span>.<span class="ident">get_bs</span>(<span class="ident">stops</span>[<span class="number">0</span>]).<span class="ident">driving_pos</span>, <span class="ident">route_type</span>, <span class="ident">map</span>)<span class="question-mark">?</span>
     };
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">i</span>) <span class="op">=</span> <span class="ident">r</span>.<span class="ident">border_end</span> {
-        <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">map</span>.<span class="ident">find_i_by_osm_id</span>(<span class="ident">i</span>).<span class="ident">unwrap</span>());
+        <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">map</span>.<span class="ident">find_i_by_osm_id</span>(<span class="ident">i</span>)<span class="question-mark">?</span>);
         <span class="kw">if</span> <span class="op">!</span><span class="ident">i</span>.<span class="ident">is_border</span>() {
             <span class="macro">panic!</span>(<span class="string">&quot;Route ends at {}, but isn&#39;t a border?&quot;</span>, <span class="ident">i</span>.<span class="ident">orig_id</span>);
         }
