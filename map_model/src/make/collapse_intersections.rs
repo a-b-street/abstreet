@@ -5,7 +5,7 @@ use geom::Distance;
 use crate::make::initial::lane_specs::get_lane_specs_ltr;
 use crate::osm::NodeID;
 use crate::raw::{OriginalRoad, RawMap, RawRoad};
-use crate::{osm, LaneType};
+use crate::{osm, IntersectionType, LaneType};
 
 /// Collapse degenerate intersections between two cycleways.
 pub fn collapse(raw: &mut RawMap) {
@@ -103,6 +103,8 @@ pub fn collapse_intersection(raw: &mut RawMap, i: NodeID) {
     );
 }
 
+const SHORT_THRESHOLD: Distance = Distance::const_meters(10.0);
+
 /// Some cycleways intersect footways with detailed curb mapping. The current rules for figuring
 /// out which walking paths also allow bikes are imperfect, so we wind up with short dead-end
 /// "stubs." Trim those.
@@ -111,13 +113,15 @@ pub fn collapse_intersection(raw: &mut RawMap, i: NodeID) {
 pub fn trim_deadends(raw: &mut RawMap) {
     let mut remove_roads = BTreeSet::new();
     let mut remove_intersections = BTreeSet::new();
-    for id in raw.intersections.keys() {
+    for (id, i) in &raw.intersections {
         let roads = raw.roads_per_intersection(*id);
-        if roads.len() != 1 {
+        if roads.len() != 1 || i.intersection_type == IntersectionType::Border {
             continue;
         }
         let road = &raw.roads[&roads[0]];
-        if is_cycleway(road, raw) || is_short_service_road(road) {
+        if road.length() < SHORT_THRESHOLD
+            && (is_cycleway(road, raw) || road.osm_tags.is(osm::HIGHWAY, "service"))
+        {
             remove_roads.insert(roads[0]);
             remove_intersections.insert(*id);
         }
@@ -132,8 +136,4 @@ pub fn trim_deadends(raw: &mut RawMap) {
 
     // It's possible we need to do this in a fixed-point until there are no changes, but meh.
     // Results look good so far.
-}
-
-fn is_short_service_road(road: &RawRoad) -> bool {
-    road.osm_tags.is(osm::HIGHWAY, "service") && road.length() < Distance::meters(10.0)
 }
