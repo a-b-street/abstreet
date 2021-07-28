@@ -111,6 +111,7 @@ impl Intersection {
         constraints.filter_lanes(self.outgoing_lanes.clone(), map)
     }
 
+    /// Higher numbers get drawn on top
     pub fn get_zorder(&self, map: &Map) -> isize {
         // TODO Not sure min makes sense -- what about a 1 and a 0? Prefer the nonzeros. If there's
         // a -1 and a 1... need to see it to know what to do.

@@ -51,7 +51,7 @@ impl DrawIntersection {
             calculate_corners(i, map),
         );
         if app.cs().experiment {
-            default_geom.extend(app.cs().curb, calculate_corner_curbs(i, map));
+            default_geom.extend(app.cs().curb(rank), calculate_corner_curbs(i, map));
         }
 
         for turn in map.get_turns_in_intersection(i.id) {
@@ -154,6 +154,48 @@ impl DrawIntersection {
     pub fn clear_rendering(&mut self) {
         *self.draw_default.borrow_mut() = None;
     }
+
+    /// Find sections along the intersection polygon that aren't connected to a road. These should
+    /// contribute an outline.
+    pub fn get_unzoomed_outline(i: &Intersection, map: &Map) -> Vec<PolyLine> {
+        let mut segments = Vec::new();
+        if let Some(ring) = i.polygon.get_outer_ring() {
+            // Turn each road into the left and right point that should be on the ring, so we can
+            // "subtract" them out.
+            let road_pairs: Vec<(Pt2D, Pt2D)> = i
+                .roads
+                .iter()
+                .map(|r| {
+                    let road = map.get_r(*r);
+                    let half_width = road.get_half_width(map);
+                    let left = road.center_pts.must_shift_left(half_width);
+                    let right = road.center_pts.must_shift_right(half_width);
+                    if road.src_i == i.id {
+                        (left.first_pt(), right.first_pt())
+                    } else {
+                        (left.last_pt(), right.last_pt())
+                    }
+                })
+                .collect();
+
+            // Walk along each line segment on the ring. If it's not one of our road pairs, add it
+            // as a potential segment.
+            for pair1 in ring.into_points().windows(2) {
+                if !road_pairs.iter().any(|pair2| approx_eq(pair1, pair2)) {
+                    segments.push(PolyLine::must_new(vec![pair1[0], pair1[1]]));
+                }
+            }
+
+            // TODO We could merge adjacent segments, to get nicer corners
+        }
+        segments
+    }
+}
+
+fn approx_eq(pair1: &[Pt2D], pair2: &(Pt2D, Pt2D)) -> bool {
+    let epsilon = Distance::meters(0.1);
+    (pair1[0].approx_eq(pair2.0, epsilon) && pair1[1].approx_eq(pair2.1, epsilon))
+        || (pair1[0].approx_eq(pair2.1, epsilon) && pair1[1].approx_eq(pair2.0, epsilon))
 }
 
 impl Renderable for DrawIntersection {

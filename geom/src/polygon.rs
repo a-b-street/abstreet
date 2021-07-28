@@ -194,6 +194,15 @@ impl Polygon {
         Ring::must_new(self.into_points())
     }
 
+    /// Get the outer ring of this polygon. This should usually succeed.
+    pub fn get_outer_ring(&self) -> Option<Ring> {
+        if let Some(ref rings) = self.rings {
+            Some(rings[0].clone())
+        } else {
+            Ring::new(self.points.clone()).ok()
+        }
+    }
+
     pub fn center(&self) -> Pt2D {
         // TODO dedupe just out of fear of the first/last point being repeated
         let mut pts: Vec<HashablePt2D> = self.points.iter().map(|pt| pt.to_hashable()).collect();

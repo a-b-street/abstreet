@@ -76,7 +76,6 @@ pub struct ColorScheme {
     pub sidewalk_lines: Color,
     general_road_marking: Color,
     road_center_line: Color,
-    pub curb: Color,
     pub light_rail_track: Color,
     pub private_road: Color,
     unzoomed_highway: Color,
@@ -205,7 +204,6 @@ impl ColorScheme {
             sidewalk_lines: Color::grey(0.7),
             general_road_marking: Color::WHITE,
             road_center_line: Color::YELLOW,
-            curb: hex("#666666"),
             light_rail_track: hex("#844204"),
             private_road: hex("#F0B0C0"),
             unzoomed_highway: hex("#E892A2"),
@@ -346,6 +344,15 @@ impl ColorScheme {
         }
     }
 
+    pub fn curb(&self, rank: RoadRank) -> Color {
+        // The curb should be darker than the asphalt to stand out
+        match rank {
+            RoadRank::Highway => Color::grey(0.2),
+            RoadRank::Arterial => Color::grey(0.3),
+            RoadRank::Local => Color::grey(0.4),
+        }
+    }
+
     // TODO Maybe this'll be the same everywhere
     pub fn road_center_line(&self, _: RoadRank) -> Color {
         self.road_center_line
@@ -482,6 +489,9 @@ impl ColorScheme {
         cs.sidewalk_lines = hex("#989898");
 
         cs.unzoomed_arterial = hex("#F6A483");
+
+        cs.residential_building = hex("#C5D2E5");
+        cs.commercial_building = hex("#99AECC");
 
         cs
     }

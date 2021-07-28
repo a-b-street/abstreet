@@ -32,16 +32,16 @@ impl DrawLane {
         let map = app.map();
         let lane = map.get_l(self.id);
         let road = map.get_r(lane.parent);
+        let rank = road.get_rank();
         let mut batch = GeomBatch::new();
 
         if !lane.is_light_rail() {
             batch.push(
-                app.cs()
-                    .zoomed_road_surface(lane.lane_type, road.get_rank()),
+                app.cs().zoomed_road_surface(lane.lane_type, rank),
                 self.polygon.clone(),
             );
         }
-        let general_road_marking = app.cs().general_road_marking(road.get_rank());
+        let general_road_marking = app.cs().general_road_marking(rank);
 
         match lane.lane_type {
             LaneType::Sidewalk | LaneType::Shoulder => {
@@ -57,7 +57,7 @@ impl DrawLane {
                         shift *= -1.0;
                     }
                     batch.push(
-                        app.cs().curb,
+                        app.cs().curb(rank),
                         lane.lane_center_pts
                             .shift_either_direction(shift)
                             .unwrap()
@@ -105,13 +105,13 @@ impl DrawLane {
             LaneType::SharedLeftTurn => {
                 let thickness = Distance::meters(0.25);
                 batch.push(
-                    app.cs().road_center_line(road.get_rank()),
+                    app.cs().road_center_line(rank),
                     lane.lane_center_pts
                         .must_shift_right((lane.width - thickness) / 2.0)
                         .make_polygons(thickness),
                 );
                 batch.push(
-                    app.cs().road_center_line(road.get_rank()),
+                    app.cs().road_center_line(rank),
                     lane.lane_center_pts
                         .must_shift_left((lane.width - thickness) / 2.0)
                         .make_polygons(thickness),

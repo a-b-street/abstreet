@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use aabb_quadtree::QuadTree;
 
 use abstutil::Timer;
-use geom::{Bounds, Polygon};
+use geom::{Bounds, Distance, Polygon};
 use map_model::{
     AreaID, BuildingID, BusStopID, IntersectionID, LaneID, Map, ParkingLotID, Road, RoadID,
 };
@@ -211,11 +211,20 @@ impl DrawMap {
         timer: &mut Timer,
     ) -> Drawable {
         timer.start("generate unzoomed roads and intersections");
-        let mut unzoomed_pieces: Vec<(isize, Polygon, Color)> = Vec::new();
+
+        // TODO Different in night mode
+        let outline_color = Color::BLACK;
+        let outline_thickness = Distance::meters(1.0);
+        // We want the outlines slightly above the equivalent layer. z-order is an isize, and f64
+        // makes sort_by_key annoying, so just multiply the existing z-orders by 10.
+        let outline_z_offset = 5;
+        let mut unzoomed_pieces: Vec<(isize, Color, Polygon)> = Vec::new();
+
         for r in map.all_roads() {
+            let width = r.get_width(map);
+
             unzoomed_pieces.push((
-                r.zorder,
-                r.get_thick_polygon(map),
+                10 * r.zorder,
                 if r.is_light_rail() {
                     cs.light_rail_track
                 } else if r.is_cycleway() {
@@ -225,12 +234,31 @@ impl DrawMap {
                 } else {
                     cs.unzoomed_road_surface(r.get_rank())
                 },
+                r.center_pts.make_polygons(width),
             ));
+
+            if cs.experiment {
+                // Draw a thick outline on the left and right
+                if let Ok(pl) = r.center_pts.shift_left(width / 2.0) {
+                    unzoomed_pieces.push((
+                        10 * r.zorder + outline_z_offset,
+                        outline_color,
+                        pl.make_polygons(outline_thickness),
+                    ));
+                }
+                if let Ok(pl) = r.center_pts.shift_right(width / 2.0) {
+                    unzoomed_pieces.push((
+                        10 * r.zorder + outline_z_offset,
+                        outline_color,
+                        pl.make_polygons(outline_thickness),
+                    ));
+                }
+            }
         }
         for i in map.all_intersections() {
+            let zorder = 10 * i.get_zorder(map);
             unzoomed_pieces.push((
-                i.get_zorder(map),
-                i.polygon.clone(),
+                zorder,
                 if i.is_stop_sign() {
                     if i.is_light_rail(map) {
                         cs.light_rail_track
@@ -244,11 +272,22 @@ impl DrawMap {
                 } else {
                     cs.unzoomed_interesting_intersection
                 },
+                i.polygon.clone(),
             ));
+
+            if cs.experiment {
+                for pl in DrawIntersection::get_unzoomed_outline(i, map) {
+                    unzoomed_pieces.push((
+                        zorder + outline_z_offset,
+                        outline_color,
+                        pl.make_polygons(outline_thickness),
+                    ));
+                }
+            }
         }
         unzoomed_pieces.sort_by_key(|(z, _, _)| *z);
         let mut unzoomed_batch = GeomBatch::new();
-        for (_, poly, color) in unzoomed_pieces {
+        for (_, color, poly) in unzoomed_pieces {
             unzoomed_batch.push(color, poly);
         }
         let draw_all_unzoomed_roads_and_intersections = unzoomed_batch.upload(ctx);
