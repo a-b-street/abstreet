@@ -489,6 +489,16 @@
 <span id="486">486</span>
 <span id="487">487</span>
 <span id="488">488</span>
+<span id="489">489</span>
+<span id="490">490</span>
+<span id="491">491</span>
+<span id="492">492</span>
+<span id="493">493</span>
+<span id="494">494</span>
+<span id="495">495</span>
+<span id="496">496</span>
+<span id="497">497</span>
+<span id="498">498</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! A color scheme groups colors used for different map, dynamic, and UI elements in one place, to</span>
 <span class="doccomment">//! encourage deduplication. The player can also switch between different color schemes.</span>
@@ -568,7 +578,6 @@
     <span class="kw">pub</span> <span class="ident">sidewalk_lines</span>: <span class="ident">Color</span>,
     <span class="ident">general_road_marking</span>: <span class="ident">Color</span>,
     <span class="ident">road_center_line</span>: <span class="ident">Color</span>,
-    <span class="kw">pub</span> <span class="ident">curb</span>: <span class="ident">Color</span>,
     <span class="kw">pub</span> <span class="ident">light_rail_track</span>: <span class="ident">Color</span>,
     <span class="kw">pub</span> <span class="ident">private_road</span>: <span class="ident">Color</span>,
     <span class="ident">unzoomed_highway</span>: <span class="ident">Color</span>,
@@ -697,7 +706,6 @@
             <span class="ident">sidewalk_lines</span>: <span class="ident">Color::grey</span>(<span class="number">0.7</span>),
             <span class="ident">general_road_marking</span>: <span class="ident">Color::WHITE</span>,
             <span class="ident">road_center_line</span>: <span class="ident">Color::YELLOW</span>,
-            <span class="ident">curb</span>: <span class="ident">hex</span>(<span class="string">&quot;#666666&quot;</span>),
             <span class="ident">light_rail_track</span>: <span class="ident">hex</span>(<span class="string">&quot;#844204&quot;</span>),
             <span class="ident">private_road</span>: <span class="ident">hex</span>(<span class="string">&quot;#F0B0C0&quot;</span>),
             <span class="ident">unzoomed_highway</span>: <span class="ident">hex</span>(<span class="string">&quot;#E892A2&quot;</span>),
@@ -838,6 +846,15 @@
         }
     }
 
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">curb</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">rank</span>: <span class="ident">RoadRank</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Color</span> {
+        <span class="comment">// The curb should be darker than the asphalt to stand out</span>
+        <span class="kw">match</span> <span class="ident">rank</span> {
+            <span class="ident">RoadRank::Highway</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Color::grey</span>(<span class="number">0.2</span>),
+            <span class="ident">RoadRank::Arterial</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Color::grey</span>(<span class="number">0.3</span>),
+            <span class="ident">RoadRank::Local</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Color::grey</span>(<span class="number">0.4</span>),
+        }
+    }
+
     <span class="comment">// TODO Maybe this&#39;ll be the same everywhere</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">road_center_line</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="ident">RoadRank</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Color</span> {
         <span class="self">self</span>.<span class="ident">road_center_line</span>
@@ -974,6 +991,9 @@
         <span class="ident">cs</span>.<span class="ident">sidewalk_lines</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#989898&quot;</span>);
 
         <span class="ident">cs</span>.<span class="ident">unzoomed_arterial</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#F6A483&quot;</span>);
+
+        <span class="ident">cs</span>.<span class="ident">residential_building</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#C5D2E5&quot;</span>);
+        <span class="ident">cs</span>.<span class="ident">commercial_building</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#99AECC&quot;</span>);
 
         <span class="ident">cs</span>
     }

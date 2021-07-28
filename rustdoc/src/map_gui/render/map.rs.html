@@ -519,13 +519,52 @@
 <span id="516">516</span>
 <span id="517">517</span>
 <span id="518">518</span>
+<span id="519">519</span>
+<span id="520">520</span>
+<span id="521">521</span>
+<span id="522">522</span>
+<span id="523">523</span>
+<span id="524">524</span>
+<span id="525">525</span>
+<span id="526">526</span>
+<span id="527">527</span>
+<span id="528">528</span>
+<span id="529">529</span>
+<span id="530">530</span>
+<span id="531">531</span>
+<span id="532">532</span>
+<span id="533">533</span>
+<span id="534">534</span>
+<span id="535">535</span>
+<span id="536">536</span>
+<span id="537">537</span>
+<span id="538">538</span>
+<span id="539">539</span>
+<span id="540">540</span>
+<span id="541">541</span>
+<span id="542">542</span>
+<span id="543">543</span>
+<span id="544">544</span>
+<span id="545">545</span>
+<span id="546">546</span>
+<span id="547">547</span>
+<span id="548">548</span>
+<span id="549">549</span>
+<span id="550">550</span>
+<span id="551">551</span>
+<span id="552">552</span>
+<span id="553">553</span>
+<span id="554">554</span>
+<span id="555">555</span>
+<span id="556">556</span>
+<span id="557">557</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
 <span class="kw">use</span> <span class="ident">aabb_quadtree::QuadTree</span>;
 
 <span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Bounds</span>, <span class="ident">Polygon</span>};
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Bounds</span>, <span class="ident">Distance</span>, <span class="ident">Polygon</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{
     <span class="ident">AreaID</span>, <span class="ident">BuildingID</span>, <span class="ident">BusStopID</span>, <span class="ident">IntersectionID</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">ParkingLotID</span>, <span class="ident">Road</span>, <span class="ident">RoadID</span>,
 };
@@ -733,11 +772,20 @@
         <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Drawable</span> {
         <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;generate unzoomed roads and intersections&quot;</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">unzoomed_pieces</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">isize</span>, <span class="ident">Polygon</span>, <span class="ident">Color</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+
+        <span class="comment">// TODO Different in night mode</span>
+        <span class="kw">let</span> <span class="ident">outline_color</span> <span class="op">=</span> <span class="ident">Color::BLACK</span>;
+        <span class="kw">let</span> <span class="ident">outline_thickness</span> <span class="op">=</span> <span class="ident">Distance::meters</span>(<span class="number">1.0</span>);
+        <span class="comment">// We want the outlines slightly above the equivalent layer. z-order is an isize, and f64</span>
+        <span class="comment">// makes sort_by_key annoying, so just multiply the existing z-orders by 10.</span>
+        <span class="kw">let</span> <span class="ident">outline_z_offset</span> <span class="op">=</span> <span class="number">5</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">unzoomed_pieces</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">isize</span>, <span class="ident">Color</span>, <span class="ident">Polygon</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+
         <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_roads</span>() {
+            <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">get_width</span>(<span class="ident">map</span>);
+
             <span class="ident">unzoomed_pieces</span>.<span class="ident">push</span>((
-                <span class="ident">r</span>.<span class="ident">zorder</span>,
-                <span class="ident">r</span>.<span class="ident">get_thick_polygon</span>(<span class="ident">map</span>),
+                <span class="number">10</span> <span class="op">*</span> <span class="ident">r</span>.<span class="ident">zorder</span>,
                 <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">is_light_rail</span>() {
                     <span class="ident">cs</span>.<span class="ident">light_rail_track</span>
                 } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">is_cycleway</span>() {
@@ -747,12 +795,31 @@
                 } <span class="kw">else</span> {
                     <span class="ident">cs</span>.<span class="ident">unzoomed_road_surface</span>(<span class="ident">r</span>.<span class="ident">get_rank</span>())
                 },
+                <span class="ident">r</span>.<span class="ident">center_pts</span>.<span class="ident">make_polygons</span>(<span class="ident">width</span>),
             ));
+
+            <span class="kw">if</span> <span class="ident">cs</span>.<span class="ident">experiment</span> {
+                <span class="comment">// Draw a thick outline on the left and right</span>
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">pl</span>) <span class="op">=</span> <span class="ident">r</span>.<span class="ident">center_pts</span>.<span class="ident">shift_left</span>(<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>) {
+                    <span class="ident">unzoomed_pieces</span>.<span class="ident">push</span>((
+                        <span class="number">10</span> <span class="op">*</span> <span class="ident">r</span>.<span class="ident">zorder</span> <span class="op">+</span> <span class="ident">outline_z_offset</span>,
+                        <span class="ident">outline_color</span>,
+                        <span class="ident">pl</span>.<span class="ident">make_polygons</span>(<span class="ident">outline_thickness</span>),
+                    ));
+                }
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">pl</span>) <span class="op">=</span> <span class="ident">r</span>.<span class="ident">center_pts</span>.<span class="ident">shift_right</span>(<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>) {
+                    <span class="ident">unzoomed_pieces</span>.<span class="ident">push</span>((
+                        <span class="number">10</span> <span class="op">*</span> <span class="ident">r</span>.<span class="ident">zorder</span> <span class="op">+</span> <span class="ident">outline_z_offset</span>,
+                        <span class="ident">outline_color</span>,
+                        <span class="ident">pl</span>.<span class="ident">make_polygons</span>(<span class="ident">outline_thickness</span>),
+                    ));
+                }
+            }
         }
         <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_intersections</span>() {
+            <span class="kw">let</span> <span class="ident">zorder</span> <span class="op">=</span> <span class="number">10</span> <span class="op">*</span> <span class="ident">i</span>.<span class="ident">get_zorder</span>(<span class="ident">map</span>);
             <span class="ident">unzoomed_pieces</span>.<span class="ident">push</span>((
-                <span class="ident">i</span>.<span class="ident">get_zorder</span>(<span class="ident">map</span>),
-                <span class="ident">i</span>.<span class="ident">polygon</span>.<span class="ident">clone</span>(),
+                <span class="ident">zorder</span>,
                 <span class="kw">if</span> <span class="ident">i</span>.<span class="ident">is_stop_sign</span>() {
                     <span class="kw">if</span> <span class="ident">i</span>.<span class="ident">is_light_rail</span>(<span class="ident">map</span>) {
                         <span class="ident">cs</span>.<span class="ident">light_rail_track</span>
@@ -766,11 +833,22 @@
                 } <span class="kw">else</span> {
                     <span class="ident">cs</span>.<span class="ident">unzoomed_interesting_intersection</span>
                 },
+                <span class="ident">i</span>.<span class="ident">polygon</span>.<span class="ident">clone</span>(),
             ));
+
+            <span class="kw">if</span> <span class="ident">cs</span>.<span class="ident">experiment</span> {
+                <span class="kw">for</span> <span class="ident">pl</span> <span class="kw">in</span> <span class="ident">DrawIntersection::get_unzoomed_outline</span>(<span class="ident">i</span>, <span class="ident">map</span>) {
+                    <span class="ident">unzoomed_pieces</span>.<span class="ident">push</span>((
+                        <span class="ident">zorder</span> <span class="op">+</span> <span class="ident">outline_z_offset</span>,
+                        <span class="ident">outline_color</span>,
+                        <span class="ident">pl</span>.<span class="ident">make_polygons</span>(<span class="ident">outline_thickness</span>),
+                    ));
+                }
+            }
         }
         <span class="ident">unzoomed_pieces</span>.<span class="ident">sort_by_key</span>(<span class="op">|</span>(<span class="ident">z</span>, <span class="kw">_</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="kw-2">*</span><span class="ident">z</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">unzoomed_batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
-        <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">poly</span>, <span class="ident">color</span>) <span class="kw">in</span> <span class="ident">unzoomed_pieces</span> {
+        <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">color</span>, <span class="ident">poly</span>) <span class="kw">in</span> <span class="ident">unzoomed_pieces</span> {
             <span class="ident">unzoomed_batch</span>.<span class="ident">push</span>(<span class="ident">color</span>, <span class="ident">poly</span>);
         }
         <span class="kw">let</span> <span class="ident">draw_all_unzoomed_roads_and_intersections</span> <span class="op">=</span> <span class="ident">unzoomed_batch</span>.<span class="ident">upload</span>(<span class="ident">ctx</span>);

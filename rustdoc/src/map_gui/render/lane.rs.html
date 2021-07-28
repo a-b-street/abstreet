@@ -519,16 +519,16 @@
         <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">map</span>();
         <span class="kw">let</span> <span class="ident">lane</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="self">self</span>.<span class="ident">id</span>);
         <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">lane</span>.<span class="ident">parent</span>);
+        <span class="kw">let</span> <span class="ident">rank</span> <span class="op">=</span> <span class="ident">road</span>.<span class="ident">get_rank</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
 
         <span class="kw">if</span> <span class="op">!</span><span class="ident">lane</span>.<span class="ident">is_light_rail</span>() {
             <span class="ident">batch</span>.<span class="ident">push</span>(
-                <span class="ident">app</span>.<span class="ident">cs</span>()
-                    .<span class="ident">zoomed_road_surface</span>(<span class="ident">lane</span>.<span class="ident">lane_type</span>, <span class="ident">road</span>.<span class="ident">get_rank</span>()),
+                <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">zoomed_road_surface</span>(<span class="ident">lane</span>.<span class="ident">lane_type</span>, <span class="ident">rank</span>),
                 <span class="self">self</span>.<span class="ident">polygon</span>.<span class="ident">clone</span>(),
             );
         }
-        <span class="kw">let</span> <span class="ident">general_road_marking</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">general_road_marking</span>(<span class="ident">road</span>.<span class="ident">get_rank</span>());
+        <span class="kw">let</span> <span class="ident">general_road_marking</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">general_road_marking</span>(<span class="ident">rank</span>);
 
         <span class="kw">match</span> <span class="ident">lane</span>.<span class="ident">lane_type</span> {
             <span class="ident">LaneType::Sidewalk</span> <span class="op">|</span> <span class="ident">LaneType::Shoulder</span> <span class="op">=</span><span class="op">&gt;</span> {
@@ -544,7 +544,7 @@
                         <span class="ident">shift</span> <span class="kw-2">*</span><span class="op">=</span> <span class="op">-</span><span class="number">1.0</span>;
                     }
                     <span class="ident">batch</span>.<span class="ident">push</span>(
-                        <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">curb</span>,
+                        <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">curb</span>(<span class="ident">rank</span>),
                         <span class="ident">lane</span>.<span class="ident">lane_center_pts</span>
                             .<span class="ident">shift_either_direction</span>(<span class="ident">shift</span>)
                             .<span class="ident">unwrap</span>()
@@ -592,13 +592,13 @@
             <span class="ident">LaneType::SharedLeftTurn</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="ident">thickness</span> <span class="op">=</span> <span class="ident">Distance::meters</span>(<span class="number">0.25</span>);
                 <span class="ident">batch</span>.<span class="ident">push</span>(
-                    <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">road_center_line</span>(<span class="ident">road</span>.<span class="ident">get_rank</span>()),
+                    <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">road_center_line</span>(<span class="ident">rank</span>),
                     <span class="ident">lane</span>.<span class="ident">lane_center_pts</span>
                         .<span class="ident">must_shift_right</span>((<span class="ident">lane</span>.<span class="ident">width</span> <span class="op">-</span> <span class="ident">thickness</span>) <span class="op">/</span> <span class="number">2.0</span>)
                         .<span class="ident">make_polygons</span>(<span class="ident">thickness</span>),
                 );
                 <span class="ident">batch</span>.<span class="ident">push</span>(
-                    <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">road_center_line</span>(<span class="ident">road</span>.<span class="ident">get_rank</span>()),
+                    <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">road_center_line</span>(<span class="ident">rank</span>),
                     <span class="ident">lane</span>.<span class="ident">lane_center_pts</span>
                         .<span class="ident">must_shift_left</span>((<span class="ident">lane</span>.<span class="ident">width</span> <span class="op">-</span> <span class="ident">thickness</span>) <span class="op">/</span> <span class="number">2.0</span>)
                         .<span class="ident">make_polygons</span>(<span class="ident">thickness</span>),

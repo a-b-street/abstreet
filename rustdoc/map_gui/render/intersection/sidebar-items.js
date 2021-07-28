@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["calculate_border_arrows",""],["calculate_corner_curbs",""],["calculate_corners",""],["make_crosswalk",""],["make_octagon",""],["make_rainbow_crosswalk",""],["perp_line",""]],"struct":[["DrawIntersection",""]]});
+initSidebarItems({"fn":[["approx_eq",""],["calculate_border_arrows",""],["calculate_corner_curbs",""],["calculate_corners",""],["make_crosswalk",""],["make_octagon",""],["make_rainbow_crosswalk",""],["perp_line",""]],"struct":[["DrawIntersection",""]]});

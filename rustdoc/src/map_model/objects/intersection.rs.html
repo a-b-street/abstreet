@@ -184,6 +184,7 @@
 <span id="181">181</span>
 <span id="182">182</span>
 <span id="183">183</span>
+<span id="184">184</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
 <span class="kw">use</span> <span class="ident">std::fmt</span>;
@@ -298,6 +299,7 @@
         <span class="ident">constraints</span>.<span class="ident">filter_lanes</span>(<span class="self">self</span>.<span class="ident">outgoing_lanes</span>.<span class="ident">clone</span>(), <span class="ident">map</span>)
     }
 
+    <span class="doccomment">/// Higher numbers get drawn on top</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_zorder</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">isize</span> {
         <span class="comment">// TODO Not sure min makes sense -- what about a 1 and a 0? Prefer the nonzeros. If there&#39;s</span>
         <span class="comment">// a -1 and a 1... need to see it to know what to do.</span>
