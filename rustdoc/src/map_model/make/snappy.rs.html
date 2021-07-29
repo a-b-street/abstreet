@@ -1,7 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/make/snappy.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>snappy.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings"></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg">
 <link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png">
-<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../map_model/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" class="help-button">?</button>
-                <a id="settings-menu" href="../../../settings.html"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
+<link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../map_model/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img src="../../../brush.svg" width="18" height="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img src="../../../wheel.svg" width="18" height="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -234,7 +233,13 @@
 <span id="231">231</span>
 <span id="232">232</span>
 <span id="233">233</span>
-</pre><div class="example-wrap"><pre class="rust ">
+<span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
+</pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashMap</span>};
 
 <span class="kw">use</span> <span class="ident">abstio::MapName</span>;
@@ -245,7 +250,7 @@
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::raw</span>::{<span class="ident">OriginalRoad</span>, <span class="ident">RawMap</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Direction</span>, <span class="ident">DrivingSide</span>};
 
-<span class="kw">const</span> <span class="ident">DEBUG_OUTPUT</span>: <span class="ident">bool</span> <span class="op">=</span> <span class="bool-val">false</span>;
+<span class="kw">const</span> <span class="ident">DEBUG_OUTPUT</span>: <span class="ident">bool</span> <span class="op">=</span> <span class="bool-val">true</span>;
 
 <span class="doccomment">/// Snap separately mapped cycleways to main roads.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">snap_cycleways</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">RawMap</span>) {
@@ -294,68 +299,54 @@
     <span class="kw">for</span> (<span class="ident">cycleway_id</span>, <span class="ident">roads</span>) <span class="kw">in</span> <span class="ident">matches</span>.<span class="ident">consume</span>() {
         <span class="ident">snapped_ids</span>.<span class="ident">push</span>(<span class="ident">cycleway_id</span>);
 
-        <span class="kw">if</span> <span class="ident">DEBUG_OUTPUT</span> {
-            <span class="comment">// Just mark what we snapped in an easy-to-debug way</span>
-            <span class="ident">map</span>.<span class="ident">roads</span>
-                .<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">cycleway_id</span>)
-                .<span class="ident">unwrap</span>()
-                .<span class="ident">osm_tags</span>
-                .<span class="ident">insert</span>(<span class="string">&quot;abst:snap&quot;</span>, <span class="string">&quot;remove&quot;</span>);
-            <span class="kw">for</span> (<span class="ident">road_id</span>, <span class="ident">dir</span>) <span class="kw">in</span> <span class="ident">roads</span> {
-                <span class="ident">map</span>.<span class="ident">roads</span>.<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">road_id</span>).<span class="ident">unwrap</span>().<span class="ident">osm_tags</span>.<span class="ident">insert</span>(
-                    <span class="kw">if</span> <span class="ident">dir</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Direction::Fwd</span> {
-                        <span class="string">&quot;abst:snap_fwd&quot;</span>
-                    } <span class="kw">else</span> {
-                        <span class="string">&quot;abst:snap_back&quot;</span>
-                    },
-                    <span class="string">&quot;cyclepath&quot;</span>,
-                );
+        <span class="comment">// Remove the separate cycleway</span>
+        <span class="kw">let</span> <span class="ident">deleted_cycleway</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">roads</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">cycleway_id</span>).<span class="ident">unwrap</span>();
+
+        <span class="comment">// Add it as an attribute to the roads instead</span>
+        <span class="kw">for</span> (<span class="ident">road_id</span>, <span class="ident">dir</span>) <span class="kw">in</span> <span class="ident">roads</span> {
+            <span class="kw">let</span> <span class="ident">dir</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">dir</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Direction::Fwd</span> {
+                <span class="string">&quot;right&quot;</span>
+            } <span class="kw">else</span> {
+                <span class="string">&quot;left&quot;</span>
+            };
+            <span class="kw">let</span> <span class="ident">tags</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">map</span>.<span class="ident">roads</span>.<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">road_id</span>).<span class="ident">unwrap</span>().<span class="ident">osm_tags</span>;
+            <span class="ident">tags</span>.<span class="ident">insert</span>(<span class="macro">format!</span>(<span class="string">&quot;cycleway:{}&quot;</span>, <span class="ident">dir</span>), <span class="string">&quot;track&quot;</span>);
+            <span class="kw">if</span> <span class="op">!</span><span class="ident">deleted_cycleway</span>.<span class="ident">osm_tags</span>.<span class="ident">is</span>(<span class="string">&quot;oneway&quot;</span>, <span class="string">&quot;yes&quot;</span>) {
+                <span class="ident">tags</span>.<span class="ident">insert</span>(<span class="macro">format!</span>(<span class="string">&quot;cycleway:{}:oneway&quot;</span>, <span class="ident">dir</span>), <span class="string">&quot;no&quot;</span>);
             }
-        } <span class="kw">else</span> {
-            <span class="comment">// Remove the separate cycleway</span>
-            <span class="kw">let</span> <span class="ident">deleted_cycleway</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">roads</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">cycleway_id</span>).<span class="ident">unwrap</span>();
 
-            <span class="comment">// Add it as an attribute to the roads instead</span>
-            <span class="kw">for</span> (<span class="ident">road_id</span>, <span class="ident">dir</span>) <span class="kw">in</span> <span class="ident">roads</span> {
-                <span class="kw">let</span> <span class="ident">dir</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">dir</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Direction::Fwd</span> {
-                    <span class="string">&quot;right&quot;</span>
-                } <span class="kw">else</span> {
-                    <span class="string">&quot;left&quot;</span>
-                };
-                <span class="kw">let</span> <span class="ident">tags</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">map</span>.<span class="ident">roads</span>.<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">road_id</span>).<span class="ident">unwrap</span>().<span class="ident">osm_tags</span>;
-                <span class="ident">tags</span>.<span class="ident">insert</span>(<span class="macro">format!</span>(<span class="string">&quot;cycleway:{}&quot;</span>, <span class="ident">dir</span>), <span class="string">&quot;track&quot;</span>);
-                <span class="kw">if</span> <span class="op">!</span><span class="ident">deleted_cycleway</span>.<span class="ident">osm_tags</span>.<span class="ident">is</span>(<span class="string">&quot;oneway&quot;</span>, <span class="string">&quot;yes&quot;</span>) {
-                    <span class="ident">tags</span>.<span class="ident">insert</span>(<span class="macro">format!</span>(<span class="string">&quot;cycleway:{}:oneway&quot;</span>, <span class="ident">dir</span>), <span class="string">&quot;no&quot;</span>);
-                }
+            <span class="comment">// I _think_ the second direction is supposed to be relative to the direction of travel</span>
+            <span class="comment">// for the cycleway. But not sure.</span>
+            <span class="kw">let</span> <span class="ident">traffic_side</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">config</span>.<span class="ident">driving_side</span> <span class="op">=</span><span class="op">=</span> <span class="ident">DrivingSide::Right</span> {
+                <span class="string">&quot;left&quot;</span>
+            } <span class="kw">else</span> {
+                <span class="string">&quot;right&quot;</span>
+            };
+            <span class="comment">// TODO Copy over separation tags from this separate way. To quickly test right now,</span>
+            <span class="comment">// just pretend we always have flex posts...</span>
+            <span class="ident">tags</span>.<span class="ident">insert</span>(
+                <span class="macro">format!</span>(<span class="string">&quot;cycleway:{}:separation:{}&quot;</span>, <span class="ident">dir</span>, <span class="ident">traffic_side</span>),
+                <span class="string">&quot;bollard&quot;</span>,
+            );
 
-                <span class="comment">// I _think_ the second direction is supposed to be relative to the direction of</span>
-                <span class="comment">// travel for the cycleway. But not sure.</span>
-                <span class="kw">let</span> <span class="ident">traffic_side</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">config</span>.<span class="ident">driving_side</span> <span class="op">=</span><span class="op">=</span> <span class="ident">DrivingSide::Right</span> {
-                    <span class="string">&quot;left&quot;</span>
-                } <span class="kw">else</span> {
-                    <span class="string">&quot;right&quot;</span>
-                };
-                <span class="comment">// TODO Copy over separation tags from this separate way. To quickly test right</span>
-                <span class="comment">// now, just pretend we always have flex posts...</span>
+            <span class="kw">if</span> <span class="ident">DEBUG_OUTPUT</span> {
                 <span class="ident">tags</span>.<span class="ident">insert</span>(
-                    <span class="macro">format!</span>(<span class="string">&quot;cycleway:{}:separation:{}&quot;</span>, <span class="ident">dir</span>, <span class="ident">traffic_side</span>),
-                    <span class="string">&quot;bollard&quot;</span>,
+                    <span class="macro">format!</span>(<span class="string">&quot;abst:cycleway_snap:{}&quot;</span>, <span class="ident">dir</span>),
+                    <span class="ident">cycleway_id</span>.<span class="ident">osm_way_id</span>.<span class="number">0</span>.<span class="ident">to_string</span>(),
                 );
             }
         }
     }
 
-    <span class="kw">if</span> <span class="op">!</span><span class="ident">DEBUG_OUTPUT</span> {
-        <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">snapped_ids</span> {
-            <span class="comment">// After removing the separate cycleway, likely its two intersections become degenerate</span>
-            <span class="comment">// and will be super close to a &quot;real&quot; intersection. Collapse the intersection.</span>
-            <span class="comment">//</span>
-            <span class="comment">// Do all of these in one batch after snapping everything. Otherwise, some cycleway IDs</span>
-            <span class="comment">// totally disappear.</span>
-            <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> [<span class="ident">r</span>.<span class="ident">i1</span>, <span class="ident">r</span>.<span class="ident">i2</span>] {
-                <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">roads_per_intersection</span>(<span class="ident">i</span>).<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="number">2</span> {
-                    <span class="kw">crate</span><span class="ident">::make::collapse_intersections::collapse_intersection</span>(<span class="ident">map</span>, <span class="ident">i</span>);
-                }
+    <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">snapped_ids</span> {
+        <span class="comment">// After removing the separate cycleway, likely its two intersections become degenerate and</span>
+        <span class="comment">// will be super close to a &quot;real&quot; intersection. Collapse the intersection.</span>
+        <span class="comment">//</span>
+        <span class="comment">// Do all of these in one batch after snapping everything. Otherwise, some cycleway IDs</span>
+        <span class="comment">// totally disappear.</span>
+        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> [<span class="ident">r</span>.<span class="ident">i1</span>, <span class="ident">r</span>.<span class="ident">i2</span>] {
+            <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">roads_per_intersection</span>(<span class="ident">i</span>).<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="number">2</span> {
+                <span class="kw">crate</span><span class="ident">::make::collapse_intersections::collapse_intersection</span>(<span class="ident">map</span>, <span class="ident">i</span>);
             }
         }
     }
@@ -407,10 +398,7 @@
                 <span class="ident">pt</span>.<span class="ident">project_away</span>(<span class="ident">cycleway_half_width</span>, <span class="ident">cycleway_angle</span>.<span class="ident">rotate_degs</span>(<span class="number">90.0</span>)),
                 <span class="ident">pt</span>.<span class="ident">project_away</span>(<span class="ident">cycleway_half_width</span>, <span class="ident">cycleway_angle</span>.<span class="ident">rotate_degs</span>(<span class="op">-</span><span class="number">90.0</span>)),
             );
-            <span class="ident">debug_shapes</span>.<span class="ident">push</span>(<span class="ident">ExtraShape</span> {
-                <span class="ident">points</span>: <span class="ident">map</span>.<span class="ident">gps_bounds</span>.<span class="ident">convert_back</span>(<span class="kw-2">&amp;</span><span class="ident">perp_line</span>.<span class="ident">points</span>()),
-                <span class="ident">attributes</span>: <span class="ident">BTreeMap::new</span>(),
-            });
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">matched</span> <span class="op">=</span> <span class="prelude-val">None</span>;
             <span class="kw">for</span> (<span class="ident">road_pair</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="ident">closest</span>.<span class="ident">all_close_pts</span>(<span class="ident">pt</span>, <span class="ident">cycleway_half_width</span>) {
                 <span class="comment">// A cycleway can&#39;t snap to a road at a different height</span>
                 <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">roads</span>[<span class="kw-2">&amp;</span><span class="ident">road_pair</span>.<span class="number">0</span>].<span class="ident">osm_tags</span>.<span class="ident">get</span>(<span class="string">&quot;layer&quot;</span>) <span class="op">!</span><span class="op">=</span> <span class="ident">cycleway</span>.<span class="ident">layer</span>.<span class="ident">as_ref</span>() {
@@ -426,13 +414,25 @@
                             .<span class="ident">opposite</span>()
                             .<span class="ident">approx_eq</span>(<span class="ident">cycleway_angle</span>, <span class="ident">parallel_threshold</span>)
                     {
-                        <span class="ident">matches_here</span>.<span class="ident">push</span>(<span class="ident">road_pair</span>);
+                        <span class="ident">matched</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">road_pair</span>);
                         <span class="comment">// Just stop at the first, closest hit. One point along a cycleway might be</span>
                         <span class="comment">// close to multiple road edges, but we want the closest hit.</span>
                         <span class="kw">break</span>;
                     }
                 }
             }
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">attributes</span> <span class="op">=</span> <span class="ident">BTreeMap::new</span>();
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">road_pair</span>) <span class="op">=</span> <span class="ident">matched</span> {
+                <span class="ident">attributes</span>.<span class="ident">insert</span>(
+                    <span class="string">&quot;hit&quot;</span>.<span class="ident">to_string</span>(),
+                    <span class="macro">format!</span>(<span class="string">&quot;way {}, {}&quot;</span>, <span class="ident">road_pair</span>.<span class="number">0</span>.<span class="ident">osm_way_id</span>, <span class="ident">road_pair</span>.<span class="number">1</span>),
+                );
+                <span class="ident">matches_here</span>.<span class="ident">push</span>(<span class="ident">road_pair</span>);
+            }
+            <span class="ident">debug_shapes</span>.<span class="ident">push</span>(<span class="ident">ExtraShape</span> {
+                <span class="ident">points</span>: <span class="ident">map</span>.<span class="ident">gps_bounds</span>.<span class="ident">convert_back</span>(<span class="kw-2">&amp;</span><span class="ident">perp_line</span>.<span class="ident">points</span>()),
+                <span class="ident">attributes</span>,
+            });
 
             <span class="kw">if</span> <span class="ident">dist</span> <span class="op">=</span><span class="op">=</span> <span class="ident">cycleway</span>.<span class="ident">center</span>.<span class="ident">length</span>() {
                 <span class="kw">break</span>;
@@ -452,6 +452,17 @@
             <span class="kw">for</span> <span class="ident">pair</span> <span class="kw">in</span> <span class="ident">matches_here</span> {
                 <span class="ident">matches</span>.<span class="ident">insert</span>(<span class="ident">cycleway</span>.<span class="ident">id</span>, <span class="ident">pair</span>);
             }
+
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">attributes</span> <span class="op">=</span> <span class="ident">BTreeMap::new</span>();
+            <span class="ident">attributes</span>.<span class="ident">insert</span>(<span class="string">&quot;pct_snapped&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">pct_snapped</span>.<span class="ident">to_string</span>());
+            <span class="ident">attributes</span>.<span class="ident">insert</span>(
+                <span class="string">&quot;num_segments_modified&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="ident">matches</span>.<span class="ident">get</span>(<span class="ident">cycleway</span>.<span class="ident">id</span>).<span class="ident">len</span>().<span class="ident">to_string</span>(),
+            );
+            <span class="ident">debug_shapes</span>.<span class="ident">push</span>(<span class="ident">ExtraShape</span> {
+                <span class="ident">points</span>: <span class="ident">map</span>.<span class="ident">gps_bounds</span>.<span class="ident">convert_back</span>(<span class="ident">cycleway</span>.<span class="ident">center</span>.<span class="ident">points</span>()),
+                <span class="ident">attributes</span>,
+            });
         }
     }
 
@@ -469,5 +480,4 @@
     <span class="ident">matches</span>
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_model" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
-    <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script></body></html>
+</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_model" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div><script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script></body></html>
