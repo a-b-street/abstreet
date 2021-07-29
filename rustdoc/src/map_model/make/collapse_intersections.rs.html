@@ -139,6 +139,12 @@
 <span id="137">137</span>
 <span id="138">138</span>
 <span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
 
@@ -189,8 +195,14 @@
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">collapse_intersection</span>(<span class="ident">raw</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">RawMap</span>, <span class="ident">i</span>: <span class="ident">NodeID</span>) {
     <span class="kw">let</span> <span class="ident">roads</span> <span class="op">=</span> <span class="ident">raw</span>.<span class="ident">roads_per_intersection</span>(<span class="ident">i</span>);
     <span class="macro">assert_eq!</span>(<span class="ident">roads</span>.<span class="ident">len</span>(), <span class="number">2</span>);
-    <span class="kw">let</span> <span class="ident">r1</span> <span class="op">=</span> <span class="ident">roads</span>[<span class="number">0</span>];
-    <span class="kw">let</span> <span class="ident">r2</span> <span class="op">=</span> <span class="ident">roads</span>[<span class="number">1</span>];
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">r1</span> <span class="op">=</span> <span class="ident">roads</span>[<span class="number">0</span>];
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">r2</span> <span class="op">=</span> <span class="ident">roads</span>[<span class="number">1</span>];
+
+    <span class="comment">// We&#39;ll keep r1&#39;s ID, so it&#39;s a little more convenient for debugging to guarantee r1 is the</span>
+    <span class="comment">// longer piece.</span>
+    <span class="kw">if</span> <span class="ident">raw</span>.<span class="ident">roads</span>[<span class="kw-2">&amp;</span><span class="ident">r1</span>].<span class="ident">length</span>() <span class="op">&lt;</span> <span class="ident">raw</span>.<span class="ident">roads</span>[<span class="kw-2">&amp;</span><span class="ident">r2</span>].<span class="ident">length</span>() {
+        <span class="ident">std::mem::swap</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">r1</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">r2</span>);
+    }
 
     <span class="comment">// Skip loops; they break. Easiest way to detect is see how many total vertices we&#39;ve got.</span>
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">endpts</span> <span class="op">=</span> <span class="ident">BTreeSet::new</span>();
