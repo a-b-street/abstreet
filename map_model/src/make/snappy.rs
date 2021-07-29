@@ -23,7 +23,13 @@ pub fn snap_cycleways(map: &mut RawMap) {
 
     let mut cycleways = Vec::new();
     for (id, road) in &map.roads {
-        if road.is_cycleway(&map.config) {
+        // Because there are so many false positives with snapping, only start with cycleways
+        // explicitly tagged with
+        // https://wiki.openstreetmap.org/wiki/Proposed_features/cycleway:separation
+        if road.is_cycleway(&map.config)
+            && (road.osm_tags.contains_key("separation:left")
+                || road.osm_tags.contains_key("separation:right"))
+        {
             let (center, total_width) = road.get_geometry(*id, &map.config).unwrap();
             cycleways.push(Cycleway {
                 id: *id,
@@ -152,6 +158,8 @@ fn v1(
         let mut matches_here = Vec::new();
         loop {
             let (pt, cycleway_angle) = cycleway.center.must_dist_along(dist);
+            // TODO In the common case, only the separation between the cyclepath and main traffic
+            // will be tagged. So we could just look in that direction...
             let perp_line = Line::must_new(
                 pt.project_away(cycleway_half_width, cycleway_angle.rotate_degs(90.0)),
                 pt.project_away(cycleway_half_width, cycleway_angle.rotate_degs(-90.0)),

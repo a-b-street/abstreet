@@ -47,8 +47,14 @@ fn is_cycleway(road: &RawRoad, raw: &RawMap) -> bool {
 pub fn collapse_intersection(raw: &mut RawMap, i: NodeID) {
     let roads = raw.roads_per_intersection(i);
     assert_eq!(roads.len(), 2);
-    let r1 = roads[0];
-    let r2 = roads[1];
+    let mut r1 = roads[0];
+    let mut r2 = roads[1];
+
+    // We'll keep r1's ID, so it's a little more convenient for debugging to guarantee r1 is the
+    // longer piece.
+    if raw.roads[&r1].length() < raw.roads[&r2].length() {
+        std::mem::swap(&mut r1, &mut r2);
+    }
 
     // Skip loops; they break. Easiest way to detect is see how many total vertices we've got.
     let mut endpts = BTreeSet::new();
