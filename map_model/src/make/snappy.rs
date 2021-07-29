@@ -8,7 +8,7 @@ use kml::{ExtraShape, ExtraShapes};
 use crate::raw::{OriginalRoad, RawMap};
 use crate::{Direction, DrivingSide};
 
-const DEBUG_OUTPUT: bool = false;
+const DEBUG_OUTPUT: bool = true;
 
 /// Snap separately mapped cycleways to main roads.
 pub fn snap_cycleways(map: &mut RawMap) {
@@ -57,68 +57,54 @@ pub fn snap_cycleways(map: &mut RawMap) {
     for (cycleway_id, roads) in matches.consume() {
         snapped_ids.push(cycleway_id);
 
-        if DEBUG_OUTPUT {
-            // Just mark what we snapped in an easy-to-debug way
-            map.roads
-                .get_mut(&cycleway_id)
-                .unwrap()
-                .osm_tags
-                .insert("abst:snap", "remove");
-            for (road_id, dir) in roads {
-                map.roads.get_mut(&road_id).unwrap().osm_tags.insert(
-                    if dir == Direction::Fwd {
-                        "abst:snap_fwd"
-                    } else {
-                        "abst:snap_back"
-                    },
-                    "cyclepath",
-                );
+        // Remove the separate cycleway
+        let deleted_cycleway = map.roads.remove(&cycleway_id).unwrap();
+
+        // Add it as an attribute to the roads instead
+        for (road_id, dir) in roads {
+            let dir = if dir == Direction::Fwd {
+                "right"
+            } else {
+                "left"
+            };
+            let tags = &mut map.roads.get_mut(&road_id).unwrap().osm_tags;
+            tags.insert(format!("cycleway:{}", dir), "track");
+            if !deleted_cycleway.osm_tags.is("oneway", "yes") {
+                tags.insert(format!("cycleway:{}:oneway", dir), "no");
             }
-        } else {
-            // Remove the separate cycleway
-            let deleted_cycleway = map.roads.remove(&cycleway_id).unwrap();
 
-            // Add it as an attribute to the roads instead
-            for (road_id, dir) in roads {
-                let dir = if dir == Direction::Fwd {
-                    "right"
-                } else {
-                    "left"
-                };
-                let tags = &mut map.roads.get_mut(&road_id).unwrap().osm_tags;
-                tags.insert(format!("cycleway:{}", dir), "track");
-                if !deleted_cycleway.osm_tags.is("oneway", "yes") {
-                    tags.insert(format!("cycleway:{}:oneway", dir), "no");
-                }
+            // I _think_ the second direction is supposed to be relative to the direction of travel
+            // for the cycleway. But not sure.
+            let traffic_side = if map.config.driving_side == DrivingSide::Right {
+                "left"
+            } else {
+                "right"
+            };
+            // TODO Copy over separation tags from this separate way. To quickly test right now,
+            // just pretend we always have flex posts...
+            tags.insert(
+                format!("cycleway:{}:separation:{}", dir, traffic_side),
+                "bollard",
+            );
 
-                // I _think_ the second direction is supposed to be relative to the direction of
-                // travel for the cycleway. But not sure.
-                let traffic_side = if map.config.driving_side == DrivingSide::Right {
-                    "left"
-                } else {
-                    "right"
-                };
-                // TODO Copy over separation tags from this separate way. To quickly test right
-                // now, just pretend we always have flex posts...
+            if DEBUG_OUTPUT {
                 tags.insert(
-                    format!("cycleway:{}:separation:{}", dir, traffic_side),
-                    "bollard",
+                    format!("abst:cycleway_snap:{}", dir),
+                    cycleway_id.osm_way_id.0.to_string(),
                 );
             }
         }
     }
 
-    if !DEBUG_OUTPUT {
-        for r in snapped_ids {
-            // After removing the separate cycleway, likely its two intersections become degenerate
-            // and will be super close to a "real" intersection. Collapse the intersection.
-            //
-            // Do all of these in one batch after snapping everything. Otherwise, some cycleway IDs
-            // totally disappear.
-            for i in [r.i1, r.i2] {
-                if map.roads_per_intersection(i).len() == 2 {
-                    crate::make::collapse_intersections::collapse_intersection(map, i);
-                }
+    for r in snapped_ids {
+        // After removing the separate cycleway, likely its two intersections become degenerate and
+        // will be super close to a "real" intersection. Collapse the intersection.
+        //
+        // Do all of these in one batch after snapping everything. Otherwise, some cycleway IDs
+        // totally disappear.
+        for i in [r.i1, r.i2] {
+            if map.roads_per_intersection(i).len() == 2 {
+                crate::make::collapse_intersections::collapse_intersection(map, i);
             }
         }
     }
@@ -170,10 +156,7 @@ fn v1(
                 pt.project_away(cycleway_half_width, cycleway_angle.rotate_degs(90.0)),
                 pt.project_away(cycleway_half_width, cycleway_angle.rotate_degs(-90.0)),
             );
-            debug_shapes.push(ExtraShape {
-                points: map.gps_bounds.convert_back(&perp_line.points()),
-                attributes: BTreeMap::new(),
-            });
+            let mut matched = None;
             for (road_pair, _, _) in closest.all_close_pts(pt, cycleway_half_width) {
                 // A cycleway can't snap to a road at a different height
                 if map.roads[&road_pair.0].osm_tags.get("layer") != cycleway.layer.as_ref() {
@@ -189,13 +172,25 @@ fn v1(
                             .opposite()
                             .approx_eq(cycleway_angle, parallel_threshold)
                     {
-                        matches_here.push(road_pair);
+                        matched = Some(road_pair);
                         // Just stop at the first, closest hit. One point along a cycleway might be
                         // close to multiple road edges, but we want the closest hit.
                         break;
                     }
                 }
             }
+            let mut attributes = BTreeMap::new();
+            if let Some(road_pair) = matched {
+                attributes.insert(
+                    "hit".to_string(),
+                    format!("way {}, {}", road_pair.0.osm_way_id, road_pair.1),
+                );
+                matches_here.push(road_pair);
+            }
+            debug_shapes.push(ExtraShape {
+                points: map.gps_bounds.convert_back(&perp_line.points()),
+                attributes,
+            });
 
             if dist == cycleway.center.length() {
                 break;
@@ -215,6 +210,17 @@ fn v1(
             for pair in matches_here {
                 matches.insert(cycleway.id, pair);
             }
+
+            let mut attributes = BTreeMap::new();
+            attributes.insert("pct_snapped".to_string(), pct_snapped.to_string());
+            attributes.insert(
+                "num_segments_modified".to_string(),
+                matches.get(cycleway.id).len().to_string(),
+            );
+            debug_shapes.push(ExtraShape {
+                points: map.gps_bounds.convert_back(cycleway.center.points()),
+                attributes,
+            });
         }
     }
 
