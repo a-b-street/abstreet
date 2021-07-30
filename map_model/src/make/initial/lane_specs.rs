@@ -235,9 +235,8 @@ pub fn get_lane_specs_ltr(tags: &Tags, cfg: &MapConfig) -> Vec<LaneSpec> {
     // My brain hurts. How does the above combinatorial explosion play with
     // https://wiki.openstreetmap.org/wiki/Proposed_features/cycleway:separation? Let's take the
     // "post-processing" approach.
-    // TODO This skips the buffer between the cycleway and the sidewalk, for now. Only focusing on
-    // the common case of buffer from vehicles.
-    // TODO Not doing left-handed driving yet (separation:right)
+    // TODO Not attempting left-handed driving yet.
+    // TODO A two-way cycletrack on one side of a one-way road will almost definitely break this.
     if let Some(buffer) = tags
         .get("cycleway:right:separation:left")
         .and_then(osm_separation_type)
@@ -254,6 +253,15 @@ pub fn get_lane_specs_ltr(tags: &Tags, cfg: &MapConfig) -> Vec<LaneSpec> {
     {
         if let Some(idx) = back_side.iter().position(|x| x.lt == LaneType::Biking) {
             back_side.insert(idx, back(LaneType::Buffer(buffer)));
+        }
+    }
+    if let Some(buffer) = tags
+        .get("cycleway:left:separation:right")
+        .and_then(osm_separation_type)
+    {
+        // This is assuming a one-way road. That's why we're not looking at back_side.
+        if let Some(idx) = fwd_side.iter().position(|x| x.lt == LaneType::Biking) {
+            fwd_side.insert(idx + 1, fwd(LaneType::Buffer(buffer)));
         }
     }
 

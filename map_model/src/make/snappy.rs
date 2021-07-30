@@ -1,22 +1,16 @@
 use std::collections::{BTreeMap, HashMap};
 
-use abstio::MapName;
 use abstutil::MultiMap;
 use geom::{Distance, FindClosest, Line, PolyLine};
 use kml::{ExtraShape, ExtraShapes};
 
 use crate::raw::{OriginalRoad, RawMap};
-use crate::{Direction, DrivingSide};
+use crate::Direction;
 
 const DEBUG_OUTPUT: bool = true;
 
 /// Snap separately mapped cycleways to main roads.
 pub fn snap_cycleways(map: &mut RawMap) {
-    #![allow(clippy::logic_bug)]
-    // A gradual experiment...
-    if !(map.name == MapName::seattle("montlake") || map.name == MapName::seattle("udistrict")) {
-        return;
-    }
     if true {
         return;
     }
@@ -79,19 +73,19 @@ pub fn snap_cycleways(map: &mut RawMap) {
                 tags.insert(format!("cycleway:{}:oneway", dir), "no");
             }
 
-            // I _think_ the second direction is supposed to be relative to the direction of travel
-            // for the cycleway. But not sure.
-            let traffic_side = if map.config.driving_side == DrivingSide::Right {
-                "left"
-            } else {
-                "right"
-            };
-            // TODO Copy over separation tags from this separate way. To quickly test right now,
-            // just pretend we always have flex posts...
-            tags.insert(
-                format!("cycleway:{}:separation:{}", dir, traffic_side),
-                "bollard",
-            );
+            // Copy over the separation tags from the separate way. Since we're only attempting to
+            // snap cycleways with these tags, at least one should exist.
+            for traffic_side in ["left", "right"] {
+                if let Some(value) = deleted_cycleway
+                    .osm_tags
+                    .get(&format!("separation:{}", traffic_side))
+                {
+                    tags.insert(
+                        format!("cycleway:{}:separation:{}", dir, traffic_side),
+                        value,
+                    );
+                }
+            }
 
             if DEBUG_OUTPUT {
                 tags.insert(
