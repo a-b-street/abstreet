@@ -206,7 +206,13 @@ fn make_walking_turns_v2(map: &Map, i: &Intersection) -> Vec<Turn> {
     // those in order, remembering what roads don't have them.
     let mut lanes: Vec<Option<&Lane>> = Vec::new();
     let mut num_sidewalks = 0;
-    for r in i.get_roads_sorted_by_incoming_angle(all_roads) {
+    let mut sorted_roads = i.get_roads_sorted_by_incoming_angle(all_roads);
+    // And for left-handed driving, we need to walk around in the opposite order.
+    if driving_side == DrivingSide::Left {
+        sorted_roads.reverse();
+    }
+
+    for r in sorted_roads {
         let r = &all_roads[r.0];
         let mut fwd = None;
         let mut back = None;
