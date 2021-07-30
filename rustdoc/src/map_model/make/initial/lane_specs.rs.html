@@ -588,6 +588,14 @@
 <span id="586">586</span>
 <span id="587">587</span>
 <span id="588">588</span>
+<span id="589">589</span>
+<span id="590">590</span>
+<span id="591">591</span>
+<span id="592">592</span>
+<span id="593">593</span>
+<span id="594">594</span>
+<span id="595">595</span>
+<span id="596">596</span>
 </pre><pre class="rust">
 <span class="doccomment">/// Purely from OSM tags, determine the lanes that a road segment has.</span>
 <span class="kw">use</span> <span class="ident">std::iter</span>;
@@ -826,9 +834,8 @@
     <span class="comment">// My brain hurts. How does the above combinatorial explosion play with</span>
     <span class="comment">// https://wiki.openstreetmap.org/wiki/Proposed_features/cycleway:separation? Let&#39;s take the</span>
     <span class="comment">// &quot;post-processing&quot; approach.</span>
-    <span class="comment">// TODO This skips the buffer between the cycleway and the sidewalk, for now. Only focusing on</span>
-    <span class="comment">// the common case of buffer from vehicles.</span>
-    <span class="comment">// TODO Not doing left-handed driving yet (separation:right)</span>
+    <span class="comment">// TODO Not attempting left-handed driving yet.</span>
+    <span class="comment">// TODO A two-way cycletrack on one side of a one-way road will almost definitely break this.</span>
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">buffer</span>) <span class="op">=</span> <span class="ident">tags</span>
         .<span class="ident">get</span>(<span class="string">&quot;cycleway:right:separation:left&quot;</span>)
         .<span class="ident">and_then</span>(<span class="ident">osm_separation_type</span>)
@@ -845,6 +852,15 @@
     {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">idx</span>) <span class="op">=</span> <span class="ident">back_side</span>.<span class="ident">iter</span>().<span class="ident">position</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">lt</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType::Biking</span>) {
             <span class="ident">back_side</span>.<span class="ident">insert</span>(<span class="ident">idx</span>, <span class="ident">back</span>(<span class="ident">LaneType::Buffer</span>(<span class="ident">buffer</span>)));
+        }
+    }
+    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">buffer</span>) <span class="op">=</span> <span class="ident">tags</span>
+        .<span class="ident">get</span>(<span class="string">&quot;cycleway:left:separation:right&quot;</span>)
+        .<span class="ident">and_then</span>(<span class="ident">osm_separation_type</span>)
+    {
+        <span class="comment">// This is assuming a one-way road. That&#39;s why we&#39;re not looking at back_side.</span>
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">idx</span>) <span class="op">=</span> <span class="ident">fwd_side</span>.<span class="ident">iter</span>().<span class="ident">position</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">lt</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType::Biking</span>) {
+            <span class="ident">fwd_side</span>.<span class="ident">insert</span>(<span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>, <span class="ident">fwd</span>(<span class="ident">LaneType::Buffer</span>(<span class="ident">buffer</span>)));
         }
     }
 

@@ -241,32 +241,20 @@
 <span id="239">239</span>
 <span id="240">240</span>
 <span id="241">241</span>
-<span id="242">242</span>
-<span id="243">243</span>
-<span id="244">244</span>
-<span id="245">245</span>
-<span id="246">246</span>
-<span id="247">247</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashMap</span>};
 
-<span class="kw">use</span> <span class="ident">abstio::MapName</span>;
 <span class="kw">use</span> <span class="ident">abstutil::MultiMap</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">FindClosest</span>, <span class="ident">Line</span>, <span class="ident">PolyLine</span>};
 <span class="kw">use</span> <span class="ident">kml</span>::{<span class="ident">ExtraShape</span>, <span class="ident">ExtraShapes</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::raw</span>::{<span class="ident">OriginalRoad</span>, <span class="ident">RawMap</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Direction</span>, <span class="ident">DrivingSide</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::Direction</span>;
 
 <span class="kw">const</span> <span class="ident">DEBUG_OUTPUT</span>: <span class="ident">bool</span> <span class="op">=</span> <span class="bool-val">true</span>;
 
 <span class="doccomment">/// Snap separately mapped cycleways to main roads.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">snap_cycleways</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">RawMap</span>) {
-    <span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::logic_bug</span>)]</span>
-    <span class="comment">// A gradual experiment...</span>
-    <span class="kw">if</span> <span class="op">!</span>(<span class="ident">map</span>.<span class="ident">name</span> <span class="op">=</span><span class="op">=</span> <span class="ident">MapName::seattle</span>(<span class="string">&quot;montlake&quot;</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">map</span>.<span class="ident">name</span> <span class="op">=</span><span class="op">=</span> <span class="ident">MapName::seattle</span>(<span class="string">&quot;udistrict&quot;</span>)) {
-        <span class="kw">return</span>;
-    }
     <span class="kw">if</span> <span class="bool-val">true</span> {
         <span class="kw">return</span>;
     }
@@ -329,19 +317,19 @@
                 <span class="ident">tags</span>.<span class="ident">insert</span>(<span class="macro">format!</span>(<span class="string">&quot;cycleway:{}:oneway&quot;</span>, <span class="ident">dir</span>), <span class="string">&quot;no&quot;</span>);
             }
 
-            <span class="comment">// I _think_ the second direction is supposed to be relative to the direction of travel</span>
-            <span class="comment">// for the cycleway. But not sure.</span>
-            <span class="kw">let</span> <span class="ident">traffic_side</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">config</span>.<span class="ident">driving_side</span> <span class="op">=</span><span class="op">=</span> <span class="ident">DrivingSide::Right</span> {
-                <span class="string">&quot;left&quot;</span>
-            } <span class="kw">else</span> {
-                <span class="string">&quot;right&quot;</span>
-            };
-            <span class="comment">// TODO Copy over separation tags from this separate way. To quickly test right now,</span>
-            <span class="comment">// just pretend we always have flex posts...</span>
-            <span class="ident">tags</span>.<span class="ident">insert</span>(
-                <span class="macro">format!</span>(<span class="string">&quot;cycleway:{}:separation:{}&quot;</span>, <span class="ident">dir</span>, <span class="ident">traffic_side</span>),
-                <span class="string">&quot;bollard&quot;</span>,
-            );
+            <span class="comment">// Copy over the separation tags from the separate way. Since we&#39;re only attempting to</span>
+            <span class="comment">// snap cycleways with these tags, at least one should exist.</span>
+            <span class="kw">for</span> <span class="ident">traffic_side</span> <span class="kw">in</span> [<span class="string">&quot;left&quot;</span>, <span class="string">&quot;right&quot;</span>] {
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">value</span>) <span class="op">=</span> <span class="ident">deleted_cycleway</span>
+                    .<span class="ident">osm_tags</span>
+                    .<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;separation:{}&quot;</span>, <span class="ident">traffic_side</span>))
+                {
+                    <span class="ident">tags</span>.<span class="ident">insert</span>(
+                        <span class="macro">format!</span>(<span class="string">&quot;cycleway:{}:separation:{}&quot;</span>, <span class="ident">dir</span>, <span class="ident">traffic_side</span>),
+                        <span class="ident">value</span>,
+                    );
+                }
+            }
 
             <span class="kw">if</span> <span class="ident">DEBUG_OUTPUT</span> {
                 <span class="ident">tags</span>.<span class="ident">insert</span>(
