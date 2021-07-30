@@ -25,7 +25,7 @@ jobs:
 
       - uses: hecrj/setup-rust-action@v1
         with:
-          rust-version: 1.53.0
+          rust-version: 1.54.0
 
       - name: Cache build
         uses: actions/cache@v2

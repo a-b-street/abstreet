@@ -352,6 +352,7 @@ fn assemble_ltr(
 
 // See https://wiki.openstreetmap.org/wiki/Proposed_features/cycleway:separation#Typical_values.
 // Lots of these mappings are pretty wacky right now. We need more BufferTypes.
+#[allow(clippy::ptr_arg)] // Can't chain with `tags.get("foo").and_then` otherwise
 fn osm_separation_type(x: &String) -> Option<BufferType> {
     match x.as_ref() {
         "bollard" | "vertical_panel" => Some(BufferType::FlexPosts),

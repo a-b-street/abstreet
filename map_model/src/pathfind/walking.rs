@@ -297,7 +297,7 @@ fn make_input_graph(
     }
 
     if let Some(graphs) = use_transit {
-        transit_input_graph(&mut input_graph, &nodes, map, graphs.0, graphs.1);
+        transit_input_graph(&mut input_graph, nodes, map, graphs.0, graphs.1);
     }
 
     nodes.guarantee_node_ordering(&mut input_graph);

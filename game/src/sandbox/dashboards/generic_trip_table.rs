@@ -59,7 +59,7 @@ pub(crate) fn preview_trip(
         }
     }
     batch.draw(g);
-    if let Some(ref draw) = draw_extra {
+    if let Some(draw) = draw_extra {
         g.redraw(draw);
     }
 

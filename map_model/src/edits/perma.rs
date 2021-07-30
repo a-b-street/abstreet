@@ -44,6 +44,7 @@ pub enum PermanentEditIntersection {
     Closed,
 }
 
+#[allow(clippy::enum_variant_names)]
 #[derive(Serialize, Deserialize, Clone)]
 pub enum PermanentEditCmd {
     ChangeRoad {
