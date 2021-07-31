@@ -1366,19 +1366,19 @@
       "compressed_size_bytes": 567399
     },
     "data/input/nz/auckland/osm/mangere.osm": {
-      "checksum": "3e0f8d025caa0eff6f1f96a6049758b1",
-      "uncompressed_size_bytes": 24375865,
-      "compressed_size_bytes": 2262065
+      "checksum": "f0453da2c4cde97a46dbcec405d29a51",
+      "uncompressed_size_bytes": 24921307,
+      "compressed_size_bytes": 2298392
     },
     "data/input/nz/auckland/osm/new-zealand-latest.osm.pbf": {
-      "checksum": "b6c7addd6620c4029d93b63cda07e425",
-      "uncompressed_size_bytes": 249804974,
-      "compressed_size_bytes": 249485156
+      "checksum": "dc9a25f85f40d0fd8e25e0784df26fb9",
+      "uncompressed_size_bytes": 277249287,
+      "compressed_size_bytes": 277077520
     },
     "data/input/nz/auckland/raw_maps/mangere.bin": {
-      "checksum": "b64815ca0b993bbedff06f874cd9c44b",
-      "uncompressed_size_bytes": 4159549,
-      "compressed_size_bytes": 1171738
+      "checksum": "535ee2c7a963a1c25a6f41f22c2933d5",
+      "uncompressed_size_bytes": 4229789,
+      "compressed_size_bytes": 1199076
     },
     "data/input/pl/krakow/osm/center.osm": {
       "checksum": "562ed1102d3e2fc49d2b9eedf0f0d42a",
@@ -3876,9 +3876,9 @@
       "compressed_size_bytes": 10858649
     },
     "data/system/nz/auckland/maps/mangere.bin": {
-      "checksum": "44581f4e9bea1a9757499a8778a1937f",
-      "uncompressed_size_bytes": 13364147,
-      "compressed_size_bytes": 4932713
+      "checksum": "3c6b8aef286d62e70c919ba186e22fdc",
+      "uncompressed_size_bytes": 13419850,
+      "compressed_size_bytes": 4968137
     },
     "data/system/pl/krakow/maps/center.bin": {
       "checksum": "b29c9edd04680379520b7435bbe5122e",
