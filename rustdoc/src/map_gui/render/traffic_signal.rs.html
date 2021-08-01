@@ -278,7 +278,6 @@
 <span id="276">276</span>
 <span id="277">277</span>
 <span id="278">278</span>
-<span id="279">279</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
 
@@ -329,12 +328,16 @@
             } <span class="kw">else</span> {
                 (<span class="bool-val">false</span>, <span class="number">1.0</span>)
             };
-            <span class="comment">// The warning color for fixed is yellow, for anything else its orange to clue the</span>
-            <span class="comment">// user into it possibly extending.</span>
-            <span class="kw">let</span> <span class="ident">indicator_color</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="ident">StageType::Fixed</span>(<span class="kw">_</span>) <span class="op">=</span> <span class="ident">stage</span>.<span class="ident">stage_type</span> {
-                <span class="ident">Color::YELLOW</span>
+            <span class="kw">let</span> <span class="ident">arrow_body_color</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">yellow_light</span> {
+                <span class="comment">// The warning color for fixed is yellow, for anything else its orange to clue the</span>
+                <span class="comment">// user into it possibly extending.</span>
+                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">StageType::Fixed</span>(<span class="kw">_</span>) <span class="op">=</span> <span class="ident">stage</span>.<span class="ident">stage_type</span> {
+                    <span class="ident">Color::YELLOW</span>
+                } <span class="kw">else</span> {
+                    <span class="ident">Color::ORANGE</span>
+                }
             } <span class="kw">else</span> {
-                <span class="ident">Color::ORANGE</span>
+                <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">signal_protected_turn</span>.<span class="ident">alpha</span>(<span class="ident">percent</span>)
             };
             <span class="kw">for</span> <span class="ident">m</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">stage</span>.<span class="ident">protected_movements</span> {
                 <span class="kw">if</span> <span class="op">!</span><span class="ident">m</span>.<span class="ident">crosswalk</span> {
@@ -353,11 +356,7 @@
                     <span class="kw">let</span> <span class="ident">pl</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">signal</span>.<span class="ident">movements</span>[<span class="ident">m</span>].<span class="ident">geom</span>;
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">pl</span>) <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">maybe_exact_slice</span>(<span class="ident">slice_start</span>, <span class="ident">pl</span>.<span class="ident">length</span>() <span class="op">-</span> <span class="ident">slice_end</span>) {
                         <span class="ident">batch</span>.<span class="ident">push</span>(
-                            <span class="kw">if</span> <span class="ident">yellow_light</span> {
-                                <span class="ident">indicator_color</span>
-                            } <span class="kw">else</span> {
-                                <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">signal_protected_turn</span>.<span class="ident">alpha</span>(<span class="ident">percent</span>)
-                            },
+                            <span class="ident">arrow_body_color</span>,
                             <span class="ident">pl</span>.<span class="ident">make_arrow</span>(<span class="ident">BIG_ARROW_THICKNESS</span>, <span class="ident">ArrowCap::Triangle</span>),
                         );
                     }
@@ -375,6 +374,9 @@
             <span class="kw">for</span> <span class="ident">m</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">stage</span>.<span class="ident">yield_movements</span> {
                 <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">m</span>.<span class="ident">crosswalk</span>);
                 <span class="kw">let</span> <span class="ident">pl</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">signal</span>.<span class="ident">movements</span>[<span class="ident">m</span>].<span class="ident">geom</span>;
+                <span class="comment">// TODO Make dashed_arrow draw the last polygon without an awkward overlap. Then we</span>
+                <span class="comment">// can just make one call here and control the outline thickness just using</span>
+                <span class="comment">// to_outline.</span>
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">slice</span>) <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">maybe_exact_slice</span>(
                     <span class="ident">SIDEWALK_THICKNESS</span> <span class="op">-</span> <span class="ident">Distance::meters</span>(<span class="number">0.1</span>),
                     <span class="ident">pl</span>.<span class="ident">length</span>() <span class="op">-</span> <span class="ident">SIDEWALK_THICKNESS</span> <span class="op">+</span> <span class="ident">Distance::meters</span>(<span class="number">0.1</span>),
@@ -393,11 +395,7 @@
                     <span class="ident">pl</span>.<span class="ident">maybe_exact_slice</span>(<span class="ident">SIDEWALK_THICKNESS</span>, <span class="ident">pl</span>.<span class="ident">length</span>() <span class="op">-</span> <span class="ident">SIDEWALK_THICKNESS</span>)
                 {
                     <span class="ident">batch</span>.<span class="ident">extend</span>(
-                        <span class="kw">if</span> <span class="ident">yellow_light</span> {
-                            <span class="ident">indicator_color</span>
-                        } <span class="kw">else</span> {
-                            <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">signal_protected_turn</span>.<span class="ident">alpha</span>(<span class="ident">percent</span>)
-                        },
+                        <span class="ident">arrow_body_color</span>,
                         <span class="ident">slice</span>.<span class="ident">dashed_arrow</span>(
                             <span class="ident">BIG_ARROW_THICKNESS</span> <span class="op">/</span> <span class="number">2.0</span>,
                             <span class="ident">Distance::meters</span>(<span class="number">1.0</span>),
