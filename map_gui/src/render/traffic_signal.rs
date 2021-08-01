@@ -58,38 +58,7 @@ pub fn draw_signal_stage(
             } else {
                 app.cs().signal_protected_turn.alpha(percent)
             };
-            for m in &stage.protected_movements {
-                if !m.crosswalk {
-                    // TODO Maybe less if shoulders meet
-                    let slice_start = if crossed_roads.contains(&(m.from.id, m.parent)) {
-                        SIDEWALK_THICKNESS
-                    } else {
-                        Distance::ZERO
-                    };
-                    let slice_end = if crossed_roads.contains(&(m.to.id, m.parent)) {
-                        SIDEWALK_THICKNESS
-                    } else {
-                        Distance::ZERO
-                    };
 
-                    let pl = &signal.movements[m].geom;
-                    if let Ok(pl) = pl.maybe_exact_slice(slice_start, pl.length() - slice_end) {
-                        batch.push(
-                            arrow_body_color,
-                            pl.make_arrow(BIG_ARROW_THICKNESS, ArrowCap::Triangle),
-                        );
-                    }
-                } else {
-                    batch.append(
-                        walk_icon(&signal.movements[m], prerender)
-                            .color(RewriteColor::ChangeAlpha(percent)),
-                    );
-                    dont_walk.remove(m);
-                }
-            }
-            for m in dont_walk {
-                batch.append(dont_walk_icon(&signal.movements[m], prerender));
-            }
             for m in &stage.yield_movements {
                 assert!(!m.crosswalk);
                 let pl = &signal.movements[m].geom;
@@ -124,6 +93,42 @@ pub fn draw_signal_stage(
                     );
                 }
             }
+
+            for m in &stage.protected_movements {
+                if !m.crosswalk {
+                    // TODO Maybe less if shoulders meet
+                    let slice_start = if crossed_roads.contains(&(m.from.id, m.parent)) {
+                        SIDEWALK_THICKNESS
+                    } else {
+                        Distance::ZERO
+                    };
+                    let slice_end = if crossed_roads.contains(&(m.to.id, m.parent)) {
+                        SIDEWALK_THICKNESS
+                    } else {
+                        Distance::ZERO
+                    };
+
+                    let pl = &signal.movements[m].geom;
+                    if let Ok(pl) = pl.maybe_exact_slice(slice_start, pl.length() - slice_end) {
+                        let arrow = pl.make_arrow(BIG_ARROW_THICKNESS, ArrowCap::Triangle);
+                        batch.push(arrow_body_color, arrow.clone());
+                        if let Ok(p) = arrow.to_outline(Distance::meters(0.2)) {
+                            batch.push(Color::BLACK, p);
+                        }
+                    }
+                } else {
+                    batch.append(
+                        walk_icon(&signal.movements[m], prerender)
+                            .color(RewriteColor::ChangeAlpha(percent)),
+                    );
+                    dont_walk.remove(m);
+                }
+            }
+
+            for m in dont_walk {
+                batch.append(dont_walk_icon(&signal.movements[m], prerender));
+            }
+
             draw_stage_number(app, prerender, i, idx, batch);
         }
         TrafficSignalStyle::Yuwen => {
