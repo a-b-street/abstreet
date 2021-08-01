@@ -271,7 +271,7 @@ impl GameplayState for FixTrafficSignals {
                         } else if delay < Duration::minutes(15) {
                             Color::hex("#EE702E")
                         } else {
-                            Color::hex("#EB3223")
+                            app.cs.signal_banned_turn
                         })
                     } else {
                         Line("none!").secondary()

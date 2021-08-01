@@ -126,7 +126,7 @@ fn trips_body(
                 // Cancelled trips can happen anywhere in the schedule right now
                 (
                     "cancelled",
-                    Color::hex("#EB3223"),
+                    app.cs.signal_banned_turn,
                     open_trips
                         .get_mut(t)
                         .map(|open_trip| trip::cancelled(ctx, app, *t, open_trip, details)),

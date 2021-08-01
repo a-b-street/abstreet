@@ -244,7 +244,7 @@ fn summary_boxes(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
         .into_widget(ctx)
         .container()
         .padding(20)
-        .bg(Color::hex("#EB3223").alpha(0.5))
+        .bg(app.cs.signal_banned_turn.alpha(0.5))
         .outline(ctx.style().section_outline),
         Text::from_multiline(vec![
             Line(format!("Unchanged: {}", prettyprint_usize(num_same))).big_heading_plain(),
@@ -501,7 +501,7 @@ fn contingency_table(ctx: &mut EventCtx, app: &App, filter: &Filter) -> Widget {
                         ),
                     }),
                     Line(format!("Lost {} in total", total_loss.to_rounded_string(1)))
-                        .fg(Color::hex("#EB3223")),
+                        .fg(app.cs.signal_banned_turn),
                 ]),
                 None,
             ));

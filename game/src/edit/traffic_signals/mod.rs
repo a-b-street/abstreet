@@ -149,7 +149,7 @@ impl TrafficSignalEditor {
                 {
                     // Still draw the icon, but highlight it
                     batch.append(draw.color(RewriteColor::Change(
-                        Color::hex("#7C7C7C"),
+                        app.cs.signal_banned_turn.alpha(0.5),
                         Color::hex("#72CE36"),
                     )));
                 }

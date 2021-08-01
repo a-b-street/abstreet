@@ -113,7 +113,7 @@ impl DrawMovement {
                         seen_lanes.insert(t.src);
                     }
                 }
-                batch.push(Color::hex("#7C7C7C"), circle.clone());
+                batch.push(cs.signal_banned_turn.alpha(0.5), circle.clone());
                 batch.push(Color::WHITE, arrow);
                 circle
             };
@@ -170,7 +170,6 @@ impl DrawMovement {
                 );
             }
             Some(TurnPriority::Banned) => {
-                let red = Color::hex("#EB3223");
                 batch.extend(
                     Color::BLACK.alpha(0.8),
                     pl.dashed_arrow(
@@ -181,7 +180,7 @@ impl DrawMovement {
                     ),
                 );
                 batch.extend(
-                    red.alpha(0.8),
+                    app.cs().signal_banned_turn.alpha(0.8),
                     pl.exact_slice(Distance::meters(0.1), pl.length() - Distance::meters(0.1))
                         .dashed_arrow(
                             BIG_ARROW_THICKNESS / 2.0,

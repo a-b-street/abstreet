@@ -217,7 +217,7 @@ impl ColorScheme {
             stop_sign_pole: Color::grey(0.5),
             signal_protected_turn: hex("#72CE36"),
             signal_permitted_turn: hex("#4CA7E9"),
-            signal_banned_turn: Color::BLACK,
+            signal_banned_turn: hex("#EB3223"),
             signal_box: Color::grey(0.5),
             signal_spinner: hex("#F2994A"),
             signal_turn_block_bg: Color::grey(0.6),
