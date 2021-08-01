@@ -535,7 +535,7 @@
                 <span class="kw">if</span> <span class="ident">lane</span>.<span class="ident">is_sidewalk</span>() {
                     <span class="ident">batch</span>.<span class="ident">extend</span>(<span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">sidewalk_lines</span>, <span class="ident">calculate_sidewalk_lines</span>(<span class="ident">lane</span>));
                 }
-                <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">experiment</span> {
+                <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">experiment</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">road</span>.<span class="ident">is_footway</span>() {
                     <span class="comment">// Create a sense of depth at the curb</span>
                     <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span> <span class="ident">Distance::meters</span>(<span class="number">0.2</span>);
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">shift</span> <span class="op">=</span> (<span class="ident">lane</span>.<span class="ident">width</span> <span class="op">-</span> <span class="ident">width</span>) <span class="op">/</span> <span class="number">2.0</span>;

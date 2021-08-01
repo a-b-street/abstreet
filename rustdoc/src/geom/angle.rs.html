@@ -118,6 +118,12 @@
 <span id="116">116</span>
 <span id="117">117</span>
 <span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::fmt</span>;
 
@@ -186,6 +192,12 @@
     <span class="doccomment">/// True if this angle is within some degrees of another, accounting for rotation</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">approx_eq</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">Angle</span>, <span class="ident">within_degrees</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">simple_shortest_rotation_towards</span>(<span class="ident">other</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="ident">within_degrees</span>
+    }
+
+    <span class="doccomment">/// True if this angle is within some degrees of another, accounting for rotation and allowing</span>
+    <span class="doccomment">/// two angles that point in opposite directions</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">approx_parallel</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">Angle</span>, <span class="ident">within_degrees</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="ident">approx_eq</span>(<span class="ident">other</span>, <span class="ident">within_degrees</span>) <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">opposite</span>().<span class="ident">approx_eq</span>(<span class="ident">other</span>, <span class="ident">within_degrees</span>)
     }
 
     <span class="doccomment">/// I don&#39;t know how to describe what this does. Use for rotating labels in map-space and making</span>

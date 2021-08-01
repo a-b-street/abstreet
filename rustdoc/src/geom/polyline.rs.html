@@ -1031,6 +1031,30 @@
 <span id="1029">1029</span>
 <span id="1030">1030</span>
 <span id="1031">1031</span>
+<span id="1032">1032</span>
+<span id="1033">1033</span>
+<span id="1034">1034</span>
+<span id="1035">1035</span>
+<span id="1036">1036</span>
+<span id="1037">1037</span>
+<span id="1038">1038</span>
+<span id="1039">1039</span>
+<span id="1040">1040</span>
+<span id="1041">1041</span>
+<span id="1042">1042</span>
+<span id="1043">1043</span>
+<span id="1044">1044</span>
+<span id="1045">1045</span>
+<span id="1046">1046</span>
+<span id="1047">1047</span>
+<span id="1048">1048</span>
+<span id="1049">1049</span>
+<span id="1050">1050</span>
+<span id="1051">1051</span>
+<span id="1052">1052</span>
+<span id="1053">1053</span>
+<span id="1054">1054</span>
+<span id="1055">1055</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 <span class="kw">use</span> <span class="ident">std::fmt</span>;
@@ -1113,6 +1137,30 @@
     <span class="doccomment">/// First dedupes adjacent points</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">deduping_new</span>(<span class="kw-2">mut</span> <span class="ident">pts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PolyLine</span><span class="op">&gt;</span> {
         <span class="ident">pts</span>.<span class="ident">dedup</span>();
+        <span class="ident">PolyLine::new</span>(<span class="ident">pts</span>)
+    }
+
+    <span class="comment">// TODO Unused and experimental. Deduplicates and removes redundant inner points.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">angle_collapsing_new</span>(<span class="ident">input</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PolyLine</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+        <span class="kw">for</span> <span class="ident">pt</span> <span class="kw">in</span> <span class="ident">input</span> {
+            <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">pts</span>.<span class="ident">len</span>();
+
+            <span class="comment">// Also dedupe</span>
+            <span class="kw">if</span> <span class="ident">len</span> <span class="op">&gt;</span> <span class="number">0</span> <span class="op">&amp;&amp;</span> <span class="ident">pts</span>[<span class="ident">len</span> <span class="op">-</span> <span class="number">1</span>] <span class="op">=</span><span class="op">=</span> <span class="ident">pt</span> {
+                <span class="kw">continue</span>;
+            }
+
+            <span class="kw">if</span> <span class="ident">len</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">2</span>
+                <span class="op">&amp;&amp;</span> <span class="ident">pts</span>[<span class="ident">len</span> <span class="op">-</span> <span class="number">2</span>]
+                    .<span class="ident">angle_to</span>(<span class="ident">pts</span>[<span class="ident">len</span> <span class="op">-</span> <span class="number">1</span>])
+                    .<span class="ident">approx_eq</span>(<span class="ident">pts</span>[<span class="ident">len</span> <span class="op">-</span> <span class="number">1</span>].<span class="ident">angle_to</span>(<span class="ident">pt</span>), <span class="number">0.1</span>)
+            {
+                <span class="ident">pts</span>.<span class="ident">pop</span>();
+            }
+            <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">pt</span>);
+        }
+
         <span class="ident">PolyLine::new</span>(<span class="ident">pts</span>)
     }
 
