@@ -35,28 +35,23 @@ pub fn draw_signal_stage(
                 }
             }
 
-            let (yellow_light, percent) = if let Some(t) = time_left {
-                if stage.stage_type.simple_duration() > Duration::ZERO {
-                    (
-                        t <= Duration::seconds(5.0),
-                        (t / stage.stage_type.simple_duration()) as f32,
-                    )
-                } else {
-                    (true, 1.0)
+            let arrow_body_color = if let Some(t) = time_left {
+                match stage.stage_type {
+                    StageType::Fixed(dt) => {
+                        Color::YELLOW.lerp(app.cs().signal_protected_turn, t / dt)
+                    }
+                    StageType::Variable(min, _, _) => {
+                        if t < min {
+                            Color::YELLOW.lerp(app.cs().signal_protected_turn, t / min)
+                        } else {
+                            // The warning color for fixed is yellow, for anything else its orange to clue the
+                            // user into it possibly extending.
+                            Color::ORANGE
+                        }
+                    }
                 }
             } else {
-                (false, 1.0)
-            };
-            let arrow_body_color = if yellow_light {
-                // The warning color for fixed is yellow, for anything else its orange to clue the
-                // user into it possibly extending.
-                if let StageType::Fixed(_) = stage.stage_type {
-                    Color::YELLOW
-                } else {
-                    Color::ORANGE
-                }
-            } else {
-                app.cs().signal_protected_turn.alpha(percent)
+                app.cs().signal_protected_turn
             };
 
             for m in &stage.yield_movements {
@@ -118,8 +113,7 @@ pub fn draw_signal_stage(
                     }
                 } else {
                     batch.append(
-                        walk_icon(&signal.movements[m], prerender)
-                            .color(RewriteColor::ChangeAlpha(percent)),
+                        walk_icon(&signal.movements[m], prerender), //.color(RewriteColor::ChangeAlpha(percent)),
                     );
                     dont_walk.remove(m);
                 }
