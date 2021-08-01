@@ -30,7 +30,7 @@ pub enum ColorSchemeChoice {
     NightMode,
     Pregame,
     Textured,
-    FadedZoom,
+    ClassicDayMode,
 }
 
 impl ColorSchemeChoice {
@@ -40,7 +40,7 @@ impl ColorSchemeChoice {
             Choice::new("night mode", ColorSchemeChoice::NightMode),
             Choice::new("pregame", ColorSchemeChoice::Pregame),
             Choice::new("textured", ColorSchemeChoice::Textured),
-            Choice::new("faded zoom", ColorSchemeChoice::FadedZoom),
+            Choice::new("classic", ColorSchemeChoice::ClassicDayMode),
         ]
     }
 }
@@ -155,22 +155,23 @@ impl ColorScheme {
             ColorSchemeChoice::NightMode => ColorScheme::night_mode(),
             ColorSchemeChoice::Pregame => ColorScheme::pregame(),
             ColorSchemeChoice::Textured => ColorScheme::textured(),
-            ColorSchemeChoice::FadedZoom => ColorScheme::faded_zoom(),
+            ColorSchemeChoice::ClassicDayMode => ColorScheme::classic(),
         };
         cs.scheme = scheme;
         ctx.set_style(cs.gui_style.clone());
         cs
     }
 
+    // TODO This is still based on classic
     fn pregame() -> ColorScheme {
         let mut cs = Self::light_background(Style::pregame());
         cs.scheme = ColorSchemeChoice::Pregame;
         cs
     }
 
-    fn day_mode() -> ColorScheme {
+    fn classic() -> ColorScheme {
         let mut cs = Self::light_background(Style::light_bg());
-        cs.scheme = ColorSchemeChoice::DayMode;
+        cs.scheme = ColorSchemeChoice::ClassicDayMode;
         cs
     }
 
@@ -283,6 +284,75 @@ impl ColorScheme {
         }
     }
 
+    // Shamelessly adapted from https://github.com/Uriopass/Egregoria
+    fn night_mode() -> ColorScheme {
+        let mut cs = ColorScheme::classic();
+        cs.scheme = ColorSchemeChoice::NightMode;
+        cs.gui_style = widgetry::Style::dark_bg();
+
+        cs.void_background = hex("#200A24");
+        cs.map_background = Color::BLACK.into();
+        cs.grass = hex("#243A1F").into();
+        cs.water = hex("#21374E").into();
+        cs.residential_building = hex("#2C422E");
+        cs.commercial_building = hex("#5D5F97");
+
+        cs.driving_lane = hex("#404040");
+        cs.parking_lane = hex("#353535");
+        cs.sidewalk = hex("#6B6B6B");
+        cs.general_road_marking = hex("#B1B1B1");
+        cs.normal_intersection = cs.driving_lane;
+        cs.road_center_line = cs.general_road_marking;
+
+        cs.parking_lot = cs.sidewalk;
+        cs.unzoomed_highway = cs.parking_lane;
+        cs.unzoomed_arterial = cs.sidewalk;
+        cs.unzoomed_residential = cs.driving_lane;
+        cs.unzoomed_interesting_intersection = cs.unzoomed_highway;
+        cs.stop_sign = hex("#A32015");
+        cs.private_road = hex("#9E757F");
+        cs.pedestrian_plaza = hex("#94949C").into();
+        cs.study_area = hex("#D9B002").into();
+
+        cs.panel_bg = cs.gui_style.panel_bg;
+        cs.inner_panel_bg = cs.panel_bg.alpha(1.0);
+        cs.minimap_cursor_border = Color::WHITE;
+        cs.minimap_cursor_bg = Some(Color::rgba(238, 112, 46, 0.2));
+
+        cs
+    }
+
+    fn textured() -> ColorScheme {
+        let mut cs = ColorScheme::day_mode();
+        cs.scheme = ColorSchemeChoice::Textured;
+        cs.grass = Texture::GRASS.into();
+        cs.water = Texture::STILL_WATER.into();
+        cs.map_background = Texture::CONCRETE.into();
+        cs
+    }
+
+    fn day_mode() -> ColorScheme {
+        let mut cs = Self::light_background(Style::light_bg());
+        cs.scheme = ColorSchemeChoice::DayMode;
+        cs.experiment = true;
+
+        cs.map_background = hex("#EEE5C8").into();
+        cs.grass = hex("#BED4A3").into();
+        cs.water = hex("#6384D6").into();
+
+        cs.sidewalk = hex("#A9A9A9");
+        cs.sidewalk_lines = hex("#989898");
+
+        cs.unzoomed_arterial = hex("#F6A483");
+
+        cs.residential_building = hex("#C5D2E5");
+        cs.commercial_building = hex("#99AECC");
+
+        cs
+    }
+}
+
+impl ColorScheme {
     pub fn rotating_color_plot(&self, idx: usize) -> Color {
         modulo_color(
             &[
@@ -418,71 +488,4 @@ fn modulo_color(colors: &[Color], idx: usize) -> Color {
 // Convenience
 fn hex(x: &str) -> Color {
     Color::hex(x)
-}
-
-// Alternate, in-progress schemes
-impl ColorScheme {
-    // Shamelessly adapted from https://github.com/Uriopass/Egregoria
-    fn night_mode() -> ColorScheme {
-        let mut cs = ColorScheme::day_mode();
-        cs.gui_style = widgetry::Style::dark_bg();
-
-        cs.void_background = hex("#200A24");
-        cs.map_background = Color::BLACK.into();
-        cs.grass = hex("#243A1F").into();
-        cs.water = hex("#21374E").into();
-        cs.residential_building = hex("#2C422E");
-        cs.commercial_building = hex("#5D5F97");
-
-        cs.driving_lane = hex("#404040");
-        cs.parking_lane = hex("#353535");
-        cs.sidewalk = hex("#6B6B6B");
-        cs.general_road_marking = hex("#B1B1B1");
-        cs.normal_intersection = cs.driving_lane;
-        cs.road_center_line = cs.general_road_marking;
-
-        cs.parking_lot = cs.sidewalk;
-        cs.unzoomed_highway = cs.parking_lane;
-        cs.unzoomed_arterial = cs.sidewalk;
-        cs.unzoomed_residential = cs.driving_lane;
-        cs.unzoomed_interesting_intersection = cs.unzoomed_highway;
-        cs.stop_sign = hex("#A32015");
-        cs.private_road = hex("#9E757F");
-        cs.pedestrian_plaza = hex("#94949C").into();
-        cs.study_area = hex("#D9B002").into();
-
-        cs.panel_bg = cs.gui_style.panel_bg;
-        cs.inner_panel_bg = cs.panel_bg.alpha(1.0);
-        cs.minimap_cursor_border = Color::WHITE;
-        cs.minimap_cursor_bg = Some(Color::rgba(238, 112, 46, 0.2));
-
-        cs
-    }
-
-    fn textured() -> ColorScheme {
-        let mut cs = ColorScheme::day_mode();
-        cs.grass = Texture::GRASS.into();
-        cs.water = Texture::STILL_WATER.into();
-        cs.map_background = Texture::CONCRETE.into();
-        cs
-    }
-
-    fn faded_zoom() -> ColorScheme {
-        let mut cs = ColorScheme::day_mode();
-        cs.experiment = true;
-
-        cs.map_background = hex("#EEE5C8").into();
-        cs.grass = hex("#BED4A3").into();
-        cs.water = hex("#6384D6").into();
-
-        cs.sidewalk = hex("#A9A9A9");
-        cs.sidewalk_lines = hex("#989898");
-
-        cs.unzoomed_arterial = hex("#F6A483");
-
-        cs.residential_building = hex("#C5D2E5");
-        cs.commercial_building = hex("#99AECC");
-
-        cs
-    }
 }
