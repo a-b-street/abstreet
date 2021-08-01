@@ -79,7 +79,7 @@ impl DrawParkingLot {
             let right = pt.project_away(width / 2.0, angle.rotate_degs(-90.0));
 
             batch.push(
-                app.cs().general_road_marking(rank),
+                app.cs().general_road_marking,
                 PolyLine::must_new(vec![
                     left.project_away(height, *angle),
                     left,

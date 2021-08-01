@@ -41,7 +41,7 @@ impl DrawLane {
                 self.polygon.clone(),
             );
         }
-        let general_road_marking = app.cs().general_road_marking(rank);
+        let general_road_marking = app.cs().general_road_marking;
 
         match lane.lane_type {
             LaneType::Sidewalk | LaneType::Shoulder => {
@@ -105,13 +105,13 @@ impl DrawLane {
             LaneType::SharedLeftTurn => {
                 let thickness = Distance::meters(0.25);
                 batch.push(
-                    app.cs().road_center_line(rank),
+                    app.cs().road_center_line,
                     lane.lane_center_pts
                         .must_shift_right((lane.width - thickness) / 2.0)
                         .make_polygons(thickness),
                 );
                 batch.push(
-                    app.cs().road_center_line(rank),
+                    app.cs().road_center_line,
                     lane.lane_center_pts
                         .must_shift_left((lane.width - thickness) / 2.0)
                         .make_polygons(thickness),
@@ -174,7 +174,7 @@ impl DrawLane {
                 }
             }
             LaneType::Buffer(style) => {
-                calculate_buffer_markings(app, style, lane, road, &mut batch);
+                calculate_buffer_markings(app, style, lane, &mut batch);
             }
         }
 
@@ -393,10 +393,9 @@ fn calculate_buffer_markings(
     app: &dyn AppLike,
     style: BufferType,
     lane: &Lane,
-    road: &Road,
     batch: &mut GeomBatch,
 ) {
-    let color = app.cs().general_road_marking(road.get_rank());
+    let color = app.cs().general_road_marking;
 
     let side_lines = |batch: &mut GeomBatch| {
         let thickness = Distance::meters(0.25);

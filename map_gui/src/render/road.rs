@@ -30,12 +30,10 @@ impl DrawRoad {
 
         let mut batch = GeomBatch::new();
         let r = app.map().get_r(self.id);
-        // TODO Need to detangle how road_center_line is used.
-        let center_color = app.cs().road_center_line(r.get_rank());
-        let color = if r.is_private() {
-            center_color.lerp(app.cs().private_road, 0.5)
+        let center_line_color = if r.is_private() {
+            app.cs().road_center_line.lerp(app.cs().private_road, 0.5)
         } else {
-            center_color
+            app.cs().road_center_line
         };
 
         // Draw a center line every time two driving/bike/bus lanes of opposite direction are
@@ -47,7 +45,7 @@ impl DrawRoad {
             if dir1 != dir2 && lt1.is_for_moving_vehicles() && lt2.is_for_moving_vehicles() {
                 let pl = r.get_left_side(app.map()).must_shift_right(width);
                 batch.extend(
-                    color,
+                    center_line_color,
                     pl.dashed_lines(
                         Distance::meters(0.25),
                         Distance::meters(2.0),
@@ -63,12 +61,6 @@ impl DrawRoad {
             if r.center_pts.length() >= Distance::meters(30.0) && name != "???" {
                 // TODO If it's definitely straddling bus/bike lanes, change the color? Or
                 // even easier, just skip the center lines?
-                let center_color = app.cs().road_center_line(r.get_rank());
-                let fg = if r.is_private() {
-                    center_color.lerp(app.cs().private_road, 0.5)
-                } else {
-                    center_color
-                };
                 let bg = if r.is_private() {
                     app.cs()
                         .zoomed_road_surface(LaneType::Driving, r.get_rank())
@@ -80,13 +72,13 @@ impl DrawRoad {
 
                 if false {
                     // TODO Not ready yet
-                    batch.append(
-                        Line(name)
-                            .fg(fg)
-                            .render_curvey(prerender, &r.center_pts, 0.1),
-                    );
+                    batch.append(Line(name).fg(center_line_color).render_curvey(
+                        prerender,
+                        &r.center_pts,
+                        0.1,
+                    ));
                 } else {
-                    let txt = Text::from(Line(name).fg(fg)).bg(bg);
+                    let txt = Text::from(Line(name).fg(center_line_color)).bg(bg);
                     let (pt, angle) = r.center_pts.must_dist_along(r.center_pts.length() / 2.0);
                     batch.append(
                         txt.render_autocropped(prerender)

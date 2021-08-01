@@ -71,7 +71,7 @@ impl DrawIntersection {
             IntersectionType::Border => {
                 let r = map.get_r(*i.roads.iter().next().unwrap());
                 default_geom.extend(
-                    app.cs().road_center_line(r.get_rank()),
+                    app.cs().road_center_line,
                     calculate_border_arrows(i, r, map),
                 );
             }
@@ -495,10 +495,8 @@ pub fn make_crosswalk(batch: &mut GeomBatch, turn: &Turn, map: &Map, cs: &ColorS
             let pt1 = line.dist_along(dist_along).expect(&err);
             // Reuse perp_line. Project away an arbitrary amount
             let pt2 = pt1.project_away(Distance::meters(1.0), line.angle());
-            let general_road_marking =
-                cs.general_road_marking(map.get_i(turn.id.parent).get_rank(map));
             batch.push(
-                general_road_marking,
+                cs.general_road_marking,
                 perp_line(Line::must_new(pt1, pt2), width).make_polygons(CROSSWALK_LINE_THICKNESS),
             );
 
@@ -508,7 +506,7 @@ pub fn make_crosswalk(batch: &mut GeomBatch, turn: &Turn, map: &Map, cs: &ColorS
                 .expect(&err);
             let pt4 = pt3.project_away(Distance::meters(1.0), line.angle());
             batch.push(
-                general_road_marking,
+                cs.general_road_marking,
                 perp_line(Line::must_new(pt3, pt4), width).make_polygons(CROSSWALK_LINE_THICKNESS),
             );
 

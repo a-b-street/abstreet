@@ -74,8 +74,8 @@ pub struct ColorScheme {
     bike_lane: Color,
     sidewalk: Color,
     pub sidewalk_lines: Color,
-    general_road_marking: Color,
-    road_center_line: Color,
+    pub general_road_marking: Color,
+    pub road_center_line: Color,
     pub light_rail_track: Color,
     pub private_road: Color,
     unzoomed_highway: Color,
@@ -351,16 +351,6 @@ impl ColorScheme {
             RoadRank::Arterial => Color::grey(0.3),
             RoadRank::Local => Color::grey(0.4),
         }
-    }
-
-    // TODO Maybe this'll be the same everywhere
-    pub fn road_center_line(&self, _: RoadRank) -> Color {
-        self.road_center_line
-    }
-
-    // TODO Maybe this'll be the same everywhere
-    pub fn general_road_marking(&self, _: RoadRank) -> Color {
-        self.general_road_marking
     }
 
     // These two could try to use serde, but... Color serializes with a separate RGB by default,

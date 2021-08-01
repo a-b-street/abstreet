@@ -1,7 +1,6 @@
 use std::collections::BTreeMap;
 
 use abstio::{CityName, Manifest, MapName};
-use abstutil::VecMap;
 use geom::{Distance, Percent};
 use map_model::City;
 use widgetry::{
@@ -60,19 +59,20 @@ impl<A: AppLike + 'static> CityPicker<A> {
                     // If somebody has just generated a new map somewhere with an existing
                     // city.bin, but hasn't updated city.bin yet, that new map will be invisible on
                     // the city-wide diagram.
+                    let outline_color = app.cs().minimap_cursor_border;
                     let mut tooltips = Vec::new();
-                    let mut colors = VecMap::new();
                     for (name, polygon) in city.districts {
                         if &name != app.map().get_name() {
-                            let color = app.cs().rotating_color_agents(colors.len());
-                            batch.push(color, polygon.to_outline(Distance::meters(200.0)).unwrap());
+                            batch.push(
+                                outline_color,
+                                polygon.to_outline(Distance::meters(200.0)).unwrap(),
+                            );
                             let polygon = polygon.scale(zoom);
                             tooltips.push((
                                 polygon.clone(),
                                 Text::from(nice_map_name(&name)),
                                 Some(ClickOutcome::Custom(Box::new(name))),
                             ));
-                            colors.push(polygon, color);
                         }
                     }
                     DrawWithTooltips::new_widget(
@@ -80,8 +80,7 @@ impl<A: AppLike + 'static> CityPicker<A> {
                         batch.scale(zoom),
                         tooltips,
                         Box::new(move |poly| {
-                            let color = colors.get(poly).unwrap();
-                            GeomBatch::from(vec![(color.alpha(0.5), poly.clone())])
+                            GeomBatch::from(vec![(outline_color.alpha(0.5), poly.clone())])
                         }),
                     )
                 } else {
