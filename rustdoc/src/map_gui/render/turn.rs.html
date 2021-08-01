@@ -219,7 +219,6 @@
 <span id="217">217</span>
 <span id="218">218</span>
 <span id="219">219</span>
-<span id="220">220</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
@@ -336,7 +335,7 @@
                         <span class="ident">seen_lanes</span>.<span class="ident">insert</span>(<span class="ident">t</span>.<span class="ident">src</span>);
                     }
                 }
-                <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color::hex</span>(<span class="string">&quot;#7C7C7C&quot;</span>), <span class="ident">circle</span>.<span class="ident">clone</span>());
+                <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">cs</span>.<span class="ident">signal_banned_turn</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>), <span class="ident">circle</span>.<span class="ident">clone</span>());
                 <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color::WHITE</span>, <span class="ident">arrow</span>);
                 <span class="ident">circle</span>
             };
@@ -393,7 +392,6 @@
                 );
             }
             <span class="prelude-val">Some</span>(<span class="ident">TurnPriority::Banned</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">let</span> <span class="ident">red</span> <span class="op">=</span> <span class="ident">Color::hex</span>(<span class="string">&quot;#EB3223&quot;</span>);
                 <span class="ident">batch</span>.<span class="ident">extend</span>(
                     <span class="ident">Color::BLACK</span>.<span class="ident">alpha</span>(<span class="number">0.8</span>),
                     <span class="ident">pl</span>.<span class="ident">dashed_arrow</span>(
@@ -404,7 +402,7 @@
                     ),
                 );
                 <span class="ident">batch</span>.<span class="ident">extend</span>(
-                    <span class="ident">red</span>.<span class="ident">alpha</span>(<span class="number">0.8</span>),
+                    <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">signal_banned_turn</span>.<span class="ident">alpha</span>(<span class="number">0.8</span>),
                     <span class="ident">pl</span>.<span class="ident">exact_slice</span>(<span class="ident">Distance::meters</span>(<span class="number">0.1</span>), <span class="ident">pl</span>.<span class="ident">length</span>() <span class="op">-</span> <span class="ident">Distance::meters</span>(<span class="number">0.1</span>))
                         .<span class="ident">dashed_arrow</span>(
                             <span class="ident">BIG_ARROW_THICKNESS</span> <span class="op">/</span> <span class="number">2.0</span>,

@@ -858,7 +858,7 @@
                 <span class="comment">// Cancelled trips can happen anywhere in the schedule right now</span>
                 (
                     <span class="string">&quot;cancelled&quot;</span>,
-                    <span class="ident">Color::hex</span>(<span class="string">&quot;#EB3223&quot;</span>),
+                    <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">signal_banned_turn</span>,
                     <span class="ident">open_trips</span>
                         .<span class="ident">get_mut</span>(<span class="ident">t</span>)
                         .<span class="ident">map</span>(<span class="op">|</span><span class="ident">open_trip</span><span class="op">|</span> <span class="ident">trip::cancelled</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">*</span><span class="ident">t</span>, <span class="ident">open_trip</span>, <span class="ident">details</span>)),
