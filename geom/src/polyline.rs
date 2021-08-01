@@ -82,6 +82,30 @@ impl PolyLine {
         PolyLine::new(pts)
     }
 
+    // TODO Unused and experimental. Deduplicates and removes redundant inner points.
+    pub fn angle_collapsing_new(input: Vec<Pt2D>) -> Result<PolyLine> {
+        let mut pts: Vec<Pt2D> = Vec::new();
+        for pt in input {
+            let len = pts.len();
+
+            // Also dedupe
+            if len > 0 && pts[len - 1] == pt {
+                continue;
+            }
+
+            if len >= 2
+                && pts[len - 2]
+                    .angle_to(pts[len - 1])
+                    .approx_eq(pts[len - 1].angle_to(pt), 0.1)
+            {
+                pts.pop();
+            }
+            pts.push(pt);
+        }
+
+        PolyLine::new(pts)
+    }
+
     /// Like make_polygons, but make sure the points actually form a ring.
     pub fn to_thick_ring(&self, width: Distance) -> Ring {
         let mut side1 = self.shift_with_sharp_angles(width / 2.0, MITER_THRESHOLD);

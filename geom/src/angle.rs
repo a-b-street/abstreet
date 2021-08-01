@@ -67,6 +67,12 @@ impl Angle {
         self.simple_shortest_rotation_towards(other).abs() < within_degrees
     }
 
+    /// True if this angle is within some degrees of another, accounting for rotation and allowing
+    /// two angles that point in opposite directions
+    pub fn approx_parallel(self, other: Angle, within_degrees: f64) -> bool {
+        self.approx_eq(other, within_degrees) || self.opposite().approx_eq(other, within_degrees)
+    }
+
     /// I don't know how to describe what this does. Use for rotating labels in map-space and making
     /// sure the text is never upside-down.
     pub fn reorient(self) -> Angle {

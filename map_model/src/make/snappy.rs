@@ -168,12 +168,7 @@ fn v1(
                 if let Some((_, road_angle)) =
                     road_edges[&road_pair].intersection(&perp_line.to_polyline())
                 {
-                    // The two angles might be anti-parallel
-                    if road_angle.approx_eq(cycleway_angle, parallel_threshold)
-                        || road_angle
-                            .opposite()
-                            .approx_eq(cycleway_angle, parallel_threshold)
-                    {
+                    if road_angle.approx_parallel(cycleway_angle, parallel_threshold) {
                         matched = Some(road_pair);
                         // Just stop at the first, closest hit. One point along a cycleway might be
                         // close to multiple road edges, but we want the closest hit.

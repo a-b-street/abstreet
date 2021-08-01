@@ -49,7 +49,7 @@ impl DrawLane {
                 if lane.is_sidewalk() {
                     batch.extend(app.cs().sidewalk_lines, calculate_sidewalk_lines(lane));
                 }
-                if app.cs().experiment {
+                if app.cs().experiment && !road.is_footway() {
                     // Create a sense of depth at the curb
                     let width = Distance::meters(0.2);
                     let mut shift = (lane.width - width) / 2.0;
