@@ -656,9 +656,9 @@
       "compressed_size_bytes": 2566467
     },
     "data/input/gb/great_kneighton/screenshots/center.zip": {
-      "checksum": "d3e32795cdb5f483cd7eaaf101eceb6e",
-      "uncompressed_size_bytes": 40219667,
-      "compressed_size_bytes": 40204820
+      "checksum": "ed449c8b027b18f34002a70b51c92cc7",
+      "uncompressed_size_bytes": 42176902,
+      "compressed_size_bytes": 42162406
     },
     "data/input/gb/halsnead/osm/center.osm": {
       "checksum": "9b4aedf25220e29e11d0970cf7c70a26",
@@ -1396,9 +1396,9 @@
       "compressed_size_bytes": 3224297
     },
     "data/input/pl/krakow/screenshots/center.zip": {
-      "checksum": "999fbaf2251d35d42633fbb135c27799",
-      "uncompressed_size_bytes": 29541276,
-      "compressed_size_bytes": 29536484
+      "checksum": "41edd76d32cec1483d5cceb7fd24e3a7",
+      "uncompressed_size_bytes": 28569811,
+      "compressed_size_bytes": 28564925
     },
     "data/input/pl/warsaw/osm/center.osm": {
       "checksum": "b41830dd375674ffc9f7ec15d6cf9c0c",
@@ -1906,9 +1906,9 @@
       "compressed_size_bytes": 389560
     },
     "data/input/us/phoenix/screenshots/tempe.zip": {
-      "checksum": "f2bc2e73fbe6fe5f38776bfc18867739",
-      "uncompressed_size_bytes": 7927551,
-      "compressed_size_bytes": 7925377
+      "checksum": "8148cdfc64e6d8b1b81cec09a58a31e7",
+      "uncompressed_size_bytes": 7987829,
+      "compressed_size_bytes": 7985667
     },
     "data/input/us/providence/osm/downtown.osm": {
       "checksum": "463b986adc83ae4d1174496a4ce744d1",
@@ -2226,24 +2226,24 @@
       "compressed_size_bytes": 4917582
     },
     "data/input/us/seattle/screenshots/downtown.zip": {
-      "checksum": "d490872a0ac6c70e3eb504ee310e7cee",
-      "uncompressed_size_bytes": 22872643,
-      "compressed_size_bytes": 22864641
+      "checksum": "d5d19b42ac2ca5c6d98ccc7318350995",
+      "uncompressed_size_bytes": 22417365,
+      "compressed_size_bytes": 22408987
     },
     "data/input/us/seattle/screenshots/lakeslice.zip": {
-      "checksum": "9ee378672a8a9c8d91cb56385e2449d9",
-      "uncompressed_size_bytes": 22369499,
-      "compressed_size_bytes": 22363071
+      "checksum": "3c9d713fc6bb8657364c99b9c90d10b2",
+      "uncompressed_size_bytes": 21864637,
+      "compressed_size_bytes": 21858333
     },
     "data/input/us/seattle/screenshots/montlake.zip": {
-      "checksum": "3c06a309b15d669191f1e46def15f84e",
-      "uncompressed_size_bytes": 4357684,
-      "compressed_size_bytes": 4357448
+      "checksum": "a60103db161f0f677e91a57512eca611",
+      "uncompressed_size_bytes": 4316268,
+      "compressed_size_bytes": 4316051
     },
     "data/input/us/seattle/screenshots/udistrict.zip": {
-      "checksum": "991f37f45cc77927fc70eae8348c6256",
-      "uncompressed_size_bytes": 11117126,
-      "compressed_size_bytes": 11114019
+      "checksum": "b78386c9b75dbbcd69a143e38d7eae8e",
+      "uncompressed_size_bytes": 10980359,
+      "compressed_size_bytes": 10977386
     },
     "data/input/us/seattle/trips_2014.csv": {
       "checksum": "d4a8e733045b28c0385fb81359d6df03",
