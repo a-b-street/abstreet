@@ -42,6 +42,9 @@ impl DrawMovement {
                         .geom
                         .make_arrow(BIG_ARROW_THICKNESS, ArrowCap::Triangle);
                     batch.push(cs.signal_protected_turn, arrow.clone());
+                    if let Ok(p) = arrow.to_outline(Distance::meters(0.2)) {
+                        batch.push(Color::BLACK, p);
+                    }
                     arrow
                 }
             } else if stage.yield_movements.contains(&movement.id) {
