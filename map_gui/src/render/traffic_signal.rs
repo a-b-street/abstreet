@@ -47,12 +47,16 @@ pub fn draw_signal_stage(
             } else {
                 (false, 1.0)
             };
-            // The warning color for fixed is yellow, for anything else its orange to clue the
-            // user into it possibly extending.
-            let indicator_color = if let StageType::Fixed(_) = stage.stage_type {
-                Color::YELLOW
+            let arrow_body_color = if yellow_light {
+                // The warning color for fixed is yellow, for anything else its orange to clue the
+                // user into it possibly extending.
+                if let StageType::Fixed(_) = stage.stage_type {
+                    Color::YELLOW
+                } else {
+                    Color::ORANGE
+                }
             } else {
-                Color::ORANGE
+                app.cs().signal_protected_turn.alpha(percent)
             };
             for m in &stage.protected_movements {
                 if !m.crosswalk {
@@ -71,11 +75,7 @@ pub fn draw_signal_stage(
                     let pl = &signal.movements[m].geom;
                     if let Ok(pl) = pl.maybe_exact_slice(slice_start, pl.length() - slice_end) {
                         batch.push(
-                            if yellow_light {
-                                indicator_color
-                            } else {
-                                app.cs().signal_protected_turn.alpha(percent)
-                            },
+                            arrow_body_color,
                             pl.make_arrow(BIG_ARROW_THICKNESS, ArrowCap::Triangle),
                         );
                     }
@@ -93,6 +93,9 @@ pub fn draw_signal_stage(
             for m in &stage.yield_movements {
                 assert!(!m.crosswalk);
                 let pl = &signal.movements[m].geom;
+                // TODO Make dashed_arrow draw the last polygon without an awkward overlap. Then we
+                // can just make one call here and control the outline thickness just using
+                // to_outline.
                 if let Ok(slice) = pl.maybe_exact_slice(
                     SIDEWALK_THICKNESS - Distance::meters(0.1),
                     pl.length() - SIDEWALK_THICKNESS + Distance::meters(0.1),
@@ -111,11 +114,7 @@ pub fn draw_signal_stage(
                     pl.maybe_exact_slice(SIDEWALK_THICKNESS, pl.length() - SIDEWALK_THICKNESS)
                 {
                     batch.extend(
-                        if yellow_light {
-                            indicator_color
-                        } else {
-                            app.cs().signal_protected_turn.alpha(percent)
-                        },
+                        arrow_body_color,
                         slice.dashed_arrow(
                             BIG_ARROW_THICKNESS / 2.0,
                             Distance::meters(1.0),
