@@ -573,8 +573,6 @@
 <span id="571">571</span>
 <span id="572">572</span>
 <span id="573">573</span>
-<span id="574">574</span>
-<span id="575">575</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::cell::RefCell</span>;
 
@@ -649,7 +647,7 @@
             <span class="ident">IntersectionType::Border</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">i</span>.<span class="ident">roads</span>.<span class="ident">iter</span>().<span class="ident">next</span>().<span class="ident">unwrap</span>());
                 <span class="ident">default_geom</span>.<span class="ident">extend</span>(
-                    <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">road_center_line</span>(<span class="ident">r</span>.<span class="ident">get_rank</span>()),
+                    <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">road_center_line</span>,
                     <span class="ident">calculate_border_arrows</span>(<span class="ident">i</span>, <span class="ident">r</span>, <span class="ident">map</span>),
                 );
             }
@@ -1073,10 +1071,8 @@
             <span class="kw">let</span> <span class="ident">pt1</span> <span class="op">=</span> <span class="ident">line</span>.<span class="ident">dist_along</span>(<span class="ident">dist_along</span>).<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="ident">err</span>);
             <span class="comment">// Reuse perp_line. Project away an arbitrary amount</span>
             <span class="kw">let</span> <span class="ident">pt2</span> <span class="op">=</span> <span class="ident">pt1</span>.<span class="ident">project_away</span>(<span class="ident">Distance::meters</span>(<span class="number">1.0</span>), <span class="ident">line</span>.<span class="ident">angle</span>());
-            <span class="kw">let</span> <span class="ident">general_road_marking</span> <span class="op">=</span>
-                <span class="ident">cs</span>.<span class="ident">general_road_marking</span>(<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">parent</span>).<span class="ident">get_rank</span>(<span class="ident">map</span>));
             <span class="ident">batch</span>.<span class="ident">push</span>(
-                <span class="ident">general_road_marking</span>,
+                <span class="ident">cs</span>.<span class="ident">general_road_marking</span>,
                 <span class="ident">perp_line</span>(<span class="ident">Line::must_new</span>(<span class="ident">pt1</span>, <span class="ident">pt2</span>), <span class="ident">width</span>).<span class="ident">make_polygons</span>(<span class="ident">CROSSWALK_LINE_THICKNESS</span>),
             );
 
@@ -1086,7 +1082,7 @@
                 .<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="ident">err</span>);
             <span class="kw">let</span> <span class="ident">pt4</span> <span class="op">=</span> <span class="ident">pt3</span>.<span class="ident">project_away</span>(<span class="ident">Distance::meters</span>(<span class="number">1.0</span>), <span class="ident">line</span>.<span class="ident">angle</span>());
             <span class="ident">batch</span>.<span class="ident">push</span>(
-                <span class="ident">general_road_marking</span>,
+                <span class="ident">cs</span>.<span class="ident">general_road_marking</span>,
                 <span class="ident">perp_line</span>(<span class="ident">Line::must_new</span>(<span class="ident">pt3</span>, <span class="ident">pt4</span>), <span class="ident">width</span>).<span class="ident">make_polygons</span>(<span class="ident">CROSSWALK_LINE_THICKNESS</span>),
             );
 

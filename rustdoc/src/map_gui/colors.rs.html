@@ -488,16 +488,6 @@
 <span id="486">486</span>
 <span id="487">487</span>
 <span id="488">488</span>
-<span id="489">489</span>
-<span id="490">490</span>
-<span id="491">491</span>
-<span id="492">492</span>
-<span id="493">493</span>
-<span id="494">494</span>
-<span id="495">495</span>
-<span id="496">496</span>
-<span id="497">497</span>
-<span id="498">498</span>
 </pre><pre class="rust">
 <span class="doccomment">//! A color scheme groups colors used for different map, dynamic, and UI elements in one place, to</span>
 <span class="doccomment">//! encourage deduplication. The player can also switch between different color schemes.</span>
@@ -575,8 +565,8 @@
     <span class="ident">bike_lane</span>: <span class="ident">Color</span>,
     <span class="ident">sidewalk</span>: <span class="ident">Color</span>,
     <span class="kw">pub</span> <span class="ident">sidewalk_lines</span>: <span class="ident">Color</span>,
-    <span class="ident">general_road_marking</span>: <span class="ident">Color</span>,
-    <span class="ident">road_center_line</span>: <span class="ident">Color</span>,
+    <span class="kw">pub</span> <span class="ident">general_road_marking</span>: <span class="ident">Color</span>,
+    <span class="kw">pub</span> <span class="ident">road_center_line</span>: <span class="ident">Color</span>,
     <span class="kw">pub</span> <span class="ident">light_rail_track</span>: <span class="ident">Color</span>,
     <span class="kw">pub</span> <span class="ident">private_road</span>: <span class="ident">Color</span>,
     <span class="ident">unzoomed_highway</span>: <span class="ident">Color</span>,
@@ -852,16 +842,6 @@
             <span class="ident">RoadRank::Arterial</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Color::grey</span>(<span class="number">0.3</span>),
             <span class="ident">RoadRank::Local</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Color::grey</span>(<span class="number">0.4</span>),
         }
-    }
-
-    <span class="comment">// TODO Maybe this&#39;ll be the same everywhere</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">road_center_line</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="ident">RoadRank</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Color</span> {
-        <span class="self">self</span>.<span class="ident">road_center_line</span>
-    }
-
-    <span class="comment">// TODO Maybe this&#39;ll be the same everywhere</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">general_road_marking</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="ident">RoadRank</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Color</span> {
-        <span class="self">self</span>.<span class="ident">general_road_marking</span>
     }
 
     <span class="comment">// These two could try to use serde, but... Color serializes with a separate RGB by default,</span>

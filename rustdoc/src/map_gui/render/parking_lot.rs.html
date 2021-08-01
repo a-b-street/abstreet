@@ -212,7 +212,7 @@
             <span class="kw">let</span> <span class="ident">right</span> <span class="op">=</span> <span class="ident">pt</span>.<span class="ident">project_away</span>(<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>, <span class="ident">angle</span>.<span class="ident">rotate_degs</span>(<span class="op">-</span><span class="number">90.0</span>));
 
             <span class="ident">batch</span>.<span class="ident">push</span>(
-                <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">general_road_marking</span>(<span class="ident">rank</span>),
+                <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">general_road_marking</span>,
                 <span class="ident">PolyLine::must_new</span>(<span class="macro">vec!</span>[
                     <span class="ident">left</span>.<span class="ident">project_away</span>(<span class="ident">height</span>, <span class="kw-2">*</span><span class="ident">angle</span>),
                     <span class="ident">left</span>,
