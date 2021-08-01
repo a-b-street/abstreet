@@ -573,6 +573,8 @@
 <span id="571">571</span>
 <span id="572">572</span>
 <span id="573">573</span>
+<span id="574">574</span>
+<span id="575">575</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::cell::RefCell</span>;
 
@@ -617,6 +619,8 @@
         <span class="ident">default_geom</span>.<span class="ident">push</span>(
             <span class="kw">if</span> <span class="ident">i</span>.<span class="ident">is_footway</span>(<span class="ident">map</span>) {
                 <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">zoomed_road_surface</span>(<span class="ident">LaneType::Sidewalk</span>, <span class="ident">rank</span>)
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">i</span>.<span class="ident">is_cycleway</span>(<span class="ident">map</span>) {
+                <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">zoomed_road_surface</span>(<span class="ident">LaneType::Biking</span>, <span class="ident">rank</span>)
             } <span class="kw">else</span> {
                 <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">zoomed_intersection_surface</span>(<span class="ident">rank</span>)
             },
