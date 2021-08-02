@@ -444,17 +444,6 @@
 <span id="442">442</span>
 <span id="443">443</span>
 <span id="444">444</span>
-<span id="445">445</span>
-<span id="446">446</span>
-<span id="447">447</span>
-<span id="448">448</span>
-<span id="449">449</span>
-<span id="450">450</span>
-<span id="451">451</span>
-<span id="452">452</span>
-<span id="453">453</span>
-<span id="454">454</span>
-<span id="455">455</span>
 </pre><pre class="rust">
 <span class="doccomment">//! See &lt;https://a-b-street.github.io/docs/tech/map/importing/index.html&gt; for an overview. This module</span>
 <span class="doccomment">//! covers the RawMap-&gt;Map stage.</span>
@@ -617,18 +606,7 @@
                 <span class="ident">src_i</span>: <span class="ident">i1</span>,
                 <span class="ident">dst_i</span>: <span class="ident">i2</span>,
                 <span class="ident">speed_limit</span>: <span class="ident">Speed::ZERO</span>,
-                <span class="ident">zorder</span>: <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">layer</span>) <span class="op">=</span> <span class="ident">raw_road</span>.<span class="ident">osm_tags</span>.<span class="ident">get</span>(<span class="string">&quot;layer&quot;</span>) {
-                    <span class="kw">match</span> <span class="ident">layer</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>() {
-                        <span class="comment">// Just drop .5 for now</span>
-                        <span class="prelude-val">Ok</span>(<span class="ident">l</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">l</span> <span class="kw">as</span> <span class="ident">isize</span>,
-                        <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                            <span class="macro">warn!</span>(<span class="string">&quot;Weird layer={} on {}&quot;</span>, <span class="ident">layer</span>, <span class="ident">r</span>.<span class="ident">id</span>);
-                            <span class="number">0</span>
-                        }
-                    }
-                } <span class="kw">else</span> {
-                    <span class="number">0</span>
-                },
+                <span class="ident">zorder</span>: <span class="ident">raw_road</span>.<span class="ident">get_zorder</span>(),
                 <span class="ident">access_restrictions</span>: <span class="ident">AccessRestrictions::new</span>(),
                 <span class="ident">percent_incline</span>: <span class="ident">raw_road</span>.<span class="ident">percent_incline</span>,
             };

@@ -729,6 +729,25 @@
 <span id="727">727</span>
 <span id="728">728</span>
 <span id="729">729</span>
+<span id="730">730</span>
+<span id="731">731</span>
+<span id="732">732</span>
+<span id="733">733</span>
+<span id="734">734</span>
+<span id="735">735</span>
+<span id="736">736</span>
+<span id="737">737</span>
+<span id="738">738</span>
+<span id="739">739</span>
+<span id="740">740</span>
+<span id="741">741</span>
+<span id="742">742</span>
+<span id="743">743</span>
+<span id="744">744</span>
+<span id="745">745</span>
+<span id="746">746</span>
+<span id="747">747</span>
+<span id="748">748</span>
 </pre><pre class="rust">
 <span class="doccomment">//! The convert_osm crate produces a RawMap from OSM and other data. Storing this intermediate</span>
 <span class="doccomment">//! structure is useful to iterate quickly on parts of the map importing pipeline without having to</span>
@@ -1368,6 +1387,25 @@
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">length</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Distance</span> {
         <span class="ident">PolyLine::unchecked_new</span>(<span class="self">self</span>.<span class="ident">center_points</span>.<span class="ident">clone</span>()).<span class="ident">length</span>()
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_zorder</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">isize</span> {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">layer</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">osm_tags</span>.<span class="ident">get</span>(<span class="string">&quot;layer&quot;</span>) {
+            <span class="kw">match</span> <span class="ident">layer</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>() {
+                <span class="comment">// Just drop .5 for now</span>
+                <span class="prelude-val">Ok</span>(<span class="ident">l</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">l</span> <span class="kw">as</span> <span class="ident">isize</span>,
+                <span class="prelude-val">Err</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="macro">warn!</span>(
+                        <span class="string">&quot;Weird layer={} on {:?}&quot;</span>,
+                        <span class="ident">layer</span>,
+                        <span class="self">self</span>.<span class="ident">osm_tags</span>.<span class="ident">get</span>(<span class="ident">osm::OSM_WAY_ID</span>)
+                    );
+                    <span class="number">0</span>
+                }
+            }
+        } <span class="kw">else</span> {
+            <span class="number">0</span>
+        }
     }
 }
 

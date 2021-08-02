@@ -145,23 +145,133 @@
 <span id="143">143</span>
 <span id="144">144</span>
 <span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
+<span id="165">165</span>
+<span id="166">166</span>
+<span id="167">167</span>
+<span id="168">168</span>
+<span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
+<span id="174">174</span>
+<span id="175">175</span>
+<span id="176">176</span>
+<span id="177">177</span>
+<span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
+<span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
+<span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
+
+<span class="kw">use</span> <span class="ident">anyhow::Result</span>;
 
 <span class="kw">use</span> <span class="ident">geom::Distance</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::make::initial::lane_specs::get_lane_specs_ltr</span>;
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::osm::NodeID</span>;
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::raw</span>::{<span class="ident">OriginalRoad</span>, <span class="ident">RawMap</span>, <span class="ident">RawRoad</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">osm</span>, <span class="ident">IntersectionType</span>, <span class="ident">LaneType</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">osm</span>, <span class="ident">IntersectionType</span>, <span class="ident">LaneSpec</span>, <span class="ident">LaneType</span>};
 
-<span class="doccomment">/// Collapse degenerate intersections between two cycleways.</span>
+<span class="doccomment">/// Collapse degenerate intersections:</span>
+<span class="doccomment">/// - between two cycleways</span>
+<span class="doccomment">/// - when the lane specs match and only &quot;unimportant&quot; OSM tags differ</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">collapse</span>(<span class="ident">raw</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">RawMap</span>) {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">merge</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">NodeID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
     <span class="kw">for</span> <span class="ident">id</span> <span class="kw">in</span> <span class="ident">raw</span>.<span class="ident">intersections</span>.<span class="ident">keys</span>() {
         <span class="kw">let</span> <span class="ident">roads</span> <span class="op">=</span> <span class="ident">raw</span>.<span class="ident">roads_per_intersection</span>(<span class="kw-2">*</span><span class="ident">id</span>);
-        <span class="kw">if</span> <span class="ident">roads</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="number">2</span> <span class="op">&amp;&amp;</span> <span class="ident">roads</span>.<span class="ident">iter</span>().<span class="ident">all</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="ident">is_cycleway</span>(<span class="kw-2">&amp;</span><span class="ident">raw</span>.<span class="ident">roads</span>[<span class="ident">r</span>], <span class="ident">raw</span>)) {
-            <span class="ident">merge</span>.<span class="ident">push</span>(<span class="kw-2">*</span><span class="ident">id</span>);
+        <span class="kw">if</span> <span class="ident">roads</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">2</span> {
+            <span class="kw">continue</span>;
+        }
+        <span class="kw">match</span> <span class="ident">should_collapse</span>(<span class="kw-2">&amp;</span><span class="ident">raw</span>.<span class="ident">roads</span>[<span class="kw-2">&amp;</span><span class="ident">roads</span>[<span class="number">0</span>]], <span class="kw-2">&amp;</span><span class="ident">raw</span>.<span class="ident">roads</span>[<span class="kw-2">&amp;</span><span class="ident">roads</span>[<span class="number">1</span>]], <span class="ident">raw</span>) {
+            <span class="prelude-val">Ok</span>(()) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">merge</span>.<span class="ident">push</span>(<span class="kw-2">*</span><span class="ident">id</span>);
+            }
+            <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="macro">warn!</span>(<span class="string">&quot;Not collapsing degenerate intersection {}: {}&quot;</span>, <span class="ident">id</span>, <span class="ident">err</span>);
+            }
         }
     }
 
@@ -173,16 +283,101 @@
     <span class="comment">// Results look good so far.</span>
 }
 
-<span class="comment">// Rather bruteforce way of figuring this out... is_cycleway logic lifted from Road, unfortunately.</span>
-<span class="comment">// Better than repeating the OSM tag log from get_lane_specs_ltr.</span>
-<span class="kw">fn</span> <span class="ident">is_cycleway</span>(<span class="ident">road</span>: <span class="kw-2">&amp;</span><span class="ident">RawRoad</span>, <span class="ident">raw</span>: <span class="kw-2">&amp;</span><span class="ident">RawMap</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-    <span class="comment">// Don&#39;t attempt to merge roads with these. They&#39;re usually not filled out for cyclepaths.</span>
-    <span class="kw">if</span> <span class="op">!</span><span class="ident">road</span>.<span class="ident">turn_restrictions</span>.<span class="ident">is_empty</span>() <span class="op">|</span><span class="op">|</span> <span class="op">!</span><span class="ident">road</span>.<span class="ident">complicated_turn_restrictions</span>.<span class="ident">is_empty</span>() {
-        <span class="kw">return</span> <span class="bool-val">false</span>;
+<span class="kw">fn</span> <span class="ident">should_collapse</span>(<span class="ident">r1</span>: <span class="kw-2">&amp;</span><span class="ident">RawRoad</span>, <span class="ident">r2</span>: <span class="kw-2">&amp;</span><span class="ident">RawRoad</span>, <span class="ident">raw</span>: <span class="kw-2">&amp;</span><span class="ident">RawMap</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="comment">// Don&#39;t attempt to merge roads with these.</span>
+    <span class="kw">if</span> <span class="op">!</span><span class="ident">r1</span>.<span class="ident">turn_restrictions</span>.<span class="ident">is_empty</span>() <span class="op">|</span><span class="op">|</span> <span class="op">!</span><span class="ident">r1</span>.<span class="ident">complicated_turn_restrictions</span>.<span class="ident">is_empty</span>() {
+        <span class="macro">bail!</span>(<span class="string">&quot;one road has turn restrictions&quot;</span>);
+    }
+    <span class="kw">if</span> <span class="op">!</span><span class="ident">r2</span>.<span class="ident">turn_restrictions</span>.<span class="ident">is_empty</span>() <span class="op">|</span><span class="op">|</span> <span class="op">!</span><span class="ident">r2</span>.<span class="ident">complicated_turn_restrictions</span>.<span class="ident">is_empty</span>() {
+        <span class="macro">bail!</span>(<span class="string">&quot;one road has turn restrictions&quot;</span>);
     }
 
+    <span class="kw">let</span> <span class="ident">lanes1</span> <span class="op">=</span> <span class="ident">get_lane_specs_ltr</span>(<span class="kw-2">&amp;</span><span class="ident">r1</span>.<span class="ident">osm_tags</span>, <span class="kw-2">&amp;</span><span class="ident">raw</span>.<span class="ident">config</span>);
+    <span class="kw">let</span> <span class="ident">lanes2</span> <span class="op">=</span> <span class="ident">get_lane_specs_ltr</span>(<span class="kw-2">&amp;</span><span class="ident">r2</span>.<span class="ident">osm_tags</span>, <span class="kw-2">&amp;</span><span class="ident">raw</span>.<span class="ident">config</span>);
+    <span class="kw">if</span> <span class="ident">lanes1</span> <span class="op">!</span><span class="op">=</span> <span class="ident">lanes2</span> {
+        <span class="macro">bail!</span>(<span class="string">&quot;lane specs don&#39;t match&quot;</span>);
+    }
+
+    <span class="kw">if</span> <span class="ident">r1</span>.<span class="ident">get_zorder</span>() <span class="op">!</span><span class="op">=</span> <span class="ident">r2</span>.<span class="ident">get_zorder</span>() {
+        <span class="macro">bail!</span>(<span class="string">&quot;zorders don&#39;t match&quot;</span>);
+    }
+
+    <span class="kw">if</span> <span class="ident">is_cycleway</span>(<span class="kw-2">&amp;</span><span class="ident">lanes1</span>) <span class="op">&amp;&amp;</span> <span class="ident">is_cycleway</span>(<span class="kw-2">&amp;</span><span class="ident">lanes2</span>) {
+        <span class="kw">return</span> <span class="prelude-val">Ok</span>(());
+    }
+
+    <span class="comment">// Check what OSM tags differ. Explicitly allow some keys. Note that lanes tagging doesn&#39;t</span>
+    <span class="comment">// actually matter, because we check that LaneSpecs match. Nor do things indicating a zorder</span>
+    <span class="comment">// indirectly, like bridge/tunnel.</span>
+    <span class="comment">// TODO I get the feeling I&#39;ll end up swapping this to explicitly list tags that SHOULD block</span>
+    <span class="comment">// merging.</span>
+    <span class="kw">for</span> (<span class="ident">k</span>, <span class="ident">v1</span>, <span class="ident">v2</span>) <span class="kw">in</span> <span class="ident">r1</span>.<span class="ident">osm_tags</span>.<span class="ident">diff</span>(<span class="kw-2">&amp;</span><span class="ident">r2</span>.<span class="ident">osm_tags</span>) {
+        <span class="kw">if</span> [
+            <span class="ident">osm::INFERRED_PARKING</span>,
+            <span class="ident">osm::INFERRED_SIDEWALKS</span>,
+            <span class="ident">osm::OSM_WAY_ID</span>,
+            <span class="ident">osm::PARKING_BOTH</span>,
+            <span class="ident">osm::PARKING_LEFT</span>,
+            <span class="ident">osm::PARKING_RIGHT</span>,
+            <span class="string">&quot;bicycle&quot;</span>,
+            <span class="string">&quot;bridge&quot;</span>,
+            <span class="string">&quot;covered&quot;</span>,
+            <span class="string">&quot;cycleway&quot;</span>,
+            <span class="string">&quot;cycleway:both&quot;</span>,
+            <span class="string">&quot;destination&quot;</span>,
+            <span class="string">&quot;lanes&quot;</span>,
+            <span class="string">&quot;lanes:backward&quot;</span>,
+            <span class="string">&quot;lanes:forward&quot;</span>,
+            <span class="string">&quot;lit&quot;</span>,
+            <span class="string">&quot;maxheight&quot;</span>,
+            <span class="string">&quot;maxspeed:advisory&quot;</span>,
+            <span class="string">&quot;maxweight&quot;</span>,
+            <span class="string">&quot;note&quot;</span>,
+            <span class="string">&quot;old_name&quot;</span>,
+            <span class="string">&quot;short_name&quot;</span>,
+            <span class="string">&quot;shoulder&quot;</span>,
+            <span class="string">&quot;sidewalk&quot;</span>,
+            <span class="string">&quot;surface&quot;</span>,
+            <span class="string">&quot;tunnel&quot;</span>,
+            <span class="string">&quot;wikidata&quot;</span>,
+            <span class="string">&quot;wikimedia_commons&quot;</span>,
+            <span class="string">&quot;wikipedia&quot;</span>,
+        ]
+        .<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">k</span>.<span class="ident">as_ref</span>())
+        {
+            <span class="kw">continue</span>;
+        }
+
+        <span class="comment">// Don&#39;t worry about ENDPT_FWD and ENDPT_BACK not matching if there are no turn lanes</span>
+        <span class="comment">// tagged.</span>
+        <span class="comment">// TODO We could get fancier and copy values over. We&#39;d have to sometimes flip the</span>
+        <span class="comment">// direction.</span>
+        <span class="kw">if</span> <span class="ident">k</span> <span class="op">=</span><span class="op">=</span> <span class="ident">osm::ENDPT_FWD</span>
+            <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">r1</span>.<span class="ident">osm_tags</span>.<span class="ident">contains_key</span>(<span class="string">&quot;turn:lanes&quot;</span>)
+            <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">r1</span>.<span class="ident">osm_tags</span>.<span class="ident">contains_key</span>(<span class="string">&quot;turn:lanes:forward&quot;</span>)
+            <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">r2</span>.<span class="ident">osm_tags</span>.<span class="ident">contains_key</span>(<span class="string">&quot;turn:lanes&quot;</span>)
+            <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">r2</span>.<span class="ident">osm_tags</span>.<span class="ident">contains_key</span>(<span class="string">&quot;turn:lanes:forward&quot;</span>)
+        {
+            <span class="kw">continue</span>;
+        }
+        <span class="kw">if</span> <span class="ident">k</span> <span class="op">=</span><span class="op">=</span> <span class="ident">osm::ENDPT_BACK</span>
+            <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">r1</span>.<span class="ident">osm_tags</span>.<span class="ident">contains_key</span>(<span class="string">&quot;turn:lanes:backward&quot;</span>)
+            <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">r2</span>.<span class="ident">osm_tags</span>.<span class="ident">contains_key</span>(<span class="string">&quot;turn:lanes:backward&quot;</span>)
+        {
+            <span class="kw">continue</span>;
+        }
+
+        <span class="macro">bail!</span>(<span class="string">&quot;{} = \&quot;{}\&quot; vs \&quot;{}\&quot;&quot;</span>, <span class="ident">k</span>, <span class="ident">v1</span>, <span class="ident">v2</span>);
+    }
+
+    <span class="prelude-val">Ok</span>(())
+}
+
+<span class="comment">// Rather bruteforce way of figuring this out... is_cycleway logic lifted from Road, unfortunately.</span>
+<span class="comment">// Better than repeating the OSM tag log from get_lane_specs_ltr.</span>
+<span class="kw">fn</span> <span class="ident">is_cycleway</span>(<span class="ident">lanes</span>: <span class="kw-2">&amp;</span>[<span class="ident">LaneSpec</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bike</span> <span class="op">=</span> <span class="bool-val">false</span>;
-    <span class="kw">for</span> <span class="ident">spec</span> <span class="kw">in</span> <span class="ident">get_lane_specs_ltr</span>(<span class="kw-2">&amp;</span><span class="ident">road</span>.<span class="ident">osm_tags</span>, <span class="kw-2">&amp;</span><span class="ident">raw</span>.<span class="ident">config</span>) {
+    <span class="kw">for</span> <span class="ident">spec</span> <span class="kw">in</span> <span class="ident">lanes</span> {
         <span class="kw">if</span> <span class="ident">spec</span>.<span class="ident">lt</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType::Biking</span> {
             <span class="ident">bike</span> <span class="op">=</span> <span class="bool-val">true</span>;
         } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">spec</span>.<span class="ident">lt</span> <span class="op">!</span><span class="op">=</span> <span class="ident">LaneType::Shoulder</span> {
@@ -274,7 +469,8 @@
         }
         <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">raw</span>.<span class="ident">roads</span>[<span class="kw-2">&amp;</span><span class="ident">roads</span>[<span class="number">0</span>]];
         <span class="kw">if</span> <span class="ident">road</span>.<span class="ident">length</span>() <span class="op">&lt;</span> <span class="ident">SHORT_THRESHOLD</span>
-            <span class="op">&amp;&amp;</span> (<span class="ident">is_cycleway</span>(<span class="ident">road</span>, <span class="ident">raw</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">road</span>.<span class="ident">osm_tags</span>.<span class="ident">is</span>(<span class="ident">osm::HIGHWAY</span>, <span class="string">&quot;service&quot;</span>))
+            <span class="op">&amp;&amp;</span> (<span class="ident">is_cycleway</span>(<span class="kw-2">&amp;</span><span class="ident">get_lane_specs_ltr</span>(<span class="kw-2">&amp;</span><span class="ident">road</span>.<span class="ident">osm_tags</span>, <span class="kw-2">&amp;</span><span class="ident">raw</span>.<span class="ident">config</span>))
+                <span class="op">|</span><span class="op">|</span> <span class="ident">road</span>.<span class="ident">osm_tags</span>.<span class="ident">is</span>(<span class="ident">osm::HIGHWAY</span>, <span class="string">&quot;service&quot;</span>))
         {
             <span class="ident">remove_roads</span>.<span class="ident">insert</span>(<span class="ident">roads</span>[<span class="number">0</span>]);
             <span class="ident">remove_intersections</span>.<span class="ident">insert</span>(<span class="kw-2">*</span><span class="ident">id</span>);
