@@ -637,6 +637,25 @@ impl RawRoad {
     pub fn length(&self) -> Distance {
         PolyLine::unchecked_new(self.center_points.clone()).length()
     }
+
+    pub fn get_zorder(&self) -> isize {
+        if let Some(layer) = self.osm_tags.get("layer") {
+            match layer.parse::<f64>() {
+                // Just drop .5 for now
+                Ok(l) => l as isize,
+                Err(_) => {
+                    warn!(
+                        "Weird layer={} on {:?}",
+                        layer,
+                        self.osm_tags.get(osm::OSM_WAY_ID)
+                    );
+                    0
+                }
+            }
+        } else {
+            0
+        }
+    }
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]

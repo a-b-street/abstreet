@@ -1,19 +1,31 @@
 use std::collections::BTreeSet;
 
+use anyhow::Result;
+
 use geom::Distance;
 
 use crate::make::initial::lane_specs::get_lane_specs_ltr;
 use crate::osm::NodeID;
 use crate::raw::{OriginalRoad, RawMap, RawRoad};
-use crate::{osm, IntersectionType, LaneType};
+use crate::{osm, IntersectionType, LaneSpec, LaneType};
 
-/// Collapse degenerate intersections between two cycleways.
+/// Collapse degenerate intersections:
+/// - between two cycleways
+/// - when the lane specs match and only "unimportant" OSM tags differ
 pub fn collapse(raw: &mut RawMap) {
     let mut merge: Vec<NodeID> = Vec::new();
     for id in raw.intersections.keys() {
         let roads = raw.roads_per_intersection(*id);
-        if roads.len() == 2 && roads.iter().all(|r| is_cycleway(&raw.roads[r], raw)) {
-            merge.push(*id);
+        if roads.len() != 2 {
+            continue;
+        }
+        match should_collapse(&raw.roads[&roads[0]], &raw.roads[&roads[1]], raw) {
+            Ok(()) => {
+                merge.push(*id);
+            }
+            Err(err) => {
+                warn!("Not collapsing degenerate intersection {}: {}", id, err);
+            }
         }
     }
 
@@ -25,16 +37,101 @@ pub fn collapse(raw: &mut RawMap) {
     // Results look good so far.
 }
 
-// Rather bruteforce way of figuring this out... is_cycleway logic lifted from Road, unfortunately.
-// Better than repeating the OSM tag log from get_lane_specs_ltr.
-fn is_cycleway(road: &RawRoad, raw: &RawMap) -> bool {
-    // Don't attempt to merge roads with these. They're usually not filled out for cyclepaths.
-    if !road.turn_restrictions.is_empty() || !road.complicated_turn_restrictions.is_empty() {
-        return false;
+fn should_collapse(r1: &RawRoad, r2: &RawRoad, raw: &RawMap) -> Result<()> {
+    // Don't attempt to merge roads with these.
+    if !r1.turn_restrictions.is_empty() || !r1.complicated_turn_restrictions.is_empty() {
+        bail!("one road has turn restrictions");
+    }
+    if !r2.turn_restrictions.is_empty() || !r2.complicated_turn_restrictions.is_empty() {
+        bail!("one road has turn restrictions");
     }
 
+    let lanes1 = get_lane_specs_ltr(&r1.osm_tags, &raw.config);
+    let lanes2 = get_lane_specs_ltr(&r2.osm_tags, &raw.config);
+    if lanes1 != lanes2 {
+        bail!("lane specs don't match");
+    }
+
+    if r1.get_zorder() != r2.get_zorder() {
+        bail!("zorders don't match");
+    }
+
+    if is_cycleway(&lanes1) && is_cycleway(&lanes2) {
+        return Ok(());
+    }
+
+    // Check what OSM tags differ. Explicitly allow some keys. Note that lanes tagging doesn't
+    // actually matter, because we check that LaneSpecs match. Nor do things indicating a zorder
+    // indirectly, like bridge/tunnel.
+    // TODO I get the feeling I'll end up swapping this to explicitly list tags that SHOULD block
+    // merging.
+    for (k, v1, v2) in r1.osm_tags.diff(&r2.osm_tags) {
+        if [
+            osm::INFERRED_PARKING,
+            osm::INFERRED_SIDEWALKS,
+            osm::OSM_WAY_ID,
+            osm::PARKING_BOTH,
+            osm::PARKING_LEFT,
+            osm::PARKING_RIGHT,
+            "bicycle",
+            "bridge",
+            "covered",
+            "cycleway",
+            "cycleway:both",
+            "destination",
+            "lanes",
+            "lanes:backward",
+            "lanes:forward",
+            "lit",
+            "maxheight",
+            "maxspeed:advisory",
+            "maxweight",
+            "note",
+            "old_name",
+            "short_name",
+            "shoulder",
+            "sidewalk",
+            "surface",
+            "tunnel",
+            "wikidata",
+            "wikimedia_commons",
+            "wikipedia",
+        ]
+        .contains(&k.as_ref())
+        {
+            continue;
+        }
+
+        // Don't worry about ENDPT_FWD and ENDPT_BACK not matching if there are no turn lanes
+        // tagged.
+        // TODO We could get fancier and copy values over. We'd have to sometimes flip the
+        // direction.
+        if k == osm::ENDPT_FWD
+            && !r1.osm_tags.contains_key("turn:lanes")
+            && !r1.osm_tags.contains_key("turn:lanes:forward")
+            && !r2.osm_tags.contains_key("turn:lanes")
+            && !r2.osm_tags.contains_key("turn:lanes:forward")
+        {
+            continue;
+        }
+        if k == osm::ENDPT_BACK
+            && !r1.osm_tags.contains_key("turn:lanes:backward")
+            && !r2.osm_tags.contains_key("turn:lanes:backward")
+        {
+            continue;
+        }
+
+        bail!("{} = \"{}\" vs \"{}\"", k, v1, v2);
+    }
+
+    Ok(())
+}
+
+// Rather bruteforce way of figuring this out... is_cycleway logic lifted from Road, unfortunately.
+// Better than repeating the OSM tag log from get_lane_specs_ltr.
+fn is_cycleway(lanes: &[LaneSpec]) -> bool {
     let mut bike = false;
-    for spec in get_lane_specs_ltr(&road.osm_tags, &raw.config) {
+    for spec in lanes {
         if spec.lt == LaneType::Biking {
             bike = true;
         } else if spec.lt != LaneType::Shoulder {
@@ -126,7 +223,8 @@ pub fn trim_deadends(raw: &mut RawMap) {
         }
         let road = &raw.roads[&roads[0]];
         if road.length() < SHORT_THRESHOLD
-            && (is_cycleway(road, raw) || road.osm_tags.is(osm::HIGHWAY, "service"))
+            && (is_cycleway(&get_lane_specs_ltr(&road.osm_tags, &raw.config))
+                || road.osm_tags.is(osm::HIGHWAY, "service"))
         {
             remove_roads.insert(roads[0]);
             remove_intersections.insert(*id);

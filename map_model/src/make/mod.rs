@@ -159,18 +159,7 @@ impl Map {
                 src_i: i1,
                 dst_i: i2,
                 speed_limit: Speed::ZERO,
-                zorder: if let Some(layer) = raw_road.osm_tags.get("layer") {
-                    match layer.parse::<f64>() {
-                        // Just drop .5 for now
-                        Ok(l) => l as isize,
-                        Err(_) => {
-                            warn!("Weird layer={} on {}", layer, r.id);
-                            0
-                        }
-                    }
-                } else {
-                    0
-                },
+                zorder: raw_road.get_zorder(),
                 access_restrictions: AccessRestrictions::new(),
                 percent_incline: raw_road.percent_incline,
             };

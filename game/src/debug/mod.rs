@@ -873,13 +873,12 @@ fn find_bad_signals(app: &App) {
     }
 }
 
+// Consider this a second pass to debug, after map_model/src/make/collapse_intersections.rs. Rules
+// developed here will make their way there.
 fn find_degenerate_roads(app: &App) {
     let map = &app.primary.map;
     for i in map.all_intersections() {
         if i.roads.len() != 2 {
-            continue;
-        }
-        if i.turns.iter().any(|t| t.between_sidewalks()) {
             continue;
         }
         let (r1, r2) = {
@@ -907,23 +906,17 @@ fn find_degenerate_roads(app: &App) {
 
         println!("Maybe merge {}", i.id);
         diff_tags(&r1.osm_tags, &r2.osm_tags);
+        println!();
     }
 }
 
 fn diff_tags(t1: &Tags, t2: &Tags) {
-    for (k, v1) in t1.inner() {
+    for (k, v1, v2) in t1.diff(t2) {
+        // Ignore the most common diff
         if k == osm::OSM_WAY_ID {
             continue;
         }
-        let v2 = t2.get(k).cloned().unwrap_or_else(String::new);
-        if v1 != &v2 {
-            println!("- {} = \"{}\" vs \"{}\"", k, v1, v2);
-        }
-    }
-    for (k, v2) in t2.inner() {
-        if !t1.contains_key(k) {
-            println!("- {} = \"\" vs \"{}\"", k, v2);
-        }
+        println!("- {} = \"{}\" vs \"{}\"", k, v1, v2);
     }
 }
 

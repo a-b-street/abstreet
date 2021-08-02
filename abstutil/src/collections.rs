@@ -290,6 +290,24 @@ impl Tags {
     pub fn inner(&self) -> &BTreeMap<String, String> {
         &self.0
     }
+
+    /// Find all values that differ. Returns (key, value1, value2). If one set of tags is missing a
+    /// value, return a blank string.
+    pub fn diff(&self, other: &Tags) -> Vec<(String, String, String)> {
+        let mut results = Vec::new();
+        for (k, v1) in self.inner() {
+            let v2 = other.get(k).cloned().unwrap_or_else(String::new);
+            if v1 != &v2 {
+                results.push((k.clone(), v1.clone(), v2));
+            }
+        }
+        for (k, v2) in other.inner() {
+            if !self.contains_key(k) {
+                results.push((k.clone(), String::new(), v2.clone()));
+            }
+        }
+        results
+    }
 }
 
 /// Use with `FixedMap`. From a particular key, extract a `usize`. These values should be
