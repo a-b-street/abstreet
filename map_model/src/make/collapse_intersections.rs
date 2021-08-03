@@ -205,15 +205,12 @@ pub fn collapse_intersection(raw: &mut RawMap, i: NodeID) {
     // When we concatenate the points, the common point will be duplicated
     new_road.center_points.dedup();
 
-    let new_r1 =
-        OriginalRoad {
-            osm_way_id: r1.osm_way_id,
-            i1: new_i1,
-            i2: new_i2,
-        };
-    raw.roads.insert(new_r1,
-        new_road,
-    );
+    let new_r1 = OriginalRoad {
+        osm_way_id: r1.osm_way_id,
+        i1: new_i1,
+        i2: new_i2,
+    };
+    raw.roads.insert(new_r1, new_road);
 
     // We may need to fix up turn restrictions. r1 and r2 both become new_r1.
     let rewrite = |x: &OriginalRoad| *x == r1 || *x == r2;

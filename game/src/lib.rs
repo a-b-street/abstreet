@@ -30,6 +30,7 @@ mod info;
 mod layer;
 mod pregame;
 mod sandbox;
+mod ungap;
 
 pub fn main() {
     let settings = Settings::new("A/B Street");
@@ -46,6 +47,7 @@ struct Setup {
     start_time: Option<Duration>,
     load_kml: Option<String>,
     diff_map: Option<String>,
+    ungap: bool,
 }
 
 fn run(mut settings: Settings) {
@@ -76,6 +78,7 @@ fn run(mut settings: Settings) {
         start_time: args.optional_parse("--time", |t| Duration::parse(t)),
         load_kml: args.optional("--kml"),
         diff_map: args.optional("--diff"),
+        ungap: args.enabled("--ungap"),
     };
 
     settings = settings.canvas_settings(setup.opts.canvas_settings.clone());
@@ -153,7 +156,8 @@ fn setup_app(ctx: &mut EventCtx, mut setup: Setup) -> (App, Vec<Box<dyn State<Ap
     let title = !setup.opts.dev
         && !setup.flags.sim_flags.load.contains("player/save")
         && !setup.flags.sim_flags.load.contains("/scenarios/")
-        && setup.maybe_mode.is_none();
+        && setup.maybe_mode.is_none()
+        && !setup.ungap;
 
     // Load the map used previously if we're starting on the title screen without any overrides.
     if title && setup.flags.sim_flags.load == MapName::seattle("montlake").path() {
@@ -353,6 +357,8 @@ fn finish_app_setup(
         } else {
             vec![SandboxMode::simple_new(app, mode)]
         }
+    } else if setup.ungap {
+        vec![ungap::ExploreMap::new_state(ctx, app)]
     } else {
         // Not attempting to keep the primary and secondary simulations synchronized at the same
         // time yet. Just handle this one startup case, so we can switch maps without constantly

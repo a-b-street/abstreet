@@ -78,9 +78,9 @@ pub struct ColorScheme {
     pub road_center_line: Color,
     pub light_rail_track: Color,
     pub private_road: Color,
-    unzoomed_highway: Color,
-    unzoomed_arterial: Color,
-    unzoomed_residential: Color,
+    pub unzoomed_highway: Color,
+    pub unzoomed_arterial: Color,
+    pub unzoomed_residential: Color,
     pub unzoomed_trail: Color,
 
     // Intersections
