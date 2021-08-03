@@ -31,6 +31,12 @@ impl EditRoad {
         if let Ok((pl, _)) = road.get_geometry(r, &app.model.map.config) {
             txt.add_line(Line(format!("Length: {}", pl.length())));
         }
+        for (rt, to) in &road.turn_restrictions {
+            info!("Simple turn restriction {:?} to {}", rt, to);
+        }
+        for (via, to) in &road.complicated_turn_restrictions {
+            info!("Complicated turn restriction via {} to {}", via, to);
+        }
         let info = txt.into_widget(ctx);
 
         let controls = Widget::col(vec![

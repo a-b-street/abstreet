@@ -15,7 +15,7 @@
               },
               "to": {
                 "osm_way_id": 739621437,
-                "osm_node1": 3841983940,
+                "osm_node1": 60410196,
                 "osm_node2": 53217946,
                 "is_forwards": false
               },
@@ -57,7 +57,7 @@
             {
               "from": {
                 "osm_way_id": 739621437,
-                "osm_node1": 3841983940,
+                "osm_node1": 60410196,
                 "osm_node2": 53217946,
                 "is_forwards": true
               },
@@ -73,7 +73,7 @@
             {
               "from": {
                 "osm_way_id": 739621437,
-                "osm_node1": 3841983940,
+                "osm_node1": 60410196,
                 "osm_node2": 53217946,
                 "is_forwards": true
               },
@@ -123,7 +123,7 @@
             {
               "from": {
                 "osm_way_id": 739621437,
-                "osm_node1": 3841983940,
+                "osm_node1": 60410196,
                 "osm_node2": 53217946,
                 "is_forwards": true
               },
@@ -210,13 +210,13 @@
             {
               "from": {
                 "osm_way_id": 739621437,
-                "osm_node1": 3841983940,
+                "osm_node1": 60410196,
                 "osm_node2": 53217946,
                 "is_forwards": false
               },
               "to": {
                 "osm_way_id": 739621437,
-                "osm_node1": 3841983940,
+                "osm_node1": 60410196,
                 "osm_node2": 53217946,
                 "is_forwards": true
               },
@@ -226,13 +226,13 @@
             {
               "from": {
                 "osm_way_id": 739621437,
-                "osm_node1": 3841983940,
+                "osm_node1": 60410196,
                 "osm_node2": 53217946,
                 "is_forwards": true
               },
               "to": {
                 "osm_way_id": 739621437,
-                "osm_node1": 3841983940,
+                "osm_node1": 60410196,
                 "osm_node2": 53217946,
                 "is_forwards": false
               },
@@ -250,7 +250,7 @@
               },
               "to": {
                 "osm_way_id": 739621437,
-                "osm_node1": 3841983940,
+                "osm_node1": 60410196,
                 "osm_node2": 53217946,
                 "is_forwards": false
               },
