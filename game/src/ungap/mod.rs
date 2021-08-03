@@ -1,7 +1,7 @@
 use geom::{Circle, Distance, Pt2D};
 use map_gui::tools::{nice_map_name, CityPicker, PopupMsg};
 use map_gui::ID;
-use map_model::RoadID;
+use map_model::{LaneType, RoadID};
 use widgetry::{
     lctrl, Cached, Color, Drawable, EventCtx, GeomBatch, GeomBatchStack, GfxCtx,
     HorizontalAlignment, Key, Line, Outcome, Panel, State, Text, VerticalAlignment, Widget,
@@ -10,10 +10,16 @@ use widgetry::{
 use crate::app::{App, Transition};
 use crate::common::Warping;
 
+// #74B0FC
+const PROTECTED_BIKE_LANE: Color = Color::rgb_f(0.455, 0.69, 0.988);
+const PAINTED_BIKE_LANE: Color = Color::GREEN;
+const GREENWAY: Color = Color::BLUE;
+
 pub struct ExploreMap {
     top_panel: Panel,
     legend: Panel,
     tooltip: Cached<RoadID, (RoadID, Drawable, Drawable)>,
+    unzoomed_layer: Drawable,
 }
 
 impl ExploreMap {
@@ -22,6 +28,7 @@ impl ExploreMap {
             top_panel: make_top_panel(ctx),
             legend: make_legend(ctx, app),
             tooltip: Cached::new(),
+            unzoomed_layer: make_unzoomed_layer(ctx, app),
         })
     }
 }
@@ -91,7 +98,7 @@ impl State<App> for ExploreMap {
         Transition::Keep
     }
 
-    fn draw(&self, g: &mut GfxCtx, _: &App) {
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.top_panel.draw(g);
         self.legend.draw(g);
         if let Some((_, draw_on_map, draw_tooltip)) = self.tooltip.value() {
@@ -101,6 +108,9 @@ impl State<App> for ExploreMap {
             g.fork(Pt2D::new(0.0, 0.0), g.canvas.get_cursor(), 1.0, None);
             g.redraw(draw_tooltip);
             g.unfork();
+        }
+        if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
+            g.redraw(&self.unzoomed_layer);
         }
     }
 }
@@ -155,10 +165,9 @@ fn make_legend(ctx: &mut EventCtx, app: &App) -> Panel {
         legend(ctx, app.cs.unzoomed_arterial, "major street"),
         legend(ctx, app.cs.unzoomed_residential, "minor street"),
         legend(ctx, app.cs.unzoomed_trail, "trail"),
-        // TODO Untuned colors
-        legend(ctx, Color::hex("#74B0FC"), "protected bike lane"),
-        legend(ctx, Color::GREEN, "painted bike lane"),
-        legend(ctx, Color::BLUE, "Stay Healthy Street / greenway"),
+        legend(ctx, PROTECTED_BIKE_LANE, "protected bike lane"),
+        legend(ctx, PAINTED_BIKE_LANE, "painted bike lane"),
+        legend(ctx, GREENWAY, "Stay Healthy Street / greenway"),
         // TODO Distinguish door-zone bike lanes?
         // TODO Call out bike turning boxes?
         // TODO Call out bike signals?
@@ -225,4 +234,37 @@ fn magnifying_glass(batch: GeomBatch) -> GeomBatch {
     }
     new_batch.append(batch);
     new_batch
+}
+
+fn make_unzoomed_layer(ctx: &mut EventCtx, app: &App) -> Drawable {
+    let mut batch = GeomBatch::new();
+    for r in app.primary.map.all_roads() {
+        if r.is_cycleway() {
+            continue;
+        }
+        let mut bike_lane = false;
+        let mut buffer = false;
+        for (_, _, lt) in r.lanes_ltr() {
+            if lt == LaneType::Biking {
+                bike_lane = true;
+            } else if matches!(lt, LaneType::Buffer(_)) {
+                buffer = true;
+            }
+        }
+        if !bike_lane {
+            continue;
+        }
+        // TODO Should we try to distinguish one-way roads from two-way roads with a cycle lane
+        // only in one direction? Or just let people check the details by mousing over and zooming
+        // in? We could also draw lines on each side of the road, which wouldn't cover up the
+        // underlying arterial/local distinction.
+        let color = if buffer {
+            PROTECTED_BIKE_LANE
+        } else {
+            PAINTED_BIKE_LANE
+        };
+        // TODO Figure out how all of the greenways are tagged
+        batch.push(color.alpha(0.8), r.get_thick_polygon(&app.primary.map));
+    }
+    batch.upload(ctx)
 }
