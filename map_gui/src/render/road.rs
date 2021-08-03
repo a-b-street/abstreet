@@ -25,16 +25,15 @@ impl DrawRoad {
         }
     }
 
-    pub fn render<P: AsRef<Prerender>>(&self, prerender: &P, app: &dyn AppLike) -> GeomBatch {
-        let prerender = prerender.as_ref();
-
-        let mut batch = GeomBatch::new();
+    pub fn render_center_line(&self, app: &dyn AppLike) -> GeomBatch {
         let r = app.map().get_r(self.id);
         let center_line_color = if r.is_private() {
             app.cs().road_center_line.lerp(app.cs().private_road, 0.5)
         } else {
             app.cs().road_center_line
         };
+
+        let mut batch = GeomBatch::new();
 
         // Draw a center line every time two driving/bike/bus lanes of opposite direction are
         // adjacent.
@@ -54,6 +53,20 @@ impl DrawRoad {
                 );
             }
         }
+
+        batch
+    }
+
+    pub fn render<P: AsRef<Prerender>>(&self, prerender: &P, app: &dyn AppLike) -> GeomBatch {
+        let prerender = prerender.as_ref();
+        let r = app.map().get_r(self.id);
+        let center_line_color = if r.is_private() {
+            app.cs().road_center_line.lerp(app.cs().private_road, 0.5)
+        } else {
+            app.cs().road_center_line
+        };
+
+        let mut batch = self.render_center_line(app);
 
         // Draw the label
         if !r.is_light_rail() {

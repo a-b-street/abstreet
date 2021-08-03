@@ -1,15 +1,19 @@
 use geom::{Circle, Distance, Pt2D};
 use map_gui::tools::{nice_map_name, CityPicker, PopupMsg};
+use map_gui::ID;
+use map_model::RoadID;
 use widgetry::{
-    lctrl, Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
-    State, VerticalAlignment, Widget,
+    lctrl, Cached, Color, Drawable, EventCtx, GeomBatch, GeomBatchStack, GfxCtx,
+    HorizontalAlignment, Key, Line, Outcome, Panel, State, Text, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
+use crate::common::Warping;
 
 pub struct ExploreMap {
     top_panel: Panel,
     legend: Panel,
+    tooltip: Cached<RoadID, (RoadID, Drawable, Drawable)>,
 }
 
 impl ExploreMap {
@@ -17,6 +21,7 @@ impl ExploreMap {
         Box::new(ExploreMap {
             top_panel: make_top_panel(ctx),
             legend: make_legend(ctx, app),
+            tooltip: Cached::new(),
         })
     }
 }
@@ -24,6 +29,28 @@ impl ExploreMap {
 impl State<App> for ExploreMap {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         ctx.canvas_movement();
+
+        if ctx.redo_mouseover() {
+            let road = match app.mouseover_unzoomed_roads_and_intersections(ctx) {
+                Some(ID::Road(r)) => Some(r),
+                _ => None,
+            };
+            self.tooltip.update(road, |r| make_tooltip(ctx, app, r));
+        }
+
+        if let Some((r, _, _)) = self.tooltip.value() {
+            if ctx.normal_left_click() {
+                let r = *r;
+                self.tooltip.clear();
+                return Transition::Push(Warping::new_state(
+                    ctx,
+                    app.primary.map.get_r(r).center_pts.middle(),
+                    Some(10.0),
+                    None,
+                    &mut app.primary,
+                ));
+            }
+        }
 
         if let Outcome::Clicked(x) = self.top_panel.event(ctx) {
             match x.as_ref() {
@@ -67,6 +94,14 @@ impl State<App> for ExploreMap {
     fn draw(&self, g: &mut GfxCtx, _: &App) {
         self.top_panel.draw(g);
         self.legend.draw(g);
+        if let Some((_, draw_on_map, draw_tooltip)) = self.tooltip.value() {
+            g.redraw(draw_on_map);
+
+            // Like fork_screenspace, but centered by the cursor
+            g.fork(Pt2D::new(0.0, 0.0), g.canvas.get_cursor(), 1.0, None);
+            g.redraw(draw_tooltip);
+            g.unfork();
+        }
     }
 }
 
@@ -147,4 +182,47 @@ fn legend(ctx: &mut EventCtx, color: Color, label: &str) -> Widget {
             .build_def(ctx)
             .centered_vert(),
     ])
+}
+
+// Returns a batch to draw directly on the map, and another to draw as a tooltip.
+fn make_tooltip(ctx: &mut EventCtx, app: &App, r: RoadID) -> (RoadID, Drawable, Drawable) {
+    let mut map_batch = GeomBatch::new();
+    let road = app.primary.map.get_r(r);
+    map_batch.push(
+        Color::BLACK.alpha(0.5),
+        road.get_thick_polygon(&app.primary.map),
+    );
+
+    let mut screen_batch = GeomBatch::new();
+    for (l, _, _) in road.lanes_ltr() {
+        screen_batch.append(app.primary.draw_map.get_l(l).render(ctx, app));
+    }
+    screen_batch.append(app.primary.draw_map.get_r(r).render_center_line(app));
+
+    screen_batch = screen_batch.autocrop();
+    let bounds = screen_batch.get_bounds();
+    let fit_dims = 300.0;
+    let zoom = (fit_dims / bounds.width()).min(fit_dims / bounds.height());
+    screen_batch = screen_batch.scale(zoom);
+
+    let label = Text::from(Line(road.get_name(app.opts.language.as_ref())).small_heading())
+        .render_autocropped(ctx);
+    screen_batch = GeomBatchStack::vertical(vec![label, screen_batch]).batch();
+    screen_batch = magnifying_glass(screen_batch);
+
+    (r, map_batch.upload(ctx), screen_batch.upload(ctx))
+}
+
+fn magnifying_glass(batch: GeomBatch) -> GeomBatch {
+    let bounds = batch.get_bounds();
+    // TODO The radius isn't guaranteed to fit...
+    let radius = Distance::meters(1.3 * bounds.width().max(bounds.height())) / 2.0;
+    let circle = Circle::new(bounds.center(), radius);
+    let mut new_batch = GeomBatch::new();
+    new_batch.push(Color::WHITE, circle.to_polygon());
+    if let Ok(p) = circle.to_outline(Distance::meters(3.0)) {
+        new_batch.push(Color::BLACK, p);
+    }
+    new_batch.append(batch);
+    new_batch
 }
