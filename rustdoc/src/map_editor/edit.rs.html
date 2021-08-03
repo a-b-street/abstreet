@@ -205,6 +205,12 @@
 <span id="203">203</span>
 <span id="204">204</span>
 <span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">ArrowCap</span>, <span class="ident">Distance</span>};
 <span class="kw">use</span> <span class="ident">map_model::raw::OriginalRoad</span>;
@@ -238,6 +244,12 @@
         }
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>((<span class="ident">pl</span>, <span class="kw">_</span>)) <span class="op">=</span> <span class="ident">road</span>.<span class="ident">get_geometry</span>(<span class="ident">r</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">map</span>.<span class="ident">config</span>) {
             <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">Line</span>(<span class="macro">format!</span>(<span class="string">&quot;Length: {}&quot;</span>, <span class="ident">pl</span>.<span class="ident">length</span>())));
+        }
+        <span class="kw">for</span> (<span class="ident">rt</span>, <span class="ident">to</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">road</span>.<span class="ident">turn_restrictions</span> {
+            <span class="macro">info!</span>(<span class="string">&quot;Simple turn restriction {:?} to {}&quot;</span>, <span class="ident">rt</span>, <span class="ident">to</span>);
+        }
+        <span class="kw">for</span> (<span class="ident">via</span>, <span class="ident">to</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">road</span>.<span class="ident">complicated_turn_restrictions</span> {
+            <span class="macro">info!</span>(<span class="string">&quot;Complicated turn restriction via {} to {}&quot;</span>, <span class="ident">via</span>, <span class="ident">to</span>);
         }
         <span class="kw">let</span> <span class="ident">info</span> <span class="op">=</span> <span class="ident">txt</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>);
 
