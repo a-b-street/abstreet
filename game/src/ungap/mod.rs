@@ -84,7 +84,7 @@ impl State<App> for ExploreMap {
         }
 
         if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
-            if ctx.normal_left_click() {
+            if ctx.canvas.cam_zoom < app.opts.min_zoom_for_detail && ctx.normal_left_click() {
                 return Transition::Push(Warping::new_state(
                     ctx,
                     pt,

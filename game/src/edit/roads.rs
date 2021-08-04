@@ -1,10 +1,10 @@
+use abstutil::Tags;
 use geom::{CornerRadii, Distance};
 use map_gui::render::{Renderable, OUTLINE_THICKNESS};
 use map_gui::tools::PopupMsg;
 use map_gui::ID;
 use map_model::{
     BufferType, Direction, EditCmd, EditRoad, LaneID, LaneSpec, LaneType, MapEdits, Road, RoadID,
-    NORMAL_LANE_THICKNESS,
 };
 use widgetry::{
     lctrl, Choice, Color, ControlState, Drawable, EventCtx, GeomBatch, GeomBatchStack, GfxCtx,
@@ -34,7 +34,7 @@ pub struct RoadEditor {
 impl RoadEditor {
     /// Always starts focused on a certain lane.
     pub fn new_state(ctx: &mut EventCtx, app: &mut App, l: LaneID) -> Box<dyn State<App>> {
-        RoadEditor::new(ctx, app, app.primary.map.get_l(l).parent, Some(l))
+        RoadEditor::create(ctx, app, app.primary.map.get_l(l).parent, Some(l))
     }
 
     pub fn new_state_without_lane(
@@ -42,10 +42,10 @@ impl RoadEditor {
         app: &mut App,
         r: RoadID,
     ) -> Box<dyn State<App>> {
-        RoadEditor::new(ctx, app, r, None)
+        RoadEditor::create(ctx, app, r, None)
     }
 
-    fn new(
+    fn create(
         ctx: &mut EventCtx,
         app: &mut App,
         r: RoadID,
@@ -282,7 +282,7 @@ impl State<App> for RoadEditor {
                     let mut edits = app.primary.map.get_edits().clone();
                     let old = app.primary.map.get_r_edit(self.r);
                     let mut new = old.clone();
-                    let idx = add_new_lane(&mut new, lt);
+                    let idx = add_new_lane(&mut new, lt, &app.primary.map.get_r(self.r).osm_tags);
                     edits.commands.push(EditCmd::ChangeRoad {
                         r: self.r,
                         old,
@@ -789,7 +789,7 @@ fn determine_lane_dir(road: &mut EditRoad, lt: LaneType, minority: bool) -> Dire
 }
 
 // Returns the index where the new lane was inserted
-fn add_new_lane(road: &mut EditRoad, lt: LaneType) -> usize {
+fn add_new_lane(road: &mut EditRoad, lt: LaneType, osm_tags: &Tags) -> usize {
     let dir = match lt {
         LaneType::Driving => determine_lane_dir(road, lt, true),
         LaneType::Biking | LaneType::Bus | LaneType::Parking | LaneType::Construction => {
@@ -855,7 +855,7 @@ fn add_new_lane(road: &mut EditRoad, lt: LaneType) -> usize {
         LaneSpec {
             lt,
             dir,
-            width: NORMAL_LANE_THICKNESS,
+            width: LaneSpec::typical_lane_widths(lt, osm_tags)[0].0,
         },
     );
     idx
