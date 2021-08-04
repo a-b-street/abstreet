@@ -444,7 +444,7 @@
         }
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt</span>) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_map_space</span>() {
-            <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">normal_left_click</span>() {
+            <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span> <span class="op">&lt;</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">min_zoom_for_detail</span> <span class="op">&amp;&amp;</span> <span class="ident">ctx</span>.<span class="ident">normal_left_click</span>() {
                 <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">Warping::new_state</span>(
                     <span class="ident">ctx</span>,
                     <span class="ident">pt</span>,
