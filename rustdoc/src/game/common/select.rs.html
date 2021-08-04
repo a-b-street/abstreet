@@ -305,6 +305,11 @@
 <span id="303">303</span>
 <span id="304">304</span>
 <span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
 
@@ -347,7 +352,7 @@
             <span class="ident">roads</span>,
             <span class="ident">intersections</span>: <span class="ident">BTreeSet::new</span>(),
             <span class="ident">preview</span>: <span class="prelude-val">None</span>,
-            <span class="ident">mode</span>: <span class="ident">Mode::Paint</span>,
+            <span class="ident">mode</span>: <span class="ident">Mode::Pan</span>,
             <span class="ident">dragging</span>: <span class="bool-val">false</span>,
         };
         <span class="ident">rs</span>.<span class="ident">roads_changed</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
@@ -609,6 +614,11 @@
         }
 
         <span class="ident">CommonState::draw_osd</span>(<span class="ident">g</span>, <span class="ident">app</span>);
+    }
+
+    <span class="doccomment">/// True unless the user is just panning around</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">actively_modifying</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+        <span class="op">!</span><span class="macro">matches!</span>(<span class="self">self</span>.<span class="ident">mode</span>, <span class="ident">Mode::Pan</span>)
     }
 }
 </pre></div>
