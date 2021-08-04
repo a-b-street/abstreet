@@ -4,7 +4,7 @@ use map_gui::ID;
 use map_model::{LaneType, PathConstraints, Road, RoadID};
 use widgetry::{
     lctrl, Cached, Color, Drawable, EventCtx, GeomBatch, GeomBatchStack, GfxCtx,
-    HorizontalAlignment, Key, Line, Outcome, Panel, State, Text, VerticalAlignment, Widget,
+    HorizontalAlignment, Key, Line, Outcome, Panel, State, Text, Toggle, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -20,6 +20,7 @@ pub struct ExploreMap {
     legend: Panel,
     tooltip: Cached<RoadID, (RoadID, Drawable, Drawable)>,
     unzoomed_layer: Drawable,
+    elevation: Option<Drawable>,
 }
 
 impl ExploreMap {
@@ -28,9 +29,10 @@ impl ExploreMap {
 
         Box::new(ExploreMap {
             top_panel: make_top_panel(ctx),
-            legend: make_legend(ctx, app),
+            legend: make_legend(ctx, app, false),
             tooltip: Cached::new(),
             unzoomed_layer: make_unzoomed_layer(ctx, app),
+            elevation: None,
         })
     }
 }
@@ -76,25 +78,48 @@ impl State<App> for ExploreMap {
             }
         }
 
-        if let Outcome::Clicked(x) = self.legend.event(ctx) {
-            return Transition::Push(match x.as_ref() {
-                "change map" => CityPicker::new_state(
-                    ctx,
-                    app,
-                    Box::new(|ctx, app| {
-                        Transition::Multi(vec![Transition::Pop, Transition::Replace(ExploreMap::new_state(ctx, app))])
-                    }),
-                ),
-                // TODO Add physical picture examples
-                "highway" => PopupMsg::new_state(ctx, "Highways", vec!["Unless there's a separate trail (like on the 520 or I90 bridge), highways aren't accessible to biking"]),
-                "major street" => PopupMsg::new_state(ctx, "Major streets", vec!["Arterials have more traffic, but are often where businesses are located"]),
-                "minor street" => PopupMsg::new_state(ctx, "Minor streets", vec!["Local streets have a low volume of traffic and are usually comfortable for biking, even without dedicated infrastructure"]),
-                "trail" => PopupMsg::new_state(ctx, "Trails", vec!["Trails like the Burke Gilman are usually well-separated from vehicle traffic. The space is usually shared between people walking, cycling, and rolling."]),
-                "protected bike lane" => PopupMsg::new_state(ctx, "Protected bike lanes", vec!["Bike lanes separated from vehicle traffic by physical barriers or a few feet of striping"]),
-                "painted bike lane" => PopupMsg::new_state(ctx, "Painted bike lanes", vec!["Bike lanes without any separation from vehicle traffic. Often uncomfortably close to the \"door zone\" of parked cars."]),
-                "Stay Healthy Street / greenway" => PopupMsg::new_state(ctx, "Stay Healthy Streets and neighborhood greenways", vec!["Residential streets with additional signage and light barriers. These are intended to be low traffic, dedicated for people walking and biking."]),
-                _ => unreachable!(),
+        match self.legend.event(ctx) {
+            Outcome::Clicked(x) => {
+                return Transition::Push(match x.as_ref() {
+                    "change map" => CityPicker::new_state(
+                        ctx,
+                        app,
+                        Box::new(|ctx, app| {
+                            Transition::Multi(vec![Transition::Pop, Transition::Replace(ExploreMap::new_state(ctx, app))])
+                        }),
+                    ),
+                    // TODO Add physical picture examples
+                    "highway" => PopupMsg::new_state(ctx, "Highways", vec!["Unless there's a separate trail (like on the 520 or I90 bridge), highways aren't accessible to biking"]),
+                    "major street" => PopupMsg::new_state(ctx, "Major streets", vec!["Arterials have more traffic, but are often where businesses are located"]),
+                    "minor street" => PopupMsg::new_state(ctx, "Minor streets", vec!["Local streets have a low volume of traffic and are usually comfortable for biking, even without dedicated infrastructure"]),
+                    "trail" => PopupMsg::new_state(ctx, "Trails", vec!["Trails like the Burke Gilman are usually well-separated from vehicle traffic. The space is usually shared between people walking, cycling, and rolling."]),
+                    "protected bike lane" => PopupMsg::new_state(ctx, "Protected bike lanes", vec!["Bike lanes separated from vehicle traffic by physical barriers or a few feet of striping"]),
+                    "painted bike lane" => PopupMsg::new_state(ctx, "Painted bike lanes", vec!["Bike lanes without any separation from vehicle traffic. Often uncomfortably close to the \"door zone\" of parked cars."]),
+                    "Stay Healthy Street / greenway" => PopupMsg::new_state(ctx, "Stay Healthy Streets and neighborhood greenways", vec!["Residential streets with additional signage and light barriers. These are intended to be low traffic, dedicated for people walking and biking."]),
+                    // TODO Add URLs
+                    "about the elevation data" => PopupMsg::new_state(ctx, "About the elevation data", vec!["Biking uphill next to traffic without any dedicated space isn't fun.", "Biking downhill next to traffic, especially in the door-zone of parked cars, and especially on Seattle's bumpy roads... is downright terrifying.", "", "Note the elevation data is incorrect near bridges.", "Thanks to King County LIDAR for the data, and Eldan Goldenberg for processing it."]),
+                    _ => unreachable!(),
             });
+            }
+            Outcome::Changed(_) => {
+                if self.legend.is_checked("elevation") {
+                    let mut low = Distance::ZERO;
+                    let mut high = Distance::ZERO;
+                    for i in app.primary.map.all_intersections() {
+                        low = low.min(i.elevation);
+                        high = high.max(i.elevation);
+                    }
+                    // TODO Cache the elevation layer per map, maybe in the session state
+                    // TODO Maybe also draw the uphill arrows on the steepest streets?
+                    self.elevation = Some(
+                        crate::layer::elevation::make_elevation_contours(ctx, app, low, high).1,
+                    );
+                } else {
+                    self.elevation = None;
+                }
+                self.legend = make_legend(ctx, app, self.elevation.is_some());
+            }
+            _ => {}
         }
 
         Transition::Keep
@@ -113,6 +138,9 @@ impl State<App> for ExploreMap {
         }
         if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
             g.redraw(&self.unzoomed_layer);
+            if let Some(ref draw) = self.elevation {
+                g.redraw(draw);
+            }
         }
     }
 }
@@ -147,7 +175,7 @@ fn make_top_panel(ctx: &mut EventCtx) -> Panel {
     .build(ctx)
 }
 
-fn make_legend(ctx: &mut EventCtx, app: &App) -> Panel {
+fn make_legend(ctx: &mut EventCtx, app: &App, elevation: bool) -> Panel {
     Panel::new_builder(Widget::col(vec![
         Widget::custom_row(vec![
             Line("Bike Network")
@@ -174,6 +202,14 @@ fn make_legend(ctx: &mut EventCtx, app: &App) -> Panel {
         // TODO Distinguish door-zone bike lanes?
         // TODO Call out bike turning boxes?
         // TODO Call out bike signals?
+        Widget::row(vec![
+            Toggle::checkbox(ctx, "elevation", Key::E, elevation),
+            ctx.style()
+                .btn_plain
+                .icon("system/assets/tools/info.svg")
+                .build_widget(ctx, "about the elevation data")
+                .centered_vert(),
+        ]),
     ]))
     .aligned(HorizontalAlignment::Right, VerticalAlignment::Bottom)
     .build(ctx)
@@ -217,8 +253,15 @@ fn make_tooltip(ctx: &mut EventCtx, app: &App, r: RoadID) -> (RoadID, Drawable, 
     let zoom = (fit_dims / bounds.width()).min(fit_dims / bounds.height());
     screen_batch = screen_batch.scale(zoom);
 
-    let label = Text::from(Line(road.get_name(app.opts.language.as_ref())).small_heading())
-        .render_autocropped(ctx);
+    let label = Text::from_multiline(vec![
+        Line(road.get_name(app.opts.language.as_ref())).small_heading(),
+        // TODO Indicate which direction is uphill
+        Line(format!(
+            "{}% incline",
+            (road.percent_incline.abs() * 100.0).round()
+        )),
+    ])
+    .render_autocropped(ctx);
     screen_batch = GeomBatchStack::vertical(vec![label, screen_batch]).batch();
     screen_batch = magnifying_glass(screen_batch);
 

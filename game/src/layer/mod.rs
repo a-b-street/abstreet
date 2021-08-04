@@ -8,7 +8,7 @@ use widgetry::{
 use crate::app::{App, Transition};
 use crate::sandbox::dashboards;
 
-mod elevation;
+pub mod elevation;
 pub mod favorites;
 pub mod map;
 mod pandemic;

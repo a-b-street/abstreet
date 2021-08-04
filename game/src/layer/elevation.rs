@@ -198,7 +198,7 @@ impl ElevationContours {
             high = high.max(i.elevation);
         }
 
-        let (closest_elevation, unzoomed) = make_contours(ctx, app, low, high);
+        let (closest_elevation, unzoomed) = make_elevation_contours(ctx, app, low, high);
 
         let panel = Panel::new_builder(Widget::col(vec![
             header(ctx, "Elevation"),
@@ -221,7 +221,7 @@ impl ElevationContours {
     }
 }
 
-fn make_contours(
+pub fn make_elevation_contours(
     ctx: &mut EventCtx,
     app: &App,
     low: Distance,
