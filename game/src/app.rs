@@ -7,7 +7,7 @@ use rand::seq::{IteratorRandom, SliceRandom};
 
 use abstio::MapName;
 use abstutil::Timer;
-use geom::{Bounds, Circle, Distance, Duration, Polygon, Pt2D, Time};
+use geom::{Bounds, Circle, Distance, Duration, FindClosest, Polygon, Pt2D, Time};
 use map_gui::colors::ColorScheme;
 use map_gui::options::Options;
 use map_gui::render::{unzoomed_agent_radius, AgentCache, DrawMap, DrawOptions, Renderable};
@@ -16,7 +16,7 @@ use map_gui::ID;
 use map_model::AreaType;
 use map_model::{IntersectionID, Map, Traversable};
 use sim::{AgentID, Analytics, Scenario, Sim, SimCallback, SimFlags, VehicleType};
-use widgetry::{Canvas, EventCtx, GfxCtx, Prerender, SharedAppState, State};
+use widgetry::{Cached, Canvas, Drawable, EventCtx, GfxCtx, Prerender, SharedAppState, State};
 
 use crate::challenges::HighScore;
 use crate::common::Warping;
@@ -729,6 +729,7 @@ pub struct SessionState {
     pub info_panel_tab: BTreeMap<&'static str, &'static str>,
     pub last_gmns_timing_csv: Option<String>,
     pub dash_tab: DashTab,
+    pub elevation_contours: Cached<MapName, (FindClosest<Distance>, Drawable)>,
 }
 
 impl SessionState {
@@ -745,6 +746,7 @@ impl SessionState {
             },
             last_gmns_timing_csv: None,
             dash_tab: DashTab::TripTable,
+            elevation_contours: Cached::new(),
         }
     }
 }

@@ -20,7 +20,7 @@ pub struct ExploreMap {
     legend: Panel,
     tooltip: Cached<RoadID, (RoadID, Drawable, Drawable)>,
     unzoomed_layer: Drawable,
-    elevation: Option<Drawable>,
+    elevation: bool,
 }
 
 impl ExploreMap {
@@ -32,7 +32,7 @@ impl ExploreMap {
             legend: make_legend(ctx, app, false),
             tooltip: Cached::new(),
             unzoomed_layer: make_unzoomed_layer(ctx, app),
-            elevation: None,
+            elevation: false,
         })
     }
 }
@@ -47,6 +47,27 @@ impl State<App> for ExploreMap {
                 _ => None,
             };
             self.tooltip.update(road, |r| make_tooltip(ctx, app, r));
+
+            if self.elevation {
+                let mut label = Text::new().into_widget(ctx);
+
+                if ctx.canvas.cam_zoom < app.opts.min_zoom_for_detail {
+                    if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
+                        if let Some((elevation, _)) = app
+                            .session
+                            .elevation_contours
+                            .value()
+                            .unwrap()
+                            .0
+                            .closest_pt(pt, Distance::meters(300.0))
+                        {
+                            label = Line(format!("{} ft", elevation.to_feet().round()))
+                                .into_widget(ctx);
+                        }
+                    }
+                }
+                self.legend.replace(ctx, "current elevation", label);
+            }
         }
 
         if let Some((r, _, _)) = self.tooltip.value() {
@@ -102,22 +123,23 @@ impl State<App> for ExploreMap {
             });
             }
             Outcome::Changed(_) => {
-                if self.legend.is_checked("elevation") {
-                    let mut low = Distance::ZERO;
-                    let mut high = Distance::ZERO;
-                    for i in app.primary.map.all_intersections() {
-                        low = low.min(i.elevation);
-                        high = high.max(i.elevation);
+                self.elevation = self.legend.is_checked("elevation");
+                self.legend = make_legend(ctx, app, self.elevation);
+                if self.elevation {
+                    let name = app.primary.map.get_name().clone();
+                    if app.session.elevation_contours.key() != Some(name.clone()) {
+                        let mut low = Distance::ZERO;
+                        let mut high = Distance::ZERO;
+                        for i in app.primary.map.all_intersections() {
+                            low = low.min(i.elevation);
+                            high = high.max(i.elevation);
+                        }
+                        // TODO Maybe also draw the uphill arrows on the steepest streets?
+                        let value =
+                            crate::layer::elevation::make_elevation_contours(ctx, app, low, high);
+                        app.session.elevation_contours.set(name, value);
                     }
-                    // TODO Cache the elevation layer per map, maybe in the session state
-                    // TODO Maybe also draw the uphill arrows on the steepest streets?
-                    self.elevation = Some(
-                        crate::layer::elevation::make_elevation_contours(ctx, app, low, high).1,
-                    );
-                } else {
-                    self.elevation = None;
                 }
-                self.legend = make_legend(ctx, app, self.elevation.is_some());
             }
             _ => {}
         }
@@ -138,8 +160,10 @@ impl State<App> for ExploreMap {
         }
         if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
             g.redraw(&self.unzoomed_layer);
-            if let Some(ref draw) = self.elevation {
-                g.redraw(draw);
+            if self.elevation {
+                if let Some((_, ref draw)) = app.session.elevation_contours.value() {
+                    g.redraw(draw);
+                }
             }
         }
     }
@@ -208,6 +232,10 @@ fn make_legend(ctx: &mut EventCtx, app: &App, elevation: bool) -> Panel {
                 .btn_plain
                 .icon("system/assets/tools/info.svg")
                 .build_widget(ctx, "about the elevation data")
+                .centered_vert(),
+            Text::new()
+                .into_widget(ctx)
+                .named("current elevation")
                 .centered_vert(),
         ]),
     ]))

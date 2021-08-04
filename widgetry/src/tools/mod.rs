@@ -32,6 +32,12 @@ impl<K: PartialEq + Clone, V> Cached<K, V> {
         }
     }
 
+    /// `update` is preferred, but sometimes `produce_value` needs to borrow the same struct that
+    /// owns this `Cached`. In that case, the caller can manually check `key` and call this.
+    pub fn set(&mut self, key: K, value: V) {
+        self.contents = Some((key, value));
+    }
+
     pub fn clear(&mut self) {
         self.contents = None;
     }
