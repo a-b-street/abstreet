@@ -1,3 +1,5 @@
+mod edit;
+
 use geom::{Circle, Distance, Pt2D};
 use map_gui::tools::{nice_map_name, CityPicker, PopupMsg};
 use map_gui::ID;
@@ -93,7 +95,7 @@ impl State<App> for ExploreMap {
                     return Transition::Push(PopupMsg::new_state(ctx, "TODO", vec!["TODO"]));
                 }
                 "Edit network" => {
-                    return Transition::Push(PopupMsg::new_state(ctx, "TODO", vec!["TODO"]));
+                    return Transition::Push(edit::QuickEdit::new_state(ctx, app));
                 }
                 _ => unreachable!(),
             }
@@ -192,6 +194,7 @@ fn make_top_panel(ctx: &mut EventCtx) -> Panel {
         ctx.style()
             .btn_solid_primary
             .icon_text("system/assets/tools/pencil.svg", "Edit network")
+            .hotkey(lctrl(Key::E))
             .build_def(ctx)
             .centered_vert(),
     ]))
@@ -310,7 +313,7 @@ fn magnifying_glass(batch: GeomBatch) -> GeomBatch {
     new_batch
 }
 
-fn make_unzoomed_layer(ctx: &mut EventCtx, app: &App) -> Drawable {
+pub fn make_unzoomed_layer(ctx: &mut EventCtx, app: &App) -> Drawable {
     let mut batch = GeomBatch::new();
     for r in app.primary.map.all_roads() {
         if r.is_cycleway() {
