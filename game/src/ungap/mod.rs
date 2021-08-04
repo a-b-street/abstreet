@@ -1,7 +1,7 @@
 use geom::{Circle, Distance, Pt2D};
 use map_gui::tools::{nice_map_name, CityPicker, PopupMsg};
 use map_gui::ID;
-use map_model::{LaneType, RoadID};
+use map_model::{LaneType, PathConstraints, Road, RoadID};
 use widgetry::{
     lctrl, Cached, Color, Drawable, EventCtx, GeomBatch, GeomBatchStack, GfxCtx,
     HorizontalAlignment, Key, Line, Outcome, Panel, State, Text, VerticalAlignment, Widget,
@@ -23,7 +23,9 @@ pub struct ExploreMap {
 }
 
 impl ExploreMap {
-    pub fn new_state(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
+    pub fn new_state(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State<App>> {
+        app.opts.show_building_driveways = false;
+
         Box::new(ExploreMap {
             top_panel: make_top_panel(ctx),
             legend: make_legend(ctx, app),
@@ -161,6 +163,7 @@ fn make_legend(ctx: &mut EventCtx, app: &App) -> Panel {
                 .build_widget(ctx, "change map")
                 .margin_right(8),
         ]),
+        // TODO Looks too close to access restrictions
         legend(ctx, app.cs.unzoomed_highway, "highway"),
         legend(ctx, app.cs.unzoomed_arterial, "major street"),
         legend(ctx, app.cs.unzoomed_residential, "minor street"),
@@ -242,29 +245,71 @@ fn make_unzoomed_layer(ctx: &mut EventCtx, app: &App) -> Drawable {
         if r.is_cycleway() {
             continue;
         }
-        let mut bike_lane = false;
-        let mut buffer = false;
+
+        if is_greenway(r) {
+            // TODO This color is going to look hilarious on top of the already bizarre pink
+            batch.push(GREENWAY.alpha(0.8), r.get_thick_polygon(&app.primary.map));
+        }
+
+        // Don't cover up the arterial/local classification -- add thick side lines to show bike
+        // facilties in each direction.
+        let mut bike_lane_left = false;
+        let mut buffer_left = false;
+        let mut bike_lane_right = false;
+        let mut buffer_right = false;
+        let mut on_left = true;
         for (_, _, lt) in r.lanes_ltr() {
-            if lt == LaneType::Biking {
-                bike_lane = true;
+            if lt == LaneType::Driving || lt == LaneType::Bus {
+                // We're walking the lanes from left-to-right. So as soon as we hit a vehicle lane,
+                // any bike lane we find is on the right side of the road.
+                // (Barring really bizarre things like a bike lane in the middle of the road)
+                on_left = false;
+            } else if lt == LaneType::Biking {
+                if on_left {
+                    bike_lane_left = true;
+                } else {
+                    bike_lane_right = true;
+                }
             } else if matches!(lt, LaneType::Buffer(_)) {
-                buffer = true;
+                if on_left {
+                    buffer_left = true;
+                } else {
+                    buffer_right = true;
+                }
+            }
+
+            let half_width = r.get_half_width(&app.primary.map);
+            for (shift, bike_lane, buffer) in [
+                (-1.0, bike_lane_left, buffer_left),
+                (1.0, bike_lane_right, buffer_right),
+            ] {
+                let color = if bike_lane && buffer {
+                    PROTECTED_BIKE_LANE
+                } else if bike_lane {
+                    PAINTED_BIKE_LANE
+                } else {
+                    // If we happen to have a buffer, but no bike lane, let's just not ask
+                    // questions...
+                    continue;
+                };
+                if let Ok(pl) = r.center_pts.shift_either_direction(shift * half_width) {
+                    batch.push(color, pl.make_polygons(0.5 * half_width));
+                }
             }
         }
-        if !bike_lane {
-            continue;
-        }
-        // TODO Should we try to distinguish one-way roads from two-way roads with a cycle lane
-        // only in one direction? Or just let people check the details by mousing over and zooming
-        // in? We could also draw lines on each side of the road, which wouldn't cover up the
-        // underlying arterial/local distinction.
-        let color = if buffer {
-            PROTECTED_BIKE_LANE
-        } else {
-            PAINTED_BIKE_LANE
-        };
-        // TODO Figure out how all of the greenways are tagged
-        batch.push(color.alpha(0.8), r.get_thick_polygon(&app.primary.map));
     }
     batch.upload(ctx)
+}
+
+// TODO Check how other greenways are tagged.
+// https://www.openstreetmap.org/way/262778812 has bicycle=designated, cycleway=shared_lane...
+fn is_greenway(road: &Road) -> bool {
+    !road
+        .access_restrictions
+        .allow_through_traffic
+        .contains(PathConstraints::Car)
+        && road
+            .access_restrictions
+            .allow_through_traffic
+            .contains(PathConstraints::Bike)
 }

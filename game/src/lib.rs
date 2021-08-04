@@ -183,6 +183,9 @@ fn setup_app(ctx: &mut EventCtx, mut setup: Setup) -> (App, Vec<Box<dyn State<Ap
     if title {
         setup.opts.color_scheme = map_gui::colors::ColorSchemeChoice::Pregame;
     }
+    if setup.ungap {
+        setup.opts.color_scheme = map_gui::colors::ColorSchemeChoice::DayMode;
+    }
     let cs = map_gui::colors::ColorScheme::new(ctx, setup.opts.color_scheme);
 
     // No web support; this uses blocking IO
