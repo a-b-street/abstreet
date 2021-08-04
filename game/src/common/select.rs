@@ -39,7 +39,7 @@ impl RoadSelector {
             roads,
             intersections: BTreeSet::new(),
             preview: None,
-            mode: Mode::Paint,
+            mode: Mode::Pan,
             dragging: false,
         };
         rs.roads_changed(ctx, app);
@@ -301,5 +301,10 @@ impl RoadSelector {
         }
 
         CommonState::draw_osd(g, app);
+    }
+
+    /// True unless the user is just panning around
+    pub fn actively_modifying(&self) -> bool {
+        !matches!(self.mode, Mode::Pan)
     }
 }

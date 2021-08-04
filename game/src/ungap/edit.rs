@@ -1,5 +1,6 @@
 use abstutil::Tags;
 use map_gui::tools::PopupMsg;
+use map_gui::ID;
 use map_model::{BufferType, Direction, EditCmd, EditRoad, LaneSpec, LaneType};
 use widgetry::{
     Choice, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State,
@@ -7,8 +8,8 @@ use widgetry::{
 };
 
 use crate::app::{App, Transition};
-use crate::common::RoadSelector;
-use crate::edit::apply_map_edits;
+use crate::common::{RoadSelector, Warping};
+use crate::edit::{apply_map_edits, RoadEditor};
 
 pub struct QuickEdit {
     top_panel: Panel,
@@ -64,6 +65,39 @@ impl State<App> for QuickEdit {
             }
         }
 
+        // When we're not sketching a high-level path, click to edit a road in detail
+        if !self.selector.actively_modifying() && ctx.redo_mouseover() {
+            app.primary.current_selection =
+                match app.mouseover_unzoomed_roads_and_intersections(ctx) {
+                    Some(ID::Road(r)) => Some(r),
+                    Some(ID::Lane(l)) => Some(app.primary.map.get_l(l).parent),
+                    _ => None,
+                }
+                .and_then(|r| {
+                    if app.primary.map.get_r(r).is_light_rail() {
+                        None
+                    } else {
+                        Some(ID::Road(r))
+                    }
+                });
+        }
+        if !self.selector.actively_modifying() {
+            if let Some(ID::Road(r)) = app.primary.current_selection {
+                if ctx.normal_left_click() {
+                    return Transition::Multi(vec![
+                        Transition::Push(RoadEditor::new_state_without_lane(ctx, app, r)),
+                        Transition::Push(Warping::new_state(
+                            ctx,
+                            ctx.canvas.get_cursor_in_map_space().unwrap(),
+                            Some(10.0),
+                            None,
+                            &mut app.primary,
+                        )),
+                    ]);
+                }
+            }
+        }
+
         Transition::Keep
     }
 
@@ -81,13 +115,11 @@ fn make_top_panel(ctx: &mut EventCtx, selector: &RoadSelector) -> Panel {
         Line("Draw your ideal bike network")
             .small_heading()
             .into_widget(ctx),
+        "Click a road to edit in detail, or use the tools below for quick edits".text_widget(ctx),
         selector.make_controls(ctx).named("selector"),
-        // TODO This should be the simplified "edit mode."
-        // - Click a road segment to edit in detail
-        // - A way to quickly sketch new additions
-        // - All the file management -- load, save as, share
-        // - Summarize number of new segments and distance? Or does that belong in the read-only
-        // view?
+        // TODO This is confusing as it is. This view should first emphasize any existing edits.
+        // Then make it possible to edit in detail, or launch a tool to bulk edit.
+        // Should undo/redo, load, save, share functionality live here?
         Widget::row(vec![
             "Protect the new bike lanes?"
                 .text_widget(ctx)

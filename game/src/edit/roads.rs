@@ -34,12 +34,28 @@ pub struct RoadEditor {
 impl RoadEditor {
     /// Always starts focused on a certain lane.
     pub fn new_state(ctx: &mut EventCtx, app: &mut App, l: LaneID) -> Box<dyn State<App>> {
+        RoadEditor::new(ctx, app, app.primary.map.get_l(l).parent, Some(l))
+    }
+
+    pub fn new_state_without_lane(
+        ctx: &mut EventCtx,
+        app: &mut App,
+        r: RoadID,
+    ) -> Box<dyn State<App>> {
+        RoadEditor::new(ctx, app, r, None)
+    }
+
+    fn new(
+        ctx: &mut EventCtx,
+        app: &mut App,
+        r: RoadID,
+        current_lane: Option<LaneID>,
+    ) -> Box<dyn State<App>> {
         app.primary.current_selection = None;
 
-        let r = app.primary.map.get_l(l).parent;
         let mut editor = RoadEditor {
             r,
-            current_lane: Some(l),
+            current_lane,
             top_panel: Panel::empty(ctx),
             main_panel: Panel::empty(ctx),
             highlight_selection: (None, Drawable::empty(ctx)),
