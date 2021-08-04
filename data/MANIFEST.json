@@ -1936,9 +1936,9 @@
       "compressed_size_bytes": 5760782
     },
     "data/input/us/seattle/collisions.bin": {
-      "checksum": "eb16c2fcb98629ca41022bcf0e2fb0e0",
-      "uncompressed_size_bytes": 4621535,
-      "compressed_size_bytes": 2498468
+      "checksum": "ebb5fddd288181096d8e469f9d690fe3",
+      "uncompressed_size_bytes": 3961331,
+      "compressed_size_bytes": 2459431
     },
     "data/input/us/seattle/collisions.kml": {
       "checksum": "16e26b4a07d2918780e09c95202ba9ac",
