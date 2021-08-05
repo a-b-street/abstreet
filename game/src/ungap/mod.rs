@@ -242,7 +242,7 @@ fn make_legend(ctx: &mut EventCtx, app: &App, elevation: bool) -> Panel {
                 .icon("system/assets/tools/info.svg")
                 .build_widget(ctx, "about the elevation data")
                 .centered_vert(),
-            Text::from(Line("Click for details").secondary())
+            Text::new()
                 .into_widget(ctx)
                 .named("current elevation")
                 .centered_vert(),
