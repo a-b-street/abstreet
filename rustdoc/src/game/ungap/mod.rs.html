@@ -603,7 +603,7 @@
                 .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/info.svg&quot;</span>)
                 .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;about the elevation data&quot;</span>)
                 .<span class="ident">centered_vert</span>(),
-            <span class="ident">Text::from</span>(<span class="ident">Line</span>(<span class="string">&quot;Click for details&quot;</span>).<span class="ident">secondary</span>())
+            <span class="ident">Text::new</span>()
                 .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
                 .<span class="ident">named</span>(<span class="string">&quot;current elevation&quot;</span>)
                 .<span class="ident">centered_vert</span>(),
