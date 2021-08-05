@@ -210,7 +210,10 @@ impl TuneRelative {
         // TODO Colors aren't clear. Show directionality.
         batch.push(Color::BLUE.alpha(0.8), map.get_i(i1).polygon.clone());
         batch.push(Color::RED.alpha(0.8), map.get_i(i2).polygon.clone());
-        let path = map.simple_path_btwn(i1, i2).unwrap_or_else(Vec::new);
+        let path = map
+            .simple_path_btwn(i1, i2)
+            .map(|pair| pair.0)
+            .unwrap_or_else(Vec::new);
         let mut dist_btwn = Distance::ZERO;
         let mut car_dt = Duration::ZERO;
         for r in path {

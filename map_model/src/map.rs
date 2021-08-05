@@ -721,8 +721,13 @@ impl Map {
         &self.config
     }
 
-    /// Simple search along undirected roads
-    pub fn simple_path_btwn(&self, i1: IntersectionID, i2: IntersectionID) -> Option<Vec<RoadID>> {
+    /// Simple search along undirected roads. Expresses the result as a sequence of roads and a
+    /// sequence of intersections.
+    pub fn simple_path_btwn(
+        &self,
+        i1: IntersectionID,
+        i2: IntersectionID,
+    ) -> Option<(Vec<RoadID>, Vec<IntersectionID>)> {
         let mut graph: UnGraphMap<IntersectionID, RoadID> = UnGraphMap::new();
         for r in self.all_roads() {
             if !r.is_light_rail() {
@@ -736,11 +741,11 @@ impl Map {
             |(_, _, r)| self.get_r(*r).center_pts.length(),
             |_| Distance::ZERO,
         )?;
-        Some(
-            path.windows(2)
-                .map(|pair| *graph.edge_weight(pair[0], pair[1]).unwrap())
-                .collect(),
-        )
+        let roads: Vec<RoadID> = path
+            .windows(2)
+            .map(|pair| *graph.edge_weight(pair[0], pair[1]).unwrap())
+            .collect();
+        Some((roads, path))
     }
 
     /// Returns the routing params baked into the map.
@@ -760,5 +765,16 @@ impl Map {
             mapping.insert(self.get_l(b.sidewalk_pos.lane()).parent, b.id);
         }
         self.road_to_buildings = mapping;
+    }
+
+    /// Finds the road directly connecting two intersections.
+    pub fn find_road_between(&self, i1: IntersectionID, i2: IntersectionID) -> Option<RoadID> {
+        for r in &self.get_i(i1).roads {
+            let road = self.get_r(*r);
+            if road.src_i == i2 || road.dst_i == i2 {
+                return Some(road.id);
+            }
+        }
+        None
     }
 }

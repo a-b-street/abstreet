@@ -50,6 +50,12 @@ impl State<App> for QuickEdit {
                         Transition::Push(PopupMsg::new_state(ctx, "Changes made", messages)),
                     ]);
                 }
+                "Sketch a route" => {
+                    app.primary.current_selection = None;
+                    return Transition::Push(
+                        crate::ungap::route_sketcher::RouteSketcher::new_state(ctx, app),
+                    );
+                }
                 x => {
                     if self.selector.event(ctx, app, Some(x)) {
                         let new_controls = self.selector.make_controls(ctx);
@@ -151,6 +157,12 @@ fn make_top_panel(ctx: &mut EventCtx, selector: &RoadSelector) -> Panel {
                 .build_def(ctx),
         ])
         .evenly_spaced(),
+        // TODO New tool replaces RoadSelector...
+        ctx.style()
+            .btn_plain
+            .text("Sketch a route")
+            .hotkey(Key::S)
+            .build_def(ctx),
     ]))
     .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
     .build(ctx)

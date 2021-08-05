@@ -1,5 +1,6 @@
 mod edit;
 mod magnifying;
+mod route_sketcher;
 
 use geom::{Circle, Distance, Pt2D};
 use map_gui::tools::{nice_map_name, CityPicker, PopupMsg};

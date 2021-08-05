@@ -217,16 +217,17 @@ impl RoadSelector {
                         .unwrap_or(true)
                     {
                         let mut batch = GeomBatch::new();
-                        let roads = if let Some(roads) = app.primary.map.simple_path_btwn(i1, i2) {
-                            let mut intersections = BTreeSet::new();
+                        let roads = if let Some((roads, intersections)) =
+                            app.primary.map.simple_path_btwn(i1, i2)
+                        {
                             for r in &roads {
-                                let r = app.primary.map.get_r(*r);
                                 batch.push(
                                     Color::RED.alpha(0.5),
-                                    r.get_thick_polygon(&app.primary.map),
+                                    app.primary
+                                        .map
+                                        .get_r(*r)
+                                        .get_thick_polygon(&app.primary.map),
                                 );
-                                intersections.insert(r.src_i);
-                                intersections.insert(r.dst_i);
                             }
                             for i in intersections {
                                 batch.push(
