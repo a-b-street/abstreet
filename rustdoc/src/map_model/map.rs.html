@@ -764,6 +764,22 @@
 <span id="762">762</span>
 <span id="763">763</span>
 <span id="764">764</span>
+<span id="765">765</span>
+<span id="766">766</span>
+<span id="767">767</span>
+<span id="768">768</span>
+<span id="769">769</span>
+<span id="770">770</span>
+<span id="771">771</span>
+<span id="772">772</span>
+<span id="773">773</span>
+<span id="774">774</span>
+<span id="775">775</span>
+<span id="776">776</span>
+<span id="777">777</span>
+<span id="778">778</span>
+<span id="779">779</span>
+<span id="780">780</span>
 </pre><pre class="rust">
 <span class="doccomment">//! A bunch of (mostly read-only) queries on a Map.</span>
 
@@ -1488,8 +1504,13 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">config</span>
     }
 
-    <span class="doccomment">/// Simple search along undirected roads</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">simple_path_btwn</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">i1</span>: <span class="ident">IntersectionID</span>, <span class="ident">i2</span>: <span class="ident">IntersectionID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// Simple search along undirected roads. Expresses the result as a sequence of roads and a</span>
+    <span class="doccomment">/// sequence of intersections.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">simple_path_btwn</span>(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        <span class="ident">i1</span>: <span class="ident">IntersectionID</span>,
+        <span class="ident">i2</span>: <span class="ident">IntersectionID</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span>)<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">graph</span>: <span class="ident">UnGraphMap</span><span class="op">&lt;</span><span class="ident">IntersectionID</span>, <span class="ident">RoadID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">UnGraphMap::new</span>();
         <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">all_roads</span>() {
             <span class="kw">if</span> <span class="op">!</span><span class="ident">r</span>.<span class="ident">is_light_rail</span>() {
@@ -1503,11 +1524,11 @@
             <span class="op">|</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">r</span>)<span class="op">|</span> <span class="self">self</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>).<span class="ident">center_pts</span>.<span class="ident">length</span>(),
             <span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">Distance::ZERO</span>,
         )<span class="question-mark">?</span>;
-        <span class="prelude-val">Some</span>(
-            <span class="ident">path</span>.<span class="ident">windows</span>(<span class="number">2</span>)
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">pair</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">graph</span>.<span class="ident">edge_weight</span>(<span class="ident">pair</span>[<span class="number">0</span>], <span class="ident">pair</span>[<span class="number">1</span>]).<span class="ident">unwrap</span>())
-                .<span class="ident">collect</span>(),
-        )
+        <span class="kw">let</span> <span class="ident">roads</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">path</span>
+            .<span class="ident">windows</span>(<span class="number">2</span>)
+            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">pair</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">graph</span>.<span class="ident">edge_weight</span>(<span class="ident">pair</span>[<span class="number">0</span>], <span class="ident">pair</span>[<span class="number">1</span>]).<span class="ident">unwrap</span>())
+            .<span class="ident">collect</span>();
+        <span class="prelude-val">Some</span>((<span class="ident">roads</span>, <span class="ident">path</span>))
     }
 
     <span class="doccomment">/// Returns the routing params baked into the map.</span>
@@ -1527,6 +1548,17 @@
             <span class="ident">mapping</span>.<span class="ident">insert</span>(<span class="self">self</span>.<span class="ident">get_l</span>(<span class="ident">b</span>.<span class="ident">sidewalk_pos</span>.<span class="ident">lane</span>()).<span class="ident">parent</span>, <span class="ident">b</span>.<span class="ident">id</span>);
         }
         <span class="self">self</span>.<span class="ident">road_to_buildings</span> <span class="op">=</span> <span class="ident">mapping</span>;
+    }
+
+    <span class="doccomment">/// Finds the road directly connecting two intersections.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">find_road_between</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">i1</span>: <span class="ident">IntersectionID</span>, <span class="ident">i2</span>: <span class="ident">IntersectionID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span> {
+        <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">get_i</span>(<span class="ident">i1</span>).<span class="ident">roads</span> {
+            <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>);
+            <span class="kw">if</span> <span class="ident">road</span>.<span class="ident">src_i</span> <span class="op">=</span><span class="op">=</span> <span class="ident">i2</span> <span class="op">|</span><span class="op">|</span> <span class="ident">road</span>.<span class="ident">dst_i</span> <span class="op">=</span><span class="op">=</span> <span class="ident">i2</span> {
+                <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">road</span>.<span class="ident">id</span>);
+            }
+        }
+        <span class="prelude-val">None</span>
     }
 }
 </pre></div>

@@ -317,6 +317,9 @@
 <span id="315">315</span>
 <span id="316">316</span>
 <span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
 
@@ -530,7 +533,10 @@
         <span class="comment">// TODO Colors aren&#39;t clear. Show directionality.</span>
         <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color::BLUE</span>.<span class="ident">alpha</span>(<span class="number">0.8</span>), <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i1</span>).<span class="ident">polygon</span>.<span class="ident">clone</span>());
         <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color::RED</span>.<span class="ident">alpha</span>(<span class="number">0.8</span>), <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i2</span>).<span class="ident">polygon</span>.<span class="ident">clone</span>());
-        <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">simple_path_btwn</span>(<span class="ident">i1</span>, <span class="ident">i2</span>).<span class="ident">unwrap_or_else</span>(<span class="ident">Vec::new</span>);
+        <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">map</span>
+            .<span class="ident">simple_path_btwn</span>(<span class="ident">i1</span>, <span class="ident">i2</span>)
+            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">pair</span><span class="op">|</span> <span class="ident">pair</span>.<span class="number">0</span>)
+            .<span class="ident">unwrap_or_else</span>(<span class="ident">Vec::new</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">dist_btwn</span> <span class="op">=</span> <span class="ident">Distance::ZERO</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">car_dt</span> <span class="op">=</span> <span class="ident">Duration::ZERO</span>;
         <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">path</span> {
