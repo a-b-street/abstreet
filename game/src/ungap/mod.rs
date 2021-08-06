@@ -25,11 +25,14 @@ pub struct ExploreMap {
     magnifying_glass: MagnifyingGlass,
     network_layer: Drawable,
     elevation: bool,
+
+    changelist_key: (String, usize),
 }
 
 impl ExploreMap {
     pub fn new_state(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State<App>> {
         app.opts.show_building_driveways = false;
+        let edits = app.primary.map.get_edits();
 
         Box::new(ExploreMap {
             top_panel: make_top_panel(ctx),
@@ -37,12 +40,23 @@ impl ExploreMap {
             magnifying_glass: MagnifyingGlass::new(ctx, true),
             network_layer: render_network_layer(ctx, app),
             elevation: false,
+
+            changelist_key: (edits.edits_name.clone(), edits.commands.len()),
         })
     }
 }
 
 impl State<App> for ExploreMap {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+        {
+            let edits = app.primary.map.get_edits();
+            let changelist_key = (edits.edits_name.clone(), edits.commands.len());
+            if self.changelist_key != changelist_key {
+                self.changelist_key = changelist_key;
+                self.network_layer = crate::ungap::render_network_layer(ctx, app);
+            }
+        }
+
         ctx.canvas_movement();
 
         self.magnifying_glass.event(ctx, app);
@@ -235,7 +249,7 @@ fn make_legend(ctx: &mut EventCtx, app: &App, elevation: bool) -> Panel {
     .build(ctx)
 }
 
-fn legend(ctx: &mut EventCtx, color: Color, label: &str) -> Widget {
+pub fn legend(ctx: &mut EventCtx, color: Color, label: &str) -> Widget {
     let radius = 15.0;
     Widget::row(vec![
         GeomBatch::from(vec![(

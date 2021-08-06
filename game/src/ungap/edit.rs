@@ -4,8 +4,8 @@ use map_gui::tools::PopupMsg;
 use map_gui::ID;
 use map_model::{BufferType, Direction, EditCmd, EditRoad, LaneSpec, LaneType, RoadID};
 use widgetry::{
-    lctrl, Choice, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
-    State, TextExt, VerticalAlignment, Widget,
+    lctrl, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
+    Outcome, Panel, State, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -14,27 +14,48 @@ use crate::edit::{apply_map_edits, RoadEditor};
 use crate::ungap::magnifying::MagnifyingGlass;
 use crate::ungap::route_sketcher::RouteSketcher;
 
+const EDITED_COLOR: Color = Color::CYAN;
+
 pub struct QuickEdit {
     top_panel: Panel,
     network_layer: Drawable,
+    edits_layer: Drawable,
     magnifying_glass: MagnifyingGlass,
-    // TODO A layer showing edits. Use app.primary.map.get_edits().changed_roads
     route_sketcher: Option<RouteSketcher>,
+
+    // edits name, number of commands
+    // TODO Brittle -- could undo and add a new command. Add a proper edit counter to map. Refactor
+    // with EditMode. Use Cached.
+    changelist_key: (String, usize),
 }
 
 impl QuickEdit {
     pub fn new_state(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State<App>> {
+        let edits = app.primary.map.get_edits();
         Box::new(QuickEdit {
             top_panel: make_top_panel(ctx, app, None),
             magnifying_glass: MagnifyingGlass::new(ctx, false),
             network_layer: crate::ungap::render_network_layer(ctx, app),
+            edits_layer: render_edits(ctx, app),
             route_sketcher: None,
+
+            changelist_key: (edits.edits_name.clone(), edits.commands.len()),
         })
     }
 }
 
 impl State<App> for QuickEdit {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+        {
+            let edits = app.primary.map.get_edits();
+            let changelist_key = (edits.edits_name.clone(), edits.commands.len());
+            if self.changelist_key != changelist_key {
+                self.changelist_key = changelist_key;
+                self.network_layer = crate::ungap::render_network_layer(ctx, app);
+                self.edits_layer = render_edits(ctx, app);
+            }
+        }
+
         if self.route_sketcher.is_none() {
             ctx.canvas_movement();
         }
@@ -43,8 +64,6 @@ impl State<App> for QuickEdit {
         match self.top_panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "close" => {
-                    // TODO If we edited anything, regenerate the main ExploreMap layer. Would it
-                    // be weird to always reset the elevation layer and anything else over there?
                     return Transition::Pop;
                 }
                 "Open a proposal" => {
@@ -121,6 +140,7 @@ impl State<App> for QuickEdit {
             g.redraw(&self.network_layer);
             self.magnifying_glass.draw(g, app);
         }
+        g.redraw(&self.edits_layer);
         if let Some(ref rs) = self.route_sketcher {
             rs.draw(g);
         }
@@ -168,6 +188,7 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App, rs: Option<&RouteSketcher>) -> 
         .secondary()
         .into_widget(ctx),
     );
+    file_management.push(crate::ungap::legend(ctx, EDITED_COLOR, "changed road"));
     file_management.push(
         ctx.style()
             .btn_outline
@@ -302,4 +323,16 @@ fn maybe_add_bike_lanes(r: &mut EditRoad, buffer_type: Option<BufferType>) {
         }
     }
     r.lanes_ltr = lanes_ltr;
+}
+
+pub fn render_edits(ctx: &mut EventCtx, app: &App) -> Drawable {
+    let mut batch = GeomBatch::new();
+    let map = &app.primary.map;
+    for r in &map.get_edits().changed_roads {
+        batch.push(
+            EDITED_COLOR.alpha(0.5),
+            map.get_r(*r).get_thick_polygon(map),
+        );
+    }
+    batch.upload(ctx)
 }
