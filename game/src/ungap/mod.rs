@@ -4,15 +4,15 @@ mod route_sketcher;
 
 use geom::{Circle, Distance, Pt2D};
 use map_gui::tools::{nice_map_name, CityPicker, PopupMsg};
-use map_gui::ID;
 use map_model::{LaneType, PathConstraints, Road};
 use widgetry::{
-    lctrl, Color, Drawable, EventCtx, Filler, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
-    Outcome, Panel, ScreenDims, State, Text, Toggle, VerticalAlignment, Widget,
+    lctrl, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
+    Panel, State, Text, Toggle, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
 use crate::common::Warping;
+use magnifying::MagnifyingGlass;
 
 // #74B0FC
 const PROTECTED_BIKE_LANE: Color = Color::rgb_f(0.455, 0.69, 0.988);
@@ -22,8 +22,8 @@ const GREENWAY: Color = Color::BLUE;
 pub struct ExploreMap {
     top_panel: Panel,
     legend: Panel,
-    magnifying_glass: Panel,
-    unzoomed_layer: Drawable,
+    magnifying_glass: MagnifyingGlass,
+    network_layer: Drawable,
     elevation: bool,
 }
 
@@ -34,8 +34,8 @@ impl ExploreMap {
         Box::new(ExploreMap {
             top_panel: make_top_panel(ctx),
             legend: make_legend(ctx, app, false),
-            magnifying_glass: make_magnifying_glass(ctx),
-            unzoomed_layer: make_unzoomed_layer(ctx, app),
+            magnifying_glass: MagnifyingGlass::new(ctx, true),
+            network_layer: render_network_layer(ctx, app),
             elevation: false,
         })
     }
@@ -45,43 +45,27 @@ impl State<App> for ExploreMap {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         ctx.canvas_movement();
 
-        if ctx.redo_mouseover() {
-            let mut label = Text::new();
-            if let Some(ID::Road(r)) = app.mouseover_unzoomed_roads_and_intersections(ctx) {
-                let road = app.primary.map.get_r(r);
-                label.add_line(Line(road.get_name(app.opts.language.as_ref())).small_heading());
-                // TODO Indicate which direction is uphill
-                label.add_line(Line(format!(
-                    "{}% incline",
-                    (road.percent_incline.abs() * 100.0).round()
-                )));
-            } else {
-                // TODO Jittery panel
-            }
-            label.add_line(Line("Click for details").secondary());
-            let label = label.into_widget(ctx);
-            self.magnifying_glass.replace(ctx, "label", label);
+        self.magnifying_glass.event(ctx, app);
 
-            if self.elevation {
-                let mut label = Text::new().into_widget(ctx);
+        if ctx.redo_mouseover() && self.elevation {
+            let mut label = Text::new().into_widget(ctx);
 
-                if ctx.canvas.cam_zoom < app.opts.min_zoom_for_detail {
-                    if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
-                        if let Some((elevation, _)) = app
-                            .session
-                            .elevation_contours
-                            .value()
-                            .unwrap()
-                            .0
-                            .closest_pt(pt, Distance::meters(300.0))
-                        {
-                            label = Line(format!("{} ft", elevation.to_feet().round()))
-                                .into_widget(ctx);
-                        }
+            if ctx.canvas.cam_zoom < app.opts.min_zoom_for_detail {
+                if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
+                    if let Some((elevation, _)) = app
+                        .session
+                        .elevation_contours
+                        .value()
+                        .unwrap()
+                        .0
+                        .closest_pt(pt, Distance::meters(300.0))
+                    {
+                        label =
+                            Line(format!("{} ft", elevation.to_feet().round())).into_widget(ctx);
                     }
                 }
-                self.legend.replace(ctx, "current elevation", label);
             }
+            self.legend.replace(ctx, "current elevation", label);
         }
 
         if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
@@ -163,7 +147,7 @@ impl State<App> for ExploreMap {
         self.top_panel.draw(g);
         self.legend.draw(g);
         if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
-            g.redraw(&self.unzoomed_layer);
+            g.redraw(&self.network_layer);
 
             if self.elevation {
                 if let Some((_, ref draw)) = app.session.elevation_contours.value() {
@@ -171,8 +155,7 @@ impl State<App> for ExploreMap {
                 }
             }
 
-            self.magnifying_glass.draw(g);
-            magnifying::draw(g, app, self.magnifying_glass.rect_of("glass"));
+            self.magnifying_glass.draw(g, app);
         }
     }
 }
@@ -269,20 +252,7 @@ fn legend(ctx: &mut EventCtx, color: Color, label: &str) -> Widget {
     ])
 }
 
-fn make_magnifying_glass(ctx: &mut EventCtx) -> Panel {
-    Panel::new_builder(
-        Widget::col(vec![
-            Filler::fixed_dims(ScreenDims::new(300.0, 300.0)).named("glass"),
-            Text::new().into_widget(ctx).named("label"),
-        ])
-        .padding(16)
-        .outline((4.0, Color::BLACK)),
-    )
-    .aligned(HorizontalAlignment::LeftInset, VerticalAlignment::TopInset)
-    .build(ctx)
-}
-
-pub fn make_unzoomed_layer(ctx: &mut EventCtx, app: &App) -> Drawable {
+pub fn render_network_layer(ctx: &mut EventCtx, app: &App) -> Drawable {
     let mut batch = GeomBatch::new();
     for r in app.primary.map.all_roads() {
         if r.is_cycleway() {

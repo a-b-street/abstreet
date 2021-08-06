@@ -11,12 +11,13 @@ use widgetry::{
 use crate::app::{App, Transition};
 use crate::common::Warping;
 use crate::edit::{apply_map_edits, RoadEditor};
+use crate::ungap::magnifying::MagnifyingGlass;
 use crate::ungap::route_sketcher::RouteSketcher;
 
 pub struct QuickEdit {
     top_panel: Panel,
-    // The base layer, showing cycle infra
-    unzoomed_layer: Drawable,
+    network_layer: Drawable,
+    magnifying_glass: MagnifyingGlass,
     // TODO A layer showing edits. Use app.primary.map.get_edits().changed_roads
     route_sketcher: Option<RouteSketcher>,
 }
@@ -25,7 +26,8 @@ impl QuickEdit {
     pub fn new_state(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State<App>> {
         Box::new(QuickEdit {
             top_panel: make_top_panel(ctx, app, None),
-            unzoomed_layer: crate::ungap::make_unzoomed_layer(ctx, app),
+            magnifying_glass: MagnifyingGlass::new(ctx, false),
+            network_layer: crate::ungap::render_network_layer(ctx, app),
             route_sketcher: None,
         })
     }
@@ -36,6 +38,7 @@ impl State<App> for QuickEdit {
         if self.route_sketcher.is_none() {
             ctx.canvas_movement();
         }
+        self.magnifying_glass.event(ctx, app);
 
         match self.top_panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
@@ -115,7 +118,8 @@ impl State<App> for QuickEdit {
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.top_panel.draw(g);
         if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
-            g.redraw(&self.unzoomed_layer);
+            g.redraw(&self.network_layer);
+            self.magnifying_glass.draw(g, app);
         }
         if let Some(ref rs) = self.route_sketcher {
             rs.draw(g);
