@@ -267,29 +267,15 @@
 <span id="265">265</span>
 <span id="266">266</span>
 <span id="267">267</span>
-<span id="268">268</span>
-<span id="269">269</span>
-<span id="270">270</span>
-<span id="271">271</span>
-<span id="272">272</span>
-<span id="273">273</span>
-<span id="274">274</span>
-<span id="275">275</span>
-<span id="276">276</span>
-<span id="277">277</span>
-<span id="278">278</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">FindClosest</span>};
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">IntersectionID</span>, <span class="ident">Map</span>};
-<span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>,
-    <span class="ident">State</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
-};
+<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">IntersectionID</span>, <span class="ident">Map</span>, <span class="ident">RoadID</span>};
+<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Line</span>, <span class="ident">TextExt</span>, <span class="ident">Widget</span>};
 
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::app::App</span>;
 
+<span class="comment">// TODO Supercede RoadSelector, probably..</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RouteSketcher</span> {
-    <span class="ident">top_panel</span>: <span class="ident">Panel</span>,
     <span class="ident">snap_to_intersections</span>: <span class="ident">FindClosest</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span>,
     <span class="ident">route</span>: <span class="ident">Route</span>,
     <span class="ident">mode</span>: <span class="ident">Mode</span>,
@@ -297,21 +283,18 @@
 }
 
 <span class="kw">impl</span> <span class="ident">RouteSketcher</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">RouteSketcher</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">snap_to_intersections</span> <span class="op">=</span> <span class="ident">FindClosest::new</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_bounds</span>());
         <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">all_intersections</span>() {
             <span class="ident">snap_to_intersections</span>.<span class="ident">add</span>(<span class="ident">i</span>.<span class="ident">id</span>, <span class="ident">i</span>.<span class="ident">polygon</span>.<span class="ident">points</span>());
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rs</span> <span class="op">=</span> <span class="ident">RouteSketcher</span> {
-            <span class="ident">top_panel</span>: <span class="ident">Panel::empty</span>(<span class="ident">ctx</span>),
+        <span class="ident">RouteSketcher</span> {
             <span class="ident">snap_to_intersections</span>,
             <span class="ident">route</span>: <span class="ident">Route::new</span>(),
             <span class="ident">mode</span>: <span class="ident">Mode::Neutral</span>,
             <span class="ident">preview</span>: <span class="ident">Drawable::empty</span>(<span class="ident">ctx</span>),
-        };
-        <span class="ident">rs</span>.<span class="ident">update_top_panel</span>(<span class="ident">ctx</span>);
-        <span class="ident">Box::new</span>(<span class="ident">rs</span>)
+        }
     }
 
     <span class="kw">fn</span> <span class="ident">mouseover_i</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span> {
@@ -431,8 +414,8 @@
         <span class="self">self</span>.<span class="ident">preview</span> <span class="op">=</span> <span class="ident">batch</span>.<span class="ident">upload</span>(<span class="ident">ctx</span>);
     }
 
-    <span class="kw">fn</span> <span class="ident">update_top_panel</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) {
-        <span class="self">self</span>.<span class="ident">top_panel</span> <span class="op">=</span> <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_widget_to_describe</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+        <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
             <span class="ident">Line</span>(<span class="string">&quot;Draw a route&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
             <span class="kw">if</span> <span class="self">self</span>.<span class="ident">route</span>.<span class="ident">waypoints</span>.<span class="ident">is_empty</span>() {
                 <span class="string">&quot;Click to start a route&quot;</span>
@@ -447,42 +430,37 @@
                 <span class="self">self</span>.<span class="ident">route</span>.<span class="ident">full_path</span>.<span class="ident">len</span>().<span class="ident">max</span>(<span class="number">1</span>) <span class="op">-</span> <span class="number">1</span>
             )
             .<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
-            <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_solid_destructive</span>
-                .<span class="ident">text</span>(<span class="string">&quot;Cancel&quot;</span>)
-                .<span class="ident">hotkey</span>(<span class="ident">Key::Escape</span>)
-                .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-        ]))
-        .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::Center</span>, <span class="ident">VerticalAlignment::Top</span>)
-        .<span class="ident">build</span>(<span class="ident">ctx</span>);
+        ])
     }
-}
 
-<span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">RouteSketcher</span> {
-    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">top_panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
-                <span class="string">&quot;Cancel&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">return</span> <span class="ident">Transition::Pop</span>;
-                }
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
-            }
-        }
-
+    <span class="doccomment">/// True if anything changed</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="kw">let</span> <span class="ident">orig_route</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">route</span>.<span class="ident">clone</span>();
         <span class="kw">let</span> <span class="ident">orig_mode</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">mode</span>.<span class="ident">clone</span>();
         <span class="self">self</span>.<span class="ident">update_mode</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">route</span> <span class="op">!</span><span class="op">=</span> <span class="ident">orig_route</span> <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">mode</span> <span class="op">!</span><span class="op">=</span> <span class="ident">orig_mode</span> {
             <span class="self">self</span>.<span class="ident">update_preview</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
-            <span class="self">self</span>.<span class="ident">update_top_panel</span>(<span class="ident">ctx</span>);
+            <span class="bool-val">true</span>
+        } <span class="kw">else</span> {
+            <span class="bool-val">false</span>
         }
-
-        <span class="ident">Transition::Keep</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
-        <span class="self">self</span>.<span class="ident">top_panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>) {
         <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">preview</span>);
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">consume_roads</span>(<span class="self">self</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">roads</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+        <span class="kw">for</span> <span class="ident">pair</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">route</span>.<span class="ident">full_path</span>.<span class="ident">windows</span>(<span class="number">2</span>) {
+            <span class="comment">// TODO Inefficient!</span>
+            <span class="ident">roads</span>.<span class="ident">push</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">find_road_between</span>(<span class="ident">pair</span>[<span class="number">0</span>], <span class="ident">pair</span>[<span class="number">1</span>]).<span class="ident">unwrap</span>());
+        }
+        <span class="ident">roads</span>
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_route_started</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="ident">route</span>.<span class="ident">waypoints</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">1</span>
     }
 }
 
