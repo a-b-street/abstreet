@@ -10,7 +10,8 @@ use widgetry::{
 
 use crate::app::{App, Transition};
 use crate::common::Warping;
-use crate::edit::{apply_map_edits, RoadEditor};
+use crate::edit::{apply_map_edits, LoadEdits, RoadEditor, SaveEdits};
+use crate::sandbox::gameplay::GameplayMode;
 use crate::ungap::magnifying::MagnifyingGlass;
 use crate::ungap::route_sketcher::RouteSketcher;
 
@@ -53,6 +54,7 @@ impl State<App> for QuickEdit {
                 self.changelist_key = changelist_key;
                 self.network_layer = crate::ungap::render_network_layer(ctx, app);
                 self.edits_layer = render_edits(ctx, app);
+                self.top_panel = make_top_panel(ctx, app, self.route_sketcher.as_ref());
             }
         }
 
@@ -67,7 +69,25 @@ impl State<App> for QuickEdit {
                     return Transition::Pop;
                 }
                 "Open a proposal" => {
-                    // TODO
+                    // Dummy mode, just to allow all edits
+                    // TODO Actually, should we make one to express that only road edits are
+                    // relevant?
+                    let mode = GameplayMode::Freeform(app.primary.map.get_name().clone());
+
+                    // TODO Do we want to do SaveEdits first if unsaved_edits()? We have
+                    // auto-saving... and after loading an old "untitled proposal", it looks
+                    // unsaved.
+                    return Transition::Push(LoadEdits::new_state(ctx, app, mode));
+                }
+                "Save this proposal" => {
+                    return Transition::Push(SaveEdits::new_state(
+                        ctx,
+                        app,
+                        format!("Save \"{}\" as", app.primary.map.get_edits().edits_name),
+                        false,
+                        Some(Transition::Pop),
+                        Box::new(|_, _| {}),
+                    ));
                 }
                 "Sketch a route" => {
                     app.primary.current_selection = None;
@@ -189,13 +209,19 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App, rs: Option<&RouteSketcher>) -> 
         .into_widget(ctx),
     );
     file_management.push(crate::ungap::legend(ctx, EDITED_COLOR, "changed road"));
-    file_management.push(
+    file_management.push(Widget::row(vec![
         ctx.style()
             .btn_outline
             .text("Open a proposal")
             .hotkey(lctrl(Key::O))
             .build_def(ctx),
-    );
+        ctx.style()
+            .btn_outline
+            .text("Save this proposal")
+            .hotkey(lctrl(Key::S))
+            .disabled(edits.commands.is_empty())
+            .build_def(ctx),
+    ]));
     // TODO Should undo/redo, save, share functionality also live here?
 
     let edit = if let Some(rs) = rs {

@@ -538,13 +538,14 @@ impl State<App> for SaveEdits {
     }
 }
 
-struct LoadEdits {
+pub struct LoadEdits {
     panel: Panel,
     mode: GameplayMode,
 }
 
 impl LoadEdits {
-    fn new_state(ctx: &mut EventCtx, app: &App, mode: GameplayMode) -> Box<dyn State<App>> {
+    /// Mode is just used for `allows`.
+    pub fn new_state(ctx: &mut EventCtx, app: &App, mode: GameplayMode) -> Box<dyn State<App>> {
         let current_edits_name = &app.primary.map.get_edits().edits_name;
         let your_edits = vec![
             Line("Your proposals").small_heading().into_widget(ctx),
