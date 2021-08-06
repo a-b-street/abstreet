@@ -202,6 +202,7 @@ pub fn nice_map_name(name: &MapName) -> &str {
             ("phoenix", "loop101") => "Loop 101 (no local roads)",
             ("phoenix", "tempe") => "Tempe",
             ("providence", "downtown") => "Providence",
+            ("san_francisco", "downtown") => "San Francisco",
             ("seattle", "arboretum") => "Arboretum",
             ("seattle", "ballard") => "Ballard",
             ("seattle", "downtown") => "Downtown Seattle",

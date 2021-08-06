@@ -1465,6 +1465,11 @@
       "uncompressed_size_bytes": 4024511,
       "compressed_size_bytes": 4016710
     },
+    "data/input/shared/elevation/srtm/srtm.-123.37.tif": {
+      "checksum": "b1d61cfe57aedc547c8e58d5ff1bd81f",
+      "uncompressed_size_bytes": 3929132,
+      "compressed_size_bytes": 3919734
+    },
     "data/input/shared/elevation/srtm/srtm.-123.48.tif": {
       "checksum": "ad8b9c1c386cd00c137f9762761688e3",
       "uncompressed_size_bytes": 4191131,
@@ -1924,6 +1929,21 @@
       "checksum": "5b65c19a8659552a13bbff071f2fbb3d",
       "uncompressed_size_bytes": 4883400,
       "compressed_size_bytes": 1339212
+    },
+    "data/input/us/san_francisco/osm/downtown.osm": {
+      "checksum": "0b317f826a053e7d6ccdf72a87b28dc6",
+      "uncompressed_size_bytes": 118913492,
+      "compressed_size_bytes": 10739090
+    },
+    "data/input/us/san_francisco/osm/norcal-latest.osm.pbf": {
+      "checksum": "f4a2239f5eb429a6be5087544b5230f0",
+      "uncompressed_size_bytes": 484965267,
+      "compressed_size_bytes": 484488577
+    },
+    "data/input/us/san_francisco/raw_maps/downtown.bin": {
+      "checksum": "976f3fe3b4274148f6c99fab011d2450",
+      "uncompressed_size_bytes": 26024389,
+      "compressed_size_bytes": 7173932
     },
     "data/input/us/seattle/blockface.bin": {
       "checksum": "c5402f77d7cb81a1a7bfb60e90b699c8",
@@ -3984,6 +4004,11 @@
       "checksum": "afa36bf404ef1683be910cef6ac8ebe5",
       "uncompressed_size_bytes": 16397755,
       "compressed_size_bytes": 6070934
+    },
+    "data/system/us/san_francisco/maps/downtown.bin": {
+      "checksum": "a496550d5c211b06cfe3be3e25e4c97b",
+      "uncompressed_size_bytes": 55268059,
+      "compressed_size_bytes": 20756434
     },
     "data/system/us/seattle/city.bin": {
       "checksum": "1f372f8dd9a3a3a032e0379bfedc2704",
