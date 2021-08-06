@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["draw",""]]});
+initSidebarItems({"struct":[["MagnifyingGlass",""]]});

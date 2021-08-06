@@ -328,36 +328,6 @@
 <span id="326">326</span>
 <span id="327">327</span>
 <span id="328">328</span>
-<span id="329">329</span>
-<span id="330">330</span>
-<span id="331">331</span>
-<span id="332">332</span>
-<span id="333">333</span>
-<span id="334">334</span>
-<span id="335">335</span>
-<span id="336">336</span>
-<span id="337">337</span>
-<span id="338">338</span>
-<span id="339">339</span>
-<span id="340">340</span>
-<span id="341">341</span>
-<span id="342">342</span>
-<span id="343">343</span>
-<span id="344">344</span>
-<span id="345">345</span>
-<span id="346">346</span>
-<span id="347">347</span>
-<span id="348">348</span>
-<span id="349">349</span>
-<span id="350">350</span>
-<span id="351">351</span>
-<span id="352">352</span>
-<span id="353">353</span>
-<span id="354">354</span>
-<span id="355">355</span>
-<span id="356">356</span>
-<span id="357">357</span>
-<span id="358">358</span>
 </pre><pre class="rust">
 <span class="kw">mod</span> <span class="ident">edit</span>;
 <span class="kw">mod</span> <span class="ident">magnifying</span>;
@@ -365,15 +335,15 @@
 
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Pt2D</span>};
 <span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">nice_map_name</span>, <span class="ident">CityPicker</span>, <span class="ident">PopupMsg</span>};
-<span class="kw">use</span> <span class="ident">map_gui::ID</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">LaneType</span>, <span class="ident">PathConstraints</span>, <span class="ident">Road</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">lctrl</span>, <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">Filler</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>,
-    <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">ScreenDims</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">Toggle</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">lctrl</span>, <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>,
+    <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">Toggle</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::common::Warping</span>;
+<span class="kw">use</span> <span class="ident">magnifying::MagnifyingGlass</span>;
 
 <span class="comment">// #74B0FC</span>
 <span class="kw">const</span> <span class="ident">PROTECTED_BIKE_LANE</span>: <span class="ident">Color</span> <span class="op">=</span> <span class="ident">Color::rgb_f</span>(<span class="number">0.455</span>, <span class="number">0.69</span>, <span class="number">0.988</span>);
@@ -383,8 +353,8 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ExploreMap</span> {
     <span class="ident">top_panel</span>: <span class="ident">Panel</span>,
     <span class="ident">legend</span>: <span class="ident">Panel</span>,
-    <span class="ident">magnifying_glass</span>: <span class="ident">Panel</span>,
-    <span class="ident">unzoomed_layer</span>: <span class="ident">Drawable</span>,
+    <span class="ident">magnifying_glass</span>: <span class="ident">MagnifyingGlass</span>,
+    <span class="ident">network_layer</span>: <span class="ident">Drawable</span>,
     <span class="ident">elevation</span>: <span class="ident">bool</span>,
 }
 
@@ -395,8 +365,8 @@
         <span class="ident">Box::new</span>(<span class="ident">ExploreMap</span> {
             <span class="ident">top_panel</span>: <span class="ident">make_top_panel</span>(<span class="ident">ctx</span>),
             <span class="ident">legend</span>: <span class="ident">make_legend</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="bool-val">false</span>),
-            <span class="ident">magnifying_glass</span>: <span class="ident">make_magnifying_glass</span>(<span class="ident">ctx</span>),
-            <span class="ident">unzoomed_layer</span>: <span class="ident">make_unzoomed_layer</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
+            <span class="ident">magnifying_glass</span>: <span class="ident">MagnifyingGlass::new</span>(<span class="ident">ctx</span>, <span class="bool-val">true</span>),
+            <span class="ident">network_layer</span>: <span class="ident">render_network_layer</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
             <span class="ident">elevation</span>: <span class="bool-val">false</span>,
         })
     }
@@ -406,43 +376,27 @@
     <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span> {
         <span class="ident">ctx</span>.<span class="ident">canvas_movement</span>();
 
-        <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">redo_mouseover</span>() {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">label</span> <span class="op">=</span> <span class="ident">Text::new</span>();
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ID::Road</span>(<span class="ident">r</span>)) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">mouseover_unzoomed_roads_and_intersections</span>(<span class="ident">ctx</span>) {
-                <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>);
-                <span class="ident">label</span>.<span class="ident">add_line</span>(<span class="ident">Line</span>(<span class="ident">road</span>.<span class="ident">get_name</span>(<span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">language</span>.<span class="ident">as_ref</span>())).<span class="ident">small_heading</span>());
-                <span class="comment">// TODO Indicate which direction is uphill</span>
-                <span class="ident">label</span>.<span class="ident">add_line</span>(<span class="ident">Line</span>(<span class="macro">format!</span>(
-                    <span class="string">&quot;{}% incline&quot;</span>,
-                    (<span class="ident">road</span>.<span class="ident">percent_incline</span>.<span class="ident">abs</span>() <span class="op">*</span> <span class="number">100.0</span>).<span class="ident">round</span>()
-                )));
-            } <span class="kw">else</span> {
-                <span class="comment">// TODO Jittery panel</span>
-            }
-            <span class="ident">label</span>.<span class="ident">add_line</span>(<span class="ident">Line</span>(<span class="string">&quot;Click for details&quot;</span>).<span class="ident">secondary</span>());
-            <span class="kw">let</span> <span class="ident">label</span> <span class="op">=</span> <span class="ident">label</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>);
-            <span class="self">self</span>.<span class="ident">magnifying_glass</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;label&quot;</span>, <span class="ident">label</span>);
+        <span class="self">self</span>.<span class="ident">magnifying_glass</span>.<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
 
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">elevation</span> {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">label</span> <span class="op">=</span> <span class="ident">Text::new</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>);
+        <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">redo_mouseover</span>() <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">elevation</span> {
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">label</span> <span class="op">=</span> <span class="ident">Text::new</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>);
 
-                <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span> <span class="op">&lt;</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">min_zoom_for_detail</span> {
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt</span>) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_map_space</span>() {
-                        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">elevation</span>, <span class="kw">_</span>)) <span class="op">=</span> <span class="ident">app</span>
-                            .<span class="ident">session</span>
-                            .<span class="ident">elevation_contours</span>
-                            .<span class="ident">value</span>()
-                            .<span class="ident">unwrap</span>()
-                            .<span class="number">0</span>
-                            .<span class="ident">closest_pt</span>(<span class="ident">pt</span>, <span class="ident">Distance::meters</span>(<span class="number">300.0</span>))
-                        {
-                            <span class="ident">label</span> <span class="op">=</span> <span class="ident">Line</span>(<span class="macro">format!</span>(<span class="string">&quot;{} ft&quot;</span>, <span class="ident">elevation</span>.<span class="ident">to_feet</span>().<span class="ident">round</span>()))
-                                .<span class="ident">into_widget</span>(<span class="ident">ctx</span>);
-                        }
+            <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span> <span class="op">&lt;</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">min_zoom_for_detail</span> {
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt</span>) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_map_space</span>() {
+                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">elevation</span>, <span class="kw">_</span>)) <span class="op">=</span> <span class="ident">app</span>
+                        .<span class="ident">session</span>
+                        .<span class="ident">elevation_contours</span>
+                        .<span class="ident">value</span>()
+                        .<span class="ident">unwrap</span>()
+                        .<span class="number">0</span>
+                        .<span class="ident">closest_pt</span>(<span class="ident">pt</span>, <span class="ident">Distance::meters</span>(<span class="number">300.0</span>))
+                    {
+                        <span class="ident">label</span> <span class="op">=</span>
+                            <span class="ident">Line</span>(<span class="macro">format!</span>(<span class="string">&quot;{} ft&quot;</span>, <span class="ident">elevation</span>.<span class="ident">to_feet</span>().<span class="ident">round</span>())).<span class="ident">into_widget</span>(<span class="ident">ctx</span>);
                     }
                 }
-                <span class="self">self</span>.<span class="ident">legend</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;current elevation&quot;</span>, <span class="ident">label</span>);
             }
+            <span class="self">self</span>.<span class="ident">legend</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;current elevation&quot;</span>, <span class="ident">label</span>);
         }
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt</span>) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_map_space</span>() {
@@ -524,7 +478,7 @@
         <span class="self">self</span>.<span class="ident">top_panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
         <span class="self">self</span>.<span class="ident">legend</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
         <span class="kw">if</span> <span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span> <span class="op">&lt;</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">min_zoom_for_detail</span> {
-            <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">unzoomed_layer</span>);
+            <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">network_layer</span>);
 
             <span class="kw">if</span> <span class="self">self</span>.<span class="ident">elevation</span> {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">draw</span>)) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">elevation_contours</span>.<span class="ident">value</span>() {
@@ -532,8 +486,7 @@
                 }
             }
 
-            <span class="self">self</span>.<span class="ident">magnifying_glass</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-            <span class="ident">magnifying::draw</span>(<span class="ident">g</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">magnifying_glass</span>.<span class="ident">rect_of</span>(<span class="string">&quot;glass&quot;</span>));
+            <span class="self">self</span>.<span class="ident">magnifying_glass</span>.<span class="ident">draw</span>(<span class="ident">g</span>, <span class="ident">app</span>);
         }
     }
 }
@@ -630,20 +583,7 @@
     ])
 }
 
-<span class="kw">fn</span> <span class="ident">make_magnifying_glass</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Panel</span> {
-    <span class="ident">Panel::new_builder</span>(
-        <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-            <span class="ident">Filler::fixed_dims</span>(<span class="ident">ScreenDims::new</span>(<span class="number">300.0</span>, <span class="number">300.0</span>)).<span class="ident">named</span>(<span class="string">&quot;glass&quot;</span>),
-            <span class="ident">Text::new</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;label&quot;</span>),
-        ])
-        .<span class="ident">padding</span>(<span class="number">16</span>)
-        .<span class="ident">outline</span>((<span class="number">4.0</span>, <span class="ident">Color::BLACK</span>)),
-    )
-    .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::LeftInset</span>, <span class="ident">VerticalAlignment::TopInset</span>)
-    .<span class="ident">build</span>(<span class="ident">ctx</span>)
-}
-
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">make_unzoomed_layer</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Drawable</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">render_network_layer</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Drawable</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
     <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">all_roads</span>() {
         <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">is_cycleway</span>() {
