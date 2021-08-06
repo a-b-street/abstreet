@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["make_quick_changes",""],["make_top_panel",""],["maybe_add_bike_lanes",""]],"struct":[["QuickEdit",""]]});
+initSidebarItems({"constant":[["EDITED_COLOR",""]],"fn":[["make_quick_changes",""],["make_top_panel",""],["maybe_add_bike_lanes",""],["render_edits",""]],"struct":[["QuickEdit",""]]});

@@ -328,6 +328,20 @@
 <span id="326">326</span>
 <span id="327">327</span>
 <span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
 </pre><pre class="rust">
 <span class="kw">mod</span> <span class="ident">edit</span>;
 <span class="kw">mod</span> <span class="ident">magnifying</span>;
@@ -356,11 +370,14 @@
     <span class="ident">magnifying_glass</span>: <span class="ident">MagnifyingGlass</span>,
     <span class="ident">network_layer</span>: <span class="ident">Drawable</span>,
     <span class="ident">elevation</span>: <span class="ident">bool</span>,
+
+    <span class="ident">changelist_key</span>: (<span class="ident">String</span>, <span class="ident">usize</span>),
 }
 
 <span class="kw">impl</span> <span class="ident">ExploreMap</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">show_building_driveways</span> <span class="op">=</span> <span class="bool-val">false</span>;
+        <span class="kw">let</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>();
 
         <span class="ident">Box::new</span>(<span class="ident">ExploreMap</span> {
             <span class="ident">top_panel</span>: <span class="ident">make_top_panel</span>(<span class="ident">ctx</span>),
@@ -368,12 +385,23 @@
             <span class="ident">magnifying_glass</span>: <span class="ident">MagnifyingGlass::new</span>(<span class="ident">ctx</span>, <span class="bool-val">true</span>),
             <span class="ident">network_layer</span>: <span class="ident">render_network_layer</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
             <span class="ident">elevation</span>: <span class="bool-val">false</span>,
+
+            <span class="ident">changelist_key</span>: (<span class="ident">edits</span>.<span class="ident">edits_name</span>.<span class="ident">clone</span>(), <span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">len</span>()),
         })
     }
 }
 
 <span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ExploreMap</span> {
     <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span> {
+        {
+            <span class="kw">let</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>();
+            <span class="kw">let</span> <span class="ident">changelist_key</span> <span class="op">=</span> (<span class="ident">edits</span>.<span class="ident">edits_name</span>.<span class="ident">clone</span>(), <span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">len</span>());
+            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">changelist_key</span> <span class="op">!</span><span class="op">=</span> <span class="ident">changelist_key</span> {
+                <span class="self">self</span>.<span class="ident">changelist_key</span> <span class="op">=</span> <span class="ident">changelist_key</span>;
+                <span class="self">self</span>.<span class="ident">network_layer</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::ungap::render_network_layer</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+            }
+        }
+
         <span class="ident">ctx</span>.<span class="ident">canvas_movement</span>();
 
         <span class="self">self</span>.<span class="ident">magnifying_glass</span>.<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
@@ -566,7 +594,7 @@
     .<span class="ident">build</span>(<span class="ident">ctx</span>)
 }
 
-<span class="kw">fn</span> <span class="ident">legend</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">color</span>: <span class="ident">Color</span>, <span class="ident">label</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">legend</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">color</span>: <span class="ident">Color</span>, <span class="ident">label</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
     <span class="kw">let</span> <span class="ident">radius</span> <span class="op">=</span> <span class="number">15.0</span>;
     <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
         <span class="ident">GeomBatch::from</span>(<span class="macro">vec!</span>[(
