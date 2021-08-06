@@ -338,6 +338,32 @@
 <span id="336">336</span>
 <span id="337">337</span>
 <span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
+<span id="347">347</span>
+<span id="348">348</span>
+<span id="349">349</span>
+<span id="350">350</span>
+<span id="351">351</span>
+<span id="352">352</span>
+<span id="353">353</span>
+<span id="354">354</span>
+<span id="355">355</span>
+<span id="356">356</span>
+<span id="357">357</span>
+<span id="358">358</span>
+<span id="359">359</span>
+<span id="360">360</span>
+<span id="361">361</span>
+<span id="362">362</span>
+<span id="363">363</span>
+<span id="364">364</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">abstutil::Tags</span>;
 <span class="kw">use</span> <span class="ident">geom::Distance</span>;
@@ -351,7 +377,8 @@
 
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::common::Warping</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::edit</span>::{<span class="ident">apply_map_edits</span>, <span class="ident">RoadEditor</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::edit</span>::{<span class="ident">apply_map_edits</span>, <span class="ident">LoadEdits</span>, <span class="ident">RoadEditor</span>, <span class="ident">SaveEdits</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::sandbox::gameplay::GameplayMode</span>;
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::ungap::magnifying::MagnifyingGlass</span>;
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::ungap::route_sketcher::RouteSketcher</span>;
 
@@ -394,6 +421,7 @@
                 <span class="self">self</span>.<span class="ident">changelist_key</span> <span class="op">=</span> <span class="ident">changelist_key</span>;
                 <span class="self">self</span>.<span class="ident">network_layer</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::ungap::render_network_layer</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
                 <span class="self">self</span>.<span class="ident">edits_layer</span> <span class="op">=</span> <span class="ident">render_edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+                <span class="self">self</span>.<span class="ident">top_panel</span> <span class="op">=</span> <span class="ident">make_top_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">route_sketcher</span>.<span class="ident">as_ref</span>());
             }
         }
 
@@ -408,7 +436,25 @@
                     <span class="kw">return</span> <span class="ident">Transition::Pop</span>;
                 }
                 <span class="string">&quot;Open a proposal&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="comment">// TODO</span>
+                    <span class="comment">// Dummy mode, just to allow all edits</span>
+                    <span class="comment">// TODO Actually, should we make one to express that only road edits are</span>
+                    <span class="comment">// relevant?</span>
+                    <span class="kw">let</span> <span class="ident">mode</span> <span class="op">=</span> <span class="ident">GameplayMode::Freeform</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">clone</span>());
+
+                    <span class="comment">// TODO Do we want to do SaveEdits first if unsaved_edits()? We have</span>
+                    <span class="comment">// auto-saving... and after loading an old &quot;untitled proposal&quot;, it looks</span>
+                    <span class="comment">// unsaved.</span>
+                    <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">LoadEdits::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">mode</span>));
+                }
+                <span class="string">&quot;Save this proposal&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">SaveEdits::new_state</span>(
+                        <span class="ident">ctx</span>,
+                        <span class="ident">app</span>,
+                        <span class="macro">format!</span>(<span class="string">&quot;Save \&quot;{}\&quot; as&quot;</span>, <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">edits_name</span>),
+                        <span class="bool-val">false</span>,
+                        <span class="prelude-val">Some</span>(<span class="ident">Transition::Pop</span>),
+                        <span class="ident">Box::new</span>(<span class="op">|</span><span class="kw">_</span>, <span class="kw">_</span><span class="op">|</span> {}),
+                    ));
                 }
                 <span class="string">&quot;Sketch a route&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> <span class="op">=</span> <span class="prelude-val">None</span>;
@@ -530,13 +576,19 @@
         .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
     );
     <span class="ident">file_management</span>.<span class="ident">push</span>(<span class="kw">crate</span><span class="ident">::ungap::legend</span>(<span class="ident">ctx</span>, <span class="ident">EDITED_COLOR</span>, <span class="string">&quot;changed road&quot;</span>));
-    <span class="ident">file_management</span>.<span class="ident">push</span>(
+    <span class="ident">file_management</span>.<span class="ident">push</span>(<span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
         <span class="ident">ctx</span>.<span class="ident">style</span>()
             .<span class="ident">btn_outline</span>
             .<span class="ident">text</span>(<span class="string">&quot;Open a proposal&quot;</span>)
             .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key::O</span>))
             .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-    );
+        <span class="ident">ctx</span>.<span class="ident">style</span>()
+            .<span class="ident">btn_outline</span>
+            .<span class="ident">text</span>(<span class="string">&quot;Save this proposal&quot;</span>)
+            .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key::S</span>))
+            .<span class="ident">disabled</span>(<span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">is_empty</span>())
+            .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+    ]));
     <span class="comment">// TODO Should undo/redo, save, share functionality also live here?</span>
 
     <span class="kw">let</span> <span class="ident">edit</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">rs</span>) <span class="op">=</span> <span class="ident">rs</span> {
