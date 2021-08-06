@@ -14,10 +14,12 @@ use crate::app::{App, Transition};
 use crate::common::Warping;
 use magnifying::MagnifyingGlass;
 
-// #74B0FC
-const PROTECTED_BIKE_LANE: Color = Color::rgb_f(0.455, 0.69, 0.988);
-const PAINTED_BIKE_LANE: Color = Color::GREEN;
-const GREENWAY: Color = Color::BLUE;
+lazy_static::lazy_static! {
+    static ref DEDICATED_TRAIL: Color = Color::GREEN;
+    static ref PROTECTED_BIKE_LANE: Color = Color::hex("#A4DE02");
+    static ref PAINTED_BIKE_LANE: Color = Color::hex("#76BA1B");
+    static ref GREENWAY: Color = Color::hex("#4C9A2A");
+}
 
 pub struct ExploreMap {
     top_panel: Panel,
@@ -225,10 +227,10 @@ fn make_legend(ctx: &mut EventCtx, app: &App, elevation: bool) -> Panel {
         legend(ctx, app.cs.unzoomed_highway, "highway"),
         legend(ctx, app.cs.unzoomed_arterial, "major street"),
         legend(ctx, app.cs.unzoomed_residential, "minor street"),
-        legend(ctx, app.cs.unzoomed_trail, "trail"),
-        legend(ctx, PROTECTED_BIKE_LANE, "protected bike lane"),
-        legend(ctx, PAINTED_BIKE_LANE, "painted bike lane"),
-        legend(ctx, GREENWAY, "Stay Healthy Street / greenway"),
+        legend(ctx, *DEDICATED_TRAIL, "trail"),
+        legend(ctx, *PROTECTED_BIKE_LANE, "protected bike lane"),
+        legend(ctx, *PAINTED_BIKE_LANE, "painted bike lane"),
+        legend(ctx, *GREENWAY, "Stay Healthy Street / greenway"),
         // TODO Distinguish door-zone bike lanes?
         // TODO Call out bike turning boxes?
         // TODO Call out bike signals?
@@ -268,14 +270,21 @@ pub fn legend(ctx: &mut EventCtx, color: Color, label: &str) -> Widget {
 
 pub fn render_network_layer(ctx: &mut EventCtx, app: &App) -> Drawable {
     let mut batch = GeomBatch::new();
+    // The basemap colors are beautiful, but we want to emphasize the bike network, so all's foggy
+    // in love and war...
+    batch.push(
+        Color::BLACK.alpha(0.4),
+        app.primary.map.get_boundary_polygon().clone(),
+    );
+
     for r in app.primary.map.all_roads() {
         if r.is_cycleway() {
+            batch.push(*DEDICATED_TRAIL, r.get_thick_polygon(&app.primary.map));
             continue;
         }
 
         if is_greenway(r) {
-            // TODO This color is going to look hilarious on top of the already bizarre pink
-            batch.push(GREENWAY.alpha(0.8), r.get_thick_polygon(&app.primary.map));
+            batch.push(*GREENWAY, r.get_thick_polygon(&app.primary.map));
         }
 
         // Don't cover up the arterial/local classification -- add thick side lines to show bike
@@ -311,16 +320,16 @@ pub fn render_network_layer(ctx: &mut EventCtx, app: &App) -> Drawable {
                 (1.0, bike_lane_right, buffer_right),
             ] {
                 let color = if bike_lane && buffer {
-                    PROTECTED_BIKE_LANE
+                    *PROTECTED_BIKE_LANE
                 } else if bike_lane {
-                    PAINTED_BIKE_LANE
+                    *PAINTED_BIKE_LANE
                 } else {
                     // If we happen to have a buffer, but no bike lane, let's just not ask
                     // questions...
                     continue;
                 };
                 if let Ok(pl) = r.center_pts.shift_either_direction(shift * half_width) {
-                    batch.push(color, pl.make_polygons(0.5 * half_width));
+                    batch.push(color, pl.make_polygons(0.9 * half_width));
                 }
             }
         }
