@@ -1,14 +1,11 @@
 use geom::{Circle, Distance, FindClosest};
-use map_model::{IntersectionID, Map};
-use widgetry::{
-    Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
-    State, TextExt, VerticalAlignment, Widget,
-};
+use map_model::{IntersectionID, Map, RoadID};
+use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, TextExt, Widget};
 
-use crate::app::{App, Transition};
+use crate::app::App;
 
+// TODO Supercede RoadSelector, probably..
 pub struct RouteSketcher {
-    top_panel: Panel,
     snap_to_intersections: FindClosest<IntersectionID>,
     route: Route,
     mode: Mode,
@@ -16,21 +13,18 @@ pub struct RouteSketcher {
 }
 
 impl RouteSketcher {
-    pub fn new_state(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
+    pub fn new(ctx: &mut EventCtx, app: &App) -> RouteSketcher {
         let mut snap_to_intersections = FindClosest::new(app.primary.map.get_bounds());
         for i in app.primary.map.all_intersections() {
             snap_to_intersections.add(i.id, i.polygon.points());
         }
 
-        let mut rs = RouteSketcher {
-            top_panel: Panel::empty(ctx),
+        RouteSketcher {
             snap_to_intersections,
             route: Route::new(),
             mode: Mode::Neutral,
             preview: Drawable::empty(ctx),
-        };
-        rs.update_top_panel(ctx);
-        Box::new(rs)
+        }
     }
 
     fn mouseover_i(&self, ctx: &EventCtx) -> Option<IntersectionID> {
@@ -150,8 +144,8 @@ impl RouteSketcher {
         self.preview = batch.upload(ctx);
     }
 
-    fn update_top_panel(&mut self, ctx: &mut EventCtx) {
-        self.top_panel = Panel::new_builder(Widget::col(vec![
+    pub fn get_widget_to_describe(&self, ctx: &mut EventCtx) -> Widget {
+        Widget::col(vec![
             Line("Draw a route").small_heading().into_widget(ctx),
             if self.route.waypoints.is_empty() {
                 "Click to start a route"
@@ -166,42 +160,37 @@ impl RouteSketcher {
                 self.route.full_path.len().max(1) - 1
             )
             .text_widget(ctx),
-            ctx.style()
-                .btn_solid_destructive
-                .text("Cancel")
-                .hotkey(Key::Escape)
-                .build_def(ctx),
-        ]))
-        .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
-        .build(ctx);
+        ])
     }
-}
 
-impl State<App> for RouteSketcher {
-    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        if let Outcome::Clicked(x) = self.top_panel.event(ctx) {
-            match x.as_ref() {
-                "Cancel" => {
-                    return Transition::Pop;
-                }
-                _ => unreachable!(),
-            }
-        }
-
+    /// True if anything changed
+    pub fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> bool {
         let orig_route = self.route.clone();
         let orig_mode = self.mode.clone();
         self.update_mode(ctx, app);
         if self.route != orig_route || self.mode != orig_mode {
             self.update_preview(ctx, app);
-            self.update_top_panel(ctx);
+            true
+        } else {
+            false
         }
-
-        Transition::Keep
     }
 
-    fn draw(&self, g: &mut GfxCtx, _: &App) {
-        self.top_panel.draw(g);
+    pub fn draw(&self, g: &mut GfxCtx) {
         g.redraw(&self.preview);
+    }
+
+    pub fn consume_roads(self, app: &App) -> Vec<RoadID> {
+        let mut roads = Vec::new();
+        for pair in self.route.full_path.windows(2) {
+            // TODO Inefficient!
+            roads.push(app.primary.map.find_road_between(pair[0], pair[1]).unwrap());
+        }
+        roads
+    }
+
+    pub fn is_route_started(&self) -> bool {
+        self.route.waypoints.len() > 1
     }
 }
 

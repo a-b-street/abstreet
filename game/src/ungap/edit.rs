@@ -1,93 +1,98 @@
 use abstutil::Tags;
+use geom::Distance;
 use map_gui::tools::PopupMsg;
 use map_gui::ID;
-use map_model::{BufferType, Direction, EditCmd, EditRoad, LaneSpec, LaneType};
+use map_model::{BufferType, Direction, EditCmd, EditRoad, LaneSpec, LaneType, RoadID};
 use widgetry::{
-    Choice, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State,
-    TextExt, VerticalAlignment, Widget,
+    lctrl, Choice, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
+    State, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
-use crate::common::{RoadSelector, Warping};
+use crate::common::Warping;
 use crate::edit::{apply_map_edits, RoadEditor};
+use crate::ungap::route_sketcher::RouteSketcher;
 
 pub struct QuickEdit {
     top_panel: Panel,
-    selector: RoadSelector,
+    // The base layer, showing cycle infra
     unzoomed_layer: Drawable,
+    // TODO A layer showing edits. Use app.primary.map.get_edits().changed_roads
+    route_sketcher: Option<RouteSketcher>,
 }
 
 impl QuickEdit {
     pub fn new_state(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State<App>> {
-        let selector =
-            RoadSelector::new(ctx, app, app.primary.map.get_edits().changed_roads.clone());
-        let top_panel = make_top_panel(ctx, &selector);
         Box::new(QuickEdit {
-            top_panel,
-            selector,
+            top_panel: make_top_panel(ctx, app, None),
             unzoomed_layer: crate::ungap::make_unzoomed_layer(ctx, app),
+            route_sketcher: None,
         })
     }
 }
 
 impl State<App> for QuickEdit {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+        if self.route_sketcher.is_none() {
+            ctx.canvas_movement();
+        }
+
         match self.top_panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
-                "Back" => {
+                "close" => {
+                    // TODO If we edited anything, regenerate the main ExploreMap layer. Would it
+                    // be weird to always reset the elevation layer and anything else over there?
                     return Transition::Pop;
+                }
+                "Open a proposal" => {
+                    // TODO
+                }
+                "Sketch a route" => {
+                    app.primary.current_selection = None;
+                    self.route_sketcher = Some(RouteSketcher::new(ctx, app));
+                    self.top_panel = make_top_panel(ctx, app, self.route_sketcher.as_ref());
                 }
                 "Add bike lanes" => {
                     let messages = make_quick_changes(
                         ctx,
                         app,
-                        &self.selector,
+                        self.route_sketcher.take().unwrap().consume_roads(app),
                         self.top_panel.dropdown_value("buffer type"),
                     );
-                    return Transition::Multi(vec![
-                        Transition::Pop,
-                        Transition::Replace(crate::ungap::ExploreMap::new_state(ctx, app)),
-                        Transition::Push(PopupMsg::new_state(ctx, "Changes made", messages)),
-                    ]);
+                    // TODO Recalculate edit layer
+                    self.top_panel = make_top_panel(ctx, app, None);
+                    return Transition::Push(PopupMsg::new_state(ctx, "Changes made", messages));
                 }
-                "Sketch a route" => {
-                    app.primary.current_selection = None;
-                    return Transition::Push(
-                        crate::ungap::route_sketcher::RouteSketcher::new_state(ctx, app),
-                    );
+                "Cancel" => {
+                    self.route_sketcher.take().unwrap();
+                    self.top_panel = make_top_panel(ctx, app, None);
                 }
-                x => {
-                    if self.selector.event(ctx, app, Some(x)) {
-                        let new_controls = self.selector.make_controls(ctx);
-                        self.top_panel.replace(ctx, "selector", new_controls);
-                    }
-                }
+                _ => unreachable!(),
             },
-            _ => {
-                if self.selector.event(ctx, app, None) {
-                    let new_controls = self.selector.make_controls(ctx);
-                    self.top_panel.replace(ctx, "selector", new_controls);
-                }
-            }
+            _ => {}
         }
 
-        // When we're not sketching a high-level path, click to edit a road in detail
-        if !self.selector.actively_modifying() && ctx.redo_mouseover() {
-            app.primary.current_selection =
-                match app.mouseover_unzoomed_roads_and_intersections(ctx) {
-                    Some(ID::Road(r)) => Some(r),
-                    Some(ID::Lane(l)) => Some(app.primary.map.get_l(l).parent),
-                    _ => None,
-                }
-                .and_then(|r| {
-                    if app.primary.map.get_r(r).is_light_rail() {
-                        None
-                    } else {
-                        Some(ID::Road(r))
+        if let Some(ref mut rs) = self.route_sketcher {
+            if rs.event(ctx, app) {
+                self.top_panel = make_top_panel(ctx, app, self.route_sketcher.as_ref());
+            }
+        } else {
+            // Click to edit a road in detail
+            if ctx.redo_mouseover() {
+                app.primary.current_selection =
+                    match app.mouseover_unzoomed_roads_and_intersections(ctx) {
+                        Some(ID::Road(r)) => Some(r),
+                        Some(ID::Lane(l)) => Some(app.primary.map.get_l(l).parent),
+                        _ => None,
                     }
-                });
-        }
-        if !self.selector.actively_modifying() {
+                    .and_then(|r| {
+                        if app.primary.map.get_r(r).is_light_rail() {
+                            None
+                        } else {
+                            Some(ID::Road(r))
+                        }
+                    });
+            }
             if let Some(ID::Road(r)) = app.primary.current_selection {
                 if ctx.normal_left_click() {
                     return Transition::Multi(vec![
@@ -109,60 +114,122 @@ impl State<App> for QuickEdit {
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.top_panel.draw(g);
-        self.selector.draw(g, app, true);
         if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
             g.redraw(&self.unzoomed_layer);
+        }
+        if let Some(ref rs) = self.route_sketcher {
+            rs.draw(g);
         }
     }
 }
 
-fn make_top_panel(ctx: &mut EventCtx, selector: &RoadSelector) -> Panel {
-    Panel::new_builder(Widget::col(vec![
-        Line("Draw your ideal bike network")
-            .small_heading()
-            .into_widget(ctx),
-        "Click a road to edit in detail, or use the tools below for quick edits".text_widget(ctx),
-        selector.make_controls(ctx).named("selector"),
-        // TODO This is confusing as it is. This view should first emphasize any existing edits.
-        // Then make it possible to edit in detail, or launch a tool to bulk edit.
-        // Should undo/redo, load, save, share functionality live here?
-        Widget::row(vec![
-            "Protect the new bike lanes?"
-                .text_widget(ctx)
-                .centered_vert(),
-            Widget::dropdown(
-                ctx,
-                "buffer type",
-                Some(BufferType::FlexPosts),
-                vec![
-                    // TODO Width / cost summary?
-                    Choice::new("diagonal stripes", Some(BufferType::Stripes)),
-                    Choice::new("flex posts", Some(BufferType::FlexPosts)),
-                    Choice::new("planters", Some(BufferType::Planters)),
-                    // Omit the others for now
-                    Choice::new("no -- just paint", None),
-                ],
-            ),
-        ]),
-        Widget::custom_row(vec![
+fn make_top_panel(ctx: &mut EventCtx, app: &App, rs: Option<&RouteSketcher>) -> Panel {
+    let mut file_management = Vec::new();
+    let edits = app.primary.map.get_edits();
+
+    let total_mileage = {
+        // Look for the new lanes...
+        let mut total = Distance::ZERO;
+        // TODO We're assuming the edits have been compressed.
+        for cmd in &edits.commands {
+            if let EditCmd::ChangeRoad { r, old, new } = cmd {
+                let num_before = old
+                    .lanes_ltr
+                    .iter()
+                    .filter(|spec| spec.lt == LaneType::Biking)
+                    .count();
+                let num_after = new
+                    .lanes_ltr
+                    .iter()
+                    .filter(|spec| spec.lt == LaneType::Biking)
+                    .count();
+                if num_before != num_after {
+                    let multiplier = (num_after as f64) - (num_before) as f64;
+                    total += multiplier * app.primary.map.get_r(*r).center_pts.length();
+                }
+            }
+        }
+        total
+    };
+    if edits.commands.is_empty() {
+        file_management.push("Today's network".text_widget(ctx));
+    } else {
+        file_management.push(Line(&edits.edits_name).into_widget(ctx));
+    }
+    file_management.push(
+        Line(format!(
+            "{:.1} miles of new bike lanes",
+            total_mileage.to_miles()
+        ))
+        .secondary()
+        .into_widget(ctx),
+    );
+    file_management.push(
+        ctx.style()
+            .btn_outline
+            .text("Open a proposal")
+            .hotkey(lctrl(Key::O))
+            .build_def(ctx),
+    );
+    // TODO Should undo/redo, save, share functionality also live here?
+
+    let edit = if let Some(rs) = rs {
+        Widget::col(vec![
+            rs.get_widget_to_describe(ctx),
+            Widget::row(vec![
+                "Protect the new bike lanes?"
+                    .text_widget(ctx)
+                    .centered_vert(),
+                Widget::dropdown(
+                    ctx,
+                    "buffer type",
+                    Some(BufferType::FlexPosts),
+                    vec![
+                        // TODO Width / cost summary?
+                        Choice::new("diagonal stripes", Some(BufferType::Stripes)),
+                        Choice::new("flex posts", Some(BufferType::FlexPosts)),
+                        Choice::new("planters", Some(BufferType::Planters)),
+                        // Omit the others for now
+                        Choice::new("no -- just paint", None),
+                    ],
+                ),
+            ]),
+            Widget::custom_row(vec![
+                ctx.style()
+                    .btn_solid_primary
+                    .text("Add bike lanes")
+                    .hotkey(Key::Enter)
+                    .disabled(!rs.is_route_started())
+                    .build_def(ctx),
+                ctx.style()
+                    .btn_solid_destructive
+                    .text("Cancel")
+                    .hotkey(Key::Escape)
+                    .build_def(ctx),
+            ])
+            .evenly_spaced(),
+        ])
+    } else {
+        Widget::col(vec![
+            "Click a road to edit in detail".text_widget(ctx),
             ctx.style()
                 .btn_solid_primary
-                .text("Add bike lanes")
-                .hotkey(Key::Enter)
-                .build_def(ctx),
-            ctx.style()
-                .btn_solid_destructive
-                .text("Back")
-                .hotkey(Key::Escape)
+                .text("Sketch a route")
+                .hotkey(Key::S)
                 .build_def(ctx),
         ])
-        .evenly_spaced(),
-        // TODO New tool replaces RoadSelector...
-        ctx.style()
-            .btn_plain
-            .text("Sketch a route")
-            .hotkey(Key::S)
-            .build_def(ctx),
+    };
+
+    Panel::new_builder(Widget::col(vec![
+        Widget::row(vec![
+            Line("Draw your ideal bike network")
+                .small_heading()
+                .into_widget(ctx),
+            // TODO Or maybe this is misleading; we should keep the tab style
+            ctx.style().btn_close_widget(ctx),
+        ]),
+        Widget::col(file_management).bg(ctx.style().section_bg),
+        edit,
     ]))
     .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
     .build(ctx)
@@ -171,7 +238,7 @@ fn make_top_panel(ctx: &mut EventCtx, selector: &RoadSelector) -> Panel {
 fn make_quick_changes(
     ctx: &mut EventCtx,
     app: &mut App,
-    selector: &RoadSelector,
+    roads: Vec<RoadID>,
     buffer_type: Option<BufferType>,
 ) -> Vec<String> {
     // TODO Erasing changes
@@ -179,11 +246,10 @@ fn make_quick_changes(
     let mut edits = app.primary.map.get_edits().clone();
     let already_modified_roads = edits.changed_roads.clone();
     let mut num_changes = 0;
-    for r in &selector.roads {
-        if already_modified_roads.contains(r) {
+    for r in roads {
+        if already_modified_roads.contains(&r) {
             continue;
         }
-        let r = *r;
         let old = app.primary.map.get_r_edit(r);
         let mut new = old.clone();
         maybe_add_bike_lanes(&mut new, buffer_type);

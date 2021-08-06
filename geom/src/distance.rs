@@ -82,6 +82,11 @@ impl Distance {
         self.0 * 3.28084
     }
 
+    /// Returns the distance in miles.
+    pub fn to_miles(self) -> f64 {
+        self.to_feet() / 5280.0
+    }
+
     /// Describes the distance according to formatting rules. Rounds to 1 decimal place for both
     /// small (feet and meters) and large (miles and kilometers) units.
     pub fn to_string(self, fmt: &UnitFmt) -> String {
@@ -94,7 +99,7 @@ impl Distance {
             }
         } else {
             let feet = self.to_feet();
-            let miles = feet / 5280.0;
+            let miles = self.to_miles();
             if miles >= 0.1 {
                 format!("{} miles", (miles * 10.0).round() / 10.0)
             } else {
