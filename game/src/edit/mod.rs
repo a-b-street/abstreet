@@ -547,15 +547,19 @@ impl LoadEdits {
     /// Mode is just used for `allows`.
     pub fn new_state(ctx: &mut EventCtx, app: &App, mode: GameplayMode) -> Box<dyn State<App>> {
         let current_edits_name = &app.primary.map.get_edits().edits_name;
+
+        let mut your_proposals =
+            abstio::list_all_objects(abstio::path_all_edits(app.primary.map.get_name()))
+                .into_iter()
+                .map(|name| Choice::new(name.clone(), ()).active(&name != current_edits_name))
+                .collect::<Vec<_>>();
+        // These're sorted alphabetically, but the "Untitled Proposal"s wind up before lowercase
+        // names!
+        your_proposals.sort_by_key(|x| (x.label.starts_with("Untitled Proposal"), x.label.clone()));
+
         let your_edits = vec![
             Line("Your proposals").small_heading().into_widget(ctx),
-            Menu::widget(
-                ctx,
-                abstio::list_all_objects(abstio::path_all_edits(app.primary.map.get_name()))
-                    .into_iter()
-                    .map(|name| Choice::new(name.clone(), ()).active(&name != current_edits_name))
-                    .collect(),
-            ),
+            Menu::widget(ctx, your_proposals),
         ];
         // widgetry can't toggle keyboard focus between two menus, so just use buttons for the less
         // common use case.
