@@ -1,7 +1,7 @@
 mod edit;
 mod magnifying;
 mod nearby;
-mod route_sketcher;
+mod quick_sketch;
 
 use abstutil::prettyprint_usize;
 use geom::{Circle, Distance, Pt2D};

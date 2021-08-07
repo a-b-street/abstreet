@@ -180,7 +180,7 @@ impl RouteSketcher {
         g.redraw(&self.preview);
     }
 
-    pub fn consume_roads(self, app: &App) -> Vec<RoadID> {
+    pub fn all_roads(&self, app: &App) -> Vec<RoadID> {
         let mut roads = Vec::new();
         for pair in self.route.full_path.windows(2) {
             // TODO Inefficient!

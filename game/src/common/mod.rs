@@ -9,6 +9,7 @@ use widgetry::{
     ScreenPt, ScreenRectangle, Text, TextSpan, Toggle, VerticalAlignment, Widget,
 };
 
+pub use self::route_sketcher::RouteSketcher;
 pub use self::select::RoadSelector;
 pub use self::warp::{warp_to_id, Warping};
 use crate::app::App;
@@ -16,6 +17,7 @@ use crate::app::Transition;
 use crate::info::{ContextualActions, InfoPanel, Tab};
 use crate::sandbox::TimeWarpScreen;
 
+mod route_sketcher;
 mod select;
 mod warp;
 
