@@ -167,6 +167,13 @@
 <span id="165">165</span>
 <span id="166">166</span>
 <span id="167">167</span>
+<span id="168">168</span>
+<span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
+<span id="174">174</span>
 </pre><pre class="rust">
 <span class="comment">// TODO Possibly these should be methods on Map.</span>
 
@@ -189,6 +196,7 @@
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Spot</span> {
     <span class="ident">Building</span>(<span class="ident">BuildingID</span>),
     <span class="ident">Border</span>(<span class="ident">IntersectionID</span>),
+    <span class="ident">DirectedRoad</span>(<span class="ident">DirectedRoadID</span>),
 }
 
 <span class="doccomment">/// Calculate the strongly connected components (SCC) of the part of the map accessible by</span>
@@ -281,6 +289,12 @@
                         <span class="ident">node</span>: <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l_id</span>).<span class="ident">get_directed_parent</span>(),
                     });
                 }
+            }
+            <span class="ident">Spot::DirectedRoad</span>(<span class="ident">dr</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">queue</span>.<span class="ident">push</span>(<span class="ident">Item</span> {
+                    <span class="ident">cost</span>: <span class="ident">Duration::ZERO</span>,
+                    <span class="ident">node</span>: <span class="ident">dr</span>,
+                });
             }
         }
     }

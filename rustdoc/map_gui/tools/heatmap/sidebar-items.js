@@ -1,1 +1,1 @@
-initSidebarItems({"constant":[["NEIGHBORS",""]],"fn":[["make_heatmap",""]],"struct":[["Grid",""],["HeatmapOptions",""]]});
+initSidebarItems({"constant":[["NEIGHBORS",""]],"fn":[["draw_isochrone","Thresholds are Durations, in units of seconds"],["make_heatmap",""]],"struct":[["Grid",""],["HeatmapOptions",""]]});

@@ -205,6 +205,17 @@
 <span id="203">203</span>
 <span id="204">204</span>
 <span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::cmp::Ordering</span>;
 <span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BinaryHeap</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
@@ -308,6 +319,17 @@
                         ),
                     });
                 }
+            }
+            <span class="ident">Spot::DirectedRoad</span>(<span class="ident">dr</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="comment">// Start from either end</span>
+                <span class="ident">queue</span>.<span class="ident">push</span>(<span class="ident">Item</span> {
+                    <span class="ident">cost</span>: <span class="ident">Duration::ZERO</span>,
+                    <span class="ident">node</span>: <span class="ident">WalkingNode::SidewalkEndpoint</span>(<span class="ident">dr</span>, <span class="bool-val">false</span>),
+                });
+                <span class="ident">queue</span>.<span class="ident">push</span>(<span class="ident">Item</span> {
+                    <span class="ident">cost</span>: <span class="ident">Duration::ZERO</span>,
+                    <span class="ident">node</span>: <span class="ident">WalkingNode::SidewalkEndpoint</span>(<span class="ident">dr</span>, <span class="bool-val">true</span>),
+                });
             }
         }
     }

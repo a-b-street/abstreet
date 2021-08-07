@@ -590,6 +590,7 @@
 <span id="588">588</span>
 <span id="589">589</span>
 <span id="590">590</span>
+<span id="591">591</span>
 </pre><pre class="rust">
 <span class="doccomment">//! This is a tool to experiment with the concept of 15-minute neighborhoods. Can you access your</span>
 <span class="doccomment">//! daily needs (like groceries, a cafe, a library) within a 15-minute walk, bike ride, or public</span>
@@ -600,7 +601,8 @@
 <span class="kw">use</span> <span class="ident">abstutil::prettyprint_usize</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>};
 <span class="kw">use</span> <span class="ident">map_gui::tools</span>::{
-    <span class="ident">nice_map_name</span>, <span class="ident">open_browser</span>, <span class="ident">CityPicker</span>, <span class="ident">ColorLegend</span>, <span class="ident">Navigator</span>, <span class="ident">PopupMsg</span>, <span class="ident">URLManager</span>,
+    <span class="ident">draw_isochrone</span>, <span class="ident">nice_map_name</span>, <span class="ident">open_browser</span>, <span class="ident">CityPicker</span>, <span class="ident">ColorLegend</span>, <span class="ident">Navigator</span>, <span class="ident">PopupMsg</span>,
+    <span class="ident">URLManager</span>,
 };
 <span class="kw">use</span> <span class="ident">map_gui::ID</span>;
 <span class="kw">use</span> <span class="ident">map_model::connectivity::WalkingOptions</span>;
@@ -614,7 +616,7 @@
 
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::find_amenities::FindAmenity</span>;
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::find_home::FindHome</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::isochrone</span>::{<span class="ident">draw_isochrone</span>, <span class="ident">Isochrone</span>, <span class="ident">Options</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::isochrone</span>::{<span class="ident">Isochrone</span>, <span class="ident">Options</span>};
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::App</span>;
 
 <span class="doccomment">/// This is the UI state for exploring the isochrone/walkshed from a single building.</span>
@@ -1044,7 +1046,7 @@
         <span class="ident">category</span>: <span class="ident">AmenityType</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">draw_isochrone</span>(
-            <span class="ident">app</span>,
+            <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">map</span>,
             <span class="kw-2">&amp;</span><span class="ident">isochrone</span>.<span class="ident">time_to_reach_building</span>,
             <span class="kw-2">&amp;</span><span class="ident">isochrone</span>.<span class="ident">thresholds</span>,
             <span class="kw-2">&amp;</span><span class="ident">isochrone</span>.<span class="ident">colors</span>,
