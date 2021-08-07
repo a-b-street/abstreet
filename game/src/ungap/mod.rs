@@ -1,7 +1,9 @@
 mod edit;
 mod magnifying;
+mod nearby;
 mod route_sketcher;
 
+use abstutil::prettyprint_usize;
 use geom::{Circle, Distance, Pt2D};
 use map_gui::tools::{nice_map_name, CityPicker, PopupMsg};
 use map_model::{LaneType, PathConstraints, Road};
@@ -13,6 +15,7 @@ use widgetry::{
 use crate::app::{App, Transition};
 use crate::common::Warping;
 use magnifying::MagnifyingGlass;
+use nearby::Nearby;
 
 lazy_static::lazy_static! {
     static ref DEDICATED_TRAIL: Color = Color::GREEN;
@@ -27,6 +30,8 @@ pub struct ExploreMap {
     magnifying_glass: MagnifyingGlass,
     network_layer: Drawable,
     elevation: bool,
+    // TODO Also cache Nearby, but recalculate it after edits
+    nearby: Option<Nearby>,
 
     changelist_key: (String, usize),
 }
@@ -38,10 +43,11 @@ impl ExploreMap {
 
         Box::new(ExploreMap {
             top_panel: make_top_panel(ctx),
-            legend: make_legend(ctx, app, false),
+            legend: make_legend(ctx, app, false, false),
             magnifying_glass: MagnifyingGlass::new(ctx, true),
             network_layer: render_network_layer(ctx, app),
             elevation: false,
+            nearby: None,
 
             changelist_key: (edits.edits_name.clone(), edits.commands.len()),
         })
@@ -131,28 +137,50 @@ impl State<App> for ExploreMap {
                     "Stay Healthy Street / greenway" => PopupMsg::new_state(ctx, "Stay Healthy Streets and neighborhood greenways", vec!["Residential streets with additional signage and light barriers. These are intended to be low traffic, dedicated for people walking and biking."]),
                     // TODO Add URLs
                     "about the elevation data" => PopupMsg::new_state(ctx, "About the elevation data", vec!["Biking uphill next to traffic without any dedicated space isn't fun.", "Biking downhill next to traffic, especially in the door-zone of parked cars, and especially on Seattle's bumpy roads... is downright terrifying.", "", "Note the elevation data is incorrect near bridges.", "Thanks to King County LIDAR for the data, and Eldan Goldenberg for processing it."]),
+                    "about the things nearby" => PopupMsg::new_state(ctx, "About the things nearby", vec!["Population daa from ?", "Amenities from OpenStreetMap", "A 1-minute biking buffer around the bike network is shown.", "Note 1 minutes depends on direction, especially with steep hills -- this starts FROM the network."]),
                     _ => unreachable!(),
             });
             }
-            Outcome::Changed(_) => {
-                self.elevation = self.legend.is_checked("elevation");
-                self.legend = make_legend(ctx, app, self.elevation);
-                if self.elevation {
-                    let name = app.primary.map.get_name().clone();
-                    if app.session.elevation_contours.key() != Some(name.clone()) {
-                        let mut low = Distance::ZERO;
-                        let mut high = Distance::ZERO;
-                        for i in app.primary.map.all_intersections() {
-                            low = low.min(i.elevation);
-                            high = high.max(i.elevation);
+            Outcome::Changed(x) => match x.as_ref() {
+                "elevation" => {
+                    self.elevation = self.legend.is_checked("elevation");
+                    self.legend = make_legend(ctx, app, self.elevation, self.nearby.is_some());
+                    if self.elevation {
+                        let name = app.primary.map.get_name().clone();
+                        if app.session.elevation_contours.key() != Some(name.clone()) {
+                            let mut low = Distance::ZERO;
+                            let mut high = Distance::ZERO;
+                            for i in app.primary.map.all_intersections() {
+                                low = low.min(i.elevation);
+                                high = high.max(i.elevation);
+                            }
+                            // TODO Maybe also draw the uphill arrows on the steepest streets?
+                            let value = crate::layer::elevation::make_elevation_contours(
+                                ctx, app, low, high,
+                            );
+                            app.session.elevation_contours.set(name, value);
                         }
-                        // TODO Maybe also draw the uphill arrows on the steepest streets?
-                        let value =
-                            crate::layer::elevation::make_elevation_contours(ctx, app, low, high);
-                        app.session.elevation_contours.set(name, value);
                     }
                 }
-            }
+                "things nearby" => {
+                    if self.legend.is_checked("things nearby") {
+                        let nearby = Nearby::new(ctx, app);
+                        let label = Text::from(Line(format!(
+                            "{} residents, {} shops",
+                            prettyprint_usize(nearby.population),
+                            prettyprint_usize(nearby.total_amenities)
+                        )))
+                        .into_widget(ctx);
+                        self.legend.replace(ctx, "nearby info", label);
+                        self.nearby = Some(nearby);
+                    } else {
+                        let label = Text::new().into_widget(ctx);
+                        self.legend.replace(ctx, "nearby info", label);
+                        self.nearby = None;
+                    }
+                }
+                _ => unreachable!(),
+            },
             _ => {}
         }
 
@@ -169,6 +197,9 @@ impl State<App> for ExploreMap {
                 if let Some((_, ref draw)) = app.session.elevation_contours.value() {
                     g.redraw(draw);
                 }
+            }
+            if let Some(ref nearby) = self.nearby {
+                g.redraw(&nearby.draw_buffer);
             }
 
             self.magnifying_glass.draw(g, app);
@@ -207,7 +238,7 @@ fn make_top_panel(ctx: &mut EventCtx) -> Panel {
     .build(ctx)
 }
 
-fn make_legend(ctx: &mut EventCtx, app: &App, elevation: bool) -> Panel {
+fn make_legend(ctx: &mut EventCtx, app: &App, elevation: bool, nearby: bool) -> Panel {
     Panel::new_builder(Widget::col(vec![
         Widget::custom_row(vec![
             Line("Bike Network")
@@ -244,6 +275,18 @@ fn make_legend(ctx: &mut EventCtx, app: &App, elevation: bool) -> Panel {
             Text::new()
                 .into_widget(ctx)
                 .named("current elevation")
+                .centered_vert(),
+        ]),
+        Widget::row(vec![
+            Toggle::checkbox(ctx, "things nearby", None, nearby),
+            ctx.style()
+                .btn_plain
+                .icon("system/assets/tools/info.svg")
+                .build_widget(ctx, "about the things nearby")
+                .centered_vert(),
+            Text::new()
+                .into_widget(ctx)
+                .named("nearby info")
                 .centered_vert(),
         ]),
     ]))
@@ -339,7 +382,7 @@ pub fn render_network_layer(ctx: &mut EventCtx, app: &App) -> Drawable {
 
 // TODO Check how other greenways are tagged.
 // https://www.openstreetmap.org/way/262778812 has bicycle=designated, cycleway=shared_lane...
-fn is_greenway(road: &Road) -> bool {
+pub fn is_greenway(road: &Road) -> bool {
     !road
         .access_restrictions
         .allow_through_traffic

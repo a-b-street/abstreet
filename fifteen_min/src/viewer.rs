@@ -7,7 +7,8 @@
 use abstutil::prettyprint_usize;
 use geom::{Distance, Duration};
 use map_gui::tools::{
-    nice_map_name, open_browser, CityPicker, ColorLegend, Navigator, PopupMsg, URLManager,
+    draw_isochrone, nice_map_name, open_browser, CityPicker, ColorLegend, Navigator, PopupMsg,
+    URLManager,
 };
 use map_gui::ID;
 use map_model::connectivity::WalkingOptions;
@@ -21,7 +22,7 @@ use widgetry::{
 
 use crate::find_amenities::FindAmenity;
 use crate::find_home::FindHome;
-use crate::isochrone::{draw_isochrone, Isochrone, Options};
+use crate::isochrone::{Isochrone, Options};
 use crate::App;
 
 /// This is the UI state for exploring the isochrone/walkshed from a single building.
@@ -451,7 +452,7 @@ impl ExploreAmenities {
         category: AmenityType,
     ) -> Box<dyn State<App>> {
         let mut batch = draw_isochrone(
-            app,
+            &app.map,
             &isochrone.time_to_reach_building,
             &isochrone.thresholds,
             &isochrone.colors,

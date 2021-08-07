@@ -101,6 +101,17 @@ pub fn all_walking_costs_from(
                     });
                 }
             }
+            Spot::DirectedRoad(dr) => {
+                // Start from either end
+                queue.push(Item {
+                    cost: Duration::ZERO,
+                    node: WalkingNode::SidewalkEndpoint(dr, false),
+                });
+                queue.push(Item {
+                    cost: Duration::ZERO,
+                    node: WalkingNode::SidewalkEndpoint(dr, true),
+                });
+            }
         }
     }
 

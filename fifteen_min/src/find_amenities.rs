@@ -1,4 +1,4 @@
-use map_gui::tools::{ChooseSomething, ColorLegend};
+use map_gui::tools::{draw_isochrone, ChooseSomething, ColorLegend};
 use map_gui::ID;
 use map_model::AmenityType;
 use widgetry::{
@@ -6,7 +6,7 @@ use widgetry::{
     SimpleState, State, TextExt, Transition, VerticalAlignment, Widget,
 };
 
-use crate::isochrone::{draw_isochrone, BorderIsochrone, Isochrone, Options};
+use crate::isochrone::{BorderIsochrone, Isochrone, Options};
 use crate::viewer::{draw_star, HoverKey, HoverOnBuilding};
 use crate::App;
 
@@ -106,13 +106,13 @@ impl Results {
         .build(ctx);
 
         let mut batch = draw_isochrone(
-            app,
+            &app.map,
             &border_isochrone.time_to_reach_building,
             &border_isochrone.thresholds,
             &border_isochrone.colors,
         );
         batch.append(draw_isochrone(
-            app,
+            &app.map,
             &isochrone.time_to_reach_building,
             &isochrone.thresholds,
             &isochrone.colors,

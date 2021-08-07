@@ -19,6 +19,7 @@ mod walking;
 pub enum Spot {
     Building(BuildingID),
     Border(IntersectionID),
+    DirectedRoad(DirectedRoadID),
 }
 
 /// Calculate the strongly connected components (SCC) of the part of the map accessible by
@@ -111,6 +112,12 @@ pub fn all_vehicle_costs_from(
                         node: map.get_l(l_id).get_directed_parent(),
                     });
                 }
+            }
+            Spot::DirectedRoad(dr) => {
+                queue.push(Item {
+                    cost: Duration::ZERO,
+                    node: dr,
+                });
             }
         }
     }

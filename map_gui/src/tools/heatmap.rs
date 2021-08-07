@@ -1,4 +1,7 @@
-use geom::{Bounds, Histogram, Polygon, Pt2D, Statistic};
+use std::collections::HashMap;
+
+use geom::{Bounds, Duration, Histogram, Polygon, Pt2D, Statistic};
+use map_model::{BuildingID, Map};
 use widgetry::{Choice, Color, EventCtx, GeomBatch, Panel, Spinner, TextExt, Toggle, Widget};
 
 use crate::tools::{ColorLegend, ColorScale};
@@ -267,4 +270,65 @@ impl<T: Copy> Grid<T> {
         // Row-major
         y * self.width + x
     }
+}
+
+// TODO Refactor the variations of this.
+/// Thresholds are Durations, in units of seconds
+pub fn draw_isochrone(
+    map: &Map,
+    time_to_reach_building: &HashMap<BuildingID, Duration>,
+    thresholds: &[f64],
+    colors: &[Color],
+) -> GeomBatch {
+    // To generate the polygons covering areas between 0-5 mins, 5-10 mins, etc, we have to feed
+    // in a 2D grid of costs. Use a 100x100 meter resolution.
+    let bounds = map.get_bounds();
+    let resolution_m = 100.0;
+    // The costs we're storing are currenly durations, but the contour crate needs f64, so
+    // just store the number of seconds.
+    let mut grid: Grid<f64> = Grid::new(
+        (bounds.width() / resolution_m).ceil() as usize,
+        (bounds.height() / resolution_m).ceil() as usize,
+        0.0,
+    );
+
+    for (b, cost) in time_to_reach_building {
+        // What grid cell does the building belong to?
+        let pt = map.get_b(*b).polygon.center();
+        let idx = grid.idx(
+            ((pt.x() - bounds.min_x) / resolution_m) as usize,
+            ((pt.y() - bounds.min_y) / resolution_m) as usize,
+        );
+        // Don't add! If two buildings map to the same cell, we should pick a finer resolution.
+        grid.data[idx] = cost.inner_seconds();
+    }
+
+    let smooth = false;
+    let c = contour::ContourBuilder::new(grid.width as u32, grid.height as u32, smooth);
+    let mut batch = GeomBatch::new();
+    // The last feature returned will be larger than the last threshold value. We don't want to
+    // display that at all. zip() will omit this last pair, since colors.len() ==
+    // thresholds.len() - 1.
+    //
+    // TODO Actually, this still isn't working. I think each polygon is everything > the
+    // threshold, not everything between two thresholds?
+    for (feature, color) in c
+        .contours(&grid.data, thresholds)
+        .unwrap()
+        .into_iter()
+        .zip(colors)
+    {
+        match feature.geometry.unwrap().value {
+            geojson::Value::MultiPolygon(polygons) => {
+                for p in polygons {
+                    if let Ok(poly) = Polygon::from_geojson(&p) {
+                        batch.push(*color, poly.scale(resolution_m));
+                    }
+                }
+            }
+            _ => unreachable!(),
+        }
+    }
+
+    batch
 }
