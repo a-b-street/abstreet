@@ -936,6 +936,10 @@
 <span id="934">934</span>
 <span id="935">935</span>
 <span id="936">936</span>
+<span id="937">937</span>
+<span id="938">938</span>
+<span id="939">939</span>
+<span id="940">940</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">maplit::btreeset</span>;
 
@@ -1486,15 +1490,19 @@
     <span class="doccomment">/// Mode is just used for `allows`.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">mode</span>: <span class="ident">GameplayMode</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">current_edits_name</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">edits_name</span>;
+
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">your_proposals</span> <span class="op">=</span>
+            <span class="ident">abstio::list_all_objects</span>(<span class="ident">abstio::path_all_edits</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>()))
+                .<span class="ident">into_iter</span>()
+                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">name</span><span class="op">|</span> <span class="ident">Choice::new</span>(<span class="ident">name</span>.<span class="ident">clone</span>(), ()).<span class="ident">active</span>(<span class="kw-2">&amp;</span><span class="ident">name</span> <span class="op">!</span><span class="op">=</span> <span class="ident">current_edits_name</span>))
+                .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
+        <span class="comment">// These&#39;re sorted alphabetically, but the &quot;Untitled Proposal&quot;s wind up before lowercase</span>
+        <span class="comment">// names!</span>
+        <span class="ident">your_proposals</span>.<span class="ident">sort_by_key</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> (<span class="ident">x</span>.<span class="ident">label</span>.<span class="ident">starts_with</span>(<span class="string">&quot;Untitled Proposal&quot;</span>), <span class="ident">x</span>.<span class="ident">label</span>.<span class="ident">clone</span>()));
+
         <span class="kw">let</span> <span class="ident">your_edits</span> <span class="op">=</span> <span class="macro">vec!</span>[
             <span class="ident">Line</span>(<span class="string">&quot;Your proposals&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-            <span class="ident">Menu::widget</span>(
-                <span class="ident">ctx</span>,
-                <span class="ident">abstio::list_all_objects</span>(<span class="ident">abstio::path_all_edits</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>()))
-                    .<span class="ident">into_iter</span>()
-                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">name</span><span class="op">|</span> <span class="ident">Choice::new</span>(<span class="ident">name</span>.<span class="ident">clone</span>(), ()).<span class="ident">active</span>(<span class="kw-2">&amp;</span><span class="ident">name</span> <span class="op">!</span><span class="op">=</span> <span class="ident">current_edits_name</span>))
-                    .<span class="ident">collect</span>(),
-            ),
+            <span class="ident">Menu::widget</span>(<span class="ident">ctx</span>, <span class="ident">your_proposals</span>),
         ];
         <span class="comment">// widgetry can&#39;t toggle keyboard focus between two menus, so just use buttons for the less</span>
         <span class="comment">// common use case.</span>
