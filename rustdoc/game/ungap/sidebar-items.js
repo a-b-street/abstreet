@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["is_greenway",""],["legend",""],["make_legend",""],["make_top_panel",""],["render_network_layer",""]],"mod":[["edit",""],["magnifying",""],["nearby",""],["quick_sketch",""]],"struct":[["DEDICATED_TRAIL",""],["ExploreMap",""],["GREENWAY",""],["PAINTED_BIKE_LANE",""],["PROTECTED_BIKE_LANE",""]]});
+initSidebarItems({"fn":[["make_legend",""],["make_top_panel",""]],"mod":[["edit",""],["layers",""],["magnifying",""],["nearby",""],["quick_sketch",""]],"struct":[["ExploreMap",""]]});

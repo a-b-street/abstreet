@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["is_greenway",""],["legend",""],["render_edits",""],["render_network_layer",""]],"struct":[["DEDICATED_TRAIL",""],["EDITED_COLOR",""],["GREENWAY",""],["PAINTED_BIKE_LANE",""],["PROTECTED_BIKE_LANE",""]]});

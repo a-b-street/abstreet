@@ -1,1 +1,1 @@
-initSidebarItems({"constant":[["EDITED_COLOR",""]],"fn":[["make_top_panel",""],["render_edits",""]],"struct":[["QuickEdit",""]]});
+initSidebarItems({"fn":[["make_top_panel",""]],"struct":[["QuickEdit",""]]});
