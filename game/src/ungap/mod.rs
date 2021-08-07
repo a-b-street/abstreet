@@ -1,28 +1,22 @@
 mod edit;
+mod layers;
 mod magnifying;
 mod nearby;
 mod quick_sketch;
 
 use abstutil::prettyprint_usize;
-use geom::{Circle, Distance, Pt2D};
+use geom::Distance;
 use map_gui::tools::{nice_map_name, CityPicker, PopupMsg};
-use map_model::{LaneType, PathConstraints, Road};
 use widgetry::{
-    lctrl, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
-    Panel, State, Text, Toggle, VerticalAlignment, Widget,
+    lctrl, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State, Text,
+    Toggle, VerticalAlignment, Widget,
 };
 
+use self::layers::{legend, render_network_layer};
+use self::magnifying::MagnifyingGlass;
+use self::nearby::Nearby;
 use crate::app::{App, Transition};
 use crate::common::Warping;
-use magnifying::MagnifyingGlass;
-use nearby::Nearby;
-
-lazy_static::lazy_static! {
-    static ref DEDICATED_TRAIL: Color = Color::GREEN;
-    static ref PROTECTED_BIKE_LANE: Color = Color::hex("#A4DE02");
-    static ref PAINTED_BIKE_LANE: Color = Color::hex("#76BA1B");
-    static ref GREENWAY: Color = Color::hex("#4C9A2A");
-}
 
 pub struct ExploreMap {
     top_panel: Panel,
@@ -258,10 +252,10 @@ fn make_legend(ctx: &mut EventCtx, app: &App, elevation: bool, nearby: bool) -> 
         legend(ctx, app.cs.unzoomed_highway, "highway"),
         legend(ctx, app.cs.unzoomed_arterial, "major street"),
         legend(ctx, app.cs.unzoomed_residential, "minor street"),
-        legend(ctx, *DEDICATED_TRAIL, "trail"),
-        legend(ctx, *PROTECTED_BIKE_LANE, "protected bike lane"),
-        legend(ctx, *PAINTED_BIKE_LANE, "painted bike lane"),
-        legend(ctx, *GREENWAY, "Stay Healthy Street / greenway"),
+        legend(ctx, *layers::DEDICATED_TRAIL, "trail"),
+        legend(ctx, *layers::PROTECTED_BIKE_LANE, "protected bike lane"),
+        legend(ctx, *layers::PAINTED_BIKE_LANE, "painted bike lane"),
+        legend(ctx, *layers::GREENWAY, "Stay Healthy Street / greenway"),
         // TODO Distinguish door-zone bike lanes?
         // TODO Call out bike turning boxes?
         // TODO Call out bike signals?
@@ -292,103 +286,4 @@ fn make_legend(ctx: &mut EventCtx, app: &App, elevation: bool, nearby: bool) -> 
     ]))
     .aligned(HorizontalAlignment::Right, VerticalAlignment::Bottom)
     .build(ctx)
-}
-
-pub fn legend(ctx: &mut EventCtx, color: Color, label: &str) -> Widget {
-    let radius = 15.0;
-    Widget::row(vec![
-        GeomBatch::from(vec![(
-            color,
-            Circle::new(Pt2D::new(radius, radius), Distance::meters(radius)).to_polygon(),
-        )])
-        .into_widget(ctx)
-        .centered_vert(),
-        ctx.style()
-            .btn_plain
-            .text(label)
-            .build_def(ctx)
-            .centered_vert(),
-    ])
-}
-
-pub fn render_network_layer(ctx: &mut EventCtx, app: &App) -> Drawable {
-    let mut batch = GeomBatch::new();
-    // The basemap colors are beautiful, but we want to emphasize the bike network, so all's foggy
-    // in love and war...
-    batch.push(
-        Color::BLACK.alpha(0.4),
-        app.primary.map.get_boundary_polygon().clone(),
-    );
-
-    for r in app.primary.map.all_roads() {
-        if r.is_cycleway() {
-            batch.push(*DEDICATED_TRAIL, r.get_thick_polygon(&app.primary.map));
-            continue;
-        }
-
-        if is_greenway(r) {
-            batch.push(*GREENWAY, r.get_thick_polygon(&app.primary.map));
-        }
-
-        // Don't cover up the arterial/local classification -- add thick side lines to show bike
-        // facilties in each direction.
-        let mut bike_lane_left = false;
-        let mut buffer_left = false;
-        let mut bike_lane_right = false;
-        let mut buffer_right = false;
-        let mut on_left = true;
-        for (_, _, lt) in r.lanes_ltr() {
-            if lt == LaneType::Driving || lt == LaneType::Bus {
-                // We're walking the lanes from left-to-right. So as soon as we hit a vehicle lane,
-                // any bike lane we find is on the right side of the road.
-                // (Barring really bizarre things like a bike lane in the middle of the road)
-                on_left = false;
-            } else if lt == LaneType::Biking {
-                if on_left {
-                    bike_lane_left = true;
-                } else {
-                    bike_lane_right = true;
-                }
-            } else if matches!(lt, LaneType::Buffer(_)) {
-                if on_left {
-                    buffer_left = true;
-                } else {
-                    buffer_right = true;
-                }
-            }
-
-            let half_width = r.get_half_width(&app.primary.map);
-            for (shift, bike_lane, buffer) in [
-                (-1.0, bike_lane_left, buffer_left),
-                (1.0, bike_lane_right, buffer_right),
-            ] {
-                let color = if bike_lane && buffer {
-                    *PROTECTED_BIKE_LANE
-                } else if bike_lane {
-                    *PAINTED_BIKE_LANE
-                } else {
-                    // If we happen to have a buffer, but no bike lane, let's just not ask
-                    // questions...
-                    continue;
-                };
-                if let Ok(pl) = r.center_pts.shift_either_direction(shift * half_width) {
-                    batch.push(color, pl.make_polygons(0.9 * half_width));
-                }
-            }
-        }
-    }
-    batch.upload(ctx)
-}
-
-// TODO Check how other greenways are tagged.
-// https://www.openstreetmap.org/way/262778812 has bicycle=designated, cycleway=shared_lane...
-pub fn is_greenway(road: &Road) -> bool {
-    !road
-        .access_restrictions
-        .allow_through_traffic
-        .contains(PathConstraints::Car)
-        && road
-            .access_restrictions
-            .allow_through_traffic
-            .contains(PathConstraints::Bike)
 }

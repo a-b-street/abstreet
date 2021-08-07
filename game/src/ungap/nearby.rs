@@ -63,7 +63,7 @@ fn bike_network_roads(map: &Map) -> Vec<DirectedRoadID> {
     let mut results = Vec::new();
     for r in map.all_roads() {
         if r.is_cycleway()
-            || crate::ungap::is_greenway(r)
+            || crate::ungap::layers::is_greenway(r)
             || r.lanes_ltr.iter().any(|(_, _, lt)| *lt == LaneType::Biking)
         {
             // Just start from both directions

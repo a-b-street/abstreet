@@ -2,8 +2,8 @@ use geom::Distance;
 use map_gui::ID;
 use map_model::{EditCmd, LaneType};
 use widgetry::{
-    lctrl, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
-    Panel, State, TextExt, VerticalAlignment, Widget,
+    lctrl, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State,
+    TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -11,8 +11,6 @@ use crate::common::Warping;
 use crate::edit::{LoadEdits, RoadEditor, SaveEdits};
 use crate::sandbox::gameplay::GameplayMode;
 use crate::ungap::magnifying::MagnifyingGlass;
-
-const EDITED_COLOR: Color = Color::CYAN;
 
 pub struct QuickEdit {
     top_panel: Panel,
@@ -32,8 +30,8 @@ impl QuickEdit {
         Box::new(QuickEdit {
             top_panel: make_top_panel(ctx, app),
             magnifying_glass: MagnifyingGlass::new(ctx, false),
-            network_layer: crate::ungap::render_network_layer(ctx, app),
-            edits_layer: render_edits(ctx, app),
+            network_layer: crate::ungap::layers::render_network_layer(ctx, app),
+            edits_layer: crate::ungap::layers::render_edits(ctx, app),
 
             changelist_key: (edits.edits_name.clone(), edits.commands.len()),
         })
@@ -48,7 +46,7 @@ impl State<App> for QuickEdit {
             if self.changelist_key != changelist_key {
                 self.changelist_key = changelist_key;
                 self.network_layer = crate::ungap::render_network_layer(ctx, app);
-                self.edits_layer = render_edits(ctx, app);
+                self.edits_layer = crate::ungap::layers::render_edits(ctx, app);
                 self.top_panel = make_top_panel(ctx, app);
             }
         }
@@ -178,7 +176,11 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App) -> Panel {
         .secondary()
         .into_widget(ctx),
     );
-    file_management.push(crate::ungap::legend(ctx, EDITED_COLOR, "changed road"));
+    file_management.push(crate::ungap::legend(
+        ctx,
+        *crate::ungap::layers::EDITED_COLOR,
+        "changed road",
+    ));
     file_management.push(Widget::row(vec![
         ctx.style()
             .btn_outline
@@ -217,16 +219,4 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App) -> Panel {
     ]))
     .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
     .build(ctx)
-}
-
-pub fn render_edits(ctx: &mut EventCtx, app: &App) -> Drawable {
-    let mut batch = GeomBatch::new();
-    let map = &app.primary.map;
-    for r in &map.get_edits().changed_roads {
-        batch.push(
-            EDITED_COLOR.alpha(0.5),
-            map.get_r(*r).get_thick_polygon(map),
-        );
-    }
-    batch.upload(ctx)
 }

@@ -9,7 +9,7 @@ use widgetry::{
 use crate::app::{App, Transition};
 use crate::common::RouteSketcher;
 use crate::edit::apply_map_edits;
-use crate::ungap::edit::render_edits;
+use crate::ungap::layers::render_edits;
 use crate::ungap::magnifying::MagnifyingGlass;
 
 pub struct QuickSketch {
