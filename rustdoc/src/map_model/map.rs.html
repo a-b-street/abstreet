@@ -780,6 +780,14 @@
 <span id="778">778</span>
 <span id="779">779</span>
 <span id="780">780</span>
+<span id="781">781</span>
+<span id="782">782</span>
+<span id="783">783</span>
+<span id="784">784</span>
+<span id="785">785</span>
+<span id="786">786</span>
+<span id="787">787</span>
+<span id="788">788</span>
 </pre><pre class="rust">
 <span class="doccomment">//! A bunch of (mostly read-only) queries on a Map.</span>
 
@@ -790,7 +798,7 @@
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
 <span class="kw">use</span> <span class="ident">abstio</span>::{<span class="ident">CityName</span>, <span class="ident">MapName</span>};
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">MultiMap</span>, <span class="ident">Tags</span>, <span class="ident">Timer</span>};
+<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">serialized_size_bytes</span>, <span class="ident">MultiMap</span>, <span class="ident">Tags</span>, <span class="ident">Timer</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Bounds</span>, <span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">GPSBounds</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>, <span class="ident">Time</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::raw</span>::{<span class="ident">OriginalRoad</span>, <span class="ident">RawMap</span>};
@@ -870,52 +878,60 @@
         <span class="self">self</span>.<span class="ident">edits</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">new_edits</span>();
         <span class="self">self</span>.<span class="ident">recalculate_road_to_buildings</span>();
 
-        <span class="kw">if</span> <span class="bool-val">false</span> {
-            <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">serialized_size_bytes</span>};
+        <span class="kw">if</span> <span class="bool-val">true</span> {
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">costs</span> <span class="op">=</span> <span class="macro">vec!</span>[
+                (
+                    <span class="string">&quot;roads&quot;</span>,
+                    <span class="self">self</span>.<span class="ident">roads</span>.<span class="ident">len</span>(),
+                    <span class="ident">serialized_size_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">roads</span>),
+                ),
+                (
+                    <span class="string">&quot;lanes&quot;</span>,
+                    <span class="self">self</span>.<span class="ident">lanes</span>.<span class="ident">len</span>(),
+                    <span class="ident">serialized_size_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">lanes</span>),
+                ),
+                (
+                    <span class="string">&quot;intersections&quot;</span>,
+                    <span class="self">self</span>.<span class="ident">intersections</span>.<span class="ident">len</span>(),
+                    <span class="ident">serialized_size_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">intersections</span>),
+                ),
+                (
+                    <span class="string">&quot;buildings&quot;</span>,
+                    <span class="self">self</span>.<span class="ident">buildings</span>.<span class="ident">len</span>(),
+                    <span class="ident">serialized_size_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">buildings</span>),
+                ),
+                (
+                    <span class="string">&quot;areas&quot;</span>,
+                    <span class="self">self</span>.<span class="ident">areas</span>.<span class="ident">len</span>(),
+                    <span class="ident">serialized_size_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">areas</span>),
+                ),
+                (
+                    <span class="string">&quot;parking lots&quot;</span>,
+                    <span class="self">self</span>.<span class="ident">parking_lots</span>.<span class="ident">len</span>(),
+                    <span class="ident">serialized_size_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">parking_lots</span>),
+                ),
+                (
+                    <span class="string">&quot;zones&quot;</span>,
+                    <span class="self">self</span>.<span class="ident">zones</span>.<span class="ident">len</span>(),
+                    <span class="ident">serialized_size_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">zones</span>),
+                ),
+                (<span class="string">&quot;pathfinder&quot;</span>, <span class="number">1</span>, <span class="ident">serialized_size_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">pathfinder</span>)),
+            ];
+            <span class="ident">costs</span>.<span class="ident">sort_by_key</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">bytes</span>)<span class="op">|</span> <span class="kw-2">*</span><span class="ident">bytes</span>);
+            <span class="ident">costs</span>.<span class="ident">reverse</span>();
+
             <span class="macro">info!</span>(
                 <span class="string">&quot;Total map size: {} bytes&quot;</span>,
                 <span class="ident">prettyprint_usize</span>(<span class="ident">serialized_size_bytes</span>(<span class="self">self</span>))
             );
-            <span class="macro">info!</span>(
-                <span class="string">&quot;- {} roads: {} bytes&quot;</span>,
-                <span class="ident">prettyprint_usize</span>(<span class="self">self</span>.<span class="ident">roads</span>.<span class="ident">len</span>()),
-                <span class="ident">prettyprint_usize</span>(<span class="ident">serialized_size_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">roads</span>))
-            );
-            <span class="macro">info!</span>(
-                <span class="string">&quot;- {} lanes: {} bytes&quot;</span>,
-                <span class="ident">prettyprint_usize</span>(<span class="self">self</span>.<span class="ident">lanes</span>.<span class="ident">len</span>()),
-                <span class="ident">prettyprint_usize</span>(<span class="ident">serialized_size_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">lanes</span>))
-            );
-            <span class="macro">info!</span>(
-                <span class="string">&quot;- {} intersections: {} bytes&quot;</span>,
-                <span class="ident">prettyprint_usize</span>(<span class="self">self</span>.<span class="ident">intersections</span>.<span class="ident">len</span>()),
-                <span class="ident">prettyprint_usize</span>(<span class="ident">serialized_size_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">intersections</span>))
-            );
-            <span class="macro">info!</span>(
-                <span class="string">&quot;- {} buildings: {} bytes&quot;</span>,
-                <span class="ident">prettyprint_usize</span>(<span class="self">self</span>.<span class="ident">buildings</span>.<span class="ident">len</span>()),
-                <span class="ident">prettyprint_usize</span>(<span class="ident">serialized_size_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">buildings</span>))
-            );
-            <span class="macro">info!</span>(
-                <span class="string">&quot;- {} areas: {} bytes&quot;</span>,
-                <span class="ident">prettyprint_usize</span>(<span class="self">self</span>.<span class="ident">areas</span>.<span class="ident">len</span>()),
-                <span class="ident">prettyprint_usize</span>(<span class="ident">serialized_size_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">areas</span>))
-            );
-            <span class="macro">info!</span>(
-                <span class="string">&quot;- {} parking lots: {} bytes&quot;</span>,
-                <span class="ident">prettyprint_usize</span>(<span class="self">self</span>.<span class="ident">parking_lots</span>.<span class="ident">len</span>()),
-                <span class="ident">prettyprint_usize</span>(<span class="ident">serialized_size_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">parking_lots</span>))
-            );
-            <span class="macro">info!</span>(
-                <span class="string">&quot;- {} zones: {} bytes&quot;</span>,
-                <span class="ident">prettyprint_usize</span>(<span class="self">self</span>.<span class="ident">zones</span>.<span class="ident">len</span>()),
-                <span class="ident">prettyprint_usize</span>(<span class="ident">serialized_size_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">zones</span>))
-            );
-            <span class="comment">// This is the partridge in the pear tree, I suppose</span>
-            <span class="macro">info!</span>(
-                <span class="string">&quot;- pathfinder: {} bytes&quot;</span>,
-                <span class="ident">prettyprint_usize</span>(<span class="ident">serialized_size_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">pathfinder</span>))
-            );
+            <span class="kw">for</span> (<span class="ident">name</span>, <span class="ident">number</span>, <span class="ident">bytes</span>) <span class="kw">in</span> <span class="ident">costs</span> {
+                <span class="macro">info!</span>(
+                    <span class="string">&quot;- {} {}: {} bytes&quot;</span>,
+                    <span class="ident">prettyprint_usize</span>(<span class="ident">number</span>),
+                    <span class="ident">name</span>,
+                    <span class="ident">prettyprint_usize</span>(<span class="ident">bytes</span>)
+                );
+            }
         }
     }
 
