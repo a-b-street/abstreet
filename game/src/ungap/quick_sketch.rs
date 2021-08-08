@@ -24,7 +24,7 @@ impl QuickSketch {
     pub fn new_state(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State<App>> {
         let mut qs = QuickSketch {
             top_panel: Panel::empty(ctx),
-            magnifying_glass: MagnifyingGlass::new(ctx, false),
+            magnifying_glass: MagnifyingGlass::new(ctx),
             network_layer: crate::ungap::render_network_layer(ctx, app),
             edits_layer: render_edits(ctx, app),
             route_sketcher: RouteSketcher::new(ctx, app),

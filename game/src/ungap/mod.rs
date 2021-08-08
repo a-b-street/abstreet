@@ -1,4 +1,3 @@
-mod edit;
 mod layers;
 mod magnifying;
 mod nearby;
@@ -7,26 +6,34 @@ mod quick_sketch;
 use abstutil::prettyprint_usize;
 use geom::Distance;
 use map_gui::tools::{nice_map_name, CityPicker, PopupMsg};
+use map_gui::ID;
+use map_model::{EditCmd, LaneType};
 use widgetry::{
     lctrl, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State, Text,
-    Toggle, VerticalAlignment, Widget,
+    TextExt, Toggle, VerticalAlignment, Widget,
 };
 
-use self::layers::{legend, render_network_layer};
+use self::layers::{legend, render_edits, render_network_layer};
 use self::magnifying::MagnifyingGlass;
 use self::nearby::Nearby;
 use crate::app::{App, Transition};
 use crate::common::Warping;
+use crate::edit::{LoadEdits, RoadEditor, SaveEdits};
+use crate::sandbox::gameplay::GameplayMode;
 
 pub struct ExploreMap {
     top_panel: Panel,
     legend: Panel,
     magnifying_glass: MagnifyingGlass,
     network_layer: Drawable,
+    edits_layer: Drawable,
     elevation: bool,
     // TODO Also cache Nearby, but recalculate it after edits
     nearby: Option<Nearby>,
 
+    // edits name, number of commands
+    // TODO Brittle -- could undo and add a new command. Add a proper edit counter to map. Refactor
+    // with EditMode. Use Cached.
     changelist_key: (String, usize),
 }
 
@@ -36,10 +43,11 @@ impl ExploreMap {
         let edits = app.primary.map.get_edits();
 
         Box::new(ExploreMap {
-            top_panel: make_top_panel(ctx),
+            top_panel: make_top_panel(ctx, app),
             legend: make_legend(ctx, app, false, false),
-            magnifying_glass: MagnifyingGlass::new(ctx, true),
+            magnifying_glass: MagnifyingGlass::new(ctx),
             network_layer: render_network_layer(ctx, app),
+            edits_layer: render_edits(ctx, app),
             elevation: false,
             nearby: None,
 
@@ -55,7 +63,9 @@ impl State<App> for ExploreMap {
             let changelist_key = (edits.edits_name.clone(), edits.commands.len());
             if self.changelist_key != changelist_key {
                 self.changelist_key = changelist_key;
-                self.network_layer = crate::ungap::render_network_layer(ctx, app);
+                self.network_layer = render_network_layer(ctx, app);
+                self.edits_layer = render_edits(ctx, app);
+                self.top_panel = make_top_panel(ctx, app);
             }
         }
 
@@ -84,6 +94,38 @@ impl State<App> for ExploreMap {
             self.legend.replace(ctx, "current elevation", label);
         }
 
+        // Click to edit a road in detail
+        if ctx.redo_mouseover() {
+            app.primary.current_selection =
+                match app.mouseover_unzoomed_roads_and_intersections(ctx) {
+                    Some(ID::Road(r)) => Some(r),
+                    Some(ID::Lane(l)) => Some(app.primary.map.get_l(l).parent),
+                    _ => None,
+                }
+                .and_then(|r| {
+                    if app.primary.map.get_r(r).is_light_rail() {
+                        None
+                    } else {
+                        Some(ID::Road(r))
+                    }
+                });
+        }
+        if let Some(ID::Road(r)) = app.primary.current_selection {
+            if ctx.normal_left_click() {
+                return Transition::Multi(vec![
+                    Transition::Push(RoadEditor::new_state_without_lane(ctx, app, r)),
+                    Transition::Push(Warping::new_state(
+                        ctx,
+                        ctx.canvas.get_cursor_in_map_space().unwrap(),
+                        Some(10.0),
+                        None,
+                        &mut app.primary,
+                    )),
+                ]);
+            }
+        }
+
+        // Click to zoom in somewhere
         if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
             if ctx.canvas.cam_zoom < app.opts.min_zoom_for_detail && ctx.normal_left_click() {
                 return Transition::Push(Warping::new_state(
@@ -101,11 +143,32 @@ impl State<App> for ExploreMap {
                 "about A/B Street" => {
                     return Transition::Push(PopupMsg::new_state(ctx, "TODO", vec!["TODO"]));
                 }
-                "Bike Master Plan" => {
-                    return Transition::Push(PopupMsg::new_state(ctx, "TODO", vec!["TODO"]));
+                "Open a proposal" => {
+                    // Dummy mode, just to allow all edits
+                    // TODO Actually, should we make one to express that only road edits are
+                    // relevant?
+                    let mode = GameplayMode::Freeform(app.primary.map.get_name().clone());
+
+                    // TODO Do we want to do SaveEdits first if unsaved_edits()? We have
+                    // auto-saving... and after loading an old "untitled proposal", it looks
+                    // unsaved.
+                    return Transition::Push(LoadEdits::new_state(ctx, app, mode));
                 }
-                "Edit network" => {
-                    return Transition::Push(edit::QuickEdit::new_state(ctx, app));
+                "Save this proposal" => {
+                    return Transition::Push(SaveEdits::new_state(
+                        ctx,
+                        app,
+                        format!("Save \"{}\" as", app.primary.map.get_edits().edits_name),
+                        false,
+                        Some(Transition::Pop),
+                        Box::new(|_, _| {}),
+                    ));
+                }
+                "Sketch a route" => {
+                    app.primary.current_selection = None;
+                    return Transition::Push(crate::ungap::quick_sketch::QuickSketch::new_state(
+                        ctx, app,
+                    ));
                 }
                 _ => unreachable!(),
             }
@@ -198,35 +261,96 @@ impl State<App> for ExploreMap {
 
             self.magnifying_glass.draw(g, app);
         }
+        g.redraw(&self.edits_layer);
     }
 }
 
-fn make_top_panel(ctx: &mut EventCtx) -> Panel {
-    Panel::new_builder(Widget::row(vec![
+fn make_top_panel(ctx: &mut EventCtx, app: &App) -> Panel {
+    let mut file_management = Vec::new();
+    let edits = app.primary.map.get_edits();
+
+    let total_mileage = {
+        // Look for the new lanes...
+        let mut total = Distance::ZERO;
+        // TODO We're assuming the edits have been compressed.
+        for cmd in &edits.commands {
+            if let EditCmd::ChangeRoad { r, old, new } = cmd {
+                let num_before = old
+                    .lanes_ltr
+                    .iter()
+                    .filter(|spec| spec.lt == LaneType::Biking)
+                    .count();
+                let num_after = new
+                    .lanes_ltr
+                    .iter()
+                    .filter(|spec| spec.lt == LaneType::Biking)
+                    .count();
+                if num_before != num_after {
+                    let multiplier = (num_after as f64) - (num_before) as f64;
+                    total += multiplier * app.primary.map.get_r(*r).center_pts.length();
+                }
+            }
+        }
+        total
+    };
+    if edits.commands.is_empty() {
+        file_management.push("Today's network".text_widget(ctx));
+    } else {
+        file_management.push(Line(&edits.edits_name).into_widget(ctx));
+    }
+    file_management.push(
+        Line(format!(
+            "{:.1} miles of new bike lanes",
+            total_mileage.to_miles()
+        ))
+        .secondary()
+        .into_widget(ctx),
+    );
+    file_management.push(legend(
+        ctx,
+        *crate::ungap::layers::EDITED_COLOR,
+        "changed road",
+    ));
+    file_management.push(Widget::row(vec![
         ctx.style()
-            .btn_plain
-            .btn()
-            .image_path("system/assets/pregame/logo.svg")
-            .image_dims(50.0)
-            .build_widget(ctx, "about A/B Street"),
-        // TODO Tab style?
+            .btn_outline
+            .text("Open a proposal")
+            .hotkey(lctrl(Key::O))
+            .build_def(ctx),
         ctx.style()
-            .btn_solid_primary
-            .text("Today")
-            .disabled(true)
-            .build_def(ctx)
-            .centered_vert(),
-        ctx.style()
-            .btn_solid_primary
-            .text("Bike Master Plan")
-            .build_def(ctx)
-            .centered_vert(),
-        ctx.style()
-            .btn_solid_primary
-            .icon_text("system/assets/tools/pencil.svg", "Edit network")
-            .hotkey(lctrl(Key::E))
-            .build_def(ctx)
-            .centered_vert(),
+            .btn_outline
+            .text("Save this proposal")
+            .hotkey(lctrl(Key::S))
+            .disabled(edits.commands.is_empty())
+            .build_def(ctx),
+    ]));
+    // TODO Should undo/redo, save, share functionality also live here?
+
+    Panel::new_builder(Widget::col(vec![
+        Widget::row(vec![
+            ctx.style()
+                .btn_plain
+                .btn()
+                .image_path("system/assets/pregame/logo.svg")
+                .image_dims(50.0)
+                .build_widget(ctx, "about A/B Street"),
+            Line("Draw your ideal bike network")
+                .small_heading()
+                .into_widget(ctx)
+                .centered_vert(),
+        ]),
+        Widget::col(file_management).bg(ctx.style().section_bg),
+        Widget::row(vec![
+            "Click a road to edit in detail"
+                .text_widget(ctx)
+                .centered_vert(),
+            ctx.style()
+                .btn_solid_primary
+                .text("Sketch a route")
+                .hotkey(Key::S)
+                .build_def(ctx),
+        ])
+        .evenly_spaced(),
     ]))
     .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
     .build(ctx)

@@ -12,11 +12,10 @@ use crate::app::App;
 
 pub struct MagnifyingGlass {
     panel: Panel,
-    click_for_details: bool,
 }
 
 impl MagnifyingGlass {
-    pub fn new(ctx: &mut EventCtx, click_for_details: bool) -> MagnifyingGlass {
+    pub fn new(ctx: &mut EventCtx) -> MagnifyingGlass {
         MagnifyingGlass {
             panel: Panel::new_builder(
                 Widget::col(vec![
@@ -28,7 +27,6 @@ impl MagnifyingGlass {
             )
             .aligned(HorizontalAlignment::LeftInset, VerticalAlignment::TopInset)
             .build(ctx),
-            click_for_details,
         }
     }
 
@@ -45,9 +43,6 @@ impl MagnifyingGlass {
                 )));
             } else {
                 // TODO Jittery panel
-            }
-            if self.click_for_details {
-                label.add_line(Line("Click for details").secondary());
             }
             let label = label.into_widget(ctx);
             self.panel.replace(ctx, "label", label);
