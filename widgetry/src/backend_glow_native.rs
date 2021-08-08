@@ -13,9 +13,11 @@ pub fn setup(
         .with_maximized(true);
     // TODO If people are hitting problems with context not matching what their GPU provides, dig up
     // backend_glium.rs from git and bring the fallback behavior here. (Ideally, there'd be
-    // something in glutin to directly express this.) multisampling: 2 looks bad, 4 looks fine
+    // something in glutin to directly express this.)
     let context = glutin::ContextBuilder::new()
-        .with_multisampling(4)
+        // 2 looks really bad, 4 looks alright. For thin lines at low zoom, 8 looks better, and
+        // should have common videocard support.
+        .with_multisampling(8)
         .with_depth_buffer(2)
         .build_windowed(window.clone(), &event_loop)
         .or_else(|err| {
