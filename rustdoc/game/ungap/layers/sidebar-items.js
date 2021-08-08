@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["is_greenway",""],["legend",""],["render_edits",""],["render_network_layer",""]],"struct":[["DEDICATED_TRAIL",""],["EDITED_COLOR",""],["GREENWAY",""],["PAINTED_BIKE_LANE",""],["PROTECTED_BIKE_LANE",""]]});
+initSidebarItems({"fn":[["is_greenway",""],["legend",""],["render_edits",""]],"struct":[["DEDICATED_TRAIL",""],["DrawNetworkLayer","Shows the bike network while unzoomed. Handles thickening the roads at low zoom levels."],["EDITED_COLOR",""],["GREENWAY",""],["PAINTED_BIKE_LANE",""],["PROTECTED_BIKE_LANE",""]]});

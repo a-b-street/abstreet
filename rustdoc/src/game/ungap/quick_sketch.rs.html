@@ -199,12 +199,12 @@
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::common::RouteSketcher</span>;
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::edit::apply_map_edits</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::ungap::layers::render_edits</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::ungap::layers</span>::{<span class="ident">render_edits</span>, <span class="ident">DrawNetworkLayer</span>};
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::ungap::magnifying::MagnifyingGlass</span>;
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">QuickSketch</span> {
     <span class="ident">top_panel</span>: <span class="ident">Panel</span>,
-    <span class="ident">network_layer</span>: <span class="ident">Drawable</span>,
+    <span class="ident">network_layer</span>: <span class="ident">DrawNetworkLayer</span>,
     <span class="ident">edits_layer</span>: <span class="ident">Drawable</span>,
     <span class="ident">magnifying_glass</span>: <span class="ident">MagnifyingGlass</span>,
     <span class="ident">route_sketcher</span>: <span class="ident">RouteSketcher</span>,
@@ -215,7 +215,7 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">qs</span> <span class="op">=</span> <span class="ident">QuickSketch</span> {
             <span class="ident">top_panel</span>: <span class="ident">Panel::empty</span>(<span class="ident">ctx</span>),
             <span class="ident">magnifying_glass</span>: <span class="ident">MagnifyingGlass::new</span>(<span class="ident">ctx</span>),
-            <span class="ident">network_layer</span>: <span class="kw">crate</span><span class="ident">::ungap::render_network_layer</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
+            <span class="ident">network_layer</span>: <span class="ident">DrawNetworkLayer::new</span>(),
             <span class="ident">edits_layer</span>: <span class="ident">render_edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
             <span class="ident">route_sketcher</span>: <span class="ident">RouteSketcher::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
         };
@@ -303,7 +303,7 @@
     <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
         <span class="self">self</span>.<span class="ident">top_panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
         <span class="kw">if</span> <span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span> <span class="op">&lt;</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">min_zoom_for_detail</span> {
-            <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">network_layer</span>);
+            <span class="self">self</span>.<span class="ident">network_layer</span>.<span class="ident">draw</span>(<span class="ident">g</span>, <span class="ident">app</span>);
             <span class="self">self</span>.<span class="ident">magnifying_glass</span>.<span class="ident">draw</span>(<span class="ident">g</span>, <span class="ident">app</span>);
         }
         <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">edits_layer</span>);

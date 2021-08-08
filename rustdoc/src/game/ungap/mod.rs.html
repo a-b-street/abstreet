@@ -426,7 +426,7 @@
     <span class="ident">TextExt</span>, <span class="ident">Toggle</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
-<span class="kw">use</span> <span class="self">self</span><span class="ident">::layers</span>::{<span class="ident">legend</span>, <span class="ident">render_edits</span>, <span class="ident">render_network_layer</span>};
+<span class="kw">use</span> <span class="self">self</span><span class="ident">::layers</span>::{<span class="ident">legend</span>, <span class="ident">render_edits</span>, <span class="ident">DrawNetworkLayer</span>};
 <span class="kw">use</span> <span class="self">self</span><span class="ident">::magnifying::MagnifyingGlass</span>;
 <span class="kw">use</span> <span class="self">self</span><span class="ident">::nearby::Nearby</span>;
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
@@ -438,7 +438,7 @@
     <span class="ident">top_panel</span>: <span class="ident">Panel</span>,
     <span class="ident">legend</span>: <span class="ident">Panel</span>,
     <span class="ident">magnifying_glass</span>: <span class="ident">MagnifyingGlass</span>,
-    <span class="ident">network_layer</span>: <span class="ident">Drawable</span>,
+    <span class="ident">network_layer</span>: <span class="ident">DrawNetworkLayer</span>,
     <span class="ident">edits_layer</span>: <span class="ident">Drawable</span>,
     <span class="ident">elevation</span>: <span class="ident">bool</span>,
     <span class="comment">// TODO Also cache Nearby, but recalculate it after edits</span>
@@ -455,7 +455,7 @@
             <span class="ident">top_panel</span>: <span class="ident">make_top_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
             <span class="ident">legend</span>: <span class="ident">make_legend</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="bool-val">false</span>, <span class="bool-val">false</span>),
             <span class="ident">magnifying_glass</span>: <span class="ident">MagnifyingGlass::new</span>(<span class="ident">ctx</span>),
-            <span class="ident">network_layer</span>: <span class="ident">render_network_layer</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
+            <span class="ident">network_layer</span>: <span class="ident">DrawNetworkLayer::new</span>(),
             <span class="ident">edits_layer</span>: <span class="ident">render_edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
             <span class="ident">elevation</span>: <span class="bool-val">false</span>,
             <span class="ident">nearby</span>: <span class="prelude-val">None</span>,
@@ -473,7 +473,7 @@
             <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits_change_key</span>();
             <span class="kw">if</span> <span class="self">self</span>.<span class="ident">map_edit_key</span> <span class="op">!</span><span class="op">=</span> <span class="ident">key</span> {
                 <span class="self">self</span>.<span class="ident">map_edit_key</span> <span class="op">=</span> <span class="ident">key</span>;
-                <span class="self">self</span>.<span class="ident">network_layer</span> <span class="op">=</span> <span class="ident">render_network_layer</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+                <span class="self">self</span>.<span class="ident">network_layer</span>.<span class="ident">clear</span>();
                 <span class="self">self</span>.<span class="ident">edits_layer</span> <span class="op">=</span> <span class="ident">render_edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
                 <span class="self">self</span>.<span class="ident">top_panel</span> <span class="op">=</span> <span class="ident">make_top_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
             }
@@ -658,7 +658,7 @@
         <span class="self">self</span>.<span class="ident">top_panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
         <span class="self">self</span>.<span class="ident">legend</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
         <span class="kw">if</span> <span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span> <span class="op">&lt;</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">min_zoom_for_detail</span> {
-            <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">network_layer</span>);
+            <span class="self">self</span>.<span class="ident">network_layer</span>.<span class="ident">draw</span>(<span class="ident">g</span>, <span class="ident">app</span>);
 
             <span class="kw">if</span> <span class="self">self</span>.<span class="ident">elevation</span> {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">draw</span>)) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">elevation_contours</span>.<span class="ident">value</span>() {
