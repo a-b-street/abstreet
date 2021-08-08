@@ -444,6 +444,7 @@
 <span id="442">442</span>
 <span id="443">443</span>
 <span id="444">444</span>
+<span id="445">445</span>
 </pre><pre class="rust">
 <span class="doccomment">//! See &lt;https://a-b-street.github.io/docs/tech/map/importing/index.html&gt; for an overview. This module</span>
 <span class="doccomment">//! covers the RawMap-&gt;Map stage.</span>
@@ -533,6 +534,7 @@
             <span class="ident">routing_params</span>: <span class="ident">RoutingParams::default</span>(),
             <span class="ident">name</span>: <span class="ident">raw</span>.<span class="ident">name</span>.<span class="ident">clone</span>(),
             <span class="ident">edits</span>: <span class="ident">MapEdits::new</span>(),
+            <span class="ident">edits_generation</span>: <span class="number">0</span>,
             <span class="ident">road_to_buildings</span>: <span class="ident">MultiMap::new</span>(),
         };
         <span class="ident">map</span>.<span class="ident">edits</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">new_edits</span>();

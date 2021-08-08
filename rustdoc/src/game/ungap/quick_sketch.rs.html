@@ -187,7 +187,6 @@
 <span id="185">185</span>
 <span id="186">186</span>
 <span id="187">187</span>
-<span id="188">188</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">abstutil::Tags</span>;
 <span class="kw">use</span> <span class="ident">map_gui::tools::PopupMsg</span>;
@@ -276,8 +275,8 @@
     <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span> {
         <span class="self">self</span>.<span class="ident">magnifying_glass</span>.<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
 
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">top_panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">top_panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
+            <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
                 <span class="string">&quot;Cancel&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">return</span> <span class="ident">Transition::Pop</span>;
                 }
@@ -291,8 +290,7 @@
                     <span class="kw">return</span> <span class="ident">Transition::Replace</span>(<span class="ident">PopupMsg::new_state</span>(<span class="ident">ctx</span>, <span class="string">&quot;Changes made&quot;</span>, <span class="ident">messages</span>));
                 }
                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
-            },
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
+            }
         }
 
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">route_sketcher</span>.<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="ident">app</span>) {

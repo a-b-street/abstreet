@@ -939,7 +939,6 @@
 <span id="937">937</span>
 <span id="938">938</span>
 <span id="939">939</span>
-<span id="940">940</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">maplit::btreeset</span>;
 
@@ -983,8 +982,7 @@
     <span class="comment">// Retained state from the SandboxMode that spawned us</span>
     <span class="ident">mode</span>: <span class="ident">GameplayMode</span>,
 
-    <span class="comment">// edits name, number of commands</span>
-    <span class="ident">changelist_key</span>: (<span class="ident">String</span>, <span class="ident">usize</span>),
+    <span class="ident">map_edit_key</span>: <span class="ident">usize</span>,
 
     <span class="ident">unzoomed</span>: <span class="ident">Drawable</span>,
     <span class="ident">zoomed</span>: <span class="ident">Drawable</span>,
@@ -995,16 +993,15 @@
         <span class="kw">let</span> <span class="ident">orig_dirty</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">dirty_from_edits</span>;
         <span class="macro">assert!</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">suspended_sim</span>.<span class="ident">is_none</span>());
         <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">suspended_sim</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">clear_sim</span>());
-        <span class="kw">let</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>();
         <span class="kw">let</span> <span class="ident">layer</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::layer::map::Static::edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
         <span class="ident">Box::new</span>(<span class="ident">EditMode</span> {
             <span class="ident">tool_panel</span>: <span class="ident">tool_panel</span>(<span class="ident">ctx</span>),
             <span class="ident">top_center</span>: <span class="ident">make_topcenter</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
             <span class="ident">changelist</span>: <span class="ident">make_changelist</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
-            <span class="ident">orig_edits</span>: <span class="ident">edits</span>.<span class="ident">clone</span>(),
+            <span class="ident">orig_edits</span>: <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">clone</span>(),
             <span class="ident">orig_dirty</span>,
             <span class="ident">mode</span>,
-            <span class="ident">changelist_key</span>: (<span class="ident">edits</span>.<span class="ident">edits_name</span>.<span class="ident">clone</span>(), <span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">len</span>()),
+            <span class="ident">map_edit_key</span>: <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits_change_key</span>(),
             <span class="ident">unzoomed</span>: <span class="ident">layer</span>.<span class="ident">unzoomed</span>,
             <span class="ident">zoomed</span>: <span class="ident">layer</span>.<span class="ident">zoomed</span>,
         })
@@ -1089,10 +1086,11 @@
 <span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">EditMode</span> {
     <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span> {
         {
-            <span class="kw">let</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>();
-            <span class="kw">let</span> <span class="ident">changelist_key</span> <span class="op">=</span> (<span class="ident">edits</span>.<span class="ident">edits_name</span>.<span class="ident">clone</span>(), <span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">len</span>());
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">changelist_key</span> <span class="op">!</span><span class="op">=</span> <span class="ident">changelist_key</span> {
-                <span class="self">self</span>.<span class="ident">changelist_key</span> <span class="op">=</span> <span class="ident">changelist_key</span>;
+            <span class="comment">// We would normally use Cached, but so many values depend on one key, so this is more</span>
+            <span class="comment">// clear.</span>
+            <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits_change_key</span>();
+            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">map_edit_key</span> <span class="op">!</span><span class="op">=</span> <span class="ident">key</span> {
+                <span class="self">self</span>.<span class="ident">map_edit_key</span> <span class="op">=</span> <span class="ident">key</span>;
                 <span class="self">self</span>.<span class="ident">changelist</span> <span class="op">=</span> <span class="ident">make_changelist</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
                 <span class="kw">let</span> <span class="ident">layer</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::layer::map::Static::edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
                 <span class="self">self</span>.<span class="ident">unzoomed</span> <span class="op">=</span> <span class="ident">layer</span>.<span class="ident">unzoomed</span>;

@@ -410,9 +410,6 @@
 <span id="408">408</span>
 <span id="409">409</span>
 <span id="410">410</span>
-<span id="411">411</span>
-<span id="412">412</span>
-<span id="413">413</span>
 </pre><pre class="rust">
 <span class="kw">mod</span> <span class="ident">layers</span>;
 <span class="kw">mod</span> <span class="ident">magnifying</span>;
@@ -447,16 +444,12 @@
     <span class="comment">// TODO Also cache Nearby, but recalculate it after edits</span>
     <span class="ident">nearby</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Nearby</span><span class="op">&gt;</span>,
 
-    <span class="comment">// edits name, number of commands</span>
-    <span class="comment">// TODO Brittle -- could undo and add a new command. Add a proper edit counter to map. Refactor</span>
-    <span class="comment">// with EditMode. Use Cached.</span>
-    <span class="ident">changelist_key</span>: (<span class="ident">String</span>, <span class="ident">usize</span>),
+    <span class="ident">map_edit_key</span>: <span class="ident">usize</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">ExploreMap</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">show_building_driveways</span> <span class="op">=</span> <span class="bool-val">false</span>;
-        <span class="kw">let</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>();
 
         <span class="ident">Box::new</span>(<span class="ident">ExploreMap</span> {
             <span class="ident">top_panel</span>: <span class="ident">make_top_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
@@ -467,7 +460,7 @@
             <span class="ident">elevation</span>: <span class="bool-val">false</span>,
             <span class="ident">nearby</span>: <span class="prelude-val">None</span>,
 
-            <span class="ident">changelist_key</span>: (<span class="ident">edits</span>.<span class="ident">edits_name</span>.<span class="ident">clone</span>(), <span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">len</span>()),
+            <span class="ident">map_edit_key</span>: <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits_change_key</span>(),
         })
     }
 }
@@ -475,10 +468,11 @@
 <span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ExploreMap</span> {
     <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span> {
         {
-            <span class="kw">let</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>();
-            <span class="kw">let</span> <span class="ident">changelist_key</span> <span class="op">=</span> (<span class="ident">edits</span>.<span class="ident">edits_name</span>.<span class="ident">clone</span>(), <span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">len</span>());
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">changelist_key</span> <span class="op">!</span><span class="op">=</span> <span class="ident">changelist_key</span> {
-                <span class="self">self</span>.<span class="ident">changelist_key</span> <span class="op">=</span> <span class="ident">changelist_key</span>;
+            <span class="comment">// We would normally use Cached, but so many values depend on one key, so this is more</span>
+            <span class="comment">// clear.</span>
+            <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits_change_key</span>();
+            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">map_edit_key</span> <span class="op">!</span><span class="op">=</span> <span class="ident">key</span> {
+                <span class="self">self</span>.<span class="ident">map_edit_key</span> <span class="op">=</span> <span class="ident">key</span>;
                 <span class="self">self</span>.<span class="ident">network_layer</span> <span class="op">=</span> <span class="ident">render_network_layer</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
                 <span class="self">self</span>.<span class="ident">edits_layer</span> <span class="op">=</span> <span class="ident">render_edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
                 <span class="self">self</span>.<span class="ident">top_panel</span> <span class="op">=</span> <span class="ident">make_top_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
