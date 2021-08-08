@@ -7,7 +7,7 @@ use petgraph::graphmap::UnGraphMap;
 use serde::{Deserialize, Serialize};
 
 use abstio::{CityName, MapName};
-use abstutil::{MultiMap, Tags, Timer};
+use abstutil::{prettyprint_usize, serialized_size_bytes, MultiMap, Tags, Timer};
 use geom::{Bounds, Distance, Duration, GPSBounds, Polygon, Pt2D, Ring, Time};
 
 use crate::raw::{OriginalRoad, RawMap};
@@ -87,52 +87,60 @@ impl Map {
         self.edits = self.new_edits();
         self.recalculate_road_to_buildings();
 
-        if false {
-            use abstutil::{prettyprint_usize, serialized_size_bytes};
+        if true {
+            let mut costs = vec![
+                (
+                    "roads",
+                    self.roads.len(),
+                    serialized_size_bytes(&self.roads),
+                ),
+                (
+                    "lanes",
+                    self.lanes.len(),
+                    serialized_size_bytes(&self.lanes),
+                ),
+                (
+                    "intersections",
+                    self.intersections.len(),
+                    serialized_size_bytes(&self.intersections),
+                ),
+                (
+                    "buildings",
+                    self.buildings.len(),
+                    serialized_size_bytes(&self.buildings),
+                ),
+                (
+                    "areas",
+                    self.areas.len(),
+                    serialized_size_bytes(&self.areas),
+                ),
+                (
+                    "parking lots",
+                    self.parking_lots.len(),
+                    serialized_size_bytes(&self.parking_lots),
+                ),
+                (
+                    "zones",
+                    self.zones.len(),
+                    serialized_size_bytes(&self.zones),
+                ),
+                ("pathfinder", 1, serialized_size_bytes(&self.pathfinder)),
+            ];
+            costs.sort_by_key(|(_, _, bytes)| *bytes);
+            costs.reverse();
+
             info!(
                 "Total map size: {} bytes",
                 prettyprint_usize(serialized_size_bytes(self))
             );
-            info!(
-                "- {} roads: {} bytes",
-                prettyprint_usize(self.roads.len()),
-                prettyprint_usize(serialized_size_bytes(&self.roads))
-            );
-            info!(
-                "- {} lanes: {} bytes",
-                prettyprint_usize(self.lanes.len()),
-                prettyprint_usize(serialized_size_bytes(&self.lanes))
-            );
-            info!(
-                "- {} intersections: {} bytes",
-                prettyprint_usize(self.intersections.len()),
-                prettyprint_usize(serialized_size_bytes(&self.intersections))
-            );
-            info!(
-                "- {} buildings: {} bytes",
-                prettyprint_usize(self.buildings.len()),
-                prettyprint_usize(serialized_size_bytes(&self.buildings))
-            );
-            info!(
-                "- {} areas: {} bytes",
-                prettyprint_usize(self.areas.len()),
-                prettyprint_usize(serialized_size_bytes(&self.areas))
-            );
-            info!(
-                "- {} parking lots: {} bytes",
-                prettyprint_usize(self.parking_lots.len()),
-                prettyprint_usize(serialized_size_bytes(&self.parking_lots))
-            );
-            info!(
-                "- {} zones: {} bytes",
-                prettyprint_usize(self.zones.len()),
-                prettyprint_usize(serialized_size_bytes(&self.zones))
-            );
-            // This is the partridge in the pear tree, I suppose
-            info!(
-                "- pathfinder: {} bytes",
-                prettyprint_usize(serialized_size_bytes(&self.pathfinder))
-            );
+            for (name, number, bytes) in costs {
+                info!(
+                    "- {} {}: {} bytes",
+                    prettyprint_usize(number),
+                    name,
+                    prettyprint_usize(bytes)
+                );
+            }
         }
     }
 
