@@ -94,6 +94,8 @@
 <span id="92">92</span>
 <span id="93">93</span>
 <span id="94">94</span>
+<span id="95">95</span>
+<span id="96">96</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
 
@@ -110,9 +112,11 @@
         .<span class="ident">with_maximized</span>(<span class="bool-val">true</span>);
     <span class="comment">// TODO If people are hitting problems with context not matching what their GPU provides, dig up</span>
     <span class="comment">// backend_glium.rs from git and bring the fallback behavior here. (Ideally, there&#39;d be</span>
-    <span class="comment">// something in glutin to directly express this.) multisampling: 2 looks bad, 4 looks fine</span>
+    <span class="comment">// something in glutin to directly express this.)</span>
     <span class="kw">let</span> <span class="ident">context</span> <span class="op">=</span> <span class="ident">glutin::ContextBuilder::new</span>()
-        .<span class="ident">with_multisampling</span>(<span class="number">4</span>)
+        <span class="comment">// 2 looks really bad, 4 looks alright. For thin lines at low zoom, 8 looks better, and</span>
+        <span class="comment">// should have common videocard support.</span>
+        .<span class="ident">with_multisampling</span>(<span class="number">8</span>)
         .<span class="ident">with_depth_buffer</span>(<span class="number">2</span>)
         .<span class="ident">build_windowed</span>(<span class="ident">window</span>.<span class="ident">clone</span>(), <span class="kw-2">&amp;</span><span class="ident">event_loop</span>)
         .<span class="ident">or_else</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> {
