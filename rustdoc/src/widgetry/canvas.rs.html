@@ -558,7 +558,7 @@
         <span class="prelude-val">None</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">zoom</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">delta</span>: <span class="ident">f64</span>, <span class="ident">focus</span>: <span class="ident">ScreenPt</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">zoom</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">delta</span>: <span class="ident">f64</span>, <span class="ident">focus</span>: <span class="ident">ScreenPt</span>) {
         <span class="kw">let</span> <span class="ident">old_zoom</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">cam_zoom</span>;
         <span class="comment">// By popular request, some limits ;)</span>
         <span class="self">self</span>.<span class="ident">cam_zoom</span> <span class="op">=</span> <span class="number">1.1_f64</span>
