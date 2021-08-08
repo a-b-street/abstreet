@@ -215,7 +215,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">qs</span> <span class="op">=</span> <span class="ident">QuickSketch</span> {
             <span class="ident">top_panel</span>: <span class="ident">Panel::empty</span>(<span class="ident">ctx</span>),
-            <span class="ident">magnifying_glass</span>: <span class="ident">MagnifyingGlass::new</span>(<span class="ident">ctx</span>, <span class="bool-val">false</span>),
+            <span class="ident">magnifying_glass</span>: <span class="ident">MagnifyingGlass::new</span>(<span class="ident">ctx</span>),
             <span class="ident">network_layer</span>: <span class="kw">crate</span><span class="ident">::ungap::render_network_layer</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
             <span class="ident">edits_layer</span>: <span class="ident">render_edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
             <span class="ident">route_sketcher</span>: <span class="ident">RouteSketcher::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),

@@ -289,8 +289,131 @@
 <span id="287">287</span>
 <span id="288">288</span>
 <span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
+<span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
+<span id="347">347</span>
+<span id="348">348</span>
+<span id="349">349</span>
+<span id="350">350</span>
+<span id="351">351</span>
+<span id="352">352</span>
+<span id="353">353</span>
+<span id="354">354</span>
+<span id="355">355</span>
+<span id="356">356</span>
+<span id="357">357</span>
+<span id="358">358</span>
+<span id="359">359</span>
+<span id="360">360</span>
+<span id="361">361</span>
+<span id="362">362</span>
+<span id="363">363</span>
+<span id="364">364</span>
+<span id="365">365</span>
+<span id="366">366</span>
+<span id="367">367</span>
+<span id="368">368</span>
+<span id="369">369</span>
+<span id="370">370</span>
+<span id="371">371</span>
+<span id="372">372</span>
+<span id="373">373</span>
+<span id="374">374</span>
+<span id="375">375</span>
+<span id="376">376</span>
+<span id="377">377</span>
+<span id="378">378</span>
+<span id="379">379</span>
+<span id="380">380</span>
+<span id="381">381</span>
+<span id="382">382</span>
+<span id="383">383</span>
+<span id="384">384</span>
+<span id="385">385</span>
+<span id="386">386</span>
+<span id="387">387</span>
+<span id="388">388</span>
+<span id="389">389</span>
+<span id="390">390</span>
+<span id="391">391</span>
+<span id="392">392</span>
+<span id="393">393</span>
+<span id="394">394</span>
+<span id="395">395</span>
+<span id="396">396</span>
+<span id="397">397</span>
+<span id="398">398</span>
+<span id="399">399</span>
+<span id="400">400</span>
+<span id="401">401</span>
+<span id="402">402</span>
+<span id="403">403</span>
+<span id="404">404</span>
+<span id="405">405</span>
+<span id="406">406</span>
+<span id="407">407</span>
+<span id="408">408</span>
+<span id="409">409</span>
+<span id="410">410</span>
+<span id="411">411</span>
+<span id="412">412</span>
+<span id="413">413</span>
 </pre><pre class="rust">
-<span class="kw">mod</span> <span class="ident">edit</span>;
 <span class="kw">mod</span> <span class="ident">layers</span>;
 <span class="kw">mod</span> <span class="ident">magnifying</span>;
 <span class="kw">mod</span> <span class="ident">nearby</span>;
@@ -299,26 +422,34 @@
 <span class="kw">use</span> <span class="ident">abstutil::prettyprint_usize</span>;
 <span class="kw">use</span> <span class="ident">geom::Distance</span>;
 <span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">nice_map_name</span>, <span class="ident">CityPicker</span>, <span class="ident">PopupMsg</span>};
+<span class="kw">use</span> <span class="ident">map_gui::ID</span>;
+<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">EditCmd</span>, <span class="ident">LaneType</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">lctrl</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">Text</span>,
-    <span class="ident">Toggle</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">TextExt</span>, <span class="ident">Toggle</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
-<span class="kw">use</span> <span class="self">self</span><span class="ident">::layers</span>::{<span class="ident">legend</span>, <span class="ident">render_network_layer</span>};
+<span class="kw">use</span> <span class="self">self</span><span class="ident">::layers</span>::{<span class="ident">legend</span>, <span class="ident">render_edits</span>, <span class="ident">render_network_layer</span>};
 <span class="kw">use</span> <span class="self">self</span><span class="ident">::magnifying::MagnifyingGlass</span>;
 <span class="kw">use</span> <span class="self">self</span><span class="ident">::nearby::Nearby</span>;
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::common::Warping</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::edit</span>::{<span class="ident">LoadEdits</span>, <span class="ident">RoadEditor</span>, <span class="ident">SaveEdits</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::sandbox::gameplay::GameplayMode</span>;
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ExploreMap</span> {
     <span class="ident">top_panel</span>: <span class="ident">Panel</span>,
     <span class="ident">legend</span>: <span class="ident">Panel</span>,
     <span class="ident">magnifying_glass</span>: <span class="ident">MagnifyingGlass</span>,
     <span class="ident">network_layer</span>: <span class="ident">Drawable</span>,
+    <span class="ident">edits_layer</span>: <span class="ident">Drawable</span>,
     <span class="ident">elevation</span>: <span class="ident">bool</span>,
     <span class="comment">// TODO Also cache Nearby, but recalculate it after edits</span>
     <span class="ident">nearby</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Nearby</span><span class="op">&gt;</span>,
 
+    <span class="comment">// edits name, number of commands</span>
+    <span class="comment">// TODO Brittle -- could undo and add a new command. Add a proper edit counter to map. Refactor</span>
+    <span class="comment">// with EditMode. Use Cached.</span>
     <span class="ident">changelist_key</span>: (<span class="ident">String</span>, <span class="ident">usize</span>),
 }
 
@@ -328,10 +459,11 @@
         <span class="kw">let</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>();
 
         <span class="ident">Box::new</span>(<span class="ident">ExploreMap</span> {
-            <span class="ident">top_panel</span>: <span class="ident">make_top_panel</span>(<span class="ident">ctx</span>),
+            <span class="ident">top_panel</span>: <span class="ident">make_top_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
             <span class="ident">legend</span>: <span class="ident">make_legend</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="bool-val">false</span>, <span class="bool-val">false</span>),
-            <span class="ident">magnifying_glass</span>: <span class="ident">MagnifyingGlass::new</span>(<span class="ident">ctx</span>, <span class="bool-val">true</span>),
+            <span class="ident">magnifying_glass</span>: <span class="ident">MagnifyingGlass::new</span>(<span class="ident">ctx</span>),
             <span class="ident">network_layer</span>: <span class="ident">render_network_layer</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
+            <span class="ident">edits_layer</span>: <span class="ident">render_edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
             <span class="ident">elevation</span>: <span class="bool-val">false</span>,
             <span class="ident">nearby</span>: <span class="prelude-val">None</span>,
 
@@ -347,7 +479,9 @@
             <span class="kw">let</span> <span class="ident">changelist_key</span> <span class="op">=</span> (<span class="ident">edits</span>.<span class="ident">edits_name</span>.<span class="ident">clone</span>(), <span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">len</span>());
             <span class="kw">if</span> <span class="self">self</span>.<span class="ident">changelist_key</span> <span class="op">!</span><span class="op">=</span> <span class="ident">changelist_key</span> {
                 <span class="self">self</span>.<span class="ident">changelist_key</span> <span class="op">=</span> <span class="ident">changelist_key</span>;
-                <span class="self">self</span>.<span class="ident">network_layer</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::ungap::render_network_layer</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+                <span class="self">self</span>.<span class="ident">network_layer</span> <span class="op">=</span> <span class="ident">render_network_layer</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+                <span class="self">self</span>.<span class="ident">edits_layer</span> <span class="op">=</span> <span class="ident">render_edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+                <span class="self">self</span>.<span class="ident">top_panel</span> <span class="op">=</span> <span class="ident">make_top_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
             }
         }
 
@@ -376,6 +510,38 @@
             <span class="self">self</span>.<span class="ident">legend</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;current elevation&quot;</span>, <span class="ident">label</span>);
         }
 
+        <span class="comment">// Click to edit a road in detail</span>
+        <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">redo_mouseover</span>() {
+            <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> <span class="op">=</span>
+                <span class="kw">match</span> <span class="ident">app</span>.<span class="ident">mouseover_unzoomed_roads_and_intersections</span>(<span class="ident">ctx</span>) {
+                    <span class="prelude-val">Some</span>(<span class="ident">ID::Road</span>(<span class="ident">r</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">r</span>),
+                    <span class="prelude-val">Some</span>(<span class="ident">ID::Lane</span>(<span class="ident">l</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">parent</span>),
+                    <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
+                }
+                .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> {
+                    <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>).<span class="ident">is_light_rail</span>() {
+                        <span class="prelude-val">None</span>
+                    } <span class="kw">else</span> {
+                        <span class="prelude-val">Some</span>(<span class="ident">ID::Road</span>(<span class="ident">r</span>))
+                    }
+                });
+        }
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ID::Road</span>(<span class="ident">r</span>)) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> {
+            <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">normal_left_click</span>() {
+                <span class="kw">return</span> <span class="ident">Transition::Multi</span>(<span class="macro">vec!</span>[
+                    <span class="ident">Transition::Push</span>(<span class="ident">RoadEditor::new_state_without_lane</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">r</span>)),
+                    <span class="ident">Transition::Push</span>(<span class="ident">Warping::new_state</span>(
+                        <span class="ident">ctx</span>,
+                        <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_map_space</span>().<span class="ident">unwrap</span>(),
+                        <span class="prelude-val">Some</span>(<span class="number">10.0</span>),
+                        <span class="prelude-val">None</span>,
+                        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">app</span>.<span class="ident">primary</span>,
+                    )),
+                ]);
+            }
+        }
+
+        <span class="comment">// Click to zoom in somewhere</span>
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt</span>) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_map_space</span>() {
             <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span> <span class="op">&lt;</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">min_zoom_for_detail</span> <span class="op">&amp;&amp;</span> <span class="ident">ctx</span>.<span class="ident">normal_left_click</span>() {
                 <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">Warping::new_state</span>(
@@ -393,11 +559,32 @@
                 <span class="string">&quot;about A/B Street&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">PopupMsg::new_state</span>(<span class="ident">ctx</span>, <span class="string">&quot;TODO&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;TODO&quot;</span>]));
                 }
-                <span class="string">&quot;Bike Master Plan&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">PopupMsg::new_state</span>(<span class="ident">ctx</span>, <span class="string">&quot;TODO&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;TODO&quot;</span>]));
+                <span class="string">&quot;Open a proposal&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="comment">// Dummy mode, just to allow all edits</span>
+                    <span class="comment">// TODO Actually, should we make one to express that only road edits are</span>
+                    <span class="comment">// relevant?</span>
+                    <span class="kw">let</span> <span class="ident">mode</span> <span class="op">=</span> <span class="ident">GameplayMode::Freeform</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">clone</span>());
+
+                    <span class="comment">// TODO Do we want to do SaveEdits first if unsaved_edits()? We have</span>
+                    <span class="comment">// auto-saving... and after loading an old &quot;untitled proposal&quot;, it looks</span>
+                    <span class="comment">// unsaved.</span>
+                    <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">LoadEdits::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">mode</span>));
                 }
-                <span class="string">&quot;Edit network&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">edit::QuickEdit::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
+                <span class="string">&quot;Save this proposal&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">SaveEdits::new_state</span>(
+                        <span class="ident">ctx</span>,
+                        <span class="ident">app</span>,
+                        <span class="macro">format!</span>(<span class="string">&quot;Save \&quot;{}\&quot; as&quot;</span>, <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">edits_name</span>),
+                        <span class="bool-val">false</span>,
+                        <span class="prelude-val">Some</span>(<span class="ident">Transition::Pop</span>),
+                        <span class="ident">Box::new</span>(<span class="op">|</span><span class="kw">_</span>, <span class="kw">_</span><span class="op">|</span> {}),
+                    ));
+                }
+                <span class="string">&quot;Sketch a route&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+                    <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="kw">crate</span><span class="ident">::ungap::quick_sketch::QuickSketch::new_state</span>(
+                        <span class="ident">ctx</span>, <span class="ident">app</span>,
+                    ));
                 }
                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
             }
@@ -490,35 +677,96 @@
 
             <span class="self">self</span>.<span class="ident">magnifying_glass</span>.<span class="ident">draw</span>(<span class="ident">g</span>, <span class="ident">app</span>);
         }
+        <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">edits_layer</span>);
     }
 }
 
-<span class="kw">fn</span> <span class="ident">make_top_panel</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Panel</span> {
-    <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
+<span class="kw">fn</span> <span class="ident">make_top_panel</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Panel</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">file_management</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+    <span class="kw">let</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>();
+
+    <span class="kw">let</span> <span class="ident">total_mileage</span> <span class="op">=</span> {
+        <span class="comment">// Look for the new lanes...</span>
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">total</span> <span class="op">=</span> <span class="ident">Distance::ZERO</span>;
+        <span class="comment">// TODO We&#39;re assuming the edits have been compressed.</span>
+        <span class="kw">for</span> <span class="ident">cmd</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">edits</span>.<span class="ident">commands</span> {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">EditCmd::ChangeRoad</span> { <span class="ident">r</span>, <span class="ident">old</span>, <span class="ident">new</span> } <span class="op">=</span> <span class="ident">cmd</span> {
+                <span class="kw">let</span> <span class="ident">num_before</span> <span class="op">=</span> <span class="ident">old</span>
+                    .<span class="ident">lanes_ltr</span>
+                    .<span class="ident">iter</span>()
+                    .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">spec</span><span class="op">|</span> <span class="ident">spec</span>.<span class="ident">lt</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType::Biking</span>)
+                    .<span class="ident">count</span>();
+                <span class="kw">let</span> <span class="ident">num_after</span> <span class="op">=</span> <span class="ident">new</span>
+                    .<span class="ident">lanes_ltr</span>
+                    .<span class="ident">iter</span>()
+                    .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">spec</span><span class="op">|</span> <span class="ident">spec</span>.<span class="ident">lt</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType::Biking</span>)
+                    .<span class="ident">count</span>();
+                <span class="kw">if</span> <span class="ident">num_before</span> <span class="op">!</span><span class="op">=</span> <span class="ident">num_after</span> {
+                    <span class="kw">let</span> <span class="ident">multiplier</span> <span class="op">=</span> (<span class="ident">num_after</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">-</span> (<span class="ident">num_before</span>) <span class="kw">as</span> <span class="ident">f64</span>;
+                    <span class="ident">total</span> <span class="op">+</span><span class="op">=</span> <span class="ident">multiplier</span> <span class="op">*</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>).<span class="ident">center_pts</span>.<span class="ident">length</span>();
+                }
+            }
+        }
+        <span class="ident">total</span>
+    };
+    <span class="kw">if</span> <span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">is_empty</span>() {
+        <span class="ident">file_management</span>.<span class="ident">push</span>(<span class="string">&quot;Today&#39;s network&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>));
+    } <span class="kw">else</span> {
+        <span class="ident">file_management</span>.<span class="ident">push</span>(<span class="ident">Line</span>(<span class="kw-2">&amp;</span><span class="ident">edits</span>.<span class="ident">edits_name</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>));
+    }
+    <span class="ident">file_management</span>.<span class="ident">push</span>(
+        <span class="ident">Line</span>(<span class="macro">format!</span>(
+            <span class="string">&quot;{:.1} miles of new bike lanes&quot;</span>,
+            <span class="ident">total_mileage</span>.<span class="ident">to_miles</span>()
+        ))
+        .<span class="ident">secondary</span>()
+        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+    );
+    <span class="ident">file_management</span>.<span class="ident">push</span>(<span class="ident">legend</span>(
+        <span class="ident">ctx</span>,
+        <span class="kw-2">*</span><span class="kw">crate</span><span class="ident">::ungap::layers::EDITED_COLOR</span>,
+        <span class="string">&quot;changed road&quot;</span>,
+    ));
+    <span class="ident">file_management</span>.<span class="ident">push</span>(<span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
         <span class="ident">ctx</span>.<span class="ident">style</span>()
-            .<span class="ident">btn_plain</span>
-            .<span class="ident">btn</span>()
-            .<span class="ident">image_path</span>(<span class="string">&quot;system/assets/pregame/logo.svg&quot;</span>)
-            .<span class="ident">image_dims</span>(<span class="number">50.0</span>)
-            .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;about A/B Street&quot;</span>),
-        <span class="comment">// TODO Tab style?</span>
+            .<span class="ident">btn_outline</span>
+            .<span class="ident">text</span>(<span class="string">&quot;Open a proposal&quot;</span>)
+            .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key::O</span>))
+            .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
         <span class="ident">ctx</span>.<span class="ident">style</span>()
-            .<span class="ident">btn_solid_primary</span>
-            .<span class="ident">text</span>(<span class="string">&quot;Today&quot;</span>)
-            .<span class="ident">disabled</span>(<span class="bool-val">true</span>)
-            .<span class="ident">build_def</span>(<span class="ident">ctx</span>)
-            .<span class="ident">centered_vert</span>(),
-        <span class="ident">ctx</span>.<span class="ident">style</span>()
-            .<span class="ident">btn_solid_primary</span>
-            .<span class="ident">text</span>(<span class="string">&quot;Bike Master Plan&quot;</span>)
-            .<span class="ident">build_def</span>(<span class="ident">ctx</span>)
-            .<span class="ident">centered_vert</span>(),
-        <span class="ident">ctx</span>.<span class="ident">style</span>()
-            .<span class="ident">btn_solid_primary</span>
-            .<span class="ident">icon_text</span>(<span class="string">&quot;system/assets/tools/pencil.svg&quot;</span>, <span class="string">&quot;Edit network&quot;</span>)
-            .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key::E</span>))
-            .<span class="ident">build_def</span>(<span class="ident">ctx</span>)
-            .<span class="ident">centered_vert</span>(),
+            .<span class="ident">btn_outline</span>
+            .<span class="ident">text</span>(<span class="string">&quot;Save this proposal&quot;</span>)
+            .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key::S</span>))
+            .<span class="ident">disabled</span>(<span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">is_empty</span>())
+            .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+    ]));
+    <span class="comment">// TODO Should undo/redo, save, share functionality also live here?</span>
+
+    <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
+        <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
+            <span class="ident">ctx</span>.<span class="ident">style</span>()
+                .<span class="ident">btn_plain</span>
+                .<span class="ident">btn</span>()
+                .<span class="ident">image_path</span>(<span class="string">&quot;system/assets/pregame/logo.svg&quot;</span>)
+                .<span class="ident">image_dims</span>(<span class="number">50.0</span>)
+                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;about A/B Street&quot;</span>),
+            <span class="ident">Line</span>(<span class="string">&quot;Draw your ideal bike network&quot;</span>)
+                .<span class="ident">small_heading</span>()
+                .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
+                .<span class="ident">centered_vert</span>(),
+        ]),
+        <span class="ident">Widget::col</span>(<span class="ident">file_management</span>).<span class="ident">bg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">section_bg</span>),
+        <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
+            <span class="string">&quot;Click a road to edit in detail&quot;</span>
+                .<span class="ident">text_widget</span>(<span class="ident">ctx</span>)
+                .<span class="ident">centered_vert</span>(),
+            <span class="ident">ctx</span>.<span class="ident">style</span>()
+                .<span class="ident">btn_solid_primary</span>
+                .<span class="ident">text</span>(<span class="string">&quot;Sketch a route&quot;</span>)
+                .<span class="ident">hotkey</span>(<span class="ident">Key::S</span>)
+                .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+        ])
+        .<span class="ident">evenly_spaced</span>(),
     ]))
     .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::Center</span>, <span class="ident">VerticalAlignment::Top</span>)
     .<span class="ident">build</span>(<span class="ident">ctx</span>)
