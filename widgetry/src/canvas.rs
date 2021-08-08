@@ -193,7 +193,7 @@ impl Canvas {
         None
     }
 
-    fn zoom(&mut self, delta: f64, focus: ScreenPt) {
+    pub fn zoom(&mut self, delta: f64, focus: ScreenPt) {
         let old_zoom = self.cam_zoom;
         // By popular request, some limits ;)
         self.cam_zoom = 1.1_f64

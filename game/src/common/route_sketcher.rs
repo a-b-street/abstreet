@@ -54,6 +54,10 @@ impl RouteSketcher {
                 }
             }
             Mode::Hovering(i) => {
+                if let Some((_, dy)) = ctx.input.get_mouse_scroll() {
+                    ctx.canvas.zoom(dy, ctx.canvas.get_cursor());
+                }
+
                 if ctx.normal_left_click() {
                     self.route.add_waypoint(app, i);
                     return;
@@ -178,6 +182,14 @@ impl RouteSketcher {
 
     pub fn draw(&self, g: &mut GfxCtx) {
         g.redraw(&self.preview);
+        if matches!(self.mode, Mode::Dragging { .. }) {
+            if let Some(pt) = g.canvas.get_cursor_in_map_space() {
+                g.draw_polygon(
+                    Color::BLUE.alpha(0.5),
+                    Circle::new(pt, Distance::meters(10.0)).to_polygon(),
+                );
+            }
+        }
     }
 
     pub fn all_roads(&self, app: &App) -> Vec<RoadID> {
