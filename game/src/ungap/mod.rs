@@ -13,7 +13,7 @@ use widgetry::{
     TextExt, Toggle, VerticalAlignment, Widget,
 };
 
-use self::layers::{legend, render_edits, render_network_layer};
+use self::layers::{legend, render_edits, DrawNetworkLayer};
 use self::magnifying::MagnifyingGlass;
 use self::nearby::Nearby;
 use crate::app::{App, Transition};
@@ -25,7 +25,7 @@ pub struct ExploreMap {
     top_panel: Panel,
     legend: Panel,
     magnifying_glass: MagnifyingGlass,
-    network_layer: Drawable,
+    network_layer: DrawNetworkLayer,
     edits_layer: Drawable,
     elevation: bool,
     // TODO Also cache Nearby, but recalculate it after edits
@@ -42,7 +42,7 @@ impl ExploreMap {
             top_panel: make_top_panel(ctx, app),
             legend: make_legend(ctx, app, false, false),
             magnifying_glass: MagnifyingGlass::new(ctx),
-            network_layer: render_network_layer(ctx, app),
+            network_layer: DrawNetworkLayer::new(),
             edits_layer: render_edits(ctx, app),
             elevation: false,
             nearby: None,
@@ -60,7 +60,7 @@ impl State<App> for ExploreMap {
             let key = app.primary.map.get_edits_change_key();
             if self.map_edit_key != key {
                 self.map_edit_key = key;
-                self.network_layer = render_network_layer(ctx, app);
+                self.network_layer.clear();
                 self.edits_layer = render_edits(ctx, app);
                 self.top_panel = make_top_panel(ctx, app);
             }
@@ -245,7 +245,7 @@ impl State<App> for ExploreMap {
         self.top_panel.draw(g);
         self.legend.draw(g);
         if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
-            g.redraw(&self.network_layer);
+            self.network_layer.draw(g, app);
 
             if self.elevation {
                 if let Some((_, ref draw)) = app.session.elevation_contours.value() {

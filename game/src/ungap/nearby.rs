@@ -59,7 +59,6 @@ impl Nearby {
 }
 
 fn bike_network_roads(map: &Map) -> Vec<DirectedRoadID> {
-    // TODO Repeating some render_network_layer logic
     let mut results = Vec::new();
     for r in map.all_roads() {
         if r.is_cycleway()

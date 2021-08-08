@@ -9,12 +9,12 @@ use widgetry::{
 use crate::app::{App, Transition};
 use crate::common::RouteSketcher;
 use crate::edit::apply_map_edits;
-use crate::ungap::layers::render_edits;
+use crate::ungap::layers::{render_edits, DrawNetworkLayer};
 use crate::ungap::magnifying::MagnifyingGlass;
 
 pub struct QuickSketch {
     top_panel: Panel,
-    network_layer: Drawable,
+    network_layer: DrawNetworkLayer,
     edits_layer: Drawable,
     magnifying_glass: MagnifyingGlass,
     route_sketcher: RouteSketcher,
@@ -25,7 +25,7 @@ impl QuickSketch {
         let mut qs = QuickSketch {
             top_panel: Panel::empty(ctx),
             magnifying_glass: MagnifyingGlass::new(ctx),
-            network_layer: crate::ungap::render_network_layer(ctx, app),
+            network_layer: DrawNetworkLayer::new(),
             edits_layer: render_edits(ctx, app),
             route_sketcher: RouteSketcher::new(ctx, app),
         };
@@ -113,7 +113,7 @@ impl State<App> for QuickSketch {
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.top_panel.draw(g);
         if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
-            g.redraw(&self.network_layer);
+            self.network_layer.draw(g, app);
             self.magnifying_glass.draw(g, app);
         }
         g.redraw(&self.edits_layer);

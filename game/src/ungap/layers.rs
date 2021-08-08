@@ -1,6 +1,8 @@
+use std::cell::RefCell;
+
 use geom::{Circle, Distance, Pt2D};
 use map_model::{LaneType, PathConstraints, Road};
-use widgetry::{Color, Drawable, EventCtx, GeomBatch, Widget};
+use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Widget};
 
 use crate::app::App;
 
@@ -30,73 +32,86 @@ pub fn legend(ctx: &mut EventCtx, color: Color, label: &str) -> Widget {
     ])
 }
 
-pub fn render_network_layer(ctx: &mut EventCtx, app: &App) -> Drawable {
-    let mut batch = GeomBatch::new();
-    // The basemap colors are beautiful, but we want to emphasize the bike network, so all's foggy
-    // in love and war...
-    batch.push(
-        Color::BLACK.alpha(0.4),
-        app.primary.map.get_boundary_polygon().clone(),
-    );
+/// Shows the bike network while unzoomed. Handles thickening the roads at low zoom levels.
+pub struct DrawNetworkLayer {
+    per_zoom: RefCell<[Option<Drawable>; 11]>,
+}
 
-    for r in app.primary.map.all_roads() {
-        if r.is_cycleway() {
-            batch.push(*DEDICATED_TRAIL, r.get_thick_polygon(&app.primary.map));
-            continue;
-        }
-
-        if is_greenway(r) {
-            batch.push(*GREENWAY, r.get_thick_polygon(&app.primary.map));
-        }
-
-        // Don't cover up the arterial/local classification -- add thick side lines to show bike
-        // facilties in each direction.
-        let mut bike_lane_left = false;
-        let mut buffer_left = false;
-        let mut bike_lane_right = false;
-        let mut buffer_right = false;
-        let mut on_left = true;
-        for (_, _, lt) in r.lanes_ltr() {
-            if lt == LaneType::Driving || lt == LaneType::Bus {
-                // We're walking the lanes from left-to-right. So as soon as we hit a vehicle lane,
-                // any bike lane we find is on the right side of the road.
-                // (Barring really bizarre things like a bike lane in the middle of the road)
-                on_left = false;
-            } else if lt == LaneType::Biking {
-                if on_left {
-                    bike_lane_left = true;
-                } else {
-                    bike_lane_right = true;
-                }
-            } else if matches!(lt, LaneType::Buffer(_)) {
-                if on_left {
-                    buffer_left = true;
-                } else {
-                    buffer_right = true;
-                }
-            }
-
-            let half_width = r.get_half_width(&app.primary.map);
-            for (shift, bike_lane, buffer) in [
-                (-1.0, bike_lane_left, buffer_left),
-                (1.0, bike_lane_right, buffer_right),
-            ] {
-                let color = if bike_lane && buffer {
-                    *PROTECTED_BIKE_LANE
-                } else if bike_lane {
-                    *PAINTED_BIKE_LANE
-                } else {
-                    // If we happen to have a buffer, but no bike lane, let's just not ask
-                    // questions...
-                    continue;
-                };
-                if let Ok(pl) = r.center_pts.shift_either_direction(shift * half_width) {
-                    batch.push(color, pl.make_polygons(0.9 * half_width));
-                }
-            }
+impl DrawNetworkLayer {
+    pub fn new() -> DrawNetworkLayer {
+        DrawNetworkLayer {
+            per_zoom: Default::default(),
         }
     }
-    batch.upload(ctx)
+
+    /// Call when the network changes.
+    pub fn clear(&mut self) {
+        self.per_zoom = Default::default();
+    }
+
+    pub fn draw(&self, g: &mut GfxCtx, app: &App) {
+        let (zoom, idx) = DrawNetworkLayer::discretize_zoom(g.canvas.cam_zoom);
+        let value = &mut self.per_zoom.borrow_mut()[idx];
+        if value.is_none() {
+            *value = Some(DrawNetworkLayer::render_network_layer(g, app, zoom));
+        }
+        g.redraw(value.as_ref().unwrap());
+    }
+
+    // Continuously changing road width as we zoom looks great, but it's terribly slow. We'd have
+    // to move line thickening into the shader to do it better. So recalculate with less
+    // granularity.
+    fn discretize_zoom(zoom: f64) -> (f64, usize) {
+        if zoom >= 1.0 {
+            return (1.0, 10);
+        }
+        let rounded = (zoom * 10.0).round();
+        let idx = rounded as usize;
+        (rounded / 10.0, idx)
+    }
+
+    fn render_network_layer(g: &mut GfxCtx, app: &App, zoom: f64) -> Drawable {
+        let mut batch = GeomBatch::new();
+        let map = &app.primary.map;
+
+        // The basemap colors are beautiful, but we want to emphasize the bike network, so all's foggy
+        // in love and war...
+        batch.push(Color::BLACK.alpha(0.4), map.get_boundary_polygon().clone());
+
+        // Thicker lines as we zoom out. Scale up to 5x. Never shrink past the road's actual width
+        let thickness = (0.5 / zoom).max(1.0);
+
+        for r in map.all_roads() {
+            let mut bike_lane = false;
+            let mut buffer = false;
+            for (_, _, lt) in r.lanes_ltr() {
+                if lt == LaneType::Biking {
+                    bike_lane = true;
+                } else if matches!(lt, LaneType::Buffer(_)) {
+                    buffer = true;
+                }
+            }
+
+            let color = if r.is_cycleway() {
+                *DEDICATED_TRAIL
+            } else if bike_lane && buffer {
+                *PROTECTED_BIKE_LANE
+            } else if bike_lane {
+                *PAINTED_BIKE_LANE
+            } else if is_greenway(r) {
+                *GREENWAY
+            } else {
+                continue;
+            };
+
+            batch.push(
+                color,
+                r.center_pts.make_polygons(thickness * r.get_width(map)),
+            );
+        }
+
+        g.upload(batch)
+    }
 }
 
 // TODO Check how other greenways are tagged.
