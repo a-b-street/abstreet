@@ -85,8 +85,8 @@ impl State<App> for QuickSketch {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         self.magnifying_glass.event(ctx, app);
 
-        match self.top_panel.event(ctx) {
-            Outcome::Clicked(x) => match x.as_ref() {
+        if let Outcome::Clicked(x) = self.top_panel.event(ctx) {
+            match x.as_ref() {
                 "Cancel" => {
                     return Transition::Pop;
                 }
@@ -100,8 +100,7 @@ impl State<App> for QuickSketch {
                     return Transition::Replace(PopupMsg::new_state(ctx, "Changes made", messages));
                 }
                 _ => unreachable!(),
-            },
-            _ => {}
+            }
         }
 
         if self.route_sketcher.event(ctx, app) {

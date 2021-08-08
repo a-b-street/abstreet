@@ -179,6 +179,7 @@ impl Map {
             routing_params: RoutingParams::default(),
             name: MapName::new("zz", "blank city", "blank"),
             edits: MapEdits::new(),
+            edits_generation: 0,
             road_to_buildings: MultiMap::new(),
         }
     }

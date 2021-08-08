@@ -31,16 +31,12 @@ pub struct ExploreMap {
     // TODO Also cache Nearby, but recalculate it after edits
     nearby: Option<Nearby>,
 
-    // edits name, number of commands
-    // TODO Brittle -- could undo and add a new command. Add a proper edit counter to map. Refactor
-    // with EditMode. Use Cached.
-    changelist_key: (String, usize),
+    map_edit_key: usize,
 }
 
 impl ExploreMap {
     pub fn new_state(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State<App>> {
         app.opts.show_building_driveways = false;
-        let edits = app.primary.map.get_edits();
 
         Box::new(ExploreMap {
             top_panel: make_top_panel(ctx, app),
@@ -51,7 +47,7 @@ impl ExploreMap {
             elevation: false,
             nearby: None,
 
-            changelist_key: (edits.edits_name.clone(), edits.commands.len()),
+            map_edit_key: app.primary.map.get_edits_change_key(),
         })
     }
 }
@@ -59,10 +55,11 @@ impl ExploreMap {
 impl State<App> for ExploreMap {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         {
-            let edits = app.primary.map.get_edits();
-            let changelist_key = (edits.edits_name.clone(), edits.commands.len());
-            if self.changelist_key != changelist_key {
-                self.changelist_key = changelist_key;
+            // We would normally use Cached, but so many values depend on one key, so this is more
+            // clear.
+            let key = app.primary.map.get_edits_change_key();
+            if self.map_edit_key != key {
+                self.map_edit_key = key;
                 self.network_layer = render_network_layer(ctx, app);
                 self.edits_layer = render_edits(ctx, app);
                 self.top_panel = make_top_panel(ctx, app);

@@ -40,8 +40,7 @@ pub struct EditMode {
     // Retained state from the SandboxMode that spawned us
     mode: GameplayMode,
 
-    // edits name, number of commands
-    changelist_key: (String, usize),
+    map_edit_key: usize,
 
     unzoomed: Drawable,
     zoomed: Drawable,
@@ -52,16 +51,15 @@ impl EditMode {
         let orig_dirty = app.primary.dirty_from_edits;
         assert!(app.primary.suspended_sim.is_none());
         app.primary.suspended_sim = Some(app.primary.clear_sim());
-        let edits = app.primary.map.get_edits();
         let layer = crate::layer::map::Static::edits(ctx, app);
         Box::new(EditMode {
             tool_panel: tool_panel(ctx),
             top_center: make_topcenter(ctx, app),
             changelist: make_changelist(ctx, app),
-            orig_edits: edits.clone(),
+            orig_edits: app.primary.map.get_edits().clone(),
             orig_dirty,
             mode,
-            changelist_key: (edits.edits_name.clone(), edits.commands.len()),
+            map_edit_key: app.primary.map.get_edits_change_key(),
             unzoomed: layer.unzoomed,
             zoomed: layer.zoomed,
         })
@@ -146,10 +144,11 @@ impl EditMode {
 impl State<App> for EditMode {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         {
-            let edits = app.primary.map.get_edits();
-            let changelist_key = (edits.edits_name.clone(), edits.commands.len());
-            if self.changelist_key != changelist_key {
-                self.changelist_key = changelist_key;
+            // We would normally use Cached, but so many values depend on one key, so this is more
+            // clear.
+            let key = app.primary.map.get_edits_change_key();
+            if self.map_edit_key != key {
+                self.map_edit_key = key;
                 self.changelist = make_changelist(ctx, app);
                 let layer = crate::layer::map::Static::edits(ctx, app);
                 self.unzoomed = layer.unzoomed;

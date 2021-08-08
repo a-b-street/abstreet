@@ -116,5 +116,7 @@ pub struct Map {
     #[serde(skip_serializing, skip_deserializing)]
     edits: MapEdits,
     #[serde(skip_serializing, skip_deserializing)]
+    edits_generation: usize,
+    #[serde(skip_serializing, skip_deserializing)]
     road_to_buildings: MultiMap<RoadID, BuildingID>,
 }

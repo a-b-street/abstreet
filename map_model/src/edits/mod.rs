@@ -774,6 +774,8 @@ impl Map {
     // new_edits don't necessarily have to be valid; this could be used for speculatively testing
     // edits. Doesn't update pathfinding yet.
     fn apply_edits(&mut self, mut new_edits: MapEdits, enforce_valid: bool) -> EditEffects {
+        self.edits_generation += 1;
+
         let mut effects = EditEffects {
             changed_roads: BTreeSet::new(),
             deleted_lanes: BTreeSet::new(),
@@ -906,5 +908,10 @@ impl Map {
             IntersectionType::TrafficSignal
         );
         self.traffic_signals.insert(signal.id, signal);
+    }
+
+    /// If you need to regenerate anything when the map is edited, use this key to detect edits.
+    pub fn get_edits_change_key(&self) -> usize {
+        self.edits_generation
     }
 }

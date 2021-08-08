@@ -86,6 +86,7 @@ impl Map {
             routing_params: RoutingParams::default(),
             name: raw.name.clone(),
             edits: MapEdits::new(),
+            edits_generation: 0,
             road_to_buildings: MultiMap::new(),
         };
         map.edits = map.new_edits();
