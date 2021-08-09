@@ -52,8 +52,8 @@ impl<T: 'static + Clone + Ord> Autocomplete<T> {
 }
 
 impl<T: 'static + Clone> Autocomplete<T> {
-    pub fn final_value(&self) -> Option<Vec<T>> {
-        self.chosen_values.clone()
+    pub fn take_final_value(&mut self) -> Option<Vec<T>> {
+        self.chosen_values.take()
     }
 
     fn recalc_menu(&mut self, ctx: &mut EventCtx) {

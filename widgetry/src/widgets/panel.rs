@@ -442,8 +442,10 @@ impl Panel {
         self.find::<PersistentSplit<T>>(name).current_value()
     }
 
-    pub fn autocomplete_done<T: 'static + Clone>(&self, name: &str) -> Option<Vec<T>> {
-        self.find::<Autocomplete<T>>(name).final_value()
+    /// Consumes the autocomplete widget. It's fine if the panel survives past this event; the
+    /// autocomplete just needs to be interacted with again to produce more values.
+    pub fn autocomplete_done<T: 'static + Clone>(&mut self, name: &str) -> Option<Vec<T>> {
+        self.find_mut::<Autocomplete<T>>(name).take_final_value()
     }
 
     /// Grab a stashed value, with the ability to pass it around and modify it.
