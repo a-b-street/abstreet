@@ -5,7 +5,7 @@ mod quick_sketch;
 
 use abstutil::prettyprint_usize;
 use geom::Distance;
-use map_gui::tools::{nice_map_name, CityPicker, PopupMsg};
+use map_gui::tools::{nice_map_name, CityPicker, ColorLegend, PopupMsg};
 use map_gui::ID;
 use map_model::{EditCmd, LaneType};
 use widgetry::{
@@ -303,7 +303,7 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App) -> Panel {
         .secondary()
         .into_widget(ctx),
     );
-    file_management.push(legend(
+    file_management.push(ColorLegend::row(
         ctx,
         *crate::ungap::layers::EDITED_COLOR,
         "changed road",
