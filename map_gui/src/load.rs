@@ -20,10 +20,10 @@ use crate::tools::PopupMsg;
 use crate::AppLike;
 
 #[cfg(not(target_arch = "wasm32"))]
-pub use native_loader::FileLoader;
+pub use native_loader::{FileLoader, RawFileLoader};
 
 #[cfg(target_arch = "wasm32")]
-pub use wasm_loader::FileLoader;
+pub use wasm_loader::{FileLoader, RawFileLoader};
 
 pub struct MapLoader;
 
@@ -57,12 +57,12 @@ impl MapLoader {
             _ => None,
         } {
             if !ctx.is_font_loaded(extra_font) {
-                return FileLoader::<A, RawBytes>::new_state(
+                return RawFileLoader::<A>::new_state(
                     ctx,
                     abstio::path(format!("system/extra_fonts/{}", extra_font)),
-                    Box::new(move |ctx, app, _, bytes| match bytes {
+                    Box::new(move |ctx, app, bytes| match bytes {
                         Ok(bytes) => {
-                            ctx.load_font(extra_font, bytes.0);
+                            ctx.load_font(extra_font, bytes);
                             Transition::Replace(MapLoader::new_state(ctx, app, name, on_load))
                         }
                         Err(err) => Transition::Replace(PopupMsg::new_state(
@@ -112,20 +112,11 @@ impl<A: AppLike + 'static> State<A> for MapAlreadyLoaded<A> {
     fn draw(&self, _: &mut GfxCtx, _: &A) {}
 }
 
-// Use this with FileLoader to just read raw bytes without any deserialization.
-struct RawBytes(Vec<u8>);
-
 #[cfg(not(target_arch = "wasm32"))]
 mod native_loader {
     use super::*;
 
-    pub trait Readable {
-        fn read_file(path: String, timer: &mut Timer) -> Result<Self>
-        where
-            Self: Sized;
-    }
-
-    /// Loads a JSON, bincoded, or raw file, then deserializes it
+    /// Loads a JSON or bincoded file, then deserializes it
     pub struct FileLoader<A: AppLike, T> {
         path: String,
         // Wrapped in an Option just to make calling from event() work. Technically this is unsafe
@@ -134,7 +125,7 @@ mod native_loader {
             Option<Box<dyn FnOnce(&mut EventCtx, &mut A, &mut Timer, Result<T>) -> Transition<A>>>,
     }
 
-    impl<A: AppLike + 'static, T: 'static + Readable> FileLoader<A, T> {
+    impl<A: AppLike + 'static, T: 'static + DeserializeOwned> FileLoader<A, T> {
         pub fn new_state(
             _: &mut EventCtx,
             path: String,
@@ -147,11 +138,11 @@ mod native_loader {
         }
     }
 
-    impl<A: AppLike + 'static, T: 'static + Readable> State<A> for FileLoader<A, T> {
+    impl<A: AppLike + 'static, T: 'static + DeserializeOwned> State<A> for FileLoader<A, T> {
         fn event(&mut self, ctx: &mut EventCtx, app: &mut A) -> Transition<A> {
             debug!("Loading {}", self.path);
             ctx.loading_screen(format!("load {}", self.path), |ctx, timer| {
-                let file = T::read_file(self.path.clone(), timer);
+                let file = abstio::read_object(self.path.clone(), timer);
                 (self.on_load.take().unwrap())(ctx, app, timer, file)
             })
         }
@@ -161,15 +152,38 @@ mod native_loader {
         }
     }
 
-    // Two implementations for reading the file, using serde or just raw bytes
-    impl<T: 'static + DeserializeOwned> Readable for T {
-        fn read_file(path: String, timer: &mut Timer) -> Result<T> {
-            abstio::read_object(path, timer)
+    /// Loads a file without deserializing it.
+    ///
+    /// TODO Ideally merge with FileLoader
+    pub struct RawFileLoader<A: AppLike> {
+        path: String,
+        // Wrapped in an Option just to make calling from event() work. Technically this is unsafe
+        // if a caller fails to pop the FileLoader state in their transitions!
+        on_load: Option<Box<dyn FnOnce(&mut EventCtx, &mut A, Result<Vec<u8>>) -> Transition<A>>>,
+    }
+
+    impl<A: AppLike + 'static> RawFileLoader<A> {
+        pub fn new_state(
+            _: &mut EventCtx,
+            path: String,
+            on_load: Box<dyn FnOnce(&mut EventCtx, &mut A, Result<Vec<u8>>) -> Transition<A>>,
+        ) -> Box<dyn State<A>> {
+            Box::new(RawFileLoader {
+                path,
+                on_load: Some(on_load),
+            })
         }
     }
-    impl Readable for RawBytes {
-        fn read_file(path: String, _: &mut Timer) -> Result<RawBytes> {
-            abstio::slurp_file(path).map(RawBytes)
+
+    impl<A: AppLike + 'static> State<A> for RawFileLoader<A> {
+        fn event(&mut self, ctx: &mut EventCtx, app: &mut A) -> Transition<A> {
+            debug!("Loading {}", self.path);
+            let bytes = abstio::slurp_file(&self.path);
+            (self.on_load.take().unwrap())(ctx, app, bytes)
+        }
+
+        fn draw(&self, g: &mut GfxCtx, _: &A) {
+            g.clear(Color::BLACK);
         }
     }
 }
@@ -178,23 +192,13 @@ mod native_loader {
 mod wasm_loader {
     use std::io::Read;
 
-    use futures::StreamExt;
-    use wasm_bindgen::{JsCast, UnwrapThrowExt};
+    use wasm_bindgen::JsCast;
     use wasm_bindgen_futures::JsFuture;
-    use wasm_streams::ReadableStream;
     use web_sys::{Request, RequestInit, RequestMode, Response};
-
-    use abstutil::prettyprint_usize;
 
     use super::*;
 
-    pub trait Readable {
-        fn read_url(url: String, resp: Vec<u8>) -> Result<Self>
-        where
-            Self: Sized;
-    }
-
-    /// Loads a JSON, bincoded, or raw file, then deserializes it
+    /// Loads a JSON or bincoded file, then deserializes it
     ///
     /// Instead of blockingly reading a file within ctx.loading_screen, on the web have to
     /// asynchronously make an HTTP request and keep "polling" for completion in a way that's
@@ -206,14 +210,9 @@ mod wasm_loader {
         panel: Panel,
         started: Instant,
         url: String,
-
-        total_bytes: Option<usize>,
-        read_bytes: usize,
-        got_total_bytes: oneshot::Receiver<usize>,
-        got_read_bytes: mpsc::Receiver<usize>,
     }
 
-    impl<A: AppLike + 'static, T: 'static + Readable> FileLoader<A, T> {
+    impl<A: AppLike + 'static, T: 'static + DeserializeOwned> FileLoader<A, T> {
         pub fn new_state(
             ctx: &mut EventCtx,
             path: String,
@@ -235,8 +234,6 @@ mod wasm_loader {
             // Make the HTTP request nonblockingly. When the response is received, send it through
             // the channel.
             let (tx, rx) = oneshot::channel();
-            let (tx_total_bytes, got_total_bytes) = oneshot::channel();
-            let (mut tx_read_bytes, got_read_bytes) = mpsc::channel(10);
             let url_copy = url.clone();
             debug!("Loading {}", url_copy);
             wasm_bindgen_futures::spawn_local(async move {
@@ -250,30 +247,9 @@ mod wasm_loader {
                     Ok(resp_value) => {
                         let resp: Response = resp_value.dyn_into().unwrap();
                         if resp.ok() {
-                            let total_bytes = resp
-                                .headers()
-                                .get("Content-Length")
-                                .unwrap()
-                                .unwrap()
-                                .parse::<usize>()
-                                .unwrap();
-                            tx_total_bytes.send(total_bytes).unwrap();
-
-                            let raw_body = resp.body().unwrap_throw();
-                            let body = ReadableStream::from_raw(raw_body.dyn_into().unwrap_throw());
-                            let mut stream = body.into_stream();
-                            let mut buffer = Vec::new();
-                            while let Some(Ok(chunk)) = stream.next().await {
-                                let array = js_sys::Uint8Array::new(&chunk);
-                                if let Err(err) =
-                                    tx_read_bytes.try_send(array.byte_length() as usize)
-                                {
-                                    warn!("Couldn't send update on bytes: {}", err);
-                                }
-                                // TODO Can we avoid this clone?
-                                buffer.extend(array.to_vec());
-                            }
-                            tx.send(Ok(buffer)).unwrap();
+                            let buf = JsFuture::from(resp.array_buffer().unwrap()).await.unwrap();
+                            let array = js_sys::Uint8Array::new(&buf);
+                            tx.send(Ok(array.to_vec())).unwrap();
                         } else {
                             let status = resp.status();
                             let err = resp.status_text();
@@ -292,49 +268,41 @@ mod wasm_loader {
                 panel: ctx.make_loading_screen(Text::from(format!("Loading {}...", url))),
                 started: Instant::now(),
                 url,
-                total_bytes: None,
-                read_bytes: 0,
-                got_total_bytes,
-                got_read_bytes,
             })
         }
     }
 
-    impl<A: AppLike + 'static, T: 'static + Readable> State<A> for FileLoader<A, T> {
+    impl<A: AppLike + 'static, T: 'static + DeserializeOwned> State<A> for FileLoader<A, T> {
         fn event(&mut self, ctx: &mut EventCtx, app: &mut A) -> Transition<A> {
-            if self.total_bytes.is_none() {
-                if let Ok(Some(total)) = self.got_total_bytes.try_recv() {
-                    self.total_bytes = Some(total);
-                }
-            }
-            if let Some(read) = self.got_read_bytes.try_next().ok().and_then(|value| value) {
-                self.read_bytes += read;
-            }
-
             if let Some(maybe_resp) = self.response.try_recv().unwrap() {
                 // TODO We stop drawing and start blocking at this point. It can take a
                 // while. Any way to make it still be nonblockingish? Maybe put some of the work
                 // inside that spawn_local?
                 let mut timer = Timer::new(format!("Loading {}...", self.url));
-                let result = maybe_resp.and_then(|resp| T::read_url(self.url.clone(), resp));
+                let result = maybe_resp.and_then(|resp| {
+                    if self.url.ends_with(".gz") {
+                        let decoder = flate2::read::GzDecoder::new(&resp[..]);
+                        if self.url.ends_with(".bin.gz") {
+                            abstutil::from_binary_reader(decoder)
+                        } else {
+                            abstutil::from_json_reader(decoder)
+                        }
+                    } else if self.url.ends_with(".bin") {
+                        abstutil::from_binary(&&resp)
+                    } else {
+                        abstutil::from_json(&&resp)
+                    }
+                });
                 return (self.on_load.take().unwrap())(ctx, app, &mut timer, result);
             }
 
-            let mut lines = vec![
+            self.panel = ctx.make_loading_screen(Text::from_multiline(vec![
                 Line(format!("Loading {}...", self.url)),
                 Line(format!(
                     "Time spent: {}",
                     Duration::realtime_elapsed(self.started)
                 )),
-            ];
-            if let Some(total) = self.total_bytes {
-                lines.push(Line(format!(
-                    "Read {} / {} bytes",
-                    prettyprint_usize(self.read_bytes),
-                    prettyprint_usize(total)
-                )));
-            }
-            self.panel = ctx.make_loading_screen(Text::from_multiline(lines));
+            ]));
 
             // Until the response is received, just ask winit to regularly call event(), so we can
             // keep polling the channel.
@@ -349,35 +317,114 @@ mod wasm_loader {
         }
     }
 
-    // Two implementations for reading the file, using serde or just raw bytes
-    impl<T: 'static + DeserializeOwned> Readable for T {
-        fn read_url(url: String, resp: Vec<u8>) -> Result<T> {
-            if url.ends_with(".gz") {
-                let decoder = flate2::read::GzDecoder::new(&resp[..]);
-                if url.ends_with(".bin.gz") {
-                    abstutil::from_binary_reader(decoder)
-                } else {
-                    abstutil::from_json_reader(decoder)
-                }
-            } else if url.ends_with(".bin") {
-                abstutil::from_binary(&&resp)
+    /// This loads a file without deserializing it.
+    ///
+    /// TODO This is a horrible copy of FileLoader. Make the serde FileLoader just build on top of
+    /// this one!!!
+    pub struct RawFileLoader<A: AppLike> {
+        response: oneshot::Receiver<Result<Vec<u8>>>,
+        on_load: Option<Box<dyn FnOnce(&mut EventCtx, &mut A, Result<Vec<u8>>) -> Transition<A>>>,
+        panel: Panel,
+        started: Instant,
+        url: String,
+    }
+
+    impl<A: AppLike + 'static> RawFileLoader<A> {
+        pub fn new_state(
+            ctx: &mut EventCtx,
+            path: String,
+            on_load: Box<dyn FnOnce(&mut EventCtx, &mut A, Result<Vec<u8>>) -> Transition<A>>,
+        ) -> Box<dyn State<A>> {
+            let base_url = ctx
+                .prerender
+                .assets_base_url()
+                .expect("assets_base_url must be specified for wasm builds via `Settings`");
+
+            // Note that files are gzipped on S3 and other deployments. When running locally, we
+            // just symlink the data/ directory, where files aren't compressed.
+            let url = if ctx.prerender.assets_are_gzipped() {
+                format!("{}/{}.gz", base_url, path)
             } else {
-                abstutil::from_json(&&resp)
-            }
+                format!("{}/{}", base_url, path)
+            };
+
+            // Make the HTTP request nonblockingly. When the response is received, send it through
+            // the channel.
+            let (tx, rx) = oneshot::channel();
+            let url_copy = url.clone();
+            debug!("Loading {}", url_copy);
+            wasm_bindgen_futures::spawn_local(async move {
+                let mut opts = RequestInit::new();
+                opts.method("GET");
+                opts.mode(RequestMode::Cors);
+                let request = Request::new_with_str_and_init(&url_copy, &opts).unwrap();
+
+                let window = web_sys::window().unwrap();
+                match JsFuture::from(window.fetch_with_request(&request)).await {
+                    Ok(resp_value) => {
+                        let resp: Response = resp_value.dyn_into().unwrap();
+                        if resp.ok() {
+                            let buf = JsFuture::from(resp.array_buffer().unwrap()).await.unwrap();
+                            let array = js_sys::Uint8Array::new(&buf);
+                            tx.send(Ok(array.to_vec())).unwrap();
+                        } else {
+                            let status = resp.status();
+                            let err = resp.status_text();
+                            tx.send(Err(anyhow!("HTTP {}: {}", status, err))).unwrap();
+                        }
+                    }
+                    Err(err) => {
+                        tx.send(Err(anyhow!("{:?}", err))).unwrap();
+                    }
+                }
+            });
+
+            Box::new(RawFileLoader {
+                response: rx,
+                on_load: Some(on_load),
+                panel: ctx.make_loading_screen(Text::from(format!("Loading {}...", url))),
+                started: Instant::now(),
+                url,
+            })
         }
     }
-    impl Readable for RawBytes {
-        fn read_url(url: String, resp: Vec<u8>) -> Result<RawBytes> {
-            if url.ends_with(".gz") {
-                let mut decoder = flate2::read::GzDecoder::new(&resp[..]);
-                let mut buffer: Vec<u8> = Vec::new();
-                decoder
-                    .read_to_end(&mut buffer)
-                    .map(|_| RawBytes(buffer))
-                    .map_err(|err| err.into())
-            } else {
-                Ok(RawBytes(resp))
+
+    impl<A: AppLike + 'static> State<A> for RawFileLoader<A> {
+        fn event(&mut self, ctx: &mut EventCtx, app: &mut A) -> Transition<A> {
+            if let Some(maybe_resp) = self.response.try_recv().unwrap() {
+                let bytes = if self.url.ends_with(".gz") {
+                    maybe_resp.and_then(|gzipped| {
+                        let mut decoder = flate2::read::GzDecoder::new(&gzipped[..]);
+                        let mut buffer: Vec<u8> = Vec::new();
+                        decoder
+                            .read_to_end(&mut buffer)
+                            .map(|_| buffer)
+                            .map_err(|err| err.into())
+                    })
+                } else {
+                    maybe_resp
+                };
+                return (self.on_load.take().unwrap())(ctx, app, bytes);
             }
+
+            self.panel = ctx.make_loading_screen(Text::from_multiline(vec![
+                Line(format!("Loading {}...", self.url)),
+                Line(format!(
+                    "Time spent: {}",
+                    Duration::realtime_elapsed(self.started)
+                )),
+            ]));
+
+            // Until the response is received, just ask winit to regularly call event(), so we can
+            // keep polling the channel.
+            ctx.request_update(UpdateType::Game);
+            Transition::Keep
+        }
+
+        fn draw(&self, g: &mut GfxCtx, _: &A) {
+            // TODO Progress bar for bytes received
+            g.clear(Color::BLACK);
+            self.panel.draw(g);
         }
     }
 }
