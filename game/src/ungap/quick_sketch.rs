@@ -185,3 +185,90 @@ fn maybe_add_bike_lanes(r: &mut EditRoad, buffer_type: Option<BufferType>) {
     }
     r.lanes_ltr = lanes_ltr;
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use geom::{Distance, Speed};
+    use map_model::AccessRestrictions;
+
+    #[test]
+    fn test_maybe_add_bike_lanes() {
+        let with_buffers = true;
+        let no_buffers = false;
+
+        let mut ok = true;
+        for (url, input_lt, input_dir, buffer, expected_lt, expected_dir) in vec![
+            (
+                "https://www.openstreetmap.org/way/40790122",
+                "spddps",
+                "vvv^^^",
+                with_buffers,
+                "sb|dd|bs",
+                "vvvv^^^^",
+            ),
+            (
+                "https://www.openstreetmap.org/way/40790122",
+                "spddps",
+                "vvv^^^",
+                no_buffers,
+                "sbddbs",
+                "vvv^^^",
+            ),
+        ] {
+            let input = EditRoad {
+                lanes_ltr: input_lt
+                    .chars()
+                    .zip(input_dir.chars())
+                    .map(|(lt, dir)| LaneSpec {
+                        lt: LaneType::from_char(lt),
+                        dir: if dir == '^' {
+                            Direction::Fwd
+                        } else {
+                            Direction::Back
+                        },
+                        // Dummy
+                        width: Distance::ZERO,
+                    })
+                    .collect(),
+                speed_limit: Speed::ZERO,
+                access_restrictions: AccessRestrictions::new(),
+            };
+            let mut actual_output = input.clone();
+            maybe_add_bike_lanes(
+                &mut actual_output,
+                if buffer {
+                    Some(BufferType::FlexPosts)
+                } else {
+                    None
+                },
+            );
+            let actual_lt: String = actual_output
+                .lanes_ltr
+                .iter()
+                .map(|s| s.lt.to_char())
+                .collect();
+            let actual_dir: String = actual_output
+                .lanes_ltr
+                .iter()
+                .map(|s| if s.dir == Direction::Fwd { '^' } else { 'v' })
+                .collect();
+
+            if actual_lt != expected_lt || actual_dir != expected_dir {
+                ok = false;
+                println!(
+                    "For input {}, {} (example from {}):",
+                    input_lt, input_dir, url
+                );
+                println!("Got:");
+                println!("    {}", actual_lt);
+                println!("    {}", actual_dir);
+                println!("Expected:");
+                println!("    {}", expected_lt);
+                println!("    {}", expected_dir);
+                println!();
+            }
+        }
+        assert!(ok);
+    }
+}

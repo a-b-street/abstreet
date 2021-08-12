@@ -379,20 +379,6 @@ fn osm_separation_type(x: &String) -> Option<BufferType> {
 mod tests {
     use super::*;
 
-    fn lt_to_char(lt: LaneType) -> &'static str {
-        match lt {
-            LaneType::Driving => "d",
-            LaneType::Biking => "b",
-            LaneType::Bus => "B",
-            LaneType::Parking => "p",
-            LaneType::Sidewalk => "s",
-            LaneType::Shoulder => "S",
-            LaneType::SharedLeftTurn => "C",
-            LaneType::Construction => "x",
-            LaneType::LightRail => "l",
-        }
-    }
-
     fn tags(kv: Vec<&str>) -> Tags {
         let mut tags = Tags::empty();
         for pair in kv {
@@ -566,16 +552,11 @@ mod tests {
                 street_parking_spot_length: geom::Distance::meters(8.0),
             };
             let actual = get_lane_specs_ltr(&tags(input.clone()), &cfg);
-            let actual_lt = actual
+            let actual_lt: String = actual.iter().map(|s| s.lt.to_char()).collect();
+            let actual_dir: String = actual
                 .iter()
-                .map(|s| lt_to_char(s.lt))
-                .collect::<Vec<_>>()
-                .join("");
-            let actual_dir = actual
-                .iter()
-                .map(|s| if s.dir == Direction::Fwd { "^" } else { "v" })
-                .collect::<Vec<_>>()
-                .join("");
+                .map(|s| if s.dir == Direction::Fwd { '^' } else { 'v' })
+                .collect();
             if actual_lt != expected_lt || actual_dir != expected_dir {
                 ok = false;
                 println!("For input (example from {}):", url);

@@ -157,6 +157,39 @@ impl LaneType {
             _ => None,
         }
     }
+
+    /// Represents the lane type as a single character, for use in tests.
+    pub fn to_char(self) -> char {
+        match self {
+            LaneType::Driving => 'd',
+            LaneType::Biking => 'b',
+            LaneType::Bus => 'B',
+            LaneType::Parking => 'p',
+            LaneType::Sidewalk => 's',
+            LaneType::Shoulder => 'S',
+            LaneType::SharedLeftTurn => 'C',
+            LaneType::Construction => 'x',
+            LaneType::LightRail => 'l',
+            LaneType::Buffer(_) => '|',
+        }
+    }
+
+    /// The inverse of `to_char`. Always picks one buffer type. Panics on invalid input.
+    pub fn from_char(x: char) -> LaneType {
+        match x {
+            'd' => LaneType::Driving,
+            'b' => LaneType::Biking,
+            'B' => LaneType::Bus,
+            'p' => LaneType::Parking,
+            's' => LaneType::Sidewalk,
+            'S' => LaneType::Shoulder,
+            'C' => LaneType::SharedLeftTurn,
+            'x' => LaneType::Construction,
+            'l' => LaneType::LightRail,
+            '|' => LaneType::Buffer(BufferType::FlexPosts),
+            _ => panic!("from_char({}) undefined", x),
+        }
+    }
 }
 
 /// A road segment is broken down into individual lanes, which have a LaneType.

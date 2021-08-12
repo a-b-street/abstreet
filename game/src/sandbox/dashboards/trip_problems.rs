@@ -474,16 +474,18 @@ fn bucketize_isizes(max_buckets: usize, pts: &[(TripID, Duration, isize)]) -> Ve
 mod tests {
     use super::*;
 
+    const TRIP: TripID = TripID(42);
+
     #[test]
     fn test_bucketize_isizes() {
         let buckets = bucketize_isizes(
             7,
             &vec![
-                (Duration::minutes(3), -3),
-                (Duration::minutes(3), -3),
-                (Duration::minutes(3), -1),
-                (Duration::minutes(3), 2),
-                (Duration::minutes(3), 5),
+                (TRIP, Duration::minutes(3), -3),
+                (TRIP, Duration::minutes(3), -3),
+                (TRIP, Duration::minutes(3), -1),
+                (TRIP, Duration::minutes(3), 2),
+                (TRIP, Duration::minutes(3), 5),
             ],
         );
         // there should be an even number of buckets on either side of zero so as to center
@@ -498,7 +500,7 @@ mod tests {
     #[test]
     fn test_bucketize_empty_isizes() {
         let buckets = bucketize_isizes(7, &vec![]);
-        assert_eq!(buckets, vec![-2, -1, 0, 1, 2])
+        assert_eq!(buckets, vec![-3, -2, -1, 0, 1, 2, 3, 4])
     }
 
     #[test]
@@ -506,11 +508,11 @@ mod tests {
         let buckets = bucketize_isizes(
             7,
             &vec![
-                (Duration::minutes(3), -1),
-                (Duration::minutes(3), -1),
-                (Duration::minutes(3), 0),
-                (Duration::minutes(3), -1),
-                (Duration::minutes(3), 0),
+                (TRIP, Duration::minutes(3), -1),
+                (TRIP, Duration::minutes(3), -1),
+                (TRIP, Duration::minutes(3), 0),
+                (TRIP, Duration::minutes(3), -1),
+                (TRIP, Duration::minutes(3), 0),
             ],
         );
         assert_eq!(buckets, vec![-3, -2, -1, 0, 1, 2, 3, 4])
