@@ -274,6 +274,64 @@
 <span id="272">272</span>
 <span id="273">273</span>
 <span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
+<span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">abstutil::Tags</span>;
 <span class="kw">use</span> <span class="ident">map_gui::tools::PopupMsg</span>;
@@ -426,41 +484,79 @@
     <span class="macro">vec!</span>[<span class="macro">format!</span>(<span class="string">&quot;Changed {} segments&quot;</span>, <span class="ident">num_changes</span>)]
 }
 
-<span class="comment">// TODO Unit test me</span>
 <span class="kw">fn</span> <span class="ident">maybe_add_bike_lanes</span>(<span class="ident">r</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EditRoad</span>, <span class="ident">buffer_type</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BufferType</span><span class="op">&gt;</span>) {
-    <span class="comment">// Super rough first heuristic -- replace parking on each side.</span>
     <span class="kw">let</span> <span class="ident">dummy_tags</span> <span class="op">=</span> <span class="ident">Tags::empty</span>();
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lanes_ltr</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+    <span class="comment">// First decompose the existing lanes back into a fwd_side and back_side. This is not quite the</span>
+    <span class="comment">// inverse of assemble_ltr -- lanes on the OUTERMOST side of the road are first.</span>
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">fwd_side</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">back_side</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
     <span class="kw">for</span> <span class="ident">spec</span> <span class="kw">in</span> <span class="ident">r</span>.<span class="ident">lanes_ltr</span>.<span class="ident">drain</span>(..) {
-        <span class="kw">if</span> <span class="ident">spec</span>.<span class="ident">lt</span> <span class="op">!</span><span class="op">=</span> <span class="ident">LaneType::Parking</span> {
-            <span class="ident">lanes_ltr</span>.<span class="ident">push</span>(<span class="ident">spec</span>);
-            <span class="kw">continue</span>;
-        }
-
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">buffer</span>) <span class="op">=</span> <span class="ident">buffer_type</span> {
-            <span class="comment">// Put the buffer on the proper side</span>
-            <span class="kw">let</span> <span class="ident">replacements</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">spec</span>.<span class="ident">dir</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Direction::Fwd</span> {
-                [<span class="ident">LaneType::Buffer</span>(<span class="ident">buffer</span>), <span class="ident">LaneType::Biking</span>]
-            } <span class="kw">else</span> {
-                [<span class="ident">LaneType::Biking</span>, <span class="ident">LaneType::Buffer</span>(<span class="ident">buffer</span>)]
-            };
-            <span class="kw">for</span> <span class="ident">lt</span> <span class="kw">in</span> <span class="ident">replacements</span> {
-                <span class="ident">lanes_ltr</span>.<span class="ident">push</span>(<span class="ident">LaneSpec</span> {
-                    <span class="ident">lt</span>,
-                    <span class="ident">dir</span>: <span class="ident">spec</span>.<span class="ident">dir</span>,
-                    <span class="ident">width</span>: <span class="ident">LaneSpec::typical_lane_widths</span>(<span class="ident">lt</span>, <span class="kw-2">&amp;</span><span class="ident">dummy_tags</span>)[<span class="number">0</span>].<span class="number">0</span>,
-                });
-            }
+        <span class="kw">if</span> <span class="ident">spec</span>.<span class="ident">dir</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Direction::Fwd</span> {
+            <span class="ident">fwd_side</span>.<span class="ident">push</span>(<span class="ident">spec</span>);
         } <span class="kw">else</span> {
-            <span class="ident">lanes_ltr</span>.<span class="ident">push</span>(<span class="ident">LaneSpec</span> {
-                <span class="ident">lt</span>: <span class="ident">LaneType::Biking</span>,
-                <span class="ident">dir</span>: <span class="ident">spec</span>.<span class="ident">dir</span>,
-                <span class="ident">width</span>: <span class="ident">LaneSpec::typical_lane_widths</span>(<span class="ident">LaneType::Biking</span>, <span class="kw-2">&amp;</span><span class="ident">dummy_tags</span>)[<span class="number">0</span>].<span class="number">0</span>,
-            });
+            <span class="ident">back_side</span>.<span class="ident">push</span>(<span class="ident">spec</span>);
         }
     }
-    <span class="ident">r</span>.<span class="ident">lanes_ltr</span> <span class="op">=</span> <span class="ident">lanes_ltr</span>;
+    <span class="ident">fwd_side</span>.<span class="ident">reverse</span>();
+
+    <span class="kw">for</span> (<span class="ident">dir</span>, <span class="ident">side</span>) <span class="kw">in</span> [
+        (<span class="ident">Direction::Fwd</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fwd_side</span>),
+        (<span class="ident">Direction::Back</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">back_side</span>),
+    ] {
+        <span class="comment">// For each side, start searching outer-&gt;inner. If there&#39;s parking, replace it. If there&#39;s</span>
+        <span class="comment">// multiple driving lanes, fallback to changing the rightmost.</span>
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">parking_lane</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">first_driving_lane</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">num_driving_lanes</span> <span class="op">=</span> <span class="number">0</span>;
+        <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">spec</span>) <span class="kw">in</span> <span class="ident">side</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
+            <span class="kw">if</span> <span class="ident">spec</span>.<span class="ident">lt</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType::Parking</span> <span class="op">&amp;&amp;</span> <span class="ident">parking_lane</span>.<span class="ident">is_none</span>() {
+                <span class="ident">parking_lane</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">idx</span>);
+            }
+            <span class="kw">if</span> <span class="ident">spec</span>.<span class="ident">lt</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType::Driving</span> <span class="op">&amp;&amp;</span> <span class="ident">first_driving_lane</span>.<span class="ident">is_none</span>() {
+                <span class="ident">first_driving_lane</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">idx</span>);
+            }
+            <span class="kw">if</span> <span class="ident">spec</span>.<span class="ident">lt</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType::Driving</span> {
+                <span class="ident">num_driving_lanes</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+            }
+        }
+        <span class="comment">// So if a road is one-way, this shouldn&#39;t add a bike lane to the off-side.</span>
+        <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">idx</span>) <span class="op">=</span> <span class="ident">parking_lane</span> {
+            <span class="kw">if</span> <span class="ident">num_driving_lanes</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
+                <span class="prelude-val">None</span>
+            } <span class="kw">else</span> {
+                <span class="prelude-val">Some</span>(<span class="ident">idx</span>)
+            }
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">num_driving_lanes</span> <span class="op">&gt;</span> <span class="number">1</span> {
+            <span class="ident">first_driving_lane</span>
+        } <span class="kw">else</span> {
+            <span class="prelude-val">None</span>
+        };
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">idx</span>) <span class="op">=</span> <span class="ident">idx</span> {
+            <span class="ident">side</span>[<span class="ident">idx</span>] <span class="op">=</span> <span class="ident">LaneSpec</span> {
+                <span class="ident">lt</span>: <span class="ident">LaneType::Biking</span>,
+                <span class="ident">dir</span>,
+                <span class="ident">width</span>: <span class="ident">LaneSpec::typical_lane_widths</span>(<span class="ident">LaneType::Biking</span>, <span class="kw-2">&amp;</span><span class="ident">dummy_tags</span>)[<span class="number">0</span>].<span class="number">0</span>,
+            };
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">buffer</span>) <span class="op">=</span> <span class="ident">buffer_type</span> {
+                <span class="ident">side</span>.<span class="ident">insert</span>(
+                    <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>,
+                    <span class="ident">LaneSpec</span> {
+                        <span class="ident">lt</span>: <span class="ident">LaneType::Buffer</span>(<span class="ident">buffer</span>),
+                        <span class="ident">dir</span>,
+                        <span class="ident">width</span>: <span class="ident">LaneSpec::typical_lane_widths</span>(<span class="ident">LaneType::Buffer</span>(<span class="ident">buffer</span>), <span class="kw-2">&amp;</span><span class="ident">dummy_tags</span>)
+                            [<span class="number">0</span>]
+                        .<span class="number">0</span>,
+                    },
+                );
+            }
+        }
+    }
+
+    <span class="comment">// Now re-assemble...</span>
+    <span class="ident">r</span>.<span class="ident">lanes_ltr</span> <span class="op">=</span> <span class="ident">back_side</span>;
+    <span class="ident">fwd_side</span>.<span class="ident">reverse</span>();
+    <span class="ident">r</span>.<span class="ident">lanes_ltr</span>.<span class="ident">extend</span>(<span class="ident">fwd_side</span>);
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
@@ -475,8 +571,9 @@
         <span class="kw">let</span> <span class="ident">no_buffers</span> <span class="op">=</span> <span class="bool-val">false</span>;
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ok</span> <span class="op">=</span> <span class="bool-val">true</span>;
-        <span class="kw">for</span> (<span class="ident">url</span>, <span class="ident">input_lt</span>, <span class="ident">input_dir</span>, <span class="ident">buffer</span>, <span class="ident">expected_lt</span>, <span class="ident">expected_dir</span>) <span class="kw">in</span> <span class="macro">vec!</span>[
+        <span class="kw">for</span> (<span class="ident">description</span>, <span class="ident">url</span>, <span class="ident">input_lt</span>, <span class="ident">input_dir</span>, <span class="ident">buffer</span>, <span class="ident">expected_lt</span>, <span class="ident">expected_dir</span>) <span class="kw">in</span> <span class="macro">vec!</span>[
             (
+                <span class="string">&quot;Two-way with parking, adding buffers&quot;</span>,
                 <span class="string">&quot;https://www.openstreetmap.org/way/40790122&quot;</span>,
                 <span class="string">&quot;spddps&quot;</span>,
                 <span class="string">&quot;vvv^^^&quot;</span>,
@@ -485,12 +582,31 @@
                 <span class="string">&quot;vvvv^^^^&quot;</span>,
             ),
             (
+                <span class="string">&quot;Two-way with parking, no buffers&quot;</span>,
                 <span class="string">&quot;https://www.openstreetmap.org/way/40790122&quot;</span>,
                 <span class="string">&quot;spddps&quot;</span>,
                 <span class="string">&quot;vvv^^^&quot;</span>,
                 <span class="ident">no_buffers</span>,
                 <span class="string">&quot;sbddbs&quot;</span>,
                 <span class="string">&quot;vvv^^^&quot;</span>,
+            ),
+            (
+                <span class="string">&quot;Two-way without parking but many lanes&quot;</span>,
+                <span class="string">&quot;https://www.openstreetmap.org/way/394737309&quot;</span>,
+                <span class="string">&quot;sddddds&quot;</span>,
+                <span class="string">&quot;vvv^^^^&quot;</span>,
+                <span class="ident">with_buffers</span>,
+                <span class="string">&quot;sb|ddd|bs&quot;</span>,
+                <span class="string">&quot;vvvv^^^^^&quot;</span>,
+            ),
+            (
+                <span class="string">&quot;One-way with parking on both sides&quot;</span>,
+                <span class="string">&quot;https://www.openstreetmap.org/way/559660378&quot;</span>,
+                <span class="string">&quot;spddps&quot;</span>,
+                <span class="string">&quot;vv^^^^&quot;</span>,
+                <span class="ident">with_buffers</span>,
+                <span class="string">&quot;spdd|bs&quot;</span>,
+                <span class="string">&quot;vv^^^^^&quot;</span>,
             ),
         ] {
             <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="ident">EditRoad</span> {
@@ -533,10 +649,10 @@
 
             <span class="kw">if</span> <span class="ident">actual_lt</span> <span class="op">!</span><span class="op">=</span> <span class="ident">expected_lt</span> <span class="op">|</span><span class="op">|</span> <span class="ident">actual_dir</span> <span class="op">!</span><span class="op">=</span> <span class="ident">expected_dir</span> {
                 <span class="ident">ok</span> <span class="op">=</span> <span class="bool-val">false</span>;
-                <span class="macro">println!</span>(
-                    <span class="string">&quot;For input {}, {} (example from {}):&quot;</span>,
-                    <span class="ident">input_lt</span>, <span class="ident">input_dir</span>, <span class="ident">url</span>
-                );
+                <span class="macro">println!</span>(<span class="string">&quot;{} (example from {})&quot;</span>, <span class="ident">description</span>, <span class="ident">url</span>);
+                <span class="macro">println!</span>(<span class="string">&quot;Input:&quot;</span>);
+                <span class="macro">println!</span>(<span class="string">&quot;    {}&quot;</span>, <span class="ident">input_lt</span>);
+                <span class="macro">println!</span>(<span class="string">&quot;    {}&quot;</span>, <span class="ident">input_dir</span>);
                 <span class="macro">println!</span>(<span class="string">&quot;Got:&quot;</span>);
                 <span class="macro">println!</span>(<span class="string">&quot;    {}&quot;</span>, <span class="ident">actual_lt</span>);
                 <span class="macro">println!</span>(<span class="string">&quot;    {}&quot;</span>, <span class="ident">actual_dir</span>);
