@@ -149,41 +149,79 @@ fn make_quick_changes(
     vec![format!("Changed {} segments", num_changes)]
 }
 
-// TODO Unit test me
 fn maybe_add_bike_lanes(r: &mut EditRoad, buffer_type: Option<BufferType>) {
-    // Super rough first heuristic -- replace parking on each side.
     let dummy_tags = Tags::empty();
 
-    let mut lanes_ltr = Vec::new();
+    // First decompose the existing lanes back into a fwd_side and back_side. This is not quite the
+    // inverse of assemble_ltr -- lanes on the OUTERMOST side of the road are first.
+    let mut fwd_side = Vec::new();
+    let mut back_side = Vec::new();
     for spec in r.lanes_ltr.drain(..) {
-        if spec.lt != LaneType::Parking {
-            lanes_ltr.push(spec);
-            continue;
-        }
-
-        if let Some(buffer) = buffer_type {
-            // Put the buffer on the proper side
-            let replacements = if spec.dir == Direction::Fwd {
-                [LaneType::Buffer(buffer), LaneType::Biking]
-            } else {
-                [LaneType::Biking, LaneType::Buffer(buffer)]
-            };
-            for lt in replacements {
-                lanes_ltr.push(LaneSpec {
-                    lt,
-                    dir: spec.dir,
-                    width: LaneSpec::typical_lane_widths(lt, &dummy_tags)[0].0,
-                });
-            }
+        if spec.dir == Direction::Fwd {
+            fwd_side.push(spec);
         } else {
-            lanes_ltr.push(LaneSpec {
-                lt: LaneType::Biking,
-                dir: spec.dir,
-                width: LaneSpec::typical_lane_widths(LaneType::Biking, &dummy_tags)[0].0,
-            });
+            back_side.push(spec);
         }
     }
-    r.lanes_ltr = lanes_ltr;
+    fwd_side.reverse();
+
+    for (dir, side) in [
+        (Direction::Fwd, &mut fwd_side),
+        (Direction::Back, &mut back_side),
+    ] {
+        // For each side, start searching outer->inner. If there's parking, replace it. If there's
+        // multiple driving lanes, fallback to changing the rightmost.
+        let mut parking_lane = None;
+        let mut first_driving_lane = None;
+        let mut num_driving_lanes = 0;
+        for (idx, spec) in side.iter().enumerate() {
+            if spec.lt == LaneType::Parking && parking_lane.is_none() {
+                parking_lane = Some(idx);
+            }
+            if spec.lt == LaneType::Driving && first_driving_lane.is_none() {
+                first_driving_lane = Some(idx);
+            }
+            if spec.lt == LaneType::Driving {
+                num_driving_lanes += 1;
+            }
+        }
+        // So if a road is one-way, this shouldn't add a bike lane to the off-side.
+        let idx = if let Some(idx) = parking_lane {
+            if num_driving_lanes == 0 {
+                None
+            } else {
+                Some(idx)
+            }
+        } else if num_driving_lanes > 1 {
+            first_driving_lane
+        } else {
+            None
+        };
+        if let Some(idx) = idx {
+            side[idx] = LaneSpec {
+                lt: LaneType::Biking,
+                dir,
+                width: LaneSpec::typical_lane_widths(LaneType::Biking, &dummy_tags)[0].0,
+            };
+            if let Some(buffer) = buffer_type {
+                side.insert(
+                    idx + 1,
+                    LaneSpec {
+                        lt: LaneType::Buffer(buffer),
+                        dir,
+                        width: LaneSpec::typical_lane_widths(LaneType::Buffer(buffer), &dummy_tags)
+                            [0]
+                        .0,
+                    },
+                );
+            }
+        }
+    }
+
+    // Now re-assemble...
+    r.lanes_ltr = back_side;
+    fwd_side.reverse();
+    r.lanes_ltr.extend(fwd_side);
 }
 
 #[cfg(test)]
@@ -198,8 +236,9 @@ mod tests {
         let no_buffers = false;
 
         let mut ok = true;
-        for (url, input_lt, input_dir, buffer, expected_lt, expected_dir) in vec![
+        for (description, url, input_lt, input_dir, buffer, expected_lt, expected_dir) in vec![
             (
+                "Two-way with parking, adding buffers",
                 "https://www.openstreetmap.org/way/40790122",
                 "spddps",
                 "vvv^^^",
@@ -208,12 +247,31 @@ mod tests {
                 "vvvv^^^^",
             ),
             (
+                "Two-way with parking, no buffers",
                 "https://www.openstreetmap.org/way/40790122",
                 "spddps",
                 "vvv^^^",
                 no_buffers,
                 "sbddbs",
                 "vvv^^^",
+            ),
+            (
+                "Two-way without parking but many lanes",
+                "https://www.openstreetmap.org/way/394737309",
+                "sddddds",
+                "vvv^^^^",
+                with_buffers,
+                "sb|ddd|bs",
+                "vvvv^^^^^",
+            ),
+            (
+                "One-way with parking on both sides",
+                "https://www.openstreetmap.org/way/559660378",
+                "spddps",
+                "vv^^^^",
+                with_buffers,
+                "spdd|bs",
+                "vv^^^^^",
             ),
         ] {
             let input = EditRoad {
@@ -256,10 +314,10 @@ mod tests {
 
             if actual_lt != expected_lt || actual_dir != expected_dir {
                 ok = false;
-                println!(
-                    "For input {}, {} (example from {}):",
-                    input_lt, input_dir, url
-                );
+                println!("{} (example from {})", description, url);
+                println!("Input:");
+                println!("    {}", input_lt);
+                println!("    {}", input_dir);
                 println!("Got:");
                 println!("    {}", actual_lt);
                 println!("    {}", actual_dir);
