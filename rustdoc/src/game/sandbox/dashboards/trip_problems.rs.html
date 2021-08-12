@@ -518,6 +518,8 @@
 <span id="516">516</span>
 <span id="517">517</span>
 <span id="518">518</span>
+<span id="519">519</span>
+<span id="520">520</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::cmp::Ordering</span>;
 <span class="kw">use</span> <span class="ident">std::fmt::Display</span>;
@@ -995,16 +997,18 @@
 <span class="kw">mod</span> <span class="ident">tests</span> {
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
 
+    <span class="kw">const</span> <span class="ident">TRIP</span>: <span class="ident">TripID</span> <span class="op">=</span> <span class="ident">TripID</span>(<span class="number">42</span>);
+
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_bucketize_isizes</span>() {
         <span class="kw">let</span> <span class="ident">buckets</span> <span class="op">=</span> <span class="ident">bucketize_isizes</span>(
             <span class="number">7</span>,
             <span class="kw-2">&amp;</span><span class="macro">vec!</span>[
-                (<span class="ident">Duration::minutes</span>(<span class="number">3</span>), <span class="op">-</span><span class="number">3</span>),
-                (<span class="ident">Duration::minutes</span>(<span class="number">3</span>), <span class="op">-</span><span class="number">3</span>),
-                (<span class="ident">Duration::minutes</span>(<span class="number">3</span>), <span class="op">-</span><span class="number">1</span>),
-                (<span class="ident">Duration::minutes</span>(<span class="number">3</span>), <span class="number">2</span>),
-                (<span class="ident">Duration::minutes</span>(<span class="number">3</span>), <span class="number">5</span>),
+                (<span class="ident">TRIP</span>, <span class="ident">Duration::minutes</span>(<span class="number">3</span>), <span class="op">-</span><span class="number">3</span>),
+                (<span class="ident">TRIP</span>, <span class="ident">Duration::minutes</span>(<span class="number">3</span>), <span class="op">-</span><span class="number">3</span>),
+                (<span class="ident">TRIP</span>, <span class="ident">Duration::minutes</span>(<span class="number">3</span>), <span class="op">-</span><span class="number">1</span>),
+                (<span class="ident">TRIP</span>, <span class="ident">Duration::minutes</span>(<span class="number">3</span>), <span class="number">2</span>),
+                (<span class="ident">TRIP</span>, <span class="ident">Duration::minutes</span>(<span class="number">3</span>), <span class="number">5</span>),
             ],
         );
         <span class="comment">// there should be an even number of buckets on either side of zero so as to center</span>
@@ -1019,7 +1023,7 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_bucketize_empty_isizes</span>() {
         <span class="kw">let</span> <span class="ident">buckets</span> <span class="op">=</span> <span class="ident">bucketize_isizes</span>(<span class="number">7</span>, <span class="kw-2">&amp;</span><span class="macro">vec!</span>[]);
-        <span class="macro">assert_eq!</span>(<span class="ident">buckets</span>, <span class="macro">vec!</span>[<span class="op">-</span><span class="number">2</span>, <span class="op">-</span><span class="number">1</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>])
+        <span class="macro">assert_eq!</span>(<span class="ident">buckets</span>, <span class="macro">vec!</span>[<span class="op">-</span><span class="number">3</span>, <span class="op">-</span><span class="number">2</span>, <span class="op">-</span><span class="number">1</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>])
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
@@ -1027,11 +1031,11 @@
         <span class="kw">let</span> <span class="ident">buckets</span> <span class="op">=</span> <span class="ident">bucketize_isizes</span>(
             <span class="number">7</span>,
             <span class="kw-2">&amp;</span><span class="macro">vec!</span>[
-                (<span class="ident">Duration::minutes</span>(<span class="number">3</span>), <span class="op">-</span><span class="number">1</span>),
-                (<span class="ident">Duration::minutes</span>(<span class="number">3</span>), <span class="op">-</span><span class="number">1</span>),
-                (<span class="ident">Duration::minutes</span>(<span class="number">3</span>), <span class="number">0</span>),
-                (<span class="ident">Duration::minutes</span>(<span class="number">3</span>), <span class="op">-</span><span class="number">1</span>),
-                (<span class="ident">Duration::minutes</span>(<span class="number">3</span>), <span class="number">0</span>),
+                (<span class="ident">TRIP</span>, <span class="ident">Duration::minutes</span>(<span class="number">3</span>), <span class="op">-</span><span class="number">1</span>),
+                (<span class="ident">TRIP</span>, <span class="ident">Duration::minutes</span>(<span class="number">3</span>), <span class="op">-</span><span class="number">1</span>),
+                (<span class="ident">TRIP</span>, <span class="ident">Duration::minutes</span>(<span class="number">3</span>), <span class="number">0</span>),
+                (<span class="ident">TRIP</span>, <span class="ident">Duration::minutes</span>(<span class="number">3</span>), <span class="op">-</span><span class="number">1</span>),
+                (<span class="ident">TRIP</span>, <span class="ident">Duration::minutes</span>(<span class="number">3</span>), <span class="number">0</span>),
             ],
         );
         <span class="macro">assert_eq!</span>(<span class="ident">buckets</span>, <span class="macro">vec!</span>[<span class="op">-</span><span class="number">3</span>, <span class="op">-</span><span class="number">2</span>, <span class="op">-</span><span class="number">1</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>])

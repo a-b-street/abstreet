@@ -524,6 +524,39 @@
 <span id="522">522</span>
 <span id="523">523</span>
 <span id="524">524</span>
+<span id="525">525</span>
+<span id="526">526</span>
+<span id="527">527</span>
+<span id="528">528</span>
+<span id="529">529</span>
+<span id="530">530</span>
+<span id="531">531</span>
+<span id="532">532</span>
+<span id="533">533</span>
+<span id="534">534</span>
+<span id="535">535</span>
+<span id="536">536</span>
+<span id="537">537</span>
+<span id="538">538</span>
+<span id="539">539</span>
+<span id="540">540</span>
+<span id="541">541</span>
+<span id="542">542</span>
+<span id="543">543</span>
+<span id="544">544</span>
+<span id="545">545</span>
+<span id="546">546</span>
+<span id="547">547</span>
+<span id="548">548</span>
+<span id="549">549</span>
+<span id="550">550</span>
+<span id="551">551</span>
+<span id="552">552</span>
+<span id="553">553</span>
+<span id="554">554</span>
+<span id="555">555</span>
+<span id="556">556</span>
+<span id="557">557</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
 <span class="kw">use</span> <span class="ident">std::fmt</span>;
@@ -682,6 +715,39 @@
             <span class="string">&quot;Jersey barrier&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">LaneType::Buffer</span>(<span class="ident">BufferType::JerseyBarrier</span>)),
             <span class="string">&quot;curb&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">LaneType::Buffer</span>(<span class="ident">BufferType::Curb</span>)),
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
+        }
+    }
+
+    <span class="doccomment">/// Represents the lane type as a single character, for use in tests.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_char</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">char</span> {
+        <span class="kw">match</span> <span class="self">self</span> {
+            <span class="ident">LaneType::Driving</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&#39;d&#39;</span>,
+            <span class="ident">LaneType::Biking</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&#39;b&#39;</span>,
+            <span class="ident">LaneType::Bus</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&#39;B&#39;</span>,
+            <span class="ident">LaneType::Parking</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&#39;p&#39;</span>,
+            <span class="ident">LaneType::Sidewalk</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&#39;s&#39;</span>,
+            <span class="ident">LaneType::Shoulder</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&#39;S&#39;</span>,
+            <span class="ident">LaneType::SharedLeftTurn</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&#39;C&#39;</span>,
+            <span class="ident">LaneType::Construction</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&#39;x&#39;</span>,
+            <span class="ident">LaneType::LightRail</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&#39;l&#39;</span>,
+            <span class="ident">LaneType::Buffer</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&#39;|&#39;</span>,
+        }
+    }
+
+    <span class="doccomment">/// The inverse of `to_char`. Always picks one buffer type. Panics on invalid input.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_char</span>(<span class="ident">x</span>: <span class="ident">char</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">LaneType</span> {
+        <span class="kw">match</span> <span class="ident">x</span> {
+            <span class="string">&#39;d&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">LaneType::Driving</span>,
+            <span class="string">&#39;b&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">LaneType::Biking</span>,
+            <span class="string">&#39;B&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">LaneType::Bus</span>,
+            <span class="string">&#39;p&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">LaneType::Parking</span>,
+            <span class="string">&#39;s&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">LaneType::Sidewalk</span>,
+            <span class="string">&#39;S&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">LaneType::Shoulder</span>,
+            <span class="string">&#39;C&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">LaneType::SharedLeftTurn</span>,
+            <span class="string">&#39;x&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">LaneType::Construction</span>,
+            <span class="string">&#39;l&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">LaneType::LightRail</span>,
+            <span class="string">&#39;|&#39;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">LaneType::Buffer</span>(<span class="ident">BufferType::FlexPosts</span>),
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">panic!</span>(<span class="string">&quot;from_char({}) undefined&quot;</span>, <span class="ident">x</span>),
         }
     }
 }

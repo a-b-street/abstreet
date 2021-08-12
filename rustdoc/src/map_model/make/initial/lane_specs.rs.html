@@ -577,25 +577,6 @@
 <span id="575">575</span>
 <span id="576">576</span>
 <span id="577">577</span>
-<span id="578">578</span>
-<span id="579">579</span>
-<span id="580">580</span>
-<span id="581">581</span>
-<span id="582">582</span>
-<span id="583">583</span>
-<span id="584">584</span>
-<span id="585">585</span>
-<span id="586">586</span>
-<span id="587">587</span>
-<span id="588">588</span>
-<span id="589">589</span>
-<span id="590">590</span>
-<span id="591">591</span>
-<span id="592">592</span>
-<span id="593">593</span>
-<span id="594">594</span>
-<span id="595">595</span>
-<span id="596">596</span>
 </pre><pre class="rust">
 <span class="doccomment">/// Purely from OSM tags, determine the lanes that a road segment has.</span>
 <span class="kw">use</span> <span class="ident">std::iter</span>;
@@ -978,20 +959,6 @@
 <span class="kw">mod</span> <span class="ident">tests</span> {
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
 
-    <span class="kw">fn</span> <span class="ident">lt_to_char</span>(<span class="ident">lt</span>: <span class="ident">LaneType</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> {
-        <span class="kw">match</span> <span class="ident">lt</span> {
-            <span class="ident">LaneType::Driving</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;d&quot;</span>,
-            <span class="ident">LaneType::Biking</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;b&quot;</span>,
-            <span class="ident">LaneType::Bus</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;B&quot;</span>,
-            <span class="ident">LaneType::Parking</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;p&quot;</span>,
-            <span class="ident">LaneType::Sidewalk</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;s&quot;</span>,
-            <span class="ident">LaneType::Shoulder</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;S&quot;</span>,
-            <span class="ident">LaneType::SharedLeftTurn</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;C&quot;</span>,
-            <span class="ident">LaneType::Construction</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;x&quot;</span>,
-            <span class="ident">LaneType::LightRail</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;l&quot;</span>,
-        }
-    }
-
     <span class="kw">fn</span> <span class="ident">tags</span>(<span class="ident">kv</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Tags</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tags</span> <span class="op">=</span> <span class="ident">Tags::empty</span>();
         <span class="kw">for</span> <span class="ident">pair</span> <span class="kw">in</span> <span class="ident">kv</span> {
@@ -1165,16 +1132,11 @@
                 <span class="ident">street_parking_spot_length</span>: <span class="ident">geom::Distance::meters</span>(<span class="number">8.0</span>),
             };
             <span class="kw">let</span> <span class="ident">actual</span> <span class="op">=</span> <span class="ident">get_lane_specs_ltr</span>(<span class="kw-2">&amp;</span><span class="ident">tags</span>(<span class="ident">input</span>.<span class="ident">clone</span>()), <span class="kw-2">&amp;</span><span class="ident">cfg</span>);
-            <span class="kw">let</span> <span class="ident">actual_lt</span> <span class="op">=</span> <span class="ident">actual</span>
+            <span class="kw">let</span> <span class="ident">actual_lt</span>: <span class="ident">String</span> <span class="op">=</span> <span class="ident">actual</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">lt</span>.<span class="ident">to_char</span>()).<span class="ident">collect</span>();
+            <span class="kw">let</span> <span class="ident">actual_dir</span>: <span class="ident">String</span> <span class="op">=</span> <span class="ident">actual</span>
                 .<span class="ident">iter</span>()
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">lt_to_char</span>(<span class="ident">s</span>.<span class="ident">lt</span>))
-                .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>()
-                .<span class="ident">join</span>(<span class="string">&quot;&quot;</span>);
-            <span class="kw">let</span> <span class="ident">actual_dir</span> <span class="op">=</span> <span class="ident">actual</span>
-                .<span class="ident">iter</span>()
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="kw">if</span> <span class="ident">s</span>.<span class="ident">dir</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Direction::Fwd</span> { <span class="string">&quot;^&quot;</span> } <span class="kw">else</span> { <span class="string">&quot;v&quot;</span> })
-                .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>()
-                .<span class="ident">join</span>(<span class="string">&quot;&quot;</span>);
+                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="kw">if</span> <span class="ident">s</span>.<span class="ident">dir</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Direction::Fwd</span> { <span class="string">&#39;^&#39;</span> } <span class="kw">else</span> { <span class="string">&#39;v&#39;</span> })
+                .<span class="ident">collect</span>();
             <span class="kw">if</span> <span class="ident">actual_lt</span> <span class="op">!</span><span class="op">=</span> <span class="ident">expected_lt</span> <span class="op">|</span><span class="op">|</span> <span class="ident">actual_dir</span> <span class="op">!</span><span class="op">=</span> <span class="ident">expected_dir</span> {
                 <span class="ident">ok</span> <span class="op">=</span> <span class="bool-val">false</span>;
                 <span class="macro">println!</span>(<span class="string">&quot;For input (example from {}):&quot;</span>, <span class="ident">url</span>);
