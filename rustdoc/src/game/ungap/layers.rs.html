@@ -140,8 +140,19 @@
 <span id="138">138</span>
 <span id="139">139</span>
 <span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::cell::RefCell</span>;
+<span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Pt2D</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">LaneType</span>, <span class="ident">PathConstraints</span>, <span class="ident">Road</span>};
@@ -224,6 +235,7 @@
         <span class="comment">// Thicker lines as we zoom out. Scale up to 5x. Never shrink past the road&#39;s actual width</span>
         <span class="kw">let</span> <span class="ident">thickness</span> <span class="op">=</span> (<span class="number">0.5</span> <span class="op">/</span> <span class="ident">zoom</span>).<span class="ident">max</span>(<span class="number">1.0</span>);
 
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">intersections</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
         <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_roads</span>() {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bike_lane</span> <span class="op">=</span> <span class="bool-val">false</span>;
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buffer</span> <span class="op">=</span> <span class="bool-val">false</span>;
@@ -251,6 +263,14 @@
                 <span class="ident">color</span>,
                 <span class="ident">r</span>.<span class="ident">center_pts</span>.<span class="ident">make_polygons</span>(<span class="ident">thickness</span> <span class="op">*</span> <span class="ident">r</span>.<span class="ident">get_width</span>(<span class="ident">map</span>)),
             );
+            <span class="comment">// Arbitrarily pick a color when two different types of roads meet</span>
+            <span class="ident">intersections</span>.<span class="ident">insert</span>(<span class="ident">r</span>.<span class="ident">src_i</span>, <span class="ident">color</span>);
+            <span class="ident">intersections</span>.<span class="ident">insert</span>(<span class="ident">r</span>.<span class="ident">dst_i</span>, <span class="ident">color</span>);
+        }
+
+        <span class="kw">for</span> (<span class="ident">i</span>, <span class="ident">color</span>) <span class="kw">in</span> <span class="ident">intersections</span> {
+            <span class="comment">// No clear way to thicken the intersection at different zoom levels</span>
+            <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">color</span>, <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>).<span class="ident">polygon</span>.<span class="ident">clone</span>());
         }
 
         <span class="ident">g</span>.<span class="ident">upload</span>(<span class="ident">batch</span>)

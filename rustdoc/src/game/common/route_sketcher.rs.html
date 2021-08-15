@@ -279,6 +279,15 @@
 <span id="277">277</span>
 <span id="278">278</span>
 <span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">FindClosest</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">IntersectionID</span>, <span class="ident">Map</span>, <span class="ident">RoadID</span>};
@@ -386,6 +395,15 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
 
         <span class="comment">// Draw the confirmed route</span>
+        <span class="kw">for</span> <span class="ident">pair</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">route</span>.<span class="ident">full_path</span>.<span class="ident">windows</span>(<span class="number">2</span>) {
+            <span class="comment">// TODO Inefficient!</span>
+            <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">find_road_between</span>(<span class="ident">pair</span>[<span class="number">0</span>], <span class="ident">pair</span>[<span class="number">1</span>]).<span class="ident">unwrap</span>();
+            <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color::RED</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>), <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>).<span class="ident">get_thick_polygon</span>(<span class="ident">map</span>));
+        }
+        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">route</span>.<span class="ident">full_path</span> {
+            <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color::RED</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>), <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="kw-2">*</span><span class="ident">i</span>).<span class="ident">polygon</span>.<span class="ident">clone</span>());
+        }
+
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cnt</span> <span class="op">=</span> <span class="number">0</span>;
         <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">route</span>.<span class="ident">waypoints</span> {
             <span class="ident">cnt</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
@@ -400,11 +418,6 @@
                     .<span class="ident">centered_on</span>(<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="kw-2">*</span><span class="ident">i</span>).<span class="ident">polygon</span>.<span class="ident">center</span>()),
             );
         }
-        <span class="kw">for</span> <span class="ident">pair</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">route</span>.<span class="ident">full_path</span>.<span class="ident">windows</span>(<span class="number">2</span>) {
-            <span class="comment">// TODO Inefficient!</span>
-            <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">find_road_between</span>(<span class="ident">pair</span>[<span class="number">0</span>], <span class="ident">pair</span>[<span class="number">1</span>]).<span class="ident">unwrap</span>();
-            <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color::RED</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>), <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>).<span class="ident">get_thick_polygon</span>(<span class="ident">map</span>));
-        }
 
         <span class="comment">// Draw the current operation</span>
         <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Mode::Hovering</span>(<span class="ident">i</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">mode</span> {
@@ -413,9 +426,14 @@
                 <span class="ident">Circle::new</span>(<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>).<span class="ident">polygon</span>.<span class="ident">center</span>(), <span class="ident">Distance::meters</span>(<span class="number">10.0</span>)).<span class="ident">to_polygon</span>(),
             );
             <span class="kw">if</span> <span class="self">self</span>.<span class="ident">route</span>.<span class="ident">waypoints</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="number">1</span> {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">roads</span>, <span class="kw">_</span>)) <span class="op">=</span> <span class="ident">map</span>.<span class="ident">simple_path_btwn</span>(<span class="self">self</span>.<span class="ident">route</span>.<span class="ident">waypoints</span>[<span class="number">0</span>], <span class="ident">i</span>) {
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">roads</span>, <span class="ident">intersections</span>)) <span class="op">=</span>
+                    <span class="ident">map</span>.<span class="ident">simple_path_btwn</span>(<span class="self">self</span>.<span class="ident">route</span>.<span class="ident">waypoints</span>[<span class="number">0</span>], <span class="ident">i</span>)
+                {
                     <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">roads</span> {
                         <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color::BLUE</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>), <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>).<span class="ident">get_thick_polygon</span>(<span class="ident">map</span>));
+                    }
+                    <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="ident">intersections</span> {
+                        <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color::BLUE</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>), <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>).<span class="ident">polygon</span>.<span class="ident">clone</span>());
                     }
                 }
             }
