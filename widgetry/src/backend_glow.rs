@@ -73,8 +73,9 @@ unsafe fn compile_shader(
 // Represents one frame that's gonna be drawn
 pub struct GfxCtxInnards<'a> {
     gl: &'a glow::Context,
-    program: &'a <glow::Context as glow::HasContext>::Program,
     current_clip: Option<[i32; 4]>,
+    transform_location: <glow::Context as glow::HasContext>::UniformLocation,
+    window_location: <glow::Context as glow::HasContext>::UniformLocation,
 }
 
 impl<'a> GfxCtxInnards<'a> {
@@ -82,10 +83,17 @@ impl<'a> GfxCtxInnards<'a> {
         gl: &'a glow::Context,
         program: &'a <glow::Context as glow::HasContext>::Program,
     ) -> Self {
+        let (transform_location, window_location) = unsafe {
+            (
+                gl.get_uniform_location(*program, "transform").unwrap(),
+                gl.get_uniform_location(*program, "window").unwrap(),
+            )
+        };
         GfxCtxInnards {
             gl,
-            program,
             current_clip: None,
+            transform_location,
+            window_location,
         }
     }
 
@@ -101,18 +109,10 @@ impl<'a> GfxCtxInnards<'a> {
 
     pub fn redraw(&mut self, obj: &Drawable, uniforms: &Uniforms, _: &PrerenderInnards) {
         unsafe {
-            let transform_loc = self
-                .gl
-                .get_uniform_location(*self.program, "transform")
-                .unwrap();
             self.gl
-                .uniform_3_f32_slice(Some(&transform_loc), &uniforms.transform);
-            let window_loc = self
-                .gl
-                .get_uniform_location(*self.program, "window")
-                .unwrap();
+                .uniform_3_f32_slice(Some(&self.transform_location), &uniforms.transform);
             self.gl
-                .uniform_3_f32_slice(Some(&window_loc), &uniforms.window);
+                .uniform_3_f32_slice(Some(&self.window_location), &uniforms.window);
 
             self.gl.bind_vertex_array(Some(obj.vert_array.id));
             self.gl
