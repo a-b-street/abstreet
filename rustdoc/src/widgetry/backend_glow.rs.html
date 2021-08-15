@@ -725,8 +725,9 @@
 <span class="comment">// Represents one frame that&#39;s gonna be drawn</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">GfxCtxInnards</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="ident">gl</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">glow::Context</span>,
-    <span class="ident">program</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="op">&lt;</span><span class="ident">glow::Context</span> <span class="kw">as</span> <span class="ident">glow::HasContext</span><span class="op">&gt;</span><span class="ident">::Program</span>,
     <span class="ident">current_clip</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>[<span class="ident">i32</span>; <span class="number">4</span>]<span class="op">&gt;</span>,
+    <span class="ident">transform_location</span>: <span class="op">&lt;</span><span class="ident">glow::Context</span> <span class="kw">as</span> <span class="ident">glow::HasContext</span><span class="op">&gt;</span><span class="ident">::UniformLocation</span>,
+    <span class="ident">window_location</span>: <span class="op">&lt;</span><span class="ident">glow::Context</span> <span class="kw">as</span> <span class="ident">glow::HasContext</span><span class="op">&gt;</span><span class="ident">::UniformLocation</span>,
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">GfxCtxInnards</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
@@ -734,10 +735,17 @@
         <span class="ident">gl</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">glow::Context</span>,
         <span class="ident">program</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="op">&lt;</span><span class="ident">glow::Context</span> <span class="kw">as</span> <span class="ident">glow::HasContext</span><span class="op">&gt;</span><span class="ident">::Program</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="kw">let</span> (<span class="ident">transform_location</span>, <span class="ident">window_location</span>) <span class="op">=</span> <span class="kw">unsafe</span> {
+            (
+                <span class="ident">gl</span>.<span class="ident">get_uniform_location</span>(<span class="kw-2">*</span><span class="ident">program</span>, <span class="string">&quot;transform&quot;</span>).<span class="ident">unwrap</span>(),
+                <span class="ident">gl</span>.<span class="ident">get_uniform_location</span>(<span class="kw-2">*</span><span class="ident">program</span>, <span class="string">&quot;window&quot;</span>).<span class="ident">unwrap</span>(),
+            )
+        };
         <span class="ident">GfxCtxInnards</span> {
             <span class="ident">gl</span>,
-            <span class="ident">program</span>,
             <span class="ident">current_clip</span>: <span class="prelude-val">None</span>,
+            <span class="ident">transform_location</span>,
+            <span class="ident">window_location</span>,
         }
     }
 
@@ -753,18 +761,10 @@
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">obj</span>: <span class="kw-2">&amp;</span><span class="ident">Drawable</span>, <span class="ident">uniforms</span>: <span class="kw-2">&amp;</span><span class="ident">Uniforms</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">PrerenderInnards</span>) {
         <span class="kw">unsafe</span> {
-            <span class="kw">let</span> <span class="ident">transform_loc</span> <span class="op">=</span> <span class="self">self</span>
-                .<span class="ident">gl</span>
-                .<span class="ident">get_uniform_location</span>(<span class="kw-2">*</span><span class="self">self</span>.<span class="ident">program</span>, <span class="string">&quot;transform&quot;</span>)
-                .<span class="ident">unwrap</span>();
             <span class="self">self</span>.<span class="ident">gl</span>
-                .<span class="ident">uniform_3_f32_slice</span>(<span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">transform_loc</span>), <span class="kw-2">&amp;</span><span class="ident">uniforms</span>.<span class="ident">transform</span>);
-            <span class="kw">let</span> <span class="ident">window_loc</span> <span class="op">=</span> <span class="self">self</span>
-                .<span class="ident">gl</span>
-                .<span class="ident">get_uniform_location</span>(<span class="kw-2">*</span><span class="self">self</span>.<span class="ident">program</span>, <span class="string">&quot;window&quot;</span>)
-                .<span class="ident">unwrap</span>();
+                .<span class="ident">uniform_3_f32_slice</span>(<span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">transform_location</span>), <span class="kw-2">&amp;</span><span class="ident">uniforms</span>.<span class="ident">transform</span>);
             <span class="self">self</span>.<span class="ident">gl</span>
-                .<span class="ident">uniform_3_f32_slice</span>(<span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">window_loc</span>), <span class="kw-2">&amp;</span><span class="ident">uniforms</span>.<span class="ident">window</span>);
+                .<span class="ident">uniform_3_f32_slice</span>(<span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">window_location</span>), <span class="kw-2">&amp;</span><span class="ident">uniforms</span>.<span class="ident">window</span>);
 
             <span class="self">self</span>.<span class="ident">gl</span>.<span class="ident">bind_vertex_array</span>(<span class="prelude-val">Some</span>(<span class="ident">obj</span>.<span class="ident">vert_array</span>.<span class="ident">id</span>));
             <span class="self">self</span>.<span class="ident">gl</span>
