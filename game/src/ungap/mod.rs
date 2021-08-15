@@ -122,19 +122,6 @@ impl State<App> for ExploreMap {
             }
         }
 
-        // Click to zoom in somewhere
-        if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
-            if ctx.canvas.cam_zoom < app.opts.min_zoom_for_detail && ctx.normal_left_click() {
-                return Transition::Push(Warping::new_state(
-                    ctx,
-                    pt,
-                    Some(10.0),
-                    None,
-                    &mut app.primary,
-                ));
-            }
-        }
-
         if let Outcome::Clicked(x) = self.top_panel.event(ctx) {
             match x.as_ref() {
                 "about A/B Street" => {

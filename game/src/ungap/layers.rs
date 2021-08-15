@@ -1,4 +1,5 @@
 use std::cell::RefCell;
+use std::collections::HashMap;
 
 use geom::{Circle, Distance, Pt2D};
 use map_model::{LaneType, PathConstraints, Road};
@@ -81,6 +82,7 @@ impl DrawNetworkLayer {
         // Thicker lines as we zoom out. Scale up to 5x. Never shrink past the road's actual width
         let thickness = (0.5 / zoom).max(1.0);
 
+        let mut intersections = HashMap::new();
         for r in map.all_roads() {
             let mut bike_lane = false;
             let mut buffer = false;
@@ -108,6 +110,14 @@ impl DrawNetworkLayer {
                 color,
                 r.center_pts.make_polygons(thickness * r.get_width(map)),
             );
+            // Arbitrarily pick a color when two different types of roads meet
+            intersections.insert(r.src_i, color);
+            intersections.insert(r.dst_i, color);
+        }
+
+        for (i, color) in intersections {
+            // No clear way to thicken the intersection at different zoom levels
+            batch.push(color, map.get_i(i).polygon.clone());
         }
 
         g.upload(batch)

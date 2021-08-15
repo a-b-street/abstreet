@@ -104,6 +104,15 @@ impl RouteSketcher {
         let mut batch = GeomBatch::new();
 
         // Draw the confirmed route
+        for pair in self.route.full_path.windows(2) {
+            // TODO Inefficient!
+            let r = map.find_road_between(pair[0], pair[1]).unwrap();
+            batch.push(Color::RED.alpha(0.5), map.get_r(r).get_thick_polygon(map));
+        }
+        for i in &self.route.full_path {
+            batch.push(Color::RED.alpha(0.5), map.get_i(*i).polygon.clone());
+        }
+
         let mut cnt = 0;
         for i in &self.route.waypoints {
             cnt += 1;
@@ -118,11 +127,6 @@ impl RouteSketcher {
                     .centered_on(map.get_i(*i).polygon.center()),
             );
         }
-        for pair in self.route.full_path.windows(2) {
-            // TODO Inefficient!
-            let r = map.find_road_between(pair[0], pair[1]).unwrap();
-            batch.push(Color::RED.alpha(0.5), map.get_r(r).get_thick_polygon(map));
-        }
 
         // Draw the current operation
         if let Mode::Hovering(i) = self.mode {
@@ -131,9 +135,14 @@ impl RouteSketcher {
                 Circle::new(map.get_i(i).polygon.center(), Distance::meters(10.0)).to_polygon(),
             );
             if self.route.waypoints.len() == 1 {
-                if let Some((roads, _)) = map.simple_path_btwn(self.route.waypoints[0], i) {
+                if let Some((roads, intersections)) =
+                    map.simple_path_btwn(self.route.waypoints[0], i)
+                {
                     for r in roads {
                         batch.push(Color::BLUE.alpha(0.5), map.get_r(r).get_thick_polygon(map));
+                    }
+                    for i in intersections {
+                        batch.push(Color::BLUE.alpha(0.5), map.get_i(i).polygon.clone());
                     }
                 }
             }
