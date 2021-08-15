@@ -63,7 +63,7 @@ src/%/wasm_pkg: $(RUST_SOURCES)
 # built to be able to compile our typescript
 build/dist/%/wasm_pkg: src/%/wasm_pkg
 	mkdir -p $(dir $@)
-	cp -r "${<}" "${@}"
+	cp -r "${<}" $(dir $@)
 
 # Concatenate the target crate's js file with the generic widgetry loading
 # code.

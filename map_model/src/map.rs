@@ -87,7 +87,10 @@ impl Map {
         self.edits = self.new_edits();
         self.recalculate_road_to_buildings();
 
-        if true {
+        // Enable to work on shrinking map file sizes. Never run this on the web though --
+        // trying to serialize fast_paths in wasm melts the browser, because the usize<->u32
+        // translation there isn't meant to run on wasm.
+        if cfg!(not(target_arch = "wasm32")) && false {
             let mut costs = vec![
                 (
                     "roads",

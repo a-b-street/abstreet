@@ -349,7 +349,7 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App) -> Panel {
         ])
         .evenly_spaced(),
     ]))
-    .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
+    .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
     .build(ctx)
 }
 
