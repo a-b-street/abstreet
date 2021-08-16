@@ -402,6 +402,61 @@
 <span id="400">400</span>
 <span id="401">401</span>
 <span id="402">402</span>
+<span id="403">403</span>
+<span id="404">404</span>
+<span id="405">405</span>
+<span id="406">406</span>
+<span id="407">407</span>
+<span id="408">408</span>
+<span id="409">409</span>
+<span id="410">410</span>
+<span id="411">411</span>
+<span id="412">412</span>
+<span id="413">413</span>
+<span id="414">414</span>
+<span id="415">415</span>
+<span id="416">416</span>
+<span id="417">417</span>
+<span id="418">418</span>
+<span id="419">419</span>
+<span id="420">420</span>
+<span id="421">421</span>
+<span id="422">422</span>
+<span id="423">423</span>
+<span id="424">424</span>
+<span id="425">425</span>
+<span id="426">426</span>
+<span id="427">427</span>
+<span id="428">428</span>
+<span id="429">429</span>
+<span id="430">430</span>
+<span id="431">431</span>
+<span id="432">432</span>
+<span id="433">433</span>
+<span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
+<span id="443">443</span>
+<span id="444">444</span>
+<span id="445">445</span>
+<span id="446">446</span>
+<span id="447">447</span>
+<span id="448">448</span>
+<span id="449">449</span>
+<span id="450">450</span>
+<span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
 </pre><pre class="rust">
 <span class="comment">// Disable some noisy lints</span>
 <span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::too_many_arguments</span>, <span class="ident">clippy::type_complexity</span>)]</span>
@@ -414,9 +469,10 @@
 <span class="kw">use</span> <span class="ident">abstio::MapName</span>;
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">CmdArgs</span>, <span class="ident">Timer</span>};
 <span class="kw">use</span> <span class="ident">geom::Duration</span>;
+<span class="kw">use</span> <span class="ident">map_gui::load::FutureLoader</span>;
 <span class="kw">use</span> <span class="ident">map_gui::options::Options</span>;
-<span class="kw">use</span> <span class="ident">map_gui::tools::URLManager</span>;
-<span class="kw">use</span> <span class="ident">map_model::Map</span>;
+<span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">PopupMsg</span>, <span class="ident">URLManager</span>};
+<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">Map</span>, <span class="ident">MapEdits</span>};
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">Sim</span>, <span class="ident">SimFlags</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">EventCtx</span>, <span class="ident">Settings</span>, <span class="ident">State</span>, <span class="ident">Transition</span>};
 
@@ -646,7 +702,7 @@
             <span class="ident">ctx</span>,
             <span class="kw-2">&amp;</span><span class="ident">app</span>,
             <span class="ident">map_name</span>,
-            <span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> <span class="ident">Transition::Clear</span>(<span class="ident">finish_app_setup</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">title</span>, <span class="ident">setup</span>))),
+            <span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> <span class="ident">Transition::Clear</span>(<span class="ident">continue_app_setup</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">title</span>, <span class="ident">setup</span>))),
         )];
         (<span class="ident">app</span>, <span class="ident">states</span>)
     } <span class="kw">else</span> {
@@ -675,12 +731,12 @@
             <span class="ident">session</span>: <span class="kw">crate</span><span class="ident">::app::SessionState::empty</span>(),
         };
 
-        <span class="kw">let</span> <span class="ident">states</span> <span class="op">=</span> <span class="ident">finish_app_setup</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">app</span>, <span class="ident">title</span>, <span class="ident">setup</span>);
+        <span class="kw">let</span> <span class="ident">states</span> <span class="op">=</span> <span class="ident">continue_app_setup</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">app</span>, <span class="ident">title</span>, <span class="ident">setup</span>);
         (<span class="ident">app</span>, <span class="ident">states</span>)
     }
 }
 
-<span class="kw">fn</span> <span class="ident">finish_app_setup</span>(
+<span class="kw">fn</span> <span class="ident">continue_app_setup</span>(
     <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
     <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>,
     <span class="ident">title</span>: <span class="ident">bool</span>,
@@ -688,6 +744,7 @@
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">pt</span>, <span class="ident">zoom</span>)) <span class="op">=</span> <span class="ident">setup</span>
         .<span class="ident">center_camera</span>
+        .<span class="ident">as_ref</span>()
         .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">cam</span><span class="op">|</span> <span class="ident">URLManager::parse_center_camera</span>(<span class="ident">app</span>, <span class="ident">cam</span>))
     {
         <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span> <span class="op">=</span> <span class="ident">zoom</span>;
@@ -712,27 +769,80 @@
 
     <span class="comment">// Just apply this here, don&#39;t plumb to SimFlags or anything else. We recreate things using</span>
     <span class="comment">// these flags later, but we don&#39;t want to keep applying the same edits.</span>
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">edits_name</span>) <span class="op">=</span> <span class="ident">setup</span>.<span class="ident">start_with_edits</span> {
-        <span class="comment">// TODO Maybe loading screen</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">timer</span> <span class="op">=</span> <span class="ident">Timer::new</span>(<span class="string">&quot;apply initial edits&quot;</span>);
-        <span class="kw">let</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">map_model::MapEdits::load</span>(
-            <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>,
-            <span class="ident">abstio::path_edits</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>(), <span class="kw-2">&amp;</span><span class="ident">edits_name</span>),
-            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>,
-        )
-        .<span class="ident">or_else</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> {
-            <span class="ident">map_model::MapEdits::load</span>(
-                <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>,
-                <span class="ident">abstio::path</span>(<span class="macro">format!</span>(<span class="string">&quot;system/proposals/{}.json&quot;</span>, <span class="ident">edits_name</span>)),
-                <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>,
-            )
-        })
-        .<span class="ident">unwrap</span>();
-        <span class="kw">crate</span><span class="ident">::edit::apply_map_edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">edits</span>);
-        <span class="ident">app</span>.<span class="ident">primary</span>
-            .<span class="ident">map</span>
-            .<span class="ident">recalculate_pathfinding_after_edits</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>);
-        <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">clear_sim</span>();
+    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">edits_name</span>) <span class="op">=</span> <span class="ident">setup</span>.<span class="ident">start_with_edits</span> {
+        <span class="kw">for</span> <span class="ident">path</span> <span class="kw">in</span> [
+            <span class="ident">abstio::path_edits</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>(), <span class="ident">edits_name</span>),
+            <span class="ident">abstio::path</span>(<span class="macro">format!</span>(<span class="string">&quot;system/proposals/{}.json&quot;</span>, <span class="ident">edits_name</span>)),
+        ] {
+            <span class="kw">if</span> <span class="ident">abstio::file_exists</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>) {
+                <span class="kw">let</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">map_model::MapEdits::load_from_file</span>(
+                    <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>,
+                    <span class="ident">path</span>,
+                    <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer::throwaway</span>(),
+                )
+                .<span class="ident">unwrap</span>();
+                <span class="kw">return</span> <span class="ident">finish_app_setup</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">title</span>, <span class="ident">savestate</span>, <span class="prelude-val">Some</span>(<span class="ident">edits</span>), <span class="ident">setup</span>);
+            }
+        }
+
+        <span class="comment">// Try loading from remote</span>
+        <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">outer_progress_rx</span>) <span class="op">=</span> <span class="ident">futures_channel::mpsc::channel</span>(<span class="number">1</span>);
+        <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">inner_progress_rx</span>) <span class="op">=</span> <span class="ident">futures_channel::mpsc::channel</span>(<span class="number">1</span>);
+        <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{}/get?id={}&quot;</span>, <span class="ident">ungap::PROPOSAL_HOST_URL</span>, <span class="ident">edits_name</span>);
+        <span class="kw">return</span> <span class="macro">vec!</span>[<span class="ident">FutureLoader</span>::<span class="op">&lt;</span><span class="ident">App</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::new_state</span>(
+            <span class="ident">ctx</span>,
+            <span class="ident">Box::pin</span>(<span class="kw">async</span> <span class="kw">move</span> {
+                <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">abstio::http_get</span>(<span class="ident">url</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+                <span class="kw">let</span> <span class="ident">wrapper</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">bytes</span>);
+                <span class="prelude-val">Ok</span>(<span class="ident">wrapper</span>)
+            }),
+            <span class="ident">outer_progress_rx</span>,
+            <span class="ident">inner_progress_rx</span>,
+            <span class="string">&quot;Downloading proposal&quot;</span>,
+            <span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">result</span><span class="op">|</span> {
+                <span class="kw">match</span> <span class="ident">result</span>.<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">bytes</span><span class="op">|</span> <span class="ident">MapEdits::load_from_bytes</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>, <span class="ident">bytes</span>)) {
+                    <span class="prelude-val">Ok</span>(<span class="ident">edits</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition::Clear</span>(<span class="ident">finish_app_setup</span>(
+                        <span class="ident">ctx</span>,
+                        <span class="ident">app</span>,
+                        <span class="ident">title</span>,
+                        <span class="ident">savestate</span>,
+                        <span class="prelude-val">Some</span>(<span class="ident">edits</span>),
+                        <span class="ident">setup</span>,
+                    )),
+                    <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="comment">// TODO Fail more gracefully -- add a popup with the error, but continue</span>
+                        <span class="comment">// app setup?</span>
+                        <span class="macro">error!</span>(<span class="string">&quot;Couldn&#39;t load remote proposal: {}&quot;</span>, <span class="ident">err</span>);
+                        <span class="ident">Transition::Replace</span>(<span class="ident">PopupMsg::new_state</span>(
+                            <span class="ident">ctx</span>,
+                            <span class="string">&quot;Couldn&#39;t load remote proposal&quot;</span>,
+                            <span class="macro">vec!</span>[<span class="ident">err</span>.<span class="ident">to_string</span>()],
+                        ))
+                    }
+                }
+            }),
+        )];
+    }
+
+    <span class="ident">finish_app_setup</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">title</span>, <span class="ident">savestate</span>, <span class="prelude-val">None</span>, <span class="ident">setup</span>)
+}
+
+<span class="kw">fn</span> <span class="ident">finish_app_setup</span>(
+    <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
+    <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>,
+    <span class="ident">title</span>: <span class="ident">bool</span>,
+    <span class="ident">savestate</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Sim</span><span class="op">&gt;</span>,
+    <span class="ident">edits</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">MapEdits</span><span class="op">&gt;</span>,
+    <span class="ident">setup</span>: <span class="ident">Setup</span>,
+) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">edits</span>) <span class="op">=</span> <span class="ident">edits</span> {
+        <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;apply initial edits&quot;</span>, <span class="op">|</span><span class="ident">ctx</span>, <span class="kw-2">mut</span> <span class="ident">timer</span><span class="op">|</span> {
+            <span class="kw">crate</span><span class="ident">::edit::apply_map_edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">edits</span>);
+            <span class="ident">app</span>.<span class="ident">primary</span>
+                .<span class="ident">map</span>
+                .<span class="ident">recalculate_pathfinding_after_edits</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>);
+            <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">clear_sim</span>();
+        });
     }
 
     <span class="kw">if</span> <span class="ident">setup</span>.<span class="ident">initialize_tutorial</span> {
