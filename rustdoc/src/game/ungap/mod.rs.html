@@ -397,6 +397,50 @@
 <span id="395">395</span>
 <span id="396">396</span>
 <span id="397">397</span>
+<span id="398">398</span>
+<span id="399">399</span>
+<span id="400">400</span>
+<span id="401">401</span>
+<span id="402">402</span>
+<span id="403">403</span>
+<span id="404">404</span>
+<span id="405">405</span>
+<span id="406">406</span>
+<span id="407">407</span>
+<span id="408">408</span>
+<span id="409">409</span>
+<span id="410">410</span>
+<span id="411">411</span>
+<span id="412">412</span>
+<span id="413">413</span>
+<span id="414">414</span>
+<span id="415">415</span>
+<span id="416">416</span>
+<span id="417">417</span>
+<span id="418">418</span>
+<span id="419">419</span>
+<span id="420">420</span>
+<span id="421">421</span>
+<span id="422">422</span>
+<span id="423">423</span>
+<span id="424">424</span>
+<span id="425">425</span>
+<span id="426">426</span>
+<span id="427">427</span>
+<span id="428">428</span>
+<span id="429">429</span>
+<span id="430">430</span>
+<span id="431">431</span>
+<span id="432">432</span>
+<span id="433">433</span>
+<span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
 </pre><pre class="rust">
 <span class="kw">mod</span> <span class="ident">layers</span>;
 <span class="kw">mod</span> <span class="ident">magnifying</span>;
@@ -405,6 +449,7 @@
 
 <span class="kw">use</span> <span class="ident">abstutil::prettyprint_usize</span>;
 <span class="kw">use</span> <span class="ident">geom::Distance</span>;
+<span class="kw">use</span> <span class="ident">map_gui::load::FutureLoader</span>;
 <span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">nice_map_name</span>, <span class="ident">CityPicker</span>, <span class="ident">ColorLegend</span>, <span class="ident">PopupMsg</span>};
 <span class="kw">use</span> <span class="ident">map_gui::ID</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">EditCmd</span>, <span class="ident">LaneType</span>};
@@ -547,6 +592,9 @@
                         <span class="prelude-val">Some</span>(<span class="ident">Transition::Pop</span>),
                         <span class="ident">Box::new</span>(<span class="op">|</span><span class="kw">_</span>, <span class="kw">_</span><span class="op">|</span> {}),
                     ));
+                }
+                <span class="string">&quot;Share proposal&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">share_proposal</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
                 }
                 <span class="string">&quot;Sketch a route&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> <span class="op">=</span> <span class="prelude-val">None</span>;
@@ -708,6 +756,14 @@
             .<span class="ident">disabled</span>(<span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">is_empty</span>())
             .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
     ]));
+    <span class="comment">// TODO Rethink UI of this, probably fold into save dialog</span>
+    <span class="ident">file_management</span>.<span class="ident">push</span>(
+        <span class="ident">ctx</span>.<span class="ident">style</span>()
+            .<span class="ident">btn_outline</span>
+            .<span class="ident">text</span>(<span class="string">&quot;Share proposal&quot;</span>)
+            .<span class="ident">disabled</span>(<span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">is_empty</span>())
+            .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+    );
     <span class="comment">// TODO Should undo/redo, save, share functionality also live here?</span>
 
     <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
@@ -794,6 +850,38 @@
     ]))
     .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::Right</span>, <span class="ident">VerticalAlignment::Bottom</span>)
     .<span class="ident">build</span>(<span class="ident">ctx</span>)
+}
+
+<span class="kw">fn</span> <span class="ident">share_proposal</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">outer_progress_rx</span>) <span class="op">=</span> <span class="ident">futures_channel::mpsc::channel</span>(<span class="number">1</span>);
+    <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">inner_progress_tx</span>, <span class="ident">inner_progress_rx</span>) <span class="op">=</span> <span class="ident">futures_channel::mpsc::channel</span>(<span class="number">1</span>);
+    <span class="kw">let</span> <span class="ident">edits_json</span> <span class="op">=</span>
+        <span class="ident">abstutil::to_json_terse</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">to_permanent</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>));
+    <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="string">&quot;http://localhost:8080/create&quot;</span>;
+    <span class="ident">FutureLoader</span>::<span class="op">&lt;</span><span class="ident">App</span>, <span class="ident">String</span><span class="op">&gt;</span><span class="ident">::new_state</span>(
+        <span class="ident">ctx</span>,
+        <span class="ident">Box::pin</span>(<span class="kw">async</span> <span class="kw">move</span> {
+            <span class="kw">let</span> <span class="ident">raw_bytes</span> <span class="op">=</span>
+                <span class="ident">abstio::download_bytes</span>(<span class="ident">url</span>, <span class="prelude-val">Some</span>(<span class="ident">edits_json</span>), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">inner_progress_tx</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="kw">let</span> <span class="ident">uuid</span> <span class="op">=</span> <span class="ident">String::from_utf8</span>(<span class="ident">raw_bytes</span>)<span class="question-mark">?</span>;
+            <span class="comment">// TODO I&#39;m so lost in this type magic</span>
+            <span class="kw">let</span> <span class="ident">wrapper</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">uuid</span>);
+            <span class="prelude-val">Ok</span>(<span class="ident">wrapper</span>)
+        }),
+        <span class="ident">outer_progress_rx</span>,
+        <span class="ident">inner_progress_rx</span>,
+        <span class="string">&quot;Uploading proposal&quot;</span>,
+        <span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">ctx</span>, <span class="kw">_</span>, <span class="ident">result</span><span class="op">|</span> {
+            <span class="ident">Transition::Replace</span>(<span class="kw">match</span> <span class="ident">result</span> {
+                <span class="prelude-val">Ok</span>(<span class="ident">uuid</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">PopupMsg::new_state</span>(<span class="ident">ctx</span>, <span class="string">&quot;Success&quot;</span>, <span class="macro">vec!</span>[<span class="macro">format!</span>(<span class="string">&quot;ID is {}&quot;</span>, <span class="ident">uuid</span>)]),
+                <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">PopupMsg::new_state</span>(
+                    <span class="ident">ctx</span>,
+                    <span class="string">&quot;Failure&quot;</span>,
+                    <span class="macro">vec!</span>[<span class="macro">format!</span>(<span class="string">&quot;Couldn&#39;t upload proposal: {}&quot;</span>, <span class="ident">err</span>)],
+                ),
+            })
+        }),
+    )
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="game" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div><script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script></body></html>
