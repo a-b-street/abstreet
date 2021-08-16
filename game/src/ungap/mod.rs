@@ -6,7 +6,7 @@ mod quick_sketch;
 use abstutil::prettyprint_usize;
 use geom::Distance;
 use map_gui::load::FutureLoader;
-use map_gui::tools::{nice_map_name, CityPicker, ColorLegend, PopupMsg};
+use map_gui::tools::{nice_map_name, CityPicker, ColorLegend, PopupMsg, URLManager};
 use map_gui::ID;
 use map_model::{EditCmd, LaneType};
 use widgetry::{
@@ -41,35 +41,57 @@ impl ExploreMap {
     pub fn new_state(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State<App>> {
         app.opts.show_building_driveways = false;
 
+        if let Err(err) = URLManager::update_url_free_param(
+            app.primary
+                .map
+                .get_name()
+                .path()
+                .strip_prefix(&abstio::path(""))
+                .unwrap()
+                .to_string(),
+        ) {
+            warn!("Couldn't update URL: {}", err);
+        }
+
         Box::new(ExploreMap {
-            top_panel: make_top_panel(ctx, app),
+            top_panel: Panel::empty(ctx),
             legend: make_legend(ctx, app, false, false),
             magnifying_glass: MagnifyingGlass::new(ctx),
             network_layer: DrawNetworkLayer::new(),
-            edits_layer: render_edits(ctx, app),
+            edits_layer: Drawable::empty(ctx),
             elevation: false,
             nearby: None,
 
-            map_edit_key: app.primary.map.get_edits_change_key(),
+            // Start with a bogus value, so we fix up the URL when changing maps
+            map_edit_key: usize::MAX,
         })
     }
 }
 
 impl State<App> for ExploreMap {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        {
-            // We would normally use Cached, but so many values depend on one key, so this is more
-            // clear.
-            let key = app.primary.map.get_edits_change_key();
-            if self.map_edit_key != key {
-                self.map_edit_key = key;
-                self.network_layer.clear();
-                self.edits_layer = render_edits(ctx, app);
-                self.top_panel = make_top_panel(ctx, app);
+        // We would normally use Cached, but so many values depend on one key, so this is more
+        // clear.
+        let key = app.primary.map.get_edits_change_key();
+        if self.map_edit_key != key {
+            self.map_edit_key = key;
+            self.network_layer.clear();
+            self.edits_layer = render_edits(ctx, app);
+            self.top_panel = make_top_panel(ctx, app);
+
+            if let Err(err) = URLManager::update_url_param(
+                "--edits".to_string(),
+                app.primary.map.get_edits().edits_name.clone(),
+            ) {
+                warn!("Couldn't update URL: {}", err);
             }
         }
 
-        ctx.canvas_movement();
+        if ctx.canvas_movement() {
+            if let Err(err) = URLManager::update_url_cam(ctx, app) {
+                warn!("Couldn't update URL: {}", err);
+            }
+        }
 
         self.magnifying_glass.event(ctx, app);
 

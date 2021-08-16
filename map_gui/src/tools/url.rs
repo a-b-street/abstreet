@@ -16,6 +16,12 @@ impl URLManager {
         update_url(Box::new(move |url| change_url_free_param(url, &free_param)))
     }
 
+    /// This does nothing on native. On web, it modifies the current URL to change the first named
+    /// parameter in the HTTP GET params to the specified value, adding it if needed.
+    pub fn update_url_param(key: String, value: String) -> Result<()> {
+        update_url(Box::new(move |url| change_url_param(url, &key, &value)))
+    }
+
     /// This does nothing on native. On web, it modifies the current URL to set --cam to an
     /// OSM-style `zoom/lat/lon` string
     /// (https://wiki.openstreetmap.org/wiki/Browsing#Other_URL_tricks) based on the current
@@ -35,7 +41,7 @@ impl URLManager {
         // Trim precision
         let cam = format!("{:.2}/{:.5}/{:.5}", zoom_lvl, center.y(), center.x());
 
-        update_url(Box::new(move |url| change_url_cam(url, &cam)))
+        update_url(Box::new(move |url| change_url_param(url, "--cam", &cam)))
     }
 
     /// Parse an OSM-style `zoom/lat/lon` string
@@ -142,15 +148,15 @@ fn change_url_free_param(url: String, free_param: &str) -> String {
     format!("{}?{}", url_parts[0], query_params)
 }
 
-fn change_url_cam(url: String, cam: &str) -> String {
+fn change_url_param(url: String, key: &str, value: &str) -> String {
     // The URL parsing crates I checked had lots of dependencies and didn't even expose such a nice
     // API for doing this anyway.
     let url_parts = url.split('?').collect::<Vec<_>>();
     if url_parts.len() == 1 {
-        return format!("{}?--cam={}", url, cam);
+        return format!("{}?{}={}", url, key, value);
     }
     let mut query_params = String::new();
-    let mut found_cam = false;
+    let mut found_key = false;
     let mut first = true;
     for x in url_parts[1].split('&') {
         if !first {
@@ -158,18 +164,18 @@ fn change_url_cam(url: String, cam: &str) -> String {
         }
         first = false;
 
-        if x.starts_with("--cam=") {
-            query_params.push_str(&format!("--cam={}", cam));
-            found_cam = true;
+        if x.starts_with(key) {
+            query_params.push_str(&format!("{}={}", key, value));
+            found_key = true;
         } else {
             query_params.push_str(x);
         }
     }
-    if !found_cam {
+    if !found_key {
         if !first {
             query_params.push('&');
         }
-        query_params.push_str(&format!("--cam={}", cam));
+        query_params.push_str(&format!("{}={}", key, value));
     }
 
     format!("{}?{}", url_parts[0], query_params)
@@ -205,19 +211,24 @@ mod tests {
     }
 
     #[test]
-    fn test_change_url_cam() {
-        use super::change_url_cam;
+    fn test_change_url_param() {
+        use super::change_url_param;
 
         assert_eq!(
             "http://0.0.0.0:8000/?--dev&seattle/maps/montlake.bin&--cam=16.6/53.78449/-1.70701",
-            change_url_cam(
+            change_url_param(
                 "http://0.0.0.0:8000/?--dev&seattle/maps/montlake.bin".to_string(),
+                "--cam",
                 "16.6/53.78449/-1.70701"
             )
         );
         assert_eq!(
             "http://0.0.0.0:8000?--cam=16.6/53.78449/-1.70701",
-            change_url_cam("http://0.0.0.0:8000".to_string(), "16.6/53.78449/-1.70701")
+            change_url_param(
+                "http://0.0.0.0:8000".to_string(),
+                "--cam",
+                "16.6/53.78449/-1.70701"
+            )
         );
     }
 }
