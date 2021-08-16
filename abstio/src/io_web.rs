@@ -40,7 +40,6 @@ pub fn file_exists<I: AsRef<str>>(path: I) -> bool {
 }
 
 pub fn list_dir(dir: String) -> Vec<String> {
-    // TODO Handle player data in local storage
     let mut results = BTreeSet::new();
     if dir == "../data/system" {
         for f in SYSTEM_DATA.files() {
@@ -49,6 +48,12 @@ pub fn list_dir(dir: String) -> Vec<String> {
     } else if let Some(dir) = SYSTEM_DATA.get_dir(dir.trim_start_matches("../data/system/")) {
         for f in dir.files() {
             results.insert(format!("../data/system/{}", f.path().display()));
+        }
+    } else if dir.starts_with(&path_player("")) {
+        for key in list_local_storage_keys() {
+            if key.starts_with(&dir) {
+                results.insert(key);
+            }
         }
     } else {
         warn!("list_dir({}): not in SYSTEM_DATA, maybe it's remote", dir);
@@ -127,4 +132,14 @@ pub fn write_binary<T: Serialize>(path: String, _obj: &T) {
 pub fn delete_file<I: AsRef<str>>(path: I) {
     // TODO
     warn!("Not deleting {}", path.as_ref());
+}
+
+fn list_local_storage_keys() -> Vec<String> {
+    let window = web_sys::window().unwrap();
+    let storage = window.local_storage().unwrap().unwrap();
+    let mut keys = Vec::new();
+    for idx in 0..storage.length().unwrap() {
+        keys.push(storage.key(idx).unwrap().unwrap());
+    }
+    keys
 }
