@@ -439,8 +439,6 @@
 <span id="437">437</span>
 <span id="438">438</span>
 <span id="439">439</span>
-<span id="440">440</span>
-<span id="441">441</span>
 </pre><pre class="rust">
 <span class="kw">mod</span> <span class="ident">layers</span>;
 <span class="kw">mod</span> <span class="ident">magnifying</span>;
@@ -854,16 +852,14 @@
 
 <span class="kw">fn</span> <span class="ident">share_proposal</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">outer_progress_rx</span>) <span class="op">=</span> <span class="ident">futures_channel::mpsc::channel</span>(<span class="number">1</span>);
-    <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">inner_progress_tx</span>, <span class="ident">inner_progress_rx</span>) <span class="op">=</span> <span class="ident">futures_channel::mpsc::channel</span>(<span class="number">1</span>);
+    <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">inner_progress_rx</span>) <span class="op">=</span> <span class="ident">futures_channel::mpsc::channel</span>(<span class="number">1</span>);
     <span class="kw">let</span> <span class="ident">edits_json</span> <span class="op">=</span>
         <span class="ident">abstutil::to_json_terse</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">to_permanent</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>));
-    <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="string">&quot;http://localhost:8080/create&quot;</span>;
+    <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="string">&quot;http://localhost:8080/v1/create&quot;</span>;
     <span class="ident">FutureLoader</span>::<span class="op">&lt;</span><span class="ident">App</span>, <span class="ident">String</span><span class="op">&gt;</span><span class="ident">::new_state</span>(
         <span class="ident">ctx</span>,
         <span class="ident">Box::pin</span>(<span class="kw">async</span> <span class="kw">move</span> {
-            <span class="kw">let</span> <span class="ident">raw_bytes</span> <span class="op">=</span>
-                <span class="ident">abstio::download_bytes</span>(<span class="ident">url</span>, <span class="prelude-val">Some</span>(<span class="ident">edits_json</span>), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">inner_progress_tx</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="kw">let</span> <span class="ident">uuid</span> <span class="op">=</span> <span class="ident">String::from_utf8</span>(<span class="ident">raw_bytes</span>)<span class="question-mark">?</span>;
+            <span class="kw">let</span> <span class="ident">uuid</span> <span class="op">=</span> <span class="ident">abstio::http_post</span>(<span class="ident">url</span>, <span class="ident">edits_json</span>).<span class="kw">await</span><span class="question-mark">?</span>;
             <span class="comment">// TODO I&#39;m so lost in this type magic</span>
             <span class="kw">let</span> <span class="ident">wrapper</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">uuid</span>);
             <span class="prelude-val">Ok</span>(<span class="ident">wrapper</span>)
