@@ -5,6 +5,7 @@ mod quick_sketch;
 
 use abstutil::prettyprint_usize;
 use geom::Distance;
+use map_gui::load::FutureLoader;
 use map_gui::tools::{nice_map_name, CityPicker, ColorLegend, PopupMsg};
 use map_gui::ID;
 use map_model::{EditCmd, LaneType};
@@ -147,6 +148,9 @@ impl State<App> for ExploreMap {
                         Some(Transition::Pop),
                         Box::new(|_, _| {}),
                     ));
+                }
+                "Share proposal" => {
+                    return Transition::Push(share_proposal(ctx, app));
                 }
                 "Sketch a route" => {
                     app.primary.current_selection = None;
@@ -308,6 +312,14 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App) -> Panel {
             .disabled(edits.commands.is_empty())
             .build_def(ctx),
     ]));
+    // TODO Rethink UI of this, probably fold into save dialog
+    file_management.push(
+        ctx.style()
+            .btn_outline
+            .text("Share proposal")
+            .disabled(edits.commands.is_empty())
+            .build_def(ctx),
+    );
     // TODO Should undo/redo, save, share functionality also live here?
 
     Panel::new_builder(Widget::col(vec![
@@ -394,4 +406,36 @@ fn make_legend(ctx: &mut EventCtx, app: &App, elevation: bool, nearby: bool) -> 
     ]))
     .aligned(HorizontalAlignment::Right, VerticalAlignment::Bottom)
     .build(ctx)
+}
+
+fn share_proposal(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
+    let (_, outer_progress_rx) = futures_channel::mpsc::channel(1);
+    let (mut inner_progress_tx, inner_progress_rx) = futures_channel::mpsc::channel(1);
+    let edits_json =
+        abstutil::to_json_terse(&app.primary.map.get_edits().to_permanent(&app.primary.map));
+    let url = "http://localhost:8080/create";
+    FutureLoader::<App, String>::new_state(
+        ctx,
+        Box::pin(async move {
+            let raw_bytes =
+                abstio::download_bytes(url, Some(edits_json), &mut inner_progress_tx).await?;
+            let uuid = String::from_utf8(raw_bytes)?;
+            // TODO I'm so lost in this type magic
+            let wrapper: Box<dyn Send + FnOnce(&App) -> String> = Box::new(move |_| uuid);
+            Ok(wrapper)
+        }),
+        outer_progress_rx,
+        inner_progress_rx,
+        "Uploading proposal",
+        Box::new(|ctx, _, result| {
+            Transition::Replace(match result {
+                Ok(uuid) => PopupMsg::new_state(ctx, "Success", vec![format!("ID is {}", uuid)]),
+                Err(err) => PopupMsg::new_state(
+                    ctx,
+                    "Failure",
+                    vec![format!("Couldn't upload proposal: {}", err)],
+                ),
+            })
+        }),
+    )
 }
