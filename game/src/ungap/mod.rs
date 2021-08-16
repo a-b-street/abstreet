@@ -410,16 +410,14 @@ fn make_legend(ctx: &mut EventCtx, app: &App, elevation: bool, nearby: bool) -> 
 
 fn share_proposal(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
     let (_, outer_progress_rx) = futures_channel::mpsc::channel(1);
-    let (mut inner_progress_tx, inner_progress_rx) = futures_channel::mpsc::channel(1);
+    let (_, inner_progress_rx) = futures_channel::mpsc::channel(1);
     let edits_json =
         abstutil::to_json_terse(&app.primary.map.get_edits().to_permanent(&app.primary.map));
-    let url = "http://localhost:8080/create";
+    let url = "http://localhost:8080/v1/create";
     FutureLoader::<App, String>::new_state(
         ctx,
         Box::pin(async move {
-            let raw_bytes =
-                abstio::download_bytes(url, Some(edits_json), &mut inner_progress_tx).await?;
-            let uuid = String::from_utf8(raw_bytes)?;
+            let uuid = abstio::http_post(url, edits_json).await?;
             // TODO I'm so lost in this type magic
             let wrapper: Box<dyn Send + FnOnce(&App) -> String> = Box::new(move |_| uuid);
             Ok(wrapper)
