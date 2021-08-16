@@ -223,6 +223,17 @@
 <span id="221">221</span>
 <span id="222">222</span>
 <span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
+<span id="234">234</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
 
@@ -240,6 +251,12 @@
     <span class="doccomment">/// parameter in the HTTP GET params to the specified value, adding it if needed.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">update_url_free_param</span>(<span class="ident">free_param</span>: <span class="ident">String</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="ident">update_url</span>(<span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">url</span><span class="op">|</span> <span class="ident">change_url_free_param</span>(<span class="ident">url</span>, <span class="kw-2">&amp;</span><span class="ident">free_param</span>)))
+    }
+
+    <span class="doccomment">/// This does nothing on native. On web, it modifies the current URL to change the first named</span>
+    <span class="doccomment">/// parameter in the HTTP GET params to the specified value, adding it if needed.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">update_url_param</span>(<span class="ident">key</span>: <span class="ident">String</span>, <span class="ident">value</span>: <span class="ident">String</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+        <span class="ident">update_url</span>(<span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">url</span><span class="op">|</span> <span class="ident">change_url_param</span>(<span class="ident">url</span>, <span class="kw-2">&amp;</span><span class="ident">key</span>, <span class="kw-2">&amp;</span><span class="ident">value</span>)))
     }
 
     <span class="doccomment">/// This does nothing on native. On web, it modifies the current URL to set --cam to an</span>
@@ -261,7 +278,7 @@
         <span class="comment">// Trim precision</span>
         <span class="kw">let</span> <span class="ident">cam</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{:.2}/{:.5}/{:.5}&quot;</span>, <span class="ident">zoom_lvl</span>, <span class="ident">center</span>.<span class="ident">y</span>(), <span class="ident">center</span>.<span class="ident">x</span>());
 
-        <span class="ident">update_url</span>(<span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">url</span><span class="op">|</span> <span class="ident">change_url_cam</span>(<span class="ident">url</span>, <span class="kw-2">&amp;</span><span class="ident">cam</span>)))
+        <span class="ident">update_url</span>(<span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">url</span><span class="op">|</span> <span class="ident">change_url_param</span>(<span class="ident">url</span>, <span class="string">&quot;--cam&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">cam</span>)))
     }
 
     <span class="doccomment">/// Parse an OSM-style `zoom/lat/lon` string</span>
@@ -368,15 +385,15 @@
     <span class="macro">format!</span>(<span class="string">&quot;{}?{}&quot;</span>, <span class="ident">url_parts</span>[<span class="number">0</span>], <span class="ident">query_params</span>)
 }
 
-<span class="kw">fn</span> <span class="ident">change_url_cam</span>(<span class="ident">url</span>: <span class="ident">String</span>, <span class="ident">cam</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+<span class="kw">fn</span> <span class="ident">change_url_param</span>(<span class="ident">url</span>: <span class="ident">String</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
     <span class="comment">// The URL parsing crates I checked had lots of dependencies and didn&#39;t even expose such a nice</span>
     <span class="comment">// API for doing this anyway.</span>
     <span class="kw">let</span> <span class="ident">url_parts</span> <span class="op">=</span> <span class="ident">url</span>.<span class="ident">split</span>(<span class="string">&#39;?&#39;</span>).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
     <span class="kw">if</span> <span class="ident">url_parts</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="number">1</span> {
-        <span class="kw">return</span> <span class="macro">format!</span>(<span class="string">&quot;{}?--cam={}&quot;</span>, <span class="ident">url</span>, <span class="ident">cam</span>);
+        <span class="kw">return</span> <span class="macro">format!</span>(<span class="string">&quot;{}?{}={}&quot;</span>, <span class="ident">url</span>, <span class="ident">key</span>, <span class="ident">value</span>);
     }
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">query_params</span> <span class="op">=</span> <span class="ident">String::new</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">found_cam</span> <span class="op">=</span> <span class="bool-val">false</span>;
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">found_key</span> <span class="op">=</span> <span class="bool-val">false</span>;
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">first</span> <span class="op">=</span> <span class="bool-val">true</span>;
     <span class="kw">for</span> <span class="ident">x</span> <span class="kw">in</span> <span class="ident">url_parts</span>[<span class="number">1</span>].<span class="ident">split</span>(<span class="string">&#39;&amp;&#39;</span>) {
         <span class="kw">if</span> <span class="op">!</span><span class="ident">first</span> {
@@ -384,18 +401,18 @@
         }
         <span class="ident">first</span> <span class="op">=</span> <span class="bool-val">false</span>;
 
-        <span class="kw">if</span> <span class="ident">x</span>.<span class="ident">starts_with</span>(<span class="string">&quot;--cam=&quot;</span>) {
-            <span class="ident">query_params</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;--cam={}&quot;</span>, <span class="ident">cam</span>));
-            <span class="ident">found_cam</span> <span class="op">=</span> <span class="bool-val">true</span>;
+        <span class="kw">if</span> <span class="ident">x</span>.<span class="ident">starts_with</span>(<span class="ident">key</span>) {
+            <span class="ident">query_params</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{}={}&quot;</span>, <span class="ident">key</span>, <span class="ident">value</span>));
+            <span class="ident">found_key</span> <span class="op">=</span> <span class="bool-val">true</span>;
         } <span class="kw">else</span> {
             <span class="ident">query_params</span>.<span class="ident">push_str</span>(<span class="ident">x</span>);
         }
     }
-    <span class="kw">if</span> <span class="op">!</span><span class="ident">found_cam</span> {
+    <span class="kw">if</span> <span class="op">!</span><span class="ident">found_key</span> {
         <span class="kw">if</span> <span class="op">!</span><span class="ident">first</span> {
             <span class="ident">query_params</span>.<span class="ident">push</span>(<span class="string">&#39;&amp;&#39;</span>);
         }
-        <span class="ident">query_params</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;--cam={}&quot;</span>, <span class="ident">cam</span>));
+        <span class="ident">query_params</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{}={}&quot;</span>, <span class="ident">key</span>, <span class="ident">value</span>));
     }
 
     <span class="macro">format!</span>(<span class="string">&quot;{}?{}&quot;</span>, <span class="ident">url_parts</span>[<span class="number">0</span>], <span class="ident">query_params</span>)
@@ -431,19 +448,24 @@
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_change_url_cam</span>() {
-        <span class="kw">use</span> <span class="kw">super</span><span class="ident">::change_url_cam</span>;
+    <span class="kw">fn</span> <span class="ident">test_change_url_param</span>() {
+        <span class="kw">use</span> <span class="kw">super</span><span class="ident">::change_url_param</span>;
 
         <span class="macro">assert_eq!</span>(
             <span class="string">&quot;http://0.0.0.0:8000/?--dev&amp;seattle/maps/montlake.bin&amp;--cam=16.6/53.78449/-1.70701&quot;</span>,
-            <span class="ident">change_url_cam</span>(
+            <span class="ident">change_url_param</span>(
                 <span class="string">&quot;http://0.0.0.0:8000/?--dev&amp;seattle/maps/montlake.bin&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="string">&quot;--cam&quot;</span>,
                 <span class="string">&quot;16.6/53.78449/-1.70701&quot;</span>
             )
         );
         <span class="macro">assert_eq!</span>(
             <span class="string">&quot;http://0.0.0.0:8000?--cam=16.6/53.78449/-1.70701&quot;</span>,
-            <span class="ident">change_url_cam</span>(<span class="string">&quot;http://0.0.0.0:8000&quot;</span>.<span class="ident">to_string</span>(), <span class="string">&quot;16.6/53.78449/-1.70701&quot;</span>)
+            <span class="ident">change_url_param</span>(
+                <span class="string">&quot;http://0.0.0.0:8000&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="string">&quot;--cam&quot;</span>,
+                <span class="string">&quot;16.6/53.78449/-1.70701&quot;</span>
+            )
         );
     }
 }
