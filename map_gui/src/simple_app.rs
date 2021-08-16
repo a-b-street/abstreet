@@ -74,7 +74,7 @@ impl<T: 'static> SimpleApp<T> {
             map_name,
             Box::new(move |ctx, app| {
                 if let Some((pt, zoom)) =
-                    center_camera.and_then(|cam| URLManager::parse_center_camera(app, cam))
+                    center_camera.and_then(|cam| URLManager::parse_center_camera(app, &cam))
                 {
                     ctx.canvas.cam_zoom = zoom;
                     ctx.canvas.center_on_map_pt(pt);

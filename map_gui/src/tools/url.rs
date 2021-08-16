@@ -42,7 +42,7 @@ impl URLManager {
     /// (https://wiki.openstreetmap.org/wiki/Browsing#Other_URL_tricks), returning the map point to
     /// center on and the camera zoom.
     // TODO This flag would also be useful in the other tools; lift to map_gui.
-    pub fn parse_center_camera<A: AppLike>(app: &A, raw: String) -> Option<(Pt2D, f64)> {
+    pub fn parse_center_camera<A: AppLike>(app: &A, raw: &str) -> Option<(Pt2D, f64)> {
         let parts: Vec<&str> = raw.split('/').collect();
         if parts.len() != 3 {
             return None;

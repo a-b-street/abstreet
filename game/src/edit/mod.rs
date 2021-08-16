@@ -566,7 +566,9 @@ impl LoadEdits {
         // Up-front filter out proposals that definitely don't fit the current map
         for name in abstio::list_all_objects(abstio::path("system/proposals")) {
             let path = abstio::path(format!("system/proposals/{}.json", name));
-            if MapEdits::load(&app.primary.map, path.clone(), &mut Timer::throwaway()).is_ok() {
+            if MapEdits::load_from_file(&app.primary.map, path.clone(), &mut Timer::throwaway())
+                .is_ok()
+            {
                 proposals.push(ctx.style().btn_outline.text(name).build_widget(ctx, &path));
             }
         }
@@ -609,7 +611,7 @@ impl State<App> for LoadEdits {
                             abstio::path_edits(app.primary.map.get_name(), path)
                         };
 
-                        match MapEdits::load(
+                        match MapEdits::load_from_file(
                             &app.primary.map,
                             path.clone(),
                             &mut Timer::throwaway(),

@@ -157,12 +157,25 @@ impl MapEdits {
         }
     }
 
-    pub fn load(map: &Map, path: String, timer: &mut Timer) -> Result<MapEdits> {
+    pub fn load_from_file(map: &Map, path: String, timer: &mut Timer) -> Result<MapEdits> {
         match abstio::maybe_read_json::<PermanentMapEdits>(path.clone(), timer) {
             Ok(perma) => perma.into_edits(map),
             Err(_) => {
                 // The JSON format may have changed, so attempt backwards compatibility.
                 let bytes = abstio::slurp_file(path)?;
+                let contents = std::str::from_utf8(&bytes)?;
+                let value = serde_json::from_str(contents)?;
+                let perma = compat::upgrade(value, map)?;
+                perma.into_edits(map)
+            }
+        }
+    }
+
+    pub fn load_from_bytes(map: &Map, bytes: Vec<u8>) -> Result<MapEdits> {
+        match abstutil::from_json::<PermanentMapEdits>(&bytes) {
+            Ok(perma) => perma.into_edits(map),
+            Err(_) => {
+                // The JSON format may have changed, so attempt backwards compatibility.
                 let contents = std::str::from_utf8(&bytes)?;
                 let value = serde_json::from_str(contents)?;
                 let perma = compat::upgrade(value, map)?;

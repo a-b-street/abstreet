@@ -68,7 +68,7 @@ impl SimFlags {
             let sim: Sim = abstio::must_read_object(self.load.clone(), timer);
 
             let mut map = Map::load_synchronously(sim.map_name.path(), timer);
-            match MapEdits::load(
+            match MapEdits::load_from_file(
                 &map,
                 abstio::path_edits(map.get_name(), &sim.edits_name),
                 timer,

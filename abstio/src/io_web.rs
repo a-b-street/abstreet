@@ -29,8 +29,14 @@ static SYSTEM_DATA: include_dir::Dir = include_dir::include_dir!(
 // know when to load this remotely, though.
 
 pub fn file_exists<I: AsRef<str>>(path: I) -> bool {
-    // TODO Handle player data in local storage
     let path = path.as_ref();
+
+    if path.starts_with(&path_player("")) {
+        let window = web_sys::window().unwrap();
+        let storage = window.local_storage().unwrap().unwrap();
+        return storage.get_item(path).unwrap().is_some();
+    }
+
     SYSTEM_DATA
         .get_file(path.trim_start_matches("../data/system/"))
         .is_some()

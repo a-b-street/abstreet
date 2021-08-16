@@ -9,9 +9,10 @@ extern crate log;
 use abstio::MapName;
 use abstutil::{CmdArgs, Timer};
 use geom::Duration;
+use map_gui::load::FutureLoader;
 use map_gui::options::Options;
-use map_gui::tools::URLManager;
-use map_model::Map;
+use map_gui::tools::{PopupMsg, URLManager};
+use map_model::{Map, MapEdits};
 use sim::{Sim, SimFlags};
 use widgetry::{EventCtx, Settings, State, Transition};
 
@@ -241,7 +242,7 @@ fn setup_app(ctx: &mut EventCtx, mut setup: Setup) -> (App, Vec<Box<dyn State<Ap
             ctx,
             &app,
             map_name,
-            Box::new(move |ctx, app| Transition::Clear(finish_app_setup(ctx, app, title, setup))),
+            Box::new(move |ctx, app| Transition::Clear(continue_app_setup(ctx, app, title, setup))),
         )];
         (app, states)
     } else {
@@ -270,12 +271,12 @@ fn setup_app(ctx: &mut EventCtx, mut setup: Setup) -> (App, Vec<Box<dyn State<Ap
             session: crate::app::SessionState::empty(),
         };
 
-        let states = finish_app_setup(ctx, &mut app, title, setup);
+        let states = continue_app_setup(ctx, &mut app, title, setup);
         (app, states)
     }
 }
 
-fn finish_app_setup(
+fn continue_app_setup(
     ctx: &mut EventCtx,
     app: &mut App,
     title: bool,
@@ -283,6 +284,7 @@ fn finish_app_setup(
 ) -> Vec<Box<dyn State<App>>> {
     if let Some((pt, zoom)) = setup
         .center_camera
+        .as_ref()
         .and_then(|cam| URLManager::parse_center_camera(app, cam))
     {
         ctx.canvas.cam_zoom = zoom;
@@ -307,27 +309,80 @@ fn finish_app_setup(
 
     // Just apply this here, don't plumb to SimFlags or anything else. We recreate things using
     // these flags later, but we don't want to keep applying the same edits.
-    if let Some(edits_name) = setup.start_with_edits {
-        // TODO Maybe loading screen
-        let mut timer = Timer::new("apply initial edits");
-        let edits = map_model::MapEdits::load(
-            &app.primary.map,
-            abstio::path_edits(app.primary.map.get_name(), &edits_name),
-            &mut timer,
-        )
-        .or_else(|_| {
-            map_model::MapEdits::load(
-                &app.primary.map,
-                abstio::path(format!("system/proposals/{}.json", edits_name)),
-                &mut timer,
-            )
-        })
-        .unwrap();
-        crate::edit::apply_map_edits(ctx, app, edits);
-        app.primary
-            .map
-            .recalculate_pathfinding_after_edits(&mut timer);
-        app.primary.clear_sim();
+    if let Some(ref edits_name) = setup.start_with_edits {
+        for path in [
+            abstio::path_edits(app.primary.map.get_name(), edits_name),
+            abstio::path(format!("system/proposals/{}.json", edits_name)),
+        ] {
+            if abstio::file_exists(&path) {
+                let edits = map_model::MapEdits::load_from_file(
+                    &app.primary.map,
+                    path,
+                    &mut Timer::throwaway(),
+                )
+                .unwrap();
+                return finish_app_setup(ctx, app, title, savestate, Some(edits), setup);
+            }
+        }
+
+        // Try loading from remote
+        let (_, outer_progress_rx) = futures_channel::mpsc::channel(1);
+        let (_, inner_progress_rx) = futures_channel::mpsc::channel(1);
+        let url = format!("{}/get?id={}", ungap::PROPOSAL_HOST_URL, edits_name);
+        return vec![FutureLoader::<App, Vec<u8>>::new_state(
+            ctx,
+            Box::pin(async move {
+                let bytes = abstio::http_get(url).await?;
+                let wrapper: Box<dyn Send + FnOnce(&App) -> Vec<u8>> = Box::new(move |_| bytes);
+                Ok(wrapper)
+            }),
+            outer_progress_rx,
+            inner_progress_rx,
+            "Downloading proposal",
+            Box::new(move |ctx, app, result| {
+                match result.and_then(|bytes| MapEdits::load_from_bytes(&app.primary.map, bytes)) {
+                    Ok(edits) => Transition::Clear(finish_app_setup(
+                        ctx,
+                        app,
+                        title,
+                        savestate,
+                        Some(edits),
+                        setup,
+                    )),
+                    Err(err) => {
+                        // TODO Fail more gracefully -- add a popup with the error, but continue
+                        // app setup?
+                        error!("Couldn't load remote proposal: {}", err);
+                        Transition::Replace(PopupMsg::new_state(
+                            ctx,
+                            "Couldn't load remote proposal",
+                            vec![err.to_string()],
+                        ))
+                    }
+                }
+            }),
+        )];
+    }
+
+    finish_app_setup(ctx, app, title, savestate, None, setup)
+}
+
+fn finish_app_setup(
+    ctx: &mut EventCtx,
+    app: &mut App,
+    title: bool,
+    savestate: Option<Sim>,
+    edits: Option<MapEdits>,
+    setup: Setup,
+) -> Vec<Box<dyn State<App>>> {
+    if let Some(edits) = edits {
+        ctx.loading_screen("apply initial edits", |ctx, mut timer| {
+            crate::edit::apply_map_edits(ctx, app, edits);
+            app.primary
+                .map
+                .recalculate_pathfinding_after_edits(&mut timer);
+            app.primary.clear_sim();
+        });
     }
 
     if setup.initialize_tutorial {

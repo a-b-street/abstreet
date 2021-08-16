@@ -25,11 +25,11 @@ pub use download::*;
 
 pub use abst_data::*;
 pub use abst_paths::*;
-pub use http_post::*;
+pub use http::*;
 
 mod abst_data;
 mod abst_paths;
-mod http_post;
+mod http;
 mod io;
 
 /// An adapter for widgetry::Settings::read_svg to read SVGs using this crate's methods for finding

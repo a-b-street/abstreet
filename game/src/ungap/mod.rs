@@ -22,6 +22,8 @@ use crate::common::Warping;
 use crate::edit::{LoadEdits, RoadEditor, SaveEdits};
 use crate::sandbox::gameplay::GameplayMode;
 
+pub const PROPOSAL_HOST_URL: &str = "http://localhost:8080/v1";
+
 pub struct ExploreMap {
     top_panel: Panel,
     legend: Panel,
@@ -413,11 +415,11 @@ fn share_proposal(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
     let (_, inner_progress_rx) = futures_channel::mpsc::channel(1);
     let edits_json =
         abstutil::to_json_terse(&app.primary.map.get_edits().to_permanent(&app.primary.map));
-    let url = "http://localhost:8080/v1/create";
     FutureLoader::<App, String>::new_state(
         ctx,
         Box::pin(async move {
-            let uuid = abstio::http_post(url, edits_json).await?;
+            let uuid =
+                abstio::http_post(format!("{}/create", PROPOSAL_HOST_URL), edits_json).await?;
             // TODO I'm so lost in this type magic
             let wrapper: Box<dyn Send + FnOnce(&App) -> String> = Box::new(move |_| uuid);
             Ok(wrapper)
