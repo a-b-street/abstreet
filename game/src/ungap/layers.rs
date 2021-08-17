@@ -7,10 +7,11 @@ use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx};
 use crate::app::App;
 
 lazy_static::lazy_static! {
+    // Lower saturation is less good
     pub static ref DEDICATED_TRAIL: Color = Color::GREEN;
-    pub static ref PROTECTED_BIKE_LANE: Color = Color::hex("#A4DE02");
-    pub static ref PAINTED_BIKE_LANE: Color = Color::hex("#76BA1B");
-    pub static ref GREENWAY: Color = Color::hex("#4C9A2A");
+    pub static ref PROTECTED_BIKE_LANE: Color = Color::hex("#33ff33");
+    pub static ref PAINTED_BIKE_LANE: Color = Color::hex("#80ff80");
+    pub static ref GREENWAY: Color = Color::hex("#ccffcc");
 
     pub static ref EDITED_COLOR: Color = Color::CYAN;
 }
@@ -76,21 +77,21 @@ impl DrawNetworkLayer {
                 }
             }
 
-            let color = if r.is_cycleway() {
-                *DEDICATED_TRAIL
+            let (color, scale) = if r.is_cycleway() {
+                (*DEDICATED_TRAIL, 2.0)
             } else if bike_lane && buffer {
-                *PROTECTED_BIKE_LANE
+                (*PROTECTED_BIKE_LANE, 1.75)
             } else if bike_lane {
-                *PAINTED_BIKE_LANE
+                (*PAINTED_BIKE_LANE, 1.5)
             } else if is_greenway(r) {
-                *GREENWAY
+                (*GREENWAY, 1.25)
             } else {
                 continue;
             };
 
             batch.push(
                 color,
-                r.center_pts.make_polygons(thickness * r.get_width(map)),
+                r.center_pts.make_polygons(thickness * scale * r.get_width(map)),
             );
             // Arbitrarily pick a color when two different types of roads meet
             intersections.insert(r.src_i, color);
