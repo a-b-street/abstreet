@@ -22,7 +22,8 @@ use crate::common::Warping;
 use crate::edit::{LoadEdits, RoadEditor, SaveEdits};
 use crate::sandbox::gameplay::GameplayMode;
 
-pub const PROPOSAL_HOST_URL: &str = "http://localhost:8080/v1";
+//pub const PROPOSAL_HOST_URL: &str = "http://localhost:8080/v1";
+pub const PROPOSAL_HOST_URL: &str = "https://aorta-routes.appspot.com/v1";
 
 pub struct ExploreMap {
     top_panel: Panel,
@@ -451,7 +452,10 @@ fn share_proposal(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
         "Uploading proposal",
         Box::new(|ctx, _, result| {
             Transition::Replace(match result {
-                Ok(uuid) => PopupMsg::new_state(ctx, "Success", vec![format!("ID is {}", uuid)]),
+                Ok(uuid) => {
+                    info!("Proposal uploaded! {}/get?id={}", PROPOSAL_HOST_URL, uuid);
+                    PopupMsg::new_state(ctx, "Success", vec![format!("ID is {}", uuid)])
+                }
                 Err(err) => PopupMsg::new_state(
                     ctx,
                     "Failure",
