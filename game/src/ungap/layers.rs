@@ -1,9 +1,8 @@
 use std::cell::RefCell;
 use std::collections::HashMap;
 
-use geom::{Circle, Distance, Pt2D};
 use map_model::{LaneType, PathConstraints, Road};
-use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Widget};
+use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx};
 
 use crate::app::App;
 
@@ -14,23 +13,6 @@ lazy_static::lazy_static! {
     pub static ref GREENWAY: Color = Color::hex("#4C9A2A");
 
     pub static ref EDITED_COLOR: Color = Color::CYAN;
-}
-
-pub fn legend(ctx: &mut EventCtx, color: Color, label: &str) -> Widget {
-    let radius = 15.0;
-    Widget::row(vec![
-        GeomBatch::from(vec![(
-            color,
-            Circle::new(Pt2D::new(radius, radius), Distance::meters(radius)).to_polygon(),
-        )])
-        .into_widget(ctx)
-        .centered_vert(),
-        ctx.style()
-            .btn_plain
-            .text(label)
-            .build_def(ctx)
-            .centered_vert(),
-    ])
 }
 
 /// Shows the bike network while unzoomed. Handles thickening the roads at low zoom levels.
