@@ -1,6 +1,7 @@
 use std::cell::RefCell;
 use std::collections::HashMap;
 
+use geom::Distance;
 use map_model::{LaneType, PathConstraints, Road};
 use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx};
 
@@ -123,9 +124,17 @@ pub fn render_edits(ctx: &mut EventCtx, app: &App) -> Drawable {
     let mut batch = GeomBatch::new();
     let map = &app.primary.map;
     for r in &map.get_edits().changed_roads {
-        batch.push(
-            EDITED_COLOR.alpha(0.5),
-            map.get_r(*r).get_thick_polygon(map),
+        batch.extend(
+            // dash color
+            Color::hex("#F9FF8B"),
+            map.get_r(*r).get_thick_polygon(map).to_dashed_outline(
+                // thickness
+                Distance::meters(3.0),
+                // length of each dash
+                Distance::meters(5.0),
+                // separation between each dash
+                Distance::meters(2.0),
+            ),
         );
     }
     batch.upload(ctx)

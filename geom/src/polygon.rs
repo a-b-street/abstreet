@@ -385,6 +385,27 @@ impl Polygon {
         }
     }
 
+    /// Creates a dashed outline around the polygon.
+    pub fn to_dashed_outline(
+        &self,
+        width: Distance,
+        dash_len: Distance,
+        dash_separation: Distance,
+    ) -> Vec<Polygon> {
+        let mut polylines = Vec::new();
+        if let Some(ref rings) = self.rings {
+            for ring in rings {
+                polylines.push(PolyLine::unchecked_new(ring.points().clone()));
+            }
+        } else {
+            polylines.push(PolyLine::unchecked_new(self.points.clone()));
+        }
+        polylines
+            .into_iter()
+            .flat_map(|pl| pl.exact_dashed_polygons(width, dash_len, dash_separation))
+            .collect()
+    }
+
     /// Remove the internal rings used for to_outline. This is fine to do if the polygon is being
     /// added to some larger piece of geometry that won't need an outline.
     pub fn strip_rings(&self) -> Polygon {
