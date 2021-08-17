@@ -3,14 +3,17 @@ mod magnifying;
 mod nearby;
 mod quick_sketch;
 
+use std::collections::HashMap;
+
 use abstutil::prettyprint_usize;
 use geom::Distance;
 use map_gui::load::FutureLoader;
 use map_gui::tools::{nice_map_name, CityPicker, ColorLegend, PopupMsg, URLManager};
 use map_gui::ID;
+use map_model::osm::RoadRank;
 use map_model::{EditCmd, LaneType};
 use widgetry::{
-    lctrl, ButtonBuilder, Color, ControlState, Drawable, EdgeInsets, EventCtx, GfxCtx,
+    lctrl, ButtonBuilder, Color, ControlState, Drawable, EdgeInsets, EventCtx, GeomBatch, GfxCtx,
     HorizontalAlignment, Key, Line, Outcome, Panel, RewriteColor, State, Text, TextExt, Toggle,
     VerticalAlignment, Widget,
 };
@@ -35,6 +38,8 @@ pub struct ExploreMap {
     elevation: bool,
     // TODO Also cache Nearby, but recalculate it after edits
     nearby: Option<Nearby>,
+    // TODO Once widgetry buttons can take custom enums, that'd be perfect here
+    road_types: HashMap<String, Drawable>,
 
     map_edit_key: usize,
 }
@@ -63,10 +68,50 @@ impl ExploreMap {
             edits_layer: Drawable::empty(ctx),
             elevation: false,
             nearby: None,
+            road_types: HashMap::new(),
 
             // Start with a bogus value, so we fix up the URL when changing maps
             map_edit_key: usize::MAX,
         })
+    }
+
+    fn highlight_road_type(&mut self, ctx: &mut EventCtx, app: &App, name: &str) {
+        // TODO Button enums would rock
+        if name == "elevation" || name == "things nearby" || name.starts_with("about ") {
+            return;
+        }
+        if self.road_types.contains_key(name) {
+            return;
+        }
+
+        let mut batch = GeomBatch::new();
+        for r in app.primary.map.all_roads() {
+            let rank = r.get_rank();
+            let mut bike_lane = false;
+            let mut buffer = false;
+            for (_, _, lt) in r.lanes_ltr() {
+                if lt == LaneType::Biking {
+                    bike_lane = true;
+                } else if matches!(lt, LaneType::Buffer(_)) {
+                    buffer = true;
+                }
+            }
+
+            let show = (name == "highway" && rank == RoadRank::Highway)
+                || (name == "major street" && rank == RoadRank::Arterial)
+                || (name == "minor street" && rank == RoadRank::Local)
+                || (name == "trail" && r.is_cycleway())
+                || (name == "protected bike lane" && bike_lane && buffer)
+                || (name == "painted bike lane" && bike_lane && !buffer)
+                || (name == "greenway" && layers::is_greenway(r));
+            if show {
+                // TODO If it's a bike element, should probably thicken for the unzoomed scale...
+                // the maximum amount?
+                batch.push(Color::CYAN, r.get_thick_polygon(&app.primary.map));
+            }
+        }
+
+        self.road_types.insert(name.to_string(), ctx.upload(batch));
     }
 }
 
@@ -80,6 +125,7 @@ impl State<App> for ExploreMap {
             self.network_layer.clear();
             self.edits_layer = render_edits(ctx, app);
             self.top_panel = make_top_panel(ctx, app);
+            self.road_types.clear();
 
             if let Err(err) = URLManager::update_url_param(
                 "--edits".to_string(),
@@ -259,6 +305,9 @@ impl State<App> for ExploreMap {
             },
             _ => {}
         }
+        if let Some(name) = self.legend.currently_hovering().cloned() {
+            self.highlight_road_type(ctx, app, &name);
+        }
 
         Transition::Keep
     }
@@ -279,6 +328,12 @@ impl State<App> for ExploreMap {
             }
 
             self.magnifying_glass.draw(g, app);
+
+            if let Some(name) = self.legend.currently_hovering() {
+                if let Some(draw) = self.road_types.get(name) {
+                    g.redraw(draw);
+                }
+            }
         }
         g.redraw(&self.edits_layer);
     }
