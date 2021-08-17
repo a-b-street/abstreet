@@ -499,20 +499,78 @@
 <span id="497">497</span>
 <span id="498">498</span>
 <span id="499">499</span>
+<span id="500">500</span>
+<span id="501">501</span>
+<span id="502">502</span>
+<span id="503">503</span>
+<span id="504">504</span>
+<span id="505">505</span>
+<span id="506">506</span>
+<span id="507">507</span>
+<span id="508">508</span>
+<span id="509">509</span>
+<span id="510">510</span>
+<span id="511">511</span>
+<span id="512">512</span>
+<span id="513">513</span>
+<span id="514">514</span>
+<span id="515">515</span>
+<span id="516">516</span>
+<span id="517">517</span>
+<span id="518">518</span>
+<span id="519">519</span>
+<span id="520">520</span>
+<span id="521">521</span>
+<span id="522">522</span>
+<span id="523">523</span>
+<span id="524">524</span>
+<span id="525">525</span>
+<span id="526">526</span>
+<span id="527">527</span>
+<span id="528">528</span>
+<span id="529">529</span>
+<span id="530">530</span>
+<span id="531">531</span>
+<span id="532">532</span>
+<span id="533">533</span>
+<span id="534">534</span>
+<span id="535">535</span>
+<span id="536">536</span>
+<span id="537">537</span>
+<span id="538">538</span>
+<span id="539">539</span>
+<span id="540">540</span>
+<span id="541">541</span>
+<span id="542">542</span>
+<span id="543">543</span>
+<span id="544">544</span>
+<span id="545">545</span>
+<span id="546">546</span>
+<span id="547">547</span>
+<span id="548">548</span>
+<span id="549">549</span>
+<span id="550">550</span>
+<span id="551">551</span>
+<span id="552">552</span>
+<span id="553">553</span>
+<span id="554">554</span>
 </pre><pre class="rust">
 <span class="kw">mod</span> <span class="ident">layers</span>;
 <span class="kw">mod</span> <span class="ident">magnifying</span>;
 <span class="kw">mod</span> <span class="ident">nearby</span>;
 <span class="kw">mod</span> <span class="ident">quick_sketch</span>;
 
+<span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
+
 <span class="kw">use</span> <span class="ident">abstutil::prettyprint_usize</span>;
 <span class="kw">use</span> <span class="ident">geom::Distance</span>;
 <span class="kw">use</span> <span class="ident">map_gui::load::FutureLoader</span>;
 <span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">nice_map_name</span>, <span class="ident">CityPicker</span>, <span class="ident">ColorLegend</span>, <span class="ident">PopupMsg</span>, <span class="ident">URLManager</span>};
 <span class="kw">use</span> <span class="ident">map_gui::ID</span>;
+<span class="kw">use</span> <span class="ident">map_model::osm::RoadRank</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">EditCmd</span>, <span class="ident">LaneType</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">lctrl</span>, <span class="ident">ButtonBuilder</span>, <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">Drawable</span>, <span class="ident">EdgeInsets</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>,
+    <span class="ident">lctrl</span>, <span class="ident">ButtonBuilder</span>, <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">Drawable</span>, <span class="ident">EdgeInsets</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>,
     <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">RewriteColor</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Toggle</span>,
     <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
@@ -537,6 +595,8 @@
     <span class="ident">elevation</span>: <span class="ident">bool</span>,
     <span class="comment">// TODO Also cache Nearby, but recalculate it after edits</span>
     <span class="ident">nearby</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Nearby</span><span class="op">&gt;</span>,
+    <span class="comment">// TODO Once widgetry buttons can take custom enums, that&#39;d be perfect here</span>
+    <span class="ident">road_types</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">Drawable</span><span class="op">&gt;</span>,
 
     <span class="ident">map_edit_key</span>: <span class="ident">usize</span>,
 }
@@ -565,10 +625,50 @@
             <span class="ident">edits_layer</span>: <span class="ident">Drawable::empty</span>(<span class="ident">ctx</span>),
             <span class="ident">elevation</span>: <span class="bool-val">false</span>,
             <span class="ident">nearby</span>: <span class="prelude-val">None</span>,
+            <span class="ident">road_types</span>: <span class="ident">HashMap::new</span>(),
 
             <span class="comment">// Start with a bogus value, so we fix up the URL when changing maps</span>
             <span class="ident">map_edit_key</span>: <span class="ident">usize::MAX</span>,
         })
+    }
+
+    <span class="kw">fn</span> <span class="ident">highlight_road_type</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) {
+        <span class="comment">// TODO Button enums would rock</span>
+        <span class="kw">if</span> <span class="ident">name</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;elevation&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">name</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;things nearby&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">name</span>.<span class="ident">starts_with</span>(<span class="string">&quot;about &quot;</span>) {
+            <span class="kw">return</span>;
+        }
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">road_types</span>.<span class="ident">contains_key</span>(<span class="ident">name</span>) {
+            <span class="kw">return</span>;
+        }
+
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
+        <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">all_roads</span>() {
+            <span class="kw">let</span> <span class="ident">rank</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">get_rank</span>();
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bike_lane</span> <span class="op">=</span> <span class="bool-val">false</span>;
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buffer</span> <span class="op">=</span> <span class="bool-val">false</span>;
+            <span class="kw">for</span> (<span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">lt</span>) <span class="kw">in</span> <span class="ident">r</span>.<span class="ident">lanes_ltr</span>() {
+                <span class="kw">if</span> <span class="ident">lt</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType::Biking</span> {
+                    <span class="ident">bike_lane</span> <span class="op">=</span> <span class="bool-val">true</span>;
+                } <span class="kw">else</span> <span class="kw">if</span> <span class="macro">matches!</span>(<span class="ident">lt</span>, <span class="ident">LaneType::Buffer</span>(<span class="kw">_</span>)) {
+                    <span class="ident">buffer</span> <span class="op">=</span> <span class="bool-val">true</span>;
+                }
+            }
+
+            <span class="kw">let</span> <span class="ident">show</span> <span class="op">=</span> (<span class="ident">name</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;highway&quot;</span> <span class="op">&amp;&amp;</span> <span class="ident">rank</span> <span class="op">=</span><span class="op">=</span> <span class="ident">RoadRank::Highway</span>)
+                <span class="op">|</span><span class="op">|</span> (<span class="ident">name</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;major street&quot;</span> <span class="op">&amp;&amp;</span> <span class="ident">rank</span> <span class="op">=</span><span class="op">=</span> <span class="ident">RoadRank::Arterial</span>)
+                <span class="op">|</span><span class="op">|</span> (<span class="ident">name</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;minor street&quot;</span> <span class="op">&amp;&amp;</span> <span class="ident">rank</span> <span class="op">=</span><span class="op">=</span> <span class="ident">RoadRank::Local</span>)
+                <span class="op">|</span><span class="op">|</span> (<span class="ident">name</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;trail&quot;</span> <span class="op">&amp;&amp;</span> <span class="ident">r</span>.<span class="ident">is_cycleway</span>())
+                <span class="op">|</span><span class="op">|</span> (<span class="ident">name</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;protected bike lane&quot;</span> <span class="op">&amp;&amp;</span> <span class="ident">bike_lane</span> <span class="op">&amp;&amp;</span> <span class="ident">buffer</span>)
+                <span class="op">|</span><span class="op">|</span> (<span class="ident">name</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;painted bike lane&quot;</span> <span class="op">&amp;&amp;</span> <span class="ident">bike_lane</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">buffer</span>)
+                <span class="op">|</span><span class="op">|</span> (<span class="ident">name</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;greenway&quot;</span> <span class="op">&amp;&amp;</span> <span class="ident">layers::is_greenway</span>(<span class="ident">r</span>));
+            <span class="kw">if</span> <span class="ident">show</span> {
+                <span class="comment">// TODO If it&#39;s a bike element, should probably thicken for the unzoomed scale...</span>
+                <span class="comment">// the maximum amount?</span>
+                <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color::CYAN</span>, <span class="ident">r</span>.<span class="ident">get_thick_polygon</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>));
+            }
+        }
+
+        <span class="self">self</span>.<span class="ident">road_types</span>.<span class="ident">insert</span>(<span class="ident">name</span>.<span class="ident">to_string</span>(), <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">batch</span>));
     }
 }
 
@@ -582,6 +682,7 @@
             <span class="self">self</span>.<span class="ident">network_layer</span>.<span class="ident">clear</span>();
             <span class="self">self</span>.<span class="ident">edits_layer</span> <span class="op">=</span> <span class="ident">render_edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
             <span class="self">self</span>.<span class="ident">top_panel</span> <span class="op">=</span> <span class="ident">make_top_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+            <span class="self">self</span>.<span class="ident">road_types</span>.<span class="ident">clear</span>();
 
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="ident">URLManager::update_url_param</span>(
                 <span class="string">&quot;--edits&quot;</span>.<span class="ident">to_string</span>(),
@@ -761,6 +862,9 @@
             },
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
         }
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">name</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">legend</span>.<span class="ident">currently_hovering</span>().<span class="ident">cloned</span>() {
+            <span class="self">self</span>.<span class="ident">highlight_road_type</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="ident">name</span>);
+        }
 
         <span class="ident">Transition::Keep</span>
     }
@@ -781,6 +885,12 @@
             }
 
             <span class="self">self</span>.<span class="ident">magnifying_glass</span>.<span class="ident">draw</span>(<span class="ident">g</span>, <span class="ident">app</span>);
+
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">name</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">legend</span>.<span class="ident">currently_hovering</span>() {
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">draw</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">road_types</span>.<span class="ident">get</span>(<span class="ident">name</span>) {
+                    <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="ident">draw</span>);
+                }
+            }
         }
         <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">edits_layer</span>);
     }
