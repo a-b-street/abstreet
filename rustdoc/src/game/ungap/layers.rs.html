@@ -132,31 +132,12 @@
 <span id="130">130</span>
 <span id="131">131</span>
 <span id="132">132</span>
-<span id="133">133</span>
-<span id="134">134</span>
-<span id="135">135</span>
-<span id="136">136</span>
-<span id="137">137</span>
-<span id="138">138</span>
-<span id="139">139</span>
-<span id="140">140</span>
-<span id="141">141</span>
-<span id="142">142</span>
-<span id="143">143</span>
-<span id="144">144</span>
-<span id="145">145</span>
-<span id="146">146</span>
-<span id="147">147</span>
-<span id="148">148</span>
-<span id="149">149</span>
-<span id="150">150</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::cell::RefCell</span>;
 <span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Pt2D</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">LaneType</span>, <span class="ident">PathConstraints</span>, <span class="ident">Road</span>};
-<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Widget</span>};
+<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::app::App</span>;
 
@@ -167,23 +148,6 @@
     <span class="kw">pub</span> <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">GREENWAY</span>: <span class="ident">Color</span> <span class="op">=</span> <span class="ident">Color::hex</span>(<span class="string">&quot;#4C9A2A&quot;</span>);
 
     <span class="kw">pub</span> <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">EDITED_COLOR</span>: <span class="ident">Color</span> <span class="op">=</span> <span class="ident">Color::CYAN</span>;
-}
-
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">legend</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">color</span>: <span class="ident">Color</span>, <span class="ident">label</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
-    <span class="kw">let</span> <span class="ident">radius</span> <span class="op">=</span> <span class="number">15.0</span>;
-    <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-        <span class="ident">GeomBatch::from</span>(<span class="macro">vec!</span>[(
-            <span class="ident">color</span>,
-            <span class="ident">Circle::new</span>(<span class="ident">Pt2D::new</span>(<span class="ident">radius</span>, <span class="ident">radius</span>), <span class="ident">Distance::meters</span>(<span class="ident">radius</span>)).<span class="ident">to_polygon</span>(),
-        )])
-        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
-        .<span class="ident">centered_vert</span>(),
-        <span class="ident">ctx</span>.<span class="ident">style</span>()
-            .<span class="ident">btn_plain</span>
-            .<span class="ident">text</span>(<span class="ident">label</span>)
-            .<span class="ident">build_def</span>(<span class="ident">ctx</span>)
-            .<span class="ident">centered_vert</span>(),
-    ])
 }
 
 <span class="doccomment">/// Shows the bike network while unzoomed. Handles thickening the roads at low zoom levels.</span>

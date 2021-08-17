@@ -467,6 +467,38 @@
 <span id="465">465</span>
 <span id="466">466</span>
 <span id="467">467</span>
+<span id="468">468</span>
+<span id="469">469</span>
+<span id="470">470</span>
+<span id="471">471</span>
+<span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
+<span id="476">476</span>
+<span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
+<span id="482">482</span>
+<span id="483">483</span>
+<span id="484">484</span>
+<span id="485">485</span>
+<span id="486">486</span>
+<span id="487">487</span>
+<span id="488">488</span>
+<span id="489">489</span>
+<span id="490">490</span>
+<span id="491">491</span>
+<span id="492">492</span>
+<span id="493">493</span>
+<span id="494">494</span>
+<span id="495">495</span>
+<span id="496">496</span>
+<span id="497">497</span>
+<span id="498">498</span>
+<span id="499">499</span>
 </pre><pre class="rust">
 <span class="kw">mod</span> <span class="ident">layers</span>;
 <span class="kw">mod</span> <span class="ident">magnifying</span>;
@@ -480,11 +512,12 @@
 <span class="kw">use</span> <span class="ident">map_gui::ID</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">EditCmd</span>, <span class="ident">LaneType</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">lctrl</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">Text</span>,
-    <span class="ident">TextExt</span>, <span class="ident">Toggle</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">lctrl</span>, <span class="ident">ButtonBuilder</span>, <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">Drawable</span>, <span class="ident">EdgeInsets</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>,
+    <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">RewriteColor</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Toggle</span>,
+    <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
-<span class="kw">use</span> <span class="self">self</span><span class="ident">::layers</span>::{<span class="ident">legend</span>, <span class="ident">render_edits</span>, <span class="ident">DrawNetworkLayer</span>};
+<span class="kw">use</span> <span class="self">self</span><span class="ident">::layers</span>::{<span class="ident">render_edits</span>, <span class="ident">DrawNetworkLayer</span>};
 <span class="kw">use</span> <span class="self">self</span><span class="ident">::magnifying::MagnifyingGlass</span>;
 <span class="kw">use</span> <span class="self">self</span><span class="ident">::nearby::Nearby</span>;
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
@@ -623,6 +656,18 @@
                 <span class="string">&quot;about A/B Street&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">PopupMsg::new_state</span>(<span class="ident">ctx</span>, <span class="string">&quot;TODO&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;TODO&quot;</span>]));
                 }
+                <span class="string">&quot;change map&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">CityPicker::new_state</span>(
+                        <span class="ident">ctx</span>,
+                        <span class="ident">app</span>,
+                        <span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
+                            <span class="ident">Transition::Multi</span>(<span class="macro">vec!</span>[
+                                <span class="ident">Transition::Pop</span>,
+                                <span class="ident">Transition::Replace</span>(<span class="ident">ExploreMap::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)),
+                            ])
+                        }),
+                    ));
+                }
                 <span class="string">&quot;Open a proposal&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="comment">// Dummy mode, just to allow all edits</span>
                     <span class="comment">// TODO Actually, should we make one to express that only road edits are</span>
@@ -660,13 +705,6 @@
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">legend</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
             <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
-                    <span class="string">&quot;change map&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">CityPicker::new_state</span>(
-                        <span class="ident">ctx</span>,
-                        <span class="ident">app</span>,
-                        <span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
-                            <span class="ident">Transition::Multi</span>(<span class="macro">vec!</span>[<span class="ident">Transition::Pop</span>, <span class="ident">Transition::Replace</span>(<span class="ident">ExploreMap::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>))])
-                        }),
-                    ),
                     <span class="comment">// TODO Add physical picture examples</span>
                     <span class="string">&quot;highway&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">PopupMsg::new_state</span>(<span class="ident">ctx</span>, <span class="string">&quot;Highways&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;Unless there&#39;s a separate trail (like on the 520 or I90 bridge), highways aren&#39;t accessible to biking&quot;</span>]),
                     <span class="string">&quot;major street&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">PopupMsg::new_state</span>(<span class="ident">ctx</span>, <span class="string">&quot;Major streets&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;Arterials have more traffic, but are often where businesses are located&quot;</span>]),
@@ -674,10 +712,10 @@
                     <span class="string">&quot;trail&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">PopupMsg::new_state</span>(<span class="ident">ctx</span>, <span class="string">&quot;Trails&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;Trails like the Burke Gilman are usually well-separated from vehicle traffic. The space is usually shared between people walking, cycling, and rolling.&quot;</span>]),
                     <span class="string">&quot;protected bike lane&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">PopupMsg::new_state</span>(<span class="ident">ctx</span>, <span class="string">&quot;Protected bike lanes&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;Bike lanes separated from vehicle traffic by physical barriers or a few feet of striping&quot;</span>]),
                     <span class="string">&quot;painted bike lane&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">PopupMsg::new_state</span>(<span class="ident">ctx</span>, <span class="string">&quot;Painted bike lanes&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;Bike lanes without any separation from vehicle traffic. Often uncomfortably close to the \&quot;door zone\&quot; of parked cars.&quot;</span>]),
-                    <span class="string">&quot;Stay Healthy Street / greenway&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">PopupMsg::new_state</span>(<span class="ident">ctx</span>, <span class="string">&quot;Stay Healthy Streets and neighborhood greenways&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;Residential streets with additional signage and light barriers. These are intended to be low traffic, dedicated for people walking and biking.&quot;</span>]),
+                    <span class="string">&quot;greenway&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">PopupMsg::new_state</span>(<span class="ident">ctx</span>, <span class="string">&quot;Stay Healthy Streets and neighborhood greenways&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;Residential streets with additional signage and light barriers. These are intended to be low traffic, dedicated for people walking and biking.&quot;</span>]),
                     <span class="comment">// TODO Add URLs</span>
                     <span class="string">&quot;about the elevation data&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">PopupMsg::new_state</span>(<span class="ident">ctx</span>, <span class="string">&quot;About the elevation data&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;Biking uphill next to traffic without any dedicated space isn&#39;t fun.&quot;</span>, <span class="string">&quot;Biking downhill next to traffic, especially in the door-zone of parked cars, and especially on Seattle&#39;s bumpy roads... is downright terrifying.&quot;</span>, <span class="string">&quot;&quot;</span>, <span class="string">&quot;Note the elevation data is incorrect near bridges.&quot;</span>, <span class="string">&quot;Thanks to King County LIDAR for the data, and Eldan Goldenberg for processing it.&quot;</span>]),
-                    <span class="string">&quot;about the things nearby&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">PopupMsg::new_state</span>(<span class="ident">ctx</span>, <span class="string">&quot;About the things nearby&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;Population daa from ?&quot;</span>, <span class="string">&quot;Amenities from OpenStreetMap&quot;</span>, <span class="string">&quot;A 1-minute biking buffer around the bike network is shown.&quot;</span>, <span class="string">&quot;Note 1 minutes depends on direction, especially with steep hills -- this starts FROM the network.&quot;</span>]),
+                    <span class="string">&quot;about the things nearby&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">PopupMsg::new_state</span>(<span class="ident">ctx</span>, <span class="string">&quot;About the things nearby&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;Population data from ?&quot;</span>, <span class="string">&quot;Amenities from OpenStreetMap&quot;</span>, <span class="string">&quot;A 1-minute biking buffer around the bike network is shown.&quot;</span>, <span class="string">&quot;Note 1 minutes depends on direction, especially with steep hills -- this starts FROM the network.&quot;</span>]),
                     <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
             });
             }
@@ -823,12 +861,20 @@
                 .<span class="ident">btn_plain</span>
                 .<span class="ident">btn</span>()
                 .<span class="ident">image_path</span>(<span class="string">&quot;system/assets/pregame/logo.svg&quot;</span>)
-                .<span class="ident">image_dims</span>(<span class="number">50.0</span>)
+                .<span class="ident">image_dims</span>(<span class="number">70.0</span>)
                 .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;about A/B Street&quot;</span>),
-            <span class="ident">Line</span>(<span class="string">&quot;Draw your ideal bike network&quot;</span>)
-                .<span class="ident">small_heading</span>()
-                .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
-                .<span class="ident">centered_vert</span>(),
+            <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
+                <span class="ident">Line</span>(<span class="string">&quot;Draw your ideal bike network&quot;</span>)
+                    .<span class="ident">small_heading</span>()
+                    .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+                <span class="ident">ctx</span>.<span class="ident">style</span>()
+                    .<span class="ident">btn_popup_icon_text</span>(
+                        <span class="string">&quot;system/assets/tools/map.svg&quot;</span>,
+                        <span class="ident">nice_map_name</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>()),
+                    )
+                    .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key::L</span>))
+                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;change map&quot;</span>),
+            ]),
         ]),
         <span class="ident">Widget::col</span>(<span class="ident">file_management</span>).<span class="ident">bg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">section_bg</span>),
         <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
@@ -850,54 +896,47 @@
 <span class="kw">fn</span> <span class="ident">make_legend</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">elevation</span>: <span class="ident">bool</span>, <span class="ident">nearby</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Panel</span> {
     <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
         <span class="ident">Widget::custom_row</span>(<span class="macro">vec!</span>[
-            <span class="ident">Line</span>(<span class="string">&quot;Bike Network&quot;</span>)
-                .<span class="ident">small_heading</span>()
-                .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
-                .<span class="ident">margin_right</span>(<span class="number">18</span>),
-            <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_popup_icon_text</span>(
-                    <span class="string">&quot;system/assets/tools/map.svg&quot;</span>,
-                    <span class="ident">nice_map_name</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>()),
-                )
-                .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key::L</span>))
-                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;change map&quot;</span>)
-                .<span class="ident">margin_right</span>(<span class="number">8</span>),
+            <span class="comment">// TODO Looks too close to access restrictions</span>
+            <span class="ident">legend</span>(<span class="ident">ctx</span>, <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">unzoomed_highway</span>, <span class="string">&quot;highway&quot;</span>),
+            <span class="ident">legend</span>(<span class="ident">ctx</span>, <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">unzoomed_arterial</span>, <span class="string">&quot;major street&quot;</span>),
+            <span class="ident">legend</span>(<span class="ident">ctx</span>, <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">unzoomed_residential</span>, <span class="string">&quot;minor street&quot;</span>),
         ]),
-        <span class="comment">// TODO Looks too close to access restrictions</span>
-        <span class="ident">legend</span>(<span class="ident">ctx</span>, <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">unzoomed_highway</span>, <span class="string">&quot;highway&quot;</span>),
-        <span class="ident">legend</span>(<span class="ident">ctx</span>, <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">unzoomed_arterial</span>, <span class="string">&quot;major street&quot;</span>),
-        <span class="ident">legend</span>(<span class="ident">ctx</span>, <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">unzoomed_residential</span>, <span class="string">&quot;minor street&quot;</span>),
-        <span class="ident">legend</span>(<span class="ident">ctx</span>, <span class="kw-2">*</span><span class="ident">layers::DEDICATED_TRAIL</span>, <span class="string">&quot;trail&quot;</span>),
-        <span class="ident">legend</span>(<span class="ident">ctx</span>, <span class="kw-2">*</span><span class="ident">layers::PROTECTED_BIKE_LANE</span>, <span class="string">&quot;protected bike lane&quot;</span>),
-        <span class="ident">legend</span>(<span class="ident">ctx</span>, <span class="kw-2">*</span><span class="ident">layers::PAINTED_BIKE_LANE</span>, <span class="string">&quot;painted bike lane&quot;</span>),
-        <span class="ident">legend</span>(<span class="ident">ctx</span>, <span class="kw-2">*</span><span class="ident">layers::GREENWAY</span>, <span class="string">&quot;Stay Healthy Street / greenway&quot;</span>),
+        <span class="ident">Widget::custom_row</span>(<span class="macro">vec!</span>[
+            <span class="ident">legend</span>(<span class="ident">ctx</span>, <span class="kw-2">*</span><span class="ident">layers::DEDICATED_TRAIL</span>, <span class="string">&quot;trail&quot;</span>),
+            <span class="ident">legend</span>(<span class="ident">ctx</span>, <span class="kw-2">*</span><span class="ident">layers::PROTECTED_BIKE_LANE</span>, <span class="string">&quot;protected bike lane&quot;</span>),
+            <span class="ident">legend</span>(<span class="ident">ctx</span>, <span class="kw-2">*</span><span class="ident">layers::PAINTED_BIKE_LANE</span>, <span class="string">&quot;painted bike lane&quot;</span>),
+            <span class="ident">legend</span>(<span class="ident">ctx</span>, <span class="kw-2">*</span><span class="ident">layers::GREENWAY</span>, <span class="string">&quot;greenway&quot;</span>),
+        ]),
         <span class="comment">// TODO Distinguish door-zone bike lanes?</span>
         <span class="comment">// TODO Call out bike turning boxes?</span>
         <span class="comment">// TODO Call out bike signals?</span>
-        <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-            <span class="ident">Toggle::checkbox</span>(<span class="ident">ctx</span>, <span class="string">&quot;elevation&quot;</span>, <span class="ident">Key::E</span>, <span class="ident">elevation</span>),
-            <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_plain</span>
-                .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/info.svg&quot;</span>)
-                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;about the elevation data&quot;</span>)
-                .<span class="ident">centered_vert</span>(),
-            <span class="ident">Text::new</span>()
-                .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
-                .<span class="ident">named</span>(<span class="string">&quot;current elevation&quot;</span>)
-                .<span class="ident">centered_vert</span>(),
-        ]),
-        <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-            <span class="ident">Toggle::checkbox</span>(<span class="ident">ctx</span>, <span class="string">&quot;things nearby&quot;</span>, <span class="prelude-val">None</span>, <span class="ident">nearby</span>),
-            <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_plain</span>
-                .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/info.svg&quot;</span>)
-                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;about the things nearby&quot;</span>)
-                .<span class="ident">centered_vert</span>(),
-            <span class="ident">Text::new</span>()
-                .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
-                .<span class="ident">named</span>(<span class="string">&quot;nearby info&quot;</span>)
-                .<span class="ident">centered_vert</span>(),
-        ]),
+        <span class="ident">Widget::custom_row</span>(<span class="macro">vec!</span>[
+            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
+                <span class="ident">Toggle::checkbox</span>(<span class="ident">ctx</span>, <span class="string">&quot;elevation&quot;</span>, <span class="ident">Key::E</span>, <span class="ident">elevation</span>),
+                <span class="ident">ctx</span>.<span class="ident">style</span>()
+                    .<span class="ident">btn_plain</span>
+                    .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/info.svg&quot;</span>)
+                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;about the elevation data&quot;</span>)
+                    .<span class="ident">centered_vert</span>(),
+                <span class="ident">Text::new</span>()
+                    .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
+                    .<span class="ident">named</span>(<span class="string">&quot;current elevation&quot;</span>)
+                    .<span class="ident">centered_vert</span>(),
+            ]),
+            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
+                <span class="ident">Toggle::checkbox</span>(<span class="ident">ctx</span>, <span class="string">&quot;things nearby&quot;</span>, <span class="prelude-val">None</span>, <span class="ident">nearby</span>),
+                <span class="ident">ctx</span>.<span class="ident">style</span>()
+                    .<span class="ident">btn_plain</span>
+                    .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/info.svg&quot;</span>)
+                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;about the things nearby&quot;</span>)
+                    .<span class="ident">centered_vert</span>(),
+                <span class="ident">Text::new</span>()
+                    .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
+                    .<span class="ident">named</span>(<span class="string">&quot;nearby info&quot;</span>)
+                    .<span class="ident">centered_vert</span>(),
+            ]),
+        ])
+        .<span class="ident">evenly_spaced</span>(),
     ]))
     .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::Right</span>, <span class="ident">VerticalAlignment::Bottom</span>)
     .<span class="ident">build</span>(<span class="ident">ctx</span>)
@@ -934,6 +973,31 @@
             })
         }),
     )
+}
+
+<span class="kw">fn</span> <span class="ident">legend</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">color</span>: <span class="ident">Color</span>, <span class="ident">label</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+    <span class="comment">// TODO Height of the &quot;trail&quot; button is slightly too low!</span>
+    <span class="comment">// Text with padding and a background color</span>
+    <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">batch</span>, <span class="ident">hitbox</span>) <span class="op">=</span> <span class="ident">Text::from</span>(<span class="ident">Line</span>(<span class="ident">label</span>))
+        .<span class="ident">render</span>(<span class="ident">ctx</span>)
+        .<span class="ident">batch</span>()
+        .<span class="ident">container</span>()
+        .<span class="ident">padding</span>(<span class="ident">EdgeInsets</span> {
+            <span class="ident">top</span>: <span class="number">10.0</span>,
+            <span class="ident">bottom</span>: <span class="number">10.0</span>,
+            <span class="ident">left</span>: <span class="number">20.0</span>,
+            <span class="ident">right</span>: <span class="number">20.0</span>,
+        })
+        .<span class="ident">into_geom</span>(<span class="ident">ctx</span>, <span class="prelude-val">None</span>);
+    <span class="ident">batch</span>.<span class="ident">unshift</span>(<span class="ident">color</span>, <span class="ident">hitbox</span>);
+
+    <span class="kw">return</span> <span class="ident">ButtonBuilder::new</span>()
+        .<span class="ident">custom_batch</span>(<span class="ident">batch</span>.<span class="ident">clone</span>(), <span class="ident">ControlState::Default</span>)
+        .<span class="ident">custom_batch</span>(
+            <span class="ident">batch</span>.<span class="ident">color</span>(<span class="ident">RewriteColor::Change</span>(<span class="ident">color</span>, <span class="ident">color</span>.<span class="ident">alpha</span>(<span class="number">0.6</span>))),
+            <span class="ident">ControlState::Hovered</span>,
+        )
+        .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="ident">label</span>);
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="game" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div><script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script></body></html>
