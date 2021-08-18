@@ -22,7 +22,6 @@ use self::layers::{render_edits, DrawNetworkLayer};
 use self::magnifying::MagnifyingGlass;
 use self::nearby::Nearby;
 use crate::app::{App, Transition};
-use crate::common::Warping;
 use crate::edit::{LoadEdits, RoadEditor, SaveEdits};
 use crate::sandbox::gameplay::GameplayMode;
 
@@ -163,34 +162,27 @@ impl State<App> for ExploreMap {
             self.legend.replace(ctx, "current elevation", label);
         }
 
-        // Click to edit a road in detail
-        if ctx.redo_mouseover() {
-            app.primary.current_selection =
-                match app.mouseover_unzoomed_roads_and_intersections(ctx) {
-                    Some(ID::Road(r)) => Some(r),
-                    Some(ID::Lane(l)) => Some(app.primary.map.get_l(l).parent),
-                    _ => None,
-                }
-                .and_then(|r| {
-                    if app.primary.map.get_r(r).is_light_rail() {
-                        None
-                    } else {
-                        Some(ID::Road(r))
+        // Only when zoomed in, click to edit a road in detail
+        if ctx.canvas.cam_zoom >= app.opts.min_zoom_for_detail {
+            if ctx.redo_mouseover() {
+                app.primary.current_selection =
+                    match app.mouseover_unzoomed_roads_and_intersections(ctx) {
+                        Some(ID::Road(r)) => Some(r),
+                        Some(ID::Lane(l)) => Some(app.primary.map.get_l(l).parent),
+                        _ => None,
                     }
-                });
-        }
-        if let Some(ID::Road(r)) = app.primary.current_selection {
-            if ctx.normal_left_click() {
-                return Transition::Multi(vec![
-                    Transition::Push(RoadEditor::new_state_without_lane(ctx, app, r)),
-                    Transition::Push(Warping::new_state(
-                        ctx,
-                        ctx.canvas.get_cursor_in_map_space().unwrap(),
-                        Some(10.0),
-                        None,
-                        &mut app.primary,
-                    )),
-                ]);
+                    .and_then(|r| {
+                        if app.primary.map.get_r(r).is_light_rail() {
+                            None
+                        } else {
+                            Some(ID::Road(r))
+                        }
+                    });
+            }
+            if let Some(ID::Road(r)) = app.primary.current_selection {
+                if ctx.normal_left_click() {
+                    return Transition::Push(RoadEditor::new_state_without_lane(ctx, app, r));
+                }
             }
         }
 
@@ -429,17 +421,11 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App) -> Panel {
             ]),
         ]),
         Widget::col(file_management).bg(ctx.style().section_bg),
-        Widget::row(vec![
-            "Click a road to edit in detail"
-                .text_widget(ctx)
-                .centered_vert(),
-            ctx.style()
-                .btn_solid_primary
-                .text("Sketch a route")
-                .hotkey(Key::S)
-                .build_def(ctx),
-        ])
-        .evenly_spaced(),
+        ctx.style()
+            .btn_solid_primary
+            .text("Sketch a route")
+            .hotkey(Key::S)
+            .build_def(ctx),
     ]))
     .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
     .build(ctx)
