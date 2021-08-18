@@ -284,6 +284,14 @@ impl MapEdits {
         }
         (lanes, roads)
     }
+
+    /// Produces an md5sum of the contents of the edits.
+    pub fn get_checksum(&self, map: &Map) -> String {
+        let bytes = abstutil::to_json(&self.to_permanent(map));
+        let mut context = md5::Context::new();
+        context.consume(&bytes);
+        format!("{:x}", context.compute())
+    }
 }
 
 impl std::default::Default for MapEdits {

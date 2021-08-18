@@ -2,12 +2,12 @@ mod layers;
 mod magnifying;
 mod nearby;
 mod quick_sketch;
+mod share;
 
 use std::collections::HashMap;
 
 use abstutil::prettyprint_usize;
 use geom::Distance;
-use map_gui::load::FutureLoader;
 use map_gui::tools::{nice_map_name, CityPicker, ColorLegend, PopupMsg, URLManager};
 use map_gui::ID;
 use map_model::osm::RoadRank;
@@ -26,8 +26,7 @@ use crate::common::Warping;
 use crate::edit::{LoadEdits, RoadEditor, SaveEdits};
 use crate::sandbox::gameplay::GameplayMode;
 
-//pub const PROPOSAL_HOST_URL: &str = "http://localhost:8080/v1";
-pub const PROPOSAL_HOST_URL: &str = "https://aorta-routes.appspot.com/v1";
+pub use share::PROPOSAL_HOST_URL;
 
 pub struct ExploreMap {
     top_panel: Panel,
@@ -234,7 +233,7 @@ impl State<App> for ExploreMap {
                     ));
                 }
                 "Share proposal" => {
-                    return Transition::Push(share_proposal(ctx, app));
+                    return Transition::Push(share::upload_proposal(ctx, app));
                 }
                 "Sketch a route" => {
                     app.primary.current_selection = None;
@@ -403,7 +402,7 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App) -> Panel {
         ctx.style()
             .btn_outline
             .text("Share proposal")
-            .disabled(edits.commands.is_empty())
+            .disabled(!share::UploadedProposals::should_upload_proposal(app))
             .build_def(ctx),
     );
     // TODO Should undo/redo, save, share functionality also live here?
@@ -493,39 +492,6 @@ fn make_legend(ctx: &mut EventCtx, app: &App, elevation: bool, nearby: bool) -> 
     ]))
     .aligned(HorizontalAlignment::Right, VerticalAlignment::Bottom)
     .build(ctx)
-}
-
-fn share_proposal(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
-    let (_, outer_progress_rx) = futures_channel::mpsc::channel(1);
-    let (_, inner_progress_rx) = futures_channel::mpsc::channel(1);
-    let edits_json =
-        abstutil::to_json_terse(&app.primary.map.get_edits().to_permanent(&app.primary.map));
-    FutureLoader::<App, String>::new_state(
-        ctx,
-        Box::pin(async move {
-            let uuid =
-                abstio::http_post(format!("{}/create", PROPOSAL_HOST_URL), edits_json).await?;
-            // TODO I'm so lost in this type magic
-            let wrapper: Box<dyn Send + FnOnce(&App) -> String> = Box::new(move |_| uuid);
-            Ok(wrapper)
-        }),
-        outer_progress_rx,
-        inner_progress_rx,
-        "Uploading proposal",
-        Box::new(|ctx, _, result| {
-            Transition::Replace(match result {
-                Ok(uuid) => {
-                    info!("Proposal uploaded! {}/get?id={}", PROPOSAL_HOST_URL, uuid);
-                    PopupMsg::new_state(ctx, "Success", vec![format!("ID is {}", uuid)])
-                }
-                Err(err) => PopupMsg::new_state(
-                    ctx,
-                    "Failure",
-                    vec![format!("Couldn't upload proposal: {}", err)],
-                ),
-            })
-        }),
-    )
 }
 
 fn legend(ctx: &mut EventCtx, color: Color, label: &str) -> Widget {

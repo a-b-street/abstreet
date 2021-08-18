@@ -13,6 +13,7 @@ fast_paths = { git = "https://github.com/easbar/fast_paths", branch = "large_edg
 geom = { path = "../geom" }
 kml = { path = "../kml" }
 log = "0.4.14"
+md5 = "0.7.0"
 nbez = "0.1.0"
 petgraph = { version = "0.6.0", features=["serde-1"] }
 rand = "0.8.3"

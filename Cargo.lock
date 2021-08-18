@@ -2208,6 +2208,7 @@ dependencies = [
  "geom",
  "kml",
  "log",
+ "md5",
  "nbez",
  "petgraph",
  "rand",

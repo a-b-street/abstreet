@@ -1,9 +1,9 @@
 use serde::{Deserialize, Serialize};
-use widgetry::{Canvas, EventCtx};
 
 use abstio::MapName;
 use abstutil::Timer;
 use map_model::Map;
+use widgetry::{Canvas, EventCtx};
 
 /// Represents the state of a widgetry Canvas.
 #[derive(Serialize, Deserialize, Debug)]
