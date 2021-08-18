@@ -24,6 +24,7 @@
 <span id="22">22</span>
 <span id="23">23</span>
 <span id="24">24</span>
+<span id="25">25</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
 
@@ -31,14 +32,15 @@
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">http_post</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">url</span>: <span class="ident">I</span>, <span class="ident">body</span>: <span class="ident">String</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="ident">url</span>.<span class="ident">as_ref</span>();
     <span class="macro">info!</span>(<span class="string">&quot;HTTP POST to {}&quot;</span>, <span class="ident">url</span>);
-    <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="ident">reqwest::Client::new</span>()
-        .<span class="ident">post</span>(<span class="ident">url</span>)
-        .<span class="ident">body</span>(<span class="ident">body</span>)
-        .<span class="ident">send</span>()
-        .<span class="kw">await</span><span class="question-mark">?</span>
-        .<span class="ident">text</span>()
-        .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">resp</span>)
+    <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="ident">reqwest::Client::new</span>().<span class="ident">post</span>(<span class="ident">url</span>).<span class="ident">body</span>(<span class="ident">body</span>).<span class="ident">send</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">status</span> <span class="op">=</span> <span class="ident">resp</span>.<span class="ident">status</span>();
+    <span class="kw">let</span> <span class="ident">text</span> <span class="op">=</span> <span class="ident">resp</span>.<span class="ident">text</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="comment">// With error_for_status{_ref}, it&#39;s unclear how to propagate errors and also get the error</span>
+    <span class="comment">// message from the body, so do this</span>
+    <span class="kw">if</span> <span class="ident">status</span>.<span class="ident">is_client_error</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">status</span>.<span class="ident">is_server_error</span>() {
+        <span class="macro">bail!</span>(<span class="string">&quot;HTTP error {}: {}&quot;</span>, <span class="ident">status</span>, <span class="ident">text</span>);
+    }
+    <span class="prelude-val">Ok</span>(<span class="ident">text</span>)
 }
 
 <span class="doccomment">/// Performs an HTTP GET request and returns the raw response. Unlike the variations in</span>
@@ -46,7 +48,7 @@
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">http_get</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">url</span>: <span class="ident">I</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="ident">url</span>.<span class="ident">as_ref</span>();
     <span class="macro">info!</span>(<span class="string">&quot;HTTP GET {}&quot;</span>, <span class="ident">url</span>);
-    <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="ident">reqwest::get</span>(<span class="ident">url</span>).<span class="kw">await</span><span class="question-mark">?</span>.<span class="ident">bytes</span>().<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">resp</span> <span class="op">=</span> <span class="ident">reqwest::get</span>(<span class="ident">url</span>).<span class="kw">await</span><span class="question-mark">?</span>.<span class="ident">error_for_status</span>()<span class="question-mark">?</span>.<span class="ident">bytes</span>().<span class="kw">await</span><span class="question-mark">?</span>;
     <span class="prelude-val">Ok</span>(<span class="ident">resp</span>.<span class="ident">to_vec</span>())
 }
 </pre></div>
