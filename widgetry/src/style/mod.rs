@@ -143,7 +143,7 @@ impl ButtonStyle {
             fg_disabled: hex("#FF5E5E").alpha(0.3),
             bg: Color::CLEAR,
             bg_hover: hex("#FF5E5E").alpha(0.1),
-            bg_disabled: Color::grey(0.1),
+            bg_disabled: Color::CLEAR,
             outline: (0.0, Color::CLEAR),
         }
     }
