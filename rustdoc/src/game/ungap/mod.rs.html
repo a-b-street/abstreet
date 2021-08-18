@@ -506,20 +506,6 @@
 <span id="504">504</span>
 <span id="505">505</span>
 <span id="506">506</span>
-<span id="507">507</span>
-<span id="508">508</span>
-<span id="509">509</span>
-<span id="510">510</span>
-<span id="511">511</span>
-<span id="512">512</span>
-<span id="513">513</span>
-<span id="514">514</span>
-<span id="515">515</span>
-<span id="516">516</span>
-<span id="517">517</span>
-<span id="518">518</span>
-<span id="519">519</span>
-<span id="520">520</span>
 </pre><pre class="rust">
 <span class="kw">mod</span> <span class="ident">layers</span>;
 <span class="kw">mod</span> <span class="ident">magnifying</span>;
@@ -545,7 +531,6 @@
 <span class="kw">use</span> <span class="self">self</span><span class="ident">::magnifying::MagnifyingGlass</span>;
 <span class="kw">use</span> <span class="self">self</span><span class="ident">::nearby::Nearby</span>;
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::common::Warping</span>;
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::edit</span>::{<span class="ident">LoadEdits</span>, <span class="ident">RoadEditor</span>, <span class="ident">SaveEdits</span>};
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::sandbox::gameplay::GameplayMode</span>;
 
@@ -686,34 +671,27 @@
             <span class="self">self</span>.<span class="ident">legend</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;current elevation&quot;</span>, <span class="ident">label</span>);
         }
 
-        <span class="comment">// Click to edit a road in detail</span>
-        <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">redo_mouseover</span>() {
-            <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> <span class="op">=</span>
-                <span class="kw">match</span> <span class="ident">app</span>.<span class="ident">mouseover_unzoomed_roads_and_intersections</span>(<span class="ident">ctx</span>) {
-                    <span class="prelude-val">Some</span>(<span class="ident">ID::Road</span>(<span class="ident">r</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">r</span>),
-                    <span class="prelude-val">Some</span>(<span class="ident">ID::Lane</span>(<span class="ident">l</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">parent</span>),
-                    <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
-                }
-                .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> {
-                    <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>).<span class="ident">is_light_rail</span>() {
-                        <span class="prelude-val">None</span>
-                    } <span class="kw">else</span> {
-                        <span class="prelude-val">Some</span>(<span class="ident">ID::Road</span>(<span class="ident">r</span>))
+        <span class="comment">// Only when zoomed in, click to edit a road in detail</span>
+        <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">min_zoom_for_detail</span> {
+            <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">redo_mouseover</span>() {
+                <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> <span class="op">=</span>
+                    <span class="kw">match</span> <span class="ident">app</span>.<span class="ident">mouseover_unzoomed_roads_and_intersections</span>(<span class="ident">ctx</span>) {
+                        <span class="prelude-val">Some</span>(<span class="ident">ID::Road</span>(<span class="ident">r</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">r</span>),
+                        <span class="prelude-val">Some</span>(<span class="ident">ID::Lane</span>(<span class="ident">l</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">parent</span>),
+                        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
                     }
-                });
-        }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ID::Road</span>(<span class="ident">r</span>)) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> {
-            <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">normal_left_click</span>() {
-                <span class="kw">return</span> <span class="ident">Transition::Multi</span>(<span class="macro">vec!</span>[
-                    <span class="ident">Transition::Push</span>(<span class="ident">RoadEditor::new_state_without_lane</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">r</span>)),
-                    <span class="ident">Transition::Push</span>(<span class="ident">Warping::new_state</span>(
-                        <span class="ident">ctx</span>,
-                        <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_map_space</span>().<span class="ident">unwrap</span>(),
-                        <span class="prelude-val">Some</span>(<span class="number">10.0</span>),
-                        <span class="prelude-val">None</span>,
-                        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">app</span>.<span class="ident">primary</span>,
-                    )),
-                ]);
+                    .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> {
+                        <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>).<span class="ident">is_light_rail</span>() {
+                            <span class="prelude-val">None</span>
+                        } <span class="kw">else</span> {
+                            <span class="prelude-val">Some</span>(<span class="ident">ID::Road</span>(<span class="ident">r</span>))
+                        }
+                    });
+            }
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ID::Road</span>(<span class="ident">r</span>)) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> {
+                <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">normal_left_click</span>() {
+                    <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">RoadEditor::new_state_without_lane</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">r</span>));
+                }
             }
         }
 
@@ -952,17 +930,11 @@
             ]),
         ]),
         <span class="ident">Widget::col</span>(<span class="ident">file_management</span>).<span class="ident">bg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">section_bg</span>),
-        <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-            <span class="string">&quot;Click a road to edit in detail&quot;</span>
-                .<span class="ident">text_widget</span>(<span class="ident">ctx</span>)
-                .<span class="ident">centered_vert</span>(),
-            <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_solid_primary</span>
-                .<span class="ident">text</span>(<span class="string">&quot;Sketch a route&quot;</span>)
-                .<span class="ident">hotkey</span>(<span class="ident">Key::S</span>)
-                .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-        ])
-        .<span class="ident">evenly_spaced</span>(),
+        <span class="ident">ctx</span>.<span class="ident">style</span>()
+            .<span class="ident">btn_solid_primary</span>
+            .<span class="ident">text</span>(<span class="string">&quot;Sketch a route&quot;</span>)
+            .<span class="ident">hotkey</span>(<span class="ident">Key::S</span>)
+            .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
     ]))
     .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::Right</span>, <span class="ident">VerticalAlignment::Top</span>)
     .<span class="ident">build</span>(<span class="ident">ctx</span>)
