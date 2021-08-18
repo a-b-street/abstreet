@@ -1,1 +1,1 @@
-initSidebarItems({"constant":[["PROPOSAL_HOST_URL",""]],"fn":[["legend",""],["make_legend",""],["make_top_panel",""],["share_proposal",""]],"mod":[["layers",""],["magnifying",""],["nearby",""],["quick_sketch",""]],"struct":[["ExploreMap",""]]});
+initSidebarItems({"fn":[["legend",""],["make_legend",""],["make_top_panel",""]],"mod":[["layers",""],["magnifying",""],["nearby",""],["quick_sketch",""],["share",""]],"struct":[["ExploreMap",""]]});

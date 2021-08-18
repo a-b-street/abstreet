@@ -520,51 +520,17 @@
 <span id="518">518</span>
 <span id="519">519</span>
 <span id="520">520</span>
-<span id="521">521</span>
-<span id="522">522</span>
-<span id="523">523</span>
-<span id="524">524</span>
-<span id="525">525</span>
-<span id="526">526</span>
-<span id="527">527</span>
-<span id="528">528</span>
-<span id="529">529</span>
-<span id="530">530</span>
-<span id="531">531</span>
-<span id="532">532</span>
-<span id="533">533</span>
-<span id="534">534</span>
-<span id="535">535</span>
-<span id="536">536</span>
-<span id="537">537</span>
-<span id="538">538</span>
-<span id="539">539</span>
-<span id="540">540</span>
-<span id="541">541</span>
-<span id="542">542</span>
-<span id="543">543</span>
-<span id="544">544</span>
-<span id="545">545</span>
-<span id="546">546</span>
-<span id="547">547</span>
-<span id="548">548</span>
-<span id="549">549</span>
-<span id="550">550</span>
-<span id="551">551</span>
-<span id="552">552</span>
-<span id="553">553</span>
-<span id="554">554</span>
 </pre><pre class="rust">
 <span class="kw">mod</span> <span class="ident">layers</span>;
 <span class="kw">mod</span> <span class="ident">magnifying</span>;
 <span class="kw">mod</span> <span class="ident">nearby</span>;
 <span class="kw">mod</span> <span class="ident">quick_sketch</span>;
+<span class="kw">mod</span> <span class="ident">share</span>;
 
 <span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
 <span class="kw">use</span> <span class="ident">abstutil::prettyprint_usize</span>;
 <span class="kw">use</span> <span class="ident">geom::Distance</span>;
-<span class="kw">use</span> <span class="ident">map_gui::load::FutureLoader</span>;
 <span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">nice_map_name</span>, <span class="ident">CityPicker</span>, <span class="ident">ColorLegend</span>, <span class="ident">PopupMsg</span>, <span class="ident">URLManager</span>};
 <span class="kw">use</span> <span class="ident">map_gui::ID</span>;
 <span class="kw">use</span> <span class="ident">map_model::osm::RoadRank</span>;
@@ -583,8 +549,7 @@
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::edit</span>::{<span class="ident">LoadEdits</span>, <span class="ident">RoadEditor</span>, <span class="ident">SaveEdits</span>};
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::sandbox::gameplay::GameplayMode</span>;
 
-<span class="comment">//pub const PROPOSAL_HOST_URL: &amp;str = &quot;http://localhost:8080/v1&quot;;</span>
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">PROPOSAL_HOST_URL</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="string">&quot;https://aorta-routes.appspot.com/v1&quot;</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">share::PROPOSAL_HOST_URL</span>;
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ExploreMap</span> {
     <span class="ident">top_panel</span>: <span class="ident">Panel</span>,
@@ -791,7 +756,7 @@
                     ));
                 }
                 <span class="string">&quot;Share proposal&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">share_proposal</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
+                    <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">share::upload_proposal</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
                 }
                 <span class="string">&quot;Sketch a route&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> <span class="op">=</span> <span class="prelude-val">None</span>;
@@ -960,7 +925,7 @@
         <span class="ident">ctx</span>.<span class="ident">style</span>()
             .<span class="ident">btn_outline</span>
             .<span class="ident">text</span>(<span class="string">&quot;Share proposal&quot;</span>)
-            .<span class="ident">disabled</span>(<span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">is_empty</span>())
+            .<span class="ident">disabled</span>(<span class="op">!</span><span class="ident">share::UploadedProposals::should_upload_proposal</span>(<span class="ident">app</span>))
             .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
     );
     <span class="comment">// TODO Should undo/redo, save, share functionality also live here?</span>
@@ -1050,39 +1015,6 @@
     ]))
     .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::Right</span>, <span class="ident">VerticalAlignment::Bottom</span>)
     .<span class="ident">build</span>(<span class="ident">ctx</span>)
-}
-
-<span class="kw">fn</span> <span class="ident">share_proposal</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">outer_progress_rx</span>) <span class="op">=</span> <span class="ident">futures_channel::mpsc::channel</span>(<span class="number">1</span>);
-    <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">inner_progress_rx</span>) <span class="op">=</span> <span class="ident">futures_channel::mpsc::channel</span>(<span class="number">1</span>);
-    <span class="kw">let</span> <span class="ident">edits_json</span> <span class="op">=</span>
-        <span class="ident">abstutil::to_json_terse</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">to_permanent</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>));
-    <span class="ident">FutureLoader</span>::<span class="op">&lt;</span><span class="ident">App</span>, <span class="ident">String</span><span class="op">&gt;</span><span class="ident">::new_state</span>(
-        <span class="ident">ctx</span>,
-        <span class="ident">Box::pin</span>(<span class="kw">async</span> <span class="kw">move</span> {
-            <span class="kw">let</span> <span class="ident">uuid</span> <span class="op">=</span>
-                <span class="ident">abstio::http_post</span>(<span class="macro">format!</span>(<span class="string">&quot;{}/create&quot;</span>, <span class="ident">PROPOSAL_HOST_URL</span>), <span class="ident">edits_json</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="comment">// TODO I&#39;m so lost in this type magic</span>
-            <span class="kw">let</span> <span class="ident">wrapper</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">uuid</span>);
-            <span class="prelude-val">Ok</span>(<span class="ident">wrapper</span>)
-        }),
-        <span class="ident">outer_progress_rx</span>,
-        <span class="ident">inner_progress_rx</span>,
-        <span class="string">&quot;Uploading proposal&quot;</span>,
-        <span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">ctx</span>, <span class="kw">_</span>, <span class="ident">result</span><span class="op">|</span> {
-            <span class="ident">Transition::Replace</span>(<span class="kw">match</span> <span class="ident">result</span> {
-                <span class="prelude-val">Ok</span>(<span class="ident">uuid</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="macro">info!</span>(<span class="string">&quot;Proposal uploaded! {}/get?id={}&quot;</span>, <span class="ident">PROPOSAL_HOST_URL</span>, <span class="ident">uuid</span>);
-                    <span class="ident">PopupMsg::new_state</span>(<span class="ident">ctx</span>, <span class="string">&quot;Success&quot;</span>, <span class="macro">vec!</span>[<span class="macro">format!</span>(<span class="string">&quot;ID is {}&quot;</span>, <span class="ident">uuid</span>)])
-                }
-                <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">PopupMsg::new_state</span>(
-                    <span class="ident">ctx</span>,
-                    <span class="string">&quot;Failure&quot;</span>,
-                    <span class="macro">vec!</span>[<span class="macro">format!</span>(<span class="string">&quot;Couldn&#39;t upload proposal: {}&quot;</span>, <span class="ident">err</span>)],
-                ),
-            })
-        }),
-    )
 }
 
 <span class="kw">fn</span> <span class="ident">legend</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">color</span>: <span class="ident">Color</span>, <span class="ident">label</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {

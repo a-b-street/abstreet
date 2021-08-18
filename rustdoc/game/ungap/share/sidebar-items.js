@@ -1,0 +1,1 @@
+initSidebarItems({"constant":[["PROPOSAL_HOST_URL",""]],"fn":[["upload_proposal",""]],"struct":[["UploadedProposals",""]]});
