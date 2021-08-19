@@ -413,10 +413,10 @@
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="ident">sim::SimFlags::for_test</span>(<span class="string">&quot;smoke_test&quot;</span>).<span class="ident">make_rng</span>();
 
     <span class="comment">// Bit brittle to hardcode IDs here, but it&#39;s fast to update</span>
-    <span class="kw">let</span> <span class="ident">north</span> <span class="op">=</span> <span class="ident">IntersectionID</span>(<span class="number">8</span>);
+    <span class="kw">let</span> <span class="ident">north</span> <span class="op">=</span> <span class="ident">IntersectionID</span>(<span class="number">7</span>);
     <span class="kw">let</span> <span class="ident">south</span> <span class="op">=</span> <span class="ident">IntersectionID</span>(<span class="number">0</span>);
-    <span class="kw">let</span> <span class="ident">east</span> <span class="op">=</span> <span class="ident">IntersectionID</span>(<span class="number">2</span>);
-    <span class="kw">let</span> <span class="ident">west</span> <span class="op">=</span> <span class="ident">IntersectionID</span>(<span class="number">4</span>);
+    <span class="kw">let</span> <span class="ident">east</span> <span class="op">=</span> <span class="ident">IntersectionID</span>(<span class="number">1</span>);
+    <span class="kw">let</span> <span class="ident">west</span> <span class="op">=</span> <span class="ident">IntersectionID</span>(<span class="number">3</span>);
     <span class="comment">// (origin, destination) pairs</span>
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">od</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
     <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">100</span> {
