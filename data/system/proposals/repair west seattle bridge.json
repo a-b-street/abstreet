@@ -117,7 +117,7 @@
               "width": 25000
             }
           ],
-          "speed_limit": 178816,
+          "speed_limit": 111760,
           "access_restrictions": {
             "allow_through_traffic": 31
           }
@@ -152,7 +152,7 @@
               "width": 25000
             }
           ],
-          "speed_limit": 178816,
+          "speed_limit": 111760,
           "access_restrictions": {
             "allow_through_traffic": 31
           }
@@ -187,7 +187,7 @@
               "width": 25000
             }
           ],
-          "speed_limit": 178816,
+          "speed_limit": 111760,
           "access_restrictions": {
             "allow_through_traffic": 31
           }
@@ -222,7 +222,7 @@
               "width": 25000
             }
           ],
-          "speed_limit": 178816,
+          "speed_limit": 111760,
           "access_restrictions": {
             "allow_through_traffic": 31
           }
@@ -257,7 +257,7 @@
               "width": 25000
             }
           ],
-          "speed_limit": 178816,
+          "speed_limit": 111760,
           "access_restrictions": {
             "allow_through_traffic": 31
           }
@@ -382,7 +382,7 @@
               "width": 25000
             }
           ],
-          "speed_limit": 178816,
+          "speed_limit": 111760,
           "access_restrictions": {
             "allow_through_traffic": 31
           }
@@ -462,7 +462,7 @@
               "width": 25000
             }
           ],
-          "speed_limit": 178816,
+          "speed_limit": 111760,
           "access_restrictions": {
             "allow_through_traffic": 31
           }
@@ -497,7 +497,7 @@
               "width": 25000
             }
           ],
-          "speed_limit": 178816,
+          "speed_limit": 111760,
           "access_restrictions": {
             "allow_through_traffic": 31
           }
@@ -532,7 +532,7 @@
               "width": 25000
             }
           ],
-          "speed_limit": 178816,
+          "speed_limit": 111760,
           "access_restrictions": {
             "allow_through_traffic": 31
           }
@@ -567,7 +567,7 @@
               "width": 25000
             }
           ],
-          "speed_limit": 178816,
+          "speed_limit": 111760,
           "access_restrictions": {
             "allow_through_traffic": 31
           }
@@ -602,7 +602,7 @@
               "width": 25000
             }
           ],
-          "speed_limit": 178816,
+          "speed_limit": 111760,
           "access_restrictions": {
             "allow_through_traffic": 31
           }
@@ -637,7 +637,117 @@
               "width": 25000
             }
           ],
-          "speed_limit": 178816,
+          "speed_limit": 111760,
+          "access_restrictions": {
+            "allow_through_traffic": 31
+          }
+        }
+      }
+    },
+    {
+      "ChangeRoad": {
+        "r": {
+          "osm_way_id": 49891362,
+          "i1": 4270691576,
+          "i2": 8657567242
+        },
+        "new": {
+          "lanes_ltr": [
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 24384
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 24384
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 24384
+            }
+          ],
+          "speed_limit": 111760,
+          "access_restrictions": {
+            "allow_through_traffic": 31
+          }
+        },
+        "old": {
+          "lanes_ltr": [
+            {
+              "lt": "Construction",
+              "dir": "Fwd",
+              "width": 25000
+            },
+            {
+              "lt": "Construction",
+              "dir": "Fwd",
+              "width": 25000
+            },
+            {
+              "lt": "Construction",
+              "dir": "Fwd",
+              "width": 25000
+            }
+          ],
+          "speed_limit": 111760,
+          "access_restrictions": {
+            "allow_through_traffic": 31
+          }
+        }
+      }
+    },
+    {
+      "ChangeRoad": {
+        "r": {
+          "osm_way_id": 49891362,
+          "i1": 8657567242,
+          "i2": 634092841
+        },
+        "new": {
+          "lanes_ltr": [
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 24384
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 24384
+            },
+            {
+              "lt": "Driving",
+              "dir": "Fwd",
+              "width": 24384
+            }
+          ],
+          "speed_limit": 111760,
+          "access_restrictions": {
+            "allow_through_traffic": 31
+          }
+        },
+        "old": {
+          "lanes_ltr": [
+            {
+              "lt": "Construction",
+              "dir": "Fwd",
+              "width": 25000
+            },
+            {
+              "lt": "Construction",
+              "dir": "Fwd",
+              "width": 25000
+            },
+            {
+              "lt": "Construction",
+              "dir": "Fwd",
+              "width": 25000
+            }
+          ],
+          "speed_limit": 111760,
           "access_restrictions": {
             "allow_through_traffic": 31
           }
@@ -672,7 +782,7 @@
               "width": 25000
             }
           ],
-          "speed_limit": 178816,
+          "speed_limit": 111760,
           "access_restrictions": {
             "allow_through_traffic": 31
           }
@@ -707,7 +817,7 @@
               "width": 25000
             }
           ],
-          "speed_limit": 178816,
+          "speed_limit": 111760,
           "access_restrictions": {
             "allow_through_traffic": 31
           }
@@ -742,7 +852,7 @@
               "width": 25000
             }
           ],
-          "speed_limit": 178816,
+          "speed_limit": 111760,
           "access_restrictions": {
             "allow_through_traffic": 31
           }
@@ -787,7 +897,7 @@
               "width": 25000
             }
           ],
-          "speed_limit": 178816,
+          "speed_limit": 111760,
           "access_restrictions": {
             "allow_through_traffic": 31
           }
@@ -822,7 +932,7 @@
               "width": 25000
             }
           ],
-          "speed_limit": 178816,
+          "speed_limit": 111760,
           "access_restrictions": {
             "allow_through_traffic": 31
           }
@@ -923,7 +1033,7 @@
       "ChangeRoad": {
         "r": {
           "osm_way_id": 52839883,
-          "i1": 60562427,
+          "i1": 60562426,
           "i2": 634095121
         },
         "new": {
@@ -931,12 +1041,12 @@
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 25000
+              "width": 24384
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 25000
+              "width": 24384
             }
           ],
           "speed_limit": 201168,
@@ -991,61 +1101,6 @@
         },
         "old": {
           "lanes_ltr": [
-            {
-              "lt": "Construction",
-              "dir": "Fwd",
-              "width": 25000
-            },
-            {
-              "lt": "Construction",
-              "dir": "Fwd",
-              "width": 25000
-            }
-          ],
-          "speed_limit": 201168,
-          "access_restrictions": {
-            "allow_through_traffic": 31
-          }
-        }
-      }
-    },
-    {
-      "ChangeRoad": {
-        "r": {
-          "osm_way_id": 174860580,
-          "i1": 60562440,
-          "i2": 60562619
-        },
-        "new": {
-          "lanes_ltr": [
-            {
-              "lt": "Driving",
-              "dir": "Fwd",
-              "width": 25000
-            },
-            {
-              "lt": "Driving",
-              "dir": "Fwd",
-              "width": 25000
-            },
-            {
-              "lt": "Driving",
-              "dir": "Fwd",
-              "width": 25000
-            }
-          ],
-          "speed_limit": 201168,
-          "access_restrictions": {
-            "allow_through_traffic": 31
-          }
-        },
-        "old": {
-          "lanes_ltr": [
-            {
-              "lt": "Construction",
-              "dir": "Fwd",
-              "width": 25000
-            },
             {
               "lt": "Construction",
               "dir": "Fwd",
@@ -1324,24 +1379,24 @@
         "r": {
           "osm_way_id": 370819956,
           "i1": 30232675,
-          "i2": 60562440
+          "i2": 60562619
         },
         "new": {
           "lanes_ltr": [
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 25000
+              "width": 24384
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 25000
+              "width": 24384
             },
             {
               "lt": "Driving",
               "dir": "Fwd",
-              "width": 25000
+              "width": 24384
             }
           ],
           "speed_limit": 201168,
@@ -1356,51 +1411,6 @@
               "dir": "Fwd",
               "width": 25000
             },
-            {
-              "lt": "Construction",
-              "dir": "Fwd",
-              "width": 25000
-            },
-            {
-              "lt": "Construction",
-              "dir": "Fwd",
-              "width": 25000
-            }
-          ],
-          "speed_limit": 201168,
-          "access_restrictions": {
-            "allow_through_traffic": 31
-          }
-        }
-      }
-    },
-    {
-      "ChangeRoad": {
-        "r": {
-          "osm_way_id": 371447803,
-          "i1": 60562426,
-          "i2": 60562427
-        },
-        "new": {
-          "lanes_ltr": [
-            {
-              "lt": "Driving",
-              "dir": "Fwd",
-              "width": 25000
-            },
-            {
-              "lt": "Driving",
-              "dir": "Fwd",
-              "width": 25000
-            }
-          ],
-          "speed_limit": 201168,
-          "access_restrictions": {
-            "allow_through_traffic": 31
-          }
-        },
-        "old": {
-          "lanes_ltr": [
             {
               "lt": "Construction",
               "dir": "Fwd",
@@ -1577,7 +1587,7 @@
               "width": 25000
             }
           ],
-          "speed_limit": 178816,
+          "speed_limit": 111760,
           "access_restrictions": {
             "allow_through_traffic": 31
           }
@@ -1747,7 +1757,7 @@
               "width": 25000
             }
           ],
-          "speed_limit": 178816,
+          "speed_limit": 111760,
           "access_restrictions": {
             "allow_through_traffic": 31
           }
@@ -1837,7 +1847,7 @@
               "width": 25000
             }
           ],
-          "speed_limit": 178816,
+          "speed_limit": 111760,
           "access_restrictions": {
             "allow_through_traffic": 31
           }
@@ -1872,7 +1882,7 @@
               "width": 25000
             }
           ],
-          "speed_limit": 178816,
+          "speed_limit": 111760,
           "access_restrictions": {
             "allow_through_traffic": 31
           }
@@ -1917,7 +1927,7 @@
               "width": 25000
             }
           ],
-          "speed_limit": 178816,
+          "speed_limit": 156464,
           "access_restrictions": {
             "allow_through_traffic": 31
           }
@@ -1952,7 +1962,7 @@
               "width": 25000
             }
           ],
-          "speed_limit": 178816,
+          "speed_limit": 111760,
           "access_restrictions": {
             "allow_through_traffic": 31
           }
