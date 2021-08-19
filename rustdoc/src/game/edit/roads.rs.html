@@ -862,6 +862,22 @@
 <span id="860">860</span>
 <span id="861">861</span>
 <span id="862">862</span>
+<span id="863">863</span>
+<span id="864">864</span>
+<span id="865">865</span>
+<span id="866">866</span>
+<span id="867">867</span>
+<span id="868">868</span>
+<span id="869">869</span>
+<span id="870">870</span>
+<span id="871">871</span>
+<span id="872">872</span>
+<span id="873">873</span>
+<span id="874">874</span>
+<span id="875">875</span>
+<span id="876">876</span>
+<span id="877">877</span>
+<span id="878">878</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">abstutil::Tags</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">CornerRadii</span>, <span class="ident">Distance</span>};
@@ -873,8 +889,8 @@
 };
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">lctrl</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GeomBatchStack</span>, <span class="ident">GfxCtx</span>,
-    <span class="ident">HorizontalAlignment</span>, <span class="ident">Image</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>,
-    <span class="ident">Widget</span>, <span class="ident">DEFAULT_CORNER_RADIUS</span>,
+    <span class="ident">HorizontalAlignment</span>, <span class="ident">Image</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">Spinner</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>,
+    <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>, <span class="ident">DEFAULT_CORNER_RADIUS</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
@@ -1178,8 +1194,14 @@
                         <span class="ident">new</span>.<span class="ident">speed_limit</span> <span class="op">=</span> <span class="ident">speed_limit</span>;
                     });
                 }
-                <span class="string">&quot;width&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">main_panel</span>.<span class="ident">dropdown_value</span>(<span class="string">&quot;width&quot;</span>);
+                <span class="string">&quot;width preset&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">main_panel</span>.<span class="ident">dropdown_value</span>(<span class="string">&quot;width preset&quot;</span>);
+                    <span class="kw">return</span> <span class="self">self</span>.<span class="ident">modify_current_lane</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="prelude-val">Some</span>(<span class="number">0</span>), <span class="op">|</span><span class="ident">new</span>, <span class="ident">idx</span><span class="op">|</span> {
+                        <span class="ident">new</span>.<span class="ident">lanes_ltr</span>[<span class="ident">idx</span>].<span class="ident">width</span> <span class="op">=</span> <span class="ident">width</span>;
+                    });
+                }
+                <span class="string">&quot;width custom&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">main_panel</span>.<span class="ident">spinner</span>(<span class="string">&quot;width custom&quot;</span>);
                     <span class="kw">return</span> <span class="self">self</span>.<span class="ident">modify_current_lane</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="prelude-val">Some</span>(<span class="number">0</span>), <span class="op">|</span><span class="ident">new</span>, <span class="ident">idx</span><span class="op">|</span> {
                         <span class="ident">new</span>.<span class="ident">lanes_ltr</span>[<span class="ident">idx</span>].<span class="ident">width</span> <span class="op">=</span> <span class="ident">width</span>;
                     });
@@ -1345,7 +1367,17 @@
                 .<span class="ident">hotkey</span>(<span class="ident">Key::F</span>)
                 .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
             <span class="ident">Line</span>(<span class="string">&quot;Width&quot;</span>).<span class="ident">secondary</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
-            <span class="ident">Widget::dropdown</span>(<span class="ident">ctx</span>, <span class="string">&quot;width&quot;</span>, <span class="ident">lane</span>.<span class="ident">width</span>, <span class="ident">width_choices</span>(<span class="ident">app</span>, <span class="ident">l</span>)),
+            <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
+                <span class="ident">Widget::dropdown</span>(<span class="ident">ctx</span>, <span class="string">&quot;width preset&quot;</span>, <span class="ident">lane</span>.<span class="ident">width</span>, <span class="ident">width_choices</span>(<span class="ident">app</span>, <span class="ident">l</span>)),
+                <span class="ident">Spinner::widget</span>(
+                    <span class="ident">ctx</span>,
+                    <span class="string">&quot;width custom&quot;</span>,
+                    (<span class="ident">Distance::feet</span>(<span class="number">1.0</span>), <span class="ident">Distance::feet</span>(<span class="number">20.0</span>)),
+                    <span class="ident">lane</span>.<span class="ident">width</span>,
+                    <span class="ident">Distance::feet</span>(<span class="number">0.5</span>),
+                )
+                .<span class="ident">centered_horiz</span>(),
+            ]),
             <span class="ident">ctx</span>.<span class="ident">style</span>()
                 .<span class="ident">btn_prev</span>()
                 .<span class="ident">disabled</span>(<span class="ident">idx</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span>)
