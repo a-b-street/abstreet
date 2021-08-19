@@ -171,10 +171,10 @@ fn test_lane_changing(map: &Map) -> Result<()> {
     let mut rng = sim::SimFlags::for_test("smoke_test").make_rng();
 
     // Bit brittle to hardcode IDs here, but it's fast to update
-    let north = IntersectionID(8);
+    let north = IntersectionID(7);
     let south = IntersectionID(0);
-    let east = IntersectionID(2);
-    let west = IntersectionID(4);
+    let east = IntersectionID(1);
+    let west = IntersectionID(3);
     // (origin, destination) pairs
     let mut od = Vec::new();
     for _ in 0..100 {
