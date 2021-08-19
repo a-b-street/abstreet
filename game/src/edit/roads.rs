@@ -8,8 +8,8 @@ use map_model::{
 };
 use widgetry::{
     lctrl, Choice, Color, ControlState, Drawable, EventCtx, GeomBatch, GeomBatchStack, GfxCtx,
-    HorizontalAlignment, Image, Key, Line, Outcome, Panel, State, Text, TextExt, VerticalAlignment,
-    Widget, DEFAULT_CORNER_RADIUS,
+    HorizontalAlignment, Image, Key, Line, Outcome, Panel, Spinner, State, Text, TextExt,
+    VerticalAlignment, Widget, DEFAULT_CORNER_RADIUS,
 };
 
 use crate::app::{App, Transition};
@@ -313,8 +313,14 @@ impl State<App> for RoadEditor {
                         new.speed_limit = speed_limit;
                     });
                 }
-                "width" => {
-                    let width = self.main_panel.dropdown_value("width");
+                "width preset" => {
+                    let width = self.main_panel.dropdown_value("width preset");
+                    return self.modify_current_lane(ctx, app, Some(0), |new, idx| {
+                        new.lanes_ltr[idx].width = width;
+                    });
+                }
+                "width custom" => {
+                    let width = self.main_panel.spinner("width custom");
                     return self.modify_current_lane(ctx, app, Some(0), |new, idx| {
                         new.lanes_ltr[idx].width = width;
                     });
@@ -480,7 +486,17 @@ fn make_main_panel(
                 .hotkey(Key::F)
                 .build_def(ctx),
             Line("Width").secondary().into_widget(ctx).centered_vert(),
-            Widget::dropdown(ctx, "width", lane.width, width_choices(app, l)),
+            Widget::col(vec![
+                Widget::dropdown(ctx, "width preset", lane.width, width_choices(app, l)),
+                Spinner::widget(
+                    ctx,
+                    "width custom",
+                    (Distance::feet(1.0), Distance::feet(20.0)),
+                    lane.width,
+                    Distance::feet(0.5),
+                )
+                .centered_horiz(),
+            ]),
             ctx.style()
                 .btn_prev()
                 .disabled(idx == 0)
