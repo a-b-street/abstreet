@@ -1,5 +1,5 @@
 use abstutil::Tags;
-use geom::{CornerRadii, Distance};
+use geom::{CornerRadii, Distance, UnitFmt};
 use map_gui::render::{Renderable, OUTLINE_THICKNESS};
 use map_gui::tools::PopupMsg;
 use map_gui::ID;
@@ -488,12 +488,20 @@ fn make_main_panel(
             Line("Width").secondary().into_widget(ctx).centered_vert(),
             Widget::col(vec![
                 Widget::dropdown(ctx, "width preset", lane.width, width_choices(app, l)),
-                Spinner::widget(
+                Spinner::widget_with_custom_rendering(
                     ctx,
                     "width custom",
                     (Distance::feet(1.0), Distance::feet(20.0)),
                     lane.width,
                     Distance::feet(0.5),
+                    // Even if the user's settings are set to meters, our step size is in feet, so
+                    // just render in feet.
+                    Box::new(|x| {
+                        x.to_string(&UnitFmt {
+                            round_durations: false,
+                            metric: false,
+                        })
+                    }),
                 )
                 .centered_horiz(),
             ]),

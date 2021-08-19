@@ -42,6 +42,7 @@ pub struct Spinner<T> {
     step_size: T,
     pub current: T,
     label: String,
+    render_value: Box<dyn Fn(T) -> String>,
 
     up: Button,
     down: Button,
@@ -53,12 +54,33 @@ pub struct Spinner<T> {
 }
 
 impl<T: 'static + SpinnerValue> Spinner<T> {
+    /// Creates a spinner using the `SpinnerValue`'s default `to_string` implementation for
+    /// rendering.
     pub fn widget(
         ctx: &EventCtx,
         label: impl Into<String>,
         (low, high): (T, T),
         current: T,
         step_size: T,
+    ) -> Widget {
+        Spinner::widget_with_custom_rendering(
+            ctx,
+            label,
+            (low, high),
+            current,
+            step_size,
+            Box::new(|x| x.to_string()),
+        )
+    }
+
+    /// Creates a spinner using a custom method for rendering the value as text.
+    pub fn widget_with_custom_rendering(
+        ctx: &EventCtx,
+        label: impl Into<String>,
+        (low, high): (T, T),
+        current: T,
+        step_size: T,
+        render_value: Box<dyn Fn(T) -> String>,
     ) -> Widget {
         let label = label.into();
         Widget::new(Box::new(Self::new(
@@ -67,6 +89,7 @@ impl<T: 'static + SpinnerValue> Spinner<T> {
             (low, high),
             current,
             step_size,
+            render_value,
         )))
         .named(label)
     }
@@ -77,6 +100,7 @@ impl<T: 'static + SpinnerValue> Spinner<T> {
         (low, high): (T, T),
         mut current: T,
         step_size: T,
+        render_value: Box<dyn Fn(T) -> String>,
     ) -> Self {
         let button_builder = ctx
             .style()
@@ -136,6 +160,7 @@ impl<T: 'static + SpinnerValue> Spinner<T> {
             current,
             step_size,
             label,
+            render_value,
 
             up,
             down,
@@ -169,7 +194,7 @@ impl<T: 'static + SpinnerValue> Spinner<T> {
             Polygon::rounded_rectangle(self.dims.width, self.dims.height, 5.0),
         )]);
         batch.append(
-            Text::from(self.current.to_string())
+            Text::from((self.render_value)(self.current))
                 .render_autocropped(prerender)
                 .centered_on(Pt2D::new(TEXT_WIDTH / 2.0, self.dims.height / 2.0)),
         );
