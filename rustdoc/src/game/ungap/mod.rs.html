@@ -788,7 +788,7 @@
                 <span class="string">&quot;Share proposal&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">share::upload_proposal</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
                 }
-                <span class="string">&quot;Sketch a route&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="string">&quot;Create new bike lanes&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> <span class="op">=</span> <span class="prelude-val">None</span>;
                     <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="kw">crate</span><span class="ident">::ungap::quick_sketch::QuickSketch::new_state</span>(
                         <span class="ident">ctx</span>, <span class="ident">app</span>,
@@ -999,7 +999,7 @@
         <span class="ident">Widget::col</span>(<span class="ident">file_management</span>).<span class="ident">bg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">section_bg</span>),
         <span class="ident">ctx</span>.<span class="ident">style</span>()
             .<span class="ident">btn_solid_primary</span>
-            .<span class="ident">text</span>(<span class="string">&quot;Sketch a route&quot;</span>)
+            .<span class="ident">icon_text</span>(<span class="string">&quot;system/assets/tools/pencil.svg&quot;</span>, <span class="string">&quot;Create new bike lanes&quot;</span>)
             .<span class="ident">hotkey</span>(<span class="ident">Key::S</span>)
             .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
     ]))

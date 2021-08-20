@@ -332,6 +332,17 @@
 <span id="330">330</span>
 <span id="331">331</span>
 <span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">abstutil::Tags</span>;
 <span class="kw">use</span> <span class="ident">map_gui::tools::PopupMsg</span>;
@@ -369,16 +380,16 @@
     }
 
     <span class="kw">fn</span> <span class="ident">update_top_panel</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) {
-        <span class="comment">// We&#39;re usually replacing an existing panel, except the very first time.</span>
-        <span class="kw">let</span> <span class="ident">default_buffer</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">top_panel</span>.<span class="ident">has_widget</span>(<span class="string">&quot;buffer type&quot;</span>) {
-            <span class="self">self</span>.<span class="ident">top_panel</span>.<span class="ident">dropdown_value</span>(<span class="string">&quot;buffer type&quot;</span>)
-        } <span class="kw">else</span> {
-            <span class="prelude-val">Some</span>(<span class="ident">BufferType::FlexPosts</span>)
-        };
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">col</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="self">self</span>.<span class="ident">route_sketcher</span>.<span class="ident">get_widget_to_describe</span>(<span class="ident">ctx</span>)];
 
-        <span class="self">self</span>.<span class="ident">top_panel</span> <span class="op">=</span> <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-            <span class="self">self</span>.<span class="ident">route_sketcher</span>.<span class="ident">get_widget_to_describe</span>(<span class="ident">ctx</span>),
-            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">route_sketcher</span>.<span class="ident">is_route_started</span>() {
+            <span class="comment">// We&#39;re usually replacing an existing panel, except the very first time.</span>
+            <span class="kw">let</span> <span class="ident">default_buffer</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">top_panel</span>.<span class="ident">has_widget</span>(<span class="string">&quot;buffer type&quot;</span>) {
+                <span class="self">self</span>.<span class="ident">top_panel</span>.<span class="ident">dropdown_value</span>(<span class="string">&quot;buffer type&quot;</span>)
+            } <span class="kw">else</span> {
+                <span class="prelude-val">Some</span>(<span class="ident">BufferType::FlexPosts</span>)
+            };
+            <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
                 <span class="string">&quot;Protect the new bike lanes?&quot;</span>
                     .<span class="ident">text_widget</span>(<span class="ident">ctx</span>)
                     .<span class="ident">centered_vert</span>(),
@@ -395,24 +406,35 @@
                         <span class="ident">Choice::new</span>(<span class="string">&quot;no -- just paint&quot;</span>, <span class="prelude-val">None</span>),
                     ],
                 ),
-            ]),
-            <span class="ident">Widget::custom_row</span>(<span class="macro">vec!</span>[
-                <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_solid_primary</span>
-                    .<span class="ident">text</span>(<span class="string">&quot;Add bike lanes&quot;</span>)
-                    .<span class="ident">hotkey</span>(<span class="ident">Key::Enter</span>)
-                    .<span class="ident">disabled</span>(<span class="op">!</span><span class="self">self</span>.<span class="ident">route_sketcher</span>.<span class="ident">is_route_started</span>())
-                    .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+            ]));
+            <span class="ident">col</span>.<span class="ident">push</span>(
+                <span class="ident">Widget::custom_row</span>(<span class="macro">vec!</span>[
+                    <span class="ident">ctx</span>.<span class="ident">style</span>()
+                        .<span class="ident">btn_solid_primary</span>
+                        .<span class="ident">text</span>(<span class="string">&quot;Add bike lanes&quot;</span>)
+                        .<span class="ident">hotkey</span>(<span class="ident">Key::Enter</span>)
+                        .<span class="ident">disabled</span>(<span class="op">!</span><span class="self">self</span>.<span class="ident">route_sketcher</span>.<span class="ident">is_route_started</span>())
+                        .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+                    <span class="ident">ctx</span>.<span class="ident">style</span>()
+                        .<span class="ident">btn_solid_destructive</span>
+                        .<span class="ident">text</span>(<span class="string">&quot;Cancel&quot;</span>)
+                        .<span class="ident">hotkey</span>(<span class="ident">Key::Escape</span>)
+                        .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+                ])
+                .<span class="ident">evenly_spaced</span>(),
+            );
+        } <span class="kw">else</span> {
+            <span class="ident">col</span>.<span class="ident">push</span>(
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
                     .<span class="ident">btn_solid_destructive</span>
                     .<span class="ident">text</span>(<span class="string">&quot;Cancel&quot;</span>)
                     .<span class="ident">hotkey</span>(<span class="ident">Key::Escape</span>)
                     .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-            ])
-            .<span class="ident">evenly_spaced</span>(),
-        ]))
-        .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::Center</span>, <span class="ident">VerticalAlignment::Top</span>)
-        .<span class="ident">build</span>(<span class="ident">ctx</span>);
+            );
+        }
+        <span class="self">self</span>.<span class="ident">top_panel</span> <span class="op">=</span> <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="ident">col</span>))
+            .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::Center</span>, <span class="ident">VerticalAlignment::Top</span>)
+            .<span class="ident">build</span>(<span class="ident">ctx</span>);
     }
 }
 
