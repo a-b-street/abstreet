@@ -294,10 +294,10 @@ pub fn make_elevation_contours(
                     for p in polygons {
                         if let Ok(p) = Polygon::from_geojson(&p) {
                             let poly = p.scale(resolution_m);
-                            if let Ok(x) = poly.to_outline(Distance::meters(10.0)) {
-                                batch.push(Color::BLACK, x);
+                            if let Ok(x) = poly.to_outline(Distance::meters(5.0)) {
+                                batch.push(Color::BLACK.alpha(0.5), x);
                             }
-                            batch.push(color.alpha(0.2), poly);
+                            batch.push(color.alpha(0.1), poly);
                         }
                     }
                 }
