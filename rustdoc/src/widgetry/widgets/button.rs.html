@@ -789,13 +789,27 @@
 <span id="787">787</span>
 <span id="788">788</span>
 <span id="789">789</span>
+<span id="790">790</span>
+<span id="791">791</span>
+<span id="792">792</span>
+<span id="793">793</span>
+<span id="794">794</span>
+<span id="795">795</span>
+<span id="796">796</span>
+<span id="797">797</span>
+<span id="798">798</span>
+<span id="799">799</span>
+<span id="800">800</span>
+<span id="801">801</span>
+<span id="802">802</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Polygon</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">text::Font</span>, <span class="ident">Color</span>, <span class="ident">ContentMode</span>, <span class="ident">ControlState</span>, <span class="ident">CornerRounding</span>, <span class="ident">Drawable</span>, <span class="ident">EdgeInsets</span>, <span class="ident">EventCtx</span>,
-    <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Image</span>, <span class="ident">Line</span>, <span class="ident">MultiKey</span>, <span class="ident">Outcome</span>, <span class="ident">OutlineStyle</span>, <span class="ident">RewriteColor</span>, <span class="ident">ScreenDims</span>,
-    <span class="ident">ScreenPt</span>, <span class="ident">ScreenRectangle</span>, <span class="ident">Text</span>, <span class="ident">Widget</span>, <span class="ident">WidgetImpl</span>, <span class="ident">WidgetOutput</span>,
+    <span class="ident">style::DEFAULT_OUTLINE_THICKNESS</span>, <span class="ident">text::Font</span>, <span class="ident">Color</span>, <span class="ident">ContentMode</span>, <span class="ident">ControlState</span>, <span class="ident">CornerRounding</span>,
+    <span class="ident">Drawable</span>, <span class="ident">EdgeInsets</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Image</span>, <span class="ident">Line</span>, <span class="ident">MultiKey</span>, <span class="ident">Outcome</span>,
+    <span class="ident">OutlineStyle</span>, <span class="ident">RewriteColor</span>, <span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>, <span class="ident">ScreenRectangle</span>, <span class="ident">Text</span>, <span class="ident">Widget</span>, <span class="ident">WidgetImpl</span>,
+    <span class="ident">WidgetOutput</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::geom::geom_batch_stack</span>::{<span class="ident">Axis</span>, <span class="ident">GeomBatchStack</span>};
@@ -1204,6 +1218,18 @@
     <span class="doccomment">/// `ControlState::Default` will be used.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">outline</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">outline</span>: <span class="ident">OutlineStyle</span>, <span class="ident">for_state</span>: <span class="ident">ControlState</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">style_mut</span>(<span class="ident">for_state</span>).<span class="ident">outline</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">outline</span>);
+        <span class="self">self</span>
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">outline_color</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">color</span>: <span class="ident">Color</span>, <span class="ident">for_state</span>: <span class="ident">ControlState</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="kw">let</span> <span class="ident">thickness</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="self">self</span>
+            .<span class="ident">style</span>(<span class="ident">for_state</span>)
+            .<span class="ident">outline</span>
+            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">outline</span><span class="op">|</span> <span class="ident">outline</span>.<span class="number">0</span>)
+            .<span class="ident">unwrap_or</span>(<span class="ident">DEFAULT_OUTLINE_THICKNESS</span>);
+
+        <span class="self">self</span>.<span class="ident">style_mut</span>(<span class="ident">for_state</span>).<span class="ident">outline</span> <span class="op">=</span> <span class="prelude-val">Some</span>((<span class="ident">thickness</span>, <span class="ident">color</span>));
+
         <span class="self">self</span>
     }
 

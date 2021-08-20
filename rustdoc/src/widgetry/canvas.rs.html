@@ -362,6 +362,22 @@
 <span id="360">360</span>
 <span id="361">361</span>
 <span id="362">362</span>
+<span id="363">363</span>
+<span id="364">364</span>
+<span id="365">365</span>
+<span id="366">366</span>
+<span id="367">367</span>
+<span id="368">368</span>
+<span id="369">369</span>
+<span id="370">370</span>
+<span id="371">371</span>
+<span id="372">372</span>
+<span id="373">373</span>
+<span id="374">374</span>
+<span id="375">375</span>
+<span id="376">376</span>
+<span id="377">377</span>
+<span id="378">378</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::cell::RefCell</span>;
 <span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
@@ -459,10 +475,22 @@
         }
     }
 
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">max_zoom</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">f64</span> {
+        <span class="number">50.0</span>
+    }
+
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">min_zoom</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">f64</span> {
         <span class="kw">let</span> <span class="ident">percent_window</span> <span class="op">=</span> <span class="number">0.8</span>;
         (<span class="ident">percent_window</span> <span class="op">*</span> <span class="self">self</span>.<span class="ident">window_width</span> <span class="op">/</span> <span class="self">self</span>.<span class="ident">map_dims</span>.<span class="number">0</span>)
             .<span class="ident">min</span>(<span class="ident">percent_window</span> <span class="op">*</span> <span class="self">self</span>.<span class="ident">window_height</span> <span class="op">/</span> <span class="self">self</span>.<span class="ident">map_dims</span>.<span class="number">1</span>)
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_max_zoom</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="ident">cam_zoom</span> <span class="op">&gt;</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">max_zoom</span>()
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_min_zoom</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="ident">cam_zoom</span> <span class="op">&lt;</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">min_zoom</span>()
     }
 
     <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">handle_event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">UserInput</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">UpdateType</span><span class="op">&gt;</span> {
@@ -558,13 +586,17 @@
         <span class="prelude-val">None</span>
     }
 
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">center_zoom</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">delta</span>: <span class="ident">f64</span>) {
+        <span class="self">self</span>.<span class="ident">zoom</span>(<span class="ident">delta</span>, <span class="self">self</span>.<span class="ident">center_to_screen_pt</span>())
+    }
+
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">zoom</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">delta</span>: <span class="ident">f64</span>, <span class="ident">focus</span>: <span class="ident">ScreenPt</span>) {
         <span class="kw">let</span> <span class="ident">old_zoom</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">cam_zoom</span>;
         <span class="comment">// By popular request, some limits ;)</span>
         <span class="self">self</span>.<span class="ident">cam_zoom</span> <span class="op">=</span> <span class="number">1.1_f64</span>
             .<span class="ident">powf</span>(<span class="ident">old_zoom</span>.<span class="ident">log</span>(<span class="number">1.1</span>) <span class="op">+</span> <span class="ident">delta</span> <span class="op">*</span> (<span class="self">self</span>.<span class="ident">settings</span>.<span class="ident">canvas_scroll_speed</span> <span class="kw">as</span> <span class="ident">f64</span> <span class="op">/</span> <span class="number">10.0</span>))
             .<span class="ident">max</span>(<span class="self">self</span>.<span class="ident">min_zoom</span>())
-            .<span class="ident">min</span>(<span class="number">150.0</span>);
+            .<span class="ident">min</span>(<span class="self">self</span>.<span class="ident">max_zoom</span>());
 
         <span class="comment">// Make screen_to_map of the focus point still point to the same thing after</span>
         <span class="comment">// zooming.</span>

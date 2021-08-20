@@ -480,6 +480,85 @@
 <span id="478">478</span>
 <span id="479">479</span>
 <span id="480">480</span>
+<span id="481">481</span>
+<span id="482">482</span>
+<span id="483">483</span>
+<span id="484">484</span>
+<span id="485">485</span>
+<span id="486">486</span>
+<span id="487">487</span>
+<span id="488">488</span>
+<span id="489">489</span>
+<span id="490">490</span>
+<span id="491">491</span>
+<span id="492">492</span>
+<span id="493">493</span>
+<span id="494">494</span>
+<span id="495">495</span>
+<span id="496">496</span>
+<span id="497">497</span>
+<span id="498">498</span>
+<span id="499">499</span>
+<span id="500">500</span>
+<span id="501">501</span>
+<span id="502">502</span>
+<span id="503">503</span>
+<span id="504">504</span>
+<span id="505">505</span>
+<span id="506">506</span>
+<span id="507">507</span>
+<span id="508">508</span>
+<span id="509">509</span>
+<span id="510">510</span>
+<span id="511">511</span>
+<span id="512">512</span>
+<span id="513">513</span>
+<span id="514">514</span>
+<span id="515">515</span>
+<span id="516">516</span>
+<span id="517">517</span>
+<span id="518">518</span>
+<span id="519">519</span>
+<span id="520">520</span>
+<span id="521">521</span>
+<span id="522">522</span>
+<span id="523">523</span>
+<span id="524">524</span>
+<span id="525">525</span>
+<span id="526">526</span>
+<span id="527">527</span>
+<span id="528">528</span>
+<span id="529">529</span>
+<span id="530">530</span>
+<span id="531">531</span>
+<span id="532">532</span>
+<span id="533">533</span>
+<span id="534">534</span>
+<span id="535">535</span>
+<span id="536">536</span>
+<span id="537">537</span>
+<span id="538">538</span>
+<span id="539">539</span>
+<span id="540">540</span>
+<span id="541">541</span>
+<span id="542">542</span>
+<span id="543">543</span>
+<span id="544">544</span>
+<span id="545">545</span>
+<span id="546">546</span>
+<span id="547">547</span>
+<span id="548">548</span>
+<span id="549">549</span>
+<span id="550">550</span>
+<span id="551">551</span>
+<span id="552">552</span>
+<span id="553">553</span>
+<span id="554">554</span>
+<span id="555">555</span>
+<span id="556">556</span>
+<span id="557">557</span>
+<span id="558">558</span>
+<span id="559">559</span>
 </pre><pre class="rust">
 <span class="kw">mod</span> <span class="ident">layers</span>;
 <span class="kw">mod</span> <span class="ident">magnifying</span>;
@@ -509,7 +588,7 @@
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ExploreMap</span> {
     <span class="ident">top_panel</span>: <span class="ident">Panel</span>,
-    <span class="ident">legend</span>: <span class="ident">Panel</span>,
+    <span class="ident">bottom_right_panel</span>: <span class="ident">Panel</span>,
     <span class="ident">magnifying_glass</span>: <span class="ident">MagnifyingGlass</span>,
     <span class="ident">bike_network_layer</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DrawNetworkLayer</span><span class="op">&gt;</span>,
     <span class="ident">edits_layer</span>: <span class="ident">Drawable</span>,
@@ -517,6 +596,7 @@
     <span class="comment">// TODO Once widgetry buttons can take custom enums, that&#39;d be perfect here</span>
     <span class="ident">road_types</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">Drawable</span><span class="op">&gt;</span>,
 
+    <span class="ident">zoom_enabled_cache_key</span>: (<span class="ident">bool</span>, <span class="ident">bool</span>),
     <span class="ident">map_edit_key</span>: <span class="ident">usize</span>,
 }
 
@@ -538,12 +618,13 @@
 
         <span class="ident">Box::new</span>(<span class="ident">ExploreMap</span> {
             <span class="ident">top_panel</span>: <span class="ident">Panel::empty</span>(<span class="ident">ctx</span>),
-            <span class="ident">legend</span>: <span class="ident">make_legend</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>),
+            <span class="ident">bottom_right_panel</span>: <span class="ident">make_bottom_right_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>),
             <span class="ident">magnifying_glass</span>: <span class="ident">MagnifyingGlass::new</span>(<span class="ident">ctx</span>),
             <span class="ident">bike_network_layer</span>: <span class="prelude-val">Some</span>(<span class="ident">DrawNetworkLayer::new</span>()),
             <span class="ident">edits_layer</span>: <span class="ident">Drawable::empty</span>(<span class="ident">ctx</span>),
             <span class="ident">elevation</span>: <span class="bool-val">false</span>,
             <span class="ident">road_types</span>: <span class="ident">HashMap::new</span>(),
+            <span class="ident">zoom_enabled_cache_key</span>: <span class="ident">zoom_enabled_cache_key</span>(<span class="ident">ctx</span>),
 
             <span class="comment">// Start with a bogus value, so we fix up the URL when changing maps</span>
             <span class="ident">map_edit_key</span>: <span class="ident">usize::MAX</span>,
@@ -638,7 +719,8 @@
                     }
                 }
             }
-            <span class="self">self</span>.<span class="ident">legend</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;current elevation&quot;</span>, <span class="ident">label</span>);
+            <span class="self">self</span>.<span class="ident">bottom_right_panel</span>
+                .<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;current elevation&quot;</span>, <span class="ident">label</span>);
         }
 
         <span class="comment">// Only when zoomed in, click to edit a road in detail</span>
@@ -716,7 +798,7 @@
             }
         }
 
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">legend</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
+        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">bottom_right_panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
             <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
                     <span class="comment">// TODO Add physical picture examples</span>
@@ -729,21 +811,37 @@
                     <span class="string">&quot;greenway&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">PopupMsg::new_state</span>(<span class="ident">ctx</span>, <span class="string">&quot;Stay Healthy Streets and neighborhood greenways&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;Residential streets with additional signage and light barriers. These are intended to be low traffic, dedicated for people walking and biking.&quot;</span>]),
                     <span class="comment">// TODO Add URLs</span>
                     <span class="string">&quot;about the elevation data&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">PopupMsg::new_state</span>(<span class="ident">ctx</span>, <span class="string">&quot;About the elevation data&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;Biking uphill next to traffic without any dedicated space isn&#39;t fun.&quot;</span>, <span class="string">&quot;Biking downhill next to traffic, especially in the door-zone of parked cars, and especially on Seattle&#39;s bumpy roads... is downright terrifying.&quot;</span>, <span class="string">&quot;&quot;</span>, <span class="string">&quot;Note the elevation data is incorrect near bridges.&quot;</span>, <span class="string">&quot;Thanks to King County LIDAR for the data, and Eldan Goldenberg for processing it.&quot;</span>]),
+                   <span class="string">&quot;zoom map out&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">center_zoom</span>(<span class="op">-</span><span class="number">8.0</span>);
+                        <span class="macro">debug!</span>(<span class="string">&quot;clicked zoomed out to: {}&quot;</span>, <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span>);
+                        <span class="self">self</span>.<span class="ident">bottom_right_panel</span> <span class="op">=</span> <span class="ident">make_bottom_right_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">bike_network_layer</span>.<span class="ident">is_some</span>(), <span class="self">self</span>.<span class="ident">elevation</span>);
+                        <span class="kw">return</span> <span class="ident">Transition::Keep</span>;
+                    },
+                    <span class="string">&quot;zoom map in&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">center_zoom</span>(<span class="number">8.0</span>);
+                        <span class="macro">debug!</span>(<span class="string">&quot;clicked zoomed in to: {}&quot;</span>, <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span>);
+                        <span class="self">self</span>.<span class="ident">bottom_right_panel</span> <span class="op">=</span> <span class="ident">make_bottom_right_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">bike_network_layer</span>.<span class="ident">is_some</span>(), <span class="self">self</span>.<span class="ident">elevation</span>);
+                        <span class="kw">return</span> <span class="ident">Transition::Keep</span>;
+                    },
                     <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
             });
             }
             <span class="ident">Outcome::Changed</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
                 <span class="string">&quot;bike network&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">if</span> <span class="self">self</span>.<span class="ident">legend</span>.<span class="ident">is_checked</span>(<span class="string">&quot;bike network&quot;</span>) {
+                    <span class="kw">if</span> <span class="self">self</span>.<span class="ident">bottom_right_panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;bike network&quot;</span>) {
                         <span class="self">self</span>.<span class="ident">bike_network_layer</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">DrawNetworkLayer::new</span>());
                     } <span class="kw">else</span> {
                         <span class="self">self</span>.<span class="ident">bike_network_layer</span> <span class="op">=</span> <span class="prelude-val">None</span>;
                     }
                 }
                 <span class="string">&quot;elevation&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="self">self</span>.<span class="ident">elevation</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">legend</span>.<span class="ident">is_checked</span>(<span class="string">&quot;elevation&quot;</span>);
-                    <span class="self">self</span>.<span class="ident">legend</span> <span class="op">=</span>
-                        <span class="ident">make_legend</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">bike_network_layer</span>.<span class="ident">is_some</span>(), <span class="self">self</span>.<span class="ident">elevation</span>);
+                    <span class="self">self</span>.<span class="ident">elevation</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">bottom_right_panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;elevation&quot;</span>);
+                    <span class="self">self</span>.<span class="ident">bottom_right_panel</span> <span class="op">=</span> <span class="ident">make_bottom_right_panel</span>(
+                        <span class="ident">ctx</span>,
+                        <span class="ident">app</span>,
+                        <span class="self">self</span>.<span class="ident">bike_network_layer</span>.<span class="ident">is_some</span>(),
+                        <span class="self">self</span>.<span class="ident">elevation</span>,
+                    );
                     <span class="kw">if</span> <span class="self">self</span>.<span class="ident">elevation</span> {
                         <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">clone</span>();
                         <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">elevation_contours</span>.<span class="ident">key</span>() <span class="op">!</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">name</span>.<span class="ident">clone</span>()) {
@@ -765,8 +863,19 @@
             },
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
         }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">name</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">legend</span>.<span class="ident">currently_hovering</span>().<span class="ident">cloned</span>() {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">name</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">bottom_right_panel</span>.<span class="ident">currently_hovering</span>().<span class="ident">cloned</span>() {
             <span class="self">self</span>.<span class="ident">highlight_road_type</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="ident">name</span>);
+        }
+
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">zoom_enabled_cache_key</span> <span class="op">!</span><span class="op">=</span> <span class="ident">zoom_enabled_cache_key</span>(<span class="ident">ctx</span>) {
+            <span class="comment">// approriately disable/enable zoom buttons in case user scroll-zoomed</span>
+            <span class="self">self</span>.<span class="ident">bottom_right_panel</span> <span class="op">=</span> <span class="ident">make_bottom_right_panel</span>(
+                <span class="ident">ctx</span>,
+                <span class="ident">app</span>,
+                <span class="self">self</span>.<span class="ident">bike_network_layer</span>.<span class="ident">is_some</span>(),
+                <span class="self">self</span>.<span class="ident">elevation</span>,
+            );
+            <span class="self">self</span>.<span class="ident">zoom_enabled_cache_key</span> <span class="op">=</span> <span class="ident">zoom_enabled_cache_key</span>(<span class="ident">ctx</span>);
         }
 
         <span class="ident">Transition::Keep</span>
@@ -774,7 +883,7 @@
 
     <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
         <span class="self">self</span>.<span class="ident">top_panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-        <span class="self">self</span>.<span class="ident">legend</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
+        <span class="self">self</span>.<span class="ident">bottom_right_panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
         <span class="kw">if</span> <span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span> <span class="op">&lt;</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">min_zoom_for_detail</span> {
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">n</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">bike_network_layer</span> {
                 <span class="ident">n</span>.<span class="ident">draw</span>(<span class="ident">g</span>, <span class="ident">app</span>);
@@ -787,7 +896,7 @@
             }
             <span class="self">self</span>.<span class="ident">magnifying_glass</span>.<span class="ident">draw</span>(<span class="ident">g</span>, <span class="ident">app</span>);
 
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">name</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">legend</span>.<span class="ident">currently_hovering</span>() {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">name</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">bottom_right_panel</span>.<span class="ident">currently_hovering</span>() {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">draw</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">road_types</span>.<span class="ident">get</span>(<span class="ident">name</span>) {
                     <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="ident">draw</span>);
                 }
@@ -898,20 +1007,56 @@
     .<span class="ident">build</span>(<span class="ident">ctx</span>)
 }
 
-<span class="kw">fn</span> <span class="ident">make_legend</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">bike_network</span>: <span class="ident">bool</span>, <span class="ident">elevation</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Panel</span> {
-    <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
+<span class="kw">fn</span> <span class="ident">make_zoom_controls</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+    <span class="kw">let</span> <span class="ident">builder</span> <span class="op">=</span> <span class="ident">ctx</span>
+        .<span class="ident">style</span>()
+        .<span class="ident">btn_floating</span>
+        .<span class="ident">btn</span>()
+        .<span class="ident">image_dims</span>(<span class="number">30.0</span>)
+        .<span class="ident">outline</span>((<span class="number">1.0</span>, <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_plain</span>.<span class="ident">fg</span>), <span class="ident">ControlState::Default</span>)
+        .<span class="ident">padding</span>(<span class="number">12.0</span>);
+
+    <span class="ident">Widget::custom_col</span>(<span class="macro">vec!</span>[
+        <span class="ident">builder</span>
+            .<span class="ident">clone</span>()
+            .<span class="ident">image_path</span>(<span class="string">&quot;system/assets/speed/plus.svg&quot;</span>)
+            .<span class="ident">corner_rounding</span>(<span class="ident">geom::CornerRadii</span> {
+                <span class="ident">top_left</span>: <span class="number">16.0</span>,
+                <span class="ident">top_right</span>: <span class="number">16.0</span>,
+                <span class="ident">bottom_right</span>: <span class="number">0.0</span>,
+                <span class="ident">bottom_left</span>: <span class="number">0.0</span>,
+            })
+            .<span class="ident">disabled</span>(<span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">is_max_zoom</span>())
+            .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;zoom map in&quot;</span>),
+        <span class="ident">builder</span>
+            .<span class="ident">image_path</span>(<span class="string">&quot;system/assets/speed/minus.svg&quot;</span>)
+            .<span class="ident">image_dims</span>(<span class="number">30.0</span>)
+            .<span class="ident">padding</span>(<span class="number">12.0</span>)
+            .<span class="ident">corner_rounding</span>(<span class="ident">geom::CornerRadii</span> {
+                <span class="ident">top_left</span>: <span class="number">0.0</span>,
+                <span class="ident">top_right</span>: <span class="number">0.0</span>,
+                <span class="ident">bottom_right</span>: <span class="number">16.0</span>,
+                <span class="ident">bottom_left</span>: <span class="number">16.0</span>,
+            })
+            .<span class="ident">disabled</span>(<span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">is_min_zoom</span>())
+            .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;zoom map out&quot;</span>),
+    ])
+}
+
+<span class="kw">fn</span> <span class="ident">make_legend</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">bike_network</span>: <span class="ident">bool</span>, <span class="ident">elevation</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+    <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
         <span class="ident">Widget::custom_row</span>(<span class="macro">vec!</span>[
             <span class="comment">// TODO Looks too close to access restrictions</span>
-            <span class="ident">legend</span>(<span class="ident">ctx</span>, <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">unzoomed_highway</span>, <span class="string">&quot;highway&quot;</span>),
-            <span class="ident">legend</span>(<span class="ident">ctx</span>, <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">unzoomed_arterial</span>, <span class="string">&quot;major street&quot;</span>),
-            <span class="ident">legend</span>(<span class="ident">ctx</span>, <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">unzoomed_residential</span>, <span class="string">&quot;minor street&quot;</span>),
+            <span class="ident">legend_item</span>(<span class="ident">ctx</span>, <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">unzoomed_highway</span>, <span class="string">&quot;highway&quot;</span>),
+            <span class="ident">legend_item</span>(<span class="ident">ctx</span>, <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">unzoomed_arterial</span>, <span class="string">&quot;major street&quot;</span>),
+            <span class="ident">legend_item</span>(<span class="ident">ctx</span>, <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">unzoomed_residential</span>, <span class="string">&quot;minor street&quot;</span>),
         ]),
         <span class="ident">Widget::custom_row</span>(<span class="macro">vec!</span>[
             <span class="ident">Toggle::checkbox</span>(<span class="ident">ctx</span>, <span class="string">&quot;bike network&quot;</span>, <span class="ident">Key::B</span>, <span class="ident">bike_network</span>),
-            <span class="ident">legend</span>(<span class="ident">ctx</span>, <span class="kw-2">*</span><span class="ident">layers::DEDICATED_TRAIL</span>, <span class="string">&quot;trail&quot;</span>),
-            <span class="ident">legend</span>(<span class="ident">ctx</span>, <span class="kw-2">*</span><span class="ident">layers::PROTECTED_BIKE_LANE</span>, <span class="string">&quot;protected bike lane&quot;</span>),
-            <span class="ident">legend</span>(<span class="ident">ctx</span>, <span class="kw-2">*</span><span class="ident">layers::PAINTED_BIKE_LANE</span>, <span class="string">&quot;painted bike lane&quot;</span>),
-            <span class="ident">legend</span>(<span class="ident">ctx</span>, <span class="kw-2">*</span><span class="ident">layers::GREENWAY</span>, <span class="string">&quot;greenway&quot;</span>),
+            <span class="ident">legend_item</span>(<span class="ident">ctx</span>, <span class="kw-2">*</span><span class="ident">layers::DEDICATED_TRAIL</span>, <span class="string">&quot;trail&quot;</span>),
+            <span class="ident">legend_item</span>(<span class="ident">ctx</span>, <span class="kw-2">*</span><span class="ident">layers::PROTECTED_BIKE_LANE</span>, <span class="string">&quot;protected bike lane&quot;</span>),
+            <span class="ident">legend_item</span>(<span class="ident">ctx</span>, <span class="kw-2">*</span><span class="ident">layers::PAINTED_BIKE_LANE</span>, <span class="string">&quot;painted bike lane&quot;</span>),
+            <span class="ident">legend_item</span>(<span class="ident">ctx</span>, <span class="kw-2">*</span><span class="ident">layers::GREENWAY</span>, <span class="string">&quot;greenway&quot;</span>),
         ]),
         <span class="comment">// TODO Distinguish door-zone bike lanes?</span>
         <span class="comment">// TODO Call out bike turning boxes?</span>
@@ -932,12 +1077,21 @@
             <span class="comment">// TODO Probably a collisions layer, or the alternate &quot;steep streets&quot;</span>
         ])
         .<span class="ident">evenly_spaced</span>(),
-    ]))
-    .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::Right</span>, <span class="ident">VerticalAlignment::Bottom</span>)
-    .<span class="ident">build</span>(<span class="ident">ctx</span>)
+    ])
 }
 
-<span class="kw">fn</span> <span class="ident">legend</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">color</span>: <span class="ident">Color</span>, <span class="ident">label</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+<span class="kw">fn</span> <span class="ident">make_bottom_right_panel</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">elevation</span>: <span class="ident">bool</span>, <span class="ident">nearby</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Panel</span> {
+    <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
+        <span class="ident">make_zoom_controls</span>(<span class="ident">ctx</span>).<span class="ident">align_right</span>().<span class="ident">padding_right</span>(<span class="number">16</span>),
+        <span class="ident">make_legend</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">elevation</span>, <span class="ident">nearby</span>)
+            .<span class="ident">padding</span>(<span class="number">16</span>)
+            .<span class="ident">bg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">panel_bg</span>),
+    ]))
+    .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::Right</span>, <span class="ident">VerticalAlignment::Bottom</span>)
+    .<span class="ident">build_custom</span>(<span class="ident">ctx</span>)
+}
+
+<span class="kw">fn</span> <span class="ident">legend_item</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">color</span>: <span class="ident">Color</span>, <span class="ident">label</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
     <span class="comment">// TODO Height of the &quot;trail&quot; button is slightly too low!</span>
     <span class="comment">// Text with padding and a background color</span>
     <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">batch</span>, <span class="ident">hitbox</span>) <span class="op">=</span> <span class="ident">Text::from</span>(<span class="ident">Line</span>(<span class="ident">label</span>))
@@ -960,6 +1114,10 @@
             <span class="ident">ControlState::Hovered</span>,
         )
         .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="ident">label</span>);
+}
+
+<span class="kw">fn</span> <span class="ident">zoom_enabled_cache_key</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">bool</span>, <span class="ident">bool</span>) {
+    (<span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">is_max_zoom</span>(), <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">is_min_zoom</span>())
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="game" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div><script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script></body></html>

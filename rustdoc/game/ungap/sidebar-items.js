@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["legend",""],["make_legend",""],["make_top_panel",""]],"mod":[["layers",""],["magnifying",""],["quick_sketch",""],["share",""]],"struct":[["ExploreMap",""]]});
+initSidebarItems({"fn":[["legend_item",""],["make_bottom_right_panel",""],["make_legend",""],["make_top_panel",""],["make_zoom_controls",""],["zoom_enabled_cache_key",""]],"mod":[["layers",""],["magnifying",""],["quick_sketch",""],["share",""]],"struct":[["ExploreMap",""]]});
