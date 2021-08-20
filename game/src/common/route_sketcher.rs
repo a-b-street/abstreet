@@ -110,22 +110,28 @@ impl RouteSketcher {
             batch.push(Color::RED.alpha(0.5), map.get_r(r).get_thick_polygon(map));
         }
         for i in &self.route.full_path {
-            batch.push(Color::RED.alpha(0.5), map.get_i(*i).polygon.clone());
-        }
-
-        let mut cnt = 0;
-        for i in &self.route.waypoints {
-            cnt += 1;
             batch.push(
-                Color::RED,
+                Color::BLUE.alpha(0.5),
                 Circle::new(map.get_i(*i).polygon.center(), Distance::meters(10.0)).to_polygon(),
             );
-            // TODO Debugging
-            batch.append(
-                widgetry::Text::from(Line(format!("{}", cnt)))
-                    .render(ctx)
-                    .centered_on(map.get_i(*i).polygon.center()),
-            );
+        }
+
+        // Debugging
+        if false {
+            let mut cnt = 0;
+            for i in &self.route.waypoints {
+                cnt += 1;
+                batch.push(
+                    Color::RED,
+                    Circle::new(map.get_i(*i).polygon.center(), Distance::meters(10.0))
+                        .to_polygon(),
+                );
+                batch.append(
+                    widgetry::Text::from(Line(format!("{}", cnt)))
+                        .render(ctx)
+                        .centered_on(map.get_i(*i).polygon.center()),
+                );
+            }
         }
 
         // Draw the current operation
