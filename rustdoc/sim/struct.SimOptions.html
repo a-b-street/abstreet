@@ -31,7 +31,7 @@ red lights after starting.</p>
 </div><span id="structfield.alerts" class="structfield small-section-header"><a href="#structfield.alerts" class="anchor field"></a><code>alerts: <a class="enum" href="sim/enum.AlertHandler.html" title="enum sim::sim::AlertHandler">AlertHandler</a></code></span><div class="docblock"><p>When a warning is encountered during simulation, specifies how to respond.</p>
 </div><span id="structfield.infinite_parking" class="structfield small-section-header"><a href="#structfield.infinite_parking" class="anchor field"></a><code>infinite_parking: <a class="primitive" href="https://doc.rust-lang.org/1.54.0/std/primitive.bool.html">bool</a></code></span><div class="docblock"><p>Ignore parking data in the map and instead treat every building as if it has unlimited
 capacity for vehicles.</p>
-<p>Three maps always have this hardcoded on – the Arboretum, Poundbury, and Tempe.</p>
+<p>Some maps always have this hardcoded on – see the code for the list.</p>
 </div><span id="structfield.disable_turn_conflicts" class="structfield small-section-header"><a href="#structfield.disable_turn_conflicts" class="anchor field"></a><code>disable_turn_conflicts: <a class="primitive" href="https://doc.rust-lang.org/1.54.0/std/primitive.bool.html">bool</a></code></span><div class="docblock"><p>Allow all agents to immediately proceed into an intersection, even if they’d hit another
 agent. Obviously this destroys realism of the simulation, but can be used to debug
 gridlock. Also implies freeform_policy, so vehicles ignore traffic signals.</p>
