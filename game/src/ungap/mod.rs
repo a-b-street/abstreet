@@ -34,7 +34,7 @@ pub struct ExploreMap {
     // TODO Once widgetry buttons can take custom enums, that'd be perfect here
     road_types: HashMap<String, Drawable>,
 
-    previous_zoom: f64,
+    zoom_enabled_cache_key: (bool, bool),
     map_edit_key: usize,
 }
 
@@ -62,7 +62,7 @@ impl ExploreMap {
             edits_layer: Drawable::empty(ctx),
             elevation: false,
             road_types: HashMap::new(),
-            previous_zoom: ctx.canvas.cam_zoom,
+            zoom_enabled_cache_key: zoom_enabled_cache_key(ctx),
 
             // Start with a bogus value, so we fix up the URL when changing maps
             map_edit_key: usize::MAX,
@@ -305,15 +305,15 @@ impl State<App> for ExploreMap {
             self.highlight_road_type(ctx, app, &name);
         }
 
-        if self.previous_zoom != ctx.canvas.cam_zoom {
+        if self.zoom_enabled_cache_key != zoom_enabled_cache_key(ctx) {
             // approriately disable/enable zoom buttons in case user scroll-zoomed
-            self.previous_zoom = ctx.canvas.cam_zoom;
             self.bottom_right_panel = make_bottom_right_panel(
                 ctx,
                 app,
                 self.bike_network_layer.is_some(),
                 self.elevation,
             );
+            self.zoom_enabled_cache_key = zoom_enabled_cache_key(ctx);
         }
 
         Transition::Keep
@@ -552,4 +552,8 @@ fn legend_item(ctx: &mut EventCtx, color: Color, label: &str) -> Widget {
             ControlState::Hovered,
         )
         .build_widget(ctx, label);
+}
+
+fn zoom_enabled_cache_key(ctx: &EventCtx) -> (bool, bool) {
+    (ctx.canvas.is_max_zoom(), ctx.canvas.is_min_zoom())
 }
