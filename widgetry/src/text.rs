@@ -43,6 +43,7 @@ impl Font {
 pub struct TextSpan {
     text: String,
     fg_color: Option<Color>,
+    outline_color: Option<Color>,
     size: usize,
     font: Font,
     underlined: bool,
@@ -69,6 +70,12 @@ impl TextSpan {
 
     pub fn fg_color_for_style(&self, style: &Style) -> Color {
         self.fg_color.unwrap_or(style.text_primary_color)
+    }
+
+    pub fn outlined(mut self, color: Color) -> TextSpan {
+        assert_eq!(self.outline_color, None);
+        self.outline_color = Some(color);
+        self
     }
 
     pub fn into_widget(self, ctx: &EventCtx) -> Widget {
@@ -156,6 +163,7 @@ pub fn Line<S: Into<String>>(text: S) -> TextSpan {
     TextSpan {
         text: text.into(),
         fg_color: None,
+        outline_color: None,
         size: DEFAULT_FONT_SIZE,
         font: DEFAULT_FONT,
         underlined: false,
@@ -420,7 +428,8 @@ impl Text {
                             size: span.size,
                             font: span.font,
                             fg_color: span.fg_color,
-                            underlined: false,
+                            outline_color: span.outline_color,
+                            underlined: span.underlined,
                         }],
                         svg::LOW_QUALITY,
                         assets,
@@ -464,7 +473,7 @@ fn render_line(spans: Vec<TextSpan>, tolerance: f32, assets: &Assets) -> GeomBat
         let fg_color = span.fg_color_for_style(&assets.style.borrow());
         write!(
             &mut contents,
-            r##"<tspan font-size="{}" font-family="{}" {} fill="{}" fill-opacity="{}" {}>{}</tspan>"##,
+            r##"<tspan font-size="{}" font-family="{}" {} fill="{}" fill-opacity="{}" {}{}>{}</tspan>"##,
             span.size,
             span.font.family(),
             match span.font {
@@ -478,6 +487,11 @@ fn render_line(spans: Vec<TextSpan>, tolerance: f32, assets: &Assets) -> GeomBat
                 "text-decoration=\"underline\""
             } else {
                 ""
+            },
+            if let Some(c) = span.outline_color {
+                format!("stroke=\"{}\"", c.as_hex())
+            } else {
+                String::new()
             },
             htmlescape::encode_minimal(&span.text)
         )

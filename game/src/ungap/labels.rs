@@ -63,7 +63,12 @@ impl DrawRoadLabels {
             };
             let (pt, angle) = r.center_pts.must_dist_along(r.center_pts.length() / 2.0);
 
-            let txt = Text::from(Line(name).fg(Color::WHITE)).bg(Color::BLACK);
+            let txt = Text::from(
+                Line(name)
+                    .big_heading_plain()
+                    .fg(Color::WHITE)
+                    .outlined(Color::BLACK),
+            );
             let txt_batch = txt
                 .render_autocropped(g)
                 .scale(scale_text)
