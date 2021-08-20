@@ -1,12 +1,10 @@
 mod layers;
 mod magnifying;
-mod nearby;
 mod quick_sketch;
 mod share;
 
 use std::collections::HashMap;
 
-use abstutil::prettyprint_usize;
 use geom::Distance;
 use map_gui::tools::{nice_map_name, CityPicker, ColorLegend, PopupMsg, URLManager};
 use map_gui::ID;
@@ -20,7 +18,6 @@ use widgetry::{
 
 use self::layers::{render_edits, DrawNetworkLayer};
 use self::magnifying::MagnifyingGlass;
-use self::nearby::Nearby;
 use crate::app::{App, Transition};
 use crate::edit::{LoadEdits, RoadEditor, SaveEdits};
 use crate::sandbox::gameplay::GameplayMode;
@@ -31,11 +28,9 @@ pub struct ExploreMap {
     top_panel: Panel,
     legend: Panel,
     magnifying_glass: MagnifyingGlass,
-    network_layer: DrawNetworkLayer,
+    bike_network_layer: Option<DrawNetworkLayer>,
     edits_layer: Drawable,
     elevation: bool,
-    // TODO Also cache Nearby, but recalculate it after edits
-    nearby: Option<Nearby>,
     // TODO Once widgetry buttons can take custom enums, that'd be perfect here
     road_types: HashMap<String, Drawable>,
 
@@ -60,12 +55,11 @@ impl ExploreMap {
 
         Box::new(ExploreMap {
             top_panel: Panel::empty(ctx),
-            legend: make_legend(ctx, app, false, false),
+            legend: make_legend(ctx, app, true, false),
             magnifying_glass: MagnifyingGlass::new(ctx),
-            network_layer: DrawNetworkLayer::new(),
+            bike_network_layer: Some(DrawNetworkLayer::new()),
             edits_layer: Drawable::empty(ctx),
             elevation: false,
-            nearby: None,
             road_types: HashMap::new(),
 
             // Start with a bogus value, so we fix up the URL when changing maps
@@ -75,7 +69,7 @@ impl ExploreMap {
 
     fn highlight_road_type(&mut self, ctx: &mut EventCtx, app: &App, name: &str) {
         // TODO Button enums would rock
-        if name == "elevation" || name == "things nearby" || name.starts_with("about ") {
+        if name == "bike network" || name == "elevation" || name.starts_with("about ") {
             return;
         }
         if self.road_types.contains_key(name) {
@@ -120,7 +114,9 @@ impl State<App> for ExploreMap {
         let key = app.primary.map.get_edits_change_key();
         if self.map_edit_key != key {
             self.map_edit_key = key;
-            self.network_layer.clear();
+            if let Some(ref mut n) = self.bike_network_layer {
+                n.clear();
+            }
             self.edits_layer = render_edits(ctx, app);
             self.top_panel = make_top_panel(ctx, app);
             self.road_types.clear();
@@ -250,14 +246,21 @@ impl State<App> for ExploreMap {
                     "greenway" => PopupMsg::new_state(ctx, "Stay Healthy Streets and neighborhood greenways", vec!["Residential streets with additional signage and light barriers. These are intended to be low traffic, dedicated for people walking and biking."]),
                     // TODO Add URLs
                     "about the elevation data" => PopupMsg::new_state(ctx, "About the elevation data", vec!["Biking uphill next to traffic without any dedicated space isn't fun.", "Biking downhill next to traffic, especially in the door-zone of parked cars, and especially on Seattle's bumpy roads... is downright terrifying.", "", "Note the elevation data is incorrect near bridges.", "Thanks to King County LIDAR for the data, and Eldan Goldenberg for processing it."]),
-                    "about the things nearby" => PopupMsg::new_state(ctx, "About the things nearby", vec!["Population data from ?", "Amenities from OpenStreetMap", "A 1-minute biking buffer around the bike network is shown.", "Note 1 minutes depends on direction, especially with steep hills -- this starts FROM the network."]),
                     _ => unreachable!(),
             });
             }
             Outcome::Changed(x) => match x.as_ref() {
+                "bike network" => {
+                    if self.legend.is_checked("bike network") {
+                        self.bike_network_layer = Some(DrawNetworkLayer::new());
+                    } else {
+                        self.bike_network_layer = None;
+                    }
+                }
                 "elevation" => {
                     self.elevation = self.legend.is_checked("elevation");
-                    self.legend = make_legend(ctx, app, self.elevation, self.nearby.is_some());
+                    self.legend =
+                        make_legend(ctx, app, self.bike_network_layer.is_some(), self.elevation);
                     if self.elevation {
                         let name = app.primary.map.get_name().clone();
                         if app.session.elevation_contours.key() != Some(name.clone()) {
@@ -275,23 +278,6 @@ impl State<App> for ExploreMap {
                         }
                     }
                 }
-                "things nearby" => {
-                    if self.legend.is_checked("things nearby") {
-                        let nearby = Nearby::new(ctx, app);
-                        let label = Text::from(Line(format!(
-                            "{} residents, {} shops",
-                            prettyprint_usize(nearby.population),
-                            prettyprint_usize(nearby.total_amenities)
-                        )))
-                        .into_widget(ctx);
-                        self.legend.replace(ctx, "nearby info", label);
-                        self.nearby = Some(nearby);
-                    } else {
-                        let label = Text::new().into_widget(ctx);
-                        self.legend.replace(ctx, "nearby info", label);
-                        self.nearby = None;
-                    }
-                }
                 _ => unreachable!(),
             },
             _ => {}
@@ -307,17 +293,15 @@ impl State<App> for ExploreMap {
         self.top_panel.draw(g);
         self.legend.draw(g);
         if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
-            self.network_layer.draw(g, app);
+            if let Some(ref n) = self.bike_network_layer {
+                n.draw(g, app);
+            }
 
             if self.elevation {
                 if let Some((_, ref draw)) = app.session.elevation_contours.value() {
                     g.redraw(draw);
                 }
             }
-            if let Some(ref nearby) = self.nearby {
-                g.redraw(&nearby.draw_buffer);
-            }
-
             self.magnifying_glass.draw(g, app);
 
             if let Some(name) = self.legend.currently_hovering() {
@@ -431,7 +415,7 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App) -> Panel {
     .build(ctx)
 }
 
-fn make_legend(ctx: &mut EventCtx, app: &App, elevation: bool, nearby: bool) -> Panel {
+fn make_legend(ctx: &mut EventCtx, app: &App, bike_network: bool, elevation: bool) -> Panel {
     Panel::new_builder(Widget::col(vec![
         Widget::custom_row(vec![
             // TODO Looks too close to access restrictions
@@ -440,6 +424,7 @@ fn make_legend(ctx: &mut EventCtx, app: &App, elevation: bool, nearby: bool) -> 
             legend(ctx, app.cs.unzoomed_residential, "minor street"),
         ]),
         Widget::custom_row(vec![
+            Toggle::checkbox(ctx, "bike network", Key::B, bike_network),
             legend(ctx, *layers::DEDICATED_TRAIL, "trail"),
             legend(ctx, *layers::PROTECTED_BIKE_LANE, "protected bike lane"),
             legend(ctx, *layers::PAINTED_BIKE_LANE, "painted bike lane"),
@@ -461,18 +446,7 @@ fn make_legend(ctx: &mut EventCtx, app: &App, elevation: bool, nearby: bool) -> 
                     .named("current elevation")
                     .centered_vert(),
             ]),
-            Widget::row(vec![
-                Toggle::checkbox(ctx, "things nearby", None, nearby),
-                ctx.style()
-                    .btn_plain
-                    .icon("system/assets/tools/info.svg")
-                    .build_widget(ctx, "about the things nearby")
-                    .centered_vert(),
-                Text::new()
-                    .into_widget(ctx)
-                    .named("nearby info")
-                    .centered_vert(),
-            ]),
+            // TODO Probably a collisions layer, or the alternate "steep streets"
         ])
         .evenly_spaced(),
     ]))
