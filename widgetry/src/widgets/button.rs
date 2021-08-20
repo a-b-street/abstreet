@@ -1,9 +1,10 @@
 use geom::{Distance, Polygon};
 
 use crate::{
-    text::Font, Color, ContentMode, ControlState, CornerRounding, Drawable, EdgeInsets, EventCtx,
-    GeomBatch, GfxCtx, Image, Line, MultiKey, Outcome, OutlineStyle, RewriteColor, ScreenDims,
-    ScreenPt, ScreenRectangle, Text, Widget, WidgetImpl, WidgetOutput,
+    style::DEFAULT_OUTLINE_THICKNESS, text::Font, Color, ContentMode, ControlState, CornerRounding,
+    Drawable, EdgeInsets, EventCtx, GeomBatch, GfxCtx, Image, Line, MultiKey, Outcome,
+    OutlineStyle, RewriteColor, ScreenDims, ScreenPt, ScreenRectangle, Text, Widget, WidgetImpl,
+    WidgetOutput,
 };
 
 use crate::geom::geom_batch_stack::{Axis, GeomBatchStack};
@@ -412,6 +413,18 @@ impl<'b, 'a: 'b, 'c> ButtonBuilder<'a, 'c> {
     /// `ControlState::Default` will be used.
     pub fn outline(mut self, outline: OutlineStyle, for_state: ControlState) -> Self {
         self.style_mut(for_state).outline = Some(outline);
+        self
+    }
+
+    pub fn outline_color(mut self, color: Color, for_state: ControlState) -> Self {
+        let thickness: f64 = self
+            .style(for_state)
+            .outline
+            .map(|outline| outline.0)
+            .unwrap_or(DEFAULT_OUTLINE_THICKNESS);
+
+        self.style_mut(for_state).outline = Some((thickness, color));
+
         self
     }
 

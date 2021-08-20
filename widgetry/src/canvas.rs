@@ -94,10 +94,22 @@ impl Canvas {
         }
     }
 
+    pub fn max_zoom(&self) -> f64 {
+        50.0
+    }
+
     pub fn min_zoom(&self) -> f64 {
         let percent_window = 0.8;
         (percent_window * self.window_width / self.map_dims.0)
             .min(percent_window * self.window_height / self.map_dims.1)
+    }
+
+    pub fn is_max_zoom(&self) -> bool {
+        self.cam_zoom >= self.max_zoom()
+    }
+
+    pub fn is_min_zoom(&self) -> bool {
+        self.cam_zoom <= self.min_zoom()
     }
 
     pub(crate) fn handle_event(&mut self, input: &mut UserInput) -> Option<UpdateType> {
@@ -193,13 +205,17 @@ impl Canvas {
         None
     }
 
+    pub fn center_zoom(&mut self, delta: f64) {
+        self.zoom(delta, self.center_to_screen_pt())
+    }
+
     pub fn zoom(&mut self, delta: f64, focus: ScreenPt) {
         let old_zoom = self.cam_zoom;
         // By popular request, some limits ;)
         self.cam_zoom = 1.1_f64
             .powf(old_zoom.log(1.1) + delta * (self.settings.canvas_scroll_speed as f64 / 10.0))
             .max(self.min_zoom())
-            .min(150.0);
+            .min(self.max_zoom());
 
         // Make screen_to_map of the focus point still point to the same thing after
         // zooming.
