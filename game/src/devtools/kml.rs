@@ -222,7 +222,11 @@ fn load_objects(
             // Assuming this is some huge file, conveniently convert the extract to .bin.
             // The new file will show up as untracked in git, so it'll be obvious this
             // happened.
-            abstio::write_binary(path.replace(".kml", ".bin"), &shapes);
+            // Except don't do this for Seattle collisions; that's separately transformed into a
+            // different binary format!
+            if !path.ends_with("input/us/seattle/collisions.kml") {
+                abstio::write_binary(path.replace(".kml", ".bin"), &shapes);
+            }
             shapes
         } else if path.ends_with(".csv") {
             let shapes = ExtraShapes::load_csv(path.clone(), bounds, timer).unwrap();
