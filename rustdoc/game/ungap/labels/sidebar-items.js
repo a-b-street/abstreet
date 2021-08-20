@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["simplify_name",""],["simplify_patterns",""]],"struct":[["DrawRoadLabels","Labels roads when unzoomed. Label size and frequency depends on the zoom level."]]});

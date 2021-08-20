@@ -592,6 +592,20 @@
 <span id="590">590</span>
 <span id="591">591</span>
 <span id="592">592</span>
+<span id="593">593</span>
+<span id="594">594</span>
+<span id="595">595</span>
+<span id="596">596</span>
+<span id="597">597</span>
+<span id="598">598</span>
+<span id="599">599</span>
+<span id="600">600</span>
+<span id="601">601</span>
+<span id="602">602</span>
+<span id="603">603</span>
+<span id="604">604</span>
+<span id="605">605</span>
+<span id="606">606</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections::hash_map::DefaultHasher</span>;
 <span class="kw">use</span> <span class="ident">std::fmt::Write</span>;
@@ -638,6 +652,7 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TextSpan</span> {
     <span class="ident">text</span>: <span class="ident">String</span>,
     <span class="ident">fg_color</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Color</span><span class="op">&gt;</span>,
+    <span class="ident">outline_color</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Color</span><span class="op">&gt;</span>,
     <span class="ident">size</span>: <span class="ident">usize</span>,
     <span class="ident">font</span>: <span class="ident">Font</span>,
     <span class="ident">underlined</span>: <span class="ident">bool</span>,
@@ -664,6 +679,12 @@
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fg_color_for_style</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">style</span>: <span class="kw-2">&amp;</span><span class="ident">Style</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Color</span> {
         <span class="self">self</span>.<span class="ident">fg_color</span>.<span class="ident">unwrap_or</span>(<span class="ident">style</span>.<span class="ident">text_primary_color</span>)
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">outlined</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">color</span>: <span class="ident">Color</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TextSpan</span> {
+        <span class="macro">assert_eq!</span>(<span class="self">self</span>.<span class="ident">outline_color</span>, <span class="prelude-val">None</span>);
+        <span class="self">self</span>.<span class="ident">outline_color</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">color</span>);
+        <span class="self">self</span>
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_widget</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
@@ -751,6 +772,7 @@
     <span class="ident">TextSpan</span> {
         <span class="ident">text</span>: <span class="ident">text</span>.<span class="ident">into</span>(),
         <span class="ident">fg_color</span>: <span class="prelude-val">None</span>,
+        <span class="ident">outline_color</span>: <span class="prelude-val">None</span>,
         <span class="ident">size</span>: <span class="ident">DEFAULT_FONT_SIZE</span>,
         <span class="ident">font</span>: <span class="ident">DEFAULT_FONT</span>,
         <span class="ident">underlined</span>: <span class="bool-val">false</span>,
@@ -1015,7 +1037,8 @@
                             <span class="ident">size</span>: <span class="ident">span</span>.<span class="ident">size</span>,
                             <span class="ident">font</span>: <span class="ident">span</span>.<span class="ident">font</span>,
                             <span class="ident">fg_color</span>: <span class="ident">span</span>.<span class="ident">fg_color</span>,
-                            <span class="ident">underlined</span>: <span class="bool-val">false</span>,
+                            <span class="ident">outline_color</span>: <span class="ident">span</span>.<span class="ident">outline_color</span>,
+                            <span class="ident">underlined</span>: <span class="ident">span</span>.<span class="ident">underlined</span>,
                         }],
                         <span class="ident">svg::LOW_QUALITY</span>,
                         <span class="ident">assets</span>,
@@ -1059,7 +1082,7 @@
         <span class="kw">let</span> <span class="ident">fg_color</span> <span class="op">=</span> <span class="ident">span</span>.<span class="ident">fg_color_for_style</span>(<span class="kw-2">&amp;</span><span class="ident">assets</span>.<span class="ident">style</span>.<span class="ident">borrow</span>());
         <span class="macro">write!</span>(
             <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">contents</span>,
-            <span class="string">r##&quot;&lt;tspan font-size=&quot;{}&quot; font-family=&quot;{}&quot; {} fill=&quot;{}&quot; fill-opacity=&quot;{}&quot; {}&gt;{}&lt;/tspan&gt;&quot;##</span>,
+            <span class="string">r##&quot;&lt;tspan font-size=&quot;{}&quot; font-family=&quot;{}&quot; {} fill=&quot;{}&quot; fill-opacity=&quot;{}&quot; {}{}&gt;{}&lt;/tspan&gt;&quot;##</span>,
             <span class="ident">span</span>.<span class="ident">size</span>,
             <span class="ident">span</span>.<span class="ident">font</span>.<span class="ident">family</span>(),
             <span class="kw">match</span> <span class="ident">span</span>.<span class="ident">font</span> {
@@ -1073,6 +1096,11 @@
                 <span class="string">&quot;text-decoration=\&quot;underline\&quot;&quot;</span>
             } <span class="kw">else</span> {
                 <span class="string">&quot;&quot;</span>
+            },
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">c</span>) <span class="op">=</span> <span class="ident">span</span>.<span class="ident">outline_color</span> {
+                <span class="macro">format!</span>(<span class="string">&quot;stroke=\&quot;{}\&quot;&quot;</span>, <span class="ident">c</span>.<span class="ident">as_hex</span>())
+            } <span class="kw">else</span> {
+                <span class="ident">String::new</span>()
             },
             <span class="ident">htmlescape::encode_minimal</span>(<span class="kw-2">&amp;</span><span class="ident">span</span>.<span class="ident">text</span>)
         )
