@@ -480,42 +480,14 @@
 <span id="478">478</span>
 <span id="479">479</span>
 <span id="480">480</span>
-<span id="481">481</span>
-<span id="482">482</span>
-<span id="483">483</span>
-<span id="484">484</span>
-<span id="485">485</span>
-<span id="486">486</span>
-<span id="487">487</span>
-<span id="488">488</span>
-<span id="489">489</span>
-<span id="490">490</span>
-<span id="491">491</span>
-<span id="492">492</span>
-<span id="493">493</span>
-<span id="494">494</span>
-<span id="495">495</span>
-<span id="496">496</span>
-<span id="497">497</span>
-<span id="498">498</span>
-<span id="499">499</span>
-<span id="500">500</span>
-<span id="501">501</span>
-<span id="502">502</span>
-<span id="503">503</span>
-<span id="504">504</span>
-<span id="505">505</span>
-<span id="506">506</span>
 </pre><pre class="rust">
 <span class="kw">mod</span> <span class="ident">layers</span>;
 <span class="kw">mod</span> <span class="ident">magnifying</span>;
-<span class="kw">mod</span> <span class="ident">nearby</span>;
 <span class="kw">mod</span> <span class="ident">quick_sketch</span>;
 <span class="kw">mod</span> <span class="ident">share</span>;
 
 <span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
-<span class="kw">use</span> <span class="ident">abstutil::prettyprint_usize</span>;
 <span class="kw">use</span> <span class="ident">geom::Distance</span>;
 <span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">nice_map_name</span>, <span class="ident">CityPicker</span>, <span class="ident">ColorLegend</span>, <span class="ident">PopupMsg</span>, <span class="ident">URLManager</span>};
 <span class="kw">use</span> <span class="ident">map_gui::ID</span>;
@@ -529,7 +501,6 @@
 
 <span class="kw">use</span> <span class="self">self</span><span class="ident">::layers</span>::{<span class="ident">render_edits</span>, <span class="ident">DrawNetworkLayer</span>};
 <span class="kw">use</span> <span class="self">self</span><span class="ident">::magnifying::MagnifyingGlass</span>;
-<span class="kw">use</span> <span class="self">self</span><span class="ident">::nearby::Nearby</span>;
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::edit</span>::{<span class="ident">LoadEdits</span>, <span class="ident">RoadEditor</span>, <span class="ident">SaveEdits</span>};
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::sandbox::gameplay::GameplayMode</span>;
@@ -540,11 +511,9 @@
     <span class="ident">top_panel</span>: <span class="ident">Panel</span>,
     <span class="ident">legend</span>: <span class="ident">Panel</span>,
     <span class="ident">magnifying_glass</span>: <span class="ident">MagnifyingGlass</span>,
-    <span class="ident">network_layer</span>: <span class="ident">DrawNetworkLayer</span>,
+    <span class="ident">bike_network_layer</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DrawNetworkLayer</span><span class="op">&gt;</span>,
     <span class="ident">edits_layer</span>: <span class="ident">Drawable</span>,
     <span class="ident">elevation</span>: <span class="ident">bool</span>,
-    <span class="comment">// TODO Also cache Nearby, but recalculate it after edits</span>
-    <span class="ident">nearby</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Nearby</span><span class="op">&gt;</span>,
     <span class="comment">// TODO Once widgetry buttons can take custom enums, that&#39;d be perfect here</span>
     <span class="ident">road_types</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">Drawable</span><span class="op">&gt;</span>,
 
@@ -569,12 +538,11 @@
 
         <span class="ident">Box::new</span>(<span class="ident">ExploreMap</span> {
             <span class="ident">top_panel</span>: <span class="ident">Panel::empty</span>(<span class="ident">ctx</span>),
-            <span class="ident">legend</span>: <span class="ident">make_legend</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="bool-val">false</span>, <span class="bool-val">false</span>),
+            <span class="ident">legend</span>: <span class="ident">make_legend</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>),
             <span class="ident">magnifying_glass</span>: <span class="ident">MagnifyingGlass::new</span>(<span class="ident">ctx</span>),
-            <span class="ident">network_layer</span>: <span class="ident">DrawNetworkLayer::new</span>(),
+            <span class="ident">bike_network_layer</span>: <span class="prelude-val">Some</span>(<span class="ident">DrawNetworkLayer::new</span>()),
             <span class="ident">edits_layer</span>: <span class="ident">Drawable::empty</span>(<span class="ident">ctx</span>),
             <span class="ident">elevation</span>: <span class="bool-val">false</span>,
-            <span class="ident">nearby</span>: <span class="prelude-val">None</span>,
             <span class="ident">road_types</span>: <span class="ident">HashMap::new</span>(),
 
             <span class="comment">// Start with a bogus value, so we fix up the URL when changing maps</span>
@@ -584,7 +552,7 @@
 
     <span class="kw">fn</span> <span class="ident">highlight_road_type</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) {
         <span class="comment">// TODO Button enums would rock</span>
-        <span class="kw">if</span> <span class="ident">name</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;elevation&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">name</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;things nearby&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">name</span>.<span class="ident">starts_with</span>(<span class="string">&quot;about &quot;</span>) {
+        <span class="kw">if</span> <span class="ident">name</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;bike network&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">name</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;elevation&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">name</span>.<span class="ident">starts_with</span>(<span class="string">&quot;about &quot;</span>) {
             <span class="kw">return</span>;
         }
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">road_types</span>.<span class="ident">contains_key</span>(<span class="ident">name</span>) {
@@ -629,7 +597,9 @@
         <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits_change_key</span>();
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">map_edit_key</span> <span class="op">!</span><span class="op">=</span> <span class="ident">key</span> {
             <span class="self">self</span>.<span class="ident">map_edit_key</span> <span class="op">=</span> <span class="ident">key</span>;
-            <span class="self">self</span>.<span class="ident">network_layer</span>.<span class="ident">clear</span>();
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">n</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">bike_network_layer</span> {
+                <span class="ident">n</span>.<span class="ident">clear</span>();
+            }
             <span class="self">self</span>.<span class="ident">edits_layer</span> <span class="op">=</span> <span class="ident">render_edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
             <span class="self">self</span>.<span class="ident">top_panel</span> <span class="op">=</span> <span class="ident">make_top_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
             <span class="self">self</span>.<span class="ident">road_types</span>.<span class="ident">clear</span>();
@@ -759,14 +729,21 @@
                     <span class="string">&quot;greenway&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">PopupMsg::new_state</span>(<span class="ident">ctx</span>, <span class="string">&quot;Stay Healthy Streets and neighborhood greenways&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;Residential streets with additional signage and light barriers. These are intended to be low traffic, dedicated for people walking and biking.&quot;</span>]),
                     <span class="comment">// TODO Add URLs</span>
                     <span class="string">&quot;about the elevation data&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">PopupMsg::new_state</span>(<span class="ident">ctx</span>, <span class="string">&quot;About the elevation data&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;Biking uphill next to traffic without any dedicated space isn&#39;t fun.&quot;</span>, <span class="string">&quot;Biking downhill next to traffic, especially in the door-zone of parked cars, and especially on Seattle&#39;s bumpy roads... is downright terrifying.&quot;</span>, <span class="string">&quot;&quot;</span>, <span class="string">&quot;Note the elevation data is incorrect near bridges.&quot;</span>, <span class="string">&quot;Thanks to King County LIDAR for the data, and Eldan Goldenberg for processing it.&quot;</span>]),
-                    <span class="string">&quot;about the things nearby&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">PopupMsg::new_state</span>(<span class="ident">ctx</span>, <span class="string">&quot;About the things nearby&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;Population data from ?&quot;</span>, <span class="string">&quot;Amenities from OpenStreetMap&quot;</span>, <span class="string">&quot;A 1-minute biking buffer around the bike network is shown.&quot;</span>, <span class="string">&quot;Note 1 minutes depends on direction, especially with steep hills -- this starts FROM the network.&quot;</span>]),
                     <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
             });
             }
             <span class="ident">Outcome::Changed</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
+                <span class="string">&quot;bike network&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="kw">if</span> <span class="self">self</span>.<span class="ident">legend</span>.<span class="ident">is_checked</span>(<span class="string">&quot;bike network&quot;</span>) {
+                        <span class="self">self</span>.<span class="ident">bike_network_layer</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">DrawNetworkLayer::new</span>());
+                    } <span class="kw">else</span> {
+                        <span class="self">self</span>.<span class="ident">bike_network_layer</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+                    }
+                }
                 <span class="string">&quot;elevation&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="self">self</span>.<span class="ident">elevation</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">legend</span>.<span class="ident">is_checked</span>(<span class="string">&quot;elevation&quot;</span>);
-                    <span class="self">self</span>.<span class="ident">legend</span> <span class="op">=</span> <span class="ident">make_legend</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">elevation</span>, <span class="self">self</span>.<span class="ident">nearby</span>.<span class="ident">is_some</span>());
+                    <span class="self">self</span>.<span class="ident">legend</span> <span class="op">=</span>
+                        <span class="ident">make_legend</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">bike_network_layer</span>.<span class="ident">is_some</span>(), <span class="self">self</span>.<span class="ident">elevation</span>);
                     <span class="kw">if</span> <span class="self">self</span>.<span class="ident">elevation</span> {
                         <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">clone</span>();
                         <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">elevation_contours</span>.<span class="ident">key</span>() <span class="op">!</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">name</span>.<span class="ident">clone</span>()) {
@@ -784,23 +761,6 @@
                         }
                     }
                 }
-                <span class="string">&quot;things nearby&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">if</span> <span class="self">self</span>.<span class="ident">legend</span>.<span class="ident">is_checked</span>(<span class="string">&quot;things nearby&quot;</span>) {
-                        <span class="kw">let</span> <span class="ident">nearby</span> <span class="op">=</span> <span class="ident">Nearby::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
-                        <span class="kw">let</span> <span class="ident">label</span> <span class="op">=</span> <span class="ident">Text::from</span>(<span class="ident">Line</span>(<span class="macro">format!</span>(
-                            <span class="string">&quot;{} residents, {} shops&quot;</span>,
-                            <span class="ident">prettyprint_usize</span>(<span class="ident">nearby</span>.<span class="ident">population</span>),
-                            <span class="ident">prettyprint_usize</span>(<span class="ident">nearby</span>.<span class="ident">total_amenities</span>)
-                        )))
-                        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>);
-                        <span class="self">self</span>.<span class="ident">legend</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;nearby info&quot;</span>, <span class="ident">label</span>);
-                        <span class="self">self</span>.<span class="ident">nearby</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">nearby</span>);
-                    } <span class="kw">else</span> {
-                        <span class="kw">let</span> <span class="ident">label</span> <span class="op">=</span> <span class="ident">Text::new</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>);
-                        <span class="self">self</span>.<span class="ident">legend</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;nearby info&quot;</span>, <span class="ident">label</span>);
-                        <span class="self">self</span>.<span class="ident">nearby</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-                    }
-                }
                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
             },
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
@@ -816,17 +776,15 @@
         <span class="self">self</span>.<span class="ident">top_panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
         <span class="self">self</span>.<span class="ident">legend</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
         <span class="kw">if</span> <span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span> <span class="op">&lt;</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">min_zoom_for_detail</span> {
-            <span class="self">self</span>.<span class="ident">network_layer</span>.<span class="ident">draw</span>(<span class="ident">g</span>, <span class="ident">app</span>);
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">n</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">bike_network_layer</span> {
+                <span class="ident">n</span>.<span class="ident">draw</span>(<span class="ident">g</span>, <span class="ident">app</span>);
+            }
 
             <span class="kw">if</span> <span class="self">self</span>.<span class="ident">elevation</span> {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">draw</span>)) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">elevation_contours</span>.<span class="ident">value</span>() {
                     <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="ident">draw</span>);
                 }
             }
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">nearby</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">nearby</span> {
-                <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="ident">nearby</span>.<span class="ident">draw_buffer</span>);
-            }
-
             <span class="self">self</span>.<span class="ident">magnifying_glass</span>.<span class="ident">draw</span>(<span class="ident">g</span>, <span class="ident">app</span>);
 
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">name</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">legend</span>.<span class="ident">currently_hovering</span>() {
@@ -940,7 +898,7 @@
     .<span class="ident">build</span>(<span class="ident">ctx</span>)
 }
 
-<span class="kw">fn</span> <span class="ident">make_legend</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">elevation</span>: <span class="ident">bool</span>, <span class="ident">nearby</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Panel</span> {
+<span class="kw">fn</span> <span class="ident">make_legend</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">bike_network</span>: <span class="ident">bool</span>, <span class="ident">elevation</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Panel</span> {
     <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
         <span class="ident">Widget::custom_row</span>(<span class="macro">vec!</span>[
             <span class="comment">// TODO Looks too close to access restrictions</span>
@@ -949,6 +907,7 @@
             <span class="ident">legend</span>(<span class="ident">ctx</span>, <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">unzoomed_residential</span>, <span class="string">&quot;minor street&quot;</span>),
         ]),
         <span class="ident">Widget::custom_row</span>(<span class="macro">vec!</span>[
+            <span class="ident">Toggle::checkbox</span>(<span class="ident">ctx</span>, <span class="string">&quot;bike network&quot;</span>, <span class="ident">Key::B</span>, <span class="ident">bike_network</span>),
             <span class="ident">legend</span>(<span class="ident">ctx</span>, <span class="kw-2">*</span><span class="ident">layers::DEDICATED_TRAIL</span>, <span class="string">&quot;trail&quot;</span>),
             <span class="ident">legend</span>(<span class="ident">ctx</span>, <span class="kw-2">*</span><span class="ident">layers::PROTECTED_BIKE_LANE</span>, <span class="string">&quot;protected bike lane&quot;</span>),
             <span class="ident">legend</span>(<span class="ident">ctx</span>, <span class="kw-2">*</span><span class="ident">layers::PAINTED_BIKE_LANE</span>, <span class="string">&quot;painted bike lane&quot;</span>),
@@ -970,18 +929,7 @@
                     .<span class="ident">named</span>(<span class="string">&quot;current elevation&quot;</span>)
                     .<span class="ident">centered_vert</span>(),
             ]),
-            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                <span class="ident">Toggle::checkbox</span>(<span class="ident">ctx</span>, <span class="string">&quot;things nearby&quot;</span>, <span class="prelude-val">None</span>, <span class="ident">nearby</span>),
-                <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_plain</span>
-                    .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/info.svg&quot;</span>)
-                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;about the things nearby&quot;</span>)
-                    .<span class="ident">centered_vert</span>(),
-                <span class="ident">Text::new</span>()
-                    .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
-                    .<span class="ident">named</span>(<span class="string">&quot;nearby info&quot;</span>)
-                    .<span class="ident">centered_vert</span>(),
-            ]),
+            <span class="comment">// TODO Probably a collisions layer, or the alternate &quot;steep streets&quot;</span>
         ])
         .<span class="ident">evenly_spaced</span>(),
     ]))
