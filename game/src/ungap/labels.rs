@@ -52,10 +52,11 @@ impl DrawRoadLabels {
             {
                 continue;
             }
-            let name = r.get_name(app.opts.language.as_ref());
-            if name == "???" || name.starts_with("Exit for ") {
+            let name = if let Some(x) = simplify_name(r.get_name(app.opts.language.as_ref())) {
+                x
+            } else {
                 continue;
-            }
+            };
             let (pt, angle) = r.center_pts.must_dist_along(r.center_pts.length() / 2.0);
 
             // Are we too close to some other label?
@@ -80,4 +81,40 @@ impl DrawRoadLabels {
 
         g.upload(batch)
     }
+}
+
+fn simplify_name(mut x: String) -> Option<String> {
+    // Skip unnamed roads and highway exits
+    if x == "???" || x.starts_with("Exit for ") {
+        return None;
+    }
+
+    // TODO Surely somebody has written one of these.
+
+    for (long, short) in [
+        ("Northeast", "NE"),
+        ("Northwest", "NW"),
+        ("Southeast", "SE"),
+        ("Southwest", "SW"),
+        // Order matters -- do the longer patterns first
+        ("North", "N"),
+        ("South", "S"),
+        ("East", "E"),
+        ("West", "W"),
+    ] {
+        // Only replace directions at the start or end of the string
+        x = x.replace(&format!("{} ", long), &format!("{} ", short));
+        x = x.replace(&format!(" {}", long), &format!(" {}", short));
+    }
+
+    // TODO It's unlikely something will have something like Street capitalized mid-word, but if
+    // so, we'll butcher it.
+    // Drive -> Dr feels weird
+    x = x
+        .replace("Street", "St")
+        .replace("Boulevard", "Blvd")
+        .replace("Avenue", "Ave")
+        .replace("Place", "Pl");
+
+    Some(x)
 }
