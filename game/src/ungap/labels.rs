@@ -1,7 +1,8 @@
 use std::cell::RefCell;
-use std::collections::HashMap;
 
-use geom::{Distance, Pt2D};
+use aabb_quadtree::QuadTree;
+
+use geom::Distance;
 use map_model::osm;
 use widgetry::{Color, Drawable, GeomBatch, GfxCtx, Line, Text};
 
@@ -42,14 +43,13 @@ impl DrawRoadLabels {
         let mut batch = GeomBatch::new();
         let map = &app.primary.map;
 
-        // Record the center of each label we place, per road, so we can avoid placing them too
-        // close to each other.
-        let mut labels_per_road: HashMap<String, Vec<Pt2D>> = HashMap::new();
-
         let scale_text = 1.0 + 2.0 * (1.0 - zoom);
         //println!("at zoom {}, scale labels {}", zoom, scale_text);
 
-        for r in map.all_roads() {
+        let mut non_overlapping = Vec::new();
+        let mut quadtree = QuadTree::default(map.get_bounds().as_bbox());
+
+        'ROAD: for r in map.all_roads() {
             if r.get_rank() == osm::RoadRank::Local
                 || r.is_light_rail()
                 || r.center_pts.length() < Distance::meters(30.0)
@@ -63,23 +63,28 @@ impl DrawRoadLabels {
             };
             let (pt, angle) = r.center_pts.must_dist_along(r.center_pts.length() / 2.0);
 
-            // Are we too close to some other label?
-            let other_pts = labels_per_road.entry(name.clone()).or_insert_with(Vec::new);
-            if other_pts
-                .iter()
-                .any(|other_pt| other_pt.dist_to(pt) < Distance::meters(200.0))
-            {
-                continue;
-            }
-            other_pts.push(pt);
-
             let txt = Text::from(Line(name).fg(Color::WHITE)).bg(Color::BLACK);
-            batch.append(
-                txt.render_autocropped(g)
-                    .scale(scale_text)
-                    .centered_on(pt)
-                    .rotate_around_batch_center(angle.reorient()),
-            );
+            let txt_batch = txt
+                .render_autocropped(g)
+                .scale(scale_text)
+                .centered_on(pt)
+                .rotate_around_batch_center(angle.reorient());
+
+            // Don't get too close to other labels.
+            // TODO This will probably be slower to compute -- we actually render the text before
+            // checking hitboxes. :(
+            let mut search = txt_batch.get_bounds();
+            let poly = search.get_rectangle();
+            search.add_buffer(Distance::meters(1.0));
+            for (idx, _, _) in quadtree.query(search.as_bbox()) {
+                if poly.intersects(&non_overlapping[*idx]) {
+                    continue 'ROAD;
+                }
+            }
+            quadtree.insert_with_box(non_overlapping.len(), poly.get_bounds().as_bbox());
+            non_overlapping.push(poly);
+
+            batch.append(txt_batch);
         }
 
         g.upload(batch)
