@@ -31,7 +31,7 @@ pub struct Style {
 
 pub type OutlineStyle = (f64, Color);
 
-static DEFAULT_OUTLINE_THICKNESS: f64 = 2.0;
+pub static DEFAULT_OUTLINE_THICKNESS: f64 = 2.0;
 
 // This is #EE702E, called "ab_orange_1" in Figma
 const AB_ORANGE_1: Color = Color::rgb_f(0.933, 0.439, 0.18);
@@ -44,7 +44,7 @@ impl ButtonStyle {
             fg_disabled: hex("#4C4C4C").alpha(0.3),
             bg: Color::WHITE.alpha(0.8),
             bg_hover: Color::WHITE,
-            bg_disabled: Color::grey(0.6),
+            bg_disabled: Color::grey(0.8),
             outline: (DEFAULT_OUTLINE_THICKNESS, Color::WHITE.alpha(0.6)),
         }
     }

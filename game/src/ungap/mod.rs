@@ -26,7 +26,7 @@ pub use share::PROPOSAL_HOST_URL;
 
 pub struct ExploreMap {
     top_panel: Panel,
-    legend: Panel,
+    bottom_right_panel: Panel,
     magnifying_glass: MagnifyingGlass,
     bike_network_layer: Option<DrawNetworkLayer>,
     edits_layer: Drawable,
@@ -34,6 +34,7 @@ pub struct ExploreMap {
     // TODO Once widgetry buttons can take custom enums, that'd be perfect here
     road_types: HashMap<String, Drawable>,
 
+    zoom_enabled_cache_key: (bool, bool),
     map_edit_key: usize,
 }
 
@@ -55,12 +56,13 @@ impl ExploreMap {
 
         Box::new(ExploreMap {
             top_panel: Panel::empty(ctx),
-            legend: make_legend(ctx, app, true, false),
+            bottom_right_panel: make_bottom_right_panel(ctx, app, true, false),
             magnifying_glass: MagnifyingGlass::new(ctx),
             bike_network_layer: Some(DrawNetworkLayer::new()),
             edits_layer: Drawable::empty(ctx),
             elevation: false,
             road_types: HashMap::new(),
+            zoom_enabled_cache_key: zoom_enabled_cache_key(ctx),
 
             // Start with a bogus value, so we fix up the URL when changing maps
             map_edit_key: usize::MAX,
@@ -155,7 +157,8 @@ impl State<App> for ExploreMap {
                     }
                 }
             }
-            self.legend.replace(ctx, "current elevation", label);
+            self.bottom_right_panel
+                .replace(ctx, "current elevation", label);
         }
 
         // Only when zoomed in, click to edit a road in detail
@@ -233,7 +236,7 @@ impl State<App> for ExploreMap {
             }
         }
 
-        match self.legend.event(ctx) {
+        match self.bottom_right_panel.event(ctx) {
             Outcome::Clicked(x) => {
                 return Transition::Push(match x.as_ref() {
                     // TODO Add physical picture examples
@@ -246,21 +249,37 @@ impl State<App> for ExploreMap {
                     "greenway" => PopupMsg::new_state(ctx, "Stay Healthy Streets and neighborhood greenways", vec!["Residential streets with additional signage and light barriers. These are intended to be low traffic, dedicated for people walking and biking."]),
                     // TODO Add URLs
                     "about the elevation data" => PopupMsg::new_state(ctx, "About the elevation data", vec!["Biking uphill next to traffic without any dedicated space isn't fun.", "Biking downhill next to traffic, especially in the door-zone of parked cars, and especially on Seattle's bumpy roads... is downright terrifying.", "", "Note the elevation data is incorrect near bridges.", "Thanks to King County LIDAR for the data, and Eldan Goldenberg for processing it."]),
+                   "zoom map out" => {
+                        ctx.canvas.center_zoom(-8.0);
+                        debug!("clicked zoomed out to: {}", ctx.canvas.cam_zoom);
+                        self.bottom_right_panel = make_bottom_right_panel(ctx, app, self.bike_network_layer.is_some(), self.elevation);
+                        return Transition::Keep;
+                    },
+                    "zoom map in" => {
+                        ctx.canvas.center_zoom(8.0);
+                        debug!("clicked zoomed in to: {}", ctx.canvas.cam_zoom);
+                        self.bottom_right_panel = make_bottom_right_panel(ctx, app, self.bike_network_layer.is_some(), self.elevation);
+                        return Transition::Keep;
+                    },
                     _ => unreachable!(),
             });
             }
             Outcome::Changed(x) => match x.as_ref() {
                 "bike network" => {
-                    if self.legend.is_checked("bike network") {
+                    if self.bottom_right_panel.is_checked("bike network") {
                         self.bike_network_layer = Some(DrawNetworkLayer::new());
                     } else {
                         self.bike_network_layer = None;
                     }
                 }
                 "elevation" => {
-                    self.elevation = self.legend.is_checked("elevation");
-                    self.legend =
-                        make_legend(ctx, app, self.bike_network_layer.is_some(), self.elevation);
+                    self.elevation = self.bottom_right_panel.is_checked("elevation");
+                    self.bottom_right_panel = make_bottom_right_panel(
+                        ctx,
+                        app,
+                        self.bike_network_layer.is_some(),
+                        self.elevation,
+                    );
                     if self.elevation {
                         let name = app.primary.map.get_name().clone();
                         if app.session.elevation_contours.key() != Some(name.clone()) {
@@ -282,8 +301,19 @@ impl State<App> for ExploreMap {
             },
             _ => {}
         }
-        if let Some(name) = self.legend.currently_hovering().cloned() {
+        if let Some(name) = self.bottom_right_panel.currently_hovering().cloned() {
             self.highlight_road_type(ctx, app, &name);
+        }
+
+        if self.zoom_enabled_cache_key != zoom_enabled_cache_key(ctx) {
+            // approriately disable/enable zoom buttons in case user scroll-zoomed
+            self.bottom_right_panel = make_bottom_right_panel(
+                ctx,
+                app,
+                self.bike_network_layer.is_some(),
+                self.elevation,
+            );
+            self.zoom_enabled_cache_key = zoom_enabled_cache_key(ctx);
         }
 
         Transition::Keep
@@ -291,7 +321,7 @@ impl State<App> for ExploreMap {
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.top_panel.draw(g);
-        self.legend.draw(g);
+        self.bottom_right_panel.draw(g);
         if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
             if let Some(ref n) = self.bike_network_layer {
                 n.draw(g, app);
@@ -304,7 +334,7 @@ impl State<App> for ExploreMap {
             }
             self.magnifying_glass.draw(g, app);
 
-            if let Some(name) = self.legend.currently_hovering() {
+            if let Some(name) = self.bottom_right_panel.currently_hovering() {
                 if let Some(draw) = self.road_types.get(name) {
                     g.redraw(draw);
                 }
@@ -415,20 +445,56 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App) -> Panel {
     .build(ctx)
 }
 
-fn make_legend(ctx: &mut EventCtx, app: &App, bike_network: bool, elevation: bool) -> Panel {
-    Panel::new_builder(Widget::col(vec![
+fn make_zoom_controls(ctx: &mut EventCtx) -> Widget {
+    let builder = ctx
+        .style()
+        .btn_floating
+        .btn()
+        .image_dims(30.0)
+        .outline((1.0, ctx.style().btn_plain.fg), ControlState::Default)
+        .padding(12.0);
+
+    Widget::custom_col(vec![
+        builder
+            .clone()
+            .image_path("system/assets/speed/plus.svg")
+            .corner_rounding(geom::CornerRadii {
+                top_left: 16.0,
+                top_right: 16.0,
+                bottom_right: 0.0,
+                bottom_left: 0.0,
+            })
+            .disabled(ctx.canvas.is_max_zoom())
+            .build_widget(ctx, "zoom map in"),
+        builder
+            .image_path("system/assets/speed/minus.svg")
+            .image_dims(30.0)
+            .padding(12.0)
+            .corner_rounding(geom::CornerRadii {
+                top_left: 0.0,
+                top_right: 0.0,
+                bottom_right: 16.0,
+                bottom_left: 16.0,
+            })
+            .disabled(ctx.canvas.is_min_zoom())
+            .build_widget(ctx, "zoom map out"),
+    ])
+}
+
+fn make_legend(ctx: &mut EventCtx, app: &App, bike_network: bool, elevation: bool) -> Widget {
+    Widget::col(vec![
         Widget::custom_row(vec![
             // TODO Looks too close to access restrictions
-            legend(ctx, app.cs.unzoomed_highway, "highway"),
-            legend(ctx, app.cs.unzoomed_arterial, "major street"),
-            legend(ctx, app.cs.unzoomed_residential, "minor street"),
+            legend_item(ctx, app.cs.unzoomed_highway, "highway"),
+            legend_item(ctx, app.cs.unzoomed_arterial, "major street"),
+            legend_item(ctx, app.cs.unzoomed_residential, "minor street"),
         ]),
         Widget::custom_row(vec![
             Toggle::checkbox(ctx, "bike network", Key::B, bike_network),
-            legend(ctx, *layers::DEDICATED_TRAIL, "trail"),
-            legend(ctx, *layers::PROTECTED_BIKE_LANE, "protected bike lane"),
-            legend(ctx, *layers::PAINTED_BIKE_LANE, "painted bike lane"),
-            legend(ctx, *layers::GREENWAY, "greenway"),
+            legend_item(ctx, *layers::DEDICATED_TRAIL, "trail"),
+            legend_item(ctx, *layers::PROTECTED_BIKE_LANE, "protected bike lane"),
+            legend_item(ctx, *layers::PAINTED_BIKE_LANE, "painted bike lane"),
+            legend_item(ctx, *layers::GREENWAY, "greenway"),
         ]),
         // TODO Distinguish door-zone bike lanes?
         // TODO Call out bike turning boxes?
@@ -449,12 +515,21 @@ fn make_legend(ctx: &mut EventCtx, app: &App, bike_network: bool, elevation: boo
             // TODO Probably a collisions layer, or the alternate "steep streets"
         ])
         .evenly_spaced(),
-    ]))
-    .aligned(HorizontalAlignment::Right, VerticalAlignment::Bottom)
-    .build(ctx)
+    ])
 }
 
-fn legend(ctx: &mut EventCtx, color: Color, label: &str) -> Widget {
+fn make_bottom_right_panel(ctx: &mut EventCtx, app: &App, elevation: bool, nearby: bool) -> Panel {
+    Panel::new_builder(Widget::col(vec![
+        make_zoom_controls(ctx).align_right().padding_right(16),
+        make_legend(ctx, app, elevation, nearby)
+            .padding(16)
+            .bg(ctx.style().panel_bg),
+    ]))
+    .aligned(HorizontalAlignment::Right, VerticalAlignment::Bottom)
+    .build_custom(ctx)
+}
+
+fn legend_item(ctx: &mut EventCtx, color: Color, label: &str) -> Widget {
     // TODO Height of the "trail" button is slightly too low!
     // Text with padding and a background color
     let (mut batch, hitbox) = Text::from(Line(label))
@@ -477,4 +552,8 @@ fn legend(ctx: &mut EventCtx, color: Color, label: &str) -> Widget {
             ControlState::Hovered,
         )
         .build_widget(ctx, label);
+}
+
+fn zoom_enabled_cache_key(ctx: &EventCtx) -> (bool, bool) {
+    (ctx.canvas.is_max_zoom(), ctx.canvas.is_min_zoom())
 }
