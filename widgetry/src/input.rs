@@ -75,7 +75,16 @@ impl UserInput {
         self.event == Event::LeftMouseButtonDown
     }
     pub fn left_mouse_button_released(&mut self) -> bool {
-        self.event == Event::LeftMouseButtonUp
+        matches!(self.event, Event::LeftMouseButtonUp { .. })
+    }
+
+    pub fn left_mouse_double_clicked(&mut self) -> bool {
+        matches!(
+            self.event,
+            Event::LeftMouseButtonUp {
+                is_double_click: true
+            }
+        )
     }
 
     pub fn window_lost_cursor(&self) -> bool {
