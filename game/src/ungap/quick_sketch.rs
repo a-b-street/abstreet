@@ -34,16 +34,16 @@ impl QuickSketch {
     }
 
     fn update_top_panel(&mut self, ctx: &mut EventCtx) {
-        // We're usually replacing an existing panel, except the very first time.
-        let default_buffer = if self.top_panel.has_widget("buffer type") {
-            self.top_panel.dropdown_value("buffer type")
-        } else {
-            Some(BufferType::FlexPosts)
-        };
+        let mut col = vec![self.route_sketcher.get_widget_to_describe(ctx)];
 
-        self.top_panel = Panel::new_builder(Widget::col(vec![
-            self.route_sketcher.get_widget_to_describe(ctx),
-            Widget::row(vec![
+        if self.route_sketcher.is_route_started() {
+            // We're usually replacing an existing panel, except the very first time.
+            let default_buffer = if self.top_panel.has_widget("buffer type") {
+                self.top_panel.dropdown_value("buffer type")
+            } else {
+                Some(BufferType::FlexPosts)
+            };
+            col.push(Widget::row(vec![
                 "Protect the new bike lanes?"
                     .text_widget(ctx)
                     .centered_vert(),
@@ -60,24 +60,35 @@ impl QuickSketch {
                         Choice::new("no -- just paint", None),
                     ],
                 ),
-            ]),
-            Widget::custom_row(vec![
-                ctx.style()
-                    .btn_solid_primary
-                    .text("Add bike lanes")
-                    .hotkey(Key::Enter)
-                    .disabled(!self.route_sketcher.is_route_started())
-                    .build_def(ctx),
+            ]));
+            col.push(
+                Widget::custom_row(vec![
+                    ctx.style()
+                        .btn_solid_primary
+                        .text("Add bike lanes")
+                        .hotkey(Key::Enter)
+                        .disabled(!self.route_sketcher.is_route_started())
+                        .build_def(ctx),
+                    ctx.style()
+                        .btn_solid_destructive
+                        .text("Cancel")
+                        .hotkey(Key::Escape)
+                        .build_def(ctx),
+                ])
+                .evenly_spaced(),
+            );
+        } else {
+            col.push(
                 ctx.style()
                     .btn_solid_destructive
                     .text("Cancel")
                     .hotkey(Key::Escape)
                     .build_def(ctx),
-            ])
-            .evenly_spaced(),
-        ]))
-        .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
-        .build(ctx);
+            );
+        }
+        self.top_panel = Panel::new_builder(Widget::col(col))
+            .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
+            .build(ctx);
     }
 }
 

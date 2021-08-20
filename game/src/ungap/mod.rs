@@ -226,7 +226,7 @@ impl State<App> for ExploreMap {
                 "Share proposal" => {
                     return Transition::Push(share::upload_proposal(ctx, app));
                 }
-                "Sketch a route" => {
+                "Create new bike lanes" => {
                     app.primary.current_selection = None;
                     return Transition::Push(crate::ungap::quick_sketch::QuickSketch::new_state(
                         ctx, app,
@@ -437,7 +437,7 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App) -> Panel {
         Widget::col(file_management).bg(ctx.style().section_bg),
         ctx.style()
             .btn_solid_primary
-            .text("Sketch a route")
+            .icon_text("system/assets/tools/pencil.svg", "Create new bike lanes")
             .hotkey(Key::S)
             .build_def(ctx),
     ]))

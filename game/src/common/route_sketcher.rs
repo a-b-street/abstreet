@@ -168,11 +168,15 @@ impl RouteSketcher {
                 "Click and drag to adjust the route"
             }
             .text_widget(ctx),
-            format!(
-                "{} road segments selected",
-                self.route.full_path.len().max(1) - 1
-            )
-            .text_widget(ctx),
+            if self.route.waypoints.len() > 1 {
+                format!(
+                    "{} road segments selected",
+                    self.route.full_path.len().max(1) - 1
+                )
+                .text_widget(ctx)
+            } else {
+                Widget::nothing()
+            },
         ])
     }
 
