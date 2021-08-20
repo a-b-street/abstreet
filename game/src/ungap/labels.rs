@@ -29,6 +29,7 @@ impl DrawRoadLabels {
     }
 
     fn discretize_zoom(zoom: f64) -> (f64, usize) {
+        // TODO Maybe more values between 1.0 and min_zoom_for_detail?
         if zoom >= 1.0 {
             return (1.0, 10);
         }
@@ -44,6 +45,9 @@ impl DrawRoadLabels {
         // Record the center of each label we place, per road, so we can avoid placing them too
         // close to each other.
         let mut labels_per_road: HashMap<String, Vec<Pt2D>> = HashMap::new();
+
+        let scale_text = 1.0 + 2.0 * (1.0 - zoom);
+        //println!("at zoom {}, scale labels {}", zoom, scale_text);
 
         for r in map.all_roads() {
             if r.get_rank() == osm::RoadRank::Local
@@ -72,8 +76,7 @@ impl DrawRoadLabels {
             let txt = Text::from(Line(name).fg(Color::WHITE)).bg(Color::BLACK);
             batch.append(
                 txt.render_autocropped(g)
-                    // TODO Probably based on the discretized zoom
-                    .scale(1.0)
+                    .scale(scale_text)
                     .centered_on(pt)
                     .rotate_around_batch_center(angle.reorient()),
             );
