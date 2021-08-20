@@ -102,7 +102,7 @@ pub struct SimOptions {
     /// Ignore parking data in the map and instead treat every building as if it has unlimited
     /// capacity for vehicles.
     ///
-    /// Three maps always have this hardcoded on -- the Arboretum, Poundbury, and Tempe.
+    /// Some maps always have this hardcoded on -- see the code for the list.
     pub infinite_parking: bool,
     /// Allow all agents to immediately proceed into an intersection, even if they'd hit another
     /// agent. Obviously this destroys realism of the simulation, but can be used to debug
@@ -195,6 +195,8 @@ impl Sim {
         // https://github.com/a-b-street/abstreet/issues/688 for discussion of how to set this
         // properly.
         if map.get_name() == &MapName::seattle("arboretum")
+            || map.get_name() == &MapName::seattle("arboretum_north")
+            || map.get_name() == &MapName::seattle("arboretum_south")
             || map.get_name() == &MapName::new("gb", "poundbury", "center")
             || map.get_name() == &MapName::new("us", "phoenix", "tempe")
         {

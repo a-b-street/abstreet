@@ -204,6 +204,8 @@ pub fn nice_map_name(name: &MapName) -> &str {
             ("providence", "downtown") => "Providence",
             ("san_francisco", "downtown") => "San Francisco",
             ("seattle", "arboretum") => "Arboretum",
+            ("seattle", "aurora_north") => "Aurora Ave (north)",
+            ("seattle", "aurora_south") => "Aurora Ave (south)",
             ("seattle", "ballard") => "Ballard",
             ("seattle", "downtown") => "Downtown Seattle",
             ("seattle", "greenlake") => "Green Lake",
