@@ -1,3 +1,4 @@
+mod labels;
 mod layers;
 mod magnifying;
 mod quick_sketch;
@@ -16,6 +17,7 @@ use widgetry::{
     VerticalAlignment, Widget,
 };
 
+use self::labels::DrawRoadLabels;
 use self::layers::{render_edits, DrawNetworkLayer};
 use self::magnifying::MagnifyingGlass;
 use crate::app::{App, Transition};
@@ -29,6 +31,7 @@ pub struct ExploreMap {
     bottom_right_panel: Panel,
     magnifying_glass: MagnifyingGlass,
     bike_network_layer: Option<DrawNetworkLayer>,
+    labels: DrawRoadLabels,
     edits_layer: Drawable,
     elevation: bool,
     // TODO Once widgetry buttons can take custom enums, that'd be perfect here
@@ -59,6 +62,7 @@ impl ExploreMap {
             bottom_right_panel: make_bottom_right_panel(ctx, app, true, false),
             magnifying_glass: MagnifyingGlass::new(ctx),
             bike_network_layer: Some(DrawNetworkLayer::new()),
+            labels: DrawRoadLabels::new(),
             edits_layer: Drawable::empty(ctx),
             elevation: false,
             road_types: HashMap::new(),
@@ -326,6 +330,8 @@ impl State<App> for ExploreMap {
             if let Some(ref n) = self.bike_network_layer {
                 n.draw(g, app);
             }
+            // TODO Might be useful to toggle these off
+            self.labels.draw(g, app);
 
             if self.elevation {
                 if let Some((_, ref draw)) = app.session.elevation_contours.value() {
