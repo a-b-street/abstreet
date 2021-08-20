@@ -31,7 +31,7 @@ pub struct ExploreMap {
     bottom_right_panel: Panel,
     magnifying_glass: MagnifyingGlass,
     bike_network_layer: Option<DrawNetworkLayer>,
-    labels: DrawRoadLabels,
+    labels: Option<DrawRoadLabels>,
     edits_layer: Drawable,
     elevation: bool,
     // TODO Once widgetry buttons can take custom enums, that'd be perfect here
@@ -59,10 +59,10 @@ impl ExploreMap {
 
         Box::new(ExploreMap {
             top_panel: Panel::empty(ctx),
-            bottom_right_panel: make_bottom_right_panel(ctx, app, true, false),
+            bottom_right_panel: make_bottom_right_panel(ctx, app, true, true, false),
             magnifying_glass: MagnifyingGlass::new(ctx),
             bike_network_layer: Some(DrawNetworkLayer::new()),
-            labels: DrawRoadLabels::new(),
+            labels: Some(DrawRoadLabels::new()),
             edits_layer: Drawable::empty(ctx),
             elevation: false,
             road_types: HashMap::new(),
@@ -75,7 +75,11 @@ impl ExploreMap {
 
     fn highlight_road_type(&mut self, ctx: &mut EventCtx, app: &App, name: &str) {
         // TODO Button enums would rock
-        if name == "bike network" || name == "elevation" || name.starts_with("about ") {
+        if name == "bike network"
+            || name == "road labels"
+            || name == "elevation"
+            || name.starts_with("about ")
+        {
             return;
         }
         if self.road_types.contains_key(name) {
@@ -276,12 +280,20 @@ impl State<App> for ExploreMap {
                         self.bike_network_layer = None;
                     }
                 }
+                "road labels" => {
+                    if self.legend.is_checked("road labels") {
+                        self.labels = Some(DrawRoadLabels::new());
+                    } else {
+                        self.labels = None;
+                    }
+                }
                 "elevation" => {
                     self.elevation = self.bottom_right_panel.is_checked("elevation");
                     self.bottom_right_panel = make_bottom_right_panel(
                         ctx,
                         app,
                         self.bike_network_layer.is_some(),
+                        self.labels.is_some(),
                         self.elevation,
                     );
                     if self.elevation {
@@ -331,7 +343,9 @@ impl State<App> for ExploreMap {
                 n.draw(g, app);
             }
             // TODO Might be useful to toggle these off
-            self.labels.draw(g, app);
+            if let Some(ref l) = self.labels {
+                l.draw(g, app);
+            }
 
             if self.elevation {
                 if let Some((_, ref draw)) = app.session.elevation_contours.value() {
@@ -487,7 +501,7 @@ fn make_zoom_controls(ctx: &mut EventCtx) -> Widget {
     ])
 }
 
-fn make_legend(ctx: &mut EventCtx, app: &App, bike_network: bool, elevation: bool) -> Widget {
+fn make_legend(ctx: &mut EventCtx, app: &App, bike_network: bool, labels: bool, elevation: bool) -> Widget {
     Widget::col(vec![
         Widget::custom_row(vec![
             // TODO Looks too close to access restrictions
@@ -505,6 +519,7 @@ fn make_legend(ctx: &mut EventCtx, app: &App, bike_network: bool, elevation: boo
         // TODO Distinguish door-zone bike lanes?
         // TODO Call out bike turning boxes?
         // TODO Call out bike signals?
+        Toggle::checkbox(ctx, "road labels", None, labels),
         Widget::custom_row(vec![
             Widget::row(vec![
                 Toggle::checkbox(ctx, "elevation", Key::E, elevation),

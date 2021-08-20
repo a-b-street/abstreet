@@ -75,7 +75,7 @@ impl DrawRoadLabels {
                     // TODO Probably based on the discretized zoom
                     .scale(1.0)
                     .centered_on(pt)
-                    .rotate(angle.reorient()),
+                    .rotate_around_batch_center(angle.reorient()),
             );
         }
 
