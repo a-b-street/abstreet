@@ -260,13 +260,13 @@ impl State<App> for ExploreMap {
                    "zoom map out" => {
                         ctx.canvas.center_zoom(-8.0);
                         debug!("clicked zoomed out to: {}", ctx.canvas.cam_zoom);
-                        self.bottom_right_panel = make_bottom_right_panel(ctx, app, self.bike_network_layer.is_some(), self.elevation);
+                        self.bottom_right_panel = make_bottom_right_panel(ctx, app, self.bike_network_layer.is_some(), self.labels.is_some(), self.elevation);
                         return Transition::Keep;
                     },
                     "zoom map in" => {
                         ctx.canvas.center_zoom(8.0);
                         debug!("clicked zoomed in to: {}", ctx.canvas.cam_zoom);
-                        self.bottom_right_panel = make_bottom_right_panel(ctx, app, self.bike_network_layer.is_some(), self.elevation);
+                        self.bottom_right_panel = make_bottom_right_panel(ctx, app, self.bike_network_layer.is_some(), self.labels.is_some(), self.elevation);
                         return Transition::Keep;
                     },
                     _ => unreachable!(),
@@ -281,7 +281,7 @@ impl State<App> for ExploreMap {
                     }
                 }
                 "road labels" => {
-                    if self.legend.is_checked("road labels") {
+                    if self.bottom_right_panel.is_checked("road labels") {
                         self.labels = Some(DrawRoadLabels::new());
                     } else {
                         self.labels = None;
@@ -327,6 +327,7 @@ impl State<App> for ExploreMap {
                 ctx,
                 app,
                 self.bike_network_layer.is_some(),
+                self.labels.is_some(),
                 self.elevation,
             );
             self.zoom_enabled_cache_key = zoom_enabled_cache_key(ctx);
@@ -501,7 +502,13 @@ fn make_zoom_controls(ctx: &mut EventCtx) -> Widget {
     ])
 }
 
-fn make_legend(ctx: &mut EventCtx, app: &App, bike_network: bool, labels: bool, elevation: bool) -> Widget {
+fn make_legend(
+    ctx: &mut EventCtx,
+    app: &App,
+    bike_network: bool,
+    labels: bool,
+    elevation: bool,
+) -> Widget {
     Widget::col(vec![
         Widget::custom_row(vec![
             // TODO Looks too close to access restrictions
@@ -539,10 +546,16 @@ fn make_legend(ctx: &mut EventCtx, app: &App, bike_network: bool, labels: bool, 
     ])
 }
 
-fn make_bottom_right_panel(ctx: &mut EventCtx, app: &App, elevation: bool, nearby: bool) -> Panel {
+fn make_bottom_right_panel(
+    ctx: &mut EventCtx,
+    app: &App,
+    bike_network: bool,
+    labels: bool,
+    elevation: bool,
+) -> Panel {
     Panel::new_builder(Widget::col(vec![
         make_zoom_controls(ctx).align_right().padding_right(16),
-        make_legend(ctx, app, elevation, nearby)
+        make_legend(ctx, app, bike_network, labels, elevation)
             .padding(16)
             .bg(ctx.style().panel_bg),
     ]))

@@ -1,6 +1,8 @@
 use std::cell::RefCell;
 
 use aabb_quadtree::QuadTree;
+use lazy_static::lazy_static;
+use regex::Regex;
 
 use geom::Distance;
 use map_model::osm;
@@ -96,13 +98,27 @@ impl DrawRoadLabels {
     }
 }
 
+// TODO Surely somebody has written one of these.
 fn simplify_name(mut x: String) -> Option<String> {
     // Skip unnamed roads and highway exits
     if x == "???" || x.starts_with("Exit for ") {
         return None;
     }
 
-    // TODO Surely somebody has written one of these.
+    lazy_static! {
+        static ref SIMPLIFY_PATTERNS: Vec<(Regex, String)> = simplify_patterns();
+    }
+
+    for (search, replace_with) in SIMPLIFY_PATTERNS.iter() {
+        // TODO The string copies are probably avoidable...
+        x = search.replace(&x, replace_with).to_string();
+    }
+
+    Some(x)
+}
+
+fn simplify_patterns() -> Vec<(Regex, String)> {
+    let mut replace = Vec::new();
 
     for (long, short) in [
         ("Northeast", "NE"),
@@ -116,18 +132,51 @@ fn simplify_name(mut x: String) -> Option<String> {
         ("West", "W"),
     ] {
         // Only replace directions at the start or end of the string
-        x = x.replace(&format!("{} ", long), &format!("{} ", short));
-        x = x.replace(&format!(" {}", long), &format!(" {}", short));
+        replace.push((
+            Regex::new(&format!("^{}", long)).unwrap(),
+            short.to_string(),
+        ));
+        replace.push((
+            Regex::new(&format!("{}$", long)).unwrap(),
+            short.to_string(),
+        ));
     }
 
-    // TODO It's unlikely something will have something like Street capitalized mid-word, but if
-    // so, we'll butcher it.
-    // Drive -> Dr feels weird
-    x = x
-        .replace("Street", "St")
-        .replace("Boulevard", "Blvd")
-        .replace("Avenue", "Ave")
-        .replace("Place", "Pl");
+    for (long, short) in [
+        ("Street", "St"),
+        ("Boulevard", "Blvd"),
+        ("Avenue", "Ave"),
+        ("Place", "Pl"),
+    ] {
+        // At the end is reasonable
+        replace.push((
+            Regex::new(&format!("{}$", long)).unwrap(),
+            short.to_string(),
+        ));
+        // In the middle, surrounded by spaces
+        replace.push((
+            Regex::new(&format!(" {} ", long)).unwrap(),
+            format!(" {} ", short),
+        ));
+    }
 
-    Some(x)
+    replace
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_simplify_name() {
+        for (input, want) in [
+            ("Northeast Northgate Way", "NE Northgate Way"),
+            ("South 42nd Street", "S 42nd St"),
+        ] {
+            let got = simplify_name(input.to_string()).unwrap();
+            if got != want {
+                panic!("simplify_name({}) = {}; expected {}", input, got, want);
+            }
+        }
+    }
 }
