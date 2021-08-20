@@ -1,6 +1,7 @@
 use std::cell::RefCell;
+use std::collections::HashMap;
 
-use geom::Distance;
+use geom::{Distance, Pt2D};
 use map_model::osm;
 use widgetry::{Color, Drawable, GeomBatch, GfxCtx, Line, Text};
 
@@ -40,6 +41,10 @@ impl DrawRoadLabels {
         let mut batch = GeomBatch::new();
         let map = &app.primary.map;
 
+        // Record the center of each label we place, per road, so we can avoid placing them too
+        // close to each other.
+        let mut labels_per_road: HashMap<String, Vec<Pt2D>> = HashMap::new();
+
         for r in map.all_roads() {
             if r.get_rank() == osm::RoadRank::Local
                 || r.is_light_rail()
@@ -48,12 +53,22 @@ impl DrawRoadLabels {
                 continue;
             }
             let name = r.get_name(app.opts.language.as_ref());
-            if name == "???" {
+            if name == "???" || name.starts_with("Exit for ") {
                 continue;
             }
+            let (pt, angle) = r.center_pts.must_dist_along(r.center_pts.length() / 2.0);
+
+            // Are we too close to some other label?
+            let other_pts = labels_per_road.entry(name.clone()).or_insert_with(Vec::new);
+            if other_pts
+                .iter()
+                .any(|other_pt| other_pt.dist_to(pt) < Distance::meters(200.0))
+            {
+                continue;
+            }
+            other_pts.push(pt);
 
             let txt = Text::from(Line(name).fg(Color::WHITE)).bg(Color::BLACK);
-            let (pt, angle) = r.center_pts.must_dist_along(r.center_pts.length() / 2.0);
             batch.append(
                 txt.render_autocropped(g)
                     // TODO Probably based on the discretized zoom
