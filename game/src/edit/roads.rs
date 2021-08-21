@@ -25,6 +25,10 @@ pub struct RoadEditor {
     highlight_selection: (Option<LaneID>, Drawable),
     hovering_on_lane: Option<LaneID>,
 
+    // Immediately after modifying the map but before the mouse moves, we should recalculate
+    // mouseover
+    recalculate_mouseover: bool,
+
     // Undo/redo management
     num_edit_cmds_originally: usize,
     redo_stack: Vec<EditCmd>,
@@ -60,6 +64,8 @@ impl RoadEditor {
             main_panel: Panel::empty(ctx),
             highlight_selection: (None, Drawable::empty(ctx)),
             hovering_on_lane: None,
+
+            recalculate_mouseover: false,
 
             num_edit_cmds_originally: app.primary.map.get_edits().commands.len(),
             redo_stack: Vec::new(),
@@ -115,6 +121,7 @@ impl RoadEditor {
         };
 
         self.recalc_all_panels(ctx, app);
+        self.recalculate_mouseover = true;
 
         Transition::Keep
     }
@@ -332,7 +339,8 @@ impl State<App> for RoadEditor {
 
         let prev_hovering_on_lane = self.hovering_on_lane.take();
         if ctx.canvas.get_cursor_in_map_space().is_some() {
-            if ctx.redo_mouseover() {
+            if ctx.redo_mouseover() || self.recalculate_mouseover {
+                self.recalculate_mouseover = false;
                 app.recalculate_current_selection(ctx);
                 if match app.primary.current_selection {
                     Some(ID::Lane(l)) => !can_edit_lane(app, l),
