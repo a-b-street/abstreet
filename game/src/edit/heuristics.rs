@@ -112,3 +112,64 @@ fn determine_lane_dir(road: &mut EditRoad, lt: LaneType, minority: bool) -> Dire
         Direction::Fwd
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_add_new_lane() {
+        let mut ok = true;
+        for (description, input_lt, input_dir, new_lt, expected_lt, expected_dir) in vec![
+            (
+                "Two-way with parking, adding bike lane to first side",
+                "spddps",
+                "vvv^^^",
+                LaneType::Biking,
+                // TODO Current heuristics put it between parking and sidewalk, but this isn't
+                // right
+                "spddpbs",
+                "vvv^^^^",
+            ),
+            (
+                "Two-way with parking, adding bike lane to second side",
+                "spddpbs",
+                "vvv^^^^",
+                LaneType::Biking,
+                // TODO Current heuristics put it between parking and sidewalk, but this isn't
+                // right
+                "sbpddpbs",
+                "vvvv^^^^",
+            ),
+            (
+                "Add driving lane, balanced numbers",
+                "sdds",
+                "vv^^",
+                LaneType::Driving,
+                "sddds",
+                "vv^^^",
+            ),
+            (
+                "Add driving lane, imbalanced",
+                "sddds",
+                "vv^^^",
+                LaneType::Driving,
+                "sdddds",
+                "vvv^^^",
+            ),
+        ] {
+            let input = EditRoad::create_for_test(input_lt, input_dir);
+            let mut actual_output = input.clone();
+            add_new_lane(&mut actual_output, new_lt, &Tags::empty());
+            actual_output.check_lanes_ltr(
+                description.to_string(),
+                input_lt,
+                input_dir,
+                expected_lt,
+                expected_dir,
+                &mut ok,
+            );
+        }
+        assert!(ok);
+    }
+}
