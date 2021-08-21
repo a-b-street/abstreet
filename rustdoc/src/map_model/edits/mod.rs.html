@@ -938,6 +938,64 @@
 <span id="936">936</span>
 <span id="937">937</span>
 <span id="938">938</span>
+<span id="939">939</span>
+<span id="940">940</span>
+<span id="941">941</span>
+<span id="942">942</span>
+<span id="943">943</span>
+<span id="944">944</span>
+<span id="945">945</span>
+<span id="946">946</span>
+<span id="947">947</span>
+<span id="948">948</span>
+<span id="949">949</span>
+<span id="950">950</span>
+<span id="951">951</span>
+<span id="952">952</span>
+<span id="953">953</span>
+<span id="954">954</span>
+<span id="955">955</span>
+<span id="956">956</span>
+<span id="957">957</span>
+<span id="958">958</span>
+<span id="959">959</span>
+<span id="960">960</span>
+<span id="961">961</span>
+<span id="962">962</span>
+<span id="963">963</span>
+<span id="964">964</span>
+<span id="965">965</span>
+<span id="966">966</span>
+<span id="967">967</span>
+<span id="968">968</span>
+<span id="969">969</span>
+<span id="970">970</span>
+<span id="971">971</span>
+<span id="972">972</span>
+<span id="973">973</span>
+<span id="974">974</span>
+<span id="975">975</span>
+<span id="976">976</span>
+<span id="977">977</span>
+<span id="978">978</span>
+<span id="979">979</span>
+<span id="980">980</span>
+<span id="981">981</span>
+<span id="982">982</span>
+<span id="983">983</span>
+<span id="984">984</span>
+<span id="985">985</span>
+<span id="986">986</span>
+<span id="987">987</span>
+<span id="988">988</span>
+<span id="989">989</span>
+<span id="990">990</span>
+<span id="991">991</span>
+<span id="992">992</span>
+<span id="993">993</span>
+<span id="994">994</span>
+<span id="995">995</span>
+<span id="996">996</span>
 </pre><pre class="rust">
 <span class="doccomment">//! Once a Map exists, the player can edit it in the UI (producing `MapEdits` in-memory), then save</span>
 <span class="doccomment">//! the changes to a file (as `PermanentMapEdits`). See</span>
@@ -956,8 +1014,8 @@
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::make</span>::{<span class="ident">match_points_to_lanes</span>, <span class="ident">snap_driveway</span>, <span class="ident">trim_path</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">connectivity</span>, <span class="ident">AccessRestrictions</span>, <span class="ident">BuildingID</span>, <span class="ident">BusRouteID</span>, <span class="ident">ControlStopSign</span>,
-    <span class="ident">ControlTrafficSignal</span>, <span class="ident">IntersectionID</span>, <span class="ident">IntersectionType</span>, <span class="ident">LaneID</span>, <span class="ident">LaneSpec</span>, <span class="ident">Map</span>, <span class="ident">MapConfig</span>,
-    <span class="ident">ParkingLotID</span>, <span class="ident">PathConstraints</span>, <span class="ident">Pathfinder</span>, <span class="ident">Road</span>, <span class="ident">RoadID</span>, <span class="ident">TurnID</span>, <span class="ident">Zone</span>,
+    <span class="ident">ControlTrafficSignal</span>, <span class="ident">Direction</span>, <span class="ident">IntersectionID</span>, <span class="ident">IntersectionType</span>, <span class="ident">LaneID</span>, <span class="ident">LaneSpec</span>, <span class="ident">LaneType</span>,
+    <span class="ident">Map</span>, <span class="ident">MapConfig</span>, <span class="ident">ParkingLotID</span>, <span class="ident">PathConstraints</span>, <span class="ident">Pathfinder</span>, <span class="ident">Road</span>, <span class="ident">RoadID</span>, <span class="ident">TurnID</span>, <span class="ident">Zone</span>,
 };
 
 <span class="kw">mod</span> <span class="ident">compat</span>;
@@ -1052,6 +1110,64 @@
             <span class="ident">changes</span>.<span class="ident">push</span>(<span class="string">&quot;access restrictions&quot;</span>.<span class="ident">to_string</span>());
         }
         <span class="ident">changes</span>
+    }
+
+    <span class="doccomment">/// Transforms a string describing lane types and directions, like &quot;spddps&quot; and &quot;vv^^^^^&quot;, into</span>
+    <span class="doccomment">/// an EditRoad. Useful for unit tests.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">create_for_test</span>(<span class="ident">input_lt</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">input_dir</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">EditRoad</span> {
+        <span class="macro">assert_eq!</span>(<span class="ident">input_lt</span>.<span class="ident">len</span>(), <span class="ident">input_dir</span>.<span class="ident">len</span>());
+        <span class="ident">EditRoad</span> {
+            <span class="ident">lanes_ltr</span>: <span class="ident">input_lt</span>
+                .<span class="ident">chars</span>()
+                .<span class="ident">zip</span>(<span class="ident">input_dir</span>.<span class="ident">chars</span>())
+                .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">lt</span>, <span class="ident">dir</span>)<span class="op">|</span> <span class="ident">LaneSpec</span> {
+                    <span class="ident">lt</span>: <span class="ident">LaneType::from_char</span>(<span class="ident">lt</span>),
+                    <span class="ident">dir</span>: <span class="kw">if</span> <span class="ident">dir</span> <span class="op">=</span><span class="op">=</span> <span class="string">&#39;^&#39;</span> {
+                        <span class="ident">Direction::Fwd</span>
+                    } <span class="kw">else</span> {
+                        <span class="ident">Direction::Back</span>
+                    },
+                    <span class="comment">// Dummy</span>
+                    <span class="ident">width</span>: <span class="ident">Distance::ZERO</span>,
+                })
+                .<span class="ident">collect</span>(),
+            <span class="ident">speed_limit</span>: <span class="ident">Speed::ZERO</span>,
+            <span class="ident">access_restrictions</span>: <span class="ident">AccessRestrictions::new</span>(),
+        }
+    }
+
+    <span class="doccomment">/// This is meant for table-driven unit tests. Call this on the transformed / output lanes. If</span>
+    <span class="doccomment">/// the lanes don&#39;t match, `ok` will be set to false and appropriate errors will be printed.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">check_lanes_ltr</span>(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        <span class="ident">description</span>: <span class="ident">String</span>,
+        <span class="ident">input_lt</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
+        <span class="ident">input_dir</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
+        <span class="ident">expected_lt</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
+        <span class="ident">expected_dir</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
+        <span class="ident">ok</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">bool</span>,
+    ) {
+        <span class="kw">let</span> <span class="ident">actual_lt</span>: <span class="ident">String</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">lanes_ltr</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">lt</span>.<span class="ident">to_char</span>()).<span class="ident">collect</span>();
+        <span class="kw">let</span> <span class="ident">actual_dir</span>: <span class="ident">String</span> <span class="op">=</span> <span class="self">self</span>
+            .<span class="ident">lanes_ltr</span>
+            .<span class="ident">iter</span>()
+            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="kw">if</span> <span class="ident">s</span>.<span class="ident">dir</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Direction::Fwd</span> { <span class="string">&#39;^&#39;</span> } <span class="kw">else</span> { <span class="string">&#39;v&#39;</span> })
+            .<span class="ident">collect</span>();
+
+        <span class="kw">if</span> <span class="ident">actual_lt</span> <span class="op">!</span><span class="op">=</span> <span class="ident">expected_lt</span> <span class="op">|</span><span class="op">|</span> <span class="ident">actual_dir</span> <span class="op">!</span><span class="op">=</span> <span class="ident">expected_dir</span> {
+            <span class="kw-2">*</span><span class="ident">ok</span> <span class="op">=</span> <span class="bool-val">false</span>;
+            <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">description</span>);
+            <span class="macro">println!</span>(<span class="string">&quot;Input:&quot;</span>);
+            <span class="macro">println!</span>(<span class="string">&quot;    {}&quot;</span>, <span class="ident">input_lt</span>);
+            <span class="macro">println!</span>(<span class="string">&quot;    {}&quot;</span>, <span class="ident">input_dir</span>);
+            <span class="macro">println!</span>(<span class="string">&quot;Got:&quot;</span>);
+            <span class="macro">println!</span>(<span class="string">&quot;    {}&quot;</span>, <span class="ident">actual_lt</span>);
+            <span class="macro">println!</span>(<span class="string">&quot;    {}&quot;</span>, <span class="ident">actual_dir</span>);
+            <span class="macro">println!</span>(<span class="string">&quot;Expected:&quot;</span>);
+            <span class="macro">println!</span>(<span class="string">&quot;    {}&quot;</span>, <span class="ident">expected_lt</span>);
+            <span class="macro">println!</span>(<span class="string">&quot;    {}&quot;</span>, <span class="ident">expected_dir</span>);
+            <span class="macro">println!</span>();
+        }
     }
 }
 

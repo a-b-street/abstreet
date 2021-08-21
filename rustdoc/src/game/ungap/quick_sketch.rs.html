@@ -307,42 +307,6 @@
 <span id="305">305</span>
 <span id="306">306</span>
 <span id="307">307</span>
-<span id="308">308</span>
-<span id="309">309</span>
-<span id="310">310</span>
-<span id="311">311</span>
-<span id="312">312</span>
-<span id="313">313</span>
-<span id="314">314</span>
-<span id="315">315</span>
-<span id="316">316</span>
-<span id="317">317</span>
-<span id="318">318</span>
-<span id="319">319</span>
-<span id="320">320</span>
-<span id="321">321</span>
-<span id="322">322</span>
-<span id="323">323</span>
-<span id="324">324</span>
-<span id="325">325</span>
-<span id="326">326</span>
-<span id="327">327</span>
-<span id="328">328</span>
-<span id="329">329</span>
-<span id="330">330</span>
-<span id="331">331</span>
-<span id="332">332</span>
-<span id="333">333</span>
-<span id="334">334</span>
-<span id="335">335</span>
-<span id="336">336</span>
-<span id="337">337</span>
-<span id="338">338</span>
-<span id="339">339</span>
-<span id="340">340</span>
-<span id="341">341</span>
-<span id="342">342</span>
-<span id="343">343</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">abstutil::Tags</span>;
 <span class="kw">use</span> <span class="ident">map_gui::tools::PopupMsg</span>;
@@ -584,8 +548,6 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span> {
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Speed</span>};
-    <span class="kw">use</span> <span class="ident">map_model::AccessRestrictions</span>;
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_maybe_add_bike_lanes</span>() {
@@ -631,24 +593,7 @@
                 <span class="string">&quot;vv^^^^^&quot;</span>,
             ),
         ] {
-            <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="ident">EditRoad</span> {
-                <span class="ident">lanes_ltr</span>: <span class="ident">input_lt</span>
-                    .<span class="ident">chars</span>()
-                    .<span class="ident">zip</span>(<span class="ident">input_dir</span>.<span class="ident">chars</span>())
-                    .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">lt</span>, <span class="ident">dir</span>)<span class="op">|</span> <span class="ident">LaneSpec</span> {
-                        <span class="ident">lt</span>: <span class="ident">LaneType::from_char</span>(<span class="ident">lt</span>),
-                        <span class="ident">dir</span>: <span class="kw">if</span> <span class="ident">dir</span> <span class="op">=</span><span class="op">=</span> <span class="string">&#39;^&#39;</span> {
-                            <span class="ident">Direction::Fwd</span>
-                        } <span class="kw">else</span> {
-                            <span class="ident">Direction::Back</span>
-                        },
-                        <span class="comment">// Dummy</span>
-                        <span class="ident">width</span>: <span class="ident">Distance::ZERO</span>,
-                    })
-                    .<span class="ident">collect</span>(),
-                <span class="ident">speed_limit</span>: <span class="ident">Speed::ZERO</span>,
-                <span class="ident">access_restrictions</span>: <span class="ident">AccessRestrictions::new</span>(),
-            };
+            <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="ident">EditRoad::create_for_test</span>(<span class="ident">input_lt</span>, <span class="ident">input_dir</span>);
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">actual_output</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">clone</span>();
             <span class="ident">maybe_add_bike_lanes</span>(
                 <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">actual_output</span>,
@@ -658,31 +603,14 @@
                     <span class="prelude-val">None</span>
                 },
             );
-            <span class="kw">let</span> <span class="ident">actual_lt</span>: <span class="ident">String</span> <span class="op">=</span> <span class="ident">actual_output</span>
-                .<span class="ident">lanes_ltr</span>
-                .<span class="ident">iter</span>()
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">lt</span>.<span class="ident">to_char</span>())
-                .<span class="ident">collect</span>();
-            <span class="kw">let</span> <span class="ident">actual_dir</span>: <span class="ident">String</span> <span class="op">=</span> <span class="ident">actual_output</span>
-                .<span class="ident">lanes_ltr</span>
-                .<span class="ident">iter</span>()
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="kw">if</span> <span class="ident">s</span>.<span class="ident">dir</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Direction::Fwd</span> { <span class="string">&#39;^&#39;</span> } <span class="kw">else</span> { <span class="string">&#39;v&#39;</span> })
-                .<span class="ident">collect</span>();
-
-            <span class="kw">if</span> <span class="ident">actual_lt</span> <span class="op">!</span><span class="op">=</span> <span class="ident">expected_lt</span> <span class="op">|</span><span class="op">|</span> <span class="ident">actual_dir</span> <span class="op">!</span><span class="op">=</span> <span class="ident">expected_dir</span> {
-                <span class="ident">ok</span> <span class="op">=</span> <span class="bool-val">false</span>;
-                <span class="macro">println!</span>(<span class="string">&quot;{} (example from {})&quot;</span>, <span class="ident">description</span>, <span class="ident">url</span>);
-                <span class="macro">println!</span>(<span class="string">&quot;Input:&quot;</span>);
-                <span class="macro">println!</span>(<span class="string">&quot;    {}&quot;</span>, <span class="ident">input_lt</span>);
-                <span class="macro">println!</span>(<span class="string">&quot;    {}&quot;</span>, <span class="ident">input_dir</span>);
-                <span class="macro">println!</span>(<span class="string">&quot;Got:&quot;</span>);
-                <span class="macro">println!</span>(<span class="string">&quot;    {}&quot;</span>, <span class="ident">actual_lt</span>);
-                <span class="macro">println!</span>(<span class="string">&quot;    {}&quot;</span>, <span class="ident">actual_dir</span>);
-                <span class="macro">println!</span>(<span class="string">&quot;Expected:&quot;</span>);
-                <span class="macro">println!</span>(<span class="string">&quot;    {}&quot;</span>, <span class="ident">expected_lt</span>);
-                <span class="macro">println!</span>(<span class="string">&quot;    {}&quot;</span>, <span class="ident">expected_dir</span>);
-                <span class="macro">println!</span>();
-            }
+            <span class="ident">actual_output</span>.<span class="ident">check_lanes_ltr</span>(
+                <span class="macro">format!</span>(<span class="string">&quot;{} (example from {})&quot;</span>, <span class="ident">description</span>, <span class="ident">url</span>),
+                <span class="ident">input_lt</span>,
+                <span class="ident">input_dir</span>,
+                <span class="ident">expected_lt</span>,
+                <span class="ident">expected_dir</span>,
+                <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ok</span>,
+            );
         }
         <span class="macro">assert!</span>(<span class="ident">ok</span>);
     }
