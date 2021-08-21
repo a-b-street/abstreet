@@ -22,6 +22,7 @@ use crate::common::{tool_panel, CommonState, Warping};
 use crate::debug::DebugMode;
 use crate::sandbox::{GameplayMode, SandboxMode, TimeWarpScreen};
 
+mod heuristics;
 mod multiple_roads;
 mod roads;
 mod routes;
