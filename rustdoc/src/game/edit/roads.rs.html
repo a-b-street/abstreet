@@ -886,6 +886,14 @@
 <span id="884">884</span>
 <span id="885">885</span>
 <span id="886">886</span>
+<span id="887">887</span>
+<span id="888">888</span>
+<span id="889">889</span>
+<span id="890">890</span>
+<span id="891">891</span>
+<span id="892">892</span>
+<span id="893">893</span>
+<span id="894">894</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">abstutil::Tags</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">CornerRadii</span>, <span class="ident">Distance</span>, <span class="ident">UnitFmt</span>};
@@ -913,6 +921,10 @@
     <span class="ident">main_panel</span>: <span class="ident">Panel</span>,
     <span class="ident">highlight_selection</span>: (<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">LaneID</span><span class="op">&gt;</span>, <span class="ident">Drawable</span>),
     <span class="ident">hovering_on_lane</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">LaneID</span><span class="op">&gt;</span>,
+
+    <span class="comment">// Immediately after modifying the map but before the mouse moves, we should recalculate</span>
+    <span class="comment">// mouseover</span>
+    <span class="ident">recalculate_mouseover</span>: <span class="ident">bool</span>,
 
     <span class="comment">// Undo/redo management</span>
     <span class="ident">num_edit_cmds_originally</span>: <span class="ident">usize</span>,
@@ -949,6 +961,8 @@
             <span class="ident">main_panel</span>: <span class="ident">Panel::empty</span>(<span class="ident">ctx</span>),
             <span class="ident">highlight_selection</span>: (<span class="prelude-val">None</span>, <span class="ident">Drawable::empty</span>(<span class="ident">ctx</span>)),
             <span class="ident">hovering_on_lane</span>: <span class="prelude-val">None</span>,
+
+            <span class="ident">recalculate_mouseover</span>: <span class="bool-val">false</span>,
 
             <span class="ident">num_edit_cmds_originally</span>: <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">commands</span>.<span class="ident">len</span>(),
             <span class="ident">redo_stack</span>: <span class="ident">Vec::new</span>(),
@@ -1004,6 +1018,7 @@
         };
 
         <span class="self">self</span>.<span class="ident">recalc_all_panels</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+        <span class="self">self</span>.<span class="ident">recalculate_mouseover</span> <span class="op">=</span> <span class="bool-val">true</span>;
 
         <span class="ident">Transition::Keep</span>
     }
@@ -1221,7 +1236,8 @@
 
         <span class="kw">let</span> <span class="ident">prev_hovering_on_lane</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">hovering_on_lane</span>.<span class="ident">take</span>();
         <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_map_space</span>().<span class="ident">is_some</span>() {
-            <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">redo_mouseover</span>() {
+            <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">redo_mouseover</span>() <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">recalculate_mouseover</span> {
+                <span class="self">self</span>.<span class="ident">recalculate_mouseover</span> <span class="op">=</span> <span class="bool-val">false</span>;
                 <span class="ident">app</span>.<span class="ident">recalculate_current_selection</span>(<span class="ident">ctx</span>);
                 <span class="kw">if</span> <span class="kw">match</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> {
                     <span class="prelude-val">Some</span>(<span class="ident">ID::Lane</span>(<span class="ident">l</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="op">!</span><span class="ident">can_edit_lane</span>(<span class="ident">app</span>, <span class="ident">l</span>),
