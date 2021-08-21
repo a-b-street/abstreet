@@ -238,8 +238,6 @@ fn maybe_add_bike_lanes(r: &mut EditRoad, buffer_type: Option<BufferType>) {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use geom::{Distance, Speed};
-    use map_model::AccessRestrictions;
 
     #[test]
     fn test_maybe_add_bike_lanes() {
@@ -285,24 +283,7 @@ mod tests {
                 "vv^^^^^",
             ),
         ] {
-            let input = EditRoad {
-                lanes_ltr: input_lt
-                    .chars()
-                    .zip(input_dir.chars())
-                    .map(|(lt, dir)| LaneSpec {
-                        lt: LaneType::from_char(lt),
-                        dir: if dir == '^' {
-                            Direction::Fwd
-                        } else {
-                            Direction::Back
-                        },
-                        // Dummy
-                        width: Distance::ZERO,
-                    })
-                    .collect(),
-                speed_limit: Speed::ZERO,
-                access_restrictions: AccessRestrictions::new(),
-            };
+            let input = EditRoad::create_for_test(input_lt, input_dir);
             let mut actual_output = input.clone();
             maybe_add_bike_lanes(
                 &mut actual_output,
@@ -312,31 +293,14 @@ mod tests {
                     None
                 },
             );
-            let actual_lt: String = actual_output
-                .lanes_ltr
-                .iter()
-                .map(|s| s.lt.to_char())
-                .collect();
-            let actual_dir: String = actual_output
-                .lanes_ltr
-                .iter()
-                .map(|s| if s.dir == Direction::Fwd { '^' } else { 'v' })
-                .collect();
-
-            if actual_lt != expected_lt || actual_dir != expected_dir {
-                ok = false;
-                println!("{} (example from {})", description, url);
-                println!("Input:");
-                println!("    {}", input_lt);
-                println!("    {}", input_dir);
-                println!("Got:");
-                println!("    {}", actual_lt);
-                println!("    {}", actual_dir);
-                println!("Expected:");
-                println!("    {}", expected_lt);
-                println!("    {}", expected_dir);
-                println!();
-            }
+            actual_output.check_lanes_ltr(
+                format!("{} (example from {})", description, url),
+                input_lt,
+                input_dir,
+                expected_lt,
+                expected_dir,
+                &mut ok,
+            );
         }
         assert!(ok);
     }
