@@ -3,62 +3,48 @@ use map_model::{Direction, EditRoad, LaneSpec, LaneType};
 
 /// Returns the index where the new lane was inserted
 pub fn add_new_lane(road: &mut EditRoad, lt: LaneType, osm_tags: &Tags) -> usize {
-    let dir = match lt {
-        LaneType::Driving => determine_lane_dir(road, lt, true),
+    let (dir, idx);
+    match lt {
+        LaneType::Driving => {
+            dir = determine_lane_dir(road, lt, true);
+            // In the middle (where the direction changes)
+            idx = road
+                .lanes_ltr
+                .windows(2)
+                .position(|pair| pair[0].dir != pair[1].dir)
+                .map(|x| x + 1)
+                .unwrap_or(road.lanes_ltr.len());
+        }
         LaneType::Biking | LaneType::Bus | LaneType::Parking | LaneType::Construction => {
             let relevant_lanes: Vec<&LaneSpec> =
                 road.lanes_ltr.iter().filter(|x| x.lt == lt).collect();
-            if !relevant_lanes.is_empty() {
-                // When a lane already exists then default to the direction on the other side of the
-                // road
-                if relevant_lanes[0].dir == Direction::Fwd {
-                    Direction::Back
-                } else {
-                    Direction::Fwd
-                }
+            dir = if !relevant_lanes.is_empty() {
+                // When a lane already exists, then default to the direction on the other side of
+                // the road
+                relevant_lanes[0].dir.opposite()
             } else {
-                // If no lanes exist then default to the majority direction to help deal with one
-                // way streets, etc.
+                // If no lanes exist, then default to the majority direction, to help deal with
+                // one-way streets
                 determine_lane_dir(road, lt, false)
-            }
-        }
-        LaneType::Sidewalk => {
-            if !road.lanes_ltr[0].lt.is_walkable() {
-                road.lanes_ltr[0].dir
-            } else {
-                road.lanes_ltr.last().unwrap().dir
-            }
-        }
-        LaneType::Buffer(_) => {
-            // TODO Look for the bike lane that's missing a buffer
-            Direction::Fwd
-        }
-        _ => unreachable!(),
-    };
+            };
 
-    let idx = match lt {
-        // In the middle (where the direction changes)
-        LaneType::Driving => road
-            .lanes_ltr
-            .windows(2)
-            .position(|pair| pair[0].dir != pair[1].dir)
-            .map(|x| x + 1)
-            .unwrap_or(road.lanes_ltr.len()),
-        // Place on the dir side, before any sidewalk
-        LaneType::Biking | LaneType::Bus | LaneType::Parking | LaneType::Construction => {
-            default_outside_lane_placement(road, dir)
+            // Place on the dir side, before any sidewalk
+            idx = default_outside_lane_placement(road, dir);
         }
-        // Place it where it's missing
         LaneType::Sidewalk => {
+            // Place where it's missing
             if !road.lanes_ltr[0].lt.is_walkable() {
-                0
+                dir = road.lanes_ltr[0].dir;
+                idx = 0;
             } else {
-                road.lanes_ltr.len()
+                dir = road.lanes_ltr.last().unwrap().dir;
+                idx = road.lanes_ltr.len();
             }
         }
         LaneType::Buffer(_) => {
             // TODO Look for the bike lane that's missing a buffer
-            0
+            dir = Direction::Fwd;
+            idx = 0;
         }
         _ => unreachable!(),
     };
