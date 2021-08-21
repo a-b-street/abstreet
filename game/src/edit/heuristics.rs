@@ -3,7 +3,9 @@ use map_model::{Direction, EditRoad, LaneSpec, LaneType};
 
 /// Returns the index where the new lane was inserted
 pub fn add_new_lane(road: &mut EditRoad, lt: LaneType, osm_tags: &Tags) -> usize {
-    let (dir, idx);
+    let mut dir = Direction::Fwd;
+    let mut idx = 0;
+
     match lt {
         LaneType::Driving => {
             dir = determine_lane_dir(road, lt, true);
@@ -42,9 +44,43 @@ pub fn add_new_lane(road: &mut EditRoad, lt: LaneType, osm_tags: &Tags) -> usize
             }
         }
         LaneType::Buffer(_) => {
-            // TODO Look for the bike lane that's missing a buffer
-            dir = Direction::Fwd;
-            idx = 0;
+            // Look for the bike lane that's missing a buffer
+            let mut fwd_bike = None;
+            let mut back_bike = None;
+            for (idx, spec) in road.lanes_ltr.iter().enumerate() {
+                if spec.lt == LaneType::Biking {
+                    if spec.dir == Direction::Fwd {
+                        fwd_bike = Some(idx);
+                    } else {
+                        back_bike = Some(idx);
+                    }
+                }
+            }
+            // TODO This is US-centric, since it assumes the Fwd direction is on the right. We
+            // should probably decompose into sides like maybe_add_bike_lanes.
+            if let Some(i) = fwd_bike {
+                // If there's nothing to the left of this bike lane, not sure what's going on...
+                if road
+                    .lanes_ltr
+                    .get(i - 1)
+                    .map(|spec| !matches!(spec.lt, LaneType::Buffer(_)))
+                    .unwrap_or(false)
+                {
+                    dir = Direction::Fwd;
+                    idx = i;
+                }
+            }
+            if let Some(i) = back_bike {
+                if road
+                    .lanes_ltr
+                    .get(i + 1)
+                    .map(|spec| !matches!(spec.lt, LaneType::Buffer(_)))
+                    .unwrap_or(false)
+                {
+                    dir = Direction::Back;
+                    idx = i + 1;
+                }
+            }
         }
         _ => unreachable!(),
     };
@@ -102,6 +138,7 @@ fn determine_lane_dir(road: &mut EditRoad, lt: LaneType, minority: bool) -> Dire
 #[cfg(test)]
 mod tests {
     use super::*;
+    use map_model::BufferType;
 
     #[test]
     fn test_add_new_lane() {
@@ -142,6 +179,30 @@ mod tests {
                 LaneType::Driving,
                 "sdddds",
                 "vvv^^^",
+            ),
+            (
+                "Add buffer, one bike lane fwd",
+                "sddbs",
+                "vv^^^",
+                LaneType::Buffer(BufferType::Stripes),
+                "sdd|bs",
+                "vv^^^^",
+            ),
+            (
+                "Add buffer, one bike lane back",
+                "sbdds",
+                "vvv^^",
+                LaneType::Buffer(BufferType::Stripes),
+                "sb|dds",
+                "vvvv^^",
+            ),
+            (
+                "Add second buffer",
+                "sbdd|bs",
+                "vvv^^^^",
+                LaneType::Buffer(BufferType::Stripes),
+                "sb|dd|bs",
+                "vvvv^^^^",
             ),
         ] {
             let input = EditRoad::create_for_test(input_lt, input_dir);
