@@ -161,13 +161,76 @@
 <span id="159">159</span>
 <span id="160">160</span>
 <span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
+<span id="165">165</span>
+<span id="166">166</span>
+<span id="167">167</span>
+<span id="168">168</span>
+<span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
+<span id="174">174</span>
+<span id="175">175</span>
+<span id="176">176</span>
+<span id="177">177</span>
+<span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">abstutil::Tags</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">Direction</span>, <span class="ident">EditRoad</span>, <span class="ident">LaneSpec</span>, <span class="ident">LaneType</span>};
 
 <span class="doccomment">/// Returns the index where the new lane was inserted</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_new_lane</span>(<span class="ident">road</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EditRoad</span>, <span class="ident">lt</span>: <span class="ident">LaneType</span>, <span class="ident">osm_tags</span>: <span class="kw-2">&amp;</span><span class="ident">Tags</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
-    <span class="kw">let</span> (<span class="ident">dir</span>, <span class="ident">idx</span>);
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">dir</span> <span class="op">=</span> <span class="ident">Direction::Fwd</span>;
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">idx</span> <span class="op">=</span> <span class="number">0</span>;
+
     <span class="kw">match</span> <span class="ident">lt</span> {
         <span class="ident">LaneType::Driving</span> <span class="op">=</span><span class="op">&gt;</span> {
             <span class="ident">dir</span> <span class="op">=</span> <span class="ident">determine_lane_dir</span>(<span class="ident">road</span>, <span class="ident">lt</span>, <span class="bool-val">true</span>);
@@ -206,9 +269,43 @@
             }
         }
         <span class="ident">LaneType::Buffer</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
-            <span class="comment">// TODO Look for the bike lane that&#39;s missing a buffer</span>
-            <span class="ident">dir</span> <span class="op">=</span> <span class="ident">Direction::Fwd</span>;
-            <span class="ident">idx</span> <span class="op">=</span> <span class="number">0</span>;
+            <span class="comment">// Look for the bike lane that&#39;s missing a buffer</span>
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">fwd_bike</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">back_bike</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+            <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">spec</span>) <span class="kw">in</span> <span class="ident">road</span>.<span class="ident">lanes_ltr</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
+                <span class="kw">if</span> <span class="ident">spec</span>.<span class="ident">lt</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType::Biking</span> {
+                    <span class="kw">if</span> <span class="ident">spec</span>.<span class="ident">dir</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Direction::Fwd</span> {
+                        <span class="ident">fwd_bike</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">idx</span>);
+                    } <span class="kw">else</span> {
+                        <span class="ident">back_bike</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">idx</span>);
+                    }
+                }
+            }
+            <span class="comment">// TODO This is US-centric, since it assumes the Fwd direction is on the right. We</span>
+            <span class="comment">// should probably decompose into sides like maybe_add_bike_lanes.</span>
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">i</span>) <span class="op">=</span> <span class="ident">fwd_bike</span> {
+                <span class="comment">// If there&#39;s nothing to the left of this bike lane, not sure what&#39;s going on...</span>
+                <span class="kw">if</span> <span class="ident">road</span>
+                    .<span class="ident">lanes_ltr</span>
+                    .<span class="ident">get</span>(<span class="ident">i</span> <span class="op">-</span> <span class="number">1</span>)
+                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">spec</span><span class="op">|</span> <span class="op">!</span><span class="macro">matches!</span>(<span class="ident">spec</span>.<span class="ident">lt</span>, <span class="ident">LaneType::Buffer</span>(<span class="kw">_</span>)))
+                    .<span class="ident">unwrap_or</span>(<span class="bool-val">false</span>)
+                {
+                    <span class="ident">dir</span> <span class="op">=</span> <span class="ident">Direction::Fwd</span>;
+                    <span class="ident">idx</span> <span class="op">=</span> <span class="ident">i</span>;
+                }
+            }
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">i</span>) <span class="op">=</span> <span class="ident">back_bike</span> {
+                <span class="kw">if</span> <span class="ident">road</span>
+                    .<span class="ident">lanes_ltr</span>
+                    .<span class="ident">get</span>(<span class="ident">i</span> <span class="op">+</span> <span class="number">1</span>)
+                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">spec</span><span class="op">|</span> <span class="op">!</span><span class="macro">matches!</span>(<span class="ident">spec</span>.<span class="ident">lt</span>, <span class="ident">LaneType::Buffer</span>(<span class="kw">_</span>)))
+                    .<span class="ident">unwrap_or</span>(<span class="bool-val">false</span>)
+                {
+                    <span class="ident">dir</span> <span class="op">=</span> <span class="ident">Direction::Back</span>;
+                    <span class="ident">idx</span> <span class="op">=</span> <span class="ident">i</span> <span class="op">+</span> <span class="number">1</span>;
+                }
+            }
         }
         <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
     };
@@ -266,6 +363,7 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span> {
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use</span> <span class="ident">map_model::BufferType</span>;
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_add_new_lane</span>() {
@@ -306,6 +404,30 @@
                 <span class="ident">LaneType::Driving</span>,
                 <span class="string">&quot;sdddds&quot;</span>,
                 <span class="string">&quot;vvv^^^&quot;</span>,
+            ),
+            (
+                <span class="string">&quot;Add buffer, one bike lane fwd&quot;</span>,
+                <span class="string">&quot;sddbs&quot;</span>,
+                <span class="string">&quot;vv^^^&quot;</span>,
+                <span class="ident">LaneType::Buffer</span>(<span class="ident">BufferType::Stripes</span>),
+                <span class="string">&quot;sdd|bs&quot;</span>,
+                <span class="string">&quot;vv^^^^&quot;</span>,
+            ),
+            (
+                <span class="string">&quot;Add buffer, one bike lane back&quot;</span>,
+                <span class="string">&quot;sbdds&quot;</span>,
+                <span class="string">&quot;vvv^^&quot;</span>,
+                <span class="ident">LaneType::Buffer</span>(<span class="ident">BufferType::Stripes</span>),
+                <span class="string">&quot;sb|dds&quot;</span>,
+                <span class="string">&quot;vvvv^^&quot;</span>,
+            ),
+            (
+                <span class="string">&quot;Add second buffer&quot;</span>,
+                <span class="string">&quot;sbdd|bs&quot;</span>,
+                <span class="string">&quot;vvv^^^^&quot;</span>,
+                <span class="ident">LaneType::Buffer</span>(<span class="ident">BufferType::Stripes</span>),
+                <span class="string">&quot;sb|dd|bs&quot;</span>,
+                <span class="string">&quot;vvvv^^^^&quot;</span>,
             ),
         ] {
             <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="ident">EditRoad::create_for_test</span>(<span class="ident">input_lt</span>, <span class="ident">input_dir</span>);
