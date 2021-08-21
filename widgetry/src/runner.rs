@@ -353,6 +353,7 @@ pub fn run<
 
     let mut running = true;
     let mut last_update = Instant::now();
+    // The user will not manage to click immediately after the window opens, so this initial value is simpler than an `Option<Instant>`
     let mut previous_left_click_at = Instant::now();
     event_loop.run(move |event, _, control_flow| {
         if dump_raw_events {
