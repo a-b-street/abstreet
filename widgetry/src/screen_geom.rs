@@ -22,6 +22,10 @@ impl ScreenPt {
         Pt2D::new(self.x, self.y)
     }
 
+    pub fn zero() -> Self {
+        Self { x: 0.0, y: 0.0 }
+    }
+
     pub fn translated(&self, x: f64, y: f64) -> Self {
         Self {
             x: self.x + x,
@@ -120,6 +124,13 @@ impl ScreenDims {
         }
     }
 
+    pub fn zero() -> Self {
+        ScreenDims {
+            width: 0.0,
+            height: 0.0,
+        }
+    }
+
     pub fn square(square: f64) -> Self {
         Self::new(square, square)
     }
@@ -180,6 +191,12 @@ impl From<f64> for ScreenDims {
 impl From<(f64, f64)> for ScreenDims {
     fn from(width_and_height: (f64, f64)) -> ScreenDims {
         ScreenDims::new(width_and_height.0, width_and_height.1)
+    }
+}
+
+impl From<geom::Bounds> for ScreenDims {
+    fn from(bounds: geom::Bounds) -> Self {
+        ScreenDims::new(bounds.width(), bounds.height())
     }
 }
 

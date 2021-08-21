@@ -124,3 +124,63 @@ impl ID {
         }
     }
 }
+
+impl From<RoadID> for ID {
+    fn from(r: RoadID) -> Self {
+        Self::Road(r)
+    }
+}
+
+impl From<LaneID> for ID {
+    fn from(l: LaneID) -> Self {
+        Self::Lane(l)
+    }
+}
+
+impl From<IntersectionID> for ID {
+    fn from(i: IntersectionID) -> Self {
+        Self::Intersection(i)
+    }
+}
+
+impl From<BuildingID> for ID {
+    fn from(b: BuildingID) -> Self {
+        Self::Building(b)
+    }
+}
+
+impl From<ParkingLotID> for ID {
+    fn from(p: ParkingLotID) -> Self {
+        Self::ParkingLot(p)
+    }
+}
+
+impl From<CarID> for ID {
+    fn from(c: CarID) -> Self {
+        Self::Car(c)
+    }
+}
+
+impl From<PedestrianID> for ID {
+    fn from(p: PedestrianID) -> Self {
+        Self::Pedestrian(p)
+    }
+}
+
+impl From<Vec<PedestrianID>> for ID {
+    fn from(p: Vec<PedestrianID>) -> Self {
+        Self::PedCrowd(p)
+    }
+}
+
+impl From<BusStopID> for ID {
+    fn from(b: BusStopID) -> Self {
+        Self::BusStop(b)
+    }
+}
+
+impl From<AreaID> for ID {
+    fn from(a: AreaID) -> Self {
+        Self::Area(a)
+    }
+}

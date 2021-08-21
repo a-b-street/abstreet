@@ -281,7 +281,7 @@ impl<A: 'static> State<A> for SimpleStateWrapper<A> {
                 .inner
                 .panel_changed(ctx, app, &mut self.panel)
                 .unwrap_or_else(|| self.inner.other_event(ctx, app)),
-            Outcome::DragDropReordered(_, _, _) | Outcome::Nothing => {
+            Outcome::DragDropReleased(_, _, _) | Outcome::Nothing => {
                 self.inner.other_event(ctx, app)
             }
         }

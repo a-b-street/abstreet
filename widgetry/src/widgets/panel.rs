@@ -164,7 +164,6 @@ impl Panel {
     }
 
     fn invalidate_flexbox(&mut self) {
-        debug!("invalidating flexbox");
         self.cached_flexbox = None;
     }
 
