@@ -680,13 +680,47 @@ fn make_main_panel(
         .bg(Color::hex("#979797"))
         .container();
 
-    let road_settings = Widget::row(vec![
-        Text::from_all(vec![
+    let total_width = {
+        let current_width = road.get_width(map);
+        let line1 = Text::from_all(vec![
             Line("Total width ").secondary(),
-            Line(road.get_width(map).to_string(&app.opts.units)),
+            Line(current_width.to_string(&app.opts.units)),
         ])
-        .into_widget(ctx)
-        .centered_vert(),
+        .into_widget(ctx);
+        let orig_width = EditRoad::get_orig_from_osm(map.get_r(road.id), map.get_config())
+            .lanes_ltr
+            .into_iter()
+            .map(|spec| spec.width)
+            .sum();
+        let line2 = ctx
+            .style()
+            .btn_plain
+            .btn()
+            .label_styled_text(
+                Text::from(match current_width.cmp(&orig_width) {
+                    std::cmp::Ordering::Equal => Line("No change").secondary(),
+                    std::cmp::Ordering::Less => Line(format!(
+                        "- {}",
+                        (orig_width - current_width).to_string(&app.opts.units)
+                    ))
+                    .fg(Color::GREEN),
+                    std::cmp::Ordering::Greater => Line(format!(
+                        "+ {}",
+                        (current_width - orig_width).to_string(&app.opts.units)
+                    ))
+                    .fg(Color::RED),
+                }),
+                ControlState::Default,
+            )
+            .disabled(true)
+            .disabled_tooltip("The original road width is an estimate, so any changes might not require major construction.")
+            .build_widget(ctx, "changes to total width")
+            .align_right();
+        Widget::col(vec![line1, line2])
+    };
+
+    let road_settings = Widget::row(vec![
+        total_width,
         Line("Speed limit")
             .secondary()
             .into_widget(ctx)
@@ -696,11 +730,13 @@ fn make_main_panel(
             "speed limit",
             road.speed_limit,
             speed_limit_choices(app, Some(road.speed_limit)),
-        ),
+        )
+        .centered_vert(),
         ctx.style()
             .btn_outline
             .text("Access restrictions")
-            .build_def(ctx),
+            .build_def(ctx)
+            .centered_vert(),
     ]);
 
     Panel::new_builder(Widget::col(vec![
