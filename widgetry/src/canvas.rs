@@ -114,7 +114,7 @@ impl Canvas {
 
     pub(crate) fn handle_event(&mut self, input: &mut UserInput) -> Option<UpdateType> {
         // Can't start dragging or zooming on top of covered area
-        if self.get_cursor_in_map_space().is_some() {
+        if let Some(map_pt) = self.get_cursor_in_map_space() {
             if self.settings.touchpad_to_move {
                 if let Some((scroll_x, scroll_y)) = input.get_mouse_scroll() {
                     if self.keys_held.contains(&Key::LeftControl) {
@@ -160,6 +160,10 @@ impl Canvas {
                         ScreenPt::new(self.window_width / 2.0, self.window_height / 2.0),
                     );
                 }
+            }
+
+            if input.left_mouse_double_clicked() {
+                self.zoom(8.0, self.map_to_screen(map_pt));
             }
         }
 

@@ -45,7 +45,7 @@ impl<A: SharedAppState> State<A> {
                 .set_cursor_icon(if self.canvas.drag_canvas_from.is_some() {
                     // We haven't run canvas_movement() yet, so we don't know if the button has been
                     // released. Bit of a hack to check this here, but better behavior.
-                    if ev == Event::LeftMouseButtonUp {
+                    if matches!(ev, Event::LeftMouseButtonUp { .. }) {
                         winit::window::CursorIcon::Default
                     } else {
                         winit::window::CursorIcon::Grabbing
@@ -353,6 +353,8 @@ pub fn run<
 
     let mut running = true;
     let mut last_update = Instant::now();
+    // The user will not manage to click immediately after the window opens, so this initial value is simpler than an `Option<Instant>`
+    let mut previous_left_click_at = Instant::now();
     event_loop.run(move |event, _, control_flow| {
         if dump_raw_events {
             debug!("Event: {:?}", event);
@@ -370,7 +372,9 @@ pub fn run<
             }
             winit::event::Event::WindowEvent { event, .. } => {
                 let scale_factor = prerender.get_scale_factor();
-                if let Some(ev) = Event::from_winit_event(event, scale_factor) {
+                if let Some(ev) =
+                    Event::from_winit_event(event, scale_factor, previous_left_click_at)
+                {
                     ev
                 } else {
                     // Don't touch control_flow if we got an irrelevant event
@@ -397,10 +401,18 @@ pub fn run<
 
         // We want a max of UPDATE_FREQUENCY between updates, so measure the update time before
         // doing the work (which takes time).
-        if let Event::Update(_) = ev {
-            last_update = Instant::now();
-            *control_flow =
-                winit::event_loop::ControlFlow::WaitUntil(Instant::now() + UPDATE_FREQUENCY);
+        match ev {
+            Event::Update(_) => {
+                last_update = Instant::now();
+                *control_flow =
+                    winit::event_loop::ControlFlow::WaitUntil(Instant::now() + UPDATE_FREQUENCY);
+            }
+            Event::LeftMouseButtonUp {
+                is_double_click: false,
+            } => {
+                previous_left_click_at = Instant::now();
+            }
+            _ => {}
         }
 
         let (mut updates, input_used) = state.event(ev, &prerender);

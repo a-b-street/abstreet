@@ -1,3 +1,4 @@
+use instant::Instant;
 use winit::event::{
     ElementState, KeyboardInput, MouseButton, MouseScrollDelta, VirtualKeyCode, WindowEvent,
 };
@@ -6,13 +7,32 @@ use geom::Duration;
 
 use crate::{EventCtx, Line, ScreenDims, ScreenPt, TextSpan};
 
+// Mouse-up events longer than this will be considered single clicks
+// Ideally the delay would be a little more tolerant - e.g. 500ms, but because we don't actually
+// have a way to indicate that a single click was handled (and thus *shouldn't* be counted as part of a double click)
+// it's too easy to have false positives.
+const MAX_DOUBLE_CLICK_DURATION: instant::Duration = instant::Duration::from_millis(300);
+
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Event {
     // Used to initialize the application and also to recalculate menu state when some other event
     // is used.
     NoOp,
     LeftMouseButtonDown,
-    LeftMouseButtonUp,
+    /// Note: When double clicking, there will be two `LeftMouseButtonUp` events in short
+    /// succession - first a `LeftMouseButtonUp { is_double_click: false }`, followed by
+    /// a `LeftMouseButtonUp { is_double_click: true }`.
+    ///
+    /// This was done for ease of implementation - it allows a target to ignore single clicks and
+    /// handle double clicks (or vice versa), but it precludes an obvious way to have a target
+    /// handle single clicks one way while handling double clicks a different way.
+    ///
+    /// e.g. a typical file browser highlights a file with a single click and opens the file with a
+    /// double click, the way we've implemented double clicks here wouldn't work well for that
+    /// case.
+    LeftMouseButtonUp {
+        is_double_click: bool,
+    },
     RightMouseButtonDown,
     RightMouseButtonUp,
     // TODO KeyDown and KeyUp might be nicer, but piston (and probably X.org) hands over repeated
@@ -29,11 +49,18 @@ pub enum Event {
 }
 
 impl Event {
-    pub fn from_winit_event(ev: WindowEvent, scale_factor: f64) -> Option<Event> {
+    pub fn from_winit_event(
+        ev: WindowEvent,
+        scale_factor: f64,
+        previous_click: Instant,
+    ) -> Option<Event> {
         match ev {
             WindowEvent::MouseInput { state, button, .. } => match (button, state) {
                 (MouseButton::Left, ElementState::Pressed) => Some(Event::LeftMouseButtonDown),
-                (MouseButton::Left, ElementState::Released) => Some(Event::LeftMouseButtonUp),
+                (MouseButton::Left, ElementState::Released) => {
+                    let is_double_click = previous_click.elapsed().le(&MAX_DOUBLE_CLICK_DURATION);
+                    Some(Event::LeftMouseButtonUp { is_double_click })
+                }
                 (MouseButton::Right, ElementState::Pressed) => Some(Event::RightMouseButtonDown),
                 (MouseButton::Right, ElementState::Released) => Some(Event::RightMouseButtonUp),
                 _ => None,
