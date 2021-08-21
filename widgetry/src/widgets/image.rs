@@ -215,8 +215,41 @@ impl<'a, 'c> Image<'a, 'c> {
         self
     }
 
+    /// Padding above the image
+    pub fn padding_top(mut self, new_value: f64) -> Self {
+        let mut padding = self.padding.unwrap_or_default();
+        padding.top = new_value;
+        self.padding = Some(padding);
+        self
+    }
+
+    /// Padding to the left of the image
+    pub fn padding_left(mut self, new_value: f64) -> Self {
+        let mut padding = self.padding.unwrap_or_default();
+        padding.left = new_value;
+        self.padding = Some(padding);
+        self
+    }
+
+    /// Padding below the image
+    pub fn padding_bottom(mut self, new_value: f64) -> Self {
+        let mut padding = self.padding.unwrap_or_default();
+        padding.bottom = new_value;
+        self.padding = Some(padding);
+        self
+    }
+
+    /// Padding to the right of the image
+    pub fn padding_right(mut self, new_value: f64) -> Self {
+        let mut padding = self.padding.unwrap_or_default();
+        padding.right = new_value;
+        self.padding = Some(padding);
+        self
+    }
+
     /// Render the `Image` and any styling (padding, background, etc.) to a `GeomBatch`.
     pub fn build_batch(&self, ctx: &EventCtx) -> Option<(GeomBatch, Bounds)> {
+        // TODO: unwrap/panic if source is empty?
         self.source.as_ref().map(|source| {
             let (mut image_batch, image_bounds) = source.load(ctx.prerender);
 

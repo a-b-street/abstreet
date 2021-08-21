@@ -315,18 +315,12 @@ fn setup_scrollable_canvas(ctx: &mut EventCtx) -> Drawable {
 }
 
 fn make_tabs(ctx: &mut EventCtx) -> TabController {
-    let draggable_cards = (0..5)
-        .map(|i| make_draggable_card(ctx, i))
-        .collect::<Vec<_>>();
     let style = ctx.style();
 
     let mut tabs = TabController::new("demo_tabs");
 
     let gallery_bar_item = style.btn_tab.text("Component Gallery");
     let gallery_content = Widget::col(vec![
-        // TODO Move this to the bottom
-        "Reorder the cards below".text_widget(ctx),
-        DragDrop::new_widget(ctx, "cards", draggable_cards),
         Text::from(Line("Text").big_heading_styled().size(18)).into_widget(ctx),
         Text::from_all(vec![
             Line("You can "),
@@ -426,6 +420,8 @@ fn make_tabs(ctx: &mut EventCtx) -> TabController {
         ]),
         Text::from(Line("Spinner").big_heading_styled().size(18)).into_widget(ctx),
         widgetry::Spinner::widget(ctx, "spinner", (0, 11), 1, 1),
+        Text::from(Line("Drag & Drop Cards").big_heading_styled().size(18)).into_widget(ctx),
+        build_drag_drop(ctx, 5).into_widget(ctx),
     ]);
     tabs.push_tab(gallery_bar_item, gallery_content);
 
@@ -610,12 +606,31 @@ fn make_controls(ctx: &mut EventCtx, tabs: &mut TabController) -> Panel {
     .build(ctx)
 }
 
-fn make_draggable_card(ctx: &mut EventCtx, num: usize) -> GeomBatch {
-    // TODO Kind of hardcoded. At least center the text or draw nice outlines?
-    let mut batch = GeomBatch::new();
-    batch.push(Color::RED, Polygon::rectangle(100.0, 150.0));
-    batch.append(Text::from(format!("Card {}", num)).render(ctx));
-    batch
+fn build_drag_drop(ctx: &EventCtx, num_cards: usize) -> DragDrop<usize> {
+    fn build_card(ctx: &EventCtx, num: usize) -> (ScreenDims, GeomBatch, GeomBatch, GeomBatch) {
+        let dims = ScreenDims::new(100.0 + (num % 2) as f64 * 50.0, 150.0);
+
+        let mut default_batch = GeomBatch::new();
+        default_batch.push(Color::ORANGE, Polygon::rectangle(dims.width, dims.height));
+        default_batch.append(Text::from(format!("Card {}", num)).render(ctx));
+
+        let mut hovering_batch = GeomBatch::new();
+        hovering_batch.push(Color::RED, Polygon::rectangle(dims.width, dims.height));
+        hovering_batch.append(Text::from(format!("Card {}", num)).render(ctx));
+
+        let mut selected_batch = GeomBatch::new();
+        selected_batch.push(Color::BLUE, Polygon::rectangle(dims.width, dims.height));
+        selected_batch.append(Text::from(format!("Card {}", num)).render(ctx));
+
+        (dims, default_batch, hovering_batch, selected_batch)
+    }
+
+    let mut drag_drop = DragDrop::new(ctx, "drag and drop cards");
+    for i in 0..num_cards {
+        let (dims, default_batch, hovering_batch, selected_batch) = build_card(ctx, i);
+        drag_drop.push_card(i, dims, default_batch, hovering_batch, selected_batch);
+    }
+    drag_drop
 }
 
 // Boilerplate for web support

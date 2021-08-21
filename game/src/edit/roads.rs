@@ -1,4 +1,5 @@
-use geom::{CornerRadii, Distance, UnitFmt};
+use abstutil::Tags;
+use geom::{Bounds, CornerRadii, Distance, UnitFmt};
 use map_gui::render::{Renderable, OUTLINE_THICKNESS};
 use map_gui::tools::PopupMsg;
 use map_gui::ID;
@@ -6,9 +7,9 @@ use map_model::{
     BufferType, Direction, EditCmd, EditRoad, LaneID, LaneSpec, LaneType, MapEdits, Road, RoadID,
 };
 use widgetry::{
-    lctrl, Choice, Color, ControlState, DragDrop, Drawable, EventCtx, GeomBatch, GeomBatchStack,
-    GfxCtx, HorizontalAlignment, Image, Key, Line, Outcome, Panel, Spinner, State, Text, TextExt,
-    VerticalAlignment, Widget, DEFAULT_CORNER_RADIUS,
+    lctrl, Choice, Color, ControlState, DragDrop, Drawable, EdgeInsets, EventCtx, GeomBatch,
+    GeomBatchStack, GfxCtx, HorizontalAlignment, Image, Key, Line, Outcome, Panel, Spinner, State,
+    Text, TextExt, VerticalAlignment, Widget, DEFAULT_CORNER_RADIUS,
 };
 
 use crate::app::{App, Transition};
@@ -19,11 +20,13 @@ use crate::edit::{apply_map_edits, can_edit_lane, speed_limit_choices};
 
 pub struct RoadEditor {
     r: RoadID,
-    current_lane: Option<LaneID>,
+    selected_lane: Option<LaneID>,
+    hovering_on_lane: Option<LaneID>,
     top_panel: Panel,
     main_panel: Panel,
-    highlight_selection: (Option<LaneID>, Drawable),
-    hovering_on_lane: Option<LaneID>,
+
+    // (cache_key: (selected, hovering), Drawable)
+    lane_highlights: ((Option<LaneID>, Option<LaneID>), Drawable),
 
     // Immediately after modifying the map but before the mouse moves, we should recalculate
     // mouseover
@@ -53,16 +56,16 @@ impl RoadEditor {
         ctx: &mut EventCtx,
         app: &mut App,
         r: RoadID,
-        current_lane: Option<LaneID>,
+        selected_lane: Option<LaneID>,
     ) -> Box<dyn State<App>> {
         app.primary.current_selection = None;
 
         let mut editor = RoadEditor {
             r,
-            current_lane,
+            selected_lane,
             top_panel: Panel::empty(ctx),
             main_panel: Panel::empty(ctx),
-            highlight_selection: (None, Drawable::empty(ctx)),
+            lane_highlights: ((None, None), Drawable::empty(ctx)),
             hovering_on_lane: None,
 
             recalculate_mouseover: false,
@@ -73,6 +76,10 @@ impl RoadEditor {
         };
         editor.recalc_all_panels(ctx, app);
         Box::new(editor)
+    }
+
+    fn lane_for_idx(&self, app: &App, idx: usize) -> LaneID {
+        app.primary.map.get_r(self.r).lanes_ltr()[idx].0
     }
 
     fn modify_current_lane<F: Fn(&mut EditRoad, usize)>(
@@ -86,7 +93,7 @@ impl RoadEditor {
             .primary
             .map
             .get_r(self.r)
-            .offset(self.current_lane.unwrap());
+            .offset(self.selected_lane.unwrap());
         let cmd = app.primary.map.edit_road_cmd(self.r, |new| (f)(new, idx));
 
         // Special check here -- this invalid state can be reached in many ways.
@@ -114,11 +121,8 @@ impl RoadEditor {
         apply_map_edits(ctx, app, edits);
         self.redo_stack.clear();
 
-        self.current_lane = if let Some(offset) = select_new_lane_offset {
-            Some(app.primary.map.get_r(self.r).lanes_ltr()[((idx as isize) + offset) as usize].0)
-        } else {
-            None
-        };
+        self.selected_lane = select_new_lane_offset
+            .map(|offset| self.lane_for_idx(app, (idx as isize + offset) as usize));
 
         self.recalc_all_panels(ctx, app);
         self.recalculate_mouseover = true;
@@ -127,9 +131,21 @@ impl RoadEditor {
     }
 
     fn recalc_all_panels(&mut self, ctx: &mut EventCtx, app: &App) {
-        self.main_panel =
-            make_main_panel(ctx, app, app.primary.map.get_r(self.r), self.current_lane);
-        self.highlight_selection = highlight_current_selection(ctx, app, self.r, self.current_lane);
+        self.main_panel = make_main_panel(
+            ctx,
+            app,
+            app.primary.map.get_r(self.r),
+            self.selected_lane,
+            self.hovering_on_lane,
+        );
+
+        let drag_drop = self.main_panel.find::<DragDrop<LaneID>>("lane cards");
+        let selected = drag_drop.selected_value().or(self.selected_lane);
+        let hovering = drag_drop.hovering_value().or(self.hovering_on_lane);
+        if (selected, hovering) != self.lane_highlights.0 {
+            self.lane_highlights = build_lane_highlights(ctx, app, self.r, selected, hovering);
+        }
+
         self.top_panel = make_top_panel(
             ctx,
             app,
@@ -165,6 +181,8 @@ impl State<App> for RoadEditor {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         ctx.canvas_movement();
 
+        let mut panels_need_recalc = false;
+
         if let Outcome::Clicked(x) = self.top_panel.event(ctx) {
             match x.as_ref() {
                 "Finish" => {
@@ -191,27 +209,27 @@ impl State<App> for RoadEditor {
                             app.primary.map.get_config(),
                         ),
                     });
-                    self.current_lane = None;
+                    self.selected_lane = None;
                     self.hovering_on_lane = None;
                     apply_map_edits(ctx, app, edits);
                     self.redo_stack.clear();
-                    self.recalc_all_panels(ctx, app);
+                    panels_need_recalc = true;
                 }
                 "undo" => {
                     let mut edits = app.primary.map.get_edits().clone();
                     self.redo_stack.push(edits.commands.pop().unwrap());
                     apply_map_edits(ctx, app, edits);
 
-                    self.current_lane = None;
-                    self.recalc_all_panels(ctx, app);
+                    self.selected_lane = None;
+                    panels_need_recalc = true;
                 }
                 "redo" => {
                     let mut edits = app.primary.map.get_edits().clone();
                     edits.commands.push(self.redo_stack.pop().unwrap());
                     apply_map_edits(ctx, app, edits);
 
-                    self.current_lane = None;
-                    self.recalc_all_panels(ctx, app);
+                    self.selected_lane = None;
+                    panels_need_recalc = true;
                 }
                 "jump to road" => {
                     return Transition::Push(Warping::new_state(
@@ -242,8 +260,8 @@ impl State<App> for RoadEditor {
         match self.main_panel.event(ctx) {
             Outcome::Clicked(x) => {
                 if let Some(idx) = x.strip_prefix("modify Lane #") {
-                    self.current_lane = Some(LaneID(idx.parse().unwrap()));
-                    self.recalc_all_panels(ctx, app);
+                    self.selected_lane = Some(LaneID(idx.parse().unwrap()));
+                    panels_need_recalc = true;
                 } else if x == "delete lane" {
                     return self.modify_current_lane(ctx, app, None, |new, idx| {
                         new.lanes_ltr.remove(idx);
@@ -251,14 +269,6 @@ impl State<App> for RoadEditor {
                 } else if x == "flip direction" {
                     return self.modify_current_lane(ctx, app, Some(0), |new, idx| {
                         new.lanes_ltr[idx].dir = new.lanes_ltr[idx].dir.opposite();
-                    });
-                } else if x == "move lane left" {
-                    return self.modify_current_lane(ctx, app, Some(-1), |new, idx| {
-                        new.lanes_ltr.swap(idx, idx - 1);
-                    });
-                } else if x == "move lane right" {
-                    return self.modify_current_lane(ctx, app, Some(1), |new, idx| {
-                        new.lanes_ltr.swap(idx, idx + 1);
                     });
                 } else if let Some(lt) = x.strip_prefix("change to ") {
                     let lt = LaneType::from_short_name(lt).unwrap();
@@ -298,9 +308,9 @@ impl State<App> for RoadEditor {
                     apply_map_edits(ctx, app, edits);
                     self.redo_stack.clear();
 
-                    assert!(self.current_lane.is_none());
-                    self.current_lane = Some(app.primary.map.get_r(self.r).lanes_ltr()[idx].0);
-                    self.recalc_all_panels(ctx, app);
+                    assert!(self.selected_lane.is_none());
+                    self.selected_lane = Some(self.lane_for_idx(app, idx));
+                    panels_need_recalc = true;
                 } else if x == "Access restrictions" {
                     // The RoadEditor maintains an undo/redo stack for a single road, but the
                     // ZoneEditor usually operates on multiple roads. So before we switch over to
@@ -332,44 +342,53 @@ impl State<App> for RoadEditor {
                         new.lanes_ltr[idx].width = width;
                     });
                 }
+                "lane cards" => {
+                    // hovering inex changed
+                    panels_need_recalc = true;
+                }
                 _ => unreachable!(),
             },
-            Outcome::DragDropReordered(_, old_idx, new_idx) => {
-                // TODO Not using modify_current_lane... should we try to?
-                let mut edits = app.primary.map.get_edits().clone();
-                edits
-                    .commands
-                    .push(app.primary.map.edit_road_cmd(self.r, |new| {
-                        new.lanes_ltr.swap(old_idx, new_idx);
-                    }));
-                apply_map_edits(ctx, app, edits);
-                self.redo_stack.clear();
-                self.current_lane = None; // TODO
+            Outcome::DragDropReleased(_, old_idx, new_idx) => {
+                if old_idx != new_idx {
+                    // TODO Not using modify_current_lane... should we try to?
+                    let mut edits = app.primary.map.get_edits().clone();
+                    edits
+                        .commands
+                        .push(app.primary.map.edit_road_cmd(self.r, |new| {
+                            new.lanes_ltr.swap(old_idx, new_idx);
+                        }));
+                    apply_map_edits(ctx, app, edits);
+                    self.redo_stack.clear();
+                }
 
-                self.recalc_all_panels(ctx, app);
+                self.selected_lane = Some(self.lane_for_idx(app, new_idx));
+                self.hovering_on_lane = self.selected_lane;
+                panels_need_recalc = true;
             }
-            _ => {}
+            Outcome::Nothing => {}
+            _ => debug!("main_panel had unhandled outcome"),
         }
 
-        let prev_hovering_on_lane = self.hovering_on_lane.take();
+        // let prev_hovering_on_lane = self.hovering_on_lane.take();
         if ctx.canvas.get_cursor_in_map_space().is_some() {
-            if ctx.redo_mouseover() || self.recalculate_mouseover {
-                self.recalculate_mouseover = false;
-                app.recalculate_current_selection(ctx);
-                if match app.primary.current_selection {
-                    Some(ID::Lane(l)) => !can_edit_lane(app, l),
-                    _ => true,
-                } {
-                    app.primary.current_selection = None;
-                }
-            }
+            self.recalculate_mouseover = false;
+            app.recalculate_current_selection(ctx);
 
-            if let Some(ID::Lane(l)) = app.primary.current_selection {
-                self.hovering_on_lane = Some(l);
+            let hovering = match app.primary.current_selection.take() {
+                Some(ID::Lane(l)) if can_edit_lane(app, l) => Some(l),
+                _ => None,
+            };
+
+            if let Some(l) = hovering {
+                if self.hovering_on_lane != Some(l) {
+                    self.hovering_on_lane = Some(l);
+                    panels_need_recalc = true;
+                }
+
                 if ctx.normal_left_click() {
                     if app.primary.map.get_l(l).parent == self.r {
-                        self.current_lane = Some(l);
-                        self.recalc_all_panels(ctx, app);
+                        self.selected_lane = Some(l);
+                        panels_need_recalc = true;
                     } else {
                         // Switch to editing another road, first compressing the edits here if
                         // needed.
@@ -379,28 +398,28 @@ impl State<App> for RoadEditor {
                         return Transition::Replace(RoadEditor::new_state(ctx, app, l));
                     }
                 }
-            } else if self.current_lane.is_some() && ctx.normal_left_click() {
-                // Deselect the current lane
-                self.current_lane = None;
-                self.recalc_all_panels(ctx, app);
-            }
-        } else {
-            let mut highlight = self.current_lane;
-            if let Some(name) = self.main_panel.currently_hovering() {
-                if let Some(idx) = name.strip_prefix("modify Lane #") {
-                    highlight = Some(LaneID(idx.parse().unwrap()));
+            } else {
+                if self.hovering_on_lane.is_some() {
+                    self.hovering_on_lane = None;
+                    panels_need_recalc = true;
+                }
+
+                if self.selected_lane.is_some() && ctx.normal_left_click() {
+                    // Deselect the current lane
+                    self.selected_lane = None;
+                    self.hovering_on_lane = None;
+                    panels_need_recalc = true;
                 }
             }
-            if highlight != self.highlight_selection.0 {
-                self.highlight_selection = highlight_current_selection(ctx, app, self.r, highlight);
+        } else {
+            // If we're not hovering on the map, then we're not hovering on a lane.
+            if self.hovering_on_lane.is_some() {
+                self.hovering_on_lane = None;
+                panels_need_recalc = true;
             }
         }
 
-        // Update the main panel to show which lane icon we're hovering on, if it's
-        // changed.
-        // TODO Moving the mouse across all lanes quickly isn't responsive; rebuilding the full
-        // panel is heavyweight.
-        if self.hovering_on_lane != prev_hovering_on_lane {
+        if panels_need_recalc {
             self.recalc_all_panels(ctx, app);
         }
 
@@ -408,7 +427,7 @@ impl State<App> for RoadEditor {
     }
 
     fn draw(&self, g: &mut GfxCtx, _: &App) {
-        g.redraw(&self.highlight_selection.1);
+        g.redraw(&self.lane_highlights.1);
         self.top_panel.draw(g);
         self.main_panel.draw(g);
     }
@@ -480,18 +499,13 @@ fn make_main_panel(
     ctx: &mut EventCtx,
     app: &App,
     road: &Road,
-    current_lane: Option<LaneID>,
+    selected_lane: Option<LaneID>,
+    hovering_on_lane: Option<LaneID>,
 ) -> Panel {
     let map = &app.primary.map;
-    let hovering_lane = match app.primary.current_selection {
-        Some(ID::Lane(l)) => Some(l),
-        _ => None,
-    };
 
-    let modify_lane = if let Some(l) = current_lane {
+    let modify_lane = if let Some(l) = selected_lane {
         let lane = map.get_l(l);
-        let idx = road.offset(l);
-
         Widget::row(vec![
             ctx.style()
                 .btn_solid_destructive
@@ -525,21 +539,11 @@ fn make_main_panel(
                 )
                 .centered_horiz(),
             ]),
-            ctx.style()
-                .btn_prev()
-                .disabled(idx == 0)
-                .hotkey(Key::LeftArrow)
-                .build_widget(ctx, "move lane left"),
-            ctx.style()
-                .btn_next()
-                .disabled(idx == road.lanes_ltr().len() - 1)
-                .hotkey(Key::RightArrow)
-                .build_widget(ctx, "move lane right"),
         ])
     } else {
         Widget::nothing()
     };
-    let current_lt = current_lane.map(|l| map.get_l(l).lane_type);
+    let current_lt = selected_lane.map(|l| map.get_l(l).lane_type);
 
     let current_lts: Vec<LaneType> = road.lanes_ltr().into_iter().map(|(_, _, lt)| lt).collect();
     let mut available_lane_types_row = vec![
@@ -597,7 +601,7 @@ fn make_main_panel(
             ctx,
             format!(
                 "{} {}",
-                if current_lane.is_some() {
+                if selected_lane.is_some() {
                     "change to"
                 } else {
                     "add"
@@ -609,7 +613,7 @@ fn make_main_panel(
     .collect::<Vec<Widget>>();
     available_lane_types_row.insert(
         0,
-        if current_lane.is_some() {
+        if selected_lane.is_some() {
             "change to"
         } else {
             "add new"
@@ -619,20 +623,21 @@ fn make_main_panel(
     );
     let available_lane_types_row = Widget::row(available_lane_types_row);
 
-    let mut lane_cards = Vec::new();
+    let mut drag_drop = DragDrop::new(ctx, "lane cards");
+
     let lanes_ltr = road.lanes_ltr();
     let lanes_len = lanes_ltr.len();
     for (idx, (id, dir, lt)) in lanes_ltr.into_iter().enumerate() {
-        let mut stack = GeomBatchStack::vertical(vec![
+        let mut icon_stack = GeomBatchStack::vertical(vec![
             Image::from_path(lane_type_to_icon(lt).unwrap())
                 .build_batch(ctx)
                 .unwrap()
                 .0,
         ]);
-        stack.set_spacing(20.0);
+        icon_stack.set_spacing(20.0);
 
         if can_reverse(lt) {
-            stack.push(
+            icon_stack.push(
                 Image::from_path(if dir == Direction::Fwd {
                     "system/assets/edit/forwards.svg"
                 } else {
@@ -643,8 +648,8 @@ fn make_main_panel(
                 .0,
             );
         }
-        let stack_batch = stack.batch();
-        /*let stack_bounds = stack_batch.get_bounds();
+        let icon_batch = icon_stack.batch();
+        let icon_bounds = icon_batch.get_bounds();
 
         let mut rounding = CornerRadii::zero();
         if idx == 0 {
@@ -656,39 +661,46 @@ fn make_main_panel(
             rounding.bottom_right = DEFAULT_CORNER_RADIUS;
         }
 
-        current_lanes_ltr.push(
-            ctx.style()
-                .btn_plain
-                .btn()
-                .image_batch(stack_batch, stack_bounds)
-                .disabled(Some(id) == current_lane)
-                .bg_color(
-                    if Some(id) == hovering_lane {
-                        app.cs.selected.alpha(0.5)
+        let (card_bounds, default_batch, hovering_batch, selected_batch) = {
+            let card_batch = |(icon_batch, hovering, selected)| -> (GeomBatch, Bounds) {
+                Image::from_batch(icon_batch, icon_bounds)
+                    // TODO: For selected/hover, rather than change the entire card's background, let's
+                    // just add an outline to match the styling of the corresponding lane in the map
+                    .bg_color(if selected {
+                        ctx.style().primary_fg
+                    } else if hovering {
+                        app.cs.selected.tint(0.2)
                     } else {
                         ctx.style().section_bg
-                    },
-                    ControlState::Default,
-                )
-                .bg_color(ctx.style().section_bg.shade(0.1), ControlState::Hovered)
-                .bg_color(ctx.style().btn_solid_primary.bg, ControlState::Disabled)
-                .image_color(ctx.style().btn_plain.fg, ControlState::Disabled)
-                .image_dims(60.0)
-                .padding_top(32.0)
-                .padding_bottom(32.0)
-                .corner_rounding(rounding)
-                .build_widget(ctx, format!("modify {}", id)),
-        );*/
-        lane_cards.push(stack_batch);
-    }
+                    })
+                    .color(ctx.style().btn_plain.fg)
+                    .dims(60.0)
+                    .padding(EdgeInsets {
+                        top: 32.0,
+                        left: 16.0,
+                        bottom: 32.0,
+                        right: 16.0,
+                    })
+                    .corner_rounding(rounding)
+                    .build_batch(ctx)
+                    .unwrap()
+            };
 
-    /*
-    // Wrap this row in an extra container, so that the background color doesn't stretch over and
-    // fill any extra space on the right side.
-    let current_lanes_ltr = Widget::evenly_spaced_row(2, current_lanes_ltr)
-        .bg(Color::hex("#979797"))
-        .container();*/
-    let current_lanes_ltr = DragDrop::new_widget(ctx, "lane cards", lane_cards);
+            let (default_batch, bounds) = card_batch((icon_batch.clone(), false, false));
+            let (hovering_batch, _) = card_batch((icon_batch.clone(), true, false));
+            let (selected_batch, _) = card_batch((icon_batch, false, true));
+            (bounds, default_batch, hovering_batch, selected_batch)
+        };
+
+        drag_drop.push_card(
+            id,
+            card_bounds.into(),
+            default_batch,
+            hovering_batch,
+            selected_batch,
+        );
+    }
+    drag_drop.set_initial_state(selected_lane, hovering_on_lane);
 
     let total_width = {
         let current_width = road.get_width(map);
@@ -752,35 +764,52 @@ fn make_main_panel(
     Panel::new_builder(Widget::col(vec![
         modify_lane,
         available_lane_types_row,
-        current_lanes_ltr,
+        drag_drop
+            .into_widget(ctx)
+            .named("lane cards")
+            .bg(ctx.style().text_primary_color.tint(0.3)),
         road_settings,
     ]))
     .aligned(HorizontalAlignment::Left, VerticalAlignment::Center)
     .build(ctx)
 }
 
-fn highlight_current_selection(
+fn build_lane_highlights(
     ctx: &mut EventCtx,
     app: &App,
     r: RoadID,
-    l: Option<LaneID>,
-) -> (Option<LaneID>, Drawable) {
+    selected_lane: Option<LaneID>,
+    hovered_lane: Option<LaneID>,
+) -> ((Option<LaneID>, Option<LaneID>), Drawable) {
     let mut batch = GeomBatch::new();
-    let color = Color::hex("#DF8C3D");
     let map = &app.primary.map;
 
-    if let Some(l) = l {
-        batch.push(color, app.primary.draw_map.get_l(l).get_outline(map));
-    } else {
-        let road = map.get_r(r);
+    let selected_color = ctx.style().primary_fg;
+    let hovered_color = app.cs.selected;
+
+    if let Some(hovered_lane) = hovered_lane {
         batch.push(
-            color,
-            road.center_pts
-                .to_thick_boundary(road.get_width(map), OUTLINE_THICKNESS)
-                .unwrap_or_else(|| road.get_thick_polygon(map)),
+            hovered_color,
+            app.primary.draw_map.get_l(hovered_lane).get_outline(map),
         );
     }
-    (l, ctx.upload(batch))
+
+    if let Some(selected_lane) = selected_lane {
+        batch.push(
+            selected_color,
+            app.primary.draw_map.get_l(selected_lane).get_outline(map),
+        );
+    }
+
+    let road = map.get_r(r);
+    batch.push(
+        selected_color.alpha(0.5),
+        road.center_pts
+            .to_thick_boundary(road.get_width(map), OUTLINE_THICKNESS)
+            .unwrap_or_else(|| road.get_thick_polygon(map)),
+    );
+
+    ((selected_lane, hovered_lane), ctx.upload(batch))
 }
 
 fn lane_type_to_icon(lt: LaneType) -> Option<&'static str> {
