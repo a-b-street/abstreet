@@ -453,6 +453,18 @@
 <span id="451">451</span>
 <span id="452">452</span>
 <span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
+<span id="459">459</span>
+<span id="460">460</span>
+<span id="461">461</span>
+<span id="462">462</span>
+<span id="463">463</span>
+<span id="464">464</span>
+<span id="465">465</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::cell::Cell</span>;
 <span class="kw">use</span> <span class="ident">std::panic</span>;
@@ -501,7 +513,7 @@
                 .<span class="ident">set_cursor_icon</span>(<span class="kw">if</span> <span class="self">self</span>.<span class="ident">canvas</span>.<span class="ident">drag_canvas_from</span>.<span class="ident">is_some</span>() {
                     <span class="comment">// We haven&#39;t run canvas_movement() yet, so we don&#39;t know if the button has been</span>
                     <span class="comment">// released. Bit of a hack to check this here, but better behavior.</span>
-                    <span class="kw">if</span> <span class="ident">ev</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Event::LeftMouseButtonUp</span> {
+                    <span class="kw">if</span> <span class="macro">matches!</span>(<span class="ident">ev</span>, <span class="ident">Event::LeftMouseButtonUp</span> { .. }) {
                         <span class="ident">winit::window::CursorIcon::Default</span>
                     } <span class="kw">else</span> {
                         <span class="ident">winit::window::CursorIcon::Grabbing</span>
@@ -809,6 +821,8 @@
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">running</span> <span class="op">=</span> <span class="bool-val">true</span>;
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">last_update</span> <span class="op">=</span> <span class="ident">Instant::now</span>();
+    <span class="comment">// The user will not manage to click immediately after the window opens, so this initial value is simpler than an `Option&lt;Instant&gt;`</span>
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">previous_left_click_at</span> <span class="op">=</span> <span class="ident">Instant::now</span>();
     <span class="ident">event_loop</span>.<span class="ident">run</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">event</span>, <span class="kw">_</span>, <span class="ident">control_flow</span><span class="op">|</span> {
         <span class="kw">if</span> <span class="ident">dump_raw_events</span> {
             <span class="macro">debug!</span>(<span class="string">&quot;Event: {:?}&quot;</span>, <span class="ident">event</span>);
@@ -826,7 +840,9 @@
             }
             <span class="ident">winit::event::Event::WindowEvent</span> { <span class="ident">event</span>, .. } <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="ident">scale_factor</span> <span class="op">=</span> <span class="ident">prerender</span>.<span class="ident">get_scale_factor</span>();
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ev</span>) <span class="op">=</span> <span class="ident">Event::from_winit_event</span>(<span class="ident">event</span>, <span class="ident">scale_factor</span>) {
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ev</span>) <span class="op">=</span>
+                    <span class="ident">Event::from_winit_event</span>(<span class="ident">event</span>, <span class="ident">scale_factor</span>, <span class="ident">previous_left_click_at</span>)
+                {
                     <span class="ident">ev</span>
                 } <span class="kw">else</span> {
                     <span class="comment">// Don&#39;t touch control_flow if we got an irrelevant event</span>
@@ -853,10 +869,18 @@
 
         <span class="comment">// We want a max of UPDATE_FREQUENCY between updates, so measure the update time before</span>
         <span class="comment">// doing the work (which takes time).</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Event::Update</span>(<span class="kw">_</span>) <span class="op">=</span> <span class="ident">ev</span> {
-            <span class="ident">last_update</span> <span class="op">=</span> <span class="ident">Instant::now</span>();
-            <span class="kw-2">*</span><span class="ident">control_flow</span> <span class="op">=</span>
-                <span class="ident">winit::event_loop::ControlFlow::WaitUntil</span>(<span class="ident">Instant::now</span>() <span class="op">+</span> <span class="ident">UPDATE_FREQUENCY</span>);
+        <span class="kw">match</span> <span class="ident">ev</span> {
+            <span class="ident">Event::Update</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">last_update</span> <span class="op">=</span> <span class="ident">Instant::now</span>();
+                <span class="kw-2">*</span><span class="ident">control_flow</span> <span class="op">=</span>
+                    <span class="ident">winit::event_loop::ControlFlow::WaitUntil</span>(<span class="ident">Instant::now</span>() <span class="op">+</span> <span class="ident">UPDATE_FREQUENCY</span>);
+            }
+            <span class="ident">Event::LeftMouseButtonUp</span> {
+                <span class="ident">is_double_click</span>: <span class="bool-val">false</span>,
+            } <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">previous_left_click_at</span> <span class="op">=</span> <span class="ident">Instant::now</span>();
+            }
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
         }
 
         <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">updates</span>, <span class="ident">input_used</span>) <span class="op">=</span> <span class="ident">state</span>.<span class="ident">event</span>(<span class="ident">ev</span>, <span class="kw-2">&amp;</span><span class="ident">prerender</span>);

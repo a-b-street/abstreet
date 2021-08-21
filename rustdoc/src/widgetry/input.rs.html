@@ -134,6 +134,15 @@
 <span id="132">132</span>
 <span id="133">133</span>
 <span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">geom::Duration</span>;
 
@@ -212,7 +221,16 @@
         <span class="self">self</span>.<span class="ident">event</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Event::LeftMouseButtonDown</span>
     }
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">left_mouse_button_released</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">event</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Event::LeftMouseButtonUp</span>
+        <span class="macro">matches!</span>(<span class="self">self</span>.<span class="ident">event</span>, <span class="ident">Event::LeftMouseButtonUp</span> { .. })
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">left_mouse_double_clicked</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+        <span class="macro">matches!</span>(
+            <span class="self">self</span>.<span class="ident">event</span>,
+            <span class="ident">Event::LeftMouseButtonUp</span> {
+                <span class="ident">is_double_click</span>: <span class="bool-val">true</span>
+            }
+        )
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">window_lost_cursor</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {

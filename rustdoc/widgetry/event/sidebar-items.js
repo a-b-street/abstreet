@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["Event",""],["Key",""],["MultiKey",""]],"fn":[["hotkeys",""],["lctrl",""]]});
+initSidebarItems({"constant":[["MAX_DOUBLE_CLICK_DURATION",""]],"enum":[["Event",""],["Key",""],["MultiKey",""]],"fn":[["hotkeys",""],["lctrl",""]]});
