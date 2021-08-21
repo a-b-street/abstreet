@@ -8,7 +8,7 @@ use geom::Duration;
 use crate::{EventCtx, Line, ScreenDims, ScreenPt, TextSpan};
 
 // Mouse-up events longer than this will be considered single clicks
-// Ideally the delay would be a little more tolerant - e.g. 500m, but because we don't actually
+// Ideally the delay would be a little more tolerant - e.g. 500ms, but because we don't actually
 // have a way to indicate that a single click was handled (and thus *shouldn't* be counted as part of a double click)
 // it's too easy to have false positives.
 const MAX_DOUBLE_CLICK_DURATION: instant::Duration = instant::Duration::from_millis(300);
