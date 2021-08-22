@@ -232,7 +232,7 @@ pub fn collapse_intersection(raw: &mut RawMap, i: NodeID) {
     }
 }
 
-const SHORT_THRESHOLD: Distance = Distance::const_meters(10.0);
+const SHORT_THRESHOLD: Distance = Distance::const_meters(30.0);
 
 /// Some cycleways intersect footways with detailed curb mapping. The current rules for figuring
 /// out which walking paths also allow bikes are imperfect, so we wind up with short dead-end
