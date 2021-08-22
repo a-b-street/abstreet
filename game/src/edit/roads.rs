@@ -549,11 +549,7 @@ fn make_main_panel(
             .style()
             .btn_plain
             .icon(lane_type_to_icon(lt).unwrap())
-            .hotkey(if current_lane.is_some() {
-                key.map(|k| k.into())
-            } else {
-                None
-            });
+            .hotkey(key.map(|k| k.into()));
         if current_lt == Some(lt) {
             // If the selected lane is already this type, we can't change it. Hopefully no need to
             // explain this.
