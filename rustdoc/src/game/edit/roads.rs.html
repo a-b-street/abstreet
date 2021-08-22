@@ -814,10 +814,6 @@
 <span id="812">812</span>
 <span id="813">813</span>
 <span id="814">814</span>
-<span id="815">815</span>
-<span id="816">816</span>
-<span id="817">817</span>
-<span id="818">818</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">CornerRadii</span>, <span class="ident">Distance</span>, <span class="ident">UnitFmt</span>};
 <span class="kw">use</span> <span class="ident">map_gui::render</span>::{<span class="ident">Renderable</span>, <span class="ident">OUTLINE_THICKNESS</span>};
@@ -1370,11 +1366,7 @@
             .<span class="ident">style</span>()
             .<span class="ident">btn_plain</span>
             .<span class="ident">icon</span>(<span class="ident">lane_type_to_icon</span>(<span class="ident">lt</span>).<span class="ident">unwrap</span>())
-            .<span class="ident">hotkey</span>(<span class="kw">if</span> <span class="ident">current_lane</span>.<span class="ident">is_some</span>() {
-                <span class="ident">key</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">k</span><span class="op">|</span> <span class="ident">k</span>.<span class="ident">into</span>())
-            } <span class="kw">else</span> {
-                <span class="prelude-val">None</span>
-            });
+            .<span class="ident">hotkey</span>(<span class="ident">key</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">k</span><span class="op">|</span> <span class="ident">k</span>.<span class="ident">into</span>()));
         <span class="kw">if</span> <span class="ident">current_lt</span> <span class="op">=</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">lt</span>) {
             <span class="comment">// If the selected lane is already this type, we can&#39;t change it. Hopefully no need to</span>
             <span class="comment">// explain this.</span>
