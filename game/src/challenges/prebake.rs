@@ -34,7 +34,7 @@ pub fn prebake_all() {
         MapName::seattle("montlake"),
         MapName::seattle("lakeslice"),
         //MapName::seattle("phinney"),
-        MapName::seattle("qa"),
+        //MapName::seattle("qa"),
         //MapName::seattle("rainier_valley"),
         MapName::seattle("wallingford"),
     ] {
