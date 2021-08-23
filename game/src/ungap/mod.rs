@@ -2,6 +2,7 @@ mod labels;
 mod layers;
 mod magnifying;
 mod quick_sketch;
+mod route;
 mod share;
 
 use std::collections::HashMap;
@@ -240,6 +241,12 @@ impl State<App> for ExploreMap {
                         ctx, app,
                     ));
                 }
+                "Plan a route" => {
+                    app.primary.current_selection = None;
+                    return Transition::Push(crate::ungap::route::RoutePlanner::new_state(
+                        ctx, app,
+                    ));
+                }
                 _ => unreachable!(),
             }
         }
@@ -460,6 +467,11 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App) -> Panel {
             .btn_solid_primary
             .icon_text("system/assets/tools/pencil.svg", "Create new bike lanes")
             .hotkey(Key::S)
+            .build_def(ctx),
+        ctx.style()
+            .btn_outline
+            .text("Plan a route")
+            .hotkey(Key::R)
             .build_def(ctx),
     ]))
     .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
