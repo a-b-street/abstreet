@@ -2,8 +2,9 @@ use rand::seq::SliceRandom;
 use rand::SeedableRng;
 use rand_xorshift::XorShiftRng;
 
-use geom::{Circle, Distance, FindClosest, Polygon};
-use sim::TripEndpoint;
+use geom::{Circle, Distance, Duration, FindClosest, Polygon};
+use map_model::NORMAL_LANE_THICKNESS;
+use sim::{TripEndpoint, TripMode};
 use widgetry::{
     Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
     State, Text, TextExt, VerticalAlignment, Widget,
@@ -12,19 +13,24 @@ use widgetry::{
 use crate::app::{App, Transition};
 
 pub struct RoutePlanner {
+    // All of this manages the waypoint input
     input_panel: Panel,
     waypoints: Vec<Waypoint>,
     draw_waypoints: Drawable,
-
     hovering_on_waypt: Option<usize>,
     draw_hover: Drawable,
     // TODO Invariant not captured by these separate fields: when dragging is true,
     // hovering_on_waypt is fixed.
     dragging: bool,
-
     snap_to_endpts: FindClosest<TripEndpoint>,
+
+    // Routing
+    draw_route: Drawable,
+    results_panel: Panel,
 }
 
+// TODO Maybe it's been a while and I've forgotten some UI patterns, but this is painfully manual.
+// I think we need a draggable map-space thing.
 struct Waypoint {
     // TODO Different colors would also be helpful
     order: char,
@@ -51,15 +57,17 @@ impl RoutePlanner {
             input_panel: Panel::empty(ctx),
             waypoints: Vec::new(),
             draw_waypoints: Drawable::empty(ctx),
-
             hovering_on_waypt: None,
             draw_hover: Drawable::empty(ctx),
             dragging: false,
-
             snap_to_endpts,
+
+            draw_route: Drawable::empty(ctx),
+            results_panel: Panel::empty(ctx),
         };
         rp.update_input_panel(ctx);
-        rp.update_drawable(ctx);
+        rp.update_waypoints_drawable(ctx);
+        rp.update_route(ctx, app);
         Box::new(rp)
     }
 
@@ -81,7 +89,7 @@ impl RoutePlanner {
         }
         col.push(
             ctx.style()
-                .btn_plain
+                .btn_outline
                 .text("Add waypoint")
                 .hotkey(Key::A)
                 .build_def(ctx),
@@ -92,7 +100,7 @@ impl RoutePlanner {
             .build(ctx);
     }
 
-    fn update_drawable(&mut self, ctx: &mut EventCtx) {
+    fn update_waypoints_drawable(&mut self, ctx: &mut EventCtx) {
         let mut batch = GeomBatch::new();
         for waypt in &self.waypoints {
             batch.append(waypt.geom.clone());
@@ -140,7 +148,8 @@ impl RoutePlanner {
         if self.waypoints[idx].at != at {
             self.waypoints[idx] = Waypoint::new(ctx, app, at, idx);
             self.update_input_panel(ctx);
-            self.update_drawable(ctx);
+            self.update_waypoints_drawable(ctx);
+            self.update_route(ctx, app);
         }
 
         let mut batch = GeomBatch::new();
@@ -149,6 +158,47 @@ impl RoutePlanner {
         self.draw_hover = ctx.upload(batch);
 
         Some(())
+    }
+
+    fn update_route(&mut self, ctx: &mut EventCtx, app: &App) {
+        let mut batch = GeomBatch::new();
+        let map = &app.primary.map;
+
+        let mut total_distance = Distance::ZERO;
+        let mut total_time = Duration::ZERO;
+
+        for pair in self.waypoints.windows(2) {
+            if let Some((path, draw_path)) =
+                TripEndpoint::path_req(pair[0].at, pair[1].at, TripMode::Bike, map)
+                    .and_then(|req| map.pathfind(req).ok())
+                    .and_then(|path| {
+                        path.trace(&app.primary.map)
+                            .map(|pl| (path, pl.make_polygons(5.0 * NORMAL_LANE_THICKNESS)))
+                    })
+            {
+                batch.push(Color::CYAN, draw_path);
+                total_distance += path.total_length();
+                total_time += path.estimate_duration(map, Some(map_model::MAX_BIKE_SPEED));
+            }
+        }
+
+        self.draw_route = ctx.upload(batch);
+
+        self.results_panel = Panel::new_builder(Widget::col(vec![
+            Line("Your route").small_heading().into_widget(ctx),
+            Text::from_all(vec![
+                Line("Distance: ").secondary(),
+                Line(total_distance.to_string(&app.opts.units)),
+            ])
+            .into_widget(ctx),
+            Text::from_all(vec![
+                Line("Estimated time: ").secondary(),
+                Line(total_time.to_string(&app.opts.units)),
+            ])
+            .into_widget(ctx),
+        ]))
+        .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
+        .build(ctx);
     }
 }
 
@@ -187,7 +237,8 @@ impl State<App> for RoutePlanner {
                 "Add waypoint" => {
                     self.waypoints.push(self.make_new_waypt(ctx, app));
                     self.update_input_panel(ctx);
-                    self.update_drawable(ctx);
+                    self.update_waypoints_drawable(ctx);
+                    self.update_route(ctx, app);
                 }
                 x => {
                     if let Some(x) = x.strip_prefix("delete waypoint ") {
@@ -199,7 +250,8 @@ impl State<App> for RoutePlanner {
                         }
 
                         self.update_input_panel(ctx);
-                        self.update_drawable(ctx);
+                        self.update_waypoints_drawable(ctx);
+                        self.update_route(ctx, app);
                     } else {
                         unreachable!()
                     }
@@ -214,6 +266,9 @@ impl State<App> for RoutePlanner {
         self.input_panel.draw(g);
         g.redraw(&self.draw_waypoints);
         g.redraw(&self.draw_hover);
+
+        self.results_panel.draw(g);
+        g.redraw(&self.draw_route);
     }
 }
 
@@ -251,6 +306,3 @@ impl Waypoint {
         }
     }
 }
-
-// TODO Maybe it's been a while and I've forgotten some UI patterns, but this is painfully manual.
-// I think we need a draggable map-space thing.
