@@ -1,1 +1,1 @@
-initSidebarItems({"constant":[["CONTOUR_STEP_SIZE",""],["INTERSECTION_SEARCH_RADIUS",""]],"fn":[["make_elevation_contours",""]],"struct":[["ElevationContours",""],["SteepStreets",""]]});
+initSidebarItems({"constant":[["CONTOUR_STEP_SIZE",""],["INTERSECTION_SEARCH_RADIUS",""]],"struct":[["ElevationContours",""],["SteepStreets",""]]});
