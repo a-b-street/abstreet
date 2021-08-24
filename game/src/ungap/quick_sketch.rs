@@ -9,12 +9,13 @@ use widgetry::{
 use crate::app::{App, Transition};
 use crate::common::RouteSketcher;
 use crate::edit::apply_map_edits;
-use crate::ungap::layers::{render_edits, DrawNetworkLayer};
+use crate::ungap::bike_network::render_edits;
+use crate::ungap::layers::Layers;
 use crate::ungap::magnifying::MagnifyingGlass;
 
 pub struct QuickSketch {
     top_panel: Panel,
-    network_layer: DrawNetworkLayer,
+    layers: Layers,
     edits_layer: Drawable,
     magnifying_glass: MagnifyingGlass,
     route_sketcher: RouteSketcher,
@@ -24,8 +25,8 @@ impl QuickSketch {
     pub fn new_state(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State<App>> {
         let mut qs = QuickSketch {
             top_panel: Panel::empty(ctx),
+            layers: Layers::new(ctx, app),
             magnifying_glass: MagnifyingGlass::new(ctx),
-            network_layer: DrawNetworkLayer::new(),
             edits_layer: render_edits(ctx, app),
             route_sketcher: RouteSketcher::new(ctx, app),
         };
@@ -118,15 +119,17 @@ impl State<App> for QuickSketch {
             self.update_top_panel(ctx);
         }
 
+        if let Some(t) = self.layers.event(ctx, app) {
+            return t;
+        }
+
         Transition::Keep
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.top_panel.draw(g);
-        if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
-            self.network_layer.draw(g, app);
-            self.magnifying_glass.draw(g, app);
-        }
+        self.layers.draw(g, app);
+        self.magnifying_glass.draw(g, app);
         g.redraw(&self.edits_layer);
         self.route_sketcher.draw(g);
     }

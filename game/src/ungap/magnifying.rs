@@ -50,6 +50,10 @@ impl MagnifyingGlass {
     }
 
     pub fn draw(&self, g: &mut GfxCtx, app: &App) {
+        if g.canvas.cam_zoom >= app.opts.min_zoom_for_detail {
+            return;
+        }
+
         self.panel.draw(g);
         let rect = self.panel.rect_of("glass");
         let zoom = 8.0;

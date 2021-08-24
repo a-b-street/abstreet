@@ -13,8 +13,11 @@ use widgetry::{
 };
 
 use crate::app::{App, Transition};
+use crate::ungap::layers::Layers;
 
 pub struct RoutePlanner {
+    layers: Layers,
+
     // All of this manages the waypoint input
     input_panel: Panel,
     waypoints: Vec<Waypoint>,
@@ -56,6 +59,8 @@ impl RoutePlanner {
         }
 
         let mut rp = RoutePlanner {
+            layers: Layers::new(ctx, app),
+
             input_panel: Panel::empty(ctx),
             waypoints: Vec::new(),
             draw_waypoints: Drawable::empty(ctx),
@@ -361,10 +366,15 @@ impl State<App> for RoutePlanner {
             }
         }
 
+        if let Some(t) = self.layers.event(ctx, app) {
+            return t;
+        }
+
         Transition::Keep
     }
 
-    fn draw(&self, g: &mut GfxCtx, _: &App) {
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
+        self.layers.draw(g, app);
         self.input_panel.draw(g);
         g.redraw(&self.draw_waypoints);
         g.redraw(&self.draw_hover);
