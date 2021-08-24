@@ -2,21 +2,19 @@ use abstutil::Tags;
 use map_gui::tools::PopupMsg;
 use map_model::{BufferType, Direction, EditCmd, EditRoad, LaneSpec, LaneType, RoadID};
 use widgetry::{
-    Choice, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Outcome, Panel, State, TextExt,
+    Choice, EventCtx, GfxCtx, HorizontalAlignment, Key, Outcome, Panel, State, TextExt,
     VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
 use crate::common::RouteSketcher;
 use crate::edit::apply_map_edits;
-use crate::ungap::bike_network::render_edits;
 use crate::ungap::layers::Layers;
 use crate::ungap::magnifying::MagnifyingGlass;
 
 pub struct QuickSketch {
     top_panel: Panel,
     layers: Layers,
-    edits_layer: Drawable,
     magnifying_glass: MagnifyingGlass,
     route_sketcher: RouteSketcher,
 }
@@ -27,7 +25,6 @@ impl QuickSketch {
             top_panel: Panel::empty(ctx),
             layers,
             magnifying_glass: MagnifyingGlass::new(ctx),
-            edits_layer: render_edits(ctx, app),
             route_sketcher: RouteSketcher::new(ctx, app),
         };
         qs.update_top_panel(ctx);
@@ -139,7 +136,6 @@ impl State<App> for QuickSketch {
         self.top_panel.draw(g);
         self.layers.draw(g, app);
         self.magnifying_glass.draw(g, app);
-        g.redraw(&self.edits_layer);
         self.route_sketcher.draw(g);
     }
 }

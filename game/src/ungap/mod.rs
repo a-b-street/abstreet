@@ -7,15 +7,14 @@ mod route;
 mod share;
 
 use geom::Distance;
-use map_gui::tools::{nice_map_name, CityPicker, ColorLegend, PopupMsg, URLManager};
+use map_gui::tools::{nice_map_name, CityPicker, PopupMsg, URLManager};
 use map_gui::ID;
 use map_model::{EditCmd, LaneType};
 use widgetry::{
-    lctrl, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State,
-    TextExt, VerticalAlignment, Widget,
+    lctrl, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State, TextExt,
+    VerticalAlignment, Widget,
 };
 
-use self::bike_network::render_edits;
 use self::layers::Layers;
 use self::magnifying::MagnifyingGlass;
 use crate::app::{App, Transition};
@@ -28,7 +27,6 @@ pub struct ExploreMap {
     top_panel: Panel,
     layers: Layers,
     magnifying_glass: MagnifyingGlass,
-    edits_layer: Drawable,
 
     map_edit_key: usize,
 }
@@ -58,7 +56,6 @@ impl ExploreMap {
             top_panel: Panel::empty(ctx),
             layers,
             magnifying_glass: MagnifyingGlass::new(ctx),
-            edits_layer: Drawable::empty(ctx),
 
             // Start with a bogus value, so we fix up the URL when changing maps
             map_edit_key: usize::MAX,
@@ -74,7 +71,6 @@ impl State<App> for ExploreMap {
         if self.map_edit_key != key {
             self.map_edit_key = key;
             self.top_panel = make_top_panel(ctx, app);
-            self.edits_layer = render_edits(ctx, app);
 
             if let Err(err) = URLManager::update_url_param(
                 "--edits".to_string(),
@@ -195,7 +191,6 @@ impl State<App> for ExploreMap {
         self.top_panel.draw(g);
         self.layers.draw(g, app);
         self.magnifying_glass.draw(g, app);
-        g.redraw(&self.edits_layer);
     }
 }
 
@@ -240,11 +235,6 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App) -> Panel {
         .secondary()
         .into_widget(ctx),
     );
-    file_management.push(ColorLegend::row(
-        ctx,
-        *crate::ungap::bike_network::EDITED_COLOR,
-        "changed road",
-    ));
     file_management.push(Widget::row(vec![
         ctx.style()
             .btn_outline

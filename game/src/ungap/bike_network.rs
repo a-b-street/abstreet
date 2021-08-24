@@ -2,7 +2,7 @@ use std::cell::RefCell;
 use std::collections::HashMap;
 
 use map_model::{LaneType, PathConstraints, Road};
-use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx};
+use widgetry::{Color, Drawable, Fill, GeomBatch, GfxCtx, Texture};
 
 use crate::app::App;
 
@@ -11,8 +11,6 @@ lazy_static::lazy_static! {
     pub static ref PROTECTED_BIKE_LANE: Color = Color::hex("#A4DE02");
     pub static ref PAINTED_BIKE_LANE: Color = Color::hex("#76BA1B");
     pub static ref GREENWAY: Color = Color::hex("#4C9A2A");
-
-    pub static ref EDITED_COLOR: Color = Color::CYAN;
 }
 
 /// Shows the bike network while unzoomed. Handles thickening the roads at low zoom levels.
@@ -84,9 +82,15 @@ impl DrawNetworkLayer {
             };
 
             batch.push(
-                color,
+                // Also show edited roads in this layer
+                if map.get_edits().changed_roads.contains(&r.id) {
+                    Fill::ColoredTexture(color, Texture::CROSS_HATCH)
+                } else {
+                    Fill::Color(color)
+                },
                 r.center_pts.make_polygons(thickness * r.get_width(map)),
             );
+
             // Arbitrarily pick a color when two different types of roads meet
             intersections.insert(r.src_i, color);
             intersections.insert(r.dst_i, color);
@@ -112,16 +116,4 @@ pub fn is_greenway(road: &Road) -> bool {
             .access_restrictions
             .allow_through_traffic
             .contains(PathConstraints::Bike)
-}
-
-pub fn render_edits(ctx: &mut EventCtx, app: &App) -> Drawable {
-    let mut batch = GeomBatch::new();
-    let map = &app.primary.map;
-    for r in &map.get_edits().changed_roads {
-        batch.push(
-            EDITED_COLOR.alpha(0.5),
-            map.get_r(*r).get_thick_polygon(map),
-        );
-    }
-    batch.upload(ctx)
 }
