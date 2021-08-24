@@ -13,7 +13,7 @@ pub struct ColorDiscrete<'a> {
     pub unzoomed: GeomBatch,
     pub zoomed: GeomBatch,
     // Store both, so we can build the legend in the original order later
-    categories: Vec<(String, Color)>,
+    pub categories: Vec<(String, Color)>,
     colors: HashMap<String, Color>,
 }
 

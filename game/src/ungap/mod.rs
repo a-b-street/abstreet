@@ -35,6 +35,7 @@ pub struct ExploreMap {
     labels: Option<DrawRoadLabels>,
     edits_layer: Drawable,
     elevation: bool,
+    steep_streets: Option<Drawable>,
     // TODO Once widgetry buttons can take custom enums, that'd be perfect here
     road_types: HashMap<String, Drawable>,
 
@@ -60,12 +61,13 @@ impl ExploreMap {
 
         Box::new(ExploreMap {
             top_panel: Panel::empty(ctx),
-            bottom_right_panel: make_bottom_right_panel(ctx, app, true, true, false),
+            bottom_right_panel: make_bottom_right_panel(ctx, app, true, true, false, false),
             magnifying_glass: MagnifyingGlass::new(ctx),
             bike_network_layer: Some(DrawNetworkLayer::new()),
             labels: Some(DrawRoadLabels::new()),
             edits_layer: Drawable::empty(ctx),
             elevation: false,
+            steep_streets: None,
             road_types: HashMap::new(),
             zoom_enabled_cache_key: zoom_enabled_cache_key(ctx),
 
@@ -79,6 +81,7 @@ impl ExploreMap {
         if name == "bike network"
             || name == "road labels"
             || name == "elevation"
+            || name == "steep streets"
             || name.starts_with("about ")
         {
             return;
@@ -267,13 +270,13 @@ impl State<App> for ExploreMap {
                    "zoom map out" => {
                         ctx.canvas.center_zoom(-8.0);
                         debug!("clicked zoomed out to: {}", ctx.canvas.cam_zoom);
-                        self.bottom_right_panel = make_bottom_right_panel(ctx, app, self.bike_network_layer.is_some(), self.labels.is_some(), self.elevation);
+                        self.bottom_right_panel = make_bottom_right_panel(ctx, app, self.bike_network_layer.is_some(), self.labels.is_some(), self.elevation, self.steep_streets.is_some());
                         return Transition::Keep;
                     },
                     "zoom map in" => {
                         ctx.canvas.center_zoom(8.0);
                         debug!("clicked zoomed in to: {}", ctx.canvas.cam_zoom);
-                        self.bottom_right_panel = make_bottom_right_panel(ctx, app, self.bike_network_layer.is_some(), self.labels.is_some(), self.elevation);
+                        self.bottom_right_panel = make_bottom_right_panel(ctx, app, self.bike_network_layer.is_some(), self.labels.is_some(), self.elevation, self.steep_streets.is_some());
                         return Transition::Keep;
                     },
                     _ => unreachable!(),
@@ -302,6 +305,7 @@ impl State<App> for ExploreMap {
                         self.bike_network_layer.is_some(),
                         self.labels.is_some(),
                         self.elevation,
+                        self.steep_streets.is_some(),
                     );
                     if self.elevation {
                         let name = app.primary.map.get_name().clone();
@@ -313,11 +317,39 @@ impl State<App> for ExploreMap {
                                 high = high.max(i.elevation);
                             }
                             // TODO Maybe also draw the uphill arrows on the steepest streets?
-                            let value = crate::layer::elevation::make_elevation_contours(
+                            let value = crate::layer::elevation::ElevationContours::make_contours(
                                 ctx, app, low, high,
                             );
                             app.session.elevation_contours.set(name, value);
                         }
+                    }
+                }
+                "steep streets" => {
+                    if self.bottom_right_panel.is_checked("steep streets") {
+                        let (colorer, _, uphill_legend) =
+                            crate::layer::elevation::SteepStreets::make_colorer(ctx, app);
+                        // Make a horizontal legend for the incline
+                        let mut legend: Vec<Widget> = colorer
+                            .categories
+                            .iter()
+                            .map(|(label, color)| {
+                                legend_batch(ctx, *color, Text::from(Line(label).fg(Color::WHITE)))
+                                    .into_widget(ctx)
+                            })
+                            .collect();
+                        legend.push(uphill_legend);
+                        let legend = Widget::custom_row(legend);
+                        self.bottom_right_panel
+                            .replace(ctx, "steep streets legend", legend);
+
+                        self.steep_streets = Some(colorer.unzoomed.upload(ctx));
+                    } else {
+                        self.steep_streets = None;
+                        self.bottom_right_panel.replace(
+                            ctx,
+                            "steep streets legend",
+                            Text::new().into_widget(ctx),
+                        );
                     }
                 }
                 _ => unreachable!(),
@@ -336,6 +368,7 @@ impl State<App> for ExploreMap {
                 self.bike_network_layer.is_some(),
                 self.labels.is_some(),
                 self.elevation,
+                self.steep_streets.is_some(),
             );
             self.zoom_enabled_cache_key = zoom_enabled_cache_key(ctx);
         }
@@ -350,7 +383,6 @@ impl State<App> for ExploreMap {
             if let Some(ref n) = self.bike_network_layer {
                 n.draw(g, app);
             }
-            // TODO Might be useful to toggle these off
             if let Some(ref l) = self.labels {
                 l.draw(g, app);
             }
@@ -359,6 +391,9 @@ impl State<App> for ExploreMap {
                 if let Some((_, ref draw)) = app.session.elevation_contours.value() {
                     g.redraw(draw);
                 }
+            }
+            if let Some(ref draw) = self.steep_streets {
+                g.redraw(draw);
             }
             self.magnifying_glass.draw(g, app);
 
@@ -466,7 +501,7 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App) -> Panel {
         ctx.style()
             .btn_solid_primary
             .icon_text("system/assets/tools/pencil.svg", "Create new bike lanes")
-            .hotkey(Key::S)
+            .hotkey(Key::C)
             .build_def(ctx),
         ctx.style()
             .btn_outline
@@ -520,6 +555,7 @@ fn make_legend(
     bike_network: bool,
     labels: bool,
     elevation: bool,
+    steep_streets: bool,
 ) -> Widget {
     Widget::col(vec![
         Widget::custom_row(vec![
@@ -538,23 +574,25 @@ fn make_legend(
         // TODO Distinguish door-zone bike lanes?
         // TODO Call out bike turning boxes?
         // TODO Call out bike signals?
-        Toggle::checkbox(ctx, "road labels", None, labels),
-        Widget::custom_row(vec![
-            Widget::row(vec![
-                Toggle::checkbox(ctx, "elevation", Key::E, elevation),
-                ctx.style()
-                    .btn_plain
-                    .icon("system/assets/tools/info.svg")
-                    .build_widget(ctx, "about the elevation data")
-                    .centered_vert(),
-                Text::new()
-                    .into_widget(ctx)
-                    .named("current elevation")
-                    .centered_vert(),
-            ]),
-            // TODO Probably a collisions layer, or the alternate "steep streets"
-        ])
-        .evenly_spaced(),
+        Toggle::checkbox(ctx, "road labels", Key::L, labels),
+        Widget::row(vec![
+            Toggle::checkbox(ctx, "elevation", Key::E, elevation),
+            ctx.style()
+                .btn_plain
+                .icon("system/assets/tools/info.svg")
+                .build_widget(ctx, "about the elevation data")
+                .centered_vert(),
+            Text::new()
+                .into_widget(ctx)
+                .named("current elevation")
+                .centered_vert(),
+        ]),
+        Widget::row(vec![
+            Toggle::checkbox(ctx, "steep streets", Key::S, steep_streets),
+            // A placeholder
+            Text::new().into_widget(ctx).named("steep streets legend"),
+        ]),
+        // TODO Probably a collisions layer
     ])
 }
 
@@ -564,10 +602,11 @@ fn make_bottom_right_panel(
     bike_network: bool,
     labels: bool,
     elevation: bool,
+    steep_streets: bool,
 ) -> Panel {
     Panel::new_builder(Widget::col(vec![
         make_zoom_controls(ctx).align_right().padding_right(16),
-        make_legend(ctx, app, bike_network, labels, elevation)
+        make_legend(ctx, app, bike_network, labels, elevation, steep_streets)
             .padding(16)
             .bg(ctx.style().panel_bg),
     ]))
@@ -575,10 +614,10 @@ fn make_bottom_right_panel(
     .build_custom(ctx)
 }
 
-fn legend_item(ctx: &mut EventCtx, color: Color, label: &str) -> Widget {
+fn legend_batch(ctx: &mut EventCtx, color: Color, txt: Text) -> GeomBatch {
     // TODO Height of the "trail" button is slightly too low!
     // Text with padding and a background color
-    let (mut batch, hitbox) = Text::from(Line(label))
+    let (mut batch, hitbox) = txt
         .render(ctx)
         .batch()
         .container()
@@ -590,7 +629,11 @@ fn legend_item(ctx: &mut EventCtx, color: Color, label: &str) -> Widget {
         })
         .into_geom(ctx, None);
     batch.unshift(color, hitbox);
+    batch
+}
 
+fn legend_item(ctx: &mut EventCtx, color: Color, label: &str) -> Widget {
+    let batch = legend_batch(ctx, color, Text::from(Line(label)));
     return ButtonBuilder::new()
         .custom_batch(batch.clone(), ControlState::Default)
         .custom_batch(

@@ -48,6 +48,28 @@ impl Layer for SteepStreets {
 
 impl SteepStreets {
     pub fn new(ctx: &mut EventCtx, app: &App) -> SteepStreets {
+        let (colorer, steepest, uphill_legend) = SteepStreets::make_colorer(ctx, app);
+        let (unzoomed, zoomed, legend) = colorer.build(ctx);
+
+        let panel = Panel::new_builder(Widget::col(vec![
+            header(ctx, "Steep streets"),
+            uphill_legend,
+            legend,
+            format!("Steepest road: {:.0}% incline", steepest * 100.0).text_widget(ctx),
+        ]))
+        .aligned_pair(PANEL_PLACEMENT)
+        .build(ctx);
+
+        SteepStreets {
+            tooltip: None,
+            unzoomed,
+            zoomed,
+            panel,
+        }
+    }
+
+    /// Also returns the steepest street and a row explaining the uphill arrows
+    pub fn make_colorer<'a>(ctx: &mut EventCtx, app: &'a App) -> (ColorDiscrete<'a>, f64, Widget) {
         let mut colorer = ColorDiscrete::new(
             app,
             vec![
@@ -108,7 +130,6 @@ impl SteepStreets {
             }
         }
         colorer.unzoomed.append(arrows);
-        let (unzoomed, zoomed, legend) = colorer.build(ctx);
 
         let pt = Pt2D::new(0.0, 0.0);
         let panel_arrow = PolyLine::must_new(vec![
@@ -118,26 +139,14 @@ impl SteepStreets {
         ])
         .make_polygons(thickness)
         .scale(5.0);
-        let panel = Panel::new_builder(Widget::col(vec![
-            header(ctx, "Steep streets"),
-            Widget::row(vec![
-                GeomBatch::from(vec![(ctx.style().text_primary_color, panel_arrow)])
-                    .autocrop()
-                    .into_widget(ctx),
-                "points uphill".text_widget(ctx).centered_vert(),
-            ]),
-            legend,
-            format!("Steepest road: {:.0}% incline", steepest * 100.0).text_widget(ctx),
-        ]))
-        .aligned_pair(PANEL_PLACEMENT)
-        .build(ctx);
+        let uphill_legend = Widget::row(vec![
+            GeomBatch::from(vec![(ctx.style().text_primary_color, panel_arrow)])
+                .autocrop()
+                .into_widget(ctx),
+            "points uphill".text_widget(ctx).centered_vert(),
+        ]);
 
-        SteepStreets {
-            tooltip: None,
-            unzoomed,
-            zoomed,
-            panel,
-        }
+        (colorer, steepest, uphill_legend)
     }
 }
 
@@ -198,7 +207,7 @@ impl ElevationContours {
             high = high.max(i.elevation);
         }
 
-        let (closest_elevation, unzoomed) = make_elevation_contours(ctx, app, low, high);
+        let (closest_elevation, unzoomed) = ElevationContours::make_contours(ctx, app, low, high);
 
         let panel = Panel::new_builder(Widget::col(vec![
             header(ctx, "Elevation"),
@@ -219,92 +228,92 @@ impl ElevationContours {
             panel,
         }
     }
-}
 
-pub fn make_elevation_contours(
-    ctx: &mut EventCtx,
-    app: &App,
-    low: Distance,
-    high: Distance,
-) -> (FindClosest<Distance>, Drawable) {
-    let bounds = app.primary.map.get_bounds();
-    let mut closest = FindClosest::new(bounds);
-    let mut batch = GeomBatch::new();
+    pub fn make_contours(
+        ctx: &mut EventCtx,
+        app: &App,
+        low: Distance,
+        high: Distance,
+    ) -> (FindClosest<Distance>, Drawable) {
+        let bounds = app.primary.map.get_bounds();
+        let mut closest = FindClosest::new(bounds);
+        let mut batch = GeomBatch::new();
 
-    ctx.loading_screen("generate contours", |_, timer| {
-        timer.start("gather input");
+        ctx.loading_screen("generate contours", |_, timer| {
+            timer.start("gather input");
 
-        let resolution_m = 30.0;
-        // Elevation in meters
-        let mut grid: Grid<f64> = Grid::new(
-            (bounds.width() / resolution_m).ceil() as usize,
-            (bounds.height() / resolution_m).ceil() as usize,
-            0.0,
-        );
+            let resolution_m = 30.0;
+            // Elevation in meters
+            let mut grid: Grid<f64> = Grid::new(
+                (bounds.width() / resolution_m).ceil() as usize,
+                (bounds.height() / resolution_m).ceil() as usize,
+                0.0,
+            );
 
-        // Since gaps in the grid mess stuff up, just fill out each grid cell. Explicitly do the
-        // interpolation to the nearest measurement we have.
-        for i in app.primary.map.all_intersections() {
-            // TODO Or maybe even just the center?
-            closest.add(i.elevation, i.polygon.points());
-        }
-        let mut indices = Vec::new();
-        for x in 0..grid.width {
-            for y in 0..grid.height {
-                indices.push((x, y));
+            // Since gaps in the grid mess stuff up, just fill out each grid cell. Explicitly do the
+            // interpolation to the nearest measurement we have.
+            for i in app.primary.map.all_intersections() {
+                // TODO Or maybe even just the center?
+                closest.add(i.elevation, i.polygon.points());
             }
-        }
-        for (idx, elevation) in timer.parallelize("fill out grid", indices, |(x, y)| {
-            let pt = Pt2D::new((x as f64) * resolution_m, (y as f64) * resolution_m);
-            let elevation = match closest.closest_pt(pt, INTERSECTION_SEARCH_RADIUS) {
-                Some((e, _)) => e,
-                // No intersections nearby... assume ocean?
-                None => Distance::ZERO,
-            };
-            (grid.idx(x, y), elevation)
-        }) {
-            grid.data[idx] = elevation.inner_meters();
-        }
-        timer.stop("gather input");
+            let mut indices = Vec::new();
+            for x in 0..grid.width {
+                for y in 0..grid.height {
+                    indices.push((x, y));
+                }
+            }
+            for (idx, elevation) in timer.parallelize("fill out grid", indices, |(x, y)| {
+                let pt = Pt2D::new((x as f64) * resolution_m, (y as f64) * resolution_m);
+                let elevation = match closest.closest_pt(pt, INTERSECTION_SEARCH_RADIUS) {
+                    Some((e, _)) => e,
+                    // No intersections nearby... assume ocean?
+                    None => Distance::ZERO,
+                };
+                (grid.idx(x, y), elevation)
+            }) {
+                grid.data[idx] = elevation.inner_meters();
+            }
+            timer.stop("gather input");
 
-        timer.start("calculate contours");
-        // Generate polygons covering the contour line where the cost in the grid crosses these
-        // threshold values.
-        let mut thresholds: Vec<f64> = Vec::new();
-        let mut x = low;
-        while x < high {
-            thresholds.push(x.inner_meters());
-            x += CONTOUR_STEP_SIZE;
-        }
-        // And color the polygon for each threshold
-        let scale = ColorScale(vec![Color::WHITE, Color::RED]);
-        let colors: Vec<Color> = (0..thresholds.len())
-            .map(|i| scale.eval((i as f64) / (thresholds.len() as f64)))
-            .collect();
-        let smooth = false;
-        let c = contour::ContourBuilder::new(grid.width as u32, grid.height as u32, smooth);
-        let features = c.contours(&grid.data, &thresholds).unwrap();
-        timer.stop("calculate contours");
+            timer.start("calculate contours");
+            // Generate polygons covering the contour line where the cost in the grid crosses these
+            // threshold values.
+            let mut thresholds: Vec<f64> = Vec::new();
+            let mut x = low;
+            while x < high {
+                thresholds.push(x.inner_meters());
+                x += CONTOUR_STEP_SIZE;
+            }
+            // And color the polygon for each threshold
+            let scale = ColorScale(vec![Color::WHITE, Color::RED]);
+            let colors: Vec<Color> = (0..thresholds.len())
+                .map(|i| scale.eval((i as f64) / (thresholds.len() as f64)))
+                .collect();
+            let smooth = false;
+            let c = contour::ContourBuilder::new(grid.width as u32, grid.height as u32, smooth);
+            let features = c.contours(&grid.data, &thresholds).unwrap();
+            timer.stop("calculate contours");
 
-        timer.start_iter("draw", features.len());
-        for (feature, color) in features.into_iter().zip(colors) {
-            timer.next();
-            match feature.geometry.unwrap().value {
-                geojson::Value::MultiPolygon(polygons) => {
-                    for p in polygons {
-                        if let Ok(p) = Polygon::from_geojson(&p) {
-                            let poly = p.scale(resolution_m);
-                            if let Ok(x) = poly.to_outline(Distance::meters(5.0)) {
-                                batch.push(Color::BLACK.alpha(0.5), x);
+            timer.start_iter("draw", features.len());
+            for (feature, color) in features.into_iter().zip(colors) {
+                timer.next();
+                match feature.geometry.unwrap().value {
+                    geojson::Value::MultiPolygon(polygons) => {
+                        for p in polygons {
+                            if let Ok(p) = Polygon::from_geojson(&p) {
+                                let poly = p.scale(resolution_m);
+                                if let Ok(x) = poly.to_outline(Distance::meters(5.0)) {
+                                    batch.push(Color::BLACK.alpha(0.5), x);
+                                }
+                                batch.push(color.alpha(0.1), poly);
                             }
-                            batch.push(color.alpha(0.1), poly);
                         }
                     }
+                    _ => unreachable!(),
                 }
-                _ => unreachable!(),
             }
-        }
-    });
+        });
 
-    (closest, batch.upload(ctx))
+        (closest, batch.upload(ctx))
+    }
 }
