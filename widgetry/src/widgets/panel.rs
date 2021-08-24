@@ -40,6 +40,7 @@ impl Panel {
             horiz: HorizontalAlignment::Center,
             vert: VerticalAlignment::Center,
             dims: Dims::MaxPercent(Percent::int(100), Percent::int(100)),
+            ignore_initial_events: false,
         }
     }
 
@@ -564,6 +565,7 @@ pub struct PanelBuilder {
     horiz: HorizontalAlignment,
     vert: VerticalAlignment,
     dims: Dims,
+    ignore_initial_events: bool,
 }
 
 enum Dims {
@@ -580,6 +582,7 @@ impl PanelBuilder {
     }
 
     pub fn build_custom(self, ctx: &mut EventCtx) -> Panel {
+        let ignore_initial_events = self.ignore_initial_events;
         let mut panel = Panel {
             top_level: self.top_level,
 
@@ -633,7 +636,11 @@ impl PanelBuilder {
         panel.get_all_click_actions();
         // Let all widgets initially respond to the mouse being somewhere
         ctx.no_op_event(true, |ctx| {
-            assert!(matches!(panel.event(ctx), Outcome::Nothing))
+            if ignore_initial_events {
+                panel.event(ctx);
+            } else {
+                assert!(matches!(panel.event(ctx), Outcome::Nothing))
+            }
         });
         panel
     }
@@ -670,6 +677,18 @@ impl PanelBuilder {
 
     pub fn exact_size(mut self, size: ScreenDims) -> PanelBuilder {
         self.dims = Dims::ExactSize(size);
+        self
+    }
+
+    /// When a panel is built, a fake, "no-op" mouseover event is immediately fired, to let all
+    /// widgets initially pick up the position of the mouse. Normally this event should only
+    /// produce `Outcome::Nothing`, since other outcomes will be lost -- there's no way for the
+    /// caller to see that first outcome.
+    ///
+    /// If a caller expects this first mouseover to possibly produce an outcome, they can call this
+    /// and avoid the assertion.
+    pub fn ignore_initial_events(mut self) -> PanelBuilder {
+        self.ignore_initial_events = true;
         self
     }
 }

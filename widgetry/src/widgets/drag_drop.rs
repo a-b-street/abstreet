@@ -210,8 +210,11 @@ impl<T: 'static + Copy + PartialEq> WidgetImpl for DragDrop<T> {
 
     fn event(&mut self, ctx: &mut EventCtx, output: &mut WidgetOutput) {
         let new_state = match self.state {
-            State::Initial { selected, .. } => {
+            State::Initial { selected, hovering } => {
                 if let Some(idx) = self.mouseover_card(ctx) {
+                    if hovering != Some(idx) {
+                        output.outcome = Outcome::Changed(self.label.clone());
+                    }
                     State::Idle {
                         hovering: Some(idx),
                         selected,

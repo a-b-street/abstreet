@@ -1,4 +1,3 @@
-use abstutil::Tags;
 use geom::{Bounds, CornerRadii, Distance, UnitFmt};
 use map_gui::render::{Renderable, OUTLINE_THICKNESS};
 use map_gui::tools::PopupMsg;
@@ -770,6 +769,10 @@ fn make_main_panel(
         road_settings,
     ]))
     .aligned(HorizontalAlignment::Left, VerticalAlignment::Center)
+    // If we're hovering on a lane card, we'll immediately produce Outcome::Changed. Since this
+    // usually happens in recalc_all_panels, that's fine -- we'll look up the current lane card
+    // there anyway.
+    .ignore_initial_events()
     .build(ctx)
 }
 
