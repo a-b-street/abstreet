@@ -949,14 +949,6 @@
 <span id="947">947</span>
 <span id="948">948</span>
 <span id="949">949</span>
-<span id="950">950</span>
-<span id="951">951</span>
-<span id="952">952</span>
-<span id="953">953</span>
-<span id="954">954</span>
-<span id="955">955</span>
-<span id="956">956</span>
-<span id="957">957</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashSet</span>};
 
@@ -1853,14 +1845,6 @@
         <span class="ident">dist</span> <span class="op">+</span><span class="op">=</span> <span class="ident">step</span>.<span class="ident">as_traversable</span>().<span class="ident">get_polyline</span>(<span class="ident">map</span>).<span class="ident">length</span>();
     }
 
-    <span class="comment">// TODO Cache this value?</span>
-    <span class="kw">let</span> <span class="ident">max_elevation</span> <span class="op">=</span> <span class="ident">map</span>
-        .<span class="ident">all_intersections</span>()
-        .<span class="ident">iter</span>()
-        .<span class="ident">max_by_key</span>(<span class="op">|</span><span class="ident">i</span><span class="op">|</span> <span class="ident">i</span>.<span class="ident">elevation</span>)
-        .<span class="ident">unwrap</span>()
-        .<span class="ident">elevation</span>;
-
     <span class="comment">// TODO Show roughly where we are in the trip; use distance covered by current path for this</span>
     <span class="ident">LinePlot::new_widget</span>(
         <span class="ident">ctx</span>,
@@ -1881,7 +1865,7 @@
             <span class="comment">// If we use the max elevation encountered along the route, then no matter how we</span>
             <span class="comment">// round, there are always edge cases where the scale will jump. So just use the</span>
             <span class="comment">// maximum elevation from the entire map.</span>
-            <span class="ident">max_y</span>: <span class="prelude-val">Some</span>(<span class="ident">max_elevation</span>.<span class="ident">round_up_for_axis</span>()),
+            <span class="ident">max_y</span>: <span class="prelude-val">Some</span>(<span class="ident">map</span>.<span class="ident">max_elevation</span>().<span class="ident">round_up_for_axis</span>()),
             <span class="ident">disabled</span>: <span class="ident">HashSet::new</span>(),
         },
     )

@@ -792,6 +792,32 @@
 <span id="790">790</span>
 <span id="791">791</span>
 <span id="792">792</span>
+<span id="793">793</span>
+<span id="794">794</span>
+<span id="795">795</span>
+<span id="796">796</span>
+<span id="797">797</span>
+<span id="798">798</span>
+<span id="799">799</span>
+<span id="800">800</span>
+<span id="801">801</span>
+<span id="802">802</span>
+<span id="803">803</span>
+<span id="804">804</span>
+<span id="805">805</span>
+<span id="806">806</span>
+<span id="807">807</span>
+<span id="808">808</span>
+<span id="809">809</span>
+<span id="810">810</span>
+<span id="811">811</span>
+<span id="812">812</span>
+<span id="813">813</span>
+<span id="814">814</span>
+<span id="815">815</span>
+<span id="816">816</span>
+<span id="817">817</span>
+<span id="818">818</span>
 </pre><pre class="rust">
 <span class="doccomment">//! A bunch of (mostly read-only) queries on a Map.</span>
 
@@ -1583,6 +1609,32 @@
             }
         }
         <span class="prelude-val">None</span>
+    }
+
+    <span class="doccomment">/// Returns the highest elevation in the map</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">max_elevation</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Distance</span> {
+        <span class="comment">// TODO Cache?</span>
+        <span class="self">self</span>.<span class="ident">all_intersections</span>()
+            .<span class="ident">iter</span>()
+            .<span class="ident">max_by_key</span>(<span class="op">|</span><span class="ident">i</span><span class="op">|</span> <span class="ident">i</span>.<span class="ident">elevation</span>)
+            .<span class="ident">unwrap</span>()
+            .<span class="ident">elevation</span>
+    }
+
+    <span class="doccomment">/// Does a turn at a stop sign go from a smaller to a larger road?</span>
+    <span class="doccomment">/// (Note this doesn&#39;t look at unprotected movements in traffic signals, since we don&#39;t yet</span>
+    <span class="doccomment">/// have good heuristics for when those exist)</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_unprotected_turn</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">from</span>: <span class="ident">RoadID</span>, <span class="ident">to</span>: <span class="ident">RoadID</span>, <span class="ident">turn_type</span>: <span class="ident">TurnType</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+        <span class="kw">let</span> <span class="ident">unprotected_turn_type</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">get_config</span>().<span class="ident">driving_side</span> <span class="op">=</span><span class="op">=</span> <span class="ident">DrivingSide::Right</span> {
+            <span class="ident">TurnType::Left</span>
+        } <span class="kw">else</span> {
+            <span class="ident">TurnType::Right</span>
+        };
+        <span class="kw">let</span> <span class="ident">from</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_r</span>(<span class="ident">from</span>);
+        <span class="kw">let</span> <span class="ident">to</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_r</span>(<span class="ident">to</span>);
+        <span class="ident">turn_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">unprotected_turn_type</span>
+            <span class="op">&amp;&amp;</span> <span class="ident">from</span>.<span class="ident">get_detailed_rank</span>() <span class="op">&lt;</span> <span class="ident">to</span>.<span class="ident">get_detailed_rank</span>()
+            <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">get_i</span>(<span class="ident">from</span>.<span class="ident">common_endpt</span>(<span class="ident">to</span>)).<span class="ident">is_stop_sign</span>()
     }
 }
 </pre></div>
