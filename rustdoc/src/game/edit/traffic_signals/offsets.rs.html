@@ -391,7 +391,7 @@
         <span class="kw">match</span> <span class="ident">x</span> {
             <span class="string">&quot;close&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="comment">// TODO Bit confusing UX, because all the offset changes won&#39;t show up in the</span>
-                <span class="comment">// undo stack. Could maybe do ReplaceWithData.</span>
+                <span class="comment">// undo stack. Could maybe do ConsumeState.</span>
                 <span class="ident">Transition::Pop</span>
             }
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),

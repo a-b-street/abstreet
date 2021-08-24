@@ -300,10 +300,10 @@
                                 <span class="kw">if</span> <span class="ident">success</span> {
                                     <span class="ident">abstio::delete_file</span>(<span class="string">&quot;boundary.geojson&quot;</span>);
 
-                                    <span class="ident">Transition::ReplaceWithData</span>(<span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
-                                        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">import</span> <span class="op">=</span>
+                                    <span class="ident">Transition::ConsumeState</span>(<span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
+                                        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">state</span> <span class="op">=</span>
                                             <span class="ident">state</span>.<span class="ident">downcast</span>::<span class="op">&lt;</span><span class="ident">ImportCity</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span>().<span class="ident">ok</span>().<span class="ident">unwrap</span>();
-                                        <span class="kw">let</span> <span class="ident">on_load</span> <span class="op">=</span> <span class="ident">import</span>.<span class="ident">on_load</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>();
+                                        <span class="kw">let</span> <span class="ident">on_load</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">on_load</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>();
                                         <span class="comment">// one_step_import prints the name of the map as the last</span>
                                         <span class="comment">// line.</span>
                                         <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span>

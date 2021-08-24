@@ -1039,7 +1039,7 @@
                         <span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">name</span>, <span class="kw">_</span>, <span class="kw">_</span><span class="op">|</span> {
                             <span class="ident">Transition::Multi</span>(<span class="macro">vec!</span>[
                                 <span class="ident">Transition::Pop</span>,
-                                <span class="ident">Transition::ReplaceWithData</span>(<span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="kw">_</span><span class="op">|</span> {
+                                <span class="ident">Transition::ConsumeState</span>(<span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="kw">_</span><span class="op">|</span> {
                                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">state</span> <span class="op">=</span>
                                         <span class="ident">state</span>.<span class="ident">downcast</span>::<span class="op">&lt;</span><span class="ident">EditScenarioModifiers</span><span class="op">&gt;</span>().<span class="ident">ok</span>().<span class="ident">unwrap</span>();
                                     <span class="ident">state</span>.<span class="ident">modifiers</span>.<span class="ident">push</span>(<span class="ident">ScenarioModifier::AddExtraTrips</span>(<span class="ident">name</span>));

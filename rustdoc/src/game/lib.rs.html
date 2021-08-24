@@ -876,7 +876,7 @@
             <span class="macro">vec!</span>[<span class="ident">SandboxMode::simple_new</span>(<span class="ident">app</span>, <span class="ident">mode</span>)]
         }
     } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">setup</span>.<span class="ident">ungap</span> {
-        <span class="macro">vec!</span>[<span class="ident">ungap::ExploreMap::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)]
+        <span class="macro">vec!</span>[<span class="ident">ungap::ExploreMap::launch</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)]
     } <span class="kw">else</span> {
         <span class="comment">// Not attempting to keep the primary and secondary simulations synchronized at the same</span>
         <span class="comment">// time yet. Just handle this one startup case, so we can switch maps without constantly</span>

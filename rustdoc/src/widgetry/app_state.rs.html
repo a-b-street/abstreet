@@ -298,6 +298,7 @@
 <span id="296">296</span>
 <span id="297">297</span>
 <span id="298">298</span>
+<span id="299">299</span>
 </pre><pre class="rust">
 <span class="doccomment">//! A widgetry application splits its state into two pieces: global shared state that lasts for the</span>
 <span class="doccomment">//! entire lifetime of the application, and a stack of smaller states, only one of which is active</span>
@@ -416,7 +417,7 @@
                 );
                 <span class="bool-val">true</span>
             }
-            <span class="ident">Transition::ReplaceWithData</span>(<span class="ident">cb</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Transition::ConsumeState</span>(<span class="ident">cb</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">last</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">states</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>();
                 <span class="ident">last</span>.<span class="ident">on_destroy</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">shared_app_state</span>);
                 <span class="kw">let</span> <span class="ident">new_states</span> <span class="op">=</span> <span class="ident">cb</span>(<span class="ident">last</span>, <span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">shared_app_state</span>);
@@ -499,9 +500,10 @@
     <span class="doccomment">/// If a state needs to pass data back to its parent, use this. In the callback, you have to</span>
     <span class="doccomment">/// downcast the previous state to populate it with data.</span>
     <span class="ident">ModifyState</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span>)<span class="op">&gt;</span>),
-    <span class="comment">// TODO This is like Replace + ModifyState, then returning a few Push&#39;s from the callback. Not</span>
-    <span class="comment">// sure how to express it in terms of the others without complicating ModifyState everywhere.</span>
-    <span class="ident">ReplaceWithData</span>(
+    <span class="doccomment">/// This destroys the current state, running the callback on it, and pushes new states onto the</span>
+    <span class="doccomment">/// stack. The callback can consume the current state, thus salvaging fields from it without</span>
+    <span class="doccomment">/// cloning.</span>
+    <span class="ident">ConsumeState</span>(
         <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">FnOnce</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">A</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     ),
     <span class="doccomment">/// Push a new active state on the top of the stack.</span>

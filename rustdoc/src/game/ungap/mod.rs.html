@@ -290,6 +290,22 @@
 <span id="288">288</span>
 <span id="289">289</span>
 <span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
 </pre><pre class="rust">
 <span class="kw">mod</span> <span class="ident">bike_network</span>;
 <span class="kw">mod</span> <span class="ident">labels</span>;
@@ -327,7 +343,12 @@
 }
 
 <span class="kw">impl</span> <span class="ident">ExploreMap</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">launch</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">layers</span> <span class="op">=</span> <span class="ident">Layers::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+        <span class="ident">ExploreMap::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">layers</span>)
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>, <span class="ident">layers</span>: <span class="ident">Layers</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">show_building_driveways</span> <span class="op">=</span> <span class="bool-val">false</span>;
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="ident">URLManager::update_url_free_param</span>(
@@ -344,7 +365,7 @@
 
         <span class="ident">Box::new</span>(<span class="ident">ExploreMap</span> {
             <span class="ident">top_panel</span>: <span class="ident">Panel::empty</span>(<span class="ident">ctx</span>),
-            <span class="ident">layers</span>: <span class="ident">Layers::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
+            <span class="ident">layers</span>,
             <span class="ident">magnifying_glass</span>: <span class="ident">MagnifyingGlass::new</span>(<span class="ident">ctx</span>),
             <span class="ident">edits_layer</span>: <span class="ident">Drawable::empty</span>(<span class="ident">ctx</span>),
 
@@ -416,7 +437,8 @@
                         <span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
                             <span class="ident">Transition::Multi</span>(<span class="macro">vec!</span>[
                                 <span class="ident">Transition::Pop</span>,
-                                <span class="ident">Transition::Replace</span>(<span class="ident">ExploreMap::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)),
+                                <span class="comment">// Since we&#39;re totally changing maps, don&#39;t reuse the Layers</span>
+                                <span class="ident">Transition::Replace</span>(<span class="ident">ExploreMap::launch</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)),
                             ])
                         }),
                     ));
@@ -447,15 +469,25 @@
                 }
                 <span class="string">&quot;Create new bike lanes&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-                    <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="kw">crate</span><span class="ident">::ungap::quick_sketch::QuickSketch::new_state</span>(
-                        <span class="ident">ctx</span>, <span class="ident">app</span>,
-                    ));
+                    <span class="kw">return</span> <span class="ident">Transition::ConsumeState</span>(<span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
+                        <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">downcast</span>::<span class="op">&lt;</span><span class="ident">ExploreMap</span><span class="op">&gt;</span>().<span class="ident">ok</span>().<span class="ident">unwrap</span>();
+                        <span class="macro">vec!</span>[<span class="kw">crate</span><span class="ident">::ungap::quick_sketch::QuickSketch::new_state</span>(
+                            <span class="ident">ctx</span>,
+                            <span class="ident">app</span>,
+                            <span class="ident">state</span>.<span class="ident">layers</span>,
+                        )]
+                    }));
                 }
                 <span class="string">&quot;Plan a route&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-                    <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="kw">crate</span><span class="ident">::ungap::route::RoutePlanner::new_state</span>(
-                        <span class="ident">ctx</span>, <span class="ident">app</span>,
-                    ));
+                    <span class="kw">return</span> <span class="ident">Transition::ConsumeState</span>(<span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
+                        <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">downcast</span>::<span class="op">&lt;</span><span class="ident">ExploreMap</span><span class="op">&gt;</span>().<span class="ident">ok</span>().<span class="ident">unwrap</span>();
+                        <span class="macro">vec!</span>[<span class="kw">crate</span><span class="ident">::ungap::route::RoutePlanner::new_state</span>(
+                            <span class="ident">ctx</span>,
+                            <span class="ident">app</span>,
+                            <span class="ident">state</span>.<span class="ident">layers</span>,
+                        )]
+                    }));
                 }
                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
             }

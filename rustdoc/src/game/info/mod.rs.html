@@ -1369,7 +1369,7 @@
                     <span class="comment">// When executed, this assumes the SandboxMode is the top of the stack. It&#39;ll</span>
                     <span class="comment">// reopen the info panel, then launch the jump-to-time UI.</span>
                     <span class="kw">let</span> <span class="ident">jump_to_time</span> <span class="op">=</span>
-                        <span class="ident">Transition::ReplaceWithData</span>(<span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
+                        <span class="ident">Transition::ConsumeState</span>(<span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
                             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">sandbox</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">downcast</span>::<span class="op">&lt;</span><span class="ident">SandboxMode</span><span class="op">&gt;</span>().<span class="ident">ok</span>().<span class="ident">unwrap</span>();
 
                             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">actions</span> <span class="op">=</span> <span class="ident">sandbox</span>.<span class="ident">contextual_actions</span>();
