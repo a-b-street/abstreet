@@ -77,7 +77,7 @@ pub enum Outcome {
     /// A dropdown, checkbox, spinner, etc changed values. The name of the changed widget is
     /// returned, but not the value, since its type is generic.
     Changed(String),
-    /// On a DragDrop widget, a member was clicked on and released. It's position may have changed.
+    /// On a DragDrop widget, a member was clicked on and released. Its position may have changed.
     /// (name, orig_idx, new_idx)
     DragDropReleased(String, usize, usize),
     /// Nothing happened

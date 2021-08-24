@@ -343,14 +343,13 @@ impl State<App> for RoadEditor {
                     });
                 }
                 "lane cards" => {
-                    // hovering inex changed
+                    // hovering index changed
                     panels_need_recalc = true;
                 }
                 _ => unreachable!(),
             },
             Outcome::DragDropReleased(_, old_idx, new_idx) => {
                 if old_idx != new_idx {
-                    // TODO Not using modify_current_lane... should we try to?
                     let mut edits = app.primary.map.get_edits().clone();
                     edits
                         .commands
