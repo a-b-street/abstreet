@@ -111,16 +111,25 @@ impl RoutePlanner {
     }
 
     fn make_new_waypt(&self, ctx: &mut EventCtx, app: &App) -> Waypoint {
-        // Just pick a random place, then let the user drag the marker around
-        // TODO Repeat if it matches an existing
-        let at = TripEndpoint::Bldg(
-            app.primary
-                .map
-                .all_buildings()
-                .choose(&mut XorShiftRng::from_entropy())
-                .unwrap()
-                .id,
-        );
+        // Place near the cursor, if possible
+        let at = if let Some((at, _)) = ctx
+            .canvas
+            .get_cursor_in_map_space()
+            .and_then(|pt| self.snap_to_endpts.closest_pt(pt, Distance::meters(30.0)))
+        {
+            at
+        } else {
+            // Just pick a random place, then let the user drag the marker around
+            // TODO Repeat if it matches an existing
+            TripEndpoint::Bldg(
+                app.primary
+                    .map
+                    .all_buildings()
+                    .choose(&mut XorShiftRng::from_entropy())
+                    .unwrap()
+                    .id,
+            )
+        };
         Waypoint::new(ctx, app, at, self.waypoints.len())
     }
 
@@ -331,6 +340,7 @@ impl State<App> for RoutePlanner {
                     self.update_input_panel(ctx);
                     self.update_waypoints_drawable(ctx);
                     self.update_route(ctx, app);
+                    self.update_hover(ctx);
                 }
                 x => {
                     if let Some(x) = x.strip_prefix("delete waypoint ") {
