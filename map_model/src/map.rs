@@ -789,4 +789,14 @@ impl Map {
         }
         None
     }
+
+    /// Returns the highest elevation in the map
+    pub fn max_elevation(&self) -> Distance {
+        // TODO Cache?
+        self.all_intersections()
+            .iter()
+            .max_by_key(|i| i.elevation)
+            .unwrap()
+            .elevation
+    }
 }

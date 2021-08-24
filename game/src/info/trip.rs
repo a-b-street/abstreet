@@ -893,14 +893,6 @@ fn make_elevation(ctx: &EventCtx, color: Color, walking: bool, path: &Path, map:
         dist += step.as_traversable().get_polyline(map).length();
     }
 
-    // TODO Cache this value?
-    let max_elevation = map
-        .all_intersections()
-        .iter()
-        .max_by_key(|i| i.elevation)
-        .unwrap()
-        .elevation;
-
     // TODO Show roughly where we are in the trip; use distance covered by current path for this
     LinePlot::new_widget(
         ctx,
@@ -921,7 +913,7 @@ fn make_elevation(ctx: &EventCtx, color: Color, walking: bool, path: &Path, map:
             // If we use the max elevation encountered along the route, then no matter how we
             // round, there are always edge cases where the scale will jump. So just use the
             // maximum elevation from the entire map.
-            max_y: Some(max_elevation.round_up_for_axis()),
+            max_y: Some(map.max_elevation().round_up_for_axis()),
             disabled: HashSet::new(),
         },
     )

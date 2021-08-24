@@ -1,13 +1,15 @@
+use std::collections::HashSet;
+
 use rand::seq::SliceRandom;
 use rand::SeedableRng;
 use rand_xorshift::XorShiftRng;
 
 use geom::{Circle, Distance, Duration, FindClosest, Polygon};
-use map_model::NORMAL_LANE_THICKNESS;
+use map_model::{PathStep, NORMAL_LANE_THICKNESS};
 use sim::{TripEndpoint, TripMode};
 use widgetry::{
-    Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
-    State, Text, TextExt, VerticalAlignment, Widget,
+    Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, LinePlot,
+    Outcome, Panel, PlotOptions, Series, State, Text, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -167,6 +169,9 @@ impl RoutePlanner {
         let mut total_distance = Distance::ZERO;
         let mut total_time = Duration::ZERO;
 
+        let mut elevation_pts: Vec<(Distance, Distance)> = Vec::new();
+        let mut current_dist = Distance::ZERO;
+
         for pair in self.waypoints.windows(2) {
             if let Some((path, draw_path)) =
                 TripEndpoint::path_req(pair[0].at, pair[1].at, TripMode::Bike, map)
@@ -179,10 +184,28 @@ impl RoutePlanner {
                 batch.push(Color::CYAN, draw_path);
                 total_distance += path.total_length();
                 total_time += path.estimate_duration(map, Some(map_model::MAX_BIKE_SPEED));
+
+                for step in path.get_steps() {
+                    if let PathStep::Turn(t) = step {
+                        elevation_pts.push((current_dist, map.get_i(t.parent).elevation));
+                    }
+                    current_dist += step.as_traversable().get_polyline(map).length();
+                }
             }
         }
 
         self.draw_route = ctx.upload(batch);
+
+        let mut total_up = Distance::ZERO;
+        let mut total_down = Distance::ZERO;
+        for pair in elevation_pts.windows(2) {
+            let dy = pair[1].1 - pair[0].1;
+            if dy < Distance::ZERO {
+                total_down -= dy;
+            } else {
+                total_up += dy;
+            }
+        }
 
         self.results_panel = Panel::new_builder(Widget::col(vec![
             Line("Your route").small_heading().into_widget(ctx),
@@ -196,6 +219,29 @@ impl RoutePlanner {
                 Line(total_time.to_string(&app.opts.units)),
             ])
             .into_widget(ctx),
+            Text::from_all(vec![
+                Line("Elevation change: ").secondary(),
+                Line(format!(
+                    "{}↑, {}↓",
+                    total_up.to_string(&app.opts.units),
+                    total_down.to_string(&app.opts.units)
+                )),
+            ])
+            .into_widget(ctx),
+            LinePlot::new_widget(
+                ctx,
+                vec![Series {
+                    label: "Elevation".to_string(),
+                    color: Color::RED,
+                    pts: elevation_pts,
+                }],
+                PlotOptions {
+                    filterable: false,
+                    max_x: Some(current_dist.round_up_for_axis()),
+                    max_y: Some(map.max_elevation().round_up_for_axis()),
+                    disabled: HashSet::new(),
+                },
+            ),
         ]))
         .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
         .build(ctx);
