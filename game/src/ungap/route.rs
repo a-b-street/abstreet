@@ -169,6 +169,10 @@ impl RoutePlanner {
         let mut total_distance = Distance::ZERO;
         let mut total_time = Duration::ZERO;
 
+        let mut dist_along_high_stress_roads = Distance::ZERO;
+        let mut num_traffic_signals = 0;
+        let mut num_unprotected_turns = 0;
+
         let mut elevation_pts: Vec<(Distance, Distance)> = Vec::new();
         let mut current_dist = Distance::ZERO;
 
@@ -186,10 +190,29 @@ impl RoutePlanner {
                 total_time += path.estimate_duration(map, Some(map_model::MAX_BIKE_SPEED));
 
                 for step in path.get_steps() {
-                    if let PathStep::Turn(t) = step {
-                        elevation_pts.push((current_dist, map.get_i(t.parent).elevation));
+                    let this_dist = step.as_traversable().get_polyline(map).length();
+                    match step {
+                        PathStep::Lane(l) | PathStep::ContraflowLane(l) => {
+                            if map.get_parent(*l).high_stress_for_bikes(map) {
+                                dist_along_high_stress_roads += this_dist;
+                            }
+                        }
+                        PathStep::Turn(t) => {
+                            let i = map.get_i(t.parent);
+                            elevation_pts.push((current_dist, i.elevation));
+                            if i.is_traffic_signal() {
+                                num_traffic_signals += 1;
+                            }
+                            if map.is_unprotected_turn(
+                                map.get_l(t.src).parent,
+                                map.get_l(t.dst).parent,
+                                map.get_t(*t).turn_type,
+                            ) {
+                                num_unprotected_turns += 1;
+                            }
+                        }
                     }
-                    current_dist += step.as_traversable().get_polyline(map).length();
+                    current_dist += this_dist;
                 }
             }
         }
@@ -207,18 +230,41 @@ impl RoutePlanner {
             }
         }
 
+        let pct_stressful = if total_distance == Distance::ZERO {
+            0.0
+        } else {
+            ((dist_along_high_stress_roads / total_distance) * 100.0).round()
+        };
+        let mut txt = Text::from(Line("Your route").small_heading());
+        txt.add_appended(vec![
+            Line("Distance: ").secondary(),
+            Line(total_distance.to_string(&app.opts.units)),
+        ]);
+        // TODO Hover to see definition of high-stress, and also highlight those segments
+        txt.add_appended(vec![
+            Line(format!(
+                "  {} or {}%",
+                dist_along_high_stress_roads.to_string(&app.opts.units),
+                pct_stressful
+            )),
+            Line(" along high-stress roads").secondary(),
+        ]);
+        txt.add_appended(vec![
+            Line("Estimated time: ").secondary(),
+            Line(total_time.to_string(&app.opts.units)),
+        ]);
+        txt.add_appended(vec![
+            Line("Traffic signals crossed: ").secondary(),
+            Line(num_traffic_signals.to_string()),
+        ]);
+        // TODO Need tooltips and highlighting to explain and show where these are
+        txt.add_appended(vec![
+            Line("Unprotected left turns onto busy roads: ").secondary(),
+            Line(num_unprotected_turns.to_string()),
+        ]);
+
         self.results_panel = Panel::new_builder(Widget::col(vec![
-            Line("Your route").small_heading().into_widget(ctx),
-            Text::from_all(vec![
-                Line("Distance: ").secondary(),
-                Line(total_distance.to_string(&app.opts.units)),
-            ])
-            .into_widget(ctx),
-            Text::from_all(vec![
-                Line("Estimated time: ").secondary(),
-                Line(total_time.to_string(&app.opts.units)),
-            ])
-            .into_widget(ctx),
+            txt.into_widget(ctx),
             Text::from_all(vec![
                 Line("Elevation change: ").secondary(),
                 Line(format!(

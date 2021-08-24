@@ -799,4 +799,20 @@ impl Map {
             .unwrap()
             .elevation
     }
+
+    /// Does a turn at a stop sign go from a smaller to a larger road?
+    /// (Note this doesn't look at unprotected movements in traffic signals, since we don't yet
+    /// have good heuristics for when those exist)
+    pub fn is_unprotected_turn(&self, from: RoadID, to: RoadID, turn_type: TurnType) -> bool {
+        let unprotected_turn_type = if self.get_config().driving_side == DrivingSide::Right {
+            TurnType::Left
+        } else {
+            TurnType::Right
+        };
+        let from = self.get_r(from);
+        let to = self.get_r(to);
+        turn_type == unprotected_turn_type
+            && from.get_detailed_rank() < to.get_detailed_rank()
+            && self.get_i(from.common_endpt(to)).is_stop_sign()
+    }
 }

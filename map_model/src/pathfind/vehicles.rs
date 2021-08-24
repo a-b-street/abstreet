@@ -14,8 +14,8 @@ use crate::pathfind::uber_turns::{IntersectionCluster, UberTurnV2};
 use crate::pathfind::zone_cost;
 use crate::pathfind::{round, unround};
 use crate::{
-    DirectedRoadID, Direction, DrivingSide, LaneType, Map, MovementID, PathConstraints,
-    PathRequest, PathV2, Position, RoutingParams, Traversable, TurnType,
+    DirectedRoadID, Direction, LaneType, Map, MovementID, PathConstraints, PathRequest, PathV2,
+    Position, RoutingParams, Traversable, TurnType,
 };
 
 #[derive(Clone, Serialize, Deserialize)]
@@ -314,17 +314,7 @@ pub fn vehicle_cost(
     };
 
     // Penalize unprotected turns at a stop sign from smaller to larger roads.
-    let unprotected_turn_type = if map.get_config().driving_side == DrivingSide::Right {
-        TurnType::Left
-    } else {
-        TurnType::Right
-    };
-    let rank_from = map.get_r(dr.id).get_detailed_rank();
-    let rank_to = map.get_r(mvmnt.to.id).get_detailed_rank();
-    if mvmnt_turn_type == unprotected_turn_type
-        && rank_from < rank_to
-        && map.get_i(mvmnt.parent).is_stop_sign()
-    {
+    if map.is_unprotected_turn(dr.id, mvmnt.to.id, mvmnt_turn_type) {
         base + params.unprotected_turn_penalty
     } else {
         base
