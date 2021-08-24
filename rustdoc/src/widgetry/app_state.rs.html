@@ -296,6 +296,8 @@
 <span id="294">294</span>
 <span id="295">295</span>
 <span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
 </pre><pre class="rust">
 <span class="doccomment">//! A widgetry application splits its state into two pieces: global shared state that lasts for the</span>
 <span class="doccomment">//! entire lifetime of the application, and a stack of smaller states, only one of which is active</span>
@@ -580,7 +582,9 @@
                 .<span class="ident">inner</span>
                 .<span class="ident">panel_changed</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">panel</span>)
                 .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">other_event</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)),
-            <span class="ident">Outcome::Nothing</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">other_event</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
+            <span class="ident">Outcome::DragDropReleased</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="op">|</span> <span class="ident">Outcome::Nothing</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">other_event</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)
+            }
         }
     }
 

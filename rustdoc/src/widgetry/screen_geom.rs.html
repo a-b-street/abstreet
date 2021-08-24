@@ -193,6 +193,23 @@
 <span id="191">191</span>
 <span id="192">192</span>
 <span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
@@ -216,6 +233,10 @@
     <span class="comment">// screen-space.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_pt</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Pt2D</span> {
         <span class="ident">Pt2D::new</span>(<span class="self">self</span>.<span class="ident">x</span>, <span class="self">self</span>.<span class="ident">y</span>)
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">zero</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="self">Self</span> { <span class="ident">x</span>: <span class="number">0.0</span>, <span class="ident">y</span>: <span class="number">0.0</span> }
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">translated</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">x</span>: <span class="ident">f64</span>, <span class="ident">y</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
@@ -316,6 +337,13 @@
         }
     }
 
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">zero</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="ident">ScreenDims</span> {
+            <span class="ident">width</span>: <span class="number">0.0</span>,
+            <span class="ident">height</span>: <span class="number">0.0</span>,
+        }
+    }
+
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">square</span>(<span class="ident">square</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span><span class="ident">::new</span>(<span class="ident">square</span>, <span class="ident">square</span>)
     }
@@ -376,6 +404,12 @@
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span>(<span class="ident">f64</span>, <span class="ident">f64</span>)<span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ScreenDims</span> {
     <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">width_and_height</span>: (<span class="ident">f64</span>, <span class="ident">f64</span>)) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ScreenDims</span> {
         <span class="ident">ScreenDims::new</span>(<span class="ident">width_and_height</span>.<span class="number">0</span>, <span class="ident">width_and_height</span>.<span class="number">1</span>)
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">geom::Bounds</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ScreenDims</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">bounds</span>: <span class="ident">geom::Bounds</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="ident">ScreenDims::new</span>(<span class="ident">bounds</span>.<span class="ident">width</span>(), <span class="ident">bounds</span>.<span class="ident">height</span>())
     }
 }
 

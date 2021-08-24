@@ -864,6 +864,10 @@
 <span id="862">862</span>
 <span id="863">863</span>
 <span id="864">864</span>
+<span id="865">865</span>
+<span id="866">866</span>
+<span id="867">867</span>
+<span id="868">868</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 
@@ -888,6 +892,7 @@
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">button</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">compare_times</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">containers</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">drag_drop</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">dropdown</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">fan_chart</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">filler</span>;
@@ -943,6 +948,9 @@
     <span class="doccomment">/// A dropdown, checkbox, spinner, etc changed values. The name of the changed widget is</span>
     <span class="doccomment">/// returned, but not the value, since its type is generic.</span>
     <span class="ident">Changed</span>(<span class="ident">String</span>),
+    <span class="doccomment">/// On a DragDrop widget, a member was clicked on and released. Its position may have changed.</span>
+    <span class="doccomment">/// (name, orig_idx, new_idx)</span>
+    <span class="ident">DragDropReleased</span>(<span class="ident">String</span>, <span class="ident">usize</span>, <span class="ident">usize</span>),
     <span class="doccomment">/// Nothing happened</span>
     <span class="ident">Nothing</span>,
 }

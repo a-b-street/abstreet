@@ -309,6 +309,39 @@
 <span id="307">307</span>
 <span id="308">308</span>
 <span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
+<span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">Color</span>, <span class="ident">ContentMode</span>, <span class="ident">CornerRounding</span>, <span class="ident">DrawWithTooltips</span>, <span class="ident">EdgeInsets</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>,
@@ -527,8 +560,41 @@
         <span class="self">self</span>
     }
 
+    <span class="doccomment">/// Padding above the image</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">padding_top</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">new_value</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">padding</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">padding</span>.<span class="ident">unwrap_or_default</span>();
+        <span class="ident">padding</span>.<span class="ident">top</span> <span class="op">=</span> <span class="ident">new_value</span>;
+        <span class="self">self</span>.<span class="ident">padding</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">padding</span>);
+        <span class="self">self</span>
+    }
+
+    <span class="doccomment">/// Padding to the left of the image</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">padding_left</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">new_value</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">padding</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">padding</span>.<span class="ident">unwrap_or_default</span>();
+        <span class="ident">padding</span>.<span class="ident">left</span> <span class="op">=</span> <span class="ident">new_value</span>;
+        <span class="self">self</span>.<span class="ident">padding</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">padding</span>);
+        <span class="self">self</span>
+    }
+
+    <span class="doccomment">/// Padding below the image</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">padding_bottom</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">new_value</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">padding</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">padding</span>.<span class="ident">unwrap_or_default</span>();
+        <span class="ident">padding</span>.<span class="ident">bottom</span> <span class="op">=</span> <span class="ident">new_value</span>;
+        <span class="self">self</span>.<span class="ident">padding</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">padding</span>);
+        <span class="self">self</span>
+    }
+
+    <span class="doccomment">/// Padding to the right of the image</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">padding_right</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">new_value</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">padding</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">padding</span>.<span class="ident">unwrap_or_default</span>();
+        <span class="ident">padding</span>.<span class="ident">right</span> <span class="op">=</span> <span class="ident">new_value</span>;
+        <span class="self">self</span>.<span class="ident">padding</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">padding</span>);
+        <span class="self">self</span>
+    }
+
     <span class="doccomment">/// Render the `Image` and any styling (padding, background, etc.) to a `GeomBatch`.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build_batch</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">GeomBatch</span>, <span class="ident">Bounds</span>)<span class="op">&gt;</span> {
+        <span class="comment">// TODO: unwrap/panic if source is empty?</span>
         <span class="self">self</span>.<span class="ident">source</span>.<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">source</span><span class="op">|</span> {
             <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">image_batch</span>, <span class="ident">image_bounds</span>) <span class="op">=</span> <span class="ident">source</span>.<span class="ident">load</span>(<span class="ident">ctx</span>.<span class="ident">prerender</span>);
 

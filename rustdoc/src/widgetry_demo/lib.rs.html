@@ -622,6 +622,35 @@
 <span id="620">620</span>
 <span id="621">621</span>
 <span id="622">622</span>
+<span id="623">623</span>
+<span id="624">624</span>
+<span id="625">625</span>
+<span id="626">626</span>
+<span id="627">627</span>
+<span id="628">628</span>
+<span id="629">629</span>
+<span id="630">630</span>
+<span id="631">631</span>
+<span id="632">632</span>
+<span id="633">633</span>
+<span id="634">634</span>
+<span id="635">635</span>
+<span id="636">636</span>
+<span id="637">637</span>
+<span id="638">638</span>
+<span id="639">639</span>
+<span id="640">640</span>
+<span id="641">641</span>
+<span id="642">642</span>
+<span id="643">643</span>
+<span id="644">644</span>
+<span id="645">645</span>
+<span id="646">646</span>
+<span id="647">647</span>
+<span id="648">648</span>
+<span id="649">649</span>
+<span id="650">650</span>
+<span id="651">651</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 
@@ -630,7 +659,7 @@
 
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">Duration</span>, <span class="ident">Percent</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">lctrl</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">ContentMode</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">Fill</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>,
+    <span class="ident">lctrl</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">ContentMode</span>, <span class="ident">DragDrop</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">Fill</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>,
     <span class="ident">HorizontalAlignment</span>, <span class="ident">Image</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">LinePlot</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">PersistentSplit</span>, <span class="ident">PlotOptions</span>,
     <span class="ident">ScreenDims</span>, <span class="ident">Series</span>, <span class="ident">Settings</span>, <span class="ident">SharedAppState</span>, <span class="ident">State</span>, <span class="ident">TabController</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Texture</span>,
     <span class="ident">Toggle</span>, <span class="ident">Transition</span>, <span class="ident">UpdateType</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
@@ -1045,6 +1074,8 @@
         ]),
         <span class="ident">Text::from</span>(<span class="ident">Line</span>(<span class="string">&quot;Spinner&quot;</span>).<span class="ident">big_heading_styled</span>().<span class="ident">size</span>(<span class="number">18</span>)).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
         <span class="ident">widgetry::Spinner::widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;spinner&quot;</span>, (<span class="number">0</span>, <span class="number">11</span>), <span class="number">1</span>, <span class="number">1</span>),
+        <span class="ident">Text::from</span>(<span class="ident">Line</span>(<span class="string">&quot;Drag &amp; Drop Cards&quot;</span>).<span class="ident">big_heading_styled</span>().<span class="ident">size</span>(<span class="number">18</span>)).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+        <span class="ident">build_drag_drop</span>(<span class="ident">ctx</span>, <span class="number">5</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
     ]);
     <span class="ident">tabs</span>.<span class="ident">push_tab</span>(<span class="ident">gallery_bar_item</span>, <span class="ident">gallery_content</span>);
 
@@ -1227,6 +1258,33 @@
     ])) <span class="comment">// end panel</span>
     .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::Center</span>, <span class="ident">VerticalAlignment::Top</span>)
     .<span class="ident">build</span>(<span class="ident">ctx</span>)
+}
+
+<span class="kw">fn</span> <span class="ident">build_drag_drop</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">num_cards</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DragDrop</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">build_card</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">num</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">ScreenDims</span>, <span class="ident">GeomBatch</span>, <span class="ident">GeomBatch</span>, <span class="ident">GeomBatch</span>) {
+        <span class="kw">let</span> <span class="ident">dims</span> <span class="op">=</span> <span class="ident">ScreenDims::new</span>(<span class="number">100.0</span> <span class="op">+</span> (<span class="ident">num</span> <span class="op">%</span> <span class="number">2</span>) <span class="kw">as</span> <span class="ident">f64</span> <span class="op">*</span> <span class="number">50.0</span>, <span class="number">150.0</span>);
+
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">default_batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
+        <span class="ident">default_batch</span>.<span class="ident">push</span>(<span class="ident">Color::ORANGE</span>, <span class="ident">Polygon::rectangle</span>(<span class="ident">dims</span>.<span class="ident">width</span>, <span class="ident">dims</span>.<span class="ident">height</span>));
+        <span class="ident">default_batch</span>.<span class="ident">append</span>(<span class="ident">Text::from</span>(<span class="macro">format!</span>(<span class="string">&quot;Card {}&quot;</span>, <span class="ident">num</span>)).<span class="ident">render</span>(<span class="ident">ctx</span>));
+
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">hovering_batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
+        <span class="ident">hovering_batch</span>.<span class="ident">push</span>(<span class="ident">Color::RED</span>, <span class="ident">Polygon::rectangle</span>(<span class="ident">dims</span>.<span class="ident">width</span>, <span class="ident">dims</span>.<span class="ident">height</span>));
+        <span class="ident">hovering_batch</span>.<span class="ident">append</span>(<span class="ident">Text::from</span>(<span class="macro">format!</span>(<span class="string">&quot;Card {}&quot;</span>, <span class="ident">num</span>)).<span class="ident">render</span>(<span class="ident">ctx</span>));
+
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">selected_batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
+        <span class="ident">selected_batch</span>.<span class="ident">push</span>(<span class="ident">Color::BLUE</span>, <span class="ident">Polygon::rectangle</span>(<span class="ident">dims</span>.<span class="ident">width</span>, <span class="ident">dims</span>.<span class="ident">height</span>));
+        <span class="ident">selected_batch</span>.<span class="ident">append</span>(<span class="ident">Text::from</span>(<span class="macro">format!</span>(<span class="string">&quot;Card {}&quot;</span>, <span class="ident">num</span>)).<span class="ident">render</span>(<span class="ident">ctx</span>));
+
+        (<span class="ident">dims</span>, <span class="ident">default_batch</span>, <span class="ident">hovering_batch</span>, <span class="ident">selected_batch</span>)
+    }
+
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">drag_drop</span> <span class="op">=</span> <span class="ident">DragDrop::new</span>(<span class="ident">ctx</span>, <span class="string">&quot;drag and drop cards&quot;</span>);
+    <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">num_cards</span> {
+        <span class="kw">let</span> (<span class="ident">dims</span>, <span class="ident">default_batch</span>, <span class="ident">hovering_batch</span>, <span class="ident">selected_batch</span>) <span class="op">=</span> <span class="ident">build_card</span>(<span class="ident">ctx</span>, <span class="ident">i</span>);
+        <span class="ident">drag_drop</span>.<span class="ident">push_card</span>(<span class="ident">i</span>, <span class="ident">dims</span>, <span class="ident">default_batch</span>, <span class="ident">hovering_batch</span>, <span class="ident">selected_batch</span>);
+    }
+    <span class="ident">drag_drop</span>
 }
 
 <span class="comment">// Boilerplate for web support</span>
