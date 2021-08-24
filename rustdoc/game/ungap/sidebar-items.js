@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["legend_batch",""],["legend_item",""],["make_bottom_right_panel",""],["make_legend",""],["make_top_panel",""],["make_zoom_controls",""],["zoom_enabled_cache_key",""]],"mod":[["labels",""],["layers",""],["magnifying",""],["quick_sketch",""],["route",""],["share",""]],"struct":[["ExploreMap",""]]});
+initSidebarItems({"fn":[["make_top_panel",""]],"mod":[["bike_network",""],["labels",""],["layers",""],["magnifying",""],["quick_sketch",""],["route",""],["share",""]],"struct":[["ExploreMap",""]]});
