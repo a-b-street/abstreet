@@ -315,30 +315,24 @@
 <span id="313">313</span>
 <span id="314">314</span>
 <span id="315">315</span>
-<span id="316">316</span>
-<span id="317">317</span>
-<span id="318">318</span>
-<span id="319">319</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">abstutil::Tags</span>;
 <span class="kw">use</span> <span class="ident">map_gui::tools::PopupMsg</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">BufferType</span>, <span class="ident">Direction</span>, <span class="ident">EditCmd</span>, <span class="ident">EditRoad</span>, <span class="ident">LaneSpec</span>, <span class="ident">LaneType</span>, <span class="ident">RoadID</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Choice</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">TextExt</span>,
+    <span class="ident">Choice</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">TextExt</span>,
     <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::common::RouteSketcher</span>;
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::edit::apply_map_edits</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::ungap::bike_network::render_edits</span>;
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::ungap::layers::Layers</span>;
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::ungap::magnifying::MagnifyingGlass</span>;
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">QuickSketch</span> {
     <span class="ident">top_panel</span>: <span class="ident">Panel</span>,
     <span class="ident">layers</span>: <span class="ident">Layers</span>,
-    <span class="ident">edits_layer</span>: <span class="ident">Drawable</span>,
     <span class="ident">magnifying_glass</span>: <span class="ident">MagnifyingGlass</span>,
     <span class="ident">route_sketcher</span>: <span class="ident">RouteSketcher</span>,
 }
@@ -349,7 +343,6 @@
             <span class="ident">top_panel</span>: <span class="ident">Panel::empty</span>(<span class="ident">ctx</span>),
             <span class="ident">layers</span>,
             <span class="ident">magnifying_glass</span>: <span class="ident">MagnifyingGlass::new</span>(<span class="ident">ctx</span>),
-            <span class="ident">edits_layer</span>: <span class="ident">render_edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
             <span class="ident">route_sketcher</span>: <span class="ident">RouteSketcher::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
         };
         <span class="ident">qs</span>.<span class="ident">update_top_panel</span>(<span class="ident">ctx</span>);
@@ -461,7 +454,6 @@
         <span class="self">self</span>.<span class="ident">top_panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
         <span class="self">self</span>.<span class="ident">layers</span>.<span class="ident">draw</span>(<span class="ident">g</span>, <span class="ident">app</span>);
         <span class="self">self</span>.<span class="ident">magnifying_glass</span>.<span class="ident">draw</span>(<span class="ident">g</span>, <span class="ident">app</span>);
-        <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">edits_layer</span>);
         <span class="self">self</span>.<span class="ident">route_sketcher</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
     }
 }
