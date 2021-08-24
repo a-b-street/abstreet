@@ -22,10 +22,10 @@ pub struct QuickSketch {
 }
 
 impl QuickSketch {
-    pub fn new_state(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State<App>> {
+    pub fn new_state(ctx: &mut EventCtx, app: &mut App, layers: Layers) -> Box<dyn State<App>> {
         let mut qs = QuickSketch {
             top_panel: Panel::empty(ctx),
-            layers: Layers::new(ctx, app),
+            layers,
             magnifying_glass: MagnifyingGlass::new(ctx),
             edits_layer: render_edits(ctx, app),
             route_sketcher: RouteSketcher::new(ctx, app),
@@ -100,7 +100,10 @@ impl State<App> for QuickSketch {
         if let Outcome::Clicked(x) = self.top_panel.event(ctx) {
             match x.as_ref() {
                 "Cancel" => {
-                    return Transition::Pop;
+                    return Transition::ConsumeState(Box::new(|state, ctx, app| {
+                        let state = state.downcast::<QuickSketch>().ok().unwrap();
+                        vec![crate::ungap::ExploreMap::new_state(ctx, app, state.layers)]
+                    }));
                 }
                 "Add bike lanes" => {
                     let messages = make_quick_changes(
@@ -109,7 +112,13 @@ impl State<App> for QuickSketch {
                         self.route_sketcher.all_roads(app),
                         self.top_panel.dropdown_value("buffer type"),
                     );
-                    return Transition::Replace(PopupMsg::new_state(ctx, "Changes made", messages));
+                    return Transition::ConsumeState(Box::new(|state, ctx, app| {
+                        let state = state.downcast::<QuickSketch>().ok().unwrap();
+                        vec![
+                            crate::ungap::ExploreMap::new_state(ctx, app, state.layers),
+                            PopupMsg::new_state(ctx, "Changes made", messages),
+                        ]
+                    }));
                 }
                 _ => unreachable!(),
             }

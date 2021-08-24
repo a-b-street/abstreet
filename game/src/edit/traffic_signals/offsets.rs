@@ -68,7 +68,7 @@ impl SimpleState<App> for ShowAbsolute {
         match x {
             "close" => {
                 // TODO Bit confusing UX, because all the offset changes won't show up in the
-                // undo stack. Could maybe do ReplaceWithData.
+                // undo stack. Could maybe do ConsumeState.
                 Transition::Pop
             }
             _ => unreachable!(),

@@ -416,7 +416,7 @@ fn finish_app_setup(
             vec![SandboxMode::simple_new(app, mode)]
         }
     } else if setup.ungap {
-        vec![ungap::ExploreMap::new_state(ctx, app)]
+        vec![ungap::ExploreMap::launch(ctx, app)]
     } else {
         // Not attempting to keep the primary and secondary simulations synchronized at the same
         // time yet. Just handle this one startup case, so we can switch maps without constantly

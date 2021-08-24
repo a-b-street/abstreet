@@ -347,7 +347,7 @@ impl State<App> for EditScenarioModifiers {
                         Box::new(|name, _, _| {
                             Transition::Multi(vec![
                                 Transition::Pop,
-                                Transition::ReplaceWithData(Box::new(|state, ctx, _| {
+                                Transition::ConsumeState(Box::new(|state, ctx, _| {
                                     let mut state =
                                         state.downcast::<EditScenarioModifiers>().ok().unwrap();
                                     state.modifiers.push(ScenarioModifier::AddExtraTrips(name));

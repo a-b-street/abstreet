@@ -119,10 +119,10 @@ impl<A: AppLike + 'static> State<A> for ImportCity<A> {
                                 if success {
                                     abstio::delete_file("boundary.geojson");
 
-                                    Transition::ReplaceWithData(Box::new(move |state, ctx, app| {
-                                        let mut import =
+                                    Transition::ConsumeState(Box::new(move |state, ctx, app| {
+                                        let mut state =
                                             state.downcast::<ImportCity<A>>().ok().unwrap();
-                                        let on_load = import.on_load.take().unwrap();
+                                        let on_load = state.on_load.take().unwrap();
                                         // one_step_import prints the name of the map as the last
                                         // line.
                                         let name =

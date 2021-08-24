@@ -34,7 +34,12 @@ pub struct ExploreMap {
 }
 
 impl ExploreMap {
-    pub fn new_state(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State<App>> {
+    pub fn launch(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State<App>> {
+        let layers = Layers::new(ctx, app);
+        ExploreMap::new_state(ctx, app, layers)
+    }
+
+    pub fn new_state(ctx: &mut EventCtx, app: &mut App, layers: Layers) -> Box<dyn State<App>> {
         app.opts.show_building_driveways = false;
 
         if let Err(err) = URLManager::update_url_free_param(
@@ -51,7 +56,7 @@ impl ExploreMap {
 
         Box::new(ExploreMap {
             top_panel: Panel::empty(ctx),
-            layers: Layers::new(ctx, app),
+            layers,
             magnifying_glass: MagnifyingGlass::new(ctx),
             edits_layer: Drawable::empty(ctx),
 
@@ -123,7 +128,8 @@ impl State<App> for ExploreMap {
                         Box::new(|ctx, app| {
                             Transition::Multi(vec![
                                 Transition::Pop,
-                                Transition::Replace(ExploreMap::new_state(ctx, app)),
+                                // Since we're totally changing maps, don't reuse the Layers
+                                Transition::Replace(ExploreMap::launch(ctx, app)),
                             ])
                         }),
                     ));
@@ -154,15 +160,25 @@ impl State<App> for ExploreMap {
                 }
                 "Create new bike lanes" => {
                     app.primary.current_selection = None;
-                    return Transition::Push(crate::ungap::quick_sketch::QuickSketch::new_state(
-                        ctx, app,
-                    ));
+                    return Transition::ConsumeState(Box::new(|state, ctx, app| {
+                        let state = state.downcast::<ExploreMap>().ok().unwrap();
+                        vec![crate::ungap::quick_sketch::QuickSketch::new_state(
+                            ctx,
+                            app,
+                            state.layers,
+                        )]
+                    }));
                 }
                 "Plan a route" => {
                     app.primary.current_selection = None;
-                    return Transition::Push(crate::ungap::route::RoutePlanner::new_state(
-                        ctx, app,
-                    ));
+                    return Transition::ConsumeState(Box::new(|state, ctx, app| {
+                        let state = state.downcast::<ExploreMap>().ok().unwrap();
+                        vec![crate::ungap::route::RoutePlanner::new_state(
+                            ctx,
+                            app,
+                            state.layers,
+                        )]
+                    }));
                 }
                 _ => unreachable!(),
             }

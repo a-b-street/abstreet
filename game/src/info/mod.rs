@@ -539,7 +539,7 @@ impl InfoPanel {
                     // When executed, this assumes the SandboxMode is the top of the stack. It'll
                     // reopen the info panel, then launch the jump-to-time UI.
                     let jump_to_time =
-                        Transition::ReplaceWithData(Box::new(move |state, ctx, app| {
+                        Transition::ConsumeState(Box::new(move |state, ctx, app| {
                             let mut sandbox = state.downcast::<SandboxMode>().ok().unwrap();
 
                             let mut actions = sandbox.contextual_actions();

@@ -46,7 +46,7 @@ struct Waypoint {
 }
 
 impl RoutePlanner {
-    pub fn new_state(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
+    pub fn new_state(ctx: &mut EventCtx, app: &App, layers: Layers) -> Box<dyn State<App>> {
         let map = &app.primary.map;
         let mut snap_to_endpts = FindClosest::new(map.get_bounds());
         for i in map.all_intersections() {
@@ -59,7 +59,7 @@ impl RoutePlanner {
         }
 
         let mut rp = RoutePlanner {
-            layers: Layers::new(ctx, app),
+            layers,
 
             input_panel: Panel::empty(ctx),
             waypoints: Vec::new(),
@@ -338,7 +338,10 @@ impl State<App> for RoutePlanner {
         if let Outcome::Clicked(x) = self.input_panel.event(ctx) {
             match x.as_ref() {
                 "close" => {
-                    return Transition::Pop;
+                    return Transition::ConsumeState(Box::new(|state, ctx, app| {
+                        let state = state.downcast::<RoutePlanner>().ok().unwrap();
+                        vec![crate::ungap::ExploreMap::new_state(ctx, app, state.layers)]
+                    }));
                 }
                 "Add waypoint" => {
                     self.waypoints.push(self.make_new_waypt(ctx, app));

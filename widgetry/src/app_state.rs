@@ -115,7 +115,7 @@ impl<A: SharedAppState> App<A> {
                 );
                 true
             }
-            Transition::ReplaceWithData(cb) => {
+            Transition::ConsumeState(cb) => {
                 let mut last = self.states.pop().unwrap();
                 last.on_destroy(ctx, &mut self.shared_app_state);
                 let new_states = cb(last, ctx, &mut self.shared_app_state);
@@ -198,9 +198,10 @@ pub enum Transition<A> {
     /// If a state needs to pass data back to its parent, use this. In the callback, you have to
     /// downcast the previous state to populate it with data.
     ModifyState(Box<dyn FnOnce(&mut Box<dyn State<A>>, &mut EventCtx, &mut A)>),
-    // TODO This is like Replace + ModifyState, then returning a few Push's from the callback. Not
-    // sure how to express it in terms of the others without complicating ModifyState everywhere.
-    ReplaceWithData(
+    /// This destroys the current state, running the callback on it, and pushes new states onto the
+    /// stack. The callback can consume the current state, thus salvaging fields from it without
+    /// cloning.
+    ConsumeState(
         Box<dyn FnOnce(Box<dyn State<A>>, &mut EventCtx, &mut A) -> Vec<Box<dyn State<A>>>>,
     ),
     /// Push a new active state on the top of the stack.
