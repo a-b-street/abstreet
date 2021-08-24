@@ -856,8 +856,10 @@
 <span id="854">854</span>
 <span id="855">855</span>
 <span id="856">856</span>
+<span id="857">857</span>
+<span id="858">858</span>
+<span id="859">859</span>
 </pre><pre class="rust">
-<span class="kw">use</span> <span class="ident">abstutil::Tags</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Bounds</span>, <span class="ident">CornerRadii</span>, <span class="ident">Distance</span>, <span class="ident">UnitFmt</span>};
 <span class="kw">use</span> <span class="ident">map_gui::render</span>::{<span class="ident">Renderable</span>, <span class="ident">OUTLINE_THICKNESS</span>};
 <span class="kw">use</span> <span class="ident">map_gui::tools::PopupMsg</span>;
@@ -1629,6 +1631,10 @@
         <span class="ident">road_settings</span>,
     ]))
     .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::Left</span>, <span class="ident">VerticalAlignment::Center</span>)
+    <span class="comment">// If we&#39;re hovering on a lane card, we&#39;ll immediately produce Outcome::Changed. Since this</span>
+    <span class="comment">// usually happens in recalc_all_panels, that&#39;s fine -- we&#39;ll look up the current lane card</span>
+    <span class="comment">// there anyway.</span>
+    .<span class="ident">ignore_initial_events</span>()
     .<span class="ident">build</span>(<span class="ident">ctx</span>)
 }
 
