@@ -882,6 +882,8 @@
 <span id="880">880</span>
 <span id="881">881</span>
 <span id="882">882</span>
+<span id="883">883</span>
+<span id="884">884</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
@@ -1568,15 +1570,17 @@
                     .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/trash.svg&quot;</span>)
                     .<span class="ident">disabled</span>(<span class="ident">road</span>.<span class="ident">lanes_ltr</span>().<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="number">1</span>)
                     .<span class="ident">hotkey</span>(<span class="ident">Key::Backspace</span>)
-                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;delete lane&quot;</span>),
+                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;delete lane&quot;</span>)
+                    .<span class="ident">centered_vert</span>(),
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
                     .<span class="ident">btn_plain</span>
                     .<span class="ident">text</span>(<span class="string">&quot;flip direction&quot;</span>)
                     .<span class="ident">disabled</span>(<span class="op">!</span><span class="ident">can_reverse</span>(<span class="ident">lane</span>.<span class="ident">lane_type</span>))
                     .<span class="ident">hotkey</span>(<span class="ident">Key::F</span>)
-                    .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-                <span class="ident">Line</span>(<span class="string">&quot;Width&quot;</span>).<span class="ident">secondary</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
-                <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
+                    .<span class="ident">build_def</span>(<span class="ident">ctx</span>)
+                    .<span class="ident">centered_vert</span>(),
+                <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
+                    <span class="ident">Line</span>(<span class="string">&quot;Width&quot;</span>).<span class="ident">secondary</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
                     <span class="ident">Widget::dropdown</span>(<span class="ident">ctx</span>, <span class="string">&quot;width preset&quot;</span>, <span class="ident">lane</span>.<span class="ident">width</span>, <span class="ident">width_choices</span>(<span class="ident">app</span>, <span class="ident">l</span>)),
                     <span class="ident">Spinner::widget_with_custom_rendering</span>(
                         <span class="ident">ctx</span>,
@@ -1592,9 +1596,9 @@
                                 <span class="ident">metric</span>: <span class="bool-val">false</span>,
                             })
                         }),
-                    )
-                    .<span class="ident">centered_horiz</span>(),
-                ]),
+                    ),
+                ])
+                .<span class="ident">section</span>(<span class="ident">ctx</span>),
             ]),
         ])
     } <span class="kw">else</span> {
