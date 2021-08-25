@@ -397,7 +397,10 @@ impl State<App> for RoadEditor {
                     return Transition::Replace(RoadEditor::new_state(ctx, app, l));
                 }
             }
-        } else if self.selected_lane.is_some() && ctx.normal_left_click() {
+        } else if self.selected_lane.is_some()
+            && ctx.canvas.get_cursor_in_map_space().is_some()
+            && ctx.normal_left_click()
+        {
             // Deselect the current lane
             self.selected_lane = None;
             self.hovering_on_lane = None;
