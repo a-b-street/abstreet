@@ -548,6 +548,8 @@ fn make_main_panel(
         (LaneType::Parking, Some(Key::P)),
         (LaneType::Construction, Some(Key::C)),
     ];
+    // All the buffer lanes are grouped into a PersistentSplit
+    let moving_lane_idx = 4;
 
     let mut lane_type_buttons = HashMap::new();
     for (lane_type, _key) in lane_types {
@@ -559,7 +561,7 @@ fn make_main_panel(
         lane_type_buttons.insert(lane_type, btn);
     }
 
-    let make_buffer_picker = |prefix, initial_type| {
+    let make_buffer_picker = |ctx, prefix, initial_type| {
         PersistentSplit::widget(
             ctx,
             &format!("{} buffer", prefix),
@@ -584,8 +586,8 @@ fn make_main_panel(
 
     let add_lane_row = Widget::row(vec![
         "add new".text_widget(ctx).centered_vert(),
-        Widget::row(
-            lane_types
+        Widget::row({
+            let mut row: Vec<Widget> = lane_types
                 .iter()
                 .map(|(lt, key)| {
                     lane_type_buttons
@@ -602,9 +604,11 @@ fn make_main_panel(
                         .build_widget(ctx, format!("add {}", lt.short_name()))
                         .centered_vert()
                 })
-                .chain([make_buffer_picker("add", app.session.buffer_lane_type)])
-                .collect(),
-        ),
+                .collect();
+            row.push(make_buffer_picker(ctx, "add", app.session.buffer_lane_type));
+            row.insert(moving_lane_idx, Widget::vert_separator(ctx, 40.0));
+            row
+        }),
     ]);
     let mut drag_drop = DragDrop::new(ctx, "lane cards");
 
@@ -703,15 +707,11 @@ fn make_main_panel(
 
     let modify_lane = if let Some(l) = selected_lane {
         let lane = map.get_l(l);
-        let default_buffer = match current_lt {
-            Some(lt @ LaneType::Buffer(_)) => lt,
-            _ => app.session.buffer_lane_type,
-        };
         Widget::col(vec![
             Widget::row(vec![
                 "change to".text_widget(ctx).centered_vert(),
-                Widget::row(
-                    lane_types
+                Widget::row({
+                    let mut row: Vec<Widget> = lane_types
                         .iter()
                         .map(|(lt, key)| {
                             let lt = *lt;
@@ -754,9 +754,18 @@ fn make_main_panel(
 
                             btn.build_widget(ctx, format!("change to {}", lt.short_name()))
                         })
-                        .chain([make_buffer_picker("change to", default_buffer)])
-                        .collect(),
-                ),
+                        .collect();
+                    row.push(make_buffer_picker(
+                        ctx,
+                        "change to",
+                        match current_lt {
+                            Some(lt @ LaneType::Buffer(_)) => lt,
+                            _ => app.session.buffer_lane_type,
+                        },
+                    ));
+                    row.insert(moving_lane_idx, Widget::vert_separator(ctx, 40.0));
+                    row
+                }),
             ]),
             Widget::row(vec![
                 ctx.style()
