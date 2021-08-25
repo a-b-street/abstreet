@@ -541,7 +541,13 @@ fn make_main_panel(
                         .get(lt)
                         .expect("lane_type button should have been cached")
                         .clone()
-                        .hotkey(key.map(|k| k.into()))
+                        // When we're modifying an existing lane, hotkeys change the lane, not add
+                        // new lanes.
+                        .hotkey(if selected_lane.is_none() {
+                            key.map(|k| k.into())
+                        } else {
+                            None
+                        })
                         .build_widget(ctx, format!("add {}", lt.short_name()))
                         .centered_vert()
                 })
@@ -634,12 +640,13 @@ fn make_main_panel(
                 Widget::row(
                     lane_types
                         .iter()
-                        .map(|(lt, _key)| {
+                        .map(|(lt, key)| {
                             let lt = *lt;
                             let mut btn = lane_type_buttons
                                 .get(&lt)
                                 .expect("lane_type button should have been cached")
-                                .clone();
+                                .clone()
+                                .hotkey(key.map(|k| k.into()));
 
                             if current_lt == Some(lt) {
                                 // If the selected lane is already this type, we can't change it. Hopefully no need to
