@@ -1394,7 +1394,7 @@
         (<span class="ident">batch</span>, <span class="ident">hitbox</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">horiz_separator</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">pct_container_width</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">horiz_separator</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">pct_container_width</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
         <span class="ident">GeomBatch::from</span>(<span class="macro">vec!</span>[(<span class="ident">Color::CLEAR</span>, <span class="ident">Polygon::rectangle</span>(<span class="number">0.0</span>, <span class="number">2.0</span>))])
             .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
             .<span class="ident">container</span>()
@@ -1403,7 +1403,7 @@
             .<span class="ident">centered_horiz</span>()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">vert_separator</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">height_px</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">vert_separator</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">height_px</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
         <span class="ident">GeomBatch::from</span>(<span class="macro">vec!</span>[(
             <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">section_outline</span>.<span class="number">1</span>,
             <span class="ident">Polygon::rectangle</span>(<span class="number">2.0</span>, <span class="ident">height_px</span>),

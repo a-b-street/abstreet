@@ -929,6 +929,65 @@
 <span id="927">927</span>
 <span id="928">928</span>
 <span id="929">929</span>
+<span id="930">930</span>
+<span id="931">931</span>
+<span id="932">932</span>
+<span id="933">933</span>
+<span id="934">934</span>
+<span id="935">935</span>
+<span id="936">936</span>
+<span id="937">937</span>
+<span id="938">938</span>
+<span id="939">939</span>
+<span id="940">940</span>
+<span id="941">941</span>
+<span id="942">942</span>
+<span id="943">943</span>
+<span id="944">944</span>
+<span id="945">945</span>
+<span id="946">946</span>
+<span id="947">947</span>
+<span id="948">948</span>
+<span id="949">949</span>
+<span id="950">950</span>
+<span id="951">951</span>
+<span id="952">952</span>
+<span id="953">953</span>
+<span id="954">954</span>
+<span id="955">955</span>
+<span id="956">956</span>
+<span id="957">957</span>
+<span id="958">958</span>
+<span id="959">959</span>
+<span id="960">960</span>
+<span id="961">961</span>
+<span id="962">962</span>
+<span id="963">963</span>
+<span id="964">964</span>
+<span id="965">965</span>
+<span id="966">966</span>
+<span id="967">967</span>
+<span id="968">968</span>
+<span id="969">969</span>
+<span id="970">970</span>
+<span id="971">971</span>
+<span id="972">972</span>
+<span id="973">973</span>
+<span id="974">974</span>
+<span id="975">975</span>
+<span id="976">976</span>
+<span id="977">977</span>
+<span id="978">978</span>
+<span id="979">979</span>
+<span id="980">980</span>
+<span id="981">981</span>
+<span id="982">982</span>
+<span id="983">983</span>
+<span id="984">984</span>
+<span id="985">985</span>
+<span id="986">986</span>
+<span id="987">987</span>
+<span id="988">988</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
@@ -941,8 +1000,8 @@
 };
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">lctrl</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">DragDrop</span>, <span class="ident">Drawable</span>, <span class="ident">EdgeInsets</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>,
-    <span class="ident">GeomBatchStack</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Image</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">Spinner</span>, <span class="ident">State</span>,
-    <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>, <span class="ident">DEFAULT_CORNER_RADIUS</span>,
+    <span class="ident">GeomBatchStack</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Image</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">PersistentSplit</span>,
+    <span class="ident">Spinner</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>, <span class="ident">DEFAULT_CORNER_RADIUS</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
@@ -996,7 +1055,7 @@
             <span class="ident">selected_lane</span>,
             <span class="ident">top_panel</span>: <span class="ident">Panel::empty</span>(<span class="ident">ctx</span>),
             <span class="ident">main_panel</span>: <span class="ident">Panel::empty</span>(<span class="ident">ctx</span>),
-            <span class="ident">fade_irrelevant</span>: <span class="ident">fade_irrelevant</span>(<span class="ident">app</span>, <span class="ident">r</span>).<span class="ident">upload</span>(<span class="ident">ctx</span>),
+            <span class="ident">fade_irrelevant</span>: <span class="ident">Drawable::empty</span>(<span class="ident">ctx</span>),
             <span class="ident">lane_highlights</span>: ((<span class="prelude-val">None</span>, <span class="prelude-val">None</span>), <span class="ident">Drawable::empty</span>(<span class="ident">ctx</span>)),
             <span class="ident">hovering_on_lane</span>: <span class="prelude-val">None</span>,
 
@@ -1079,6 +1138,8 @@
         );
 
         <span class="self">self</span>.<span class="ident">recalc_lane_highlights</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+
+        <span class="self">self</span>.<span class="ident">fade_irrelevant</span> <span class="op">=</span> <span class="ident">fade_irrelevant</span>(<span class="ident">app</span>, <span class="self">self</span>.<span class="ident">r</span>).<span class="ident">upload</span>(<span class="ident">ctx</span>);
     }
 
     <span class="kw">fn</span> <span class="ident">recalc_lane_highlights</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
@@ -1217,7 +1278,11 @@
                         <span class="ident">new</span>.<span class="ident">lanes_ltr</span>[<span class="ident">idx</span>].<span class="ident">dir</span> <span class="op">=</span> <span class="ident">new</span>.<span class="ident">lanes_ltr</span>[<span class="ident">idx</span>].<span class="ident">dir</span>.<span class="ident">opposite</span>();
                     });
                 } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">lt</span>) <span class="op">=</span> <span class="ident">x</span>.<span class="ident">strip_prefix</span>(<span class="string">&quot;change to &quot;</span>) {
-                    <span class="kw">let</span> <span class="ident">lt</span> <span class="op">=</span> <span class="ident">LaneType::from_short_name</span>(<span class="ident">lt</span>).<span class="ident">unwrap</span>();
+                    <span class="kw">let</span> <span class="ident">lt</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">lt</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;buffer&quot;</span> {
+                        <span class="self">self</span>.<span class="ident">main_panel</span>.<span class="ident">persistent_split_value</span>(<span class="string">&quot;change to buffer&quot;</span>)
+                    } <span class="kw">else</span> {
+                        <span class="ident">LaneType::from_short_name</span>(<span class="ident">lt</span>).<span class="ident">unwrap</span>()
+                    };
                     <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span>
                         <span class="ident">LaneSpec::typical_lane_widths</span>(<span class="ident">lt</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="self">self</span>.<span class="ident">r</span>).<span class="ident">osm_tags</span>)
                             [<span class="number">0</span>]
@@ -1227,7 +1292,11 @@
                         <span class="ident">new</span>.<span class="ident">lanes_ltr</span>[<span class="ident">idx</span>].<span class="ident">width</span> <span class="op">=</span> <span class="ident">width</span>;
                     });
                 } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">lt</span>) <span class="op">=</span> <span class="ident">x</span>.<span class="ident">strip_prefix</span>(<span class="string">&quot;add &quot;</span>) {
-                    <span class="kw">let</span> <span class="ident">lt</span> <span class="op">=</span> <span class="ident">LaneType::from_short_name</span>(<span class="ident">lt</span>).<span class="ident">unwrap</span>();
+                    <span class="kw">let</span> <span class="ident">lt</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">lt</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;buffer&quot;</span> {
+                        <span class="self">self</span>.<span class="ident">main_panel</span>.<span class="ident">persistent_split_value</span>(<span class="string">&quot;add buffer&quot;</span>)
+                    } <span class="kw">else</span> {
+                        <span class="ident">LaneType::from_short_name</span>(<span class="ident">lt</span>).<span class="ident">unwrap</span>()
+                    };
 
                     <span class="comment">// Special check here</span>
                     <span class="kw">if</span> <span class="ident">lt</span> <span class="op">=</span><span class="op">=</span> <span class="ident">LaneType::Parking</span>
@@ -1291,6 +1360,22 @@
                 <span class="string">&quot;lane cards&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="comment">// hovering index changed</span>
                     <span class="ident">panels_need_recalc</span> <span class="op">=</span> <span class="bool-val">true</span>;
+                }
+                <span class="string">&quot;change to buffer&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="kw">let</span> <span class="ident">lt</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">main_panel</span>.<span class="ident">persistent_split_value</span>(<span class="string">&quot;change to buffer&quot;</span>);
+                    <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">buffer_lane_type</span> <span class="op">=</span> <span class="ident">lt</span>;
+                    <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span>
+                        <span class="ident">LaneSpec::typical_lane_widths</span>(<span class="ident">lt</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="self">self</span>.<span class="ident">r</span>).<span class="ident">osm_tags</span>)
+                            [<span class="number">0</span>]
+                        .<span class="number">0</span>;
+                    <span class="kw">return</span> <span class="self">self</span>.<span class="ident">modify_current_lane</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="prelude-val">Some</span>(<span class="number">0</span>), <span class="op">|</span><span class="ident">new</span>, <span class="ident">idx</span><span class="op">|</span> {
+                        <span class="ident">new</span>.<span class="ident">lanes_ltr</span>[<span class="ident">idx</span>].<span class="ident">lt</span> <span class="op">=</span> <span class="ident">lt</span>;
+                        <span class="ident">new</span>.<span class="ident">lanes_ltr</span>[<span class="ident">idx</span>].<span class="ident">width</span> <span class="op">=</span> <span class="ident">width</span>;
+                    });
+                }
+                <span class="string">&quot;add buffer&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">buffer_lane_type</span> <span class="op">=</span>
+                        <span class="self">self</span>.<span class="ident">main_panel</span>.<span class="ident">persistent_split_value</span>(<span class="string">&quot;add buffer&quot;</span>);
                 }
                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
             },
@@ -1450,30 +1535,50 @@
         (<span class="ident">LaneType::Driving</span>, <span class="prelude-val">Some</span>(<span class="ident">Key::D</span>)),
         (<span class="ident">LaneType::Biking</span>, <span class="prelude-val">Some</span>(<span class="ident">Key::B</span>)),
         (<span class="ident">LaneType::Bus</span>, <span class="prelude-val">Some</span>(<span class="ident">Key::T</span>)),
+        (<span class="ident">LaneType::Sidewalk</span>, <span class="prelude-val">Some</span>(<span class="ident">Key::S</span>)),
         (<span class="ident">LaneType::Parking</span>, <span class="prelude-val">Some</span>(<span class="ident">Key::P</span>)),
         (<span class="ident">LaneType::Construction</span>, <span class="prelude-val">Some</span>(<span class="ident">Key::C</span>)),
-        (<span class="ident">LaneType::Sidewalk</span>, <span class="prelude-val">Some</span>(<span class="ident">Key::S</span>)),
-        (<span class="ident">LaneType::Buffer</span>(<span class="ident">BufferType::Stripes</span>), <span class="prelude-val">None</span>),
-        (<span class="ident">LaneType::Buffer</span>(<span class="ident">BufferType::FlexPosts</span>), <span class="prelude-val">None</span>),
-        (<span class="ident">LaneType::Buffer</span>(<span class="ident">BufferType::Planters</span>), <span class="prelude-val">None</span>),
-        (<span class="ident">LaneType::Buffer</span>(<span class="ident">BufferType::JerseyBarrier</span>), <span class="prelude-val">None</span>),
-        (<span class="ident">LaneType::Buffer</span>(<span class="ident">BufferType::Curb</span>), <span class="prelude-val">None</span>),
     ];
+    <span class="comment">// All the buffer lanes are grouped into a PersistentSplit</span>
+    <span class="kw">let</span> <span class="ident">moving_lane_idx</span> <span class="op">=</span> <span class="number">4</span>;
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lane_type_buttons</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
     <span class="kw">for</span> (<span class="ident">lane_type</span>, <span class="ident">_key</span>) <span class="kw">in</span> <span class="ident">lane_types</span> {
         <span class="kw">let</span> <span class="ident">btn</span> <span class="op">=</span> <span class="ident">ctx</span>
             .<span class="ident">style</span>()
-            .<span class="ident">btn_plain</span>
+            .<span class="ident">btn_outline</span>
             .<span class="ident">icon</span>(<span class="ident">lane_type_to_icon</span>(<span class="ident">lane_type</span>).<span class="ident">unwrap</span>());
 
         <span class="ident">lane_type_buttons</span>.<span class="ident">insert</span>(<span class="ident">lane_type</span>, <span class="ident">btn</span>);
     }
 
+    <span class="kw">let</span> <span class="ident">make_buffer_picker</span> <span class="op">=</span> <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">prefix</span>, <span class="ident">initial_type</span><span class="op">|</span> {
+        <span class="ident">PersistentSplit::widget</span>(
+            <span class="ident">ctx</span>,
+            <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{} buffer&quot;</span>, <span class="ident">prefix</span>),
+            <span class="ident">initial_type</span>,
+            <span class="prelude-val">None</span>,
+            <span class="macro">vec!</span>[
+                <span class="ident">BufferType::Stripes</span>,
+                <span class="ident">BufferType::FlexPosts</span>,
+                <span class="ident">BufferType::Planters</span>,
+                <span class="ident">BufferType::JerseyBarrier</span>,
+                <span class="ident">BufferType::Curb</span>,
+            ]
+            .<span class="ident">into_iter</span>()
+            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">buf</span><span class="op">|</span> {
+                <span class="kw">let</span> <span class="ident">lt</span> <span class="op">=</span> <span class="ident">LaneType::Buffer</span>(<span class="ident">buf</span>);
+                <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span> <span class="ident">LaneSpec::typical_lane_widths</span>(<span class="ident">lt</span>, <span class="kw-2">&amp;</span><span class="ident">road</span>.<span class="ident">osm_tags</span>)[<span class="number">0</span>].<span class="number">0</span>;
+                <span class="ident">Choice::new</span>(<span class="macro">format!</span>(<span class="string">&quot;{} ({})&quot;</span>, <span class="ident">lt</span>.<span class="ident">short_name</span>(), <span class="ident">width</span>), <span class="ident">lt</span>)
+            })
+            .<span class="ident">collect</span>(),
+        )
+    };
+
     <span class="kw">let</span> <span class="ident">add_lane_row</span> <span class="op">=</span> <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
         <span class="string">&quot;add new&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
-        <span class="ident">Widget::row</span>(
-            <span class="ident">lane_types</span>
+        <span class="ident">Widget::row</span>({
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">row</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Widget</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">lane_types</span>
                 .<span class="ident">iter</span>()
                 .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">lt</span>, <span class="ident">key</span>)<span class="op">|</span> {
                     <span class="ident">lane_type_buttons</span>
@@ -1490,8 +1595,11 @@
                         .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="macro">format!</span>(<span class="string">&quot;add {}&quot;</span>, <span class="ident">lt</span>.<span class="ident">short_name</span>()))
                         .<span class="ident">centered_vert</span>()
                 })
-                .<span class="ident">collect</span>(),
-        ),
+                .<span class="ident">collect</span>();
+            <span class="ident">row</span>.<span class="ident">push</span>(<span class="ident">make_buffer_picker</span>(<span class="ident">ctx</span>, <span class="string">&quot;add&quot;</span>, <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">buffer_lane_type</span>));
+            <span class="ident">row</span>.<span class="ident">insert</span>(<span class="ident">moving_lane_idx</span>, <span class="ident">Widget::vert_separator</span>(<span class="ident">ctx</span>, <span class="number">40.0</span>));
+            <span class="ident">row</span>
+        }),
     ]);
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">drag_drop</span> <span class="op">=</span> <span class="ident">DragDrop::new</span>(<span class="ident">ctx</span>, <span class="string">&quot;lane cards&quot;</span>);
 
@@ -1593,8 +1701,8 @@
         <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
             <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
                 <span class="string">&quot;change to&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
-                <span class="ident">Widget::row</span>(
-                    <span class="ident">lane_types</span>
+                <span class="ident">Widget::row</span>({
+                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">row</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Widget</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">lane_types</span>
                         .<span class="ident">iter</span>()
                         .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">lt</span>, <span class="ident">key</span>)<span class="op">|</span> {
                             <span class="kw">let</span> <span class="ident">lt</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">lt</span>;
@@ -1637,8 +1745,18 @@
 
                             <span class="ident">btn</span>.<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="macro">format!</span>(<span class="string">&quot;change to {}&quot;</span>, <span class="ident">lt</span>.<span class="ident">short_name</span>()))
                         })
-                        .<span class="ident">collect</span>(),
-                ),
+                        .<span class="ident">collect</span>();
+                    <span class="ident">row</span>.<span class="ident">push</span>(<span class="ident">make_buffer_picker</span>(
+                        <span class="ident">ctx</span>,
+                        <span class="string">&quot;change to&quot;</span>,
+                        <span class="kw">match</span> <span class="ident">current_lt</span> {
+                            <span class="prelude-val">Some</span>(<span class="ident">lt</span> @ <span class="ident">LaneType::Buffer</span>(<span class="kw">_</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">lt</span>,
+                            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">buffer_lane_type</span>,
+                        },
+                    ));
+                    <span class="ident">row</span>.<span class="ident">insert</span>(<span class="ident">moving_lane_idx</span>, <span class="ident">Widget::vert_separator</span>(<span class="ident">ctx</span>, <span class="number">40.0</span>));
+                    <span class="ident">row</span>
+                }),
             ]),
             <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
