@@ -865,9 +865,6 @@
 <span id="863">863</span>
 <span id="864">864</span>
 <span id="865">865</span>
-<span id="866">866</span>
-<span id="867">867</span>
-<span id="868">868</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 
@@ -1398,20 +1395,17 @@
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">horiz_separator</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">pct_container_width</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
-        <span class="ident">GeomBatch::from</span>(<span class="macro">vec!</span>[(
-            <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline</span>.<span class="ident">fg</span>,
-            <span class="ident">Polygon::rectangle</span>(<span class="number">0.0</span>, <span class="number">2.0</span>),
-        )])
-        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
-        .<span class="ident">container</span>()
-        .<span class="ident">bg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline</span>.<span class="ident">fg</span>)
-        .<span class="ident">force_width_parent_pct</span>(<span class="ident">pct_container_width</span>)
-        .<span class="ident">centered_horiz</span>()
+        <span class="ident">GeomBatch::from</span>(<span class="macro">vec!</span>[(<span class="ident">Color::CLEAR</span>, <span class="ident">Polygon::rectangle</span>(<span class="number">0.0</span>, <span class="number">2.0</span>))])
+            .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
+            .<span class="ident">container</span>()
+            .<span class="ident">bg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">section_outline</span>.<span class="number">1</span>)
+            .<span class="ident">force_width_parent_pct</span>(<span class="ident">pct_container_width</span>)
+            .<span class="ident">centered_horiz</span>()
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">vert_separator</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">height_px</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
         <span class="ident">GeomBatch::from</span>(<span class="macro">vec!</span>[(
-            <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline</span>.<span class="ident">fg</span>,
+            <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">section_outline</span>.<span class="number">1</span>,
             <span class="ident">Polygon::rectangle</span>(<span class="number">2.0</span>, <span class="ident">height_px</span>),
         )])
         .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
