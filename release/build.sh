@@ -8,19 +8,19 @@ case $os in
 	ubuntu-18.04)
 		output="abst_linux";
 		suffix="";
-		runner="play_abstreet.sh";
+		ext="sh";
 		;;
 
 	macos-latest)
 		output="abst_mac";
 		suffix="";
-		runner="play_abstreet.sh";
+		ext="sh";
 		;;
 
 	windows-latest)
 		output="abst_windows";
 		suffix=".exe";
-		runner="play_abstreet.bat";
+		ext="bat";
 		;;
 
 	*)
@@ -30,11 +30,11 @@ esac
 
 mkdir $output
 
-cp release/$runner release/INSTRUCTIONS.txt $output
+cp release/play_abstreet.$ext release/ungap_the_map.$ext release/INSTRUCTIONS.txt $output
 
 # Put most binaries in the root directory, but hide game to encourage people to
-# use the runner script. It will capture output logs. But if somebody runs the
-# game binary directly, it'll still work.
+# use the launch scripts. They will capture output logs. But if somebody runs
+# the game binary directly, it'll still work.
 mkdir $output/game
 cp target/release/game${suffix} $output/game
 

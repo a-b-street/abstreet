@@ -267,9 +267,7 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App) -> Panel {
                 .image_dims(70.0)
                 .build_widget(ctx, "about A/B Street"),
             Widget::col(vec![
-                Line("Draw your ideal bike network")
-                    .small_heading()
-                    .into_widget(ctx),
+                Line("Ungap the Map").small_heading().into_widget(ctx),
                 ctx.style()
                     .btn_popup_icon_text(
                         "system/assets/tools/map.svg",

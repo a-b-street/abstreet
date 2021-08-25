@@ -84,6 +84,9 @@ impl Map {
 
     /// After deserializing a map directly, call this after.
     pub fn map_loaded_directly(&mut self) {
+        #![allow(clippy::logic_bug)]
+        // For debugging map file sizes
+
         self.edits = self.new_edits();
         self.recalculate_road_to_buildings();
 
