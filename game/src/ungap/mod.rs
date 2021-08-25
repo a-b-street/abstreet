@@ -279,7 +279,7 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App) -> Panel {
                     .build_widget(ctx, "change map"),
             ]),
         ]),
-        Widget::col(file_management).bg(ctx.style().section_bg),
+        Widget::col(file_management).section(ctx),
         ctx.style()
             .btn_solid_primary
             .icon_text("system/assets/tools/pencil.svg", "Create new bike lanes")
