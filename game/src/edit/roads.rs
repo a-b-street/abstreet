@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use geom::{Bounds, CornerRadii, Distance, Polygon, UnitFmt};
+use geom::{Bounds, CornerRadii, Distance, Polygon, Pt2D, UnitFmt};
 use map_gui::render::Renderable;
 use map_gui::tools::PopupMsg;
 use map_gui::ID;
@@ -560,21 +560,17 @@ fn make_main_panel(
                 })
                 .collect(),
         ),
-    ])
-    .section(ctx);
+    ]);
     let mut drag_drop = DragDrop::new(ctx, "lane cards");
 
+    let road_width = road.get_width(map);
     let lanes_ltr = road.lanes_ltr();
     let lanes_len = lanes_ltr.len();
-    let max_lane_width = lanes_ltr
-        .iter()
-        .map(|(id, _, _)| map.get_l(*id).width)
-        .max()
-        .unwrap();
 
     for (idx, (id, dir, lt)) in lanes_ltr.into_iter().enumerate() {
         let mut icon_stack = GeomBatchStack::vertical(vec![
             Image::from_path(lane_type_to_icon(lt).unwrap())
+                .dims((60.0, 50.0))
                 .build_batch(ctx)
                 .unwrap()
                 .0,
@@ -588,13 +584,14 @@ fn make_main_panel(
                 } else {
                     "system/assets/edit/backwards.svg"
                 })
+                .dims((30.0, 30.0))
                 .build_batch(ctx)
                 .unwrap()
                 .0,
             );
         }
         let lane_width = map.get_l(id).width;
-        let width_pct = lane_width / max_lane_width;
+
         icon_stack.push(Text::from(Line(lane_width.to_string(&app.opts.units))).render(ctx));
         let icon_batch = icon_stack.batch();
         let icon_bounds = icon_batch.get_bounds();
@@ -608,31 +605,42 @@ fn make_main_panel(
         }
 
         let (card_bounds, default_batch, hovering_batch, selected_batch) = {
-            let card_batch = |(icon_batch, hovering, selected)| -> (GeomBatch, Bounds) {
+            let card_batch = |(icon_batch, is_hovering, is_selected)| -> (GeomBatch, Bounds) {
+                let road_width_px = 700.0;
+                let icon_width = 30.0;
+                let lane_ratio_of_road = lane_width / road_width;
+                let h_padding = ((road_width_px * lane_ratio_of_road - icon_width) / 2.0).max(2.0);
+
                 Image::from_batch(icon_batch, icon_bounds)
                     // TODO: For selected/hover, rather than change the entire card's background, let's
                     // just add an outline to match the styling of the corresponding lane in the map
-                    .bg_color(if selected {
+                    .bg_color(if is_selected {
                         selected_lane_bg(ctx)
-                    } else if hovering {
+                    } else if is_hovering {
                         selected_lane_bg(ctx).dull(0.3)
                     } else {
                         selected_lane_bg(ctx).dull(0.15)
                     })
                     .color(ctx.style().btn_tab.fg)
-                    .dims((width_pct * 60.0, 80.0))
+                    .dims((30.0, 100.0))
                     .padding(EdgeInsets {
                         top: 32.0,
-                        left: 16.0,
+                        left: h_padding,
                         bottom: 32.0,
-                        right: 16.0,
+                        right: h_padding,
                     })
                     .corner_rounding(rounding)
                     .build_batch(ctx)
                     .unwrap()
             };
 
-            let (default_batch, bounds) = card_batch((icon_batch.clone(), false, false));
+            let (mut default_batch, bounds) = card_batch((icon_batch.clone(), false, false));
+            let border = {
+                let top_left = Pt2D::new(bounds.min_x, bounds.max_y - 2.0);
+                let bottom_right = Pt2D::new(bounds.max_x, bounds.max_y);
+                Polygon::rectangle_two_corners(top_left, bottom_right).unwrap()
+            };
+            default_batch.push(ctx.style().section_outline.1.shade(0.2), border);
             let (hovering_batch, _) = card_batch((icon_batch.clone(), true, false));
             let (selected_batch, _) = card_batch((icon_batch, false, true));
             (bounds, default_batch, hovering_batch, selected_batch)
@@ -742,10 +750,9 @@ fn make_main_panel(
     };
 
     let total_width = {
-        let current_width = road.get_width(map);
         let line1 = Text::from_all(vec![
             Line("Total width ").secondary(),
-            Line(current_width.to_string(&app.opts.units)),
+            Line(road_width.to_string(&app.opts.units)),
         ])
         .into_widget(ctx);
         let orig_width = EditRoad::get_orig_from_osm(map.get_r(road.id), map.get_config())
@@ -758,16 +765,16 @@ fn make_main_panel(
             .btn_plain
             .btn()
             .label_styled_text(
-                Text::from(match current_width.cmp(&orig_width) {
+                Text::from(match road_width.cmp(&orig_width) {
                     std::cmp::Ordering::Equal => Line("No change").secondary(),
                     std::cmp::Ordering::Less => Line(format!(
                         "- {}",
-                        (orig_width - current_width).to_string(&app.opts.units)
+                        (orig_width - road_width).to_string(&app.opts.units)
                     ))
                     .fg(Color::GREEN),
                     std::cmp::Ordering::Greater => Line(format!(
                         "+ {}",
-                        (current_width - orig_width).to_string(&app.opts.units)
+                        (road_width - orig_width).to_string(&app.opts.units)
                     ))
                     .fg(Color::RED),
                 }),
@@ -798,19 +805,27 @@ fn make_main_panel(
             .text("Access restrictions")
             .build_def(ctx)
             .centered_vert(),
-    ])
-    .section(ctx);
+    ]);
 
-    Panel::new_builder(Widget::custom_col(vec![
-        road_settings,
-        add_lane_row.margin_below(16),
-        drag_drop
-            .into_widget(ctx)
-            .named("lane cards")
-            .bg(ctx.style().text_primary_color.tint(0.3)),
-        // We use a sort of "tab" metaphor for the selected lane above and this "edit" section
-        modify_lane.padding(16.0).bg(selected_lane_bg(ctx)),
-    ]))
+    Panel::new_builder(
+        Widget::custom_col(vec![
+            Widget::col(vec![
+                road_settings,
+                Widget::horiz_separator(ctx, 1.0),
+                add_lane_row,
+            ])
+            .section(ctx)
+            .margin_below(16),
+            drag_drop
+                .into_widget(ctx)
+                .named("lane cards")
+                .bg(ctx.style().text_primary_color.tint(0.3))
+                .margin_left(16),
+            // We use a sort of "tab" metaphor for the selected lane above and this "edit" section
+            modify_lane.padding(16.0).bg(selected_lane_bg(ctx)),
+        ])
+        .padding_left(16),
+    )
     .aligned(HorizontalAlignment::Left, VerticalAlignment::Center)
     // If we're hovering on a lane card, we'll immediately produce Outcome::Changed. Since this
     // usually happens in recalc_all_panels, that's fine -- we'll look up the current lane card
@@ -820,7 +835,6 @@ fn make_main_panel(
 }
 
 fn selected_lane_bg(ctx: &EventCtx) -> Color {
-    // ctx.style().primary_fg.tint(0.3)
     ctx.style().btn_tab.bg_disabled
 }
 

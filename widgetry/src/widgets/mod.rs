@@ -527,20 +527,17 @@ impl Widget {
     }
 
     pub fn horiz_separator(ctx: &mut EventCtx, pct_container_width: f64) -> Widget {
-        GeomBatch::from(vec![(
-            ctx.style().btn_outline.fg,
-            Polygon::rectangle(0.0, 2.0),
-        )])
-        .into_widget(ctx)
-        .container()
-        .bg(ctx.style().btn_outline.fg)
-        .force_width_parent_pct(pct_container_width)
-        .centered_horiz()
+        GeomBatch::from(vec![(Color::CLEAR, Polygon::rectangle(0.0, 2.0))])
+            .into_widget(ctx)
+            .container()
+            .bg(ctx.style().section_outline.1)
+            .force_width_parent_pct(pct_container_width)
+            .centered_horiz()
     }
 
     pub fn vert_separator(ctx: &mut EventCtx, height_px: f64) -> Widget {
         GeomBatch::from(vec![(
-            ctx.style().btn_outline.fg,
+            ctx.style().section_outline.1,
             Polygon::rectangle(2.0, height_px),
         )])
         .into_widget(ctx)

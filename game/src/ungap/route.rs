@@ -17,6 +17,7 @@ use crate::ungap::layers::Layers;
 
 pub struct RoutePlanner {
     layers: Layers,
+    once: bool,
 
     // All of this manages the waypoint input
     input_panel: Panel,
@@ -60,6 +61,7 @@ impl RoutePlanner {
 
         let mut rp = RoutePlanner {
             layers,
+            once: true,
 
             input_panel: Panel::empty(ctx),
             waypoints: Vec::new(),
@@ -310,6 +312,15 @@ impl RoutePlanner {
 
 impl State<App> for RoutePlanner {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+        if self.once {
+            self.once = false;
+            ctx.loading_screen("apply edits", |_, mut timer| {
+                app.primary
+                    .map
+                    .recalculate_pathfinding_after_edits(&mut timer);
+            });
+        }
+
         if self.dragging {
             if ctx.redo_mouseover() {
                 self.update_dragging(ctx, app);
