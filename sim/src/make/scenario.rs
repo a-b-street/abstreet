@@ -404,6 +404,10 @@ fn find_spot_near_building(
 impl PersonSpec {
     /// Verify that a person's trips make sense
     fn check_schedule(&self) -> Result<()> {
+        if self.trips.is_empty() {
+            bail!("Person ({:?}) has no trips at all", self.orig_id);
+        }
+
         for pair in self.trips.windows(2) {
             if pair[0].depart >= pair[1].depart {
                 bail!(

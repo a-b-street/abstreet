@@ -39,27 +39,27 @@
     "scenario": "base",
     "finished_trips": 8544,
     "cancelled_trips": 4,
-    "total_trip_duration_seconds": 7846375.200100008
+    "total_trip_duration_seconds": 7855378.835599992
   },
   {
     "map": "center (in poundbury (gb))",
     "scenario": "go_active",
     "finished_trips": 8550,
     "cancelled_trips": 8,
-    "total_trip_duration_seconds": 9572689.746299969
+    "total_trip_duration_seconds": 9588682.029699976
   },
   {
     "map": "center (in poundbury (gb))",
     "scenario": "base_with_bg",
     "finished_trips": 23734,
     "cancelled_trips": 260,
-    "total_trip_duration_seconds": 22618540.814799953
+    "total_trip_duration_seconds": 22644126.649200022
   },
   {
     "map": "center (in poundbury (gb))",
     "scenario": "go_active_with_bg",
     "finished_trips": 23740,
     "cancelled_trips": 264,
-    "total_trip_duration_seconds": 24601366.105899967
+    "total_trip_duration_seconds": 24476199.420600023
   }
 ]
