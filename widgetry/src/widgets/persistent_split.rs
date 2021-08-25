@@ -119,6 +119,7 @@ impl<T: 'static + Clone + PartialEq> WidgetImpl for PersistentSplit<T> {
             }
             self.btn = button_builder.build(ctx, &label);
             output.redo_layout = true;
+            output.outcome = Outcome::Changed(label);
         }
     }
 
