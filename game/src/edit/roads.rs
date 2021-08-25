@@ -586,6 +586,8 @@ fn make_main_panel(
                 .0,
             );
         }
+        icon_stack
+            .push(Text::from(Line(map.get_l(id).width.to_string(&app.opts.units))).render(ctx));
         let icon_batch = icon_stack.batch();
         let icon_bounds = icon_batch.get_bounds();
 
@@ -610,7 +612,7 @@ fn make_main_panel(
                         selected_lane_bg(ctx).dull(0.15)
                     })
                     .color(ctx.style().btn_tab.fg)
-                    .dims(60.0)
+                    .dims((60.0, 80.0))
                     .padding(EdgeInsets {
                         top: 32.0,
                         left: 16.0,
