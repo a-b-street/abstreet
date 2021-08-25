@@ -364,7 +364,8 @@ impl State<App> for RoadEditor {
                     edits
                         .commands
                         .push(app.primary.map.edit_road_cmd(self.r, |new| {
-                            new.lanes_ltr.swap(old_idx, new_idx);
+                            let spec = new.lanes_ltr.remove(old_idx);
+                            new.lanes_ltr.insert(new_idx, spec);
                         }));
                     apply_map_edits(ctx, app, edits);
                     self.redo_stack.clear();
