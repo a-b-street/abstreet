@@ -6,8 +6,7 @@ use map_model::osm::RoadRank;
 use map_model::LaneType;
 use widgetry::{
     ButtonBuilder, Color, ControlState, Drawable, EdgeInsets, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Image, Key, Line, Outcome, Panel, RewriteColor, Text, Toggle,
-    VerticalAlignment, Widget,
+    HorizontalAlignment, Image, Key, Line, Outcome, Panel, Text, Toggle, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -147,8 +146,10 @@ impl Layers {
                             .categories
                             .iter()
                             .map(|(label, color)| {
-                                legend_batch(ctx, *color, Text::from(Line(label).fg(Color::WHITE)))
-                                    .into_widget(ctx)
+                                legend_btn(*color, label)
+                                    .label_color(Color::WHITE, ControlState::Default)
+                                    .disabled(true)
+                                    .build_def(ctx)
                             })
                             .collect();
                         legend.push(uphill_legend);
@@ -229,9 +230,9 @@ impl Layers {
                     .centered_vert(),
                 Widget::custom_row(vec![
                     // TODO Looks too close to access restrictions
-                    legend_item(ctx, app.cs.unzoomed_highway, "highway"),
-                    legend_item(ctx, app.cs.unzoomed_arterial, "major street"),
-                    legend_item(ctx, app.cs.unzoomed_residential, "minor street"),
+                    legend_btn(app.cs.unzoomed_highway, "highway").build_def(ctx),
+                    legend_btn(app.cs.unzoomed_arterial, "major street").build_def(ctx),
+                    legend_btn(app.cs.unzoomed_residential, "minor street").build_def(ctx),
                 ]),
             ]),
             Widget::custom_row({
@@ -242,18 +243,16 @@ impl Layers {
                     self.bike_network.is_some(),
                 )];
                 if self.bike_network.is_some() {
-                    row.push(legend_item(ctx, *bike_network::DEDICATED_TRAIL, "trail"));
-                    row.push(legend_item(
-                        ctx,
-                        *bike_network::PROTECTED_BIKE_LANE,
-                        "protected bike lane",
-                    ));
-                    row.push(legend_item(
-                        ctx,
-                        *bike_network::PAINTED_BIKE_LANE,
-                        "painted bike lane",
-                    ));
-                    row.push(legend_item(ctx, *bike_network::GREENWAY, "greenway"));
+                    row.push(legend_btn(*bike_network::DEDICATED_TRAIL, "trail").build_def(ctx));
+                    row.push(
+                        legend_btn(*bike_network::PROTECTED_BIKE_LANE, "protected bike lane")
+                            .build_def(ctx),
+                    );
+                    row.push(
+                        legend_btn(*bike_network::PAINTED_BIKE_LANE, "painted bike lane")
+                            .build_def(ctx),
+                    );
+                    row.push(legend_btn(*bike_network::GREENWAY, "greenway").build_def(ctx));
                 }
                 row
             }),
@@ -363,33 +362,18 @@ fn make_zoom_controls(ctx: &mut EventCtx) -> Widget {
     ])
 }
 
-fn legend_batch(ctx: &mut EventCtx, color: Color, txt: Text) -> GeomBatch {
-    // TODO Height of the "trail" button is slightly too low!
-    // Text with padding and a background color
-    let (mut batch, hitbox) = txt
-        .render(ctx)
-        .batch()
-        .container()
+fn legend_btn(color: Color, label: &str) -> ButtonBuilder {
+    ButtonBuilder::new()
+        .label_text(label)
+        .bg_color(color, ControlState::Default)
+        .bg_color(color.alpha(0.6), ControlState::Hovered)
         .padding(EdgeInsets {
             top: 10.0,
             bottom: 10.0,
             left: 20.0,
             right: 20.0,
         })
-        .into_geom(ctx, None);
-    batch.unshift(color, hitbox);
-    batch
-}
-
-fn legend_item(ctx: &mut EventCtx, color: Color, label: &str) -> Widget {
-    let batch = legend_batch(ctx, color, Text::from(Line(label)));
-    return ButtonBuilder::new()
-        .custom_batch(batch.clone(), ControlState::Default)
-        .custom_batch(
-            batch.color(RewriteColor::Change(color, color.alpha(0.6))),
-            ControlState::Hovered,
-        )
-        .build_widget(ctx, label);
+        .corner_rounding(0.0)
 }
 
 fn zoom_enabled_cache_key(ctx: &EventCtx) -> (bool, bool) {
