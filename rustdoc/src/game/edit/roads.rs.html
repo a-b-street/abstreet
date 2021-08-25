@@ -918,6 +918,19 @@
 <span id="916">916</span>
 <span id="917">917</span>
 <span id="918">918</span>
+<span id="919">919</span>
+<span id="920">920</span>
+<span id="921">921</span>
+<span id="922">922</span>
+<span id="923">923</span>
+<span id="924">924</span>
+<span id="925">925</span>
+<span id="926">926</span>
+<span id="927">927</span>
+<span id="928">928</span>
+<span id="929">929</span>
+<span id="930">930</span>
+<span id="931">931</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
@@ -985,7 +998,7 @@
             <span class="ident">selected_lane</span>,
             <span class="ident">top_panel</span>: <span class="ident">Panel::empty</span>(<span class="ident">ctx</span>),
             <span class="ident">main_panel</span>: <span class="ident">Panel::empty</span>(<span class="ident">ctx</span>),
-            <span class="ident">fade_irrelevant</span>: <span class="ident">fade_irrelevant</span>(<span class="ident">app</span>, <span class="ident">r</span>).<span class="ident">upload</span>(<span class="ident">ctx</span>),
+            <span class="ident">fade_irrelevant</span>: <span class="ident">Drawable::empty</span>(<span class="ident">ctx</span>),
             <span class="ident">lane_highlights</span>: ((<span class="prelude-val">None</span>, <span class="prelude-val">None</span>), <span class="ident">Drawable::empty</span>(<span class="ident">ctx</span>)),
             <span class="ident">hovering_on_lane</span>: <span class="prelude-val">None</span>,
 
@@ -1068,6 +1081,8 @@
         );
 
         <span class="self">self</span>.<span class="ident">recalc_lane_highlights</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+
+        <span class="self">self</span>.<span class="ident">fade_irrelevant</span> <span class="op">=</span> <span class="ident">fade_irrelevant</span>(<span class="ident">app</span>, <span class="self">self</span>.<span class="ident">r</span>).<span class="ident">upload</span>(<span class="ident">ctx</span>);
     }
 
     <span class="kw">fn</span> <span class="ident">recalc_lane_highlights</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
@@ -1484,11 +1499,14 @@
     ]);
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">drag_drop</span> <span class="op">=</span> <span class="ident">DragDrop::new</span>(<span class="ident">ctx</span>, <span class="string">&quot;lane cards&quot;</span>);
 
+    <span class="kw">let</span> <span class="ident">road_width</span> <span class="op">=</span> <span class="ident">road</span>.<span class="ident">get_width</span>(<span class="ident">map</span>);
     <span class="kw">let</span> <span class="ident">lanes_ltr</span> <span class="op">=</span> <span class="ident">road</span>.<span class="ident">lanes_ltr</span>();
     <span class="kw">let</span> <span class="ident">lanes_len</span> <span class="op">=</span> <span class="ident">lanes_ltr</span>.<span class="ident">len</span>();
+
     <span class="kw">for</span> (<span class="ident">idx</span>, (<span class="ident">id</span>, <span class="ident">dir</span>, <span class="ident">lt</span>)) <span class="kw">in</span> <span class="ident">lanes_ltr</span>.<span class="ident">into_iter</span>().<span class="ident">enumerate</span>() {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">icon_stack</span> <span class="op">=</span> <span class="ident">GeomBatchStack::vertical</span>(<span class="macro">vec!</span>[
             <span class="ident">Image::from_path</span>(<span class="ident">lane_type_to_icon</span>(<span class="ident">lt</span>).<span class="ident">unwrap</span>())
+                .<span class="ident">dims</span>((<span class="number">60.0</span>, <span class="number">50.0</span>))
                 .<span class="ident">build_batch</span>(<span class="ident">ctx</span>)
                 .<span class="ident">unwrap</span>()
                 .<span class="number">0</span>,
@@ -1502,11 +1520,15 @@
                 } <span class="kw">else</span> {
                     <span class="string">&quot;system/assets/edit/backwards.svg&quot;</span>
                 })
+                .<span class="ident">dims</span>((<span class="number">30.0</span>, <span class="number">30.0</span>))
                 .<span class="ident">build_batch</span>(<span class="ident">ctx</span>)
                 .<span class="ident">unwrap</span>()
                 .<span class="number">0</span>,
             );
         }
+        <span class="kw">let</span> <span class="ident">lane_width</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">id</span>).<span class="ident">width</span>;
+
+        <span class="ident">icon_stack</span>.<span class="ident">push</span>(<span class="ident">Text::from</span>(<span class="ident">Line</span>(<span class="ident">lane_width</span>.<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">units</span>))).<span class="ident">render</span>(<span class="ident">ctx</span>));
         <span class="kw">let</span> <span class="ident">icon_batch</span> <span class="op">=</span> <span class="ident">icon_stack</span>.<span class="ident">batch</span>();
         <span class="kw">let</span> <span class="ident">icon_bounds</span> <span class="op">=</span> <span class="ident">icon_batch</span>.<span class="ident">get_bounds</span>();
 
@@ -1520,6 +1542,11 @@
 
         <span class="kw">let</span> (<span class="ident">card_bounds</span>, <span class="ident">default_batch</span>, <span class="ident">hovering_batch</span>, <span class="ident">selected_batch</span>) <span class="op">=</span> {
             <span class="kw">let</span> <span class="ident">card_batch</span> <span class="op">=</span> <span class="op">|</span>(<span class="ident">icon_batch</span>, <span class="ident">is_hovering</span>, <span class="ident">is_selected</span>)<span class="op">|</span> <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">GeomBatch</span>, <span class="ident">Bounds</span>) {
+                <span class="kw">let</span> <span class="ident">road_width_px</span> <span class="op">=</span> <span class="number">700.0</span>;
+                <span class="kw">let</span> <span class="ident">icon_width</span> <span class="op">=</span> <span class="number">30.0</span>;
+                <span class="kw">let</span> <span class="ident">lane_ratio_of_road</span> <span class="op">=</span> <span class="ident">lane_width</span> <span class="op">/</span> <span class="ident">road_width</span>;
+                <span class="kw">let</span> <span class="ident">h_padding</span> <span class="op">=</span> ((<span class="ident">road_width_px</span> <span class="op">*</span> <span class="ident">lane_ratio_of_road</span> <span class="op">-</span> <span class="ident">icon_width</span>) <span class="op">/</span> <span class="number">2.0</span>).<span class="ident">max</span>(<span class="number">2.0</span>);
+
                 <span class="ident">Image::from_batch</span>(<span class="ident">icon_batch</span>, <span class="ident">icon_bounds</span>)
                     <span class="comment">// TODO: For selected/hover, rather than change the entire card&#39;s background, let&#39;s</span>
                     <span class="comment">// just add an outline to match the styling of the corresponding lane in the map</span>
@@ -1531,12 +1558,12 @@
                         <span class="ident">selected_lane_bg</span>(<span class="ident">ctx</span>).<span class="ident">dull</span>(<span class="number">0.15</span>)
                     })
                     .<span class="ident">color</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_tab</span>.<span class="ident">fg</span>)
-                    .<span class="ident">dims</span>(<span class="number">60.0</span>)
+                    .<span class="ident">dims</span>((<span class="number">30.0</span>, <span class="number">100.0</span>))
                     .<span class="ident">padding</span>(<span class="ident">EdgeInsets</span> {
                         <span class="ident">top</span>: <span class="number">32.0</span>,
-                        <span class="ident">left</span>: <span class="number">16.0</span>,
+                        <span class="ident">left</span>: <span class="ident">h_padding</span>,
                         <span class="ident">bottom</span>: <span class="number">32.0</span>,
-                        <span class="ident">right</span>: <span class="number">16.0</span>,
+                        <span class="ident">right</span>: <span class="ident">h_padding</span>,
                     })
                     .<span class="ident">corner_rounding</span>(<span class="ident">rounding</span>)
                     .<span class="ident">build_batch</span>(<span class="ident">ctx</span>)
@@ -1659,10 +1686,9 @@
     };
 
     <span class="kw">let</span> <span class="ident">total_width</span> <span class="op">=</span> {
-        <span class="kw">let</span> <span class="ident">current_width</span> <span class="op">=</span> <span class="ident">road</span>.<span class="ident">get_width</span>(<span class="ident">map</span>);
         <span class="kw">let</span> <span class="ident">line1</span> <span class="op">=</span> <span class="ident">Text::from_all</span>(<span class="macro">vec!</span>[
             <span class="ident">Line</span>(<span class="string">&quot;Total width &quot;</span>).<span class="ident">secondary</span>(),
-            <span class="ident">Line</span>(<span class="ident">current_width</span>.<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">units</span>)),
+            <span class="ident">Line</span>(<span class="ident">road_width</span>.<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">units</span>)),
         ])
         .<span class="ident">into_widget</span>(<span class="ident">ctx</span>);
         <span class="kw">let</span> <span class="ident">orig_width</span> <span class="op">=</span> <span class="ident">EditRoad::get_orig_from_osm</span>(<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">road</span>.<span class="ident">id</span>), <span class="ident">map</span>.<span class="ident">get_config</span>())
@@ -1675,16 +1701,16 @@
             .<span class="ident">btn_plain</span>
             .<span class="ident">btn</span>()
             .<span class="ident">label_styled_text</span>(
-                <span class="ident">Text::from</span>(<span class="kw">match</span> <span class="ident">current_width</span>.<span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="ident">orig_width</span>) {
+                <span class="ident">Text::from</span>(<span class="kw">match</span> <span class="ident">road_width</span>.<span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="ident">orig_width</span>) {
                     <span class="ident">std::cmp::Ordering::Equal</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Line</span>(<span class="string">&quot;No change&quot;</span>).<span class="ident">secondary</span>(),
                     <span class="ident">std::cmp::Ordering::Less</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Line</span>(<span class="macro">format!</span>(
                         <span class="string">&quot;- {}&quot;</span>,
-                        (<span class="ident">orig_width</span> <span class="op">-</span> <span class="ident">current_width</span>).<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">units</span>)
+                        (<span class="ident">orig_width</span> <span class="op">-</span> <span class="ident">road_width</span>).<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">units</span>)
                     ))
                     .<span class="ident">fg</span>(<span class="ident">Color::GREEN</span>),
                     <span class="ident">std::cmp::Ordering::Greater</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Line</span>(<span class="macro">format!</span>(
                         <span class="string">&quot;+ {}&quot;</span>,
-                        (<span class="ident">current_width</span> <span class="op">-</span> <span class="ident">orig_width</span>).<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">units</span>)
+                        (<span class="ident">road_width</span> <span class="op">-</span> <span class="ident">orig_width</span>).<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">units</span>)
                     ))
                     .<span class="ident">fg</span>(<span class="ident">Color::RED</span>),
                 }),
