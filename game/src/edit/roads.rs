@@ -137,13 +137,6 @@ impl RoadEditor {
             self.hovering_on_lane,
         );
 
-        let drag_drop = self.main_panel.find::<DragDrop<LaneID>>("lane cards");
-        let selected = drag_drop.selected_value().or(self.selected_lane);
-        let hovering = drag_drop.hovering_value().or(self.hovering_on_lane);
-        if (selected, hovering) != self.lane_highlights.0 {
-            self.lane_highlights = build_lane_highlights(ctx, app, selected, hovering);
-        }
-
         self.top_panel = make_top_panel(
             ctx,
             app,
@@ -152,6 +145,17 @@ impl RoadEditor {
             self.r,
             self.orig_road_state.clone(),
         );
+
+        self.recalc_lane_highlights(ctx, app);
+    }
+
+    fn recalc_lane_highlights(&mut self, ctx: &mut EventCtx, app: &App) {
+        let drag_drop = self.main_panel.find::<DragDrop<LaneID>>("lane cards");
+        let selected = drag_drop.selected_value().or(self.selected_lane);
+        let hovering = drag_drop.hovering_value().or(self.hovering_on_lane);
+        if (selected, hovering) != self.lane_highlights.0 {
+            self.lane_highlights = build_lane_highlights(ctx, app, selected, hovering);
+        }
     }
 
     fn compress_edits(&self, app: &App) -> Option<MapEdits> {
@@ -379,10 +383,20 @@ impl State<App> for RoadEditor {
             _ => debug!("main_panel had unhandled outcome"),
         }
 
-        if ctx.redo_mouseover() {
-            let hovering_before = self.hovering_on_lane;
+        if self
+            .main_panel
+            .find::<DragDrop<LaneID>>("lane cards")
+            .is_dragging()
+        {
+            // Even if we drag the lane card into map-space, don't hover on anything in the map.
+            self.hovering_on_lane = None;
+            // Don't rebuild the panel -- that'll destroy the DragDrop we just started! But do
+            // update the outlines
+            self.recalc_lane_highlights(ctx, app);
+        } else if ctx.redo_mouseover() {
+            let prev_hovering_on_lane = self.hovering_on_lane;
             self.recalc_hovering(ctx, app);
-            if self.hovering_on_lane != hovering_before {
+            if prev_hovering_on_lane != self.hovering_on_lane {
                 panels_need_recalc = true;
             }
         }

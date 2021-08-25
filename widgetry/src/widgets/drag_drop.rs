@@ -109,6 +109,10 @@ impl<T: 'static + Copy + PartialEq> DragDrop<T> {
 
         self.state = State::Initial { selected, hovering };
     }
+
+    pub fn is_dragging(&self) -> bool {
+        matches!(self.state, State::Dragging { .. })
+    }
 }
 
 impl<T: 'static + Copy + PartialEq> DragDrop<T> {
