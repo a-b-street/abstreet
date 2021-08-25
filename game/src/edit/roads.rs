@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use geom::{Bounds, CornerRadii, Distance, UnitFmt};
 use map_gui::render::{Renderable, OUTLINE_THICKNESS};
 use map_gui::tools::PopupMsg;
@@ -307,7 +309,6 @@ impl State<App> for RoadEditor {
                     apply_map_edits(ctx, app, edits);
                     self.redo_stack.clear();
 
-                    assert!(self.selected_lane.is_none());
                     self.selected_lane = Some(self.lane_for_idx(app, idx));
                     panels_need_recalc = true;
                 } else if x == "Access restrictions" {
@@ -502,49 +503,11 @@ fn make_main_panel(
 ) -> Panel {
     let map = &app.primary.map;
 
-    let modify_lane = if let Some(l) = selected_lane {
-        let lane = map.get_l(l);
-        Widget::row(vec![
-            ctx.style()
-                .btn_solid_destructive
-                .icon("system/assets/tools/trash.svg")
-                .disabled(road.lanes_ltr().len() == 1)
-                .hotkey(Key::Backspace)
-                .build_widget(ctx, "delete lane"),
-            ctx.style()
-                .btn_plain
-                .text("flip direction")
-                .disabled(!can_reverse(lane.lane_type))
-                .hotkey(Key::F)
-                .build_def(ctx),
-            Line("Width").secondary().into_widget(ctx).centered_vert(),
-            Widget::col(vec![
-                Widget::dropdown(ctx, "width preset", lane.width, width_choices(app, l)),
-                Spinner::widget_with_custom_rendering(
-                    ctx,
-                    "width custom",
-                    (Distance::feet(1.0), Distance::feet(20.0)),
-                    lane.width,
-                    Distance::feet(0.5),
-                    // Even if the user's settings are set to meters, our step size is in feet, so
-                    // just render in feet.
-                    Box::new(|x| {
-                        x.to_string(&UnitFmt {
-                            round_durations: false,
-                            metric: false,
-                        })
-                    }),
-                )
-                .centered_horiz(),
-            ]),
-        ])
-    } else {
-        Widget::nothing()
-    };
     let current_lt = selected_lane.map(|l| map.get_l(l).lane_type);
 
     let current_lts: Vec<LaneType> = road.lanes_ltr().into_iter().map(|(_, _, lt)| lt).collect();
-    let mut available_lane_types_row = vec![
+
+    let lane_types = [
         (LaneType::Driving, Some(Key::D)),
         (LaneType::Biking, Some(Key::B)),
         (LaneType::Bus, Some(Key::T)),
@@ -556,71 +519,36 @@ fn make_main_panel(
         (LaneType::Buffer(BufferType::Planters), None),
         (LaneType::Buffer(BufferType::JerseyBarrier), None),
         (LaneType::Buffer(BufferType::Curb), None),
-    ]
-    .into_iter()
-    .map(|(lt, key)| {
-        let mut btn = ctx
+    ];
+
+    let mut lane_type_buttons = HashMap::new();
+    for (lane_type, _key) in lane_types {
+        let btn = ctx
             .style()
             .btn_plain
-            .icon(lane_type_to_icon(lt).unwrap())
-            .hotkey(key.map(|k| k.into()));
-        if current_lt == Some(lt) {
-            // If the selected lane is already this type, we can't change it. Hopefully no need to
-            // explain this.
-            btn = btn.disabled(true);
-        } else if lt == LaneType::Parking
-            && current_lts
+            .icon(lane_type_to_icon(lane_type).unwrap());
+
+        lane_type_buttons.insert(lane_type, btn);
+    }
+
+    let add_lane_row = Widget::row(vec![
+        "add new".text_widget(ctx).centered_vert(),
+        Widget::row(
+            lane_types
                 .iter()
-                .filter(|x| **x == LaneType::Parking)
-                .count()
-                == 2
-        {
-            // Max 2 parking lanes per road.
-            //
-            // (I've seen cases in Ballard with angled parking in a median and also parking on both
-            // shoulders. If this happens to be mapped as two adjacent one-way roads, it could
-            // work. But the simulation layer doesn't understand 3 lanes on one road.)
-            btn = btn
-                .disabled(true)
-                .disabled_tooltip("This road already has two parking lanes");
-        } else if lt == LaneType::Sidewalk
-            && current_lts.iter().filter(|x| x.is_walkable()).count() == 2
-        {
-            // Max 2 sidewalks or shoulders per road.
-            //
-            // (You could imagine some exceptions in reality, but this assumption of max 2 is
-            // deeply baked into the map model and everything on top of it.)
-            btn = btn
-                .disabled(true)
-                .disabled_tooltip("This road already has two sidewalks");
-        }
-
-        btn.build_widget(
-            ctx,
-            format!(
-                "{} {}",
-                if selected_lane.is_some() {
-                    "change to"
-                } else {
-                    "add"
-                },
-                lt.short_name()
-            ),
-        )
-    })
-    .collect::<Vec<Widget>>();
-    available_lane_types_row.insert(
-        0,
-        if selected_lane.is_some() {
-            "change to"
-        } else {
-            "add new"
-        }
-        .text_widget(ctx)
-        .centered_vert(),
-    );
-    let available_lane_types_row = Widget::row(available_lane_types_row);
-
+                .map(|(lt, key)| {
+                    lane_type_buttons
+                        .get(lt)
+                        .expect("lane_type button should have been cached")
+                        .clone()
+                        .hotkey(key.map(|k| k.into()))
+                        .build_widget(ctx, format!("add {}", lt.short_name()))
+                        .centered_vert()
+                })
+                .collect(),
+        ),
+    ])
+    .section(ctx);
     let mut drag_drop = DragDrop::new(ctx, "lane cards");
 
     let lanes_ltr = road.lanes_ltr();
@@ -652,11 +580,9 @@ fn make_main_panel(
         let mut rounding = CornerRadii::zero();
         if idx == 0 {
             rounding.top_left = DEFAULT_CORNER_RADIUS;
-            rounding.bottom_left = DEFAULT_CORNER_RADIUS;
         }
         if idx == lanes_len - 1 {
             rounding.top_right = DEFAULT_CORNER_RADIUS;
-            rounding.bottom_right = DEFAULT_CORNER_RADIUS;
         }
 
         let (card_bounds, default_batch, hovering_batch, selected_batch) = {
@@ -665,13 +591,13 @@ fn make_main_panel(
                     // TODO: For selected/hover, rather than change the entire card's background, let's
                     // just add an outline to match the styling of the corresponding lane in the map
                     .bg_color(if selected {
-                        ctx.style().primary_fg
+                        selected_lane_bg(ctx)
                     } else if hovering {
-                        app.cs.selected.tint(0.2)
+                        selected_lane_bg(ctx).dull(0.3)
                     } else {
-                        ctx.style().section_bg
+                        selected_lane_bg(ctx).dull(0.15)
                     })
-                    .color(ctx.style().btn_plain.fg)
+                    .color(ctx.style().btn_tab.fg)
                     .dims(60.0)
                     .padding(EdgeInsets {
                         top: 32.0,
@@ -699,6 +625,96 @@ fn make_main_panel(
         );
     }
     drag_drop.set_initial_state(selected_lane, hovering_on_lane);
+
+    let modify_lane = if let Some(l) = selected_lane {
+        let lane = map.get_l(l);
+        Widget::col(vec![
+            Widget::row(vec![
+                "change to".text_widget(ctx).centered_vert(),
+                Widget::row(
+                    lane_types
+                        .iter()
+                        .map(|(lt, _key)| {
+                            let lt = *lt;
+                            let mut btn = lane_type_buttons
+                                .get(&lt)
+                                .expect("lane_type button should have been cached")
+                                .clone();
+
+                            if current_lt == Some(lt) {
+                                // If the selected lane is already this type, we can't change it. Hopefully no need to
+                                // explain this.
+                                btn = btn.disabled(true);
+                            } else if lt == LaneType::Parking
+                                && current_lts
+                                    .iter()
+                                    .filter(|x| **x == LaneType::Parking)
+                                    .count()
+                                    == 2
+                            {
+                                // Max 2 parking lanes per road.
+                                //
+                                // (I've seen cases in Ballard with angled parking in a median and also parking on both
+                                // shoulders. If this happens to be mapped as two adjacent one-way roads, it could
+                                // work. But the simulation layer doesn't understand 3 lanes on one road.)
+                                btn = btn
+                                    .disabled(true)
+                                    .disabled_tooltip("This road already has two parking lanes");
+                            } else if lt == LaneType::Sidewalk
+                                && current_lts.iter().filter(|x| x.is_walkable()).count() == 2
+                            {
+                                // Max 2 sidewalks or shoulders per road.
+                                //
+                                // (You could imagine some exceptions in reality, but this assumption of max 2 is
+                                // deeply baked into the map model and everything on top of it.)
+                                btn = btn
+                                    .disabled(true)
+                                    .disabled_tooltip("This road already has two sidewalks");
+                            }
+
+                            btn.build_widget(ctx, format!("change to {}", lt.short_name()))
+                        })
+                        .collect(),
+                ),
+            ]),
+            Widget::row(vec![
+                ctx.style()
+                    .btn_solid_destructive
+                    .icon("system/assets/tools/trash.svg")
+                    .disabled(road.lanes_ltr().len() == 1)
+                    .hotkey(Key::Backspace)
+                    .build_widget(ctx, "delete lane"),
+                ctx.style()
+                    .btn_plain
+                    .text("flip direction")
+                    .disabled(!can_reverse(lane.lane_type))
+                    .hotkey(Key::F)
+                    .build_def(ctx),
+                Line("Width").secondary().into_widget(ctx).centered_vert(),
+                Widget::col(vec![
+                    Widget::dropdown(ctx, "width preset", lane.width, width_choices(app, l)),
+                    Spinner::widget_with_custom_rendering(
+                        ctx,
+                        "width custom",
+                        (Distance::feet(1.0), Distance::feet(20.0)),
+                        lane.width,
+                        Distance::feet(0.5),
+                        // Even if the user's settings are set to meters, our step size is in feet, so
+                        // just render in feet.
+                        Box::new(|x| {
+                            x.to_string(&UnitFmt {
+                                round_durations: false,
+                                metric: false,
+                            })
+                        }),
+                    )
+                    .centered_horiz(),
+                ]),
+            ]),
+        ])
+    } else {
+        Widget::nothing()
+    };
 
     let total_width = {
         let current_width = road.get_width(map);
@@ -757,27 +773,34 @@ fn make_main_panel(
             .text("Access restrictions")
             .build_def(ctx)
             .centered_vert(),
-    ]);
+    ])
+    .section(ctx);
 
-    Panel::new_builder(Widget::col(vec![
-        modify_lane,
-        available_lane_types_row,
+    Panel::new_builder(Widget::custom_col(vec![
+        road_settings,
+        add_lane_row.margin_below(16),
         drag_drop
             .into_widget(ctx)
             .named("lane cards")
             .bg(ctx.style().text_primary_color.tint(0.3)),
-        road_settings,
+        // We use a sort of "tab" metaphor for the selected lane above and this "edit" section
+        modify_lane.padding(16.0).bg(selected_lane_bg(ctx)),
     ]))
     .aligned(HorizontalAlignment::Left, VerticalAlignment::Center)
     // If we're hovering on a lane card, we'll immediately produce Outcome::Changed. Since this
     // usually happens in recalc_all_panels, that's fine -- we'll look up the current lane card
     // there anyway.
     .ignore_initial_events()
-    .build(ctx)
+    .build_custom(ctx)
+}
+
+fn selected_lane_bg(ctx: &EventCtx) -> Color {
+    // ctx.style().primary_fg.tint(0.3)
+    ctx.style().btn_tab.bg_disabled
 }
 
 fn build_lane_highlights(
-    ctx: &mut EventCtx,
+    ctx: &EventCtx,
     app: &App,
     r: RoadID,
     selected_lane: Option<LaneID>,
@@ -786,7 +809,7 @@ fn build_lane_highlights(
     let mut batch = GeomBatch::new();
     let map = &app.primary.map;
 
-    let selected_color = ctx.style().primary_fg;
+    let selected_color = selected_lane_bg(ctx);
     let hovered_color = app.cs.selected;
 
     if let Some(hovered_lane) = hovered_lane {
