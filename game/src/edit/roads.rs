@@ -683,15 +683,17 @@ fn make_main_panel(
                     .icon("system/assets/tools/trash.svg")
                     .disabled(road.lanes_ltr().len() == 1)
                     .hotkey(Key::Backspace)
-                    .build_widget(ctx, "delete lane"),
+                    .build_widget(ctx, "delete lane")
+                    .centered_vert(),
                 ctx.style()
                     .btn_plain
                     .text("flip direction")
                     .disabled(!can_reverse(lane.lane_type))
                     .hotkey(Key::F)
-                    .build_def(ctx),
-                Line("Width").secondary().into_widget(ctx).centered_vert(),
-                Widget::col(vec![
+                    .build_def(ctx)
+                    .centered_vert(),
+                Widget::row(vec![
+                    Line("Width").secondary().into_widget(ctx).centered_vert(),
                     Widget::dropdown(ctx, "width preset", lane.width, width_choices(app, l)),
                     Spinner::widget_with_custom_rendering(
                         ctx,
@@ -707,9 +709,9 @@ fn make_main_panel(
                                 metric: false,
                             })
                         }),
-                    )
-                    .centered_horiz(),
-                ]),
+                    ),
+                ])
+                .section(ctx),
             ]),
         ])
     } else {
