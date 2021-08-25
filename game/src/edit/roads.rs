@@ -566,6 +566,12 @@ fn make_main_panel(
 
     let lanes_ltr = road.lanes_ltr();
     let lanes_len = lanes_ltr.len();
+    let max_lane_width = lanes_ltr
+        .iter()
+        .map(|(id, _, _)| map.get_l(*id).width)
+        .max()
+        .unwrap();
+
     for (idx, (id, dir, lt)) in lanes_ltr.into_iter().enumerate() {
         let mut icon_stack = GeomBatchStack::vertical(vec![
             Image::from_path(lane_type_to_icon(lt).unwrap())
@@ -587,8 +593,9 @@ fn make_main_panel(
                 .0,
             );
         }
-        icon_stack
-            .push(Text::from(Line(map.get_l(id).width.to_string(&app.opts.units))).render(ctx));
+        let lane_width = map.get_l(id).width;
+        let width_pct = lane_width / max_lane_width;
+        icon_stack.push(Text::from(Line(lane_width.to_string(&app.opts.units))).render(ctx));
         let icon_batch = icon_stack.batch();
         let icon_bounds = icon_batch.get_bounds();
 
@@ -613,7 +620,7 @@ fn make_main_panel(
                         selected_lane_bg(ctx).dull(0.15)
                     })
                     .color(ctx.style().btn_tab.fg)
-                    .dims((60.0, 80.0))
+                    .dims((width_pct * 60.0, 80.0))
                     .padding(EdgeInsets {
                         top: 32.0,
                         left: 16.0,
