@@ -884,6 +884,13 @@
 <span id="882">882</span>
 <span id="883">883</span>
 <span id="884">884</span>
+<span id="885">885</span>
+<span id="886">886</span>
+<span id="887">887</span>
+<span id="888">888</span>
+<span id="889">889</span>
+<span id="890">890</span>
+<span id="891">891</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
@@ -1428,7 +1435,13 @@
                         .<span class="ident">get</span>(<span class="ident">lt</span>)
                         .<span class="ident">expect</span>(<span class="string">&quot;lane_type button should have been cached&quot;</span>)
                         .<span class="ident">clone</span>()
-                        .<span class="ident">hotkey</span>(<span class="ident">key</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">k</span><span class="op">|</span> <span class="ident">k</span>.<span class="ident">into</span>()))
+                        <span class="comment">// When we&#39;re modifying an existing lane, hotkeys change the lane, not add</span>
+                        <span class="comment">// new lanes.</span>
+                        .<span class="ident">hotkey</span>(<span class="kw">if</span> <span class="ident">selected_lane</span>.<span class="ident">is_none</span>() {
+                            <span class="ident">key</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">k</span><span class="op">|</span> <span class="ident">k</span>.<span class="ident">into</span>())
+                        } <span class="kw">else</span> {
+                            <span class="prelude-val">None</span>
+                        })
                         .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="macro">format!</span>(<span class="string">&quot;add {}&quot;</span>, <span class="ident">lt</span>.<span class="ident">short_name</span>()))
                         .<span class="ident">centered_vert</span>()
                 })
@@ -1521,12 +1534,13 @@
                 <span class="ident">Widget::row</span>(
                     <span class="ident">lane_types</span>
                         .<span class="ident">iter</span>()
-                        .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">lt</span>, <span class="ident">_key</span>)<span class="op">|</span> {
+                        .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">lt</span>, <span class="ident">key</span>)<span class="op">|</span> {
                             <span class="kw">let</span> <span class="ident">lt</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">lt</span>;
                             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">btn</span> <span class="op">=</span> <span class="ident">lane_type_buttons</span>
                                 .<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">lt</span>)
                                 .<span class="ident">expect</span>(<span class="string">&quot;lane_type button should have been cached&quot;</span>)
-                                .<span class="ident">clone</span>();
+                                .<span class="ident">clone</span>()
+                                .<span class="ident">hotkey</span>(<span class="ident">key</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">k</span><span class="op">|</span> <span class="ident">k</span>.<span class="ident">into</span>()));
 
                             <span class="kw">if</span> <span class="ident">current_lt</span> <span class="op">=</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">lt</span>) {
                                 <span class="comment">// If the selected lane is already this type, we can&#39;t change it. Hopefully no need to</span>
