@@ -929,8 +929,6 @@
 <span id="927">927</span>
 <span id="928">928</span>
 <span id="929">929</span>
-<span id="930">930</span>
-<span id="931">931</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
@@ -998,7 +996,7 @@
             <span class="ident">selected_lane</span>,
             <span class="ident">top_panel</span>: <span class="ident">Panel::empty</span>(<span class="ident">ctx</span>),
             <span class="ident">main_panel</span>: <span class="ident">Panel::empty</span>(<span class="ident">ctx</span>),
-            <span class="ident">fade_irrelevant</span>: <span class="ident">Drawable::empty</span>(<span class="ident">ctx</span>),
+            <span class="ident">fade_irrelevant</span>: <span class="ident">fade_irrelevant</span>(<span class="ident">app</span>, <span class="ident">r</span>).<span class="ident">upload</span>(<span class="ident">ctx</span>),
             <span class="ident">lane_highlights</span>: ((<span class="prelude-val">None</span>, <span class="prelude-val">None</span>), <span class="ident">Drawable::empty</span>(<span class="ident">ctx</span>)),
             <span class="ident">hovering_on_lane</span>: <span class="prelude-val">None</span>,
 
@@ -1081,8 +1079,6 @@
         );
 
         <span class="self">self</span>.<span class="ident">recalc_lane_highlights</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
-
-        <span class="self">self</span>.<span class="ident">fade_irrelevant</span> <span class="op">=</span> <span class="ident">fade_irrelevant</span>(<span class="ident">app</span>, <span class="self">self</span>.<span class="ident">r</span>).<span class="ident">upload</span>(<span class="ident">ctx</span>);
     }
 
     <span class="kw">fn</span> <span class="ident">recalc_lane_highlights</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
