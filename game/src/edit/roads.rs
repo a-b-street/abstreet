@@ -22,16 +22,13 @@ use crate::edit::{apply_map_edits, can_edit_lane, speed_limit_choices};
 pub struct RoadEditor {
     r: RoadID,
     selected_lane: Option<LaneID>,
+    // This is only for hovering on a lane in the map, not for hovering on a lane card.
     hovering_on_lane: Option<LaneID>,
     top_panel: Panel,
     main_panel: Panel,
 
     // (cache_key: (selected, hovering), Drawable)
     lane_highlights: ((Option<LaneID>, Option<LaneID>), Drawable),
-
-    // Immediately after modifying the map but before the mouse moves, we should recalculate
-    // mouseover
-    recalculate_mouseover: bool,
 
     // Undo/redo management
     num_edit_cmds_originally: usize,
@@ -68,8 +65,6 @@ impl RoadEditor {
             main_panel: Panel::empty(ctx),
             lane_highlights: ((None, None), Drawable::empty(ctx)),
             hovering_on_lane: None,
-
-            recalculate_mouseover: false,
 
             num_edit_cmds_originally: app.primary.map.get_edits().commands.len(),
             redo_stack: Vec::new(),
@@ -124,9 +119,9 @@ impl RoadEditor {
 
         self.selected_lane = select_new_lane_offset
             .map(|offset| self.lane_for_idx(app, (idx as isize + offset) as usize));
+        self.recalc_hovering(ctx, app);
 
         self.recalc_all_panels(ctx, app);
-        self.recalculate_mouseover = true;
 
         Transition::Keep
     }
@@ -176,6 +171,15 @@ impl RoadEditor {
         }
         None
     }
+
+    // Lane IDs may change with every edit. So immediately after an edit, recalculate mouseover.
+    fn recalc_hovering(&mut self, ctx: &EventCtx, app: &mut App) {
+        app.recalculate_current_selection(ctx);
+        self.hovering_on_lane = match app.primary.current_selection.take() {
+            Some(ID::Lane(l)) if can_edit_lane(app, l) => Some(l),
+            _ => None,
+        };
+    }
 }
 
 impl State<App> for RoadEditor {
@@ -210,10 +214,11 @@ impl State<App> for RoadEditor {
                             app.primary.map.get_config(),
                         ),
                     });
-                    self.selected_lane = None;
-                    self.hovering_on_lane = None;
                     apply_map_edits(ctx, app, edits);
+
                     self.redo_stack.clear();
+                    self.selected_lane = None;
+                    self.recalc_hovering(ctx, app);
                     panels_need_recalc = true;
                 }
                 "undo" => {
@@ -222,6 +227,7 @@ impl State<App> for RoadEditor {
                     apply_map_edits(ctx, app, edits);
 
                     self.selected_lane = None;
+                    self.recalc_hovering(ctx, app);
                     panels_need_recalc = true;
                 }
                 "redo" => {
@@ -230,6 +236,7 @@ impl State<App> for RoadEditor {
                     apply_map_edits(ctx, app, edits);
 
                     self.selected_lane = None;
+                    self.recalc_hovering(ctx, app);
                     panels_need_recalc = true;
                 }
                 "jump to road" => {
@@ -310,6 +317,7 @@ impl State<App> for RoadEditor {
                     self.redo_stack.clear();
 
                     self.selected_lane = Some(self.lane_for_idx(app, idx));
+                    self.recalc_hovering(ctx, app);
                     panels_need_recalc = true;
                 } else if x == "Access restrictions" {
                     // The RoadEditor maintains an undo/redo stack for a single road, but the
@@ -368,54 +376,32 @@ impl State<App> for RoadEditor {
             _ => debug!("main_panel had unhandled outcome"),
         }
 
-        // let prev_hovering_on_lane = self.hovering_on_lane.take();
-        if ctx.canvas.get_cursor_in_map_space().is_some() {
-            self.recalculate_mouseover = false;
-            app.recalculate_current_selection(ctx);
-
-            let hovering = match app.primary.current_selection.take() {
-                Some(ID::Lane(l)) if can_edit_lane(app, l) => Some(l),
-                _ => None,
-            };
-
-            if let Some(l) = hovering {
-                if self.hovering_on_lane != Some(l) {
-                    self.hovering_on_lane = Some(l);
-                    panels_need_recalc = true;
-                }
-
-                if ctx.normal_left_click() {
-                    if app.primary.map.get_l(l).parent == self.r {
-                        self.selected_lane = Some(l);
-                        panels_need_recalc = true;
-                    } else {
-                        // Switch to editing another road, first compressing the edits here if
-                        // needed.
-                        if let Some(edits) = self.compress_edits(app) {
-                            apply_map_edits(ctx, app, edits);
-                        }
-                        return Transition::Replace(RoadEditor::new_state(ctx, app, l));
-                    }
-                }
-            } else {
-                if self.hovering_on_lane.is_some() {
-                    self.hovering_on_lane = None;
-                    panels_need_recalc = true;
-                }
-
-                if self.selected_lane.is_some() && ctx.normal_left_click() {
-                    // Deselect the current lane
-                    self.selected_lane = None;
-                    self.hovering_on_lane = None;
-                    panels_need_recalc = true;
-                }
-            }
-        } else {
-            // If we're not hovering on the map, then we're not hovering on a lane.
-            if self.hovering_on_lane.is_some() {
-                self.hovering_on_lane = None;
+        if ctx.redo_mouseover() {
+            let hovering_before = self.hovering_on_lane;
+            self.recalc_hovering(ctx, app);
+            if self.hovering_on_lane != hovering_before {
                 panels_need_recalc = true;
             }
+        }
+        if let Some(l) = self.hovering_on_lane {
+            if ctx.normal_left_click() {
+                if app.primary.map.get_l(l).parent == self.r {
+                    self.selected_lane = Some(l);
+                    panels_need_recalc = true;
+                } else {
+                    // Switch to editing another road, first compressing the edits here if
+                    // needed.
+                    if let Some(edits) = self.compress_edits(app) {
+                        apply_map_edits(ctx, app, edits);
+                    }
+                    return Transition::Replace(RoadEditor::new_state(ctx, app, l));
+                }
+            }
+        } else if self.selected_lane.is_some() && ctx.normal_left_click() {
+            // Deselect the current lane
+            self.selected_lane = None;
+            self.hovering_on_lane = None;
+            panels_need_recalc = true;
         }
 
         if panels_need_recalc {
