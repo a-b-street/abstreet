@@ -64,7 +64,7 @@ impl RoadEditor {
             selected_lane,
             top_panel: Panel::empty(ctx),
             main_panel: Panel::empty(ctx),
-            fade_irrelevant: fade_irrelevant(app, r).upload(ctx),
+            fade_irrelevant: Drawable::empty(ctx),
             lane_highlights: ((None, None), Drawable::empty(ctx)),
             hovering_on_lane: None,
 
@@ -147,6 +147,8 @@ impl RoadEditor {
         );
 
         self.recalc_lane_highlights(ctx, app);
+
+        self.fade_irrelevant = fade_irrelevant(app, self.r).upload(ctx);
     }
 
     fn recalc_lane_highlights(&mut self, ctx: &mut EventCtx, app: &App) {
