@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use geom::{Bounds, CornerRadii, Distance, Polygon, UnitFmt};
+use geom::{Bounds, CornerRadii, Distance, Polygon, Pt2D, UnitFmt};
 use map_gui::render::Renderable;
 use map_gui::tools::PopupMsg;
 use map_gui::ID;
@@ -560,8 +560,7 @@ fn make_main_panel(
                 })
                 .collect(),
         ),
-    ])
-    .section(ctx);
+    ]);
     let mut drag_drop = DragDrop::new(ctx, "lane cards");
 
     let lanes_ltr = road.lanes_ltr();
@@ -599,13 +598,13 @@ fn make_main_panel(
         }
 
         let (card_bounds, default_batch, hovering_batch, selected_batch) = {
-            let card_batch = |(icon_batch, hovering, selected)| -> (GeomBatch, Bounds) {
+            let card_batch = |(icon_batch, is_hovering, is_selected)| -> (GeomBatch, Bounds) {
                 Image::from_batch(icon_batch, icon_bounds)
                     // TODO: For selected/hover, rather than change the entire card's background, let's
                     // just add an outline to match the styling of the corresponding lane in the map
-                    .bg_color(if selected {
+                    .bg_color(if is_selected {
                         selected_lane_bg(ctx)
-                    } else if hovering {
+                    } else if is_hovering {
                         selected_lane_bg(ctx).dull(0.3)
                     } else {
                         selected_lane_bg(ctx).dull(0.15)
@@ -623,7 +622,13 @@ fn make_main_panel(
                     .unwrap()
             };
 
-            let (default_batch, bounds) = card_batch((icon_batch.clone(), false, false));
+            let (mut default_batch, bounds) = card_batch((icon_batch.clone(), false, false));
+            let border = {
+                let top_left = Pt2D::new(bounds.min_x, bounds.max_y - 2.0);
+                let bottom_right = Pt2D::new(bounds.max_x, bounds.max_y);
+                Polygon::rectangle_two_corners(top_left, bottom_right).unwrap()
+            };
+            default_batch.push(ctx.style().section_outline.1.shade(0.2), border);
             let (hovering_batch, _) = card_batch((icon_batch.clone(), true, false));
             let (selected_batch, _) = card_batch((icon_batch, false, true));
             (bounds, default_batch, hovering_batch, selected_batch)
@@ -789,19 +794,27 @@ fn make_main_panel(
             .text("Access restrictions")
             .build_def(ctx)
             .centered_vert(),
-    ])
-    .section(ctx);
+    ]);
 
-    Panel::new_builder(Widget::custom_col(vec![
-        road_settings,
-        add_lane_row.margin_below(16),
-        drag_drop
-            .into_widget(ctx)
-            .named("lane cards")
-            .bg(ctx.style().text_primary_color.tint(0.3)),
-        // We use a sort of "tab" metaphor for the selected lane above and this "edit" section
-        modify_lane.padding(16.0).bg(selected_lane_bg(ctx)),
-    ]))
+    Panel::new_builder(
+        Widget::custom_col(vec![
+            Widget::col(vec![
+                road_settings,
+                Widget::horiz_separator(ctx, 1.0),
+                add_lane_row,
+            ])
+            .section(ctx)
+            .margin_below(16),
+            drag_drop
+                .into_widget(ctx)
+                .named("lane cards")
+                .bg(ctx.style().text_primary_color.tint(0.3))
+                .margin_left(16),
+            // We use a sort of "tab" metaphor for the selected lane above and this "edit" section
+            modify_lane.padding(16.0).bg(selected_lane_bg(ctx)),
+        ])
+        .padding_left(16),
+    )
     .aligned(HorizontalAlignment::Left, VerticalAlignment::Center)
     // If we're hovering on a lane card, we'll immediately produce Outcome::Changed. Since this
     // usually happens in recalc_all_panels, that's fine -- we'll look up the current lane card
@@ -811,7 +824,6 @@ fn make_main_panel(
 }
 
 fn selected_lane_bg(ctx: &EventCtx) -> Color {
-    // ctx.style().primary_fg.tint(0.3)
     ctx.style().btn_tab.bg_disabled
 }
 
