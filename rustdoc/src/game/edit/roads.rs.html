@@ -891,6 +891,7 @@
 <span id="889">889</span>
 <span id="890">890</span>
 <span id="891">891</span>
+<span id="892">892</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
@@ -1258,7 +1259,8 @@
                     <span class="ident">edits</span>
                         .<span class="ident">commands</span>
                         .<span class="ident">push</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">edit_road_cmd</span>(<span class="self">self</span>.<span class="ident">r</span>, <span class="op">|</span><span class="ident">new</span><span class="op">|</span> {
-                            <span class="ident">new</span>.<span class="ident">lanes_ltr</span>.<span class="ident">swap</span>(<span class="ident">old_idx</span>, <span class="ident">new_idx</span>);
+                            <span class="kw">let</span> <span class="ident">spec</span> <span class="op">=</span> <span class="ident">new</span>.<span class="ident">lanes_ltr</span>.<span class="ident">remove</span>(<span class="ident">old_idx</span>);
+                            <span class="ident">new</span>.<span class="ident">lanes_ltr</span>.<span class="ident">insert</span>(<span class="ident">new_idx</span>, <span class="ident">spec</span>);
                         }));
                     <span class="ident">apply_map_edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">edits</span>);
                     <span class="self">self</span>.<span class="ident">redo_stack</span>.<span class="ident">clear</span>();
