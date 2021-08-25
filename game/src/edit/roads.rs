@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
-use geom::{Bounds, CornerRadii, Distance, UnitFmt};
-use map_gui::render::{Renderable, OUTLINE_THICKNESS};
+use geom::{Bounds, CornerRadii, Distance, Polygon, UnitFmt};
+use map_gui::render::Renderable;
 use map_gui::tools::PopupMsg;
 use map_gui::ID;
 use map_model::{
@@ -26,6 +26,7 @@ pub struct RoadEditor {
     hovering_on_lane: Option<LaneID>,
     top_panel: Panel,
     main_panel: Panel,
+    fade_irrelevant: Drawable,
 
     // (cache_key: (selected, hovering), Drawable)
     lane_highlights: ((Option<LaneID>, Option<LaneID>), Drawable),
@@ -63,6 +64,7 @@ impl RoadEditor {
             selected_lane,
             top_panel: Panel::empty(ctx),
             main_panel: Panel::empty(ctx),
+            fade_irrelevant: fade_irrelevant(app, r).upload(ctx),
             lane_highlights: ((None, None), Drawable::empty(ctx)),
             hovering_on_lane: None,
 
@@ -139,7 +141,7 @@ impl RoadEditor {
         let selected = drag_drop.selected_value().or(self.selected_lane);
         let hovering = drag_drop.hovering_value().or(self.hovering_on_lane);
         if (selected, hovering) != self.lane_highlights.0 {
-            self.lane_highlights = build_lane_highlights(ctx, app, self.r, selected, hovering);
+            self.lane_highlights = build_lane_highlights(ctx, app, selected, hovering);
         }
 
         self.top_panel = make_top_panel(
@@ -415,6 +417,7 @@ impl State<App> for RoadEditor {
     }
 
     fn draw(&self, g: &mut GfxCtx, _: &App) {
+        g.redraw(&self.fade_irrelevant);
         g.redraw(&self.lane_highlights.1);
         self.top_panel.draw(g);
         self.main_panel.draw(g);
@@ -800,7 +803,6 @@ fn selected_lane_bg(ctx: &EventCtx) -> Color {
 fn build_lane_highlights(
     ctx: &EventCtx,
     app: &App,
-    r: RoadID,
     selected_lane: Option<LaneID>,
     hovered_lane: Option<LaneID>,
 ) -> ((Option<LaneID>, Option<LaneID>), Drawable) {
@@ -823,14 +825,6 @@ fn build_lane_highlights(
             app.primary.draw_map.get_l(selected_lane).get_outline(map),
         );
     }
-
-    let road = map.get_r(r);
-    batch.push(
-        selected_color.alpha(0.5),
-        road.center_pts
-            .to_thick_boundary(road.get_width(map), OUTLINE_THICKNESS)
-            .unwrap_or_else(|| road.get_thick_polygon(map)),
-    );
 
     ((selected_lane, hovered_lane), ctx.upload(batch))
 }
@@ -878,3 +872,20 @@ fn can_reverse(_: LaneType) -> bool {
 /*fn can_reverse(lt: LaneType) -> bool {
     lt == LaneType::Driving || lt == LaneType::Biking || lt == LaneType::Bus
 }*/
+
+fn fade_irrelevant(app: &App, r: RoadID) -> GeomBatch {
+    let map = &app.primary.map;
+    let road = map.get_r(r);
+    let mut holes = vec![road.get_thick_polygon(map)];
+    for i in [road.src_i, road.dst_i] {
+        let i = map.get_i(i);
+        holes.push(i.polygon.clone());
+    }
+
+    // The convex hull illuminates a bit more of the surrounding area, looks better
+    let fade_area = Polygon::with_holes(
+        map.get_boundary_polygon().clone().into_ring(),
+        vec![Polygon::convex_hull(holes).into_ring()],
+    );
+    GeomBatch::from(vec![(app.cs.fade_map_dark, fade_area)])
+}
