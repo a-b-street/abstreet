@@ -343,8 +343,8 @@ impl TimePanel {
             self.panel.replace(ctx, "time", time);
         }
 
-        if let Outcome::Clicked(x) = self.panel.event(ctx) {
-            match x.as_ref() {
+        match self.panel.event(ctx) {
+            Outcome::Clicked(x) => match x.as_ref() {
                 "real-time speed" => {
                     self.setting = SpeedSetting::Realtime;
                     self.recreate_panel(ctx, app);
@@ -427,10 +427,14 @@ impl TimePanel {
                     app.primary.sim.save_recorded_traffic(&app.primary.map);
                 }
                 _ => unreachable!(),
+            },
+            Outcome::Changed(x) => {
+                if x == "step forwards" {
+                    app.opts.time_increment = self.panel.persistent_split_value("step forwards");
+                }
             }
+            _ => {}
         }
-        // Just kind of constantly scrape this
-        app.opts.time_increment = self.panel.persistent_split_value("step forwards");
 
         if ctx.input.pressed(Key::LeftArrow) {
             match self.setting {

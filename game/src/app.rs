@@ -14,7 +14,7 @@ use map_gui::render::{unzoomed_agent_radius, AgentCache, DrawMap, DrawOptions, R
 use map_gui::tools::CameraState;
 use map_gui::ID;
 use map_model::AreaType;
-use map_model::{IntersectionID, Map, Traversable};
+use map_model::{BufferType, IntersectionID, LaneType, Map, Traversable};
 use sim::{AgentID, Analytics, Scenario, Sim, SimCallback, SimFlags, VehicleType};
 use widgetry::{Cached, Canvas, Drawable, EventCtx, GfxCtx, Prerender, SharedAppState, State};
 
@@ -730,6 +730,7 @@ pub struct SessionState {
     pub last_gmns_timing_csv: Option<String>,
     pub dash_tab: DashTab,
     pub elevation_contours: Cached<MapName, (FindClosest<Distance>, Drawable)>,
+    pub buffer_lane_type: LaneType,
 }
 
 impl SessionState {
@@ -747,6 +748,7 @@ impl SessionState {
             last_gmns_timing_csv: None,
             dash_tab: DashTab::TripTable,
             elevation_contours: Cached::new(),
+            buffer_lane_type: LaneType::Buffer(BufferType::Stripes),
         }
     }
 }
