@@ -423,6 +423,17 @@
 <span id="421">421</span>
 <span id="422">422</span>
 <span id="423">423</span>
+<span id="424">424</span>
+<span id="425">425</span>
+<span id="426">426</span>
+<span id="427">427</span>
+<span id="428">428</span>
+<span id="429">429</span>
+<span id="430">430</span>
+<span id="431">431</span>
+<span id="432">432</span>
+<span id="433">433</span>
+<span id="434">434</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 
@@ -443,6 +454,7 @@
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RoutePlanner</span> {
     <span class="ident">layers</span>: <span class="ident">Layers</span>,
+    <span class="ident">once</span>: <span class="ident">bool</span>,
 
     <span class="comment">// All of this manages the waypoint input</span>
     <span class="ident">input_panel</span>: <span class="ident">Panel</span>,
@@ -486,6 +498,7 @@
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rp</span> <span class="op">=</span> <span class="ident">RoutePlanner</span> {
             <span class="ident">layers</span>,
+            <span class="ident">once</span>: <span class="bool-val">true</span>,
 
             <span class="ident">input_panel</span>: <span class="ident">Panel::empty</span>(<span class="ident">ctx</span>),
             <span class="ident">waypoints</span>: <span class="ident">Vec::new</span>(),
@@ -736,6 +749,15 @@
 
 <span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">RoutePlanner</span> {
     <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span> {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">once</span> {
+            <span class="self">self</span>.<span class="ident">once</span> <span class="op">=</span> <span class="bool-val">false</span>;
+            <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;apply edits&quot;</span>, <span class="op">|</span><span class="kw">_</span>, <span class="kw-2">mut</span> <span class="ident">timer</span><span class="op">|</span> {
+                <span class="ident">app</span>.<span class="ident">primary</span>
+                    .<span class="ident">map</span>
+                    .<span class="ident">recalculate_pathfinding_after_edits</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>);
+            });
+        }
+
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">dragging</span> {
             <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">redo_mouseover</span>() {
                 <span class="self">self</span>.<span class="ident">update_dragging</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
