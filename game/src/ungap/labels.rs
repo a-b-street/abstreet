@@ -49,7 +49,6 @@ impl DrawRoadLabels {
         let text_scale = 1.0 + 2.0 * (1.0 - zoom);
         //println!("at zoom {}, scale labels {}", zoom, text_scale);
 
-        let mut non_overlapping = Vec::new();
         let mut quadtree = QuadTree::default(map.get_bounds().as_bbox());
 
         'ROAD: for r in map.all_roads() {
@@ -85,20 +84,12 @@ impl DrawRoadLabels {
                 .get_bounds()
             }
 
-            // TODO: why all these different reps?
-            // TODO: add "buffer" in estimate bounds
             // Don't get too close to other labels.
-            let mut search = cheaply_overestimate_bounds(&name, text_scale, pt, angle);
-            let bounds_rect = search.get_rectangle();
-            search.add_buffer(Distance::meters(1.0));
-            for (idx, _, _) in quadtree.query(search.as_bbox()) {
-                //  Why is this intersection query necessary? doesn't quadtree.query get close enough?
-                if bounds_rect.intersects(&non_overlapping[*idx]) {
-                    continue 'ROAD;
-                }
+            let big_bounds = cheaply_overestimate_bounds(&name, text_scale, pt, angle);
+            if !quadtree.query(big_bounds.as_bbox()).is_empty() {
+                continue 'ROAD;
             }
-            quadtree.insert_with_box(non_overlapping.len(), bounds_rect.get_bounds().as_bbox());
-            non_overlapping.push(bounds_rect);
+            quadtree.insert_with_box((), big_bounds.as_bbox());
 
             // No other labels too close - proceed to render text.
             let txt = Text::from(
