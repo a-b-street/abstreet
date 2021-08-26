@@ -350,6 +350,8 @@
 <span id="348">348</span>
 <span id="349">349</span>
 <span id="350">350</span>
+<span id="351">351</span>
+<span id="352">352</span>
 </pre><pre class="rust">
 <span class="kw">mod</span> <span class="ident">bike_network</span>;
 <span class="kw">mod</span> <span class="ident">labels</span>;
@@ -463,26 +465,7 @@
         <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">top_panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
             <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
                 <span class="string">&quot;about A/B Street&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-                        <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                            <span class="ident">Line</span>(<span class="string">&quot;About A/B Street&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                            <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
-                        ]),
-                        <span class="ident">Text::from_multiline</span>(<span class="macro">vec!</span>[
-                            <span class="ident">Line</span>(<span class="string">&quot;Created by Dustin Carlino, Yuwen Li, &amp; Michael Kirk&quot;</span>).<span class="ident">small</span>(),
-                            <span class="ident">Line</span>(<span class="string">&quot;Data from OpenStreetMap, King County GIS, King County LIDAR&quot;</span>)
-                                .<span class="ident">small</span>(),
-                        ])
-                        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                        <span class="string">&quot;This is a simplified version. Check out the full version below.&quot;</span>
-                            .<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
-                        <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline</span>.<span class="ident">text</span>(<span class="string">&quot;abstreet.org&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-                    ]))
-                    .<span class="ident">build</span>(<span class="ident">ctx</span>);
-                    <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">SimpleState</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::new_state</span>(
-                        <span class="ident">panel</span>,
-                        <span class="ident">Box::new</span>(<span class="ident">About</span>),
-                    ));
+                    <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">About::new_state</span>(<span class="ident">ctx</span>));
                 }
                 <span class="string">&quot;change map&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">CityPicker::new_state</span>(
@@ -496,6 +479,28 @@
                             ])
                         }),
                     ));
+                }
+                <span class="string">&quot;Create new bike lanes&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+                    <span class="kw">return</span> <span class="ident">Transition::ConsumeState</span>(<span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
+                        <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">downcast</span>::<span class="op">&lt;</span><span class="ident">ExploreMap</span><span class="op">&gt;</span>().<span class="ident">ok</span>().<span class="ident">unwrap</span>();
+                        <span class="macro">vec!</span>[<span class="kw">crate</span><span class="ident">::ungap::quick_sketch::QuickSketch::new_state</span>(
+                            <span class="ident">ctx</span>,
+                            <span class="ident">app</span>,
+                            <span class="ident">state</span>.<span class="ident">layers</span>,
+                        )]
+                    }));
+                }
+                <span class="string">&quot;Plan a route&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+                    <span class="kw">return</span> <span class="ident">Transition::ConsumeState</span>(<span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
+                        <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">downcast</span>::<span class="op">&lt;</span><span class="ident">ExploreMap</span><span class="op">&gt;</span>().<span class="ident">ok</span>().<span class="ident">unwrap</span>();
+                        <span class="macro">vec!</span>[<span class="kw">crate</span><span class="ident">::ungap::route::RoutePlanner::new_state</span>(
+                            <span class="ident">ctx</span>,
+                            <span class="ident">app</span>,
+                            <span class="ident">state</span>.<span class="ident">layers</span>,
+                        )]
+                    }));
                 }
                 <span class="string">&quot;Open a proposal&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="comment">// Dummy mode, just to allow all edits</span>
@@ -520,28 +525,6 @@
                 }
                 <span class="string">&quot;Share proposal&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">share::upload_proposal</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
-                }
-                <span class="string">&quot;Create new bike lanes&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-                    <span class="kw">return</span> <span class="ident">Transition::ConsumeState</span>(<span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
-                        <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">downcast</span>::<span class="op">&lt;</span><span class="ident">ExploreMap</span><span class="op">&gt;</span>().<span class="ident">ok</span>().<span class="ident">unwrap</span>();
-                        <span class="macro">vec!</span>[<span class="kw">crate</span><span class="ident">::ungap::quick_sketch::QuickSketch::new_state</span>(
-                            <span class="ident">ctx</span>,
-                            <span class="ident">app</span>,
-                            <span class="ident">state</span>.<span class="ident">layers</span>,
-                        )]
-                    }));
-                }
-                <span class="string">&quot;Plan a route&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-                    <span class="kw">return</span> <span class="ident">Transition::ConsumeState</span>(<span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
-                        <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">downcast</span>::<span class="op">&lt;</span><span class="ident">ExploreMap</span><span class="op">&gt;</span>().<span class="ident">ok</span>().<span class="ident">unwrap</span>();
-                        <span class="macro">vec!</span>[<span class="kw">crate</span><span class="ident">::ungap::route::RoutePlanner::new_state</span>(
-                            <span class="ident">ctx</span>,
-                            <span class="ident">app</span>,
-                            <span class="ident">state</span>.<span class="ident">layers</span>,
-                        )]
-                    }));
                 }
                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
             }
@@ -629,25 +612,7 @@
     <span class="comment">// TODO Should undo/redo, save, share functionality also live here?</span>
 
     <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-        <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-            <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_plain</span>
-                .<span class="ident">btn</span>()
-                .<span class="ident">image_path</span>(<span class="string">&quot;system/assets/pregame/logo.svg&quot;</span>)
-                .<span class="ident">image_dims</span>(<span class="number">70.0</span>)
-                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;about A/B Street&quot;</span>),
-            <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-                <span class="ident">Line</span>(<span class="string">&quot;Ungap the Map&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_popup_icon_text</span>(
-                        <span class="string">&quot;system/assets/tools/map.svg&quot;</span>,
-                        <span class="ident">nice_map_name</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>()),
-                    )
-                    .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key::L</span>))
-                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;change map&quot;</span>),
-            ]),
-        ]),
-        <span class="ident">make_tabs</span>(<span class="ident">ctx</span>, <span class="ident">Tab::Explore</span>),
+        <span class="ident">make_header</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">Tab::Explore</span>),
         <span class="ident">Widget::col</span>(<span class="ident">file_management</span>).<span class="ident">section</span>(<span class="ident">ctx</span>),
     ]))
     .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::Left</span>, <span class="ident">VerticalAlignment::Top</span>)
@@ -655,6 +620,26 @@
 }
 
 <span class="kw">struct</span> <span class="ident">About</span>;
+
+<span class="kw">impl</span> <span class="ident">About</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
+            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
+                <span class="ident">Line</span>(<span class="string">&quot;About A/B Street&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+                <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
+            ]),
+            <span class="ident">Text::from_multiline</span>(<span class="macro">vec!</span>[
+                <span class="ident">Line</span>(<span class="string">&quot;Created by Dustin Carlino, Yuwen Li, &amp; Michael Kirk&quot;</span>).<span class="ident">small</span>(),
+                <span class="ident">Line</span>(<span class="string">&quot;Data from OpenStreetMap, King County GIS, King County LIDAR&quot;</span>).<span class="ident">small</span>(),
+            ])
+            .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+            <span class="string">&quot;This is a simplified version. Check out the full version below.&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
+            <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline</span>.<span class="ident">text</span>(<span class="string">&quot;abstreet.org&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+        ]))
+        .<span class="ident">build</span>(<span class="ident">ctx</span>);
+        <span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">SimpleState</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::new_state</span>(<span class="ident">panel</span>, <span class="ident">Box::new</span>(<span class="ident">About</span>))
+    }
+}
 
 <span class="kw">impl</span> <span class="ident">SimpleState</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">About</span> {
     <span class="kw">fn</span> <span class="ident">on_click</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>, <span class="ident">x</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">Panel</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span> {
@@ -679,26 +664,45 @@
     <span class="ident">Route</span>,
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">make_tabs</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">current_tab</span>: <span class="ident">Tab</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
-    <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-        <span class="ident">ctx</span>.<span class="ident">style</span>()
-            .<span class="ident">btn_tab</span>
-            .<span class="ident">icon_text</span>(<span class="string">&quot;system/assets/tools/pan.svg&quot;</span>, <span class="string">&quot;Explore&quot;</span>)
-            .<span class="ident">hotkey</span>(<span class="ident">Key::E</span>)
-            .<span class="ident">disabled</span>(<span class="ident">current_tab</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Tab::Explore</span>)
-            .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-        <span class="ident">ctx</span>.<span class="ident">style</span>()
-            .<span class="ident">btn_tab</span>
-            .<span class="ident">icon_text</span>(<span class="string">&quot;system/assets/tools/pencil.svg&quot;</span>, <span class="string">&quot;Create new bike lanes&quot;</span>)
-            .<span class="ident">hotkey</span>(<span class="ident">Key::C</span>)
-            .<span class="ident">disabled</span>(<span class="ident">current_tab</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Tab::Create</span>)
-            .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-        <span class="ident">ctx</span>.<span class="ident">style</span>()
-            .<span class="ident">btn_tab</span>
-            .<span class="ident">icon_text</span>(<span class="string">&quot;system/assets/tools/pin.svg&quot;</span>, <span class="string">&quot;Plan a route&quot;</span>)
-            .<span class="ident">hotkey</span>(<span class="ident">Key::R</span>)
-            .<span class="ident">disabled</span>(<span class="ident">current_tab</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Tab::Route</span>)
-            .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">make_header</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">current_tab</span>: <span class="ident">Tab</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+    <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
+        <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
+            <span class="ident">ctx</span>.<span class="ident">style</span>()
+                .<span class="ident">btn_plain</span>
+                .<span class="ident">btn</span>()
+                .<span class="ident">image_path</span>(<span class="string">&quot;system/assets/pregame/logo.svg&quot;</span>)
+                .<span class="ident">image_dims</span>(<span class="number">50.0</span>)
+                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;about A/B Street&quot;</span>),
+            <span class="ident">ctx</span>.<span class="ident">style</span>()
+                .<span class="ident">btn_popup_icon_text</span>(
+                    <span class="string">&quot;system/assets/tools/map.svg&quot;</span>,
+                    <span class="ident">nice_map_name</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>()),
+                )
+                .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key::L</span>))
+                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;change map&quot;</span>)
+                .<span class="ident">centered_vert</span>()
+                .<span class="ident">align_right</span>(),
+        ]),
+        <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
+            <span class="ident">ctx</span>.<span class="ident">style</span>()
+                .<span class="ident">btn_tab</span>
+                .<span class="ident">icon_text</span>(<span class="string">&quot;system/assets/tools/pan.svg&quot;</span>, <span class="string">&quot;Explore&quot;</span>)
+                .<span class="ident">hotkey</span>(<span class="ident">Key::E</span>)
+                .<span class="ident">disabled</span>(<span class="ident">current_tab</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Tab::Explore</span>)
+                .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+            <span class="ident">ctx</span>.<span class="ident">style</span>()
+                .<span class="ident">btn_tab</span>
+                .<span class="ident">icon_text</span>(<span class="string">&quot;system/assets/tools/pencil.svg&quot;</span>, <span class="string">&quot;Create new bike lanes&quot;</span>)
+                .<span class="ident">hotkey</span>(<span class="ident">Key::C</span>)
+                .<span class="ident">disabled</span>(<span class="ident">current_tab</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Tab::Create</span>)
+                .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+            <span class="ident">ctx</span>.<span class="ident">style</span>()
+                .<span class="ident">btn_tab</span>
+                .<span class="ident">icon_text</span>(<span class="string">&quot;system/assets/tools/pin.svg&quot;</span>, <span class="string">&quot;Plan a route&quot;</span>)
+                .<span class="ident">hotkey</span>(<span class="ident">Key::R</span>)
+                .<span class="ident">disabled</span>(<span class="ident">current_tab</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Tab::Route</span>)
+                .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+        ]),
     ])
 }
 </pre></div>
