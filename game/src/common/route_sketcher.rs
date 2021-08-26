@@ -165,7 +165,6 @@ impl RouteSketcher {
 
     pub fn get_widget_to_describe(&self, ctx: &mut EventCtx) -> Widget {
         Widget::col(vec![
-            Line("Draw a route").small_heading().into_widget(ctx),
             if self.route.waypoints.is_empty() {
                 "Click to start a route"
             } else if self.route.waypoints.len() == 1 {

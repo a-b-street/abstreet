@@ -15,7 +15,7 @@ use widgetry::{
     Text, TextExt, VerticalAlignment, Widget,
 };
 
-use self::layers::Layers;
+pub use self::layers::Layers;
 use crate::app::{App, Transition};
 use crate::edit::{LoadEdits, RoadEditor, SaveEdits};
 use crate::sandbox::gameplay::GameplayMode;
@@ -294,19 +294,10 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App) -> Panel {
                     .build_widget(ctx, "change map"),
             ]),
         ]),
+        make_tabs(ctx, Tab::Explore),
         Widget::col(file_management).section(ctx),
-        ctx.style()
-            .btn_solid_primary
-            .icon_text("system/assets/tools/pencil.svg", "Create new bike lanes")
-            .hotkey(Key::C)
-            .build_def(ctx),
-        ctx.style()
-            .btn_outline
-            .text("Plan a route")
-            .hotkey(Key::R)
-            .build_def(ctx),
     ]))
-    .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
+    .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
     .build(ctx)
 }
 
@@ -325,4 +316,35 @@ impl SimpleState<App> for About {
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         grey_out_map(g, app);
     }
+}
+
+// The 3 modes are very different States, so TabController doesn't seem like the best fit
+#[derive(PartialEq)]
+pub enum Tab {
+    Explore,
+    Create,
+    Route,
+}
+
+pub fn make_tabs(ctx: &mut EventCtx, current_tab: Tab) -> Widget {
+    Widget::row(vec![
+        ctx.style()
+            .btn_tab
+            .icon_text("system/assets/tools/pan.svg", "Explore")
+            .hotkey(Key::E)
+            .disabled(current_tab == Tab::Explore)
+            .build_def(ctx),
+        ctx.style()
+            .btn_tab
+            .icon_text("system/assets/tools/pencil.svg", "Create new bike lanes")
+            .hotkey(Key::C)
+            .disabled(current_tab == Tab::Create)
+            .build_def(ctx),
+        ctx.style()
+            .btn_tab
+            .icon_text("system/assets/tools/pin.svg", "Plan a route")
+            .hotkey(Key::R)
+            .disabled(current_tab == Tab::Route)
+            .build_def(ctx),
+    ])
 }

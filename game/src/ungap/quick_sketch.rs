@@ -9,7 +9,7 @@ use widgetry::{
 use crate::app::{App, Transition};
 use crate::common::RouteSketcher;
 use crate::edit::apply_map_edits;
-use crate::ungap::layers::Layers;
+use crate::ungap::{make_tabs, Layers, Tab};
 
 pub struct QuickSketch {
     top_panel: Panel,
@@ -29,7 +29,10 @@ impl QuickSketch {
     }
 
     fn update_top_panel(&mut self, ctx: &mut EventCtx) {
-        let mut col = vec![self.route_sketcher.get_widget_to_describe(ctx)];
+        let mut col = vec![
+            make_tabs(ctx, Tab::Create),
+            self.route_sketcher.get_widget_to_describe(ctx),
+        ];
 
         if self.route_sketcher.is_route_started() {
             // We're usually replacing an existing panel, except the very first time.
@@ -57,32 +60,18 @@ impl QuickSketch {
                 ),
             ]));
             col.push(
-                Widget::custom_row(vec![
-                    ctx.style()
-                        .btn_solid_primary
-                        .text("Add bike lanes")
-                        .hotkey(Key::Enter)
-                        .disabled(!self.route_sketcher.is_route_started())
-                        .build_def(ctx),
-                    ctx.style()
-                        .btn_solid_destructive
-                        .text("Cancel")
-                        .hotkey(Key::Escape)
-                        .build_def(ctx),
-                ])
+                Widget::custom_row(vec![ctx
+                    .style()
+                    .btn_solid_primary
+                    .text("Add bike lanes")
+                    .hotkey(Key::Enter)
+                    .disabled(!self.route_sketcher.is_route_started())
+                    .build_def(ctx)])
                 .evenly_spaced(),
-            );
-        } else {
-            col.push(
-                ctx.style()
-                    .btn_solid_destructive
-                    .text("Cancel")
-                    .hotkey(Key::Escape)
-                    .build_def(ctx),
             );
         }
         self.top_panel = Panel::new_builder(Widget::col(col))
-            .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
+            .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
             .build(ctx);
     }
 }
@@ -91,10 +80,20 @@ impl State<App> for QuickSketch {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         if let Outcome::Clicked(x) = self.top_panel.event(ctx) {
             match x.as_ref() {
-                "Cancel" => {
+                "Explore" => {
                     return Transition::ConsumeState(Box::new(|state, ctx, app| {
                         let state = state.downcast::<QuickSketch>().ok().unwrap();
                         vec![crate::ungap::ExploreMap::new_state(ctx, app, state.layers)]
+                    }));
+                }
+                "Plan a route" => {
+                    return Transition::ConsumeState(Box::new(|state, ctx, app| {
+                        let state = state.downcast::<QuickSketch>().ok().unwrap();
+                        vec![crate::ungap::route::RoutePlanner::new_state(
+                            ctx,
+                            app,
+                            state.layers,
+                        )]
                     }));
                 }
                 "Add bike lanes" => {

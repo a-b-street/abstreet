@@ -13,7 +13,7 @@ use widgetry::{
 };
 
 use crate::app::{App, Transition};
-use crate::ungap::layers::Layers;
+use crate::ungap::{make_tabs, Layers, Tab};
 
 pub struct RoutePlanner {
     layers: Layers,
@@ -81,10 +81,7 @@ impl RoutePlanner {
     }
 
     fn update_input_panel(&mut self, ctx: &mut EventCtx) {
-        let mut col = vec![Widget::row(vec![
-            Line("Plan a route").small_heading().into_widget(ctx),
-            ctx.style().btn_close_widget(ctx),
-        ])];
+        let mut col = vec![make_tabs(ctx, Tab::Route)];
 
         for (idx, waypt) in self.waypoints.iter().enumerate() {
             col.push(Widget::row(vec![
@@ -348,10 +345,20 @@ impl State<App> for RoutePlanner {
 
         if let Outcome::Clicked(x) = self.input_panel.event(ctx) {
             match x.as_ref() {
-                "close" => {
+                "Explore" => {
                     return Transition::ConsumeState(Box::new(|state, ctx, app| {
                         let state = state.downcast::<RoutePlanner>().ok().unwrap();
                         vec![crate::ungap::ExploreMap::new_state(ctx, app, state.layers)]
+                    }));
+                }
+                "Create new bike lanes" => {
+                    return Transition::ConsumeState(Box::new(|state, ctx, app| {
+                        let state = state.downcast::<RoutePlanner>().ok().unwrap();
+                        vec![crate::ungap::quick_sketch::QuickSketch::new_state(
+                            ctx,
+                            app,
+                            state.layers,
+                        )]
                     }));
                 }
                 "Add waypoint" => {
