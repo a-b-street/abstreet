@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use geom::Distance;
-use map_gui::tools::PopupMsg;
+use map_gui::tools::{Navigator, PopupMsg};
 use map_model::osm::RoadRank;
 use map_model::LaneType;
 use widgetry::{
@@ -98,6 +98,9 @@ impl Layers {
                         self.update_panel(ctx, app);
                         return Some(Transition::Keep);
                     },
+                    "search" => {
+                        return Some(Transition::Push(Navigator::new_state(ctx, app)));
+                    }
                     _ => unreachable!(),
             }));
             }
@@ -234,6 +237,12 @@ impl Layers {
                     legend_btn(app.cs.unzoomed_arterial, "major street").build_def(ctx),
                     legend_btn(app.cs.unzoomed_residential, "minor street").build_def(ctx),
                 ]),
+                ctx.style()
+                    .btn_plain
+                    .icon("system/assets/tools/search.svg")
+                    .hotkey(Key::K)
+                    .build_widget(ctx, "search")
+                    .align_right(),
             ]),
             Widget::custom_row({
                 let mut row = vec![Toggle::checkbox(

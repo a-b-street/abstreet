@@ -10,12 +10,10 @@ use crate::app::{App, Transition};
 use crate::common::RouteSketcher;
 use crate::edit::apply_map_edits;
 use crate::ungap::layers::Layers;
-use crate::ungap::magnifying::MagnifyingGlass;
 
 pub struct QuickSketch {
     top_panel: Panel,
     layers: Layers,
-    magnifying_glass: MagnifyingGlass,
     route_sketcher: RouteSketcher,
 }
 
@@ -24,7 +22,6 @@ impl QuickSketch {
         let mut qs = QuickSketch {
             top_panel: Panel::empty(ctx),
             layers,
-            magnifying_glass: MagnifyingGlass::new(ctx),
             route_sketcher: RouteSketcher::new(ctx, app),
         };
         qs.update_top_panel(ctx);
@@ -92,8 +89,6 @@ impl QuickSketch {
 
 impl State<App> for QuickSketch {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        self.magnifying_glass.event(ctx, app);
-
         if let Outcome::Clicked(x) = self.top_panel.event(ctx) {
             match x.as_ref() {
                 "Cancel" => {
@@ -135,7 +130,6 @@ impl State<App> for QuickSketch {
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.top_panel.draw(g);
         self.layers.draw(g, app);
-        self.magnifying_glass.draw(g, app);
         self.route_sketcher.draw(g);
     }
 }

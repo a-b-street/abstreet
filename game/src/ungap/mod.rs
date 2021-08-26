@@ -1,22 +1,21 @@
 mod bike_network;
 mod labels;
 mod layers;
-mod magnifying;
+//mod magnifying;
 mod quick_sketch;
 mod route;
 mod share;
 
 use geom::Distance;
-use map_gui::tools::{nice_map_name, CityPicker, PopupMsg, URLManager};
+use map_gui::tools::{grey_out_map, nice_map_name, open_browser, CityPicker, URLManager};
 use map_gui::ID;
 use map_model::{EditCmd, LaneType};
 use widgetry::{
-    lctrl, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State, TextExt,
-    VerticalAlignment, Widget,
+    lctrl, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, SimpleState, State,
+    Text, TextExt, VerticalAlignment, Widget,
 };
 
 use self::layers::Layers;
-use self::magnifying::MagnifyingGlass;
 use crate::app::{App, Transition};
 use crate::edit::{LoadEdits, RoadEditor, SaveEdits};
 use crate::sandbox::gameplay::GameplayMode;
@@ -26,7 +25,6 @@ pub use share::PROPOSAL_HOST_URL;
 pub struct ExploreMap {
     top_panel: Panel,
     layers: Layers,
-    magnifying_glass: MagnifyingGlass,
 
     map_edit_key: usize,
 }
@@ -55,7 +53,6 @@ impl ExploreMap {
         Box::new(ExploreMap {
             top_panel: Panel::empty(ctx),
             layers,
-            magnifying_glass: MagnifyingGlass::new(ctx),
 
             // Start with a bogus value, so we fix up the URL when changing maps
             map_edit_key: usize::MAX,
@@ -86,8 +83,6 @@ impl State<App> for ExploreMap {
             }
         }
 
-        self.magnifying_glass.event(ctx, app);
-
         // Only when zoomed in, click to edit a road in detail
         if ctx.canvas.cam_zoom >= app.opts.min_zoom_for_detail {
             if ctx.redo_mouseover() {
@@ -115,7 +110,26 @@ impl State<App> for ExploreMap {
         if let Outcome::Clicked(x) = self.top_panel.event(ctx) {
             match x.as_ref() {
                 "about A/B Street" => {
-                    return Transition::Push(PopupMsg::new_state(ctx, "TODO", vec!["TODO"]));
+                    let panel = Panel::new_builder(Widget::col(vec![
+                        Widget::row(vec![
+                            Line("About A/B Street").small_heading().into_widget(ctx),
+                            ctx.style().btn_close_widget(ctx),
+                        ]),
+                        Text::from_multiline(vec![
+                            Line("Created by Dustin Carlino, Yuwen Li, & Michael Kirk").small(),
+                            Line("Data from OpenStreetMap, King County GIS, King County LIDAR")
+                                .small(),
+                        ])
+                        .into_widget(ctx),
+                        "This is a simplified version. Check out the full version below."
+                            .text_widget(ctx),
+                        ctx.style().btn_outline.text("abstreet.org").build_def(ctx),
+                    ]))
+                    .build(ctx);
+                    return Transition::Push(<dyn SimpleState<_>>::new_state(
+                        panel,
+                        Box::new(About),
+                    ));
                 }
                 "change map" => {
                     return Transition::Push(CityPicker::new_state(
@@ -190,7 +204,6 @@ impl State<App> for ExploreMap {
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.top_panel.draw(g);
         self.layers.draw(g, app);
-        self.magnifying_glass.draw(g, app);
     }
 }
 
@@ -227,14 +240,16 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App) -> Panel {
     } else {
         file_management.push(Line(&edits.edits_name).into_widget(ctx));
     }
-    file_management.push(
-        Line(format!(
-            "{:.1} miles of new bike lanes",
-            total_mileage.to_miles()
-        ))
-        .secondary()
-        .into_widget(ctx),
-    );
+    if false {
+        file_management.push(
+            Line(format!(
+                "{:.1} miles of new bike lanes",
+                total_mileage.to_miles()
+            ))
+            .secondary()
+            .into_widget(ctx),
+        );
+    }
     file_management.push(Widget::row(vec![
         ctx.style()
             .btn_outline
@@ -248,14 +263,16 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App) -> Panel {
             .disabled(edits.commands.is_empty())
             .build_def(ctx),
     ]));
-    // TODO Rethink UI of this, probably fold into save dialog
-    file_management.push(
-        ctx.style()
-            .btn_outline
-            .text("Share proposal")
-            .disabled(!share::UploadedProposals::should_upload_proposal(app))
-            .build_def(ctx),
-    );
+    if false {
+        // TODO Rethink UI of this, probably fold into save dialog
+        file_management.push(
+            ctx.style()
+                .btn_outline
+                .text("Share proposal")
+                .disabled(!share::UploadedProposals::should_upload_proposal(app))
+                .build_def(ctx),
+        );
+    }
     // TODO Should undo/redo, save, share functionality also live here?
 
     Panel::new_builder(Widget::col(vec![
@@ -291,4 +308,21 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App) -> Panel {
     ]))
     .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
     .build(ctx)
+}
+
+struct About;
+
+impl SimpleState<App> for About {
+    fn on_click(&mut self, _: &mut EventCtx, _: &mut App, x: &str, _: &Panel) -> Transition {
+        if x == "close" {
+            return Transition::Pop;
+        } else if x == "abstreet.org" {
+            open_browser("https://abstreet.org");
+        }
+        Transition::Keep
+    }
+
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
+        grey_out_map(g, app);
+    }
 }
