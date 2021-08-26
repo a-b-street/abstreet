@@ -142,32 +142,13 @@ impl Layers {
                 }
                 "steep streets" => {
                     if self.panel.is_checked("steep streets") {
-                        let (colorer, _, uphill_legend) =
+                        let (colorer, _, _) =
                             crate::layer::elevation::SteepStreets::make_colorer(ctx, app);
-                        // Make a horizontal legend for the incline
-                        let mut legend: Vec<Widget> = colorer
-                            .categories
-                            .iter()
-                            .map(|(label, color)| {
-                                legend_btn(*color, label)
-                                    .label_color(Color::WHITE, ControlState::Default)
-                                    .disabled(true)
-                                    .build_def(ctx)
-                            })
-                            .collect();
-                        legend.push(uphill_legend);
-                        let legend = Widget::custom_row(legend);
-                        self.panel.replace(ctx, "steep streets legend", legend);
-
                         self.steep_streets = Some(colorer.unzoomed.upload(ctx));
                     } else {
                         self.steep_streets = None;
-                        self.panel.replace(
-                            ctx,
-                            "steep streets legend",
-                            Text::new().into_widget(ctx),
-                        );
                     }
+                    self.update_panel(ctx, app);
                 }
                 _ => unreachable!(),
             },
@@ -281,11 +262,30 @@ impl Layers {
                     .named("current elevation")
                     .centered_vert(),
             ]),
-            Widget::row(vec![
-                Toggle::checkbox(ctx, "steep streets", Key::S, self.steep_streets.is_some()),
-                // A placeholder
-                Text::new().into_widget(ctx).named("steep streets legend"),
-            ]),
+            Widget::row({
+                let mut row = vec![Toggle::checkbox(
+                    ctx,
+                    "steep streets",
+                    Key::S,
+                    self.steep_streets.is_some(),
+                )];
+                if self.steep_streets.is_some() {
+                    let (categories, uphill_legend) =
+                        crate::layer::elevation::SteepStreets::make_legend(ctx);
+                    let mut legend: Vec<Widget> = categories
+                        .into_iter()
+                        .map(|(label, color)| {
+                            legend_btn(color, label)
+                                .label_color(Color::WHITE, ControlState::Default)
+                                .disabled(true)
+                                .build_def(ctx)
+                        })
+                        .collect();
+                    legend.push(uphill_legend);
+                    row.push(Widget::custom_row(legend));
+                }
+                row
+            }),
             // TODO Probably a collisions layer
         ])
     }

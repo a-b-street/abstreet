@@ -70,18 +70,8 @@ impl SteepStreets {
 
     /// Also returns the steepest street and a row explaining the uphill arrows
     pub fn make_colorer<'a>(ctx: &mut EventCtx, app: &'a App) -> (ColorDiscrete<'a>, f64, Widget) {
-        let mut colorer = ColorDiscrete::new(
-            app,
-            vec![
-                // Colors and buckets from https://github.com/ITSLeeds/slopes
-                ("0-3% (flat)", Color::hex("#296B07")),
-                ("3-5%", Color::hex("#689A03")),
-                ("5-8%", Color::hex("#EB9A04")),
-                ("8-10%", Color::hex("#D30800")),
-                ("10-20%", Color::hex("#980104")),
-                (">20% (steep)", Color::hex("#680605")),
-            ],
-        );
+        let (categories, uphill_legend) = SteepStreets::make_legend(ctx);
+        let mut colorer = ColorDiscrete::new(app, categories);
 
         let arrow_len = Distance::meters(5.0);
         let thickness = Distance::meters(2.0);
@@ -131,6 +121,23 @@ impl SteepStreets {
         }
         colorer.unzoomed.append(arrows);
 
+        (colorer, steepest, uphill_legend)
+    }
+
+    /// Returns the colored categories used and a row explaining the uphill arrows
+    pub fn make_legend(ctx: &mut EventCtx) -> (Vec<(&'static str, Color)>, Widget) {
+        let categories = vec![
+            // Colors and buckets from https://github.com/ITSLeeds/slopes
+            ("0-3% (flat)", Color::hex("#296B07")),
+            ("3-5%", Color::hex("#689A03")),
+            ("5-8%", Color::hex("#EB9A04")),
+            ("8-10%", Color::hex("#D30800")),
+            ("10-20%", Color::hex("#980104")),
+            (">20% (steep)", Color::hex("#680605")),
+        ];
+
+        let arrow_len = Distance::meters(5.0);
+        let thickness = Distance::meters(2.0);
         let pt = Pt2D::new(0.0, 0.0);
         let panel_arrow = PolyLine::must_new(vec![
             pt.project_away(arrow_len, Angle::degrees(-135.0)),
@@ -146,7 +153,7 @@ impl SteepStreets {
             "points uphill".text_widget(ctx).centered_vert(),
         ]);
 
-        (colorer, steepest, uphill_legend)
+        (categories, uphill_legend)
     }
 }
 

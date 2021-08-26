@@ -53,19 +53,19 @@ impl Tab {
                 ctx.style()
                     .btn_tab
                     .icon_text("system/assets/tools/pan.svg", "Explore")
-                    .hotkey(Key::E)
+                    .hotkey(Key::Num1)
                     .disabled(self == Tab::Explore)
                     .build_def(ctx),
                 ctx.style()
                     .btn_tab
                     .icon_text("system/assets/tools/pencil.svg", "Create new bike lanes")
-                    .hotkey(Key::C)
+                    .hotkey(Key::Num2)
                     .disabled(self == Tab::Create)
                     .build_def(ctx),
                 ctx.style()
                     .btn_tab
                     .icon_text("system/assets/tools/pin.svg", "Plan a route")
-                    .hotkey(Key::R)
+                    .hotkey(Key::Num3)
                     .disabled(self == Tab::Route)
                     .build_def(ctx),
             ]),
