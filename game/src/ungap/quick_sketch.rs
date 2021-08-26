@@ -174,9 +174,11 @@ fn maybe_add_bike_lanes(r: &mut EditRoad, buffer_type: Option<BufferType>) {
         (Direction::Back, &mut back_side),
     ] {
         // For each side, start searching outer->inner. If there's parking, replace it. If there's
-        // multiple driving lanes, fallback to changing the rightmost.
+        // multiple driving lanes, fallback to changing the rightmost. If there's a bus lane, put
+        // the bike lanes on the outside of it.
         let mut parking_lane = None;
         let mut first_driving_lane = None;
+        let mut bus_lane = None;
         let mut num_driving_lanes = 0;
         for (idx, spec) in side.iter().enumerate() {
             if spec.lt == LaneType::Parking && parking_lane.is_none() {
@@ -188,6 +190,9 @@ fn maybe_add_bike_lanes(r: &mut EditRoad, buffer_type: Option<BufferType>) {
             if spec.lt == LaneType::Driving {
                 num_driving_lanes += 1;
             }
+            if spec.lt == LaneType::Bus && bus_lane.is_none() {
+                bus_lane = Some(idx);
+            }
         }
         // So if a road is one-way, this shouldn't add a bike lane to the off-side.
         let idx = if let Some(idx) = parking_lane {
@@ -196,6 +201,14 @@ fn maybe_add_bike_lanes(r: &mut EditRoad, buffer_type: Option<BufferType>) {
             } else {
                 Some(idx)
             }
+        } else if bus_lane.is_some() && num_driving_lanes > 1 {
+            // Nuke the driving lane
+            side.remove(first_driving_lane.unwrap());
+            // Copy the bus lane (because the code below always overwrites idx)
+            let bus_idx = bus_lane.unwrap();
+            side.insert(bus_idx, side[bus_idx].clone());
+            // Then put the bike lane on the outside of the bus lane
+            Some(bus_idx)
         } else if num_driving_lanes > 1 {
             first_driving_lane
         } else {
@@ -274,6 +287,24 @@ mod tests {
                 with_buffers,
                 "spdd|bs",
                 "vv^^^^^",
+            ),
+            (
+                "One-way with bus lanes",
+                "https://www.openstreetmap.org/way/52840106",
+                "ddBs",
+                "^^^^",
+                with_buffers,
+                "dB|bs",
+                "^^^^^",
+            ),
+            (
+                "Two-way with bus lanes",
+                "https://www.openstreetmap.org/way/368670632",
+                "sBddCddBs",
+                "vvvv^^^^^",
+                with_buffers,
+                "sb|BdCdB|bs",
+                "vvvvv^^^^^^",
             ),
         ] {
             let input = EditRoad::create_for_test(input_lt, input_dir);
