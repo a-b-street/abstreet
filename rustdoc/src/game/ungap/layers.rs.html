@@ -535,32 +535,13 @@
                 }
                 <span class="string">&quot;steep streets&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">if</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;steep streets&quot;</span>) {
-                        <span class="kw">let</span> (<span class="ident">colorer</span>, <span class="kw">_</span>, <span class="ident">uphill_legend</span>) <span class="op">=</span>
+                        <span class="kw">let</span> (<span class="ident">colorer</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span>
                             <span class="kw">crate</span><span class="ident">::layer::elevation::SteepStreets::make_colorer</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
-                        <span class="comment">// Make a horizontal legend for the incline</span>
-                        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">legend</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Widget</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">colorer</span>
-                            .<span class="ident">categories</span>
-                            .<span class="ident">iter</span>()
-                            .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">label</span>, <span class="ident">color</span>)<span class="op">|</span> {
-                                <span class="ident">legend_btn</span>(<span class="kw-2">*</span><span class="ident">color</span>, <span class="ident">label</span>)
-                                    .<span class="ident">label_color</span>(<span class="ident">Color::WHITE</span>, <span class="ident">ControlState::Default</span>)
-                                    .<span class="ident">disabled</span>(<span class="bool-val">true</span>)
-                                    .<span class="ident">build_def</span>(<span class="ident">ctx</span>)
-                            })
-                            .<span class="ident">collect</span>();
-                        <span class="ident">legend</span>.<span class="ident">push</span>(<span class="ident">uphill_legend</span>);
-                        <span class="kw">let</span> <span class="ident">legend</span> <span class="op">=</span> <span class="ident">Widget::custom_row</span>(<span class="ident">legend</span>);
-                        <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;steep streets legend&quot;</span>, <span class="ident">legend</span>);
-
                         <span class="self">self</span>.<span class="ident">steep_streets</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">colorer</span>.<span class="ident">unzoomed</span>.<span class="ident">upload</span>(<span class="ident">ctx</span>));
                     } <span class="kw">else</span> {
                         <span class="self">self</span>.<span class="ident">steep_streets</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-                        <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(
-                            <span class="ident">ctx</span>,
-                            <span class="string">&quot;steep streets legend&quot;</span>,
-                            <span class="ident">Text::new</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                        );
                     }
+                    <span class="self">self</span>.<span class="ident">update_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
                 }
                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
             },
@@ -674,11 +655,30 @@
                     .<span class="ident">named</span>(<span class="string">&quot;current elevation&quot;</span>)
                     .<span class="ident">centered_vert</span>(),
             ]),
-            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                <span class="ident">Toggle::checkbox</span>(<span class="ident">ctx</span>, <span class="string">&quot;steep streets&quot;</span>, <span class="ident">Key::S</span>, <span class="self">self</span>.<span class="ident">steep_streets</span>.<span class="ident">is_some</span>()),
-                <span class="comment">// A placeholder</span>
-                <span class="ident">Text::new</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;steep streets legend&quot;</span>),
-            ]),
+            <span class="ident">Widget::row</span>({
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">row</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">Toggle::checkbox</span>(
+                    <span class="ident">ctx</span>,
+                    <span class="string">&quot;steep streets&quot;</span>,
+                    <span class="ident">Key::S</span>,
+                    <span class="self">self</span>.<span class="ident">steep_streets</span>.<span class="ident">is_some</span>(),
+                )];
+                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">steep_streets</span>.<span class="ident">is_some</span>() {
+                    <span class="kw">let</span> (<span class="ident">categories</span>, <span class="ident">uphill_legend</span>) <span class="op">=</span>
+                        <span class="kw">crate</span><span class="ident">::layer::elevation::SteepStreets::make_legend</span>(<span class="ident">ctx</span>);
+                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">legend</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Widget</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">categories</span>
+                        .<span class="ident">into_iter</span>()
+                        .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">label</span>, <span class="ident">color</span>)<span class="op">|</span> {
+                            <span class="ident">legend_btn</span>(<span class="ident">color</span>, <span class="ident">label</span>)
+                                .<span class="ident">label_color</span>(<span class="ident">Color::WHITE</span>, <span class="ident">ControlState::Default</span>)
+                                .<span class="ident">disabled</span>(<span class="bool-val">true</span>)
+                                .<span class="ident">build_def</span>(<span class="ident">ctx</span>)
+                        })
+                        .<span class="ident">collect</span>();
+                    <span class="ident">legend</span>.<span class="ident">push</span>(<span class="ident">uphill_legend</span>);
+                    <span class="ident">row</span>.<span class="ident">push</span>(<span class="ident">Widget::custom_row</span>(<span class="ident">legend</span>));
+                }
+                <span class="ident">row</span>
+            }),
             <span class="comment">// TODO Probably a collisions layer</span>
         ])
     }

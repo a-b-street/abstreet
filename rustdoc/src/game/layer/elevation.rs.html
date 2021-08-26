@@ -319,6 +319,13 @@
 <span id="317">317</span>
 <span id="318">318</span>
 <span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">Distance</span>, <span class="ident">FindClosest</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
 <span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">ColorDiscrete</span>, <span class="ident">ColorScale</span>, <span class="ident">Grid</span>};
@@ -392,18 +399,8 @@
 
     <span class="doccomment">/// Also returns the steepest street and a row explaining the uphill arrows</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">make_colorer</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">ColorDiscrete</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>, <span class="ident">f64</span>, <span class="ident">Widget</span>) {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">colorer</span> <span class="op">=</span> <span class="ident">ColorDiscrete::new</span>(
-            <span class="ident">app</span>,
-            <span class="macro">vec!</span>[
-                <span class="comment">// Colors and buckets from https://github.com/ITSLeeds/slopes</span>
-                (<span class="string">&quot;0-3% (flat)&quot;</span>, <span class="ident">Color::hex</span>(<span class="string">&quot;#296B07&quot;</span>)),
-                (<span class="string">&quot;3-5%&quot;</span>, <span class="ident">Color::hex</span>(<span class="string">&quot;#689A03&quot;</span>)),
-                (<span class="string">&quot;5-8%&quot;</span>, <span class="ident">Color::hex</span>(<span class="string">&quot;#EB9A04&quot;</span>)),
-                (<span class="string">&quot;8-10%&quot;</span>, <span class="ident">Color::hex</span>(<span class="string">&quot;#D30800&quot;</span>)),
-                (<span class="string">&quot;10-20%&quot;</span>, <span class="ident">Color::hex</span>(<span class="string">&quot;#980104&quot;</span>)),
-                (<span class="string">&quot;&gt;20% (steep)&quot;</span>, <span class="ident">Color::hex</span>(<span class="string">&quot;#680605&quot;</span>)),
-            ],
-        );
+        <span class="kw">let</span> (<span class="ident">categories</span>, <span class="ident">uphill_legend</span>) <span class="op">=</span> <span class="ident">SteepStreets::make_legend</span>(<span class="ident">ctx</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">colorer</span> <span class="op">=</span> <span class="ident">ColorDiscrete::new</span>(<span class="ident">app</span>, <span class="ident">categories</span>);
 
         <span class="kw">let</span> <span class="ident">arrow_len</span> <span class="op">=</span> <span class="ident">Distance::meters</span>(<span class="number">5.0</span>);
         <span class="kw">let</span> <span class="ident">thickness</span> <span class="op">=</span> <span class="ident">Distance::meters</span>(<span class="number">2.0</span>);
@@ -453,6 +450,23 @@
         }
         <span class="ident">colorer</span>.<span class="ident">unzoomed</span>.<span class="ident">append</span>(<span class="ident">arrows</span>);
 
+        (<span class="ident">colorer</span>, <span class="ident">steepest</span>, <span class="ident">uphill_legend</span>)
+    }
+
+    <span class="doccomment">/// Returns the colored categories used and a row explaining the uphill arrows</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">make_legend</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">Vec</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>, <span class="ident">Color</span>)<span class="op">&gt;</span>, <span class="ident">Widget</span>) {
+        <span class="kw">let</span> <span class="ident">categories</span> <span class="op">=</span> <span class="macro">vec!</span>[
+            <span class="comment">// Colors and buckets from https://github.com/ITSLeeds/slopes</span>
+            (<span class="string">&quot;0-3% (flat)&quot;</span>, <span class="ident">Color::hex</span>(<span class="string">&quot;#296B07&quot;</span>)),
+            (<span class="string">&quot;3-5%&quot;</span>, <span class="ident">Color::hex</span>(<span class="string">&quot;#689A03&quot;</span>)),
+            (<span class="string">&quot;5-8%&quot;</span>, <span class="ident">Color::hex</span>(<span class="string">&quot;#EB9A04&quot;</span>)),
+            (<span class="string">&quot;8-10%&quot;</span>, <span class="ident">Color::hex</span>(<span class="string">&quot;#D30800&quot;</span>)),
+            (<span class="string">&quot;10-20%&quot;</span>, <span class="ident">Color::hex</span>(<span class="string">&quot;#980104&quot;</span>)),
+            (<span class="string">&quot;&gt;20% (steep)&quot;</span>, <span class="ident">Color::hex</span>(<span class="string">&quot;#680605&quot;</span>)),
+        ];
+
+        <span class="kw">let</span> <span class="ident">arrow_len</span> <span class="op">=</span> <span class="ident">Distance::meters</span>(<span class="number">5.0</span>);
+        <span class="kw">let</span> <span class="ident">thickness</span> <span class="op">=</span> <span class="ident">Distance::meters</span>(<span class="number">2.0</span>);
         <span class="kw">let</span> <span class="ident">pt</span> <span class="op">=</span> <span class="ident">Pt2D::new</span>(<span class="number">0.0</span>, <span class="number">0.0</span>);
         <span class="kw">let</span> <span class="ident">panel_arrow</span> <span class="op">=</span> <span class="ident">PolyLine::must_new</span>(<span class="macro">vec!</span>[
             <span class="ident">pt</span>.<span class="ident">project_away</span>(<span class="ident">arrow_len</span>, <span class="ident">Angle::degrees</span>(<span class="op">-</span><span class="number">135.0</span>)),
@@ -468,7 +482,7 @@
             <span class="string">&quot;points uphill&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
         ]);
 
-        (<span class="ident">colorer</span>, <span class="ident">steepest</span>, <span class="ident">uphill_legend</span>)
+        (<span class="ident">categories</span>, <span class="ident">uphill_legend</span>)
     }
 }
 
