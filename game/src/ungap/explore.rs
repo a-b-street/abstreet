@@ -26,11 +26,6 @@ impl TakeLayers for ExploreMap {
 }
 
 impl ExploreMap {
-    pub fn launch(ctx: &mut EventCtx, app: &mut App) -> Box<dyn State<App>> {
-        let layers = Layers::new(ctx, app);
-        ExploreMap::new_state(ctx, app, layers)
-    }
-
     pub fn new_state(ctx: &mut EventCtx, app: &mut App, layers: Layers) -> Box<dyn State<App>> {
         app.opts.show_building_driveways = false;
 

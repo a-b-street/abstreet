@@ -84,12 +84,18 @@ impl Tab {
                 Transition::Push(CityPicker::new_state(
                     ctx,
                     app,
-                    Box::new(|ctx, app| {
+                    Box::new(move |ctx, app| {
+                        // Since we're totally changing maps, don't reuse the Layers
+                        let layers = Layers::new(ctx, app);
                         Transition::Multi(vec![
                             Transition::Pop,
-                            // Since we're totally changing maps, don't reuse the Layers
-                            // TODO Keep current tab...
-                            Transition::Replace(ExploreMap::launch(ctx, app)),
+                            Transition::Replace(match self {
+                                Tab::Explore => ExploreMap::new_state(ctx, app, layers),
+                                Tab::Create => {
+                                    quick_sketch::QuickSketch::new_state(ctx, app, layers)
+                                }
+                                Tab::Route => route::RoutePlanner::new_state(ctx, app, layers),
+                            }),
                         ])
                     }),
                 ))
