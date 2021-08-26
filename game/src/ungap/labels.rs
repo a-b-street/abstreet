@@ -4,7 +4,7 @@ use aabb_quadtree::QuadTree;
 use lazy_static::lazy_static;
 use regex::Regex;
 
-use geom::Distance;
+use geom::{Distance, Pt2D};
 use map_model::osm;
 use widgetry::{Color, Drawable, GeomBatch, GfxCtx, Line, Text};
 
@@ -26,6 +26,7 @@ impl DrawRoadLabels {
         let (zoom, idx) = DrawRoadLabels::discretize_zoom(g.canvas.cam_zoom);
         let value = &mut self.per_zoom.borrow_mut()[idx];
         if value.is_none() {
+            debug!("computing DrawRoadLabels(zoom: {}, idx: {})", zoom, idx);
             *value = Some(DrawRoadLabels::render(g, app, zoom));
         }
         g.redraw(value.as_ref().unwrap());
@@ -45,8 +46,8 @@ impl DrawRoadLabels {
         let mut batch = GeomBatch::new();
         let map = &app.primary.map;
 
-        let scale_text = 1.0 + 2.0 * (1.0 - zoom);
-        //println!("at zoom {}, scale labels {}", zoom, scale_text);
+        let text_scale = 1.0 + 2.0 * (1.0 - zoom);
+        //println!("at zoom {}, scale labels {}", zoom, text_scale);
 
         let mut non_overlapping = Vec::new();
         let mut quadtree = QuadTree::default(map.get_bounds().as_bbox());
@@ -65,31 +66,52 @@ impl DrawRoadLabels {
             };
             let (pt, angle) = r.center_pts.must_dist_along(r.center_pts.length() / 2.0);
 
+            fn cheaply_overestimate_bounds(
+                text: &str,
+                text_scale: f64,
+                center: Pt2D,
+                angle: geom::Angle,
+            ) -> geom::Bounds {
+                // assume all chars are bigger than largest possible char
+                let letter_width = 30.0 * text_scale;
+                let letter_height = 30.0 * text_scale;
+
+                geom::Polygon::rectangle_centered(
+                    center,
+                    Distance::meters(letter_width * text.len() as f64),
+                    Distance::meters(letter_height),
+                )
+                .rotate(angle.reorient())
+                .get_bounds()
+            }
+
+            // TODO: why all these different reps?
+            // TODO: add "buffer" in estimate bounds
+            // Don't get too close to other labels.
+            let mut search = cheaply_overestimate_bounds(&name, text_scale, pt, angle);
+            let bounds_rect = search.get_rectangle();
+            search.add_buffer(Distance::meters(1.0));
+            for (idx, _, _) in quadtree.query(search.as_bbox()) {
+                //  Why is this intersection query necessary? doesn't quadtree.query get close enough?
+                if bounds_rect.intersects(&non_overlapping[*idx]) {
+                    continue 'ROAD;
+                }
+            }
+            quadtree.insert_with_box(non_overlapping.len(), bounds_rect.get_bounds().as_bbox());
+            non_overlapping.push(bounds_rect);
+
+            // No other labels too close - proceed to render text.
             let txt = Text::from(
-                Line(name)
+                Line(&name)
                     .big_heading_plain()
                     .fg(Color::WHITE)
                     .outlined(Color::BLACK),
             );
             let txt_batch = txt
                 .render_autocropped(g)
-                .scale(scale_text)
-                .centered_on(pt)
-                .rotate_around_batch_center(angle.reorient());
-
-            // Don't get too close to other labels.
-            // TODO This will probably be slower to compute -- we actually render the text before
-            // checking hitboxes. :(
-            let mut search = txt_batch.get_bounds();
-            let poly = search.get_rectangle();
-            search.add_buffer(Distance::meters(1.0));
-            for (idx, _, _) in quadtree.query(search.as_bbox()) {
-                if poly.intersects(&non_overlapping[*idx]) {
-                    continue 'ROAD;
-                }
-            }
-            quadtree.insert_with_box(non_overlapping.len(), poly.get_bounds().as_bbox());
-            non_overlapping.push(poly);
+                .scale(text_scale) // <- expensive
+                .centered_on(pt) // <- expensive
+                .rotate_around_batch_center(angle.reorient()); // <- most expensive
 
             batch.append(txt_batch);
         }
