@@ -5,7 +5,6 @@ use rand::SeedableRng;
 use rand_xorshift::XorShiftRng;
 
 use geom::{Circle, Distance, Duration, FindClosest, Polygon};
-use map_gui::tools::CityPicker;
 use map_model::{PathStep, NORMAL_LANE_THICKNESS};
 use sim::{TripEndpoint, TripMode};
 use widgetry::{
@@ -14,7 +13,7 @@ use widgetry::{
 };
 
 use crate::app::{App, Transition};
-use crate::ungap::{make_header, Layers, Tab};
+use crate::ungap::{Layers, Tab, TakeLayers};
 
 pub struct RoutePlanner {
     layers: Layers,
@@ -34,6 +33,12 @@ pub struct RoutePlanner {
     // Routing
     draw_route: Drawable,
     results_panel: Panel,
+}
+
+impl TakeLayers for RoutePlanner {
+    fn take_layers(self) -> Layers {
+        self.layers
+    }
 }
 
 // TODO Maybe it's been a while and I've forgotten some UI patterns, but this is painfully manual.
@@ -82,7 +87,7 @@ impl RoutePlanner {
     }
 
     fn update_input_panel(&mut self, ctx: &mut EventCtx, app: &App) {
-        let mut col = vec![make_header(ctx, app, Tab::Route)];
+        let mut col = vec![Tab::Route.make_header(ctx, app)];
 
         for (idx, waypt) in self.waypoints.iter().enumerate() {
             col.push(Widget::row(vec![
@@ -346,39 +351,6 @@ impl State<App> for RoutePlanner {
 
         if let Outcome::Clicked(x) = self.input_panel.event(ctx) {
             match x.as_ref() {
-                "about A/B Street" => {
-                    return Transition::Push(crate::ungap::About::new_state(ctx));
-                }
-                "change map" => {
-                    return Transition::Push(CityPicker::new_state(
-                        ctx,
-                        app,
-                        Box::new(|ctx, app| {
-                            Transition::Multi(vec![
-                                Transition::Pop,
-                                // Since we're totally changing maps, don't reuse the Layers
-                                // TODO Should we keep the current tab or always reset here?
-                                Transition::Replace(crate::ungap::ExploreMap::launch(ctx, app)),
-                            ])
-                        }),
-                    ));
-                }
-                "Explore" => {
-                    return Transition::ConsumeState(Box::new(|state, ctx, app| {
-                        let state = state.downcast::<RoutePlanner>().ok().unwrap();
-                        vec![crate::ungap::ExploreMap::new_state(ctx, app, state.layers)]
-                    }));
-                }
-                "Create new bike lanes" => {
-                    return Transition::ConsumeState(Box::new(|state, ctx, app| {
-                        let state = state.downcast::<RoutePlanner>().ok().unwrap();
-                        vec![crate::ungap::quick_sketch::QuickSketch::new_state(
-                            ctx,
-                            app,
-                            state.layers,
-                        )]
-                    }));
-                }
                 "Add waypoint" => {
                     self.waypoints.push(self.make_new_waypt(ctx, app));
                     self.update_input_panel(ctx, app);
@@ -399,7 +371,7 @@ impl State<App> for RoutePlanner {
                         self.update_waypoints_drawable(ctx);
                         self.update_route(ctx, app);
                     } else {
-                        unreachable!()
+                        return Tab::Route.handle_action::<RoutePlanner>(ctx, app, x);
                     }
                 }
             }

@@ -24,7 +24,7 @@ pub struct CityPicker<A: AppLike> {
 impl<A: AppLike + 'static> CityPicker<A> {
     pub fn new_state(
         ctx: &mut EventCtx,
-        app: &mut A,
+        app: &A,
         on_load: Box<dyn FnOnce(&mut EventCtx, &mut A) -> Transition<A>>,
     ) -> Box<dyn State<A>> {
         let city = app.map().get_city_name().clone();

@@ -1,5 +1,5 @@
 use abstutil::Tags;
-use map_gui::tools::{CityPicker, PopupMsg};
+use map_gui::tools::PopupMsg;
 use map_model::{BufferType, Direction, EditCmd, EditRoad, LaneSpec, LaneType, RoadID};
 use widgetry::{
     Choice, EventCtx, GfxCtx, HorizontalAlignment, Key, Outcome, Panel, State, TextExt,
@@ -9,12 +9,18 @@ use widgetry::{
 use crate::app::{App, Transition};
 use crate::common::RouteSketcher;
 use crate::edit::apply_map_edits;
-use crate::ungap::{make_header, Layers, Tab};
+use crate::ungap::{Layers, Tab, TakeLayers};
 
 pub struct QuickSketch {
     top_panel: Panel,
     layers: Layers,
     route_sketcher: RouteSketcher,
+}
+
+impl TakeLayers for QuickSketch {
+    fn take_layers(self) -> Layers {
+        self.layers
+    }
 }
 
 impl QuickSketch {
@@ -30,7 +36,7 @@ impl QuickSketch {
 
     fn update_top_panel(&mut self, ctx: &mut EventCtx, app: &App) {
         let mut col = vec![
-            make_header(ctx, app, Tab::Create),
+            Tab::Create.make_header(ctx, app),
             self.route_sketcher.get_widget_to_describe(ctx),
         ];
 
@@ -80,39 +86,6 @@ impl State<App> for QuickSketch {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         if let Outcome::Clicked(x) = self.top_panel.event(ctx) {
             match x.as_ref() {
-                "about A/B Street" => {
-                    return Transition::Push(crate::ungap::About::new_state(ctx));
-                }
-                "change map" => {
-                    return Transition::Push(CityPicker::new_state(
-                        ctx,
-                        app,
-                        Box::new(|ctx, app| {
-                            Transition::Multi(vec![
-                                Transition::Pop,
-                                // Since we're totally changing maps, don't reuse the Layers
-                                // TODO Should we keep the current tab or always reset here?
-                                Transition::Replace(crate::ungap::ExploreMap::launch(ctx, app)),
-                            ])
-                        }),
-                    ));
-                }
-                "Explore" => {
-                    return Transition::ConsumeState(Box::new(|state, ctx, app| {
-                        let state = state.downcast::<QuickSketch>().ok().unwrap();
-                        vec![crate::ungap::ExploreMap::new_state(ctx, app, state.layers)]
-                    }));
-                }
-                "Plan a route" => {
-                    return Transition::ConsumeState(Box::new(|state, ctx, app| {
-                        let state = state.downcast::<QuickSketch>().ok().unwrap();
-                        vec![crate::ungap::route::RoutePlanner::new_state(
-                            ctx,
-                            app,
-                            state.layers,
-                        )]
-                    }));
-                }
                 "Add bike lanes" => {
                     let messages = make_quick_changes(
                         ctx,
@@ -128,7 +101,9 @@ impl State<App> for QuickSketch {
                         ]
                     }));
                 }
-                _ => unreachable!(),
+                x => {
+                    return Tab::Create.handle_action::<QuickSketch>(ctx, app, x);
+                }
             }
         }
 

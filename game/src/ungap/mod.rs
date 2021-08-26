@@ -109,44 +109,6 @@ impl State<App> for ExploreMap {
 
         if let Outcome::Clicked(x) = self.top_panel.event(ctx) {
             match x.as_ref() {
-                "about A/B Street" => {
-                    return Transition::Push(About::new_state(ctx));
-                }
-                "change map" => {
-                    return Transition::Push(CityPicker::new_state(
-                        ctx,
-                        app,
-                        Box::new(|ctx, app| {
-                            Transition::Multi(vec![
-                                Transition::Pop,
-                                // Since we're totally changing maps, don't reuse the Layers
-                                Transition::Replace(ExploreMap::launch(ctx, app)),
-                            ])
-                        }),
-                    ));
-                }
-                "Create new bike lanes" => {
-                    app.primary.current_selection = None;
-                    return Transition::ConsumeState(Box::new(|state, ctx, app| {
-                        let state = state.downcast::<ExploreMap>().ok().unwrap();
-                        vec![crate::ungap::quick_sketch::QuickSketch::new_state(
-                            ctx,
-                            app,
-                            state.layers,
-                        )]
-                    }));
-                }
-                "Plan a route" => {
-                    app.primary.current_selection = None;
-                    return Transition::ConsumeState(Box::new(|state, ctx, app| {
-                        let state = state.downcast::<ExploreMap>().ok().unwrap();
-                        vec![crate::ungap::route::RoutePlanner::new_state(
-                            ctx,
-                            app,
-                            state.layers,
-                        )]
-                    }));
-                }
                 "Open a proposal" => {
                     // Dummy mode, just to allow all edits
                     // TODO Actually, should we make one to express that only road edits are
@@ -171,7 +133,9 @@ impl State<App> for ExploreMap {
                 "Share proposal" => {
                     return Transition::Push(share::upload_proposal(ctx, app));
                 }
-                _ => unreachable!(),
+                x => {
+                    return Tab::Explore.handle_action::<ExploreMap>(ctx, app, x);
+                }
             }
         }
 
@@ -257,7 +221,7 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App) -> Panel {
     // TODO Should undo/redo, save, share functionality also live here?
 
     Panel::new_builder(Widget::col(vec![
-        make_header(ctx, app, Tab::Explore),
+        Tab::Explore.make_header(ctx, app),
         Widget::col(file_management).section(ctx),
     ]))
     .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
@@ -267,7 +231,7 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App) -> Panel {
 struct About;
 
 impl About {
-    pub fn new_state(ctx: &mut EventCtx) -> Box<dyn State<App>> {
+    fn new_state(ctx: &mut EventCtx) -> Box<dyn State<App>> {
         let panel = Panel::new_builder(Widget::col(vec![
             Widget::row(vec![
                 Line("About A/B Street").small_heading().into_widget(ctx),
@@ -309,44 +273,102 @@ pub enum Tab {
     Route,
 }
 
-pub fn make_header(ctx: &mut EventCtx, app: &App, current_tab: Tab) -> Widget {
-    Widget::col(vec![
-        Widget::row(vec![
-            ctx.style()
-                .btn_plain
-                .btn()
-                .image_path("system/assets/pregame/logo.svg")
-                .image_dims(50.0)
-                .build_widget(ctx, "about A/B Street"),
-            ctx.style()
-                .btn_popup_icon_text(
-                    "system/assets/tools/map.svg",
-                    nice_map_name(app.primary.map.get_name()),
-                )
-                .hotkey(lctrl(Key::L))
-                .build_widget(ctx, "change map")
-                .centered_vert()
-                .align_right(),
-        ]),
-        Widget::row(vec![
-            ctx.style()
-                .btn_tab
-                .icon_text("system/assets/tools/pan.svg", "Explore")
-                .hotkey(Key::E)
-                .disabled(current_tab == Tab::Explore)
-                .build_def(ctx),
-            ctx.style()
-                .btn_tab
-                .icon_text("system/assets/tools/pencil.svg", "Create new bike lanes")
-                .hotkey(Key::C)
-                .disabled(current_tab == Tab::Create)
-                .build_def(ctx),
-            ctx.style()
-                .btn_tab
-                .icon_text("system/assets/tools/pin.svg", "Plan a route")
-                .hotkey(Key::R)
-                .disabled(current_tab == Tab::Route)
-                .build_def(ctx),
-        ]),
-    ])
+pub trait TakeLayers {
+    fn take_layers(self) -> Layers;
+}
+
+impl TakeLayers for ExploreMap {
+    fn take_layers(self) -> Layers {
+        self.layers
+    }
+}
+
+impl Tab {
+    pub fn make_header(self, ctx: &mut EventCtx, app: &App) -> Widget {
+        Widget::col(vec![
+            Widget::row(vec![
+                ctx.style()
+                    .btn_plain
+                    .btn()
+                    .image_path("system/assets/pregame/logo.svg")
+                    .image_dims(50.0)
+                    .build_widget(ctx, "about A/B Street"),
+                ctx.style()
+                    .btn_popup_icon_text(
+                        "system/assets/tools/map.svg",
+                        nice_map_name(app.primary.map.get_name()),
+                    )
+                    .hotkey(lctrl(Key::L))
+                    .build_widget(ctx, "change map")
+                    .centered_vert()
+                    .align_right(),
+            ]),
+            Widget::row(vec![
+                ctx.style()
+                    .btn_tab
+                    .icon_text("system/assets/tools/pan.svg", "Explore")
+                    .hotkey(Key::E)
+                    .disabled(self == Tab::Explore)
+                    .build_def(ctx),
+                ctx.style()
+                    .btn_tab
+                    .icon_text("system/assets/tools/pencil.svg", "Create new bike lanes")
+                    .hotkey(Key::C)
+                    .disabled(self == Tab::Create)
+                    .build_def(ctx),
+                ctx.style()
+                    .btn_tab
+                    .icon_text("system/assets/tools/pin.svg", "Plan a route")
+                    .hotkey(Key::R)
+                    .disabled(self == Tab::Route)
+                    .build_def(ctx),
+            ]),
+        ])
+    }
+
+    pub fn handle_action<T: TakeLayers + State<App>>(
+        self,
+        ctx: &mut EventCtx,
+        app: &mut App,
+        action: &str,
+    ) -> Transition {
+        match action {
+            "about A/B Street" => Transition::Push(About::new_state(ctx)),
+            "change map" => {
+                Transition::Push(CityPicker::new_state(
+                    ctx,
+                    app,
+                    Box::new(|ctx, app| {
+                        Transition::Multi(vec![
+                            Transition::Pop,
+                            // Since we're totally changing maps, don't reuse the Layers
+                            // TODO Keep current tab...
+                            Transition::Replace(ExploreMap::launch(ctx, app)),
+                        ])
+                    }),
+                ))
+            }
+            "Create new bike lanes" => {
+                // This is only necessary to do coming from ExploreMap, but eh
+                app.primary.current_selection = None;
+                Transition::ConsumeState(Box::new(|state, ctx, app| {
+                    let state = state.downcast::<T>().ok().unwrap();
+                    vec![quick_sketch::QuickSketch::new_state(
+                        ctx,
+                        app,
+                        state.take_layers(),
+                    )]
+                }))
+            }
+            "Plan a route" => Transition::ConsumeState(Box::new(|state, ctx, app| {
+                let state = state.downcast::<T>().ok().unwrap();
+                vec![route::RoutePlanner::new_state(
+                    ctx,
+                    app,
+                    state.take_layers(),
+                )]
+            })),
+            _ => unreachable!(),
+        }
+    }
 }
