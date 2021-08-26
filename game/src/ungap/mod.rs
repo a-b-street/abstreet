@@ -110,26 +110,7 @@ impl State<App> for ExploreMap {
         if let Outcome::Clicked(x) = self.top_panel.event(ctx) {
             match x.as_ref() {
                 "about A/B Street" => {
-                    let panel = Panel::new_builder(Widget::col(vec![
-                        Widget::row(vec![
-                            Line("About A/B Street").small_heading().into_widget(ctx),
-                            ctx.style().btn_close_widget(ctx),
-                        ]),
-                        Text::from_multiline(vec![
-                            Line("Created by Dustin Carlino, Yuwen Li, & Michael Kirk").small(),
-                            Line("Data from OpenStreetMap, King County GIS, King County LIDAR")
-                                .small(),
-                        ])
-                        .into_widget(ctx),
-                        "This is a simplified version. Check out the full version below."
-                            .text_widget(ctx),
-                        ctx.style().btn_outline.text("abstreet.org").build_def(ctx),
-                    ]))
-                    .build(ctx);
-                    return Transition::Push(<dyn SimpleState<_>>::new_state(
-                        panel,
-                        Box::new(About),
-                    ));
+                    return Transition::Push(About::new_state(ctx));
                 }
                 "change map" => {
                     return Transition::Push(CityPicker::new_state(
@@ -143,6 +124,28 @@ impl State<App> for ExploreMap {
                             ])
                         }),
                     ));
+                }
+                "Create new bike lanes" => {
+                    app.primary.current_selection = None;
+                    return Transition::ConsumeState(Box::new(|state, ctx, app| {
+                        let state = state.downcast::<ExploreMap>().ok().unwrap();
+                        vec![crate::ungap::quick_sketch::QuickSketch::new_state(
+                            ctx,
+                            app,
+                            state.layers,
+                        )]
+                    }));
+                }
+                "Plan a route" => {
+                    app.primary.current_selection = None;
+                    return Transition::ConsumeState(Box::new(|state, ctx, app| {
+                        let state = state.downcast::<ExploreMap>().ok().unwrap();
+                        vec![crate::ungap::route::RoutePlanner::new_state(
+                            ctx,
+                            app,
+                            state.layers,
+                        )]
+                    }));
                 }
                 "Open a proposal" => {
                     // Dummy mode, just to allow all edits
@@ -167,28 +170,6 @@ impl State<App> for ExploreMap {
                 }
                 "Share proposal" => {
                     return Transition::Push(share::upload_proposal(ctx, app));
-                }
-                "Create new bike lanes" => {
-                    app.primary.current_selection = None;
-                    return Transition::ConsumeState(Box::new(|state, ctx, app| {
-                        let state = state.downcast::<ExploreMap>().ok().unwrap();
-                        vec![crate::ungap::quick_sketch::QuickSketch::new_state(
-                            ctx,
-                            app,
-                            state.layers,
-                        )]
-                    }));
-                }
-                "Plan a route" => {
-                    app.primary.current_selection = None;
-                    return Transition::ConsumeState(Box::new(|state, ctx, app| {
-                        let state = state.downcast::<ExploreMap>().ok().unwrap();
-                        vec![crate::ungap::route::RoutePlanner::new_state(
-                            ctx,
-                            app,
-                            state.layers,
-                        )]
-                    }));
                 }
                 _ => unreachable!(),
             }
@@ -276,25 +257,7 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App) -> Panel {
     // TODO Should undo/redo, save, share functionality also live here?
 
     Panel::new_builder(Widget::col(vec![
-        Widget::row(vec![
-            ctx.style()
-                .btn_plain
-                .btn()
-                .image_path("system/assets/pregame/logo.svg")
-                .image_dims(70.0)
-                .build_widget(ctx, "about A/B Street"),
-            Widget::col(vec![
-                Line("Ungap the Map").small_heading().into_widget(ctx),
-                ctx.style()
-                    .btn_popup_icon_text(
-                        "system/assets/tools/map.svg",
-                        nice_map_name(app.primary.map.get_name()),
-                    )
-                    .hotkey(lctrl(Key::L))
-                    .build_widget(ctx, "change map"),
-            ]),
-        ]),
-        make_tabs(ctx, Tab::Explore),
+        make_header(ctx, app, Tab::Explore),
         Widget::col(file_management).section(ctx),
     ]))
     .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
@@ -302,6 +265,26 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App) -> Panel {
 }
 
 struct About;
+
+impl About {
+    pub fn new_state(ctx: &mut EventCtx) -> Box<dyn State<App>> {
+        let panel = Panel::new_builder(Widget::col(vec![
+            Widget::row(vec![
+                Line("About A/B Street").small_heading().into_widget(ctx),
+                ctx.style().btn_close_widget(ctx),
+            ]),
+            Text::from_multiline(vec![
+                Line("Created by Dustin Carlino, Yuwen Li, & Michael Kirk").small(),
+                Line("Data from OpenStreetMap, King County GIS, King County LIDAR").small(),
+            ])
+            .into_widget(ctx),
+            "This is a simplified version. Check out the full version below.".text_widget(ctx),
+            ctx.style().btn_outline.text("abstreet.org").build_def(ctx),
+        ]))
+        .build(ctx);
+        <dyn SimpleState<_>>::new_state(panel, Box::new(About))
+    }
+}
 
 impl SimpleState<App> for About {
     fn on_click(&mut self, _: &mut EventCtx, _: &mut App, x: &str, _: &Panel) -> Transition {
@@ -326,25 +309,44 @@ pub enum Tab {
     Route,
 }
 
-pub fn make_tabs(ctx: &mut EventCtx, current_tab: Tab) -> Widget {
-    Widget::row(vec![
-        ctx.style()
-            .btn_tab
-            .icon_text("system/assets/tools/pan.svg", "Explore")
-            .hotkey(Key::E)
-            .disabled(current_tab == Tab::Explore)
-            .build_def(ctx),
-        ctx.style()
-            .btn_tab
-            .icon_text("system/assets/tools/pencil.svg", "Create new bike lanes")
-            .hotkey(Key::C)
-            .disabled(current_tab == Tab::Create)
-            .build_def(ctx),
-        ctx.style()
-            .btn_tab
-            .icon_text("system/assets/tools/pin.svg", "Plan a route")
-            .hotkey(Key::R)
-            .disabled(current_tab == Tab::Route)
-            .build_def(ctx),
+pub fn make_header(ctx: &mut EventCtx, app: &App, current_tab: Tab) -> Widget {
+    Widget::col(vec![
+        Widget::row(vec![
+            ctx.style()
+                .btn_plain
+                .btn()
+                .image_path("system/assets/pregame/logo.svg")
+                .image_dims(50.0)
+                .build_widget(ctx, "about A/B Street"),
+            ctx.style()
+                .btn_popup_icon_text(
+                    "system/assets/tools/map.svg",
+                    nice_map_name(app.primary.map.get_name()),
+                )
+                .hotkey(lctrl(Key::L))
+                .build_widget(ctx, "change map")
+                .centered_vert()
+                .align_right(),
+        ]),
+        Widget::row(vec![
+            ctx.style()
+                .btn_tab
+                .icon_text("system/assets/tools/pan.svg", "Explore")
+                .hotkey(Key::E)
+                .disabled(current_tab == Tab::Explore)
+                .build_def(ctx),
+            ctx.style()
+                .btn_tab
+                .icon_text("system/assets/tools/pencil.svg", "Create new bike lanes")
+                .hotkey(Key::C)
+                .disabled(current_tab == Tab::Create)
+                .build_def(ctx),
+            ctx.style()
+                .btn_tab
+                .icon_text("system/assets/tools/pin.svg", "Plan a route")
+                .hotkey(Key::R)
+                .disabled(current_tab == Tab::Route)
+                .build_def(ctx),
+        ]),
     ])
 }

@@ -1,5 +1,5 @@
 use abstutil::Tags;
-use map_gui::tools::PopupMsg;
+use map_gui::tools::{CityPicker, PopupMsg};
 use map_model::{BufferType, Direction, EditCmd, EditRoad, LaneSpec, LaneType, RoadID};
 use widgetry::{
     Choice, EventCtx, GfxCtx, HorizontalAlignment, Key, Outcome, Panel, State, TextExt,
@@ -9,7 +9,7 @@ use widgetry::{
 use crate::app::{App, Transition};
 use crate::common::RouteSketcher;
 use crate::edit::apply_map_edits;
-use crate::ungap::{make_tabs, Layers, Tab};
+use crate::ungap::{make_header, Layers, Tab};
 
 pub struct QuickSketch {
     top_panel: Panel,
@@ -24,13 +24,13 @@ impl QuickSketch {
             layers,
             route_sketcher: RouteSketcher::new(ctx, app),
         };
-        qs.update_top_panel(ctx);
+        qs.update_top_panel(ctx, app);
         Box::new(qs)
     }
 
-    fn update_top_panel(&mut self, ctx: &mut EventCtx) {
+    fn update_top_panel(&mut self, ctx: &mut EventCtx, app: &App) {
         let mut col = vec![
-            make_tabs(ctx, Tab::Create),
+            make_header(ctx, app, Tab::Create),
             self.route_sketcher.get_widget_to_describe(ctx),
         ];
 
@@ -80,6 +80,23 @@ impl State<App> for QuickSketch {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         if let Outcome::Clicked(x) = self.top_panel.event(ctx) {
             match x.as_ref() {
+                "about A/B Street" => {
+                    return Transition::Push(crate::ungap::About::new_state(ctx));
+                }
+                "change map" => {
+                    return Transition::Push(CityPicker::new_state(
+                        ctx,
+                        app,
+                        Box::new(|ctx, app| {
+                            Transition::Multi(vec![
+                                Transition::Pop,
+                                // Since we're totally changing maps, don't reuse the Layers
+                                // TODO Should we keep the current tab or always reset here?
+                                Transition::Replace(crate::ungap::ExploreMap::launch(ctx, app)),
+                            ])
+                        }),
+                    ));
+                }
                 "Explore" => {
                     return Transition::ConsumeState(Box::new(|state, ctx, app| {
                         let state = state.downcast::<QuickSketch>().ok().unwrap();
@@ -116,7 +133,7 @@ impl State<App> for QuickSketch {
         }
 
         if self.route_sketcher.event(ctx, app) {
-            self.update_top_panel(ctx);
+            self.update_top_panel(ctx, app);
         }
 
         if let Some(t) = self.layers.event(ctx, app) {
