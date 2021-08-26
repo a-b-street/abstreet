@@ -91,10 +91,11 @@ impl RoutePlanner {
 
         for (idx, waypt) in self.waypoints.iter().enumerate() {
             col.push(Widget::row(vec![
-                format!("{}) {}", waypt.order, waypt.label).text_widget(ctx),
-                // TODO Circular outline style?
+                format!("{}) {}", waypt.order, waypt.label)
+                    .text_widget(ctx)
+                    .centered_vert(),
                 ctx.style()
-                    .btn_outline
+                    .btn_plain_destructive
                     .text("X")
                     .build_widget(ctx, &format!("delete waypoint {}", idx)),
             ]));
