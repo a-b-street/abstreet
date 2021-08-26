@@ -381,11 +381,20 @@
 <span id="379">379</span>
 <span id="380">380</span>
 <span id="381">381</span>
+<span id="382">382</span>
+<span id="383">383</span>
+<span id="384">384</span>
+<span id="385">385</span>
+<span id="386">386</span>
+<span id="387">387</span>
+<span id="388">388</span>
+<span id="389">389</span>
+<span id="390">390</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
 <span class="kw">use</span> <span class="ident">geom::Distance</span>;
-<span class="kw">use</span> <span class="ident">map_gui::tools::PopupMsg</span>;
+<span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">Navigator</span>, <span class="ident">PopupMsg</span>};
 <span class="kw">use</span> <span class="ident">map_model::osm::RoadRank</span>;
 <span class="kw">use</span> <span class="ident">map_model::LaneType</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
@@ -482,6 +491,9 @@
                         <span class="self">self</span>.<span class="ident">update_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
                         <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition::Keep</span>);
                     },
+                    <span class="string">&quot;search&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition::Push</span>(<span class="ident">Navigator::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)));
+                    }
                     <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
             }));
             }
@@ -618,6 +630,12 @@
                     <span class="ident">legend_btn</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">unzoomed_arterial</span>, <span class="string">&quot;major street&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                     <span class="ident">legend_btn</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">unzoomed_residential</span>, <span class="string">&quot;minor street&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                 ]),
+                <span class="ident">ctx</span>.<span class="ident">style</span>()
+                    .<span class="ident">btn_plain</span>
+                    .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/search.svg&quot;</span>)
+                    .<span class="ident">hotkey</span>(<span class="ident">Key::K</span>)
+                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;search&quot;</span>)
+                    .<span class="ident">align_right</span>(),
             ]),
             <span class="ident">Widget::custom_row</span>({
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">row</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">Toggle::checkbox</span>(

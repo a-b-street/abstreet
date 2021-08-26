@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["make_top_panel",""]],"mod":[["bike_network",""],["labels",""],["layers",""],["magnifying",""],["quick_sketch",""],["route",""],["share",""]],"struct":[["ExploreMap",""]]});
+initSidebarItems({"fn":[["make_top_panel",""]],"mod":[["bike_network",""],["labels",""],["layers",""],["quick_sketch",""],["route",""],["share",""]],"struct":[["About",""],["ExploreMap",""]]});

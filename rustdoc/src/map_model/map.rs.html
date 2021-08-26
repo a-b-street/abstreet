@@ -818,6 +818,9 @@
 <span id="816">816</span>
 <span id="817">817</span>
 <span id="818">818</span>
+<span id="819">819</span>
+<span id="820">820</span>
+<span id="821">821</span>
 </pre><pre class="rust">
 <span class="doccomment">//! A bunch of (mostly read-only) queries on a Map.</span>
 
@@ -905,6 +908,9 @@
 
     <span class="doccomment">/// After deserializing a map directly, call this after.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">map_loaded_directly</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+        <span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::logic_bug</span>)]</span>
+        <span class="comment">// For debugging map file sizes</span>
+
         <span class="self">self</span>.<span class="ident">edits</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">new_edits</span>();
         <span class="self">self</span>.<span class="ident">recalculate_road_to_buildings</span>();
 
