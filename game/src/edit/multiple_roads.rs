@@ -8,8 +8,8 @@ use map_gui::tools::PopupMsg;
 use map_gui::ID;
 use map_model::{EditRoad, MapEdits, RoadID};
 use widgetry::{
-    Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State,
-    Text, TextExt, VerticalAlignment, Widget,
+    Color, Drawable, EventCtx, Fill, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
+    Panel, State, Text, TextExt, Texture, VerticalAlignment, Widget,
 };
 
 use crate::app::App;
@@ -81,21 +81,21 @@ impl SelectSegments {
         // Update the drawn view
         let mut batch = GeomBatch::new();
         let map = &app.primary.map;
-        let color = ctx.style().primary_fg;
-        // Some alpha is always useful, in case the player wants to peek at the lanes beneath
-        batch.push(
-            color.alpha(0.8),
-            map.get_r(self.base_road).get_thick_polygon(map),
-        );
+        let color = Color::CYAN;
+        // Point out the road we're using as the template
+        if let Ok(outline) = map
+            .get_r(self.base_road)
+            .get_thick_polygon(map)
+            .to_outline(Distance::meters(3.0))
+        {
+            batch.push(color.alpha(0.9), outline);
+        }
         for r in &self.candidates {
-            let polygon = map.get_r(*r).get_thick_polygon(map);
-            if self.current.contains(r) {
-                batch.push(color.alpha(0.5), polygon);
-            } else if let Ok(poly) = polygon.to_outline(Distance::meters(3.0)) {
-                batch.push(color.alpha(0.5), poly);
-            }
-            // If the road shape is for some reason too weird to produce the outline, just don't
-            // draw anything.
+            let alpha = if self.current.contains(r) { 0.9 } else { 0.5 };
+            batch.push(
+                Fill::ColoredTexture(Color::CYAN.alpha(alpha), Texture::CROSS_HATCH),
+                map.get_r(*r).get_thick_polygon(map),
+            );
         }
         self.draw = ctx.upload(batch);
 
