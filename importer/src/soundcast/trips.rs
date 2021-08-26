@@ -18,8 +18,10 @@ struct Trip {
 
 /// Transform the Seattle-wide `Endpoints` into specific `TripEndpoints` for this map. When the
 /// endpoint happens to be a building on the map, this is straightforward. Otherwise, the endpoint
-/// will snap to a border intersection. Trips beginning off-map, ending off-map, or both
-/// (pass-through trips) are all modelled.
+/// will snap to a border intersection.
+///
+/// When `only_passthrough_trips` is true, only trips beginning and ending off-map are returned.
+/// When it's false, all other trips are returned.
 fn endpoints(
     from: &Endpoint,
     to: &Endpoint,
@@ -31,6 +33,7 @@ fn endpoints(
     ),
     constraints: PathConstraints,
     maybe_huge_map: Option<&(&Map, HashMap<osm::OsmID, BuildingID>)>,
+    only_passthrough_trips: bool,
 ) -> Option<(TripEndpoint, TripEndpoint)> {
     let from_bldg = from
         .osm_building
@@ -41,9 +44,15 @@ fn endpoints(
         .and_then(|id| osm_id_to_bldg.get(&id))
         .map(|b| TripEndpoint::Bldg(*b));
 
-    // Easy case: totally within the map
-    if let (Some(b1), Some(b2)) = (from_bldg, to_bldg) {
-        return Some((b1, b2));
+    if only_passthrough_trips {
+        if from_bldg.is_some() || to_bldg.is_some() {
+            return None;
+        }
+    } else {
+        // Easy case: totally within the map
+        if let (Some(b1), Some(b2)) = (from_bldg, to_bldg) {
+            return Some((b1, b2));
+        }
     }
 
     // If it's a pass-through trip, check if the straight line between the endpoints even crosses
@@ -51,10 +60,10 @@ fn endpoints(
     // false positives and negatives with this approach; we could be more accurate by pathfinding
     // on the huge_map, but that would be incredibly slow.
     if from_bldg.is_none() && to_bldg.is_none() {
-        // TODO Don't enable pass-through trips yet. The time to generate the scenario, the
+        // TODO Don't enable pass-through trips yet in general. The time to generate the scenario, the
         // resulting scenario file, and the simulation runtime (and gridlockiness) all skyrocket.
         // Need to harden more things before enabling.
-        if true {
+        if !only_passthrough_trips {
             return None;
         }
 
@@ -161,7 +170,13 @@ impl BorderSnapper {
     }
 }
 
-fn clip_trips(map: &Map, popdat: &PopDat, huge_map: &Map, timer: &mut Timer) -> Vec<Trip> {
+fn clip_trips(
+    map: &Map,
+    popdat: &PopDat,
+    huge_map: &Map,
+    only_passthrough_trips: bool,
+    timer: &mut Timer,
+) -> Vec<Trip> {
     let maybe_huge_map = if map.get_name().map == "huge_seattle" {
         None
     } else {
@@ -193,6 +208,7 @@ fn clip_trips(map: &Map, popdat: &PopDat, huge_map: &Map, timer: &mut Timer) -> 
                     TripMode::Bike => PathConstraints::Bike,
                 },
                 maybe_huge_map.as_ref(),
+                only_passthrough_trips,
             )?;
             Some(Trip {
                 from,
@@ -211,17 +227,20 @@ fn clip_trips(map: &Map, popdat: &PopDat, huge_map: &Map, timer: &mut Timer) -> 
     trips
 }
 
-pub fn make_weekday_scenario(
+pub fn make_scenario(
+    scenario_name: &str,
     map: &Map,
     popdat: &PopDat,
     huge_map: &Map,
     timer: &mut Timer,
 ) -> Scenario {
+    let only_passthrough_trips = scenario_name == "passthrough";
+
     let mut individ_trips: Vec<Option<IndividTrip>> = Vec::new();
     // person -> (trip seq, index into individ_trips)
     let mut trips_per_person: MultiMap<OrigPersonID, ((usize, bool, usize), usize)> =
         MultiMap::new();
-    for trip in clip_trips(map, popdat, huge_map, timer) {
+    for trip in clip_trips(map, popdat, huge_map, only_passthrough_trips, timer) {
         let idx = individ_trips.len();
         individ_trips.push(Some(IndividTrip::new(
             trip.orig.depart_at,
@@ -272,7 +291,7 @@ pub fn make_weekday_scenario(
     }
 
     Scenario {
-        scenario_name: "weekday".to_string(),
+        scenario_name: scenario_name.to_string(),
         map_name: map.get_name().clone(),
         people,
         only_seed_buses: None,

@@ -4185,15 +4185,30 @@
       "uncompressed_size_bytes": 2752370,
       "compressed_size_bytes": 669553
     },
+    "data/system/us/seattle/scenarios/aurora_central/passthrough.bin": {
+      "checksum": "fda81701dfea84c4b830a8a12f32ce0c",
+      "uncompressed_size_bytes": 6805677,
+      "compressed_size_bytes": 1386499
+    },
     "data/system/us/seattle/scenarios/aurora_central/weekday.bin": {
       "checksum": "338199ad3f0b2a266fe18cf02e10da58",
       "uncompressed_size_bytes": 9719198,
       "compressed_size_bytes": 2455444
     },
+    "data/system/us/seattle/scenarios/aurora_north/passthrough.bin": {
+      "checksum": "2953a1cd6a06b66663f46225b354b144",
+      "uncompressed_size_bytes": 5297616,
+      "compressed_size_bytes": 1084419
+    },
     "data/system/us/seattle/scenarios/aurora_north/weekday.bin": {
       "checksum": "26faa8b5a9a6673e7166110ef1344bac",
       "uncompressed_size_bytes": 7491942,
       "compressed_size_bytes": 1862483
+    },
+    "data/system/us/seattle/scenarios/aurora_south/passthrough.bin": {
+      "checksum": "d1c196ab36ff71e1781ca6a98245c1b0",
+      "uncompressed_size_bytes": 5660480,
+      "compressed_size_bytes": 1131492
     },
     "data/system/us/seattle/scenarios/aurora_south/weekday.bin": {
       "checksum": "94075100eae86e0371b938943af74678",

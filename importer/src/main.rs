@@ -278,7 +278,8 @@ impl Job {
             if self.scenario {
                 if self.city == CityName::seattle() {
                     timer.start(format!("scenario for {}", name.describe()));
-                    let scenario = soundcast::make_weekday_scenario(
+                    let scenario = soundcast::make_scenario(
+                        "weekday",
                         maybe_map.as_ref().unwrap(),
                         maybe_popdat.as_ref().unwrap(),
                         maybe_huge_map.as_ref().unwrap(),
@@ -286,6 +287,19 @@ impl Job {
                     );
                     scenario.save();
                     timer.stop(format!("scenario for {}", name.describe()));
+
+                    if name.map.starts_with("aurora_") {
+                        timer.start(format!("pass-through scenario for {}", name.describe()));
+                        let secondary_scenario = soundcast::make_scenario(
+                            "passthrough",
+                            maybe_map.as_ref().unwrap(),
+                            maybe_popdat.as_ref().unwrap(),
+                            maybe_huge_map.as_ref().unwrap(),
+                            timer,
+                        );
+                        secondary_scenario.save();
+                        timer.stop(format!("pass-through scenario for {}", name.describe()));
+                    }
 
                     // This is a strange ordering.
                     if name.map == "downtown"
