@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["Tab",""]],"fn":[["make_top_panel",""]],"mod":[["bike_network",""],["labels",""],["layers",""],["quick_sketch",""],["route",""],["share",""]],"struct":[["About",""],["ExploreMap",""]],"trait":[["TakeLayers",""]]});
+initSidebarItems({"enum":[["Tab",""]],"mod":[["bike_network",""],["explore",""],["labels",""],["layers",""],["quick_sketch",""],["route",""],["share",""]],"struct":[["About",""]],"trait":[["TakeLayers",""]]});
