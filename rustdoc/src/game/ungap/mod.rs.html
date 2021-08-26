@@ -161,6 +161,12 @@
 <span id="159">159</span>
 <span id="160">160</span>
 <span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
+<span id="165">165</span>
+<span id="166">166</span>
+<span id="167">167</span>
 </pre><pre class="rust">
 <span class="kw">mod</span> <span class="ident">bike_network</span>;
 <span class="kw">mod</span> <span class="ident">explore</span>;
@@ -248,12 +254,18 @@
                 <span class="ident">Transition::Push</span>(<span class="ident">CityPicker::new_state</span>(
                     <span class="ident">ctx</span>,
                     <span class="ident">app</span>,
-                    <span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
+                    <span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
+                        <span class="comment">// Since we&#39;re totally changing maps, don&#39;t reuse the Layers</span>
+                        <span class="kw">let</span> <span class="ident">layers</span> <span class="op">=</span> <span class="ident">Layers::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
                         <span class="ident">Transition::Multi</span>(<span class="macro">vec!</span>[
                             <span class="ident">Transition::Pop</span>,
-                            <span class="comment">// Since we&#39;re totally changing maps, don&#39;t reuse the Layers</span>
-                            <span class="comment">// TODO Keep current tab...</span>
-                            <span class="ident">Transition::Replace</span>(<span class="ident">ExploreMap::launch</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)),
+                            <span class="ident">Transition::Replace</span>(<span class="kw">match</span> <span class="self">self</span> {
+                                <span class="ident">Tab::Explore</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ExploreMap::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">layers</span>),
+                                <span class="ident">Tab::Create</span> <span class="op">=</span><span class="op">&gt;</span> {
+                                    <span class="ident">quick_sketch::QuickSketch::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">layers</span>)
+                                }
+                                <span class="ident">Tab::Route</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">route::RoutePlanner::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">layers</span>),
+                            }),
                         ])
                     }),
                 ))
