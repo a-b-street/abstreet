@@ -431,6 +431,7 @@
 <span id="429">429</span>
 <span id="430">430</span>
 <span id="431">431</span>
+<span id="432">432</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 
@@ -525,10 +526,11 @@
 
         <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">waypt</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
             <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                <span class="macro">format!</span>(<span class="string">&quot;{}) {}&quot;</span>, <span class="ident">waypt</span>.<span class="ident">order</span>, <span class="ident">waypt</span>.<span class="ident">label</span>).<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
-                <span class="comment">// TODO Circular outline style?</span>
+                <span class="macro">format!</span>(<span class="string">&quot;{}) {}&quot;</span>, <span class="ident">waypt</span>.<span class="ident">order</span>, <span class="ident">waypt</span>.<span class="ident">label</span>)
+                    .<span class="ident">text_widget</span>(<span class="ident">ctx</span>)
+                    .<span class="ident">centered_vert</span>(),
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_outline</span>
+                    .<span class="ident">btn_plain_destructive</span>
                     .<span class="ident">text</span>(<span class="string">&quot;X&quot;</span>)
                     .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;delete waypoint {}&quot;</span>, <span class="ident">idx</span>)),
             ]));
