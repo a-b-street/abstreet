@@ -308,7 +308,6 @@
 <span id="306">306</span>
 <span id="307">307</span>
 <span id="308">308</span>
-<span id="309">309</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">abstutil::Tags</span>;
 <span class="kw">use</span> <span class="ident">map_gui::tools::PopupMsg</span>;
@@ -321,7 +320,7 @@
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::common::RouteSketcher</span>;
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::edit::apply_map_edits</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::ungap::layers::Layers</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::ungap</span>::{<span class="ident">make_tabs</span>, <span class="ident">Layers</span>, <span class="ident">Tab</span>};
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">QuickSketch</span> {
     <span class="ident">top_panel</span>: <span class="ident">Panel</span>,
@@ -341,7 +340,10 @@
     }
 
     <span class="kw">fn</span> <span class="ident">update_top_panel</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">col</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="self">self</span>.<span class="ident">route_sketcher</span>.<span class="ident">get_widget_to_describe</span>(<span class="ident">ctx</span>)];
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">col</span> <span class="op">=</span> <span class="macro">vec!</span>[
+            <span class="ident">make_tabs</span>(<span class="ident">ctx</span>, <span class="ident">Tab::Create</span>),
+            <span class="self">self</span>.<span class="ident">route_sketcher</span>.<span class="ident">get_widget_to_describe</span>(<span class="ident">ctx</span>),
+        ];
 
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">route_sketcher</span>.<span class="ident">is_route_started</span>() {
             <span class="comment">// We&#39;re usually replacing an existing panel, except the very first time.</span>
@@ -369,32 +371,18 @@
                 ),
             ]));
             <span class="ident">col</span>.<span class="ident">push</span>(
-                <span class="ident">Widget::custom_row</span>(<span class="macro">vec!</span>[
-                    <span class="ident">ctx</span>.<span class="ident">style</span>()
-                        .<span class="ident">btn_solid_primary</span>
-                        .<span class="ident">text</span>(<span class="string">&quot;Add bike lanes&quot;</span>)
-                        .<span class="ident">hotkey</span>(<span class="ident">Key::Enter</span>)
-                        .<span class="ident">disabled</span>(<span class="op">!</span><span class="self">self</span>.<span class="ident">route_sketcher</span>.<span class="ident">is_route_started</span>())
-                        .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-                    <span class="ident">ctx</span>.<span class="ident">style</span>()
-                        .<span class="ident">btn_solid_destructive</span>
-                        .<span class="ident">text</span>(<span class="string">&quot;Cancel&quot;</span>)
-                        .<span class="ident">hotkey</span>(<span class="ident">Key::Escape</span>)
-                        .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-                ])
+                <span class="ident">Widget::custom_row</span>(<span class="macro">vec!</span>[<span class="ident">ctx</span>
+                    .<span class="ident">style</span>()
+                    .<span class="ident">btn_solid_primary</span>
+                    .<span class="ident">text</span>(<span class="string">&quot;Add bike lanes&quot;</span>)
+                    .<span class="ident">hotkey</span>(<span class="ident">Key::Enter</span>)
+                    .<span class="ident">disabled</span>(<span class="op">!</span><span class="self">self</span>.<span class="ident">route_sketcher</span>.<span class="ident">is_route_started</span>())
+                    .<span class="ident">build_def</span>(<span class="ident">ctx</span>)])
                 .<span class="ident">evenly_spaced</span>(),
-            );
-        } <span class="kw">else</span> {
-            <span class="ident">col</span>.<span class="ident">push</span>(
-                <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_solid_destructive</span>
-                    .<span class="ident">text</span>(<span class="string">&quot;Cancel&quot;</span>)
-                    .<span class="ident">hotkey</span>(<span class="ident">Key::Escape</span>)
-                    .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
             );
         }
         <span class="self">self</span>.<span class="ident">top_panel</span> <span class="op">=</span> <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="ident">col</span>))
-            .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::Center</span>, <span class="ident">VerticalAlignment::Top</span>)
+            .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::Left</span>, <span class="ident">VerticalAlignment::Top</span>)
             .<span class="ident">build</span>(<span class="ident">ctx</span>);
     }
 }
@@ -403,10 +391,20 @@
     <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">top_panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
             <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
-                <span class="string">&quot;Cancel&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="string">&quot;Explore&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">return</span> <span class="ident">Transition::ConsumeState</span>(<span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
                         <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">downcast</span>::<span class="op">&lt;</span><span class="ident">QuickSketch</span><span class="op">&gt;</span>().<span class="ident">ok</span>().<span class="ident">unwrap</span>();
                         <span class="macro">vec!</span>[<span class="kw">crate</span><span class="ident">::ungap::ExploreMap::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">state</span>.<span class="ident">layers</span>)]
+                    }));
+                }
+                <span class="string">&quot;Plan a route&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="kw">return</span> <span class="ident">Transition::ConsumeState</span>(<span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
+                        <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">downcast</span>::<span class="op">&lt;</span><span class="ident">QuickSketch</span><span class="op">&gt;</span>().<span class="ident">ok</span>().<span class="ident">unwrap</span>();
+                        <span class="macro">vec!</span>[<span class="kw">crate</span><span class="ident">::ungap::route::RoutePlanner::new_state</span>(
+                            <span class="ident">ctx</span>,
+                            <span class="ident">app</span>,
+                            <span class="ident">state</span>.<span class="ident">layers</span>,
+                        )]
                     }));
                 }
                 <span class="string">&quot;Add bike lanes&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
