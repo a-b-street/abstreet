@@ -378,6 +378,20 @@
 <span id="376">376</span>
 <span id="377">377</span>
 <span id="378">378</span>
+<span id="379">379</span>
+<span id="380">380</span>
+<span id="381">381</span>
+<span id="382">382</span>
+<span id="383">383</span>
+<span id="384">384</span>
+<span id="385">385</span>
+<span id="386">386</span>
+<span id="387">387</span>
+<span id="388">388</span>
+<span id="389">389</span>
+<span id="390">390</span>
+<span id="391">391</span>
+<span id="392">392</span>
 </pre><pre class="rust">
 <span class="doccomment">//! It&#39;s assumed that the importer is run with the current directory as the project repository; aka</span>
 <span class="doccomment">//! `./data/` and `./importer/config` must exist.</span>
@@ -659,7 +673,8 @@
             <span class="kw">if</span> <span class="self">self</span>.<span class="ident">scenario</span> {
                 <span class="kw">if</span> <span class="self">self</span>.<span class="ident">city</span> <span class="op">=</span><span class="op">=</span> <span class="ident">CityName::seattle</span>() {
                     <span class="ident">timer</span>.<span class="ident">start</span>(<span class="macro">format!</span>(<span class="string">&quot;scenario for {}&quot;</span>, <span class="ident">name</span>.<span class="ident">describe</span>()));
-                    <span class="kw">let</span> <span class="ident">scenario</span> <span class="op">=</span> <span class="ident">soundcast::make_weekday_scenario</span>(
+                    <span class="kw">let</span> <span class="ident">scenario</span> <span class="op">=</span> <span class="ident">soundcast::make_scenario</span>(
+                        <span class="string">&quot;weekday&quot;</span>,
                         <span class="ident">maybe_map</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>(),
                         <span class="ident">maybe_popdat</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>(),
                         <span class="ident">maybe_huge_map</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>(),
@@ -667,6 +682,19 @@
                     );
                     <span class="ident">scenario</span>.<span class="ident">save</span>();
                     <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="macro">format!</span>(<span class="string">&quot;scenario for {}&quot;</span>, <span class="ident">name</span>.<span class="ident">describe</span>()));
+
+                    <span class="kw">if</span> <span class="ident">name</span>.<span class="ident">map</span>.<span class="ident">starts_with</span>(<span class="string">&quot;aurora_&quot;</span>) {
+                        <span class="ident">timer</span>.<span class="ident">start</span>(<span class="macro">format!</span>(<span class="string">&quot;pass-through scenario for {}&quot;</span>, <span class="ident">name</span>.<span class="ident">describe</span>()));
+                        <span class="kw">let</span> <span class="ident">secondary_scenario</span> <span class="op">=</span> <span class="ident">soundcast::make_scenario</span>(
+                            <span class="string">&quot;passthrough&quot;</span>,
+                            <span class="ident">maybe_map</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>(),
+                            <span class="ident">maybe_popdat</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>(),
+                            <span class="ident">maybe_huge_map</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>(),
+                            <span class="ident">timer</span>,
+                        );
+                        <span class="ident">secondary_scenario</span>.<span class="ident">save</span>();
+                        <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="macro">format!</span>(<span class="string">&quot;pass-through scenario for {}&quot;</span>, <span class="ident">name</span>.<span class="ident">describe</span>()));
+                    }
 
                     <span class="comment">// This is a strange ordering.</span>
                     <span class="kw">if</span> <span class="ident">name</span>.<span class="ident">map</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;downtown&quot;</span>
