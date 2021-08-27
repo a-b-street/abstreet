@@ -13,12 +13,12 @@ use map_model::{
 };
 use widgetry::{
     include_labeled_bytes, lctrl, Color, ControlState, DrawBaselayer, Drawable, EventCtx,
-    GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, MultiButton, Outcome, Panel, RewriteColor,
-    State, Text, TextExt, VerticalAlignment, Widget,
+    GeomBatch, GeomBatchStack, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
+    RewriteColor, State, Text, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, ShowEverything, Transition};
-use crate::common::{CommonState, Warping};
+use crate::common::CommonState;
 use crate::edit::{apply_map_edits, ConfirmDiscard};
 use crate::sandbox::GameplayMode;
 
@@ -263,25 +263,9 @@ impl State<App> for TrafficSignalEditor {
                 }
                 x => {
                     if let Some(x) = x.strip_prefix("stage ") {
-                        // 123, Intersection #456
-                        let parts = x.split(", Intersection #").collect::<Vec<_>>();
-                        let idx = parts[0].parse::<usize>().unwrap() - 1;
-                        let i = IntersectionID(parts[1].parse::<usize>().unwrap());
+                        let idx = x.parse::<usize>().unwrap() - 1;
                         self.change_stage(ctx, app, idx);
-                        let center = app.primary.map.get_i(i).polygon.center();
-                        // Constantly warping is really annoying, only do it if the intersection is
-                        // offscreen
-                        if ctx.canvas.get_screen_bounds().contains(center) {
-                            return Transition::Keep;
-                        } else {
-                            return Transition::Push(Warping::new_state(
-                                ctx,
-                                center,
-                                Some(15.0),
-                                None,
-                                &mut app.primary,
-                            ));
-                        }
+                        return Transition::Keep;
                     } else {
                         unreachable!()
                     }
@@ -712,26 +696,41 @@ fn make_side_panel(
 
     let mut stages_row = Vec::new();
     for idx in 0..canonical_signal.stages.len() {
-        let stage_btn = Widget::col(vec![
-            format!(
+        let mut stack = GeomBatchStack::vertical(vec![
+            Text::from(Line(format!(
                 "Stage {}: {}",
                 idx + 1,
                 match canonical_signal.stages[idx].stage_type {
                     StageType::Fixed(d) => format!("{}", d),
                     StageType::Variable(min, _, _) => format!("{} (v)", min),
                 },
-            )
-            .text_widget(ctx),
+            )))
+            .render(ctx),
             draw_multiple_signals(ctx, app, members, idx, &translations),
-        ])
-        .padding(10);
-        // TODO Add a proper hover state to these buttons. Complication is that they're
-        // MultiButtons...
-        stages_row.push(if idx == selected {
-            stage_btn.bg(ctx.style().btn_solid_primary.bg)
-        } else {
-            stage_btn
-        });
+        ]);
+        stack.set_spacing(10.0);
+
+        // Add padding and, for the current stage, a background
+        let mut button_geom = stack.batch().batch().container().padding(16);
+        if idx == selected {
+            // TODO The size of this current button slightly changes -- is it the corner rounding
+            // from the background?
+            button_geom = button_geom.bg(ctx.style().btn_solid_primary.bg);
+        }
+        let (batch, _) = button_geom.into_geom(ctx, None);
+
+        stages_row.push(
+            ctx.style()
+                .btn_solid
+                .btn()
+                .custom_batch(batch.clone(), ControlState::Default)
+                .custom_batch(
+                    batch.color(RewriteColor::ChangeAlpha(0.9)),
+                    ControlState::Hovered,
+                )
+                .disabled(idx == selected)
+                .build_widget(ctx, format!("stage {}", idx + 1)),
+        );
     }
     col.push(
         Widget::row(stages_row)
@@ -864,7 +863,7 @@ fn draw_multiple_signals(
     members: &BTreeSet<IntersectionID>,
     idx: usize,
     translations: &[(f64, f64)],
-) -> Widget {
+) -> GeomBatch {
     let mut batch = GeomBatch::new();
     for (i, (dx, dy)) in members.iter().zip(translations) {
         let mut piece = GeomBatch::new();
@@ -887,27 +886,10 @@ fn draw_multiple_signals(
 
     // Make the whole thing fit a fixed width
     let square_dims = 150.0;
-    let bounds_before = batch.get_bounds();
     batch = batch.autocrop();
     let bounds = batch.get_bounds();
     let zoom = (square_dims / bounds.width()).min(square_dims / bounds.height());
-    let batch = batch.scale(zoom);
-
-    // Figure out the hitboxes per intersection, after all of these transformations
-    let mut hitboxes = Vec::new();
-    for (i, (dx, dy)) in members.iter().zip(translations) {
-        hitboxes.push((
-            app.primary
-                .map
-                .get_i(*i)
-                .polygon
-                .clone()
-                .translate(*dx - bounds_before.min_x, *dy - bounds_before.min_y)
-                .scale(zoom),
-            format!("stage {}, {}", idx + 1, i),
-        ));
-    }
-    MultiButton::new_widget(ctx, batch, hitboxes).named(format!("stage {}", idx + 1))
+    batch.scale(zoom)
 }
 
 // TODO Move to geom?

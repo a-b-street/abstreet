@@ -1,10 +1,9 @@
-use geom::{Distance, Polygon};
+use geom::Polygon;
 
 use crate::{
     style::DEFAULT_OUTLINE_THICKNESS, text::Font, Color, ContentMode, ControlState, CornerRounding,
     Drawable, EdgeInsets, EventCtx, GeomBatch, GfxCtx, Image, Line, MultiKey, Outcome,
-    OutlineStyle, RewriteColor, ScreenDims, ScreenPt, ScreenRectangle, Text, Widget, WidgetImpl,
-    WidgetOutput,
+    OutlineStyle, RewriteColor, ScreenDims, ScreenPt, Text, Widget, WidgetImpl, WidgetOutput,
 };
 
 use crate::geom::geom_batch_stack::{Axis, GeomBatchStack};
@@ -727,76 +726,4 @@ struct Label {
     styled_text: Option<Text>,
     font_size: Option<usize>,
     font: Option<Font>,
-}
-
-// Like an image map from the old HTML days
-pub struct MultiButton {
-    draw: Drawable,
-    hitboxes: Vec<(Polygon, String)>,
-    hovering: Option<usize>,
-
-    top_left: ScreenPt,
-    dims: ScreenDims,
-}
-
-impl MultiButton {
-    pub fn new_widget(
-        ctx: &EventCtx,
-        batch: GeomBatch,
-        hitboxes: Vec<(Polygon, String)>,
-    ) -> Widget {
-        Widget::new(Box::new(MultiButton {
-            dims: batch.get_dims(),
-            top_left: ScreenPt::new(0.0, 0.0),
-            draw: ctx.upload(batch),
-            hitboxes,
-            hovering: None,
-        }))
-    }
-}
-
-impl WidgetImpl for MultiButton {
-    fn get_dims(&self) -> ScreenDims {
-        self.dims
-    }
-
-    fn set_pos(&mut self, top_left: ScreenPt) {
-        self.top_left = top_left;
-    }
-
-    fn event(&mut self, ctx: &mut EventCtx, output: &mut WidgetOutput) {
-        if ctx.redo_mouseover() {
-            self.hovering = None;
-            if let Some(cursor) = ctx.canvas.get_cursor_in_screen_space() {
-                if !ScreenRectangle::top_left(self.top_left, self.dims).contains(cursor) {
-                    return;
-                }
-                let translated =
-                    ScreenPt::new(cursor.x - self.top_left.x, cursor.y - self.top_left.y).to_pt();
-                // TODO Assume regions are non-overlapping
-                for (idx, (region, _)) in self.hitboxes.iter().enumerate() {
-                    if region.contains_pt(translated) {
-                        self.hovering = Some(idx);
-                        break;
-                    }
-                }
-            }
-        }
-        if let Some(idx) = self.hovering {
-            if ctx.normal_left_click() {
-                self.hovering = None;
-                output.outcome = Outcome::Clicked(self.hitboxes[idx].1.clone());
-            }
-        }
-    }
-
-    fn draw(&self, g: &mut GfxCtx) {
-        g.redraw_at(self.top_left, &self.draw);
-        if let Some(idx) = self.hovering {
-            if let Ok(p) = self.hitboxes[idx].0.to_outline(Distance::meters(1.0)) {
-                let draw = g.upload(GeomBatch::from(vec![(Color::YELLOW, p)]));
-                g.redraw_at(self.top_left, &draw);
-            }
-        }
-    }
 }

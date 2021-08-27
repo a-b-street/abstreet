@@ -16,7 +16,6 @@
 //! * [`JustDraw`] (argh private) - just draw text, `GeomBatch`es, SVGs
 //! * [`LinePlot`] - visualize 2 variables with a line plot
 //! * [`Menu`] - select something from a menu, with keybindings
-//! * [`MultiButton`] - clickable regions in one batch of geometry
 //! * [`PersistentSplit`] - a button with a dropdown to change its state
 //! * [`ScatterPlot`] - visualize 2 variables with a scatter plot
 //! * [`Slider`] - horizontal and vertical sliders
@@ -53,7 +52,7 @@ pub use crate::tools::warper::Warper;
 pub use crate::tools::Cached;
 pub use crate::widgets::autocomplete::Autocomplete;
 pub(crate) use crate::widgets::button::Button;
-pub use crate::widgets::button::{ButtonBuilder, MultiButton};
+pub use crate::widgets::button::ButtonBuilder;
 pub use crate::widgets::compare_times::CompareTimes;
 pub use crate::widgets::drag_drop::DragDrop;
 pub(crate) use crate::widgets::dropdown::Dropdown;
