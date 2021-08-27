@@ -119,7 +119,7 @@ impl Game {
     }
 
     fn update_time_panel(&mut self, ctx: &mut EventCtx, app: &App) {
-        let pct = (app.time - Time::START_OF_DAY) / self.state.level.time_limit;
+        let pct = ((app.time - Time::START_OF_DAY) / self.state.level.time_limit).min(1.0);
 
         let text_color = if pct < 0.75 { Color::WHITE } else { Color::RED };
         let label = Line(format!(
