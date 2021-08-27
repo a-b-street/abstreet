@@ -54,8 +54,12 @@ impl DrawNetworkLayer {
         // in love and war...
         batch.push(Color::BLACK.alpha(0.4), map.get_boundary_polygon().clone());
 
-        // Thicker lines as we zoom out. Scale up to 5x. Never shrink past the road's actual width
-        let thickness = (0.5 / zoom).max(1.0);
+        // Thicker lines as we zoom out. Scale up to 5x. Never shrink past the road's actual width.
+        let mut thickness = (0.5 / zoom).max(1.0);
+        // And on gigantic maps, zoom may approach 0, so avoid NaNs.
+        if !thickness.is_finite() {
+            thickness = 5.0;
+        }
 
         let mut intersections = HashMap::new();
         for r in map.all_roads() {
