@@ -195,6 +195,21 @@
       "uncompressed_size_bytes": 2425885,
       "compressed_size_bytes": 495562
     },
+    "data/input/fr/lyon/osm/center.osm": {
+      "checksum": "a0601eeacad9a77c88c686c828491bd9",
+      "uncompressed_size_bytes": 182486817,
+      "compressed_size_bytes": 18733631
+    },
+    "data/input/fr/lyon/osm/rhone-alpes-latest.osm.pbf": {
+      "checksum": "1c4e243b30c83b2c78429a64d76f1670",
+      "uncompressed_size_bytes": 396749128,
+      "compressed_size_bytes": 396388513
+    },
+    "data/input/fr/lyon/raw_maps/center.bin": {
+      "checksum": "06a433fbb17000f53bc93a470c8bbbc8",
+      "uncompressed_size_bytes": 44854572,
+      "compressed_size_bytes": 9872112
+    },
     "data/input/fr/paris/osm/center.osm": {
       "checksum": "224841aa32fafd0212b0b2e3cc200e9a",
       "uncompressed_size_bytes": 107158714,
@@ -1695,6 +1710,11 @@
       "uncompressed_size_bytes": 1718261,
       "compressed_size_bytes": 1690113
     },
+    "data/input/shared/elevation/srtm/srtm.4.45.tif": {
+      "checksum": "a97856f7cf7890eb04bbc6dd705f060f",
+      "uncompressed_size_bytes": 5640647,
+      "compressed_size_bytes": 5635699
+    },
     "data/input/shared/elevation/srtm/srtm.4.49.tif": {
       "checksum": "36aedf6e339748611462dee5bb9e20d4",
       "uncompressed_size_bytes": 4186298,
@@ -2404,6 +2424,11 @@
       "checksum": "03688d0c4e4c3221419374022a6b4baa",
       "uncompressed_size_bytes": 4628225,
       "compressed_size_bytes": 1673040
+    },
+    "data/system/fr/lyon/maps/center.bin": {
+      "checksum": "d85affbfa251a164710a57e392172892",
+      "uncompressed_size_bytes": 91978302,
+      "compressed_size_bytes": 33050850
     },
     "data/system/fr/paris/city.bin": {
       "checksum": "776a26d6b917b8faaf15b90995d7c4b5",

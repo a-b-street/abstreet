@@ -94,6 +94,7 @@ pub fn nice_map_name(name: &MapName) -> &str {
             ("charleville_mezieres", "secteur3") => "Charleville-Mézières (secteur 3)",
             ("charleville_mezieres", "secteur4") => "Charleville-Mézières (secteur 4)",
             ("charleville_mezieres", "secteur5") => "Charleville-Mézières (secteur 5)",
+            ("lyon", "center") => "Lyon",
             ("paris", "center") => "Paris (city center)",
             ("paris", "north") => "Paris (north)",
             ("paris", "south") => "Paris (south)",
