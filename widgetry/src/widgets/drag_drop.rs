@@ -41,6 +41,12 @@ enum State {
 }
 
 impl<T: 'static + Copy + PartialEq> DragDrop<T> {
+    /// This widget emits several events.
+    ///
+    /// - `Outcome::Changed(label)` when a different card is selected or hovered on
+    /// - `Outcome::Changed("dragging " + label)` while dragging, when the drop position of the
+    ///    card changes. Call `get_dragging_state` to learn the indices.
+    /// - `Outcome::DragDropReleased` when a card is dropped
     pub fn new(ctx: &EventCtx, label: &str) -> Self {
         DragDrop {
             label: label.to_string(),
@@ -110,8 +116,14 @@ impl<T: 'static + Copy + PartialEq> DragDrop<T> {
         self.state = State::Initial { selected, hovering };
     }
 
-    pub fn is_dragging(&self) -> bool {
-        matches!(self.state, State::Dragging { .. })
+    /// If a card is currently being dragged, return its original and (potential) new index.
+    pub fn get_dragging_state(&self) -> Option<(usize, usize)> {
+        match self.state {
+            State::Dragging {
+                orig_idx, new_idx, ..
+            } => Some((orig_idx, new_idx)),
+            _ => None,
+        }
     }
 }
 
@@ -268,11 +280,16 @@ impl<T: 'static + Copy + PartialEq> WidgetImpl for DragDrop<T> {
                         selected: Some(new_idx),
                     }
                 } else {
+                    // TODO https://jqueryui.com/sortable/ only swaps once you cross the center of
+                    // the new card
+                    let updated_idx = self.mouseover_card(ctx).unwrap_or(new_idx);
+                    if new_idx != updated_idx {
+                        output.outcome = Outcome::Changed(format!("dragging {}", self.label));
+                    }
+
                     State::Dragging {
                         orig_idx,
-                        // TODO https://jqueryui.com/sortable/ only swaps once you cross the center of
-                        // the new card
-                        new_idx: self.mouseover_card(ctx).unwrap_or(new_idx),
+                        new_idx: updated_idx,
                         cursor_at: ctx.canvas.get_cursor_in_screen_space().unwrap_or(cursor_at),
                         drag_from,
                     }

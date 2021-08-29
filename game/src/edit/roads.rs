@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use geom::{Bounds, CornerRadii, Distance, Polygon, Pt2D, UnitFmt};
-use map_gui::render::Renderable;
+use map_gui::render::{Renderable, OUTLINE_THICKNESS};
 use map_gui::tools::PopupMsg;
 use map_gui::ID;
 use map_model::{
@@ -30,6 +30,8 @@ pub struct RoadEditor {
 
     // (cache_key: (selected, hovering), Drawable)
     lane_highlights: ((Option<LaneID>, Option<LaneID>), Drawable),
+    // This gets updated during dragging, and is always cleared out when drag-and-drop ends.
+    draw_drop_position: Drawable,
 
     // Undo/redo management
     num_edit_cmds_originally: usize,
@@ -66,6 +68,7 @@ impl RoadEditor {
             main_panel: Panel::empty(ctx),
             fade_irrelevant: Drawable::empty(ctx),
             lane_highlights: ((None, None), Drawable::empty(ctx)),
+            draw_drop_position: Drawable::empty(ctx),
             hovering_on_lane: None,
 
             num_edit_cmds_originally: app.primary.map.get_edits().commands.len(),
@@ -370,6 +373,14 @@ impl State<App> for RoadEditor {
                     // hovering index changed
                     panels_need_recalc = true;
                 }
+                "dragging lane cards" => {
+                    let (from, to) = self
+                        .main_panel
+                        .find::<DragDrop<LaneID>>("lane cards")
+                        .get_dragging_state()
+                        .unwrap();
+                    self.draw_drop_position = draw_drop_position(app, self.r, from, to).upload(ctx);
+                }
                 "change to buffer" => {
                     let lt = self.main_panel.persistent_split_value("change to buffer");
                     app.session.buffer_lane_type = lt;
@@ -389,6 +400,8 @@ impl State<App> for RoadEditor {
                 _ => unreachable!(),
             },
             Outcome::DragDropReleased(_, old_idx, new_idx) => {
+                self.draw_drop_position = Drawable::empty(ctx);
+
                 if old_idx != new_idx {
                     let mut edits = app.primary.map.get_edits().clone();
                     edits
@@ -412,7 +425,8 @@ impl State<App> for RoadEditor {
         if self
             .main_panel
             .find::<DragDrop<LaneID>>("lane cards")
-            .is_dragging()
+            .get_dragging_state()
+            .is_some()
         {
             // Even if we drag the lane card into map-space, don't hover on anything in the map.
             self.hovering_on_lane = None;
@@ -460,6 +474,7 @@ impl State<App> for RoadEditor {
     fn draw(&self, g: &mut GfxCtx, _: &App) {
         g.redraw(&self.fade_irrelevant);
         g.redraw(&self.lane_highlights.1);
+        g.redraw(&self.draw_drop_position);
         self.top_panel.draw(g);
         self.main_panel.draw(g);
     }
@@ -985,4 +1000,22 @@ fn fade_irrelevant(app: &App, r: RoadID) -> GeomBatch {
         vec![Polygon::convex_hull(holes).into_ring()],
     );
     GeomBatch::from(vec![(app.cs.fade_map_dark, fade_area)])
+}
+
+fn draw_drop_position(app: &App, r: RoadID, from: usize, to: usize) -> GeomBatch {
+    let mut batch = GeomBatch::new();
+    if from == to {
+        return batch;
+    }
+    let mut width = Distance::ZERO;
+    let map = &app.primary.map;
+    let road = map.get_r(r);
+    let take_num = if from < to { to + 1 } else { to };
+    for (l, _, _) in road.lanes_ltr().into_iter().take(take_num) {
+        width += map.get_l(l).width;
+    }
+    if let Ok(pl) = road.get_left_side(map).shift_right(width) {
+        batch.push(app.cs.selected, pl.make_polygons(OUTLINE_THICKNESS));
+    }
+    batch
 }

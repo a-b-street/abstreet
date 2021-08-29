@@ -180,6 +180,7 @@ impl Road {
             .collect()
     }
 
+    /// Gets the left PolyLine of the road
     pub fn get_left_side(&self, map: &Map) -> PolyLine {
         self.center_pts.must_shift_left(self.get_half_width(map))
     }
@@ -519,13 +520,9 @@ impl Road {
         lane_specs_ltr: Vec<LaneSpec>,
         lane_id_counter: &mut usize,
     ) -> Vec<Lane> {
-        let mut total_back_width = Distance::ZERO;
         let mut total_width = Distance::ZERO;
         for lane in &lane_specs_ltr {
             total_width += lane.width;
-            if lane.dir == Direction::Back {
-                total_back_width += lane.width;
-            }
         }
         // TODO Maybe easier to use the road's "yellow center line" and shift left/right from
         // there.
