@@ -17,6 +17,7 @@ use crate::ungap::labels::DrawRoadLabels;
 /// A bottom-right panel for managing a bunch of toggleable layers in the "ungap the map" tool.
 pub struct Layers {
     panel: Panel,
+    minimized: bool,
     bike_network: Option<DrawNetworkLayer>,
     labels: Option<DrawRoadLabels>,
     elevation: bool,
@@ -32,6 +33,7 @@ impl Layers {
     pub fn new(ctx: &mut EventCtx, app: &App) -> Layers {
         let mut l = Layers {
             panel: Panel::empty(ctx),
+            minimized: false,
             bike_network: Some(DrawNetworkLayer::new()),
             labels: Some(DrawRoadLabels::new()),
             elevation: false,
@@ -99,7 +101,17 @@ impl Layers {
                         return Some(Transition::Keep);
                     },
                     "search" => {
-                        return Some(Transition::Push(Navigator::new_state(ctx, app)));
+                        Navigator::new_state(ctx, app)
+                    }
+                    "hide panel" => {
+                        self.minimized = true;
+                        self.update_panel(ctx, app);
+                        return Some(Transition::Keep);
+                    }
+                    "show panel" => {
+                        self.minimized = false;
+                        self.update_panel(ctx, app);
+                        return Some(Transition::Keep);
                     }
                     _ => unreachable!(),
             }));
@@ -206,6 +218,14 @@ impl Layers {
     }
 
     fn make_legend(&self, ctx: &mut EventCtx, app: &App) -> Widget {
+        if self.minimized {
+            return ctx
+                .style()
+                .btn_plain
+                .icon("system/assets/tools/maximize.svg")
+                .build_widget(ctx, "show panel");
+        }
+
         Widget::col(vec![
             Widget::row(vec![
                 Image::from_path("system/assets/tools/layers.svg")
@@ -222,7 +242,11 @@ impl Layers {
                     .btn_plain
                     .icon("system/assets/tools/search.svg")
                     .hotkey(Key::K)
-                    .build_widget(ctx, "search")
+                    .build_widget(ctx, "search"),
+                ctx.style()
+                    .btn_plain
+                    .icon("system/assets/tools/minimize.svg")
+                    .build_widget(ctx, "hide panel")
                     .align_right(),
             ]),
             Widget::custom_row({
