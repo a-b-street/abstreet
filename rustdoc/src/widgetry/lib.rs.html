@@ -232,7 +232,6 @@
 <span id="230">230</span>
 <span id="231">231</span>
 <span id="232">232</span>
-<span id="233">233</span>
 </pre><pre class="rust">
 <span class="doccomment">//! # Widgets</span>
 <span class="doccomment">//!</span>
@@ -252,7 +251,6 @@
 <span class="doccomment">//! * [`JustDraw`] (argh private) - just draw text, `GeomBatch`es, SVGs</span>
 <span class="doccomment">//! * [`LinePlot`] - visualize 2 variables with a line plot</span>
 <span class="doccomment">//! * [`Menu`] - select something from a menu, with keybindings</span>
-<span class="doccomment">//! * [`MultiButton`] - clickable regions in one batch of geometry</span>
 <span class="doccomment">//! * [`PersistentSplit`] - a button with a dropdown to change its state</span>
 <span class="doccomment">//! * [`ScatterPlot`] - visualize 2 variables with a scatter plot</span>
 <span class="doccomment">//! * [`Slider`] - horizontal and vertical sliders</span>
@@ -289,7 +287,7 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::tools::Cached</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::widgets::autocomplete::Autocomplete</span>;
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::widgets::button::Button</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::widgets::button</span>::{<span class="ident">ButtonBuilder</span>, <span class="ident">MultiButton</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::widgets::button::ButtonBuilder</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::widgets::compare_times::CompareTimes</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::widgets::drag_drop::DragDrop</span>;
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::widgets::dropdown::Dropdown</span>;

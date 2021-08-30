@@ -966,22 +966,6 @@
 <span id="964">964</span>
 <span id="965">965</span>
 <span id="966">966</span>
-<span id="967">967</span>
-<span id="968">968</span>
-<span id="969">969</span>
-<span id="970">970</span>
-<span id="971">971</span>
-<span id="972">972</span>
-<span id="973">973</span>
-<span id="974">974</span>
-<span id="975">975</span>
-<span id="976">976</span>
-<span id="977">977</span>
-<span id="978">978</span>
-<span id="979">979</span>
-<span id="980">980</span>
-<span id="981">981</span>
-<span id="982">982</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeSet</span>, <span class="ident">VecDeque</span>};
 
@@ -997,13 +981,13 @@
     <span class="ident">TurnPriority</span>,
 };
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">include_labeled_bytes</span>, <span class="ident">lctrl</span>, <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">DrawBaselayer</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>,
-    <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">MultiButton</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">RewriteColor</span>,
-    <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">include_labeled_bytes</span>, <span class="ident">lctrl</span>, <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">DragDrop</span>, <span class="ident">DrawBaselayer</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>,
+    <span class="ident">GeomBatch</span>, <span class="ident">GeomBatchStack</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Image</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>,
+    <span class="ident">RewriteColor</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::app</span>::{<span class="ident">App</span>, <span class="ident">ShowEverything</span>, <span class="ident">Transition</span>};
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::common</span>::{<span class="ident">CommonState</span>, <span class="ident">Warping</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::common::CommonState</span>;
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::edit</span>::{<span class="ident">apply_map_edits</span>, <span class="ident">ConfirmDiscard</span>};
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::sandbox::GameplayMode</span>;
 
@@ -1193,8 +1177,8 @@
             .<span class="ident">get_traffic_signal</span>(<span class="kw-2">*</span><span class="self">self</span>.<span class="ident">members</span>.<span class="ident">iter</span>().<span class="ident">next</span>().<span class="ident">unwrap</span>());
         <span class="kw">let</span> <span class="ident">num_stages</span> <span class="op">=</span> <span class="ident">canonical_signal</span>.<span class="ident">stages</span>.<span class="ident">len</span>();
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">side_panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
+        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">side_panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
+            <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
                 <span class="string">&quot;Edit entire signal&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">edits::edit_entire_signal</span>(
                         <span class="ident">ctx</span>,
@@ -1232,46 +1216,30 @@
                     });
                     <span class="kw">return</span> <span class="ident">Transition::Keep</span>;
                 }
-                <span class="string">&quot;move stage left&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">current_stage</span>;
-                    <span class="self">self</span>.<span class="ident">add_new_edit</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">idx</span> <span class="op">-</span> <span class="number">1</span>, <span class="op">|</span><span class="ident">ts</span><span class="op">|</span> {
-                        <span class="ident">ts</span>.<span class="ident">stages</span>.<span class="ident">swap</span>(<span class="ident">idx</span>, <span class="ident">idx</span> <span class="op">-</span> <span class="number">1</span>);
-                    });
+                <span class="string">&quot;previous stage&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="self">self</span>.<span class="ident">change_stage</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">current_stage</span> <span class="op">-</span> <span class="number">1</span>);
                     <span class="kw">return</span> <span class="ident">Transition::Keep</span>;
                 }
-                <span class="string">&quot;move stage right&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">current_stage</span>;
-                    <span class="self">self</span>.<span class="ident">add_new_edit</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>, <span class="op">|</span><span class="ident">ts</span><span class="op">|</span> {
-                        <span class="ident">ts</span>.<span class="ident">stages</span>.<span class="ident">swap</span>(<span class="ident">idx</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>);
-                    });
+                <span class="string">&quot;next stage&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="self">self</span>.<span class="ident">change_stage</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">current_stage</span> <span class="op">+</span> <span class="number">1</span>);
                     <span class="kw">return</span> <span class="ident">Transition::Keep</span>;
                 }
                 <span class="ident">x</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="ident">x</span>.<span class="ident">strip_prefix</span>(<span class="string">&quot;stage &quot;</span>) {
-                        <span class="comment">// 123, Intersection #456</span>
-                        <span class="kw">let</span> <span class="ident">parts</span> <span class="op">=</span> <span class="ident">x</span>.<span class="ident">split</span>(<span class="string">&quot;, Intersection #&quot;</span>).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
-                        <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="ident">parts</span>[<span class="number">0</span>].<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>() <span class="op">-</span> <span class="number">1</span>;
-                        <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">IntersectionID</span>(<span class="ident">parts</span>[<span class="number">1</span>].<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>());
+                        <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="ident">x</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>() <span class="op">-</span> <span class="number">1</span>;
                         <span class="self">self</span>.<span class="ident">change_stage</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">idx</span>);
-                        <span class="kw">let</span> <span class="ident">center</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>).<span class="ident">polygon</span>.<span class="ident">center</span>();
-                        <span class="comment">// Constantly warping is really annoying, only do it if the intersection is</span>
-                        <span class="comment">// offscreen</span>
-                        <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_screen_bounds</span>().<span class="ident">contains</span>(<span class="ident">center</span>) {
-                            <span class="kw">return</span> <span class="ident">Transition::Keep</span>;
-                        } <span class="kw">else</span> {
-                            <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">Warping::new_state</span>(
-                                <span class="ident">ctx</span>,
-                                <span class="ident">center</span>,
-                                <span class="prelude-val">Some</span>(<span class="number">15.0</span>),
-                                <span class="prelude-val">None</span>,
-                                <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">app</span>.<span class="ident">primary</span>,
-                            ));
-                        }
+                        <span class="kw">return</span> <span class="ident">Transition::Keep</span>;
                     } <span class="kw">else</span> {
                         <span class="macro">unreachable!</span>()
                     }
                 }
+            },
+            <span class="ident">Outcome::DragDropReleased</span>(<span class="kw">_</span>, <span class="ident">old_idx</span>, <span class="ident">new_idx</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="self">self</span>.<span class="ident">add_new_edit</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">new_idx</span>, <span class="op">|</span><span class="ident">ts</span><span class="op">|</span> {
+                    <span class="ident">ts</span>.<span class="ident">stages</span>.<span class="ident">swap</span>(<span class="ident">old_idx</span>, <span class="ident">new_idx</span>);
+                });
             }
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
         }
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">top_panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
@@ -1649,14 +1617,14 @@
                     <span class="string">&quot;../../../../widgetry/icons/arrow_left.svg&quot;</span>
                 ))
                 .<span class="ident">disabled</span>(<span class="ident">selected</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span>)
-                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;move stage left&quot;</span>),
+                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;previous stage&quot;</span>),
             <span class="ident">ctx</span>.<span class="ident">style</span>()
                 .<span class="ident">btn_plain</span>
                 .<span class="ident">icon_bytes</span>(<span class="macro">include_labeled_bytes!</span>(
                     <span class="string">&quot;../../../../widgetry/icons/arrow_right.svg&quot;</span>
                 ))
                 .<span class="ident">disabled</span>(<span class="ident">selected</span> <span class="op">=</span><span class="op">=</span> <span class="ident">canonical_signal</span>.<span class="ident">stages</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>)
-                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;move stage right&quot;</span>),
+                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;next stage&quot;</span>),
             <span class="kw">match</span> <span class="ident">canonical_signal</span>.<span class="ident">stages</span>[<span class="ident">selected</span>].<span class="ident">stage_type</span> {
                 <span class="ident">StageType::Fixed</span>(<span class="ident">d</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">format!</span>(<span class="string">&quot;Stage duration: {}&quot;</span>, <span class="ident">d</span>),
                 <span class="ident">StageType::Variable</span>(<span class="ident">min</span>, <span class="ident">delay</span>, <span class="ident">additional</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">format!</span>(
@@ -1695,34 +1663,49 @@
             .<span class="ident">collect</span>(),
     );
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stages_row</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">drag_drop</span> <span class="op">=</span> <span class="ident">DragDrop::new</span>(<span class="ident">ctx</span>, <span class="string">&quot;stage cards&quot;</span>);
     <span class="kw">for</span> <span class="ident">idx</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">canonical_signal</span>.<span class="ident">stages</span>.<span class="ident">len</span>() {
-        <span class="kw">let</span> <span class="ident">stage_btn</span> <span class="op">=</span> <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-            <span class="macro">format!</span>(
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stack</span> <span class="op">=</span> <span class="ident">GeomBatchStack::vertical</span>(<span class="macro">vec!</span>[
+            <span class="ident">Text::from</span>(<span class="ident">Line</span>(<span class="macro">format!</span>(
                 <span class="string">&quot;Stage {}: {}&quot;</span>,
                 <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>,
                 <span class="kw">match</span> <span class="ident">canonical_signal</span>.<span class="ident">stages</span>[<span class="ident">idx</span>].<span class="ident">stage_type</span> {
                     <span class="ident">StageType::Fixed</span>(<span class="ident">d</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">d</span>),
                     <span class="ident">StageType::Variable</span>(<span class="ident">min</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">format!</span>(<span class="string">&quot;{} (v)&quot;</span>, <span class="ident">min</span>),
                 },
-            )
-            .<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
+            )))
+            .<span class="ident">render</span>(<span class="ident">ctx</span>),
             <span class="ident">draw_multiple_signals</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">members</span>, <span class="ident">idx</span>, <span class="kw-2">&amp;</span><span class="ident">translations</span>),
-        ])
-        .<span class="ident">padding</span>(<span class="number">10</span>);
-        <span class="comment">// TODO Add a proper hover state to these buttons. Complication is that they&#39;re</span>
-        <span class="comment">// MultiButtons...</span>
-        <span class="ident">stages_row</span>.<span class="ident">push</span>(<span class="kw">if</span> <span class="ident">idx</span> <span class="op">=</span><span class="op">=</span> <span class="ident">selected</span> {
-            <span class="ident">stage_btn</span>.<span class="ident">bg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_solid_primary</span>.<span class="ident">bg</span>)
-        } <span class="kw">else</span> {
-            <span class="ident">stage_btn</span>
-        });
+        ]);
+        <span class="ident">stack</span>.<span class="ident">set_spacing</span>(<span class="number">10.0</span>);
+        <span class="kw">let</span> <span class="ident">icon_batch</span> <span class="op">=</span> <span class="ident">stack</span>.<span class="ident">batch</span>();
+        <span class="kw">let</span> <span class="ident">icon_bounds</span> <span class="op">=</span> <span class="ident">icon_batch</span>.<span class="ident">get_bounds</span>();
+        <span class="kw">let</span> <span class="ident">image</span> <span class="op">=</span> <span class="ident">Image::from_batch</span>(<span class="ident">icon_batch</span>, <span class="ident">icon_bounds</span>)
+            .<span class="ident">dims</span>(<span class="number">150.0</span>)
+            .<span class="ident">color</span>(<span class="ident">RewriteColor::NoOp</span>)
+            .<span class="ident">padding</span>(<span class="number">16</span>);
+        <span class="kw">let</span> (<span class="ident">default_batch</span>, <span class="ident">bounds</span>) <span class="op">=</span> <span class="ident">image</span>.<span class="ident">clone</span>().<span class="ident">build_batch</span>(<span class="ident">ctx</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> (<span class="ident">hovering_batch</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">image</span>
+            .<span class="ident">clone</span>()
+            .<span class="ident">bg_color</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_tab</span>.<span class="ident">bg_disabled</span>.<span class="ident">dull</span>(<span class="number">0.3</span>))
+            .<span class="ident">build_batch</span>(<span class="ident">ctx</span>)
+            .<span class="ident">unwrap</span>();
+        <span class="kw">let</span> (<span class="ident">selected_batch</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">image</span>
+            .<span class="ident">bg_color</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_solid_primary</span>.<span class="ident">bg</span>)
+            .<span class="ident">build_batch</span>(<span class="ident">ctx</span>)
+            .<span class="ident">unwrap</span>();
+
+        <span class="ident">drag_drop</span>.<span class="ident">push_card</span>(
+            <span class="ident">idx</span>,
+            <span class="ident">bounds</span>.<span class="ident">into</span>(),
+            <span class="ident">default_batch</span>,
+            <span class="ident">hovering_batch</span>,
+            <span class="ident">selected_batch</span>,
+        );
     }
-    <span class="ident">col</span>.<span class="ident">push</span>(
-        <span class="ident">Widget::row</span>(<span class="ident">stages_row</span>)
-            .<span class="ident">padding</span>(<span class="number">10</span>)
-            .<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">inner_panel_bg</span>),
-    );
+    <span class="ident">drag_drop</span>.<span class="ident">set_initial_state</span>(<span class="prelude-val">Some</span>(<span class="ident">selected</span>), <span class="prelude-val">None</span>);
+
+    <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">drag_drop</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;stage cards&quot;</span>));
 
     <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
         <span class="comment">// TODO Say &quot;normally&quot; to account for variable stages?</span>
@@ -1749,6 +1732,8 @@
 
     <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="ident">col</span>))
         .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::Left</span>, <span class="ident">VerticalAlignment::Center</span>)
+        <span class="comment">// Hovering on a stage card after dropping it produces Outcome::Changed</span>
+        .<span class="ident">ignore_initial_events</span>()
         .<span class="ident">build</span>(<span class="ident">ctx</span>)
 }
 
@@ -1849,7 +1834,7 @@
     <span class="ident">members</span>: <span class="kw-2">&amp;</span><span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span>,
     <span class="ident">idx</span>: <span class="ident">usize</span>,
     <span class="ident">translations</span>: <span class="kw-2">&amp;</span>[(<span class="ident">f64</span>, <span class="ident">f64</span>)],
-) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">GeomBatch</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
     <span class="kw">for</span> (<span class="ident">i</span>, (<span class="ident">dx</span>, <span class="ident">dy</span>)) <span class="kw">in</span> <span class="ident">members</span>.<span class="ident">iter</span>().<span class="ident">zip</span>(<span class="ident">translations</span>) {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">piece</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
@@ -1872,27 +1857,10 @@
 
     <span class="comment">// Make the whole thing fit a fixed width</span>
     <span class="kw">let</span> <span class="ident">square_dims</span> <span class="op">=</span> <span class="number">150.0</span>;
-    <span class="kw">let</span> <span class="ident">bounds_before</span> <span class="op">=</span> <span class="ident">batch</span>.<span class="ident">get_bounds</span>();
     <span class="ident">batch</span> <span class="op">=</span> <span class="ident">batch</span>.<span class="ident">autocrop</span>();
     <span class="kw">let</span> <span class="ident">bounds</span> <span class="op">=</span> <span class="ident">batch</span>.<span class="ident">get_bounds</span>();
     <span class="kw">let</span> <span class="ident">zoom</span> <span class="op">=</span> (<span class="ident">square_dims</span> <span class="op">/</span> <span class="ident">bounds</span>.<span class="ident">width</span>()).<span class="ident">min</span>(<span class="ident">square_dims</span> <span class="op">/</span> <span class="ident">bounds</span>.<span class="ident">height</span>());
-    <span class="kw">let</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">batch</span>.<span class="ident">scale</span>(<span class="ident">zoom</span>);
-
-    <span class="comment">// Figure out the hitboxes per intersection, after all of these transformations</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">hitboxes</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-    <span class="kw">for</span> (<span class="ident">i</span>, (<span class="ident">dx</span>, <span class="ident">dy</span>)) <span class="kw">in</span> <span class="ident">members</span>.<span class="ident">iter</span>().<span class="ident">zip</span>(<span class="ident">translations</span>) {
-        <span class="ident">hitboxes</span>.<span class="ident">push</span>((
-            <span class="ident">app</span>.<span class="ident">primary</span>
-                .<span class="ident">map</span>
-                .<span class="ident">get_i</span>(<span class="kw-2">*</span><span class="ident">i</span>)
-                .<span class="ident">polygon</span>
-                .<span class="ident">clone</span>()
-                .<span class="ident">translate</span>(<span class="kw-2">*</span><span class="ident">dx</span> <span class="op">-</span> <span class="ident">bounds_before</span>.<span class="ident">min_x</span>, <span class="kw-2">*</span><span class="ident">dy</span> <span class="op">-</span> <span class="ident">bounds_before</span>.<span class="ident">min_y</span>)
-                .<span class="ident">scale</span>(<span class="ident">zoom</span>),
-            <span class="macro">format!</span>(<span class="string">&quot;stage {}, {}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>, <span class="ident">i</span>),
-        ));
-    }
-    <span class="ident">MultiButton::new_widget</span>(<span class="ident">ctx</span>, <span class="ident">batch</span>, <span class="ident">hitboxes</span>).<span class="ident">named</span>(<span class="macro">format!</span>(<span class="string">&quot;stage {}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>))
+    <span class="ident">batch</span>.<span class="ident">scale</span>(<span class="ident">zoom</span>)
 }
 
 <span class="comment">// TODO Move to geom?</span>
