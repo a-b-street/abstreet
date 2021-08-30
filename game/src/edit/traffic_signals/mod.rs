@@ -12,8 +12,8 @@ use map_model::{
     TurnPriority,
 };
 use widgetry::{
-    include_labeled_bytes, lctrl, Color, ControlState, DrawBaselayer, Drawable, EventCtx,
-    GeomBatch, GeomBatchStack, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
+    include_labeled_bytes, lctrl, Color, ControlState, DragDrop, DrawBaselayer, Drawable, EventCtx,
+    GeomBatch, GeomBatchStack, GfxCtx, HorizontalAlignment, Image, Key, Line, Outcome, Panel,
     RewriteColor, State, Text, TextExt, VerticalAlignment, Widget,
 };
 
@@ -208,8 +208,8 @@ impl State<App> for TrafficSignalEditor {
             .get_traffic_signal(*self.members.iter().next().unwrap());
         let num_stages = canonical_signal.stages.len();
 
-        if let Outcome::Clicked(x) = self.side_panel.event(ctx) {
-            match x.as_ref() {
+        match self.side_panel.event(ctx) {
+            Outcome::Clicked(x) => match x.as_ref() {
                 "Edit entire signal" => {
                     return Transition::Push(edits::edit_entire_signal(
                         ctx,
@@ -247,18 +247,12 @@ impl State<App> for TrafficSignalEditor {
                     });
                     return Transition::Keep;
                 }
-                "move stage left" => {
-                    let idx = self.current_stage;
-                    self.add_new_edit(ctx, app, idx - 1, |ts| {
-                        ts.stages.swap(idx, idx - 1);
-                    });
+                "previous stage" => {
+                    self.change_stage(ctx, app, self.current_stage - 1);
                     return Transition::Keep;
                 }
-                "move stage right" => {
-                    let idx = self.current_stage;
-                    self.add_new_edit(ctx, app, idx + 1, |ts| {
-                        ts.stages.swap(idx, idx + 1);
-                    });
+                "next stage" => {
+                    self.change_stage(ctx, app, self.current_stage + 1);
                     return Transition::Keep;
                 }
                 x => {
@@ -270,7 +264,13 @@ impl State<App> for TrafficSignalEditor {
                         unreachable!()
                     }
                 }
+            },
+            Outcome::DragDropReleased(_, old_idx, new_idx) => {
+                self.add_new_edit(ctx, app, new_idx, |ts| {
+                    ts.stages.swap(old_idx, new_idx);
+                });
             }
+            _ => {}
         }
 
         if let Outcome::Clicked(x) = self.top_panel.event(ctx) {
@@ -648,14 +648,14 @@ fn make_side_panel(
                     "../../../../widgetry/icons/arrow_left.svg"
                 ))
                 .disabled(selected == 0)
-                .build_widget(ctx, "move stage left"),
+                .build_widget(ctx, "previous stage"),
             ctx.style()
                 .btn_plain
                 .icon_bytes(include_labeled_bytes!(
                     "../../../../widgetry/icons/arrow_right.svg"
                 ))
                 .disabled(selected == canonical_signal.stages.len() - 1)
-                .build_widget(ctx, "move stage right"),
+                .build_widget(ctx, "next stage"),
             match canonical_signal.stages[selected].stage_type {
                 StageType::Fixed(d) => format!("Stage duration: {}", d),
                 StageType::Variable(min, delay, additional) => format!(
@@ -694,7 +694,7 @@ fn make_side_panel(
             .collect(),
     );
 
-    let mut stages_row = Vec::new();
+    let mut drag_drop = DragDrop::new(ctx, "stage cards");
     for idx in 0..canonical_signal.stages.len() {
         let mut stack = GeomBatchStack::vertical(vec![
             Text::from(Line(format!(
@@ -709,34 +709,34 @@ fn make_side_panel(
             draw_multiple_signals(ctx, app, members, idx, &translations),
         ]);
         stack.set_spacing(10.0);
+        let icon_batch = stack.batch();
+        let icon_bounds = icon_batch.get_bounds();
+        let image = Image::from_batch(icon_batch, icon_bounds)
+            .dims(150.0)
+            .color(RewriteColor::NoOp)
+            .padding(16);
+        let (default_batch, bounds) = image.clone().build_batch(ctx).unwrap();
+        let (hovering_batch, _) = image
+            .clone()
+            .bg_color(ctx.style().btn_tab.bg_disabled.dull(0.3))
+            .build_batch(ctx)
+            .unwrap();
+        let (selected_batch, _) = image
+            .bg_color(ctx.style().btn_solid_primary.bg)
+            .build_batch(ctx)
+            .unwrap();
 
-        // Add padding and, for the current stage, a background
-        let mut button_geom = stack.batch().batch().container().padding(16);
-        if idx == selected {
-            // TODO The size of this current button slightly changes -- is it the corner rounding
-            // from the background?
-            button_geom = button_geom.bg(ctx.style().btn_solid_primary.bg);
-        }
-        let (batch, _) = button_geom.into_geom(ctx, None);
-
-        stages_row.push(
-            ctx.style()
-                .btn_solid
-                .btn()
-                .custom_batch(batch.clone(), ControlState::Default)
-                .custom_batch(
-                    batch.color(RewriteColor::ChangeAlpha(0.9)),
-                    ControlState::Hovered,
-                )
-                .disabled(idx == selected)
-                .build_widget(ctx, format!("stage {}", idx + 1)),
+        drag_drop.push_card(
+            idx,
+            bounds.into(),
+            default_batch,
+            hovering_batch,
+            selected_batch,
         );
     }
-    col.push(
-        Widget::row(stages_row)
-            .padding(10)
-            .bg(app.cs.inner_panel_bg),
-    );
+    drag_drop.set_initial_state(Some(selected), None);
+
+    col.push(drag_drop.into_widget(ctx).named("stage cards"));
 
     col.push(Widget::row(vec![
         // TODO Say "normally" to account for variable stages?
@@ -763,6 +763,8 @@ fn make_side_panel(
 
     Panel::new_builder(Widget::col(col))
         .aligned(HorizontalAlignment::Left, VerticalAlignment::Center)
+        // Hovering on a stage card after dropping it produces Outcome::Changed
+        .ignore_initial_events()
         .build(ctx)
 }
 

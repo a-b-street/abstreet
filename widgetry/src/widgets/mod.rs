@@ -833,23 +833,13 @@ impl EdgeInsets {
 
 impl From<usize> for EdgeInsets {
     fn from(uniform_size: usize) -> EdgeInsets {
-        EdgeInsets {
-            top: uniform_size as f64,
-            left: uniform_size as f64,
-            bottom: uniform_size as f64,
-            right: uniform_size as f64,
-        }
+        EdgeInsets::uniform(uniform_size as f64)
     }
 }
 
 impl From<f64> for EdgeInsets {
     fn from(uniform_size: f64) -> EdgeInsets {
-        EdgeInsets {
-            top: uniform_size,
-            left: uniform_size,
-            bottom: uniform_size,
-            right: uniform_size,
-        }
+        EdgeInsets::uniform(uniform_size)
     }
 }
 

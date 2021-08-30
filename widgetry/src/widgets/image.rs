@@ -175,23 +175,22 @@ impl<'a, 'c> Image<'a, 'c> {
         self
     }
 
-    /// Set a background color for the image.
+    /// Set a background color for the image. Has no effect unless custom `dims` are explicitly set.
     pub fn bg_color(mut self, value: Color) -> Self {
         self.bg_color = Some(value);
         self
     }
 
-    /// Scale the bounds containing the image. If `image_dims` are not specified, the images
-    /// intrinsic size will be used.
+    /// Scale the bounds containing the image. If `dims` are not specified, the image's intrinsic
+    /// size will be used.
     ///
-    /// See [`Self::content_mode`] to control how the image scales to fit
-    /// its custom bounds.
+    /// See [`Self::content_mode`] to control how the image scales to fit its custom bounds.
     pub fn dims<D: Into<ScreenDims>>(mut self, dims: D) -> Self {
         self.dims = Some(dims.into());
         self
     }
 
-    /// If a custom `dims` was set, control how the image should be scaled to its new bounds
+    /// If a custom `dims` was set, control how the image should be scaled to its new bounds.
     ///
     /// If `dims` were not specified, the image will not be scaled, so content_mode has no
     /// affect.
@@ -203,19 +202,20 @@ impl<'a, 'c> Image<'a, 'c> {
         self
     }
 
-    /// Set independent rounding for each of the image's corners
+    /// Set independent rounding for each of the image's corners. Has no effect unless custom
+    /// `dims` are explicitly set.
     pub fn corner_rounding<R: Into<CornerRounding>>(mut self, value: R) -> Self {
         self.corner_rounding = Some(value.into());
         self
     }
 
-    /// Set padding for the image
+    /// Set padding for the image. Has no effect unless custom `dims` are explicitly set.
     pub fn padding<EI: Into<EdgeInsets>>(mut self, value: EI) -> Self {
         self.padding = Some(value.into());
         self
     }
 
-    /// Padding above the image
+    /// Padding above the image. Has no effect unless custom `dims` are explicitly set.
     pub fn padding_top(mut self, new_value: f64) -> Self {
         let mut padding = self.padding.unwrap_or_default();
         padding.top = new_value;
@@ -223,7 +223,7 @@ impl<'a, 'c> Image<'a, 'c> {
         self
     }
 
-    /// Padding to the left of the image
+    /// Padding to the left of the image. Has no effect unless custom `dims` are explicitly set.
     pub fn padding_left(mut self, new_value: f64) -> Self {
         let mut padding = self.padding.unwrap_or_default();
         padding.left = new_value;
@@ -231,7 +231,7 @@ impl<'a, 'c> Image<'a, 'c> {
         self
     }
 
-    /// Padding below the image
+    /// Padding below the image. Has no effect unless custom `dims` are explicitly set.
     pub fn padding_bottom(mut self, new_value: f64) -> Self {
         let mut padding = self.padding.unwrap_or_default();
         padding.bottom = new_value;
@@ -239,7 +239,7 @@ impl<'a, 'c> Image<'a, 'c> {
         self
     }
 
-    /// Padding to the right of the image
+    /// Padding to the right of the image. Has no effect unless custom `dims` are explicitly set.
     pub fn padding_right(mut self, new_value: f64) -> Self {
         let mut padding = self.padding.unwrap_or_default();
         padding.right = new_value;
