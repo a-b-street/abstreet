@@ -24,6 +24,7 @@ pub struct Layers {
     steep_streets: Option<Drawable>,
     // TODO Once widgetry buttons can take custom enums, that'd be perfect here
     road_types: HashMap<String, Drawable>,
+    fade_map: Drawable,
 
     zoom_enabled_cache_key: (bool, bool),
     map_edit_key: usize,
@@ -39,9 +40,15 @@ impl Layers {
             elevation: false,
             steep_streets: None,
             road_types: HashMap::new(),
+            fade_map: GeomBatch::from(vec![(
+                Color::BLACK.alpha(0.4),
+                app.primary.map.get_boundary_polygon().clone(),
+            )])
+            .upload(ctx),
             zoom_enabled_cache_key: zoom_enabled_cache_key(ctx),
             map_edit_key: usize::MAX,
         };
+
         l.update_panel(ctx, app);
         l
     }
@@ -154,8 +161,11 @@ impl Layers {
                 }
                 "steep streets" => {
                     if self.panel.is_checked("steep streets") {
-                        let (colorer, _, _) =
+                        let (mut colorer, _, _) =
                             crate::layer::elevation::SteepStreets::make_colorer(ctx, app);
+                        // The Colorer fades the map as the very first thing in the batch, but we
+                        // don't want to do that twice.
+                        colorer.unzoomed.shift();
                         self.steep_streets = Some(colorer.unzoomed.upload(ctx));
                     } else {
                         self.steep_streets = None;
@@ -182,9 +192,28 @@ impl Layers {
     pub fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.panel.draw(g);
         if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
-            if let Some(ref n) = self.bike_network {
-                n.draw(g, app);
+            g.redraw(&self.fade_map);
+
+            let mut draw_bike_layer = true;
+
+            if let Some(name) = self.panel.currently_hovering() {
+                if let Some(draw) = self.road_types.get(name) {
+                    g.redraw(draw);
+                }
+                if name == "trail"
+                    || name == "protected bike lane"
+                    || name == "painted bike lane"
+                    || name == "greenway"
+                {
+                    draw_bike_layer = false;
+                }
             }
+            if draw_bike_layer {
+                if let Some(ref n) = self.bike_network {
+                    n.draw(g, app);
+                }
+            }
+
             if let Some(ref l) = self.labels {
                 l.draw(g, app);
             }
@@ -196,12 +225,6 @@ impl Layers {
             }
             if let Some(ref draw) = self.steep_streets {
                 g.redraw(draw);
-            }
-
-            if let Some(name) = self.panel.currently_hovering() {
-                if let Some(draw) = self.road_types.get(name) {
-                    g.redraw(draw);
-                }
             }
         }
     }
@@ -349,9 +372,16 @@ impl Layers {
                 || (name == "painted bike lane" && bike_lane && !buffer)
                 || (name == "greenway" && bike_network::is_greenway(r));
             if show {
+                let color = match name {
+                    "highway" => app.cs.unzoomed_highway,
+                    "major street" => app.cs.unzoomed_arterial,
+                    "minor street" => app.cs.unzoomed_residential,
+                    // Some of the bike layers are too faded, so always use a louder green.
+                    _ => Color::GREEN,
+                };
                 // TODO If it's a bike element, should probably thicken for the unzoomed scale...
                 // the maximum amount?
-                batch.push(Color::CYAN, r.get_thick_polygon(&app.primary.map));
+                batch.push(color, r.get_thick_polygon(&app.primary.map));
             }
         }
 

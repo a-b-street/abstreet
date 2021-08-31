@@ -50,10 +50,6 @@ impl DrawNetworkLayer {
         let mut batch = GeomBatch::new();
         let map = &app.primary.map;
 
-        // The basemap colors are beautiful, but we want to emphasize the bike network, so all's foggy
-        // in love and war...
-        batch.push(Color::BLACK.alpha(0.4), map.get_boundary_polygon().clone());
-
         // Thicker lines as we zoom out. Scale up to 5x. Never shrink past the road's actual width.
         let mut thickness = (0.5 / zoom).max(1.0);
         // And on gigantic maps, zoom may approach 0, so avoid NaNs.

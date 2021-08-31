@@ -54,6 +54,11 @@ impl GeomBatch {
         self.list.insert(0, (fill.into(), p, 0.0));
     }
 
+    /// Removes the first polygon in the batch.
+    pub fn shift(&mut self) {
+        self.list.remove(0);
+    }
+
     /// Applies one Fill to many polygons.
     pub fn extend<F: Into<Fill>>(&mut self, fill: F, polys: Vec<Polygon>) {
         let fill = fill.into();
