@@ -1,14 +1,10 @@
 use std::collections::HashSet;
 
-use rand::seq::SliceRandom;
-use rand::SeedableRng;
-use rand_xorshift::XorShiftRng;
-
 use geom::{Circle, Distance, Duration, FindClosest, Polygon};
 use map_model::{PathStep, NORMAL_LANE_THICKNESS};
 use sim::{TripEndpoint, TripMode};
 use widgetry::{
-    Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, LinePlot,
+    Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Image, Line, LinePlot,
     Outcome, Panel, PlotOptions, Series, State, Text, TextExt, VerticalAlignment, Widget,
 };
 
@@ -100,13 +96,17 @@ impl RoutePlanner {
                     .build_widget(ctx, &format!("delete waypoint {}", idx)),
             ]));
         }
-        col.push(
-            ctx.style()
-                .btn_outline
-                .text("Add waypoint")
-                .hotkey(Key::A)
-                .build_def(ctx),
-        );
+
+        col.push(Widget::row(vec![
+            Image::from_path("system/assets/tools/mouse.svg").into_widget(ctx),
+            Text::from_all(vec![
+                Line("Click").fg(ctx.style().text_hotkey_color),
+                Line(" to add a waypoint, "),
+                Line("drag").fg(ctx.style().text_hotkey_color),
+                Line(" a waypoint to move it"),
+            ])
+            .into_widget(ctx),
+        ]));
 
         self.input_panel = Panel::new_builder(Widget::col(col))
             .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
@@ -121,27 +121,15 @@ impl RoutePlanner {
         self.draw_waypoints = ctx.upload(batch);
     }
 
-    fn make_new_waypt(&self, ctx: &mut EventCtx, app: &App) -> Waypoint {
-        // Place near the cursor, if possible
-        let at = if let Some((at, _)) = ctx
+    fn make_new_waypt(&mut self, ctx: &mut EventCtx, app: &App) {
+        if let Some((at, _)) = ctx
             .canvas
             .get_cursor_in_map_space()
             .and_then(|pt| self.snap_to_endpts.closest_pt(pt, Distance::meters(30.0)))
         {
-            at
-        } else {
-            // Just pick a random place, then let the user drag the marker around
-            // TODO Repeat if it matches an existing
-            TripEndpoint::Bldg(
-                app.primary
-                    .map
-                    .all_buildings()
-                    .choose(&mut XorShiftRng::from_entropy())
-                    .unwrap()
-                    .id,
-            )
-        };
-        Waypoint::new(ctx, app, at, self.waypoints.len())
+            self.waypoints
+                .push(Waypoint::new(ctx, app, at, self.waypoints.len()));
+        }
     }
 
     fn update_hover(&mut self, ctx: &EventCtx) {
@@ -348,33 +336,30 @@ impl State<App> for RoutePlanner {
             if self.hovering_on_waypt.is_some() && ctx.input.left_mouse_button_pressed() {
                 self.dragging = true;
             }
+
+            if self.hovering_on_waypt.is_none() && ctx.normal_left_click() {
+                self.make_new_waypt(ctx, app);
+                self.update_input_panel(ctx, app);
+                self.update_waypoints_drawable(ctx);
+                self.update_route(ctx, app);
+                self.update_hover(ctx);
+            }
         }
 
         if let Outcome::Clicked(x) = self.input_panel.event(ctx) {
-            match x.as_ref() {
-                "Add waypoint" => {
-                    self.waypoints.push(self.make_new_waypt(ctx, app));
-                    self.update_input_panel(ctx, app);
-                    self.update_waypoints_drawable(ctx);
-                    self.update_route(ctx, app);
-                    self.update_hover(ctx);
+            if let Some(x) = x.strip_prefix("delete waypoint ") {
+                let idx = x.parse::<usize>().unwrap();
+                self.waypoints.remove(idx);
+                // Recalculate labels, in case we deleted in the middle
+                for (idx, waypt) in self.waypoints.iter_mut().enumerate() {
+                    *waypt = Waypoint::new(ctx, app, waypt.at, idx);
                 }
-                x => {
-                    if let Some(x) = x.strip_prefix("delete waypoint ") {
-                        let idx = x.parse::<usize>().unwrap();
-                        self.waypoints.remove(idx);
-                        // Recalculate labels, in case we deleted in the middle
-                        for (idx, waypt) in self.waypoints.iter_mut().enumerate() {
-                            *waypt = Waypoint::new(ctx, app, waypt.at, idx);
-                        }
 
-                        self.update_input_panel(ctx, app);
-                        self.update_waypoints_drawable(ctx);
-                        self.update_route(ctx, app);
-                    } else {
-                        return Tab::Route.handle_action::<RoutePlanner>(ctx, app, x);
-                    }
-                }
+                self.update_input_panel(ctx, app);
+                self.update_waypoints_drawable(ctx);
+                self.update_route(ctx, app);
+            } else {
+                return Tab::Route.handle_action::<RoutePlanner>(ctx, app, &x);
             }
         }
 
