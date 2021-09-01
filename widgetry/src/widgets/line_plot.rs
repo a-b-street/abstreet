@@ -14,13 +14,18 @@ pub struct LinePlot<X: Axis<X>, Y: Axis<Y>> {
     max_y: Y,
     closest: FindClosest<String>,
 
+    hovering: Option<Hovering<X, Y>>,
+
     top_left: ScreenPt,
     dims: ScreenDims,
 }
 
 impl<X: Axis<X>, Y: Axis<Y>> LinePlot<X, Y> {
+    /// `label` is used to name the actual LinePlot widget. The result of this call can't be
+    /// usefully `named`, since the plot is wrapped in some containers for formatting.
     pub fn new_widget(
         ctx: &EventCtx,
+        label: &str,
         mut series: Vec<Series<X, Y>>,
         opts: PlotOptions<X, Y>,
     ) -> Widget {
@@ -130,6 +135,7 @@ impl<X: Axis<X>, Y: Axis<Y>> LinePlot<X, Y> {
             closest,
             max_x,
             max_y,
+            hovering: None,
 
             top_left: ScreenPt::new(0.0, 0.0),
             dims: ScreenDims::new(width, height),
@@ -161,10 +167,18 @@ impl<X: Axis<X>, Y: Axis<Y>> LinePlot<X, Y> {
         // Don't let the x-axis fill the parent container
         Widget::custom_col(vec![
             legend.margin_below(10),
-            Widget::custom_row(vec![y_axis, Widget::new(Box::new(plot))]),
+            Widget::custom_row(vec![y_axis, Widget::new(Box::new(plot)).named(label)]),
             x_axis,
         ])
         .container()
+    }
+
+    pub fn get_hovering(&self) -> Vec<(X, Y)> {
+        if let Some(ref h) = self.hovering {
+            h.hits.clone()
+        } else {
+            Vec::new()
+        }
     }
 }
 
@@ -177,38 +191,62 @@ impl<X: Axis<X>, Y: Axis<Y>> WidgetImpl for LinePlot<X, Y> {
         self.top_left = top_left;
     }
 
-    fn event(&mut self, _: &mut EventCtx, _: &mut WidgetOutput) {}
+    fn event(&mut self, ctx: &mut EventCtx, _: &mut WidgetOutput) {
+        if ctx.redo_mouseover() {
+            self.hovering = None;
+            if let Some(cursor) = ctx.canvas.get_cursor_in_screen_space() {
+                if ScreenRectangle::top_left(self.top_left, self.dims).contains(cursor) {
+                    let radius = Distance::meters(15.0);
+                    let mut txt = Text::new();
+                    let mut hits = Vec::new();
+                    for (label, pt, _) in self.closest.all_close_pts(
+                        Pt2D::new(cursor.x - self.top_left.x, cursor.y - self.top_left.y),
+                        radius,
+                    ) {
+                        // TODO If some/all of the matches have the same x, write it once?
+                        let x = self.max_x.from_percent(pt.x() / self.dims.width);
+                        let y_percent = 1.0 - (pt.y() / self.dims.height);
+                        let y = self.max_y.from_percent(y_percent);
 
-    fn draw(&self, g: &mut GfxCtx) {
-        g.redraw_at(self.top_left, &self.draw);
-
-        if let Some(cursor) = g.canvas.get_cursor_in_screen_space() {
-            if ScreenRectangle::top_left(self.top_left, self.dims).contains(cursor) {
-                let radius = Distance::meters(15.0);
-                let mut txt = Text::new();
-                for (label, pt, _) in self.closest.all_close_pts(
-                    Pt2D::new(cursor.x - self.top_left.x, cursor.y - self.top_left.y),
-                    radius,
-                ) {
-                    // TODO If some/all of the matches have the same x, write it once?
-                    let x = self.max_x.from_percent(pt.x() / self.dims.width);
-                    let y_percent = 1.0 - (pt.y() / self.dims.height);
-
-                    // TODO Draw this info in the ColorLegend
-                    txt.add_line(format!(
-                        "{}: at {}, {}",
-                        label,
-                        x.prettyprint(),
-                        self.max_y.from_percent(y_percent).prettyprint()
-                    ));
-                }
-                if !txt.is_empty() {
-                    g.fork_screenspace();
-                    g.draw_polygon(Color::RED, Circle::new(cursor.to_pt(), radius).to_polygon());
-                    g.draw_mouse_tooltip(txt);
-                    g.unfork();
+                        // TODO Draw this info in the ColorLegend
+                        txt.add_line(format!(
+                            "{}: at {}, {}",
+                            label,
+                            x.prettyprint(),
+                            y.prettyprint()
+                        ));
+                        hits.push((x, y));
+                    }
+                    if !hits.is_empty() {
+                        self.hovering = Some(Hovering {
+                            hits,
+                            tooltip: txt,
+                            draw_cursor: GeomBatch::from(vec![(
+                                Color::RED,
+                                Circle::new(cursor.to_pt(), radius).to_polygon(),
+                            )])
+                            .upload(ctx),
+                        });
+                    }
                 }
             }
         }
     }
+
+    fn draw(&self, g: &mut GfxCtx) {
+        g.redraw_at(self.top_left, &self.draw);
+
+        if let Some(ref hovering) = self.hovering {
+            g.fork_screenspace();
+            g.redraw(&hovering.draw_cursor);
+            g.draw_mouse_tooltip(hovering.tooltip.clone());
+            g.unfork();
+        }
+    }
+}
+
+struct Hovering<X: Axis<X>, Y: Axis<Y>> {
+    hits: Vec<(X, Y)>,
+    tooltip: Text,
+    draw_cursor: Drawable,
 }

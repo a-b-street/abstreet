@@ -95,6 +95,7 @@ impl Demo {
             ]),
             LinePlot::new_widget(
                 ctx,
+                "timeseries",
                 vec![
                     Series {
                         label: "Linear".to_string(),

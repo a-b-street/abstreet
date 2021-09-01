@@ -697,7 +697,7 @@ fn throughput<F: Fn(&Analytics) -> Vec<(AgentType, Vec<(Time, usize)>)>>(
     plot_opts.disabled = opts.disabled_series();
     Widget::col(vec![
         Line(title).small_heading().into_widget(ctx),
-        LinePlot::new_widget(ctx, series, plot_opts),
+        LinePlot::new_widget(ctx, title, series, plot_opts),
     ])
     .padding(10)
     .bg(app.cs.inner_panel_bg)

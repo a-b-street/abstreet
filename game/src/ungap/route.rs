@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 
-use geom::{Distance, Duration};
-use map_model::{PathStep, NORMAL_LANE_THICKNESS};
+use geom::{Circle, Distance, Duration, PolyLine};
+use map_model::{Path, PathStep, NORMAL_LANE_THICKNESS};
 use sim::{TripEndpoint, TripMode};
 use widgetry::{
     Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line, LinePlot, Outcome,
@@ -75,6 +75,8 @@ impl State<App> for RoutePlanner {
             }
         }
 
+        self.results.event(ctx);
+
         if let Some(t) = self.layers.event(ctx, app) {
             return t;
         }
@@ -91,6 +93,11 @@ impl State<App> for RoutePlanner {
 }
 
 struct RouteResults {
+    // It's tempting to glue together all of the paths. But since some waypoints might force the
+    // path to double back on itself, rendering the path as a single PolyLine would break.
+    paths: Vec<(Path, Option<PolyLine>)>,
+
+    hover_on_line_plot: Option<(Distance, Drawable)>,
     draw_route: Drawable,
     panel: Panel,
 }
@@ -110,16 +117,12 @@ impl RouteResults {
         let mut elevation_pts: Vec<(Distance, Distance)> = Vec::new();
         let mut current_dist = Distance::ZERO;
 
+        let mut paths = Vec::new();
+
         for pair in waypoints.windows(2) {
-            if let Some((path, draw_path)) =
-                TripEndpoint::path_req(pair[0], pair[1], TripMode::Bike, map)
-                    .and_then(|req| map.pathfind(req).ok())
-                    .and_then(|path| {
-                        path.trace(&app.primary.map)
-                            .map(|pl| (path, pl.make_polygons(5.0 * NORMAL_LANE_THICKNESS)))
-                    })
+            if let Some(path) = TripEndpoint::path_req(pair[0], pair[1], TripMode::Bike, map)
+                .and_then(|req| map.pathfind(req).ok())
             {
-                batch.push(Color::CYAN, draw_path);
                 total_distance += path.total_length();
                 total_time += path.estimate_duration(map, Some(map_model::MAX_BIKE_SPEED));
 
@@ -148,6 +151,12 @@ impl RouteResults {
                     }
                     current_dist += this_dist;
                 }
+
+                let maybe_pl = path.trace(map);
+                if let Some(ref pl) = maybe_pl {
+                    batch.push(Color::CYAN, pl.make_polygons(5.0 * NORMAL_LANE_THICKNESS));
+                }
+                paths.push((path, maybe_pl));
             }
         }
         let draw_route = ctx.upload(batch);
@@ -209,6 +218,7 @@ impl RouteResults {
             .into_widget(ctx),
             LinePlot::new_widget(
                 ctx,
+                "elevation",
                 vec![Series {
                     label: "Elevation".to_string(),
                     color: Color::RED,
@@ -225,11 +235,54 @@ impl RouteResults {
         .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
         .build(ctx);
 
-        RouteResults { draw_route, panel }
+        RouteResults {
+            draw_route,
+            panel,
+            paths,
+            hover_on_line_plot: None,
+        }
+    }
+
+    fn event(&mut self, ctx: &mut EventCtx) {
+        // No outcomes, just trigger the LinePlot to update hover state
+        self.panel.event(ctx);
+
+        let current_dist_along = self
+            .panel
+            .find::<LinePlot<Distance, Distance>>("elevation")
+            .get_hovering()
+            .get(0)
+            .map(|pair| pair.0);
+        if self.hover_on_line_plot.as_ref().map(|pair| pair.0) != current_dist_along {
+            self.hover_on_line_plot = current_dist_along.map(|mut dist| {
+                let mut batch = GeomBatch::new();
+                // Find this position on the route
+                for (path, maybe_pl) in &self.paths {
+                    if dist > path.total_length() {
+                        dist -= path.total_length();
+                        continue;
+                    }
+                    if let Some(ref pl) = maybe_pl {
+                        if let Ok((pt, _)) = pl.dist_along(dist) {
+                            batch.push(
+                                Color::CYAN,
+                                Circle::new(pt, Distance::meters(30.0)).to_polygon(),
+                            );
+                        }
+                    }
+                    break;
+                }
+
+                (dist, batch.upload(ctx))
+            });
+        }
     }
 
     fn draw(&self, g: &mut GfxCtx) {
         self.panel.draw(g);
         g.redraw(&self.draw_route);
+        if let Some((_, ref draw)) = self.hover_on_line_plot {
+            g.redraw(draw);
+        }
     }
 }

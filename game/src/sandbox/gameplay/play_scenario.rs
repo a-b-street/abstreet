@@ -601,6 +601,7 @@ impl DepartureSummary {
             ]),
             LinePlot::new_widget(
                 ctx,
+                "trip starts",
                 vec![Series {
                     label: "When do trips start?".to_string(),
                     color: Color::RED,

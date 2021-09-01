@@ -896,6 +896,7 @@ fn make_elevation(ctx: &EventCtx, color: Color, walking: bool, path: &Path, map:
     // TODO Show roughly where we are in the trip; use distance covered by current path for this
     LinePlot::new_widget(
         ctx,
+        "elevation",
         vec![Series {
             label: if walking {
                 "Elevation for walking"

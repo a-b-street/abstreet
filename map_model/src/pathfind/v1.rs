@@ -367,6 +367,9 @@ impl Path {
 
     /// Traces along the path from its originally requested start. This is only valid to call for
     /// an umodified path.
+    ///
+    /// It mostly seems the PolyLine's length will match `total_length`, but callers beware if
+    /// you're relying on this -- check walking paths with the buggy sharp angles particularly.
     pub fn trace(&self, map: &Map) -> Option<PolyLine> {
         let t1 = self.steps[0].as_traversable();
         let t2 = Traversable::Lane(self.orig_req.start.lane());

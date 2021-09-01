@@ -55,6 +55,7 @@ fn info_body(ctx: &mut EventCtx, app: &App, id: ParkingLotID) -> Widget {
             .into_widget(ctx),
         LinePlot::new_widget(
             ctx,
+            "parking availability",
             series,
             PlotOptions {
                 filterable: false,
