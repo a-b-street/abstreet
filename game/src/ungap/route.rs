@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 
-use geom::{Circle, Distance, Duration, PolyLine};
+use geom::{Circle, Distance, Duration, FindClosest, PolyLine};
 use map_model::{Path, PathStep, NORMAL_LANE_THICKNESS};
 use sim::{TripEndpoint, TripMode};
 use widgetry::{
@@ -96,6 +96,8 @@ struct RouteResults {
     // It's tempting to glue together all of the paths. But since some waypoints might force the
     // path to double back on itself, rendering the path as a single PolyLine would break.
     paths: Vec<(Path, Option<PolyLine>)>,
+    // Match each polyline to the index in paths
+    closest_path_segment: FindClosest<usize>,
 
     hover_on_line_plot: Option<(Distance, Drawable)>,
     draw_route: Drawable,
@@ -118,6 +120,7 @@ impl RouteResults {
         let mut current_dist = Distance::ZERO;
 
         let mut paths = Vec::new();
+        let mut closest_path_segment = FindClosest::new(map.get_bounds());
 
         for pair in waypoints.windows(2) {
             if let Some(path) = TripEndpoint::path_req(pair[0], pair[1], TripMode::Bike, map)
@@ -155,6 +158,7 @@ impl RouteResults {
                 let maybe_pl = path.trace(map);
                 if let Some(ref pl) = maybe_pl {
                     batch.push(Color::CYAN, pl.make_polygons(5.0 * NORMAL_LANE_THICKNESS));
+                    closest_path_segment.add(paths.len(), pl.points());
                 }
                 paths.push((path, maybe_pl));
             }
@@ -239,6 +243,7 @@ impl RouteResults {
             draw_route,
             panel,
             paths,
+            closest_path_segment,
             hover_on_line_plot: None,
         }
     }
@@ -275,6 +280,28 @@ impl RouteResults {
 
                 (dist, batch.upload(ctx))
             });
+        }
+
+        if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
+            if let Some((idx, pt)) = self
+                .closest_path_segment
+                .closest_pt(pt, 10.0 * NORMAL_LANE_THICKNESS)
+            {
+                // Find the total distance along the route
+                let mut dist = Distance::ZERO;
+                for (path, _) in &self.paths[0..idx] {
+                    dist += path.total_length();
+                }
+                if let Some(ref pl) = self.paths[idx].1 {
+                    if let Some((dist_here, _)) = pl.dist_along_of_point(pt) {
+                        // TODO We know we're dist + dist_here along the entire route. The LinePlot
+                        // would need to store the original Series to look up elevation for us. So
+                        // I guess we can do it ourselves here, then send in the X and Y and make
+                        // it map that to its own screen-space...
+                        println!("We're {} along the route...", dist + dist_here);
+                    }
+                }
+            }
         }
     }
 
