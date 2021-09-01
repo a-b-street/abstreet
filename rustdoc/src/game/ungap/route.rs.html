@@ -288,10 +288,37 @@
 <span id="286">286</span>
 <span id="287">287</span>
 <span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">PolyLine</span>};
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">FindClosest</span>, <span class="ident">PolyLine</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">Path</span>, <span class="ident">PathStep</span>, <span class="ident">NORMAL_LANE_THICKNESS</span>};
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">TripEndpoint</span>, <span class="ident">TripMode</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
@@ -387,6 +414,8 @@
     <span class="comment">// It&#39;s tempting to glue together all of the paths. But since some waypoints might force the</span>
     <span class="comment">// path to double back on itself, rendering the path as a single PolyLine would break.</span>
     <span class="ident">paths</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Path</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PolyLine</span><span class="op">&gt;</span>)<span class="op">&gt;</span>,
+    <span class="comment">// Match each polyline to the index in paths</span>
+    <span class="ident">closest_path_segment</span>: <span class="ident">FindClosest</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>,
 
     <span class="ident">hover_on_line_plot</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Distance</span>, <span class="ident">Drawable</span>)<span class="op">&gt;</span>,
     <span class="ident">draw_route</span>: <span class="ident">Drawable</span>,
@@ -409,6 +438,7 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">current_dist</span> <span class="op">=</span> <span class="ident">Distance::ZERO</span>;
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">paths</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">closest_path_segment</span> <span class="op">=</span> <span class="ident">FindClosest::new</span>(<span class="ident">map</span>.<span class="ident">get_bounds</span>());
 
         <span class="kw">for</span> <span class="ident">pair</span> <span class="kw">in</span> <span class="ident">waypoints</span>.<span class="ident">windows</span>(<span class="number">2</span>) {
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">path</span>) <span class="op">=</span> <span class="ident">TripEndpoint::path_req</span>(<span class="ident">pair</span>[<span class="number">0</span>], <span class="ident">pair</span>[<span class="number">1</span>], <span class="ident">TripMode::Bike</span>, <span class="ident">map</span>)
@@ -446,6 +476,7 @@
                 <span class="kw">let</span> <span class="ident">maybe_pl</span> <span class="op">=</span> <span class="ident">path</span>.<span class="ident">trace</span>(<span class="ident">map</span>);
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">pl</span>) <span class="op">=</span> <span class="ident">maybe_pl</span> {
                     <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color::CYAN</span>, <span class="ident">pl</span>.<span class="ident">make_polygons</span>(<span class="number">5.0</span> <span class="op">*</span> <span class="ident">NORMAL_LANE_THICKNESS</span>));
+                    <span class="ident">closest_path_segment</span>.<span class="ident">add</span>(<span class="ident">paths</span>.<span class="ident">len</span>(), <span class="ident">pl</span>.<span class="ident">points</span>());
                 }
                 <span class="ident">paths</span>.<span class="ident">push</span>((<span class="ident">path</span>, <span class="ident">maybe_pl</span>));
             }
@@ -530,6 +561,7 @@
             <span class="ident">draw_route</span>,
             <span class="ident">panel</span>,
             <span class="ident">paths</span>,
+            <span class="ident">closest_path_segment</span>,
             <span class="ident">hover_on_line_plot</span>: <span class="prelude-val">None</span>,
         }
     }
@@ -566,6 +598,28 @@
 
                 (<span class="ident">dist</span>, <span class="ident">batch</span>.<span class="ident">upload</span>(<span class="ident">ctx</span>))
             });
+        }
+
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt</span>) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_map_space</span>() {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">idx</span>, <span class="ident">pt</span>)) <span class="op">=</span> <span class="self">self</span>
+                .<span class="ident">closest_path_segment</span>
+                .<span class="ident">closest_pt</span>(<span class="ident">pt</span>, <span class="number">10.0</span> <span class="op">*</span> <span class="ident">NORMAL_LANE_THICKNESS</span>)
+            {
+                <span class="comment">// Find the total distance along the route</span>
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">dist</span> <span class="op">=</span> <span class="ident">Distance::ZERO</span>;
+                <span class="kw">for</span> (<span class="ident">path</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">paths</span>[<span class="number">0</span>..<span class="ident">idx</span>] {
+                    <span class="ident">dist</span> <span class="op">+</span><span class="op">=</span> <span class="ident">path</span>.<span class="ident">total_length</span>();
+                }
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">pl</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">paths</span>[<span class="ident">idx</span>].<span class="number">1</span> {
+                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">dist_here</span>, <span class="kw">_</span>)) <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">dist_along_of_point</span>(<span class="ident">pt</span>) {
+                        <span class="comment">// TODO We know we&#39;re dist + dist_here along the entire route. The LinePlot</span>
+                        <span class="comment">// would need to store the original Series to look up elevation for us. So</span>
+                        <span class="comment">// I guess we can do it ourselves here, then send in the X and Y and make</span>
+                        <span class="comment">// it map that to its own screen-space...</span>
+                        <span class="macro">println!</span>(<span class="string">&quot;We&#39;re {} along the route...&quot;</span>, <span class="ident">dist</span> <span class="op">+</span> <span class="ident">dist_here</span>);
+                    }
+                }
+            }
         }
     }
 
