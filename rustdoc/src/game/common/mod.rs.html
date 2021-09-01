@@ -464,6 +464,8 @@
 <span id="462">462</span>
 <span id="463">463</span>
 <span id="464">464</span>
+<span id="465">465</span>
+<span id="466">466</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
 
@@ -479,6 +481,7 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::route_sketcher::RouteSketcher</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::select::RoadSelector</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::warp</span>::{<span class="ident">warp_to_id</span>, <span class="ident">Warping</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::waypoints::InputWaypoints</span>;
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::app::App</span>;
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::app::Transition</span>;
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::info</span>::{<span class="ident">ContextualActions</span>, <span class="ident">InfoPanel</span>, <span class="ident">Tab</span>};
@@ -487,6 +490,7 @@
 <span class="kw">mod</span> <span class="ident">route_sketcher</span>;
 <span class="kw">mod</span> <span class="ident">select</span>;
 <span class="kw">mod</span> <span class="ident">warp</span>;
+<span class="kw">mod</span> <span class="ident">waypoints</span>;
 
 <span class="comment">// TODO This is now just used in two modes...</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CommonState</span> {
