@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 
-use geom::{Circle, Distance, Duration, FindClosest, Polygon};
+use geom::{Circle, Distance, Duration, FindClosest, Polygon, Pt2D};
 use map_model::{PathStep, NORMAL_LANE_THICKNESS};
 use sim::{TripEndpoint, TripMode};
 use widgetry::{
@@ -121,12 +121,8 @@ impl RoutePlanner {
         self.draw_waypoints = ctx.upload(batch);
     }
 
-    fn make_new_waypt(&mut self, ctx: &mut EventCtx, app: &App) {
-        if let Some((at, _)) = ctx
-            .canvas
-            .get_cursor_in_map_space()
-            .and_then(|pt| self.snap_to_endpts.closest_pt(pt, Distance::meters(30.0)))
-        {
+    fn make_new_waypt(&mut self, ctx: &mut EventCtx, app: &App, pt: Pt2D) {
+        if let Some((at, _)) = self.snap_to_endpts.closest_pt(pt, Distance::meters(30.0)) {
             self.waypoints
                 .push(Waypoint::new(ctx, app, at, self.waypoints.len()));
         }
@@ -337,12 +333,14 @@ impl State<App> for RoutePlanner {
                 self.dragging = true;
             }
 
-            if self.hovering_on_waypt.is_none() && ctx.normal_left_click() {
-                self.make_new_waypt(ctx, app);
-                self.update_input_panel(ctx, app);
-                self.update_waypoints_drawable(ctx);
-                self.update_route(ctx, app);
-                self.update_hover(ctx);
+            if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
+                if self.hovering_on_waypt.is_none() && ctx.normal_left_click() {
+                    self.make_new_waypt(ctx, app, pt);
+                    self.update_input_panel(ctx, app);
+                    self.update_waypoints_drawable(ctx);
+                    self.update_route(ctx, app);
+                    self.update_hover(ctx);
+                }
             }
         }
 
