@@ -1,30 +1,23 @@
 use std::collections::HashSet;
 
-use geom::{Circle, Distance, Duration, FindClosest, Polygon, Pt2D};
+use geom::{Distance, Duration};
 use map_model::{PathStep, NORMAL_LANE_THICKNESS};
 use sim::{TripEndpoint, TripMode};
 use widgetry::{
-    Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Image, Line, LinePlot,
-    Outcome, Panel, PlotOptions, Series, State, Text, TextExt, VerticalAlignment, Widget,
+    Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line, LinePlot, Outcome,
+    Panel, PlotOptions, Series, State, Text, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
+use crate::common::InputWaypoints;
 use crate::ungap::{Layers, Tab, TakeLayers};
 
 pub struct RoutePlanner {
     layers: Layers,
     once: bool,
 
-    // All of this manages the waypoint input
     input_panel: Panel,
-    waypoints: Vec<Waypoint>,
-    draw_waypoints: Drawable,
-    hovering_on_waypt: Option<usize>,
-    draw_hover: Drawable,
-    // TODO Invariant not captured by these separate fields: when dragging is true,
-    // hovering_on_waypt is fixed.
-    dragging: bool,
-    snap_to_endpts: FindClosest<TripEndpoint>,
+    waypoints: InputWaypoints,
 
     // Routing
     draw_route: Drawable,
@@ -37,133 +30,30 @@ impl TakeLayers for RoutePlanner {
     }
 }
 
-// TODO Maybe it's been a while and I've forgotten some UI patterns, but this is painfully manual.
-// I think we need a draggable map-space thing.
-struct Waypoint {
-    // TODO Different colors would also be helpful
-    order: char,
-    at: TripEndpoint,
-    label: String,
-    geom: GeomBatch,
-    hitbox: Polygon,
-}
-
 impl RoutePlanner {
     pub fn new_state(ctx: &mut EventCtx, app: &App, layers: Layers) -> Box<dyn State<App>> {
-        let map = &app.primary.map;
-        let mut snap_to_endpts = FindClosest::new(map.get_bounds());
-        for i in map.all_intersections() {
-            if i.is_border() {
-                snap_to_endpts.add(TripEndpoint::Border(i.id), i.polygon.points());
-            }
-        }
-        for b in map.all_buildings() {
-            snap_to_endpts.add(TripEndpoint::Bldg(b.id), b.polygon.points());
-        }
-
         let mut rp = RoutePlanner {
             layers,
             once: true,
 
             input_panel: Panel::empty(ctx),
-            waypoints: Vec::new(),
-            draw_waypoints: Drawable::empty(ctx),
-            hovering_on_waypt: None,
-            draw_hover: Drawable::empty(ctx),
-            dragging: false,
-            snap_to_endpts,
+            waypoints: InputWaypoints::new(ctx, app),
 
             draw_route: Drawable::empty(ctx),
             results_panel: Panel::empty(ctx),
         };
         rp.update_input_panel(ctx, app);
-        rp.update_waypoints_drawable(ctx);
         rp.update_route(ctx, app);
         Box::new(rp)
     }
 
     fn update_input_panel(&mut self, ctx: &mut EventCtx, app: &App) {
-        let mut col = vec![Tab::Route.make_header(ctx, app)];
-
-        for (idx, waypt) in self.waypoints.iter().enumerate() {
-            col.push(Widget::row(vec![
-                format!("{}) {}", waypt.order, waypt.label)
-                    .text_widget(ctx)
-                    .centered_vert(),
-                ctx.style()
-                    .btn_plain_destructive
-                    .text("X")
-                    .build_widget(ctx, &format!("delete waypoint {}", idx)),
-            ]));
-        }
-
-        col.push(Widget::row(vec![
-            Image::from_path("system/assets/tools/mouse.svg").into_widget(ctx),
-            Text::from_all(vec![
-                Line("Click").fg(ctx.style().text_hotkey_color),
-                Line(" to add a waypoint, "),
-                Line("drag").fg(ctx.style().text_hotkey_color),
-                Line(" a waypoint to move it"),
-            ])
-            .into_widget(ctx),
-        ]));
-
-        self.input_panel = Panel::new_builder(Widget::col(col))
-            .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
-            .build(ctx);
-    }
-
-    fn update_waypoints_drawable(&mut self, ctx: &mut EventCtx) {
-        let mut batch = GeomBatch::new();
-        for waypt in &self.waypoints {
-            batch.append(waypt.geom.clone());
-        }
-        self.draw_waypoints = ctx.upload(batch);
-    }
-
-    fn make_new_waypt(&mut self, ctx: &mut EventCtx, app: &App, pt: Pt2D) {
-        if let Some((at, _)) = self.snap_to_endpts.closest_pt(pt, Distance::meters(30.0)) {
-            self.waypoints
-                .push(Waypoint::new(ctx, app, at, self.waypoints.len()));
-        }
-    }
-
-    fn update_hover(&mut self, ctx: &EventCtx) {
-        self.hovering_on_waypt = None;
-
-        if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
-            self.hovering_on_waypt = self
-                .waypoints
-                .iter()
-                .position(|waypt| waypt.hitbox.contains_pt(pt));
-        }
-
-        let mut batch = GeomBatch::new();
-        if let Some(idx) = self.hovering_on_waypt {
-            batch.push(Color::BLUE.alpha(0.5), self.waypoints[idx].hitbox.clone());
-        }
-        self.draw_hover = ctx.upload(batch);
-    }
-
-    // Just use Option for early return
-    fn update_dragging(&mut self, ctx: &mut EventCtx, app: &App) -> Option<()> {
-        let pt = ctx.canvas.get_cursor_in_map_space()?;
-        let (at, _) = self.snap_to_endpts.closest_pt(pt, Distance::meters(30.0))?;
-
-        let idx = self.hovering_on_waypt.unwrap();
-        if self.waypoints[idx].at != at {
-            self.waypoints[idx] = Waypoint::new(ctx, app, at, idx);
-            self.update_input_panel(ctx, app);
-            self.update_waypoints_drawable(ctx);
-            self.update_route(ctx, app);
-        }
-
-        let mut batch = GeomBatch::new();
-        // Show where we're currently snapped
-        batch.push(Color::BLUE.alpha(0.5), self.waypoints[idx].hitbox.clone());
-        self.draw_hover = ctx.upload(batch);
-
-        Some(())
+        self.input_panel = Panel::new_builder(Widget::col(vec![
+            Tab::Route.make_header(ctx, app),
+            self.waypoints.get_panel_widget(ctx),
+        ]))
+        .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
+        .build(ctx);
     }
 
     fn update_route(&mut self, ctx: &mut EventCtx, app: &App) {
@@ -180,9 +70,9 @@ impl RoutePlanner {
         let mut elevation_pts: Vec<(Distance, Distance)> = Vec::new();
         let mut current_dist = Distance::ZERO;
 
-        for pair in self.waypoints.windows(2) {
+        for pair in self.waypoints.get_waypoints().windows(2) {
             if let Some((path, draw_path)) =
-                TripEndpoint::path_req(pair[0].at, pair[1].at, TripMode::Bike, map)
+                TripEndpoint::path_req(pair[0], pair[1], TripMode::Bike, map)
                     .and_then(|req| map.pathfind(req).ok())
                     .and_then(|path| {
                         path.trace(&app.primary.map)
@@ -309,55 +199,16 @@ impl State<App> for RoutePlanner {
             });
         }
 
-        if self.dragging {
-            if ctx.redo_mouseover() {
-                self.update_dragging(ctx, app);
-            }
-            if ctx.input.left_mouse_button_released() {
-                self.dragging = false;
-                self.update_hover(ctx);
-            }
-        } else {
-            if ctx.redo_mouseover() {
-                self.update_hover(ctx);
-            }
-
-            if self.hovering_on_waypt.is_none() {
-                ctx.canvas_movement();
-            } else if let Some((_, dy)) = ctx.input.get_mouse_scroll() {
-                // Zooming is OK, but can't start click and drag
-                ctx.canvas.zoom(dy, ctx.canvas.get_cursor());
-            }
-
-            if self.hovering_on_waypt.is_some() && ctx.input.left_mouse_button_pressed() {
-                self.dragging = true;
-            }
-
-            if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
-                if self.hovering_on_waypt.is_none() && ctx.normal_left_click() {
-                    self.make_new_waypt(ctx, app, pt);
-                    self.update_input_panel(ctx, app);
-                    self.update_waypoints_drawable(ctx);
-                    self.update_route(ctx, app);
-                    self.update_hover(ctx);
-                }
-            }
-        }
-
-        if let Outcome::Clicked(x) = self.input_panel.event(ctx) {
-            if let Some(x) = x.strip_prefix("delete waypoint ") {
-                let idx = x.parse::<usize>().unwrap();
-                self.waypoints.remove(idx);
-                // Recalculate labels, in case we deleted in the middle
-                for (idx, waypt) in self.waypoints.iter_mut().enumerate() {
-                    *waypt = Waypoint::new(ctx, app, waypt.at, idx);
-                }
-
-                self.update_input_panel(ctx, app);
-                self.update_waypoints_drawable(ctx);
-                self.update_route(ctx, app);
-            } else {
+        match self.input_panel.event(ctx) {
+            // TODO Inverting control is hard. Who should try to handle the outcome first?
+            Outcome::Clicked(x) if !x.starts_with("delete waypoint ") => {
                 return Tab::Route.handle_action::<RoutePlanner>(ctx, app, &x);
+            }
+            outcome => {
+                if self.waypoints.event(ctx, app, outcome) {
+                    self.update_input_panel(ctx, app);
+                    self.update_route(ctx, app);
+                }
             }
         }
 
@@ -371,45 +222,9 @@ impl State<App> for RoutePlanner {
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.layers.draw(g, app);
         self.input_panel.draw(g);
-        g.redraw(&self.draw_waypoints);
-        g.redraw(&self.draw_hover);
+        self.waypoints.draw(g);
 
         self.results_panel.draw(g);
         g.redraw(&self.draw_route);
-    }
-}
-
-impl Waypoint {
-    fn new(ctx: &mut EventCtx, app: &App, at: TripEndpoint, idx: usize) -> Waypoint {
-        let order = char::from_u32('A' as u32 + idx as u32).unwrap();
-        let map = &app.primary.map;
-        let (center, label) = match at {
-            TripEndpoint::Bldg(b) => {
-                let b = map.get_b(b);
-                (b.polygon.center(), b.address.clone())
-            }
-            TripEndpoint::Border(i) => {
-                let i = map.get_i(i);
-                (i.polygon.center(), i.name(app.opts.language.as_ref(), map))
-            }
-            TripEndpoint::SuddenlyAppear(pos) => (pos.pt(map), pos.to_string()),
-        };
-        let circle = Circle::new(center, Distance::meters(30.0)).to_polygon();
-        let mut geom = GeomBatch::new();
-        geom.push(Color::RED, circle.clone());
-        geom.append(
-            Text::from(Line(format!("{}", order)).fg(Color::WHITE))
-                .render(ctx)
-                .centered_on(center),
-        );
-        let hitbox = circle;
-
-        Waypoint {
-            order,
-            at,
-            label,
-            geom,
-            hitbox,
-        }
     }
 }

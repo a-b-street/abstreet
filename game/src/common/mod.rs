@@ -12,6 +12,7 @@ use widgetry::{
 pub use self::route_sketcher::RouteSketcher;
 pub use self::select::RoadSelector;
 pub use self::warp::{warp_to_id, Warping};
+pub use self::waypoints::InputWaypoints;
 use crate::app::App;
 use crate::app::Transition;
 use crate::info::{ContextualActions, InfoPanel, Tab};
@@ -20,6 +21,7 @@ use crate::sandbox::TimeWarpScreen;
 mod route_sketcher;
 mod select;
 mod warp;
+mod waypoints;
 
 // TODO This is now just used in two modes...
 pub struct CommonState {
