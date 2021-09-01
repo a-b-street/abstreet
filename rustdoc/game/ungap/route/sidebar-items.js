@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["RoutePlanner",""]]});
+initSidebarItems({"struct":[["RoutePlanner",""],["RouteResults",""]]});
