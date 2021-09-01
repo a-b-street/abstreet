@@ -18,10 +18,7 @@ pub struct RoutePlanner {
 
     input_panel: Panel,
     waypoints: InputWaypoints,
-
-    // Routing
-    draw_route: Drawable,
-    results_panel: Panel,
+    results: RouteResults,
 }
 
 impl TakeLayers for RoutePlanner {
@@ -38,12 +35,9 @@ impl RoutePlanner {
 
             input_panel: Panel::empty(ctx),
             waypoints: InputWaypoints::new(ctx, app),
-
-            draw_route: Drawable::empty(ctx),
-            results_panel: Panel::empty(ctx),
+            results: RouteResults::new(ctx, app, Vec::new()),
         };
         rp.update_input_panel(ctx, app);
-        rp.update_route(ctx, app);
         Box::new(rp)
     }
 
@@ -55,8 +49,54 @@ impl RoutePlanner {
         .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
         .build(ctx);
     }
+}
 
-    fn update_route(&mut self, ctx: &mut EventCtx, app: &App) {
+impl State<App> for RoutePlanner {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+        if self.once {
+            self.once = false;
+            ctx.loading_screen("apply edits", |_, mut timer| {
+                app.primary
+                    .map
+                    .recalculate_pathfinding_after_edits(&mut timer);
+            });
+        }
+
+        match self.input_panel.event(ctx) {
+            // TODO Inverting control is hard. Who should try to handle the outcome first?
+            Outcome::Clicked(x) if !x.starts_with("delete waypoint ") => {
+                return Tab::Route.handle_action::<RoutePlanner>(ctx, app, &x);
+            }
+            outcome => {
+                if self.waypoints.event(ctx, app, outcome) {
+                    self.update_input_panel(ctx, app);
+                    self.results = RouteResults::new(ctx, app, self.waypoints.get_waypoints());
+                }
+            }
+        }
+
+        if let Some(t) = self.layers.event(ctx, app) {
+            return t;
+        }
+
+        Transition::Keep
+    }
+
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
+        self.layers.draw(g, app);
+        self.input_panel.draw(g);
+        self.waypoints.draw(g);
+        self.results.draw(g);
+    }
+}
+
+struct RouteResults {
+    draw_route: Drawable,
+    panel: Panel,
+}
+
+impl RouteResults {
+    fn new(ctx: &mut EventCtx, app: &App, waypoints: Vec<TripEndpoint>) -> RouteResults {
         let mut batch = GeomBatch::new();
         let map = &app.primary.map;
 
@@ -70,7 +110,7 @@ impl RoutePlanner {
         let mut elevation_pts: Vec<(Distance, Distance)> = Vec::new();
         let mut current_dist = Distance::ZERO;
 
-        for pair in self.waypoints.get_waypoints().windows(2) {
+        for pair in waypoints.windows(2) {
             if let Some((path, draw_path)) =
                 TripEndpoint::path_req(pair[0], pair[1], TripMode::Bike, map)
                     .and_then(|req| map.pathfind(req).ok())
@@ -110,8 +150,7 @@ impl RoutePlanner {
                 }
             }
         }
-
-        self.draw_route = ctx.upload(batch);
+        let draw_route = ctx.upload(batch);
 
         let mut total_up = Distance::ZERO;
         let mut total_down = Distance::ZERO;
@@ -157,7 +196,7 @@ impl RoutePlanner {
             Line(num_unprotected_turns.to_string()),
         ]);
 
-        self.results_panel = Panel::new_builder(Widget::col(vec![
+        let panel = Panel::new_builder(Widget::col(vec![
             txt.into_widget(ctx),
             Text::from_all(vec![
                 Line("Elevation change: ").secondary(),
@@ -185,46 +224,12 @@ impl RoutePlanner {
         ]))
         .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
         .build(ctx);
-    }
-}
 
-impl State<App> for RoutePlanner {
-    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        if self.once {
-            self.once = false;
-            ctx.loading_screen("apply edits", |_, mut timer| {
-                app.primary
-                    .map
-                    .recalculate_pathfinding_after_edits(&mut timer);
-            });
-        }
-
-        match self.input_panel.event(ctx) {
-            // TODO Inverting control is hard. Who should try to handle the outcome first?
-            Outcome::Clicked(x) if !x.starts_with("delete waypoint ") => {
-                return Tab::Route.handle_action::<RoutePlanner>(ctx, app, &x);
-            }
-            outcome => {
-                if self.waypoints.event(ctx, app, outcome) {
-                    self.update_input_panel(ctx, app);
-                    self.update_route(ctx, app);
-                }
-            }
-        }
-
-        if let Some(t) = self.layers.event(ctx, app) {
-            return t;
-        }
-
-        Transition::Keep
+        RouteResults { draw_route, panel }
     }
 
-    fn draw(&self, g: &mut GfxCtx, app: &App) {
-        self.layers.draw(g, app);
-        self.input_panel.draw(g);
-        self.waypoints.draw(g);
-
-        self.results_panel.draw(g);
+    fn draw(&self, g: &mut GfxCtx) {
+        self.panel.draw(g);
         g.redraw(&self.draw_route);
     }
 }
