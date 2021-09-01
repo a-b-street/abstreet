@@ -949,6 +949,7 @@
 <span id="947">947</span>
 <span id="948">948</span>
 <span id="949">949</span>
+<span id="950">950</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashSet</span>};
 
@@ -1848,6 +1849,7 @@
     <span class="comment">// TODO Show roughly where we are in the trip; use distance covered by current path for this</span>
     <span class="ident">LinePlot::new_widget</span>(
         <span class="ident">ctx</span>,
+        <span class="string">&quot;elevation&quot;</span>,
         <span class="macro">vec!</span>[<span class="ident">Series</span> {
             <span class="ident">label</span>: <span class="kw">if</span> <span class="ident">walking</span> {
                 <span class="string">&quot;Elevation for walking&quot;</span>

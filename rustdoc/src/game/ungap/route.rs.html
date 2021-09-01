@@ -235,11 +235,64 @@
 <span id="233">233</span>
 <span id="234">234</span>
 <span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
+<span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
+<span id="244">244</span>
+<span id="245">245</span>
+<span id="246">246</span>
+<span id="247">247</span>
+<span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
+<span id="251">251</span>
+<span id="252">252</span>
+<span id="253">253</span>
+<span id="254">254</span>
+<span id="255">255</span>
+<span id="256">256</span>
+<span id="257">257</span>
+<span id="258">258</span>
+<span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>};
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">PathStep</span>, <span class="ident">NORMAL_LANE_THICKNESS</span>};
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">PolyLine</span>};
+<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">Path</span>, <span class="ident">PathStep</span>, <span class="ident">NORMAL_LANE_THICKNESS</span>};
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">TripEndpoint</span>, <span class="ident">TripMode</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Line</span>, <span class="ident">LinePlot</span>, <span class="ident">Outcome</span>,
@@ -313,6 +366,8 @@
             }
         }
 
+        <span class="self">self</span>.<span class="ident">results</span>.<span class="ident">event</span>(<span class="ident">ctx</span>);
+
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">layers</span>.<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="ident">app</span>) {
             <span class="kw">return</span> <span class="ident">t</span>;
         }
@@ -329,6 +384,11 @@
 }
 
 <span class="kw">struct</span> <span class="ident">RouteResults</span> {
+    <span class="comment">// It&#39;s tempting to glue together all of the paths. But since some waypoints might force the</span>
+    <span class="comment">// path to double back on itself, rendering the path as a single PolyLine would break.</span>
+    <span class="ident">paths</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Path</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PolyLine</span><span class="op">&gt;</span>)<span class="op">&gt;</span>,
+
+    <span class="ident">hover_on_line_plot</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Distance</span>, <span class="ident">Drawable</span>)<span class="op">&gt;</span>,
     <span class="ident">draw_route</span>: <span class="ident">Drawable</span>,
     <span class="ident">panel</span>: <span class="ident">Panel</span>,
 }
@@ -348,16 +408,12 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">elevation_pts</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Distance</span>, <span class="ident">Distance</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">current_dist</span> <span class="op">=</span> <span class="ident">Distance::ZERO</span>;
 
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">paths</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+
         <span class="kw">for</span> <span class="ident">pair</span> <span class="kw">in</span> <span class="ident">waypoints</span>.<span class="ident">windows</span>(<span class="number">2</span>) {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">path</span>, <span class="ident">draw_path</span>)) <span class="op">=</span>
-                <span class="ident">TripEndpoint::path_req</span>(<span class="ident">pair</span>[<span class="number">0</span>], <span class="ident">pair</span>[<span class="number">1</span>], <span class="ident">TripMode::Bike</span>, <span class="ident">map</span>)
-                    .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">req</span><span class="op">|</span> <span class="ident">map</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>).<span class="ident">ok</span>())
-                    .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">path</span><span class="op">|</span> {
-                        <span class="ident">path</span>.<span class="ident">trace</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>)
-                            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">pl</span><span class="op">|</span> (<span class="ident">path</span>, <span class="ident">pl</span>.<span class="ident">make_polygons</span>(<span class="number">5.0</span> <span class="op">*</span> <span class="ident">NORMAL_LANE_THICKNESS</span>)))
-                    })
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">path</span>) <span class="op">=</span> <span class="ident">TripEndpoint::path_req</span>(<span class="ident">pair</span>[<span class="number">0</span>], <span class="ident">pair</span>[<span class="number">1</span>], <span class="ident">TripMode::Bike</span>, <span class="ident">map</span>)
+                .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">req</span><span class="op">|</span> <span class="ident">map</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>).<span class="ident">ok</span>())
             {
-                <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color::CYAN</span>, <span class="ident">draw_path</span>);
                 <span class="ident">total_distance</span> <span class="op">+</span><span class="op">=</span> <span class="ident">path</span>.<span class="ident">total_length</span>();
                 <span class="ident">total_time</span> <span class="op">+</span><span class="op">=</span> <span class="ident">path</span>.<span class="ident">estimate_duration</span>(<span class="ident">map</span>, <span class="prelude-val">Some</span>(<span class="ident">map_model::MAX_BIKE_SPEED</span>));
 
@@ -386,6 +442,12 @@
                     }
                     <span class="ident">current_dist</span> <span class="op">+</span><span class="op">=</span> <span class="ident">this_dist</span>;
                 }
+
+                <span class="kw">let</span> <span class="ident">maybe_pl</span> <span class="op">=</span> <span class="ident">path</span>.<span class="ident">trace</span>(<span class="ident">map</span>);
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">pl</span>) <span class="op">=</span> <span class="ident">maybe_pl</span> {
+                    <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color::CYAN</span>, <span class="ident">pl</span>.<span class="ident">make_polygons</span>(<span class="number">5.0</span> <span class="op">*</span> <span class="ident">NORMAL_LANE_THICKNESS</span>));
+                }
+                <span class="ident">paths</span>.<span class="ident">push</span>((<span class="ident">path</span>, <span class="ident">maybe_pl</span>));
             }
         }
         <span class="kw">let</span> <span class="ident">draw_route</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">batch</span>);
@@ -447,6 +509,7 @@
             .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
             <span class="ident">LinePlot::new_widget</span>(
                 <span class="ident">ctx</span>,
+                <span class="string">&quot;elevation&quot;</span>,
                 <span class="macro">vec!</span>[<span class="ident">Series</span> {
                     <span class="ident">label</span>: <span class="string">&quot;Elevation&quot;</span>.<span class="ident">to_string</span>(),
                     <span class="ident">color</span>: <span class="ident">Color::RED</span>,
@@ -463,12 +526,55 @@
         .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::Right</span>, <span class="ident">VerticalAlignment::Top</span>)
         .<span class="ident">build</span>(<span class="ident">ctx</span>);
 
-        <span class="ident">RouteResults</span> { <span class="ident">draw_route</span>, <span class="ident">panel</span> }
+        <span class="ident">RouteResults</span> {
+            <span class="ident">draw_route</span>,
+            <span class="ident">panel</span>,
+            <span class="ident">paths</span>,
+            <span class="ident">hover_on_line_plot</span>: <span class="prelude-val">None</span>,
+        }
+    }
+
+    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) {
+        <span class="comment">// No outcomes, just trigger the LinePlot to update hover state</span>
+        <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>);
+
+        <span class="kw">let</span> <span class="ident">current_dist_along</span> <span class="op">=</span> <span class="self">self</span>
+            .<span class="ident">panel</span>
+            .<span class="ident">find</span>::<span class="op">&lt;</span><span class="ident">LinePlot</span><span class="op">&lt;</span><span class="ident">Distance</span>, <span class="ident">Distance</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="string">&quot;elevation&quot;</span>)
+            .<span class="ident">get_hovering</span>()
+            .<span class="ident">get</span>(<span class="number">0</span>)
+            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">pair</span><span class="op">|</span> <span class="ident">pair</span>.<span class="number">0</span>);
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">hover_on_line_plot</span>.<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">pair</span><span class="op">|</span> <span class="ident">pair</span>.<span class="number">0</span>) <span class="op">!</span><span class="op">=</span> <span class="ident">current_dist_along</span> {
+            <span class="self">self</span>.<span class="ident">hover_on_line_plot</span> <span class="op">=</span> <span class="ident">current_dist_along</span>.<span class="ident">map</span>(<span class="op">|</span><span class="kw-2">mut</span> <span class="ident">dist</span><span class="op">|</span> {
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
+                <span class="comment">// Find this position on the route</span>
+                <span class="kw">for</span> (<span class="ident">path</span>, <span class="ident">maybe_pl</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">paths</span> {
+                    <span class="kw">if</span> <span class="ident">dist</span> <span class="op">&gt;</span> <span class="ident">path</span>.<span class="ident">total_length</span>() {
+                        <span class="ident">dist</span> <span class="op">-</span><span class="op">=</span> <span class="ident">path</span>.<span class="ident">total_length</span>();
+                        <span class="kw">continue</span>;
+                    }
+                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">pl</span>) <span class="op">=</span> <span class="ident">maybe_pl</span> {
+                        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>((<span class="ident">pt</span>, <span class="kw">_</span>)) <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">dist_along</span>(<span class="ident">dist</span>) {
+                            <span class="ident">batch</span>.<span class="ident">push</span>(
+                                <span class="ident">Color::CYAN</span>,
+                                <span class="ident">Circle::new</span>(<span class="ident">pt</span>, <span class="ident">Distance::meters</span>(<span class="number">30.0</span>)).<span class="ident">to_polygon</span>(),
+                            );
+                        }
+                    }
+                    <span class="kw">break</span>;
+                }
+
+                (<span class="ident">dist</span>, <span class="ident">batch</span>.<span class="ident">upload</span>(<span class="ident">ctx</span>))
+            });
+        }
     }
 
     <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>) {
         <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
         <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">draw_route</span>);
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">draw</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">hover_on_line_plot</span> {
+            <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="ident">draw</span>);
+        }
     }
 }
 </pre></div>

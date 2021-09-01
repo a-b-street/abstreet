@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["LinePlot",""]]});
+initSidebarItems({"struct":[["Hovering",""],["LinePlot",""]]});

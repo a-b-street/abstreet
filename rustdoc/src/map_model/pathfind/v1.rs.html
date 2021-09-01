@@ -724,6 +724,9 @@
 <span id="722">722</span>
 <span id="723">723</span>
 <span id="724">724</span>
+<span id="725">725</span>
+<span id="726">726</span>
+<span id="727">727</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections::VecDeque</span>;
 <span class="kw">use</span> <span class="ident">std::fmt</span>;
@@ -1094,6 +1097,9 @@
 
     <span class="doccomment">/// Traces along the path from its originally requested start. This is only valid to call for</span>
     <span class="doccomment">/// an umodified path.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// It mostly seems the PolyLine&#39;s length will match `total_length`, but callers beware if</span>
+    <span class="doccomment">/// you&#39;re relying on this -- check walking paths with the buggy sharp angles particularly.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">trace</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PolyLine</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">t1</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">steps</span>[<span class="number">0</span>].<span class="ident">as_traversable</span>();
         <span class="kw">let</span> <span class="ident">t2</span> <span class="op">=</span> <span class="ident">Traversable::Lane</span>(<span class="self">self</span>.<span class="ident">orig_req</span>.<span class="ident">start</span>.<span class="ident">lane</span>());

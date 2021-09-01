@@ -1527,7 +1527,7 @@
     <span class="ident">plot_opts</span>.<span class="ident">disabled</span> <span class="op">=</span> <span class="ident">opts</span>.<span class="ident">disabled_series</span>();
     <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
         <span class="ident">Line</span>(<span class="ident">title</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-        <span class="ident">LinePlot::new_widget</span>(<span class="ident">ctx</span>, <span class="ident">series</span>, <span class="ident">plot_opts</span>),
+        <span class="ident">LinePlot::new_widget</span>(<span class="ident">ctx</span>, <span class="ident">title</span>, <span class="ident">series</span>, <span class="ident">plot_opts</span>),
     ])
     .<span class="ident">padding</span>(<span class="number">10</span>)
     .<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">inner_panel_bg</span>)
