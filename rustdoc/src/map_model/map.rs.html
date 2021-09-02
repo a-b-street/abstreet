@@ -1662,8 +1662,8 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">minify</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) {
         <span class="self">self</span>.<span class="ident">name</span>.<span class="ident">map</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;minified_{}&quot;</span>, <span class="self">self</span>.<span class="ident">name</span>.<span class="ident">map</span>);
 
-        <span class="comment">// Don&#39;t need CHs</span>
-        <span class="self">self</span>.<span class="ident">pathfinder</span> <span class="op">=</span> <span class="ident">Pathfinder::new</span>(
+        <span class="comment">// Don&#39;t need CHs or even the graph for anything except bikes.</span>
+        <span class="self">self</span>.<span class="ident">pathfinder</span> <span class="op">=</span> <span class="ident">Pathfinder::just_bikes</span>(
             <span class="self">self</span>,
             <span class="self">self</span>.<span class="ident">routing_params</span>().<span class="ident">clone</span>(),
             <span class="kw">crate</span><span class="ident">::pathfind::CreateEngine::Dijkstra</span>,

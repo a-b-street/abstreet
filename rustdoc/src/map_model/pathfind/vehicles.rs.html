@@ -322,6 +322,10 @@
 <span id="320">320</span>
 <span id="321">321</span>
 <span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
 </pre><pre class="rust">
 <span class="doccomment">//! Pathfinding for cars, bikes, buses, and trains using contraction hierarchies</span>
 
@@ -459,6 +463,10 @@
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">apply_edits</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) {
+        <span class="kw">if</span> <span class="macro">matches!</span>(<span class="self">self</span>.<span class="ident">engine</span>, <span class="ident">PathfindEngine::Empty</span>) {
+            <span class="kw">return</span>;
+        }
+
         <span class="comment">// The NodeMap is just all roads and uber-turns -- it won&#39;t change. So we can also reuse</span>
         <span class="comment">// the node ordering.</span>
         <span class="comment">// TODO Make sure the result of this is deterministic and equivalent to computing from</span>
