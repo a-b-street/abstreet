@@ -315,6 +315,21 @@
 <span id="313">313</span>
 <span id="314">314</span>
 <span id="315">315</span>
+<span id="316">316</span>
+<span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 
@@ -393,7 +408,7 @@
             }
         }
 
-        <span class="self">self</span>.<span class="ident">results</span>.<span class="ident">event</span>(<span class="ident">ctx</span>);
+        <span class="self">self</span>.<span class="ident">results</span>.<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">layers</span>.<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="ident">app</span>) {
             <span class="kw">return</span> <span class="ident">t</span>;
@@ -566,7 +581,7 @@
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) {
+    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
         <span class="comment">// No outcomes, just trigger the LinePlot to update hover state</span>
         <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>);
 
@@ -612,11 +627,26 @@
                 }
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">pl</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">paths</span>[<span class="ident">idx</span>].<span class="number">1</span> {
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">dist_here</span>, <span class="kw">_</span>)) <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">dist_along_of_point</span>(<span class="ident">pt</span>) {
-                        <span class="comment">// TODO We know we&#39;re dist + dist_here along the entire route. The LinePlot</span>
-                        <span class="comment">// would need to store the original Series to look up elevation for us. So</span>
-                        <span class="comment">// I guess we can do it ourselves here, then send in the X and Y and make</span>
-                        <span class="comment">// it map that to its own screen-space...</span>
-                        <span class="macro">println!</span>(<span class="string">&quot;We&#39;re {} along the route...&quot;</span>, <span class="ident">dist</span> <span class="op">+</span> <span class="ident">dist_here</span>);
+                        <span class="comment">// The LinePlot doesn&#39;t hold onto the original Series, so it can&#39;t help us</span>
+                        <span class="comment">// figure out elevation here. Let&#39;s match this point to the original path</span>
+                        <span class="comment">// and guess elevation ourselves...</span>
+                        <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>;
+                        <span class="kw">let</span> <span class="ident">elevation</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">paths</span>[<span class="ident">idx</span>]
+                            .<span class="number">0</span>
+                            .<span class="ident">get_step_at_dist_along</span>(<span class="ident">map</span>, <span class="ident">dist_here</span>)
+                            <span class="comment">// We often seem to slightly exceed the total length, so just clamp</span>
+                            <span class="comment">// here...</span>
+                            .<span class="ident">unwrap_or</span>(<span class="self">self</span>.<span class="ident">paths</span>[<span class="ident">idx</span>].<span class="number">0</span>.<span class="ident">last_step</span>())
+                        {
+                            <span class="ident">PathStep::Lane</span>(<span class="ident">l</span>) <span class="op">|</span> <span class="ident">PathStep::ContraflowLane</span>(<span class="ident">l</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                                <span class="comment">// TODO Interpolate</span>
+                                <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">src_i</span>).<span class="ident">elevation</span>
+                            }
+                            <span class="ident">PathStep::Turn</span>(<span class="ident">t</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">t</span>.<span class="ident">parent</span>).<span class="ident">elevation</span>,
+                        };
+                        <span class="self">self</span>.<span class="ident">panel</span>
+                            .<span class="ident">find_mut</span>::<span class="op">&lt;</span><span class="ident">LinePlot</span><span class="op">&lt;</span><span class="ident">Distance</span>, <span class="ident">Distance</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="string">&quot;elevation&quot;</span>)
+                            .<span class="ident">set_hovering</span>(<span class="ident">ctx</span>, <span class="ident">dist</span> <span class="op">+</span> <span class="ident">dist_here</span>, <span class="ident">elevation</span>);
                     }
                 }
             }

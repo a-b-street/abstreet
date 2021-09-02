@@ -313,6 +313,10 @@
 <span id="311">311</span>
 <span id="312">312</span>
 <span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
+<span id="317">317</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::cell::Cell</span>;
 
@@ -475,6 +479,10 @@
     <span class="comment">// Canvas stuff.</span>
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw_mouse_tooltip</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">txt</span>: <span class="ident">Text</span>) {
+        <span class="kw">if</span> <span class="ident">txt</span>.<span class="ident">is_empty</span>() {
+            <span class="kw">return</span>;
+        }
+
         <span class="comment">// Add some padding</span>
         <span class="kw">let</span> <span class="ident">pad</span> <span class="op">=</span> <span class="number">5.0</span>;
         <span class="kw">let</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">txt</span>.<span class="ident">default_fg</span>(<span class="self">self</span>.<span class="ident">style</span>.<span class="ident">text_tooltip_color</span>);
