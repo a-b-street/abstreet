@@ -329,6 +329,11 @@
 <span id="327">327</span>
 <span id="328">328</span>
 <span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">Bounds</span>, <span class="ident">GPSBounds</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
 
@@ -384,6 +389,11 @@
     <span class="doccomment">/// Adds a single polygon to the front of the batch, painted according to `Fill`</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">unshift</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Fill</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">fill</span>: <span class="ident">F</span>, <span class="ident">p</span>: <span class="ident">Polygon</span>) {
         <span class="self">self</span>.<span class="ident">list</span>.<span class="ident">insert</span>(<span class="number">0</span>, (<span class="ident">fill</span>.<span class="ident">into</span>(), <span class="ident">p</span>, <span class="number">0.0</span>));
+    }
+
+    <span class="doccomment">/// Removes the first polygon in the batch.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">shift</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+        <span class="self">self</span>.<span class="ident">list</span>.<span class="ident">remove</span>(<span class="number">0</span>);
     }
 
     <span class="doccomment">/// Applies one Fill to many polygons.</span>
