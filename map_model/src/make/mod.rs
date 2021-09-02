@@ -3,11 +3,8 @@
 
 use std::collections::{BTreeMap, HashMap, HashSet};
 
-use abstio::MapName;
 use abstutil::{MultiMap, Tags, Timer};
-use geom::{
-    Bounds, Distance, FindClosest, GPSBounds, HashablePt2D, Line, Polygon, Speed, EPSILON_DIST,
-};
+use geom::{Bounds, Distance, FindClosest, HashablePt2D, Line, Polygon, Speed, EPSILON_DIST};
 
 pub use self::parking_lots::snap_driveway;
 use crate::pathfind::{CreateEngine, Pathfinder};
@@ -329,45 +326,6 @@ impl Map {
         };
         map.pathfinder = Pathfinder::new(&map, map.routing_params().clone(), engine, timer);
         timer.stop("setup pathfinding");
-
-        map
-    }
-}
-
-impl Map {
-    /// Use for creating a map directly from some external format, not from a RawMap.
-    pub fn import_minimal(
-        name: MapName,
-        bounds: Bounds,
-        gps_bounds: GPSBounds,
-        intersections: Vec<Intersection>,
-        roads: Vec<Road>,
-        lanes: Vec<Lane>,
-    ) -> Map {
-        let mut map = Map::blank();
-        map.name = name;
-        map.map_loaded_directly();
-        map.bounds = bounds;
-        map.gps_bounds = gps_bounds;
-        map.boundary_polygon = map.bounds.get_rectangle();
-        map.intersections = intersections;
-        map.roads = roads;
-        map.lanes = lanes.into_iter().map(|l| (l.id, l)).collect();
-
-        let stop_signs = map
-            .intersections
-            .iter()
-            .filter_map(|i| {
-                if i.intersection_type == IntersectionType::StopSign {
-                    Some(i.id)
-                } else {
-                    None
-                }
-            })
-            .collect::<Vec<_>>();
-        for i in stop_signs {
-            map.stop_signs.insert(i, ControlStopSign::new(&map, i));
-        }
 
         map
     }

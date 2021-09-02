@@ -148,8 +148,7 @@ pub struct Road {
     pub percent_incline: f64,
 
     /// Invariant: A road must contain at least one child
-    // TODO Only public for Map::import_minimal. Can we avoid this?
-    pub lanes_ltr: Vec<(LaneID, Direction, LaneType)>,
+    pub(crate) lanes_ltr: Vec<(LaneID, Direction, LaneType)>,
 
     /// The physical center of the road, including sidewalks, after trimming to account for the
     /// intersection geometry. The order implies road orientation.

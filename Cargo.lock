@@ -2738,7 +2738,7 @@ dependencies = [
  "derive_builder",
  "flate2",
  "protobuf",
- "quick-xml 0.20.0",
+ "quick-xml",
  "separator",
  "xml-rs",
 ]
@@ -2984,16 +2984,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "26aab6b48e2590e4a64d1ed808749ba06257882b461d01ca71baeb747074a6dd"
 dependencies = [
  "memchr",
-]
-
-[[package]]
-name = "quick-xml"
-version = "0.22.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8533f14c8382aaad0d592c812ac3b826162128b65662331e1127b45c3d18536b"
-dependencies = [
- "memchr",
- "serde",
 ]
 
 [[package]]
@@ -3630,19 +3620,6 @@ source = "git+https://github.com/hniksic/rust-subprocess#c3e057d485dc9154396eeb3
 dependencies = [
  "libc",
  "winapi 0.3.9",
-]
-
-[[package]]
-name = "sumo"
-version = "0.1.0"
-dependencies = [
- "abstio",
- "abstutil",
- "anyhow",
- "geom",
- "map_model",
- "quick-xml 0.22.0",
- "serde",
 ]
 
 [[package]]

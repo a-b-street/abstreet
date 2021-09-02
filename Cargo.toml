@@ -19,7 +19,6 @@ members = [
   "popdat",
   "santa",
   "sim",
-  "sumo",
   "tests",
   "traffic_seitan",
   "traffic_signal_data",
