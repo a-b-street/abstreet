@@ -180,6 +180,25 @@ impl<X: Axis<X>, Y: Axis<Y>> LinePlot<X, Y> {
             Vec::new()
         }
     }
+
+    // TODO Explain purpose
+    pub fn set_hovering(&mut self, ctx: &mut EventCtx, x: X, y: Y) {
+        // TODO What series?
+        let mut txt = Text::new().bg(Color::RED);
+        txt.add_line(format!("at {}, {}", x.prettyprint(), y.prettyprint()));
+
+        // Find this point in screen-space
+        let pt = Pt2D::new(
+            self.top_left.x + x.to_percent(self.max_x) * self.dims.width,
+            self.top_left.y + (1.0 - y.to_percent(self.max_y)) * self.dims.height,
+        );
+
+        self.hovering = Some(Hovering {
+            hits: Vec::new(),
+            tooltip: Text::new(),
+            draw_cursor: txt.render(ctx).centered_on(pt).upload(ctx),
+        });
+    }
 }
 
 impl<X: Axis<X>, Y: Axis<Y>> WidgetImpl for LinePlot<X, Y> {

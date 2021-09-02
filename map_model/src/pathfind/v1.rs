@@ -504,6 +504,20 @@ impl Path {
         }
         (gain, loss)
     }
+
+    pub fn get_step_at_dist_along(&self, map: &Map, mut dist_along: Distance) -> Result<PathStep> {
+        for step in &self.steps {
+            let dist_here = self.dist_crossed_from_step(map, step);
+            if dist_along <= dist_here {
+                return Ok(*step);
+            }
+            dist_along -= dist_here;
+        }
+        bail!(
+            "get_step_at_dist_along has leftover distance of {}",
+            dist_along
+        );
+    }
 }
 
 #[derive(Debug, PartialEq, Eq, Clone, Serialize, Deserialize)]

@@ -75,7 +75,7 @@ impl State<App> for RoutePlanner {
             }
         }
 
-        self.results.event(ctx);
+        self.results.event(ctx, app);
 
         if let Some(t) = self.layers.event(ctx, app) {
             return t;
@@ -248,7 +248,7 @@ impl RouteResults {
         }
     }
 
-    fn event(&mut self, ctx: &mut EventCtx) {
+    fn event(&mut self, ctx: &mut EventCtx, app: &App) {
         // No outcomes, just trigger the LinePlot to update hover state
         self.panel.event(ctx);
 
@@ -294,11 +294,26 @@ impl RouteResults {
                 }
                 if let Some(ref pl) = self.paths[idx].1 {
                     if let Some((dist_here, _)) = pl.dist_along_of_point(pt) {
-                        // TODO We know we're dist + dist_here along the entire route. The LinePlot
-                        // would need to store the original Series to look up elevation for us. So
-                        // I guess we can do it ourselves here, then send in the X and Y and make
-                        // it map that to its own screen-space...
-                        println!("We're {} along the route...", dist + dist_here);
+                        // The LinePlot doesn't hold onto the original Series, so it can't help us
+                        // figure out elevation here. Let's match this point to the original path
+                        // and guess elevation ourselves...
+                        let map = &app.primary.map;
+                        let elevation = match self.paths[idx]
+                            .0
+                            .get_step_at_dist_along(map, dist_here)
+                            // We often seem to slightly exceed the total length, so just clamp
+                            // here...
+                            .unwrap_or(self.paths[idx].0.last_step())
+                        {
+                            PathStep::Lane(l) | PathStep::ContraflowLane(l) => {
+                                // TODO Interpolate
+                                map.get_i(map.get_l(l).src_i).elevation
+                            }
+                            PathStep::Turn(t) => map.get_i(t.parent).elevation,
+                        };
+                        self.panel
+                            .find_mut::<LinePlot<Distance, Distance>>("elevation")
+                            .set_hovering(ctx, dist + dist_here, elevation);
                     }
                 }
             }

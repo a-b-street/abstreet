@@ -159,6 +159,10 @@ impl<'a> GfxCtx<'a> {
     // Canvas stuff.
 
     pub fn draw_mouse_tooltip(&mut self, txt: Text) {
+        if txt.is_empty() {
+            return;
+        }
+
         // Add some padding
         let pad = 5.0;
         let txt = txt.default_fg(self.style.text_tooltip_color);
