@@ -134,6 +134,10 @@ impl VehiclePathfinder {
     }
 
     pub fn apply_edits(&mut self, map: &Map) {
+        if matches!(self.engine, PathfindEngine::Empty) {
+            return;
+        }
+
         // The NodeMap is just all roads and uber-turns -- it won't change. So we can also reuse
         // the node ordering.
         // TODO Make sure the result of this is deterministic and equivalent to computing from

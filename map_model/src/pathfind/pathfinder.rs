@@ -97,6 +97,20 @@ impl Pathfinder {
         }
     }
 
+    pub fn just_bikes(
+        map: &Map,
+        params: RoutingParams,
+        engine: CreateEngine,
+        timer: &mut Timer,
+    ) -> Pathfinder {
+        let mut p = Pathfinder::empty();
+        timer.start("prepare pathfinding for bikes");
+        p.bike_graph = VehiclePathfinder::new(map, PathConstraints::Bike, &params, &engine);
+        timer.stop("prepare pathfinding for bikes");
+        p.params = params;
+        p
+    }
+
     /// Finds a path from a start to an end for a certain type of agent.
     pub fn pathfind(&self, req: PathRequest, map: &Map) -> Option<PathV2> {
         self.pathfind_with_params(req, map.routing_params(), map)

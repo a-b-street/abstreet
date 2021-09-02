@@ -824,8 +824,8 @@ impl Map {
     pub fn minify(&mut self, timer: &mut Timer) {
         self.name.map = format!("minified_{}", self.name.map);
 
-        // Don't need CHs
-        self.pathfinder = Pathfinder::new(
+        // Don't need CHs or even the graph for anything except bikes.
+        self.pathfinder = Pathfinder::just_bikes(
             self,
             self.routing_params().clone(),
             crate::pathfind::CreateEngine::Dijkstra,

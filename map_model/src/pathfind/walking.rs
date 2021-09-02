@@ -104,6 +104,10 @@ impl SidewalkPathfinder {
         map: &Map,
         use_transit: Option<(&VehiclePathfinder, &VehiclePathfinder)>,
     ) {
+        if matches!(self.engine, PathfindEngine::Empty) {
+            return;
+        }
+
         let input_graph = make_input_graph(&self.nodes, use_transit, map);
         let engine = self.engine.reuse_ordering().create(input_graph);
         self.engine = engine;
