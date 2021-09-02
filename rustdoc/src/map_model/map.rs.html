@@ -821,6 +821,20 @@
 <span id="819">819</span>
 <span id="820">820</span>
 <span id="821">821</span>
+<span id="822">822</span>
+<span id="823">823</span>
+<span id="824">824</span>
+<span id="825">825</span>
+<span id="826">826</span>
+<span id="827">827</span>
+<span id="828">828</span>
+<span id="829">829</span>
+<span id="830">830</span>
+<span id="831">831</span>
+<span id="832">832</span>
+<span id="833">833</span>
+<span id="834">834</span>
+<span id="835">835</span>
 </pre><pre class="rust">
 <span class="doccomment">//! A bunch of (mostly read-only) queries on a Map.</span>
 
@@ -1641,6 +1655,20 @@
         <span class="ident">turn_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">unprotected_turn_type</span>
             <span class="op">&amp;&amp;</span> <span class="ident">from</span>.<span class="ident">get_detailed_rank</span>() <span class="op">&lt;</span> <span class="ident">to</span>.<span class="ident">get_detailed_rank</span>()
             <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">get_i</span>(<span class="ident">from</span>.<span class="ident">common_endpt</span>(<span class="ident">to</span>)).<span class="ident">is_stop_sign</span>()
+    }
+
+    <span class="doccomment">/// Modifies the map in-place, removing parts not essential for the bike network tool. Also</span>
+    <span class="doccomment">/// modifies the name.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">minify</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) {
+        <span class="self">self</span>.<span class="ident">name</span>.<span class="ident">map</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;minified_{}&quot;</span>, <span class="self">self</span>.<span class="ident">name</span>.<span class="ident">map</span>);
+
+        <span class="comment">// Don&#39;t need CHs</span>
+        <span class="self">self</span>.<span class="ident">pathfinder</span> <span class="op">=</span> <span class="ident">Pathfinder::new</span>(
+            <span class="self">self</span>,
+            <span class="self">self</span>.<span class="ident">routing_params</span>().<span class="ident">clone</span>(),
+            <span class="kw">crate</span><span class="ident">::pathfind::CreateEngine::Dijkstra</span>,
+            <span class="ident">timer</span>,
+        );
     }
 }
 </pre></div>
