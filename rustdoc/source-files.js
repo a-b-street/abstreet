@@ -31,7 +31,6 @@ sourcesIndex["popdat"] = {"name":"","files":["activities.rs","distribute_people.
 sourcesIndex["random_scenario"] = {"name":"","files":["random_scenario.rs"]};
 sourcesIndex["santa"] = {"name":"","files":["after_level.rs","animation.rs","before_level.rs","buildings.rs","controls.rs","game.rs","levels.rs","lib.rs","meters.rs","music.rs","player.rs","session.rs","title.rs","vehicles.rs"]};
 sourcesIndex["sim"] = {"name":"","dirs":[{"name":"make","files":["activity_model.rs","external.rs","generator.rs","load.rs","mod.rs","modifier.rs","scenario.rs","spawner.rs"]},{"name":"mechanics","files":["car.rs","driving.rs","intersection.rs","mod.rs","parking.rs","queue.rs","walking.rs"]},{"name":"pandemic","files":["mod.rs","model.rs"]},{"name":"sim","files":["mod.rs","queries.rs"]}],"files":["analytics.rs","events.rs","lib.rs","recorder.rs","render.rs","router.rs","scheduler.rs","transit.rs","trips.rs"]};
-sourcesIndex["sumo"] = {"name":"","files":["lib.rs","normalize.rs","raw.rs"]};
 sourcesIndex["tests"] = {"name":"","files":["main.rs"]};
 sourcesIndex["traffic_seitan"] = {"name":"","files":["main.rs"]};
 sourcesIndex["traffic_signal_data"] = {"name":"","files":["lib.rs"]};

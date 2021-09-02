@@ -674,7 +674,6 @@
 <span id="672">672</span>
 <span id="673">673</span>
 <span id="674">674</span>
-<span id="675">675</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
 <span class="kw">use</span> <span class="ident">std::fmt</span>;
@@ -826,8 +825,7 @@
     <span class="kw">pub</span> <span class="ident">percent_incline</span>: <span class="ident">f64</span>,
 
     <span class="doccomment">/// Invariant: A road must contain at least one child</span>
-    <span class="comment">// TODO Only public for Map::import_minimal. Can we avoid this?</span>
-    <span class="kw">pub</span> <span class="ident">lanes_ltr</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">LaneID</span>, <span class="ident">Direction</span>, <span class="ident">LaneType</span>)<span class="op">&gt;</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">lanes_ltr</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">LaneID</span>, <span class="ident">Direction</span>, <span class="ident">LaneType</span>)<span class="op">&gt;</span>,
 
     <span class="doccomment">/// The physical center of the road, including sidewalks, after trimming to account for the</span>
     <span class="doccomment">/// intersection geometry. The order implies road orientation.</span>
