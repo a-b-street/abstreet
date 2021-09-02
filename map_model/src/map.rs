@@ -825,10 +825,11 @@ impl Map {
         self.name.map = format!("minified_{}", self.name.map);
 
         // Don't need CHs or even the graph for anything except bikes.
-        self.pathfinder = Pathfinder::just_bikes(
+        self.pathfinder = Pathfinder::new_for_one_mode(
             self,
             self.routing_params().clone(),
             crate::pathfind::CreateEngine::Dijkstra,
+            PathConstraints::Bike,
             timer,
         );
     }

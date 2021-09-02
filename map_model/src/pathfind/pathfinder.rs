@@ -97,16 +97,34 @@ impl Pathfinder {
         }
     }
 
-    pub fn just_bikes(
+    /// Create a new Pathfinder with custom routing params that can only serve one mode.
+    pub fn new_for_one_mode(
         map: &Map,
         params: RoutingParams,
         engine: CreateEngine,
+        constraints: PathConstraints,
         timer: &mut Timer,
     ) -> Pathfinder {
         let mut p = Pathfinder::empty();
-        timer.start("prepare pathfinding for bikes");
-        p.bike_graph = VehiclePathfinder::new(map, PathConstraints::Bike, &params, &engine);
-        timer.stop("prepare pathfinding for bikes");
+        timer.start("prepare pathfinding for just one mode");
+        match constraints {
+            PathConstraints::Pedestrian => {
+                p.walking_graph = SidewalkPathfinder::new(map, None, &engine);
+            }
+            PathConstraints::Car => {
+                p.car_graph = VehiclePathfinder::new(map, constraints, &params, &engine);
+            }
+            PathConstraints::Bike => {
+                p.bike_graph = VehiclePathfinder::new(map, constraints, &params, &engine);
+            }
+            PathConstraints::Bus => {
+                p.bus_graph = VehiclePathfinder::new(map, constraints, &params, &engine);
+            }
+            PathConstraints::Train => {
+                p.train_graph = VehiclePathfinder::new(map, constraints, &params, &engine);
+            }
+        }
+        timer.stop("prepare pathfinding for just one mode");
         p.params = params;
         p
     }
@@ -128,12 +146,14 @@ impl Pathfinder {
             // If the params differ from the ones baked into the map, the CHs won't match. This
             // should only be happening from the debug UI; be very obnoxious if we start calling it
             // from the simulation or something else.
-            warn!("Pathfinding slowly for {} with custom params", req);
-            let tmp_pathfinder = Pathfinder::new(
+            let mut timer =
+                Timer::new(format!("Pathfinding slowly for {} with custom params", req));
+            let tmp_pathfinder = Pathfinder::new_for_one_mode(
                 map,
                 params.clone(),
                 CreateEngine::Dijkstra,
-                &mut Timer::throwaway(),
+                req.constraints,
+                &mut timer,
             );
             return tmp_pathfinder.pathfind_with_params(req, params, map);
         }
