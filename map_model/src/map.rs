@@ -818,4 +818,18 @@ impl Map {
             && from.get_detailed_rank() < to.get_detailed_rank()
             && self.get_i(from.common_endpt(to)).is_stop_sign()
     }
+
+    /// Modifies the map in-place, removing parts not essential for the bike network tool. Also
+    /// modifies the name.
+    pub fn minify(&mut self, timer: &mut Timer) {
+        self.name.map = format!("minified_{}", self.name.map);
+
+        // Don't need CHs
+        self.pathfinder = Pathfinder::new(
+            self,
+            self.routing_params().clone(),
+            crate::pathfind::CreateEngine::Dijkstra,
+            timer,
+        );
+    }
 }
