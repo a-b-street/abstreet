@@ -159,11 +159,28 @@ pub fn zone_cost(mvmnt: MovementID, constraints: PathConstraints, map: &Map) -> 
 pub struct RoutingParams {
     // For all vehicles. This is added to the cost of a movement as an additional delay.
     pub unprotected_turn_penalty: Duration,
+
     // For bike routing. Multiplied by the base cost, since spending more time on the wrong lane
     // type matters.
     pub bike_lane_penalty: f64,
     pub bus_lane_penalty: f64,
     pub driving_lane_penalty: f64,
+
+    // For bike routing.
+    // "Steep" is a fixed threshold of 8% incline, uphill only. Multiply by the base cost. (Note
+    // that cost already includes a reduction of speed to account for the incline -- this is a
+    // further "delay" on top of that!)
+    // TODO But even steeper roads matter more!
+    // TODO Serialize as usual. Requires regenerating all maps, not ready to do that yet.
+    #[serde(skip_serializing, skip_deserializing, default = "one")]
+    pub avoid_steep_incline_penalty: f64,
+    // If the road is `high_stress_for_bikes`, multiply by the base cost.
+    #[serde(skip_serializing, skip_deserializing, default = "one")]
+    pub avoid_high_stress: f64,
+}
+
+fn one() -> f64 {
+    1.0
 }
 
 impl RoutingParams {
@@ -172,9 +189,13 @@ impl RoutingParams {
             // This is a total guess -- it really depends on the traffic patterns of the particular
             // road at the time we're routing.
             unprotected_turn_penalty: Duration::const_seconds(30.0),
+
             bike_lane_penalty: 1.0,
             bus_lane_penalty: 1.1,
             driving_lane_penalty: 1.5,
+
+            avoid_steep_incline_penalty: 1.0,
+            avoid_high_stress: 1.0,
         }
     }
 }

@@ -317,10 +317,31 @@ pub fn vehicle_cost(
         PathConstraints::Pedestrian => unreachable!(),
     };
 
+    let mut multiplier = 1.0;
+    if constraints == PathConstraints::Bike && params.avoid_steep_incline_penalty != 1.0 {
+        let road = map.get_r(dr.id);
+        let percent_incline = if dr.dir == Direction::Fwd {
+            road.percent_incline
+        } else {
+            -road.percent_incline
+        };
+        if percent_incline >= 0.08 {
+            multiplier *= params.avoid_steep_incline_penalty;
+        }
+    }
+
+    if constraints == PathConstraints::Bike && params.avoid_high_stress != 1.0 {
+        let road = map.get_r(dr.id);
+        if road.high_stress_for_bikes(map) {
+            multiplier *= params.avoid_high_stress;
+        }
+    }
+
+    let mut extra = Duration::ZERO;
     // Penalize unprotected turns at a stop sign from smaller to larger roads.
     if map.is_unprotected_turn(dr.id, mvmnt.to.id, mvmnt_turn_type) {
-        base + params.unprotected_turn_penalty
-    } else {
-        base
+        extra += params.unprotected_turn_penalty
     }
+
+    multiplier * base + extra
 }

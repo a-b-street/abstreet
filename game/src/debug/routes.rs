@@ -207,7 +207,7 @@ fn params_to_controls(ctx: &mut EventCtx, mode: TripMode, params: &RoutingParams
                 .margin_right(20),
             Spinner::widget(
                 ctx,
-                "unprotected turn penalty",
+                "unprotected_turn_penalty",
                 (Duration::seconds(1.0), Duration::seconds(100.0)),
                 params.unprotected_turn_penalty,
                 Duration::seconds(1.0),
@@ -219,7 +219,7 @@ fn params_to_controls(ctx: &mut EventCtx, mode: TripMode, params: &RoutingParams
             "Bike lane penalty:".text_widget(ctx).margin_right(20),
             Spinner::widget(
                 ctx,
-                "bike lane penalty",
+                "bike_lane_penalty",
                 (0.0, 2.0),
                 params.bike_lane_penalty,
                 0.1,
@@ -229,7 +229,7 @@ fn params_to_controls(ctx: &mut EventCtx, mode: TripMode, params: &RoutingParams
             "Bus lane penalty:".text_widget(ctx).margin_right(20),
             Spinner::widget(
                 ctx,
-                "bus lane penalty",
+                "bus_lane_penalty",
                 (0.0, 2.0),
                 params.bus_lane_penalty,
                 0.1,
@@ -239,9 +239,31 @@ fn params_to_controls(ctx: &mut EventCtx, mode: TripMode, params: &RoutingParams
             "Driving lane penalty:".text_widget(ctx).margin_right(20),
             Spinner::widget(
                 ctx,
-                "driving lane penalty",
+                "driving_lane_penalty",
                 (0.0, 2.0),
                 params.driving_lane_penalty,
+                0.1,
+            ),
+        ]));
+        rows.push(Widget::row(vec![
+            "Avoid steep inclines (>= 8%):"
+                .text_widget(ctx)
+                .margin_right(20),
+            Spinner::widget(
+                ctx,
+                "avoid_steep_incline_penalty",
+                (0.0, 2.0),
+                params.avoid_steep_incline_penalty,
+                0.1,
+            ),
+        ]));
+        rows.push(Widget::row(vec![
+            "Avoid high-stress roads:".text_widget(ctx).margin_right(20),
+            Spinner::widget(
+                ctx,
+                "avoid_high_stress",
+                (0.0, 2.0),
+                params.avoid_high_stress,
                 0.1,
             ),
         ]));
@@ -252,16 +274,18 @@ fn params_to_controls(ctx: &mut EventCtx, mode: TripMode, params: &RoutingParams
 fn controls_to_params(panel: &Panel) -> (TripMode, RoutingParams) {
     let mut params = RoutingParams::default();
     if !panel.is_button_enabled("cars") {
-        params.unprotected_turn_penalty = panel.spinner("unprotected turn penalty");
+        params.unprotected_turn_penalty = panel.spinner("unprotected_turn_penalty");
         return (TripMode::Drive, params);
     }
     if !panel.is_button_enabled("pedestrians") {
         return (TripMode::Walk, params);
     }
-    params.unprotected_turn_penalty = panel.spinner("unprotected turn penalty");
-    params.bike_lane_penalty = panel.spinner("bike lane penalty");
-    params.bus_lane_penalty = panel.spinner("bus lane penalty");
-    params.driving_lane_penalty = panel.spinner("driving lane penalty");
+    params.unprotected_turn_penalty = panel.spinner("unprotected_turn_penalty");
+    params.bike_lane_penalty = panel.spinner("bike_lane_penalty");
+    params.bus_lane_penalty = panel.spinner("bus_lane_penalty");
+    params.driving_lane_penalty = panel.spinner("driving_lane_penalty");
+    params.avoid_steep_incline_penalty = panel.spinner("avoid_steep_incline_penalty");
+    params.avoid_high_stress = panel.spinner("avoid_high_stress");
     (TripMode::Bike, params)
 }
 
@@ -400,7 +424,7 @@ impl State<App> for AllRoutesExplorer {
                                     ((*after as isize) - (*before as isize)).abs() as usize
                                 })
                                 .max()
-                                .unwrap() as f64;
+                                .unwrap_or(0) as f64;
                             for (r, before, after) in comparisons {
                                 match after.cmp(&before) {
                                     std::cmp::Ordering::Less => {
