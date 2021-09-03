@@ -1,6 +1,6 @@
 use crate::{
     Drawable, EventCtx, GeomBatch, GeomBatchStack, GfxCtx, Outcome, ScreenDims, ScreenPt,
-    ScreenRectangle, Widget, WidgetImpl, WidgetOutput,
+    ScreenRectangle, StackAxis, Widget, WidgetImpl, WidgetOutput,
 };
 
 const SPACE_BETWEEN_CARDS: f64 = 2.0;
@@ -10,6 +10,7 @@ pub struct DragDrop<T: Copy + PartialEq> {
     cards: Vec<Card<T>>,
     draw: Drawable,
     state: State,
+    axis: StackAxis,
     dims: ScreenDims,
     top_left: ScreenPt,
 }
@@ -47,7 +48,11 @@ impl<T: 'static + Copy + PartialEq> DragDrop<T> {
     /// - `Outcome::Changed("dragging " + label)` while dragging, when the drop position of the
     ///    card changes. Call `get_dragging_state` to learn the indices.
     /// - `Outcome::DragDropReleased` when a card is dropped
-    pub fn new(ctx: &EventCtx, label: &str) -> Self {
+    ///
+    /// When you build a `Panel` containing one of these, you may need to call
+    /// `ignore_initial_events()`. If the cursor is hovering over a card when the panel is first
+    /// created, `Outcome::Changed` is immediately fired from this widget.
+    pub fn new(ctx: &EventCtx, label: &str, axis: StackAxis) -> Self {
         DragDrop {
             label: label.to_string(),
             cards: vec![],
@@ -56,6 +61,7 @@ impl<T: 'static + Copy + PartialEq> DragDrop<T> {
                 hovering: None,
                 selected: None,
             },
+            axis,
             dims: ScreenDims::zero(),
             top_left: ScreenPt::zero(),
         }
@@ -63,7 +69,8 @@ impl<T: 'static + Copy + PartialEq> DragDrop<T> {
 
     pub fn into_widget(mut self, ctx: &EventCtx) -> Widget {
         self.recalc_draw(ctx);
-        Widget::new(Box::new(self))
+        let label = self.label.clone();
+        Widget::new(Box::new(self)).named(label)
     }
 
     pub fn selected_value(&self) -> Option<T> {
@@ -129,7 +136,7 @@ impl<T: 'static + Copy + PartialEq> DragDrop<T> {
 
 impl<T: 'static + Copy + PartialEq> DragDrop<T> {
     fn recalc_draw(&mut self, ctx: &EventCtx) {
-        let mut stack = GeomBatchStack::horizontal(Vec::new());
+        let mut stack = GeomBatchStack::from_axis(Vec::new(), self.axis);
         stack.set_spacing(SPACE_BETWEEN_CARDS);
 
         let (dims, batch) = match self.state {
@@ -152,22 +159,36 @@ impl<T: 'static + Copy + PartialEq> DragDrop<T> {
                 cursor_at,
                 new_idx,
             } => {
-                let width = self.cards[orig_idx].dims.width;
+                let orig_dims = self.cards[orig_idx].dims;
 
                 for (idx, card) in self.cards.iter().enumerate() {
                     // the target we're dragging
                     let batch = if idx == orig_idx {
                         card.selected_batch.clone()
                     } else if idx <= new_idx && idx > orig_idx {
-                        // move batch to the left if target is newly greater than us
-                        card.default_batch
-                            .clone()
-                            .translate(-(width + SPACE_BETWEEN_CARDS), 0.0)
+                        // move batch to the left or top if target is newly greater than us
+                        match self.axis {
+                            StackAxis::Horizontal => card
+                                .default_batch
+                                .clone()
+                                .translate(-(orig_dims.width + SPACE_BETWEEN_CARDS), 0.0),
+                            StackAxis::Vertical => card
+                                .default_batch
+                                .clone()
+                                .translate(0.0, -(orig_dims.height + SPACE_BETWEEN_CARDS)),
+                        }
                     } else if idx >= new_idx && idx < orig_idx {
-                        // move batch to the right if target is newly less than us
-                        card.default_batch
-                            .clone()
-                            .translate(width + SPACE_BETWEEN_CARDS, 0.0)
+                        // move batch to the right or bottom if target is newly less than us
+                        match self.axis {
+                            StackAxis::Horizontal => card
+                                .default_batch
+                                .clone()
+                                .translate(orig_dims.width + SPACE_BETWEEN_CARDS, 0.0),
+                            StackAxis::Vertical => card
+                                .default_batch
+                                .clone()
+                                .translate(0.0, orig_dims.height + SPACE_BETWEEN_CARDS),
+                        }
                     } else {
                         card.default_batch.clone()
                     };
@@ -209,7 +230,14 @@ impl<T: 'static + Copy + PartialEq> DragDrop<T> {
             if ScreenRectangle::top_left(top_left, *dims).contains(pt) {
                 return Some(idx);
             }
-            top_left.x += dims.width + SPACE_BETWEEN_CARDS;
+            match self.axis {
+                StackAxis::Horizontal => {
+                    top_left.x += dims.width + SPACE_BETWEEN_CARDS;
+                }
+                StackAxis::Vertical => {
+                    top_left.y += dims.height + SPACE_BETWEEN_CARDS;
+                }
+            }
         }
         None
     }

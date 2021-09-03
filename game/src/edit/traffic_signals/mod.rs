@@ -14,7 +14,7 @@ use map_model::{
 use widgetry::{
     include_labeled_bytes, lctrl, Color, ControlState, DragDrop, DrawBaselayer, Drawable, EventCtx,
     GeomBatch, GeomBatchStack, GfxCtx, HorizontalAlignment, Image, Key, Line, Outcome, Panel,
-    RewriteColor, State, Text, TextExt, VerticalAlignment, Widget,
+    RewriteColor, StackAxis, State, Text, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, ShowEverything, Transition};
@@ -694,7 +694,7 @@ fn make_side_panel(
             .collect(),
     );
 
-    let mut drag_drop = DragDrop::new(ctx, "stage cards");
+    let mut drag_drop = DragDrop::new(ctx, "stage cards", StackAxis::Horizontal);
     for idx in 0..canonical_signal.stages.len() {
         let mut stack = GeomBatchStack::vertical(vec![
             Text::from(Line(format!(
@@ -736,7 +736,7 @@ fn make_side_panel(
     }
     drag_drop.set_initial_state(Some(selected), None);
 
-    col.push(drag_drop.into_widget(ctx).named("stage cards"));
+    col.push(drag_drop.into_widget(ctx));
 
     col.push(Widget::row(vec![
         // TODO Say "normally" to account for variable stages?

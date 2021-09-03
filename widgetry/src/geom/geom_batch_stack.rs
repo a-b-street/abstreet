@@ -40,17 +40,17 @@ impl Default for GeomBatchStack {
 
 impl GeomBatchStack {
     pub fn horizontal(batches: Vec<GeomBatch>) -> Self {
-        GeomBatchStack {
-            batches,
-            axis: Axis::Horizontal,
-            ..Default::default()
-        }
+        Self::from_axis(batches, Axis::Horizontal)
     }
 
     pub fn vertical(batches: Vec<GeomBatch>) -> Self {
+        Self::from_axis(batches, Axis::Vertical)
+    }
+
+    pub fn from_axis(batches: Vec<GeomBatch>, axis: Axis) -> Self {
         GeomBatchStack {
             batches,
-            axis: Axis::Vertical,
+            axis,
             ..Default::default()
         }
     }

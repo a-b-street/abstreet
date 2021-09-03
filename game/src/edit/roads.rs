@@ -10,7 +10,7 @@ use map_model::{
 use widgetry::{
     lctrl, Choice, Color, ControlState, DragDrop, Drawable, EdgeInsets, EventCtx, GeomBatch,
     GeomBatchStack, GfxCtx, HorizontalAlignment, Image, Key, Line, Outcome, Panel, PersistentSplit,
-    Spinner, State, Text, TextExt, VerticalAlignment, Widget, DEFAULT_CORNER_RADIUS,
+    Spinner, StackAxis, State, Text, TextExt, VerticalAlignment, Widget, DEFAULT_CORNER_RADIUS,
 };
 
 use crate::app::{App, Transition};
@@ -625,7 +625,7 @@ fn make_main_panel(
             row
         }),
     ]);
-    let mut drag_drop = DragDrop::new(ctx, "lane cards");
+    let mut drag_drop = DragDrop::new(ctx, "lane cards", StackAxis::Horizontal);
 
     let road_width = road.get_width(map);
     let lanes_ltr = road.lanes_ltr();
@@ -892,7 +892,6 @@ fn make_main_panel(
             .margin_below(16),
             drag_drop
                 .into_widget(ctx)
-                .named("lane cards")
                 .bg(ctx.style().text_primary_color.tint(0.3))
                 .margin_left(16),
             // We use a sort of "tab" metaphor for the selected lane above and this "edit" section

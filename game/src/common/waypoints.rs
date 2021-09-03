@@ -1,7 +1,8 @@
 use geom::{Circle, Distance, FindClosest, Polygon};
 use sim::TripEndpoint;
 use widgetry::{
-    Color, Drawable, EventCtx, GeomBatch, GfxCtx, Image, Line, Outcome, Text, TextExt, Widget,
+    Color, DragDrop, Drawable, EventCtx, GeomBatch, GfxCtx, Image, Line, Outcome, RewriteColor,
+    StackAxis, Text, Widget,
 };
 
 use crate::app::App;
@@ -64,32 +65,61 @@ impl InputWaypoints {
     }
 
     pub fn get_panel_widget(&self, ctx: &mut EventCtx) -> Widget {
-        let mut col = Vec::new();
+        let mut drag_drop = DragDrop::new(ctx, "waypoint cards", StackAxis::Vertical);
+        let mut delete_buttons = Vec::new();
 
         for (idx, waypt) in self.waypoints.iter().enumerate() {
-            col.push(Widget::row(vec![
-                format!("{}) {}", waypt.order, waypt.label)
-                    .text_widget(ctx)
-                    .centered_vert(),
+            let batch = Text::from(Line(format!("{}) {}", waypt.order, waypt.label))).render(ctx);
+            let bounds = batch.get_bounds();
+            let image = Image::from_batch(batch, bounds)
+                .color(RewriteColor::NoOp)
+                .padding(16);
+
+            let (default_batch, bounds) = image.clone().build_batch(ctx).unwrap();
+            let (hovering_batch, _) = image
+                .clone()
+                .bg_color(ctx.style().btn_tab.bg_disabled.dull(0.3))
+                .build_batch(ctx)
+                .unwrap();
+            let (selected_batch, _) = image
+                .bg_color(ctx.style().btn_solid_primary.bg)
+                .build_batch(ctx)
+                .unwrap();
+
+            drag_drop.push_card(
+                idx,
+                bounds.into(),
+                default_batch,
+                hovering_batch,
+                selected_batch,
+            );
+
+            delete_buttons.push(
                 ctx.style()
                     .btn_plain_destructive
                     .text("X")
                     .build_widget(ctx, &format!("delete waypoint {}", idx)),
-            ]));
+            );
         }
+        drag_drop.set_initial_state(None, None);
 
-        col.push(Widget::row(vec![
-            Image::from_path("system/assets/tools/mouse.svg").into_widget(ctx),
-            Text::from_all(vec![
-                Line("Click").fg(ctx.style().text_hotkey_color),
-                Line(" to add a waypoint, "),
-                Line("drag").fg(ctx.style().text_hotkey_color),
-                Line(" a waypoint to move it"),
-            ])
-            .into_widget(ctx),
-        ]));
-
-        Widget::col(col)
+        Widget::col(vec![
+            Widget::row(vec![
+                drag_drop.into_widget(ctx),
+                // TODO The alignment doesn't match the cards, but it's... usable
+                Widget::col(delete_buttons).evenly_spaced(),
+            ]),
+            Widget::row(vec![
+                Image::from_path("system/assets/tools/mouse.svg").into_widget(ctx),
+                Text::from_all(vec![
+                    Line("Click").fg(ctx.style().text_hotkey_color),
+                    Line(" to add a waypoint, "),
+                    Line("drag").fg(ctx.style().text_hotkey_color),
+                    Line(" a waypoint to move it"),
+                ])
+                .into_widget(ctx),
+            ]),
+        ])
     }
 
     pub fn get_waypoints(&self) -> Vec<TripEndpoint> {
@@ -142,20 +172,30 @@ impl InputWaypoints {
             }
         }
 
-        if let Outcome::Clicked(x) = outcome {
-            if let Some(x) = x.strip_prefix("delete waypoint ") {
-                let idx = x.parse::<usize>().unwrap();
-                self.waypoints.remove(idx);
-                // Recalculate labels, in case we deleted in the middle
-                for (idx, waypt) in self.waypoints.iter_mut().enumerate() {
-                    *waypt = Waypoint::new(ctx, app, waypt.at, idx);
-                }
+        match outcome {
+            Outcome::Clicked(x) => {
+                if let Some(x) = x.strip_prefix("delete waypoint ") {
+                    let idx = x.parse::<usize>().unwrap();
+                    self.waypoints.remove(idx);
+                    // Recalculate labels, in case we deleted in the middle
+                    for (idx, waypt) in self.waypoints.iter_mut().enumerate() {
+                        *waypt = Waypoint::new(ctx, app, waypt.at, idx);
+                    }
 
-                self.update_waypoints_drawable(ctx);
-                return true;
-            } else {
-                panic!("Unknown InputWaypoints click {}", x);
+                    self.update_waypoints_drawable(ctx);
+                    return true;
+                } else {
+                    panic!("Unknown InputWaypoints click {}", x);
+                }
             }
+            Outcome::DragDropReleased(_, old_idx, new_idx) => {
+                self.waypoints.swap(old_idx, new_idx);
+                // The order field is baked in, so calculate everything again from scratch
+                let waypoints = self.get_waypoints();
+                self.overwrite(ctx, app, waypoints);
+                return true;
+            }
+            _ => {}
         }
 
         false

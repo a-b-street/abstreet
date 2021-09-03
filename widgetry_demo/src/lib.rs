@@ -7,8 +7,8 @@ use geom::{Angle, Duration, Percent, Polygon, Pt2D, Time};
 use widgetry::{
     lctrl, Choice, Color, ContentMode, DragDrop, Drawable, EventCtx, Fill, GeomBatch, GfxCtx,
     HorizontalAlignment, Image, Key, Line, LinePlot, Outcome, Panel, PersistentSplit, PlotOptions,
-    ScreenDims, Series, Settings, SharedAppState, State, TabController, Text, TextExt, Texture,
-    Toggle, Transition, UpdateType, VerticalAlignment, Widget,
+    ScreenDims, Series, Settings, SharedAppState, StackAxis, State, TabController, Text, TextExt,
+    Texture, Toggle, Transition, UpdateType, VerticalAlignment, Widget,
 };
 
 pub fn main() {
@@ -626,7 +626,7 @@ fn build_drag_drop(ctx: &EventCtx, num_cards: usize) -> DragDrop<usize> {
         (dims, default_batch, hovering_batch, selected_batch)
     }
 
-    let mut drag_drop = DragDrop::new(ctx, "drag and drop cards");
+    let mut drag_drop = DragDrop::new(ctx, "drag and drop cards", StackAxis::Horizontal);
     for i in 0..num_cards {
         let (dims, default_batch, hovering_batch, selected_batch) = build_card(ctx, i);
         drag_drop.push_card(i, dims, default_batch, hovering_batch, selected_batch);

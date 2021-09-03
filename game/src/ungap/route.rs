@@ -54,6 +54,8 @@ impl RoutePlanner {
             self.waypoints.get_panel_widget(ctx),
         ]))
         .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
+        // Hovering on a card
+        .ignore_initial_events()
         .build(ctx);
     }
 

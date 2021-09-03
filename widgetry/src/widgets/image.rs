@@ -93,9 +93,12 @@ impl<'a, 'c> Image<'a, 'c> {
     }
 
     /// Create a new `Image` from a [`GeomBatch`].
+    ///
+    /// By default, the given `bounds` will be used for padding, background, etc.
     pub fn from_batch(batch: GeomBatch, bounds: Bounds) -> Self {
         Self {
             source: Some(Cow::Owned(ImageSource::GeomBatch(batch, bounds))),
+            dims: Some(bounds.into()),
             ..Default::default()
         }
     }
@@ -182,7 +185,7 @@ impl<'a, 'c> Image<'a, 'c> {
     }
 
     /// Scale the bounds containing the image. If `dims` are not specified, the image's intrinsic
-    /// size will be used.
+    /// size will be used, but padding and background settings will be ignored.
     ///
     /// See [`Self::content_mode`] to control how the image scales to fit its custom bounds.
     pub fn dims<D: Into<ScreenDims>>(mut self, dims: D) -> Self {
