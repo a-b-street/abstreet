@@ -331,6 +331,8 @@
 <span id="329">329</span>
 <span id="330">330</span>
 <span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">abstutil::Tags</span>;
 <span class="kw">use</span> <span class="ident">map_gui::tools::PopupMsg</span>;
@@ -436,7 +438,9 @@
                     }));
                 }
                 <span class="ident">x</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">return</span> <span class="ident">Tab::Create</span>.<span class="ident">handle_action</span>::<span class="op">&lt;</span><span class="ident">QuickSketch</span><span class="op">&gt;</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">x</span>);
+                    <span class="kw">return</span> <span class="ident">Tab::Create</span>
+                        .<span class="ident">handle_action</span>::<span class="op">&lt;</span><span class="ident">QuickSketch</span><span class="op">&gt;</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">x</span>)
+                        .<span class="ident">unwrap</span>();
                 }
             }
         }

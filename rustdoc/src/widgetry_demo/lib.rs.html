@@ -662,8 +662,8 @@
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">lctrl</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">ContentMode</span>, <span class="ident">DragDrop</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">Fill</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>,
     <span class="ident">HorizontalAlignment</span>, <span class="ident">Image</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">LinePlot</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">PersistentSplit</span>, <span class="ident">PlotOptions</span>,
-    <span class="ident">ScreenDims</span>, <span class="ident">Series</span>, <span class="ident">Settings</span>, <span class="ident">SharedAppState</span>, <span class="ident">State</span>, <span class="ident">TabController</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Texture</span>,
-    <span class="ident">Toggle</span>, <span class="ident">Transition</span>, <span class="ident">UpdateType</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">ScreenDims</span>, <span class="ident">Series</span>, <span class="ident">Settings</span>, <span class="ident">SharedAppState</span>, <span class="ident">StackAxis</span>, <span class="ident">State</span>, <span class="ident">TabController</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>,
+    <span class="ident">Texture</span>, <span class="ident">Toggle</span>, <span class="ident">Transition</span>, <span class="ident">UpdateType</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">main</span>() {
@@ -1281,7 +1281,7 @@
         (<span class="ident">dims</span>, <span class="ident">default_batch</span>, <span class="ident">hovering_batch</span>, <span class="ident">selected_batch</span>)
     }
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">drag_drop</span> <span class="op">=</span> <span class="ident">DragDrop::new</span>(<span class="ident">ctx</span>, <span class="string">&quot;drag and drop cards&quot;</span>);
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">drag_drop</span> <span class="op">=</span> <span class="ident">DragDrop::new</span>(<span class="ident">ctx</span>, <span class="string">&quot;drag and drop cards&quot;</span>, <span class="ident">StackAxis::Horizontal</span>);
     <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">num_cards</span> {
         <span class="kw">let</span> (<span class="ident">dims</span>, <span class="ident">default_batch</span>, <span class="ident">hovering_batch</span>, <span class="ident">selected_batch</span>) <span class="op">=</span> <span class="ident">build_card</span>(<span class="ident">ctx</span>, <span class="ident">i</span>);
         <span class="ident">drag_drop</span>.<span class="ident">push_card</span>(<span class="ident">i</span>, <span class="ident">dims</span>, <span class="ident">default_batch</span>, <span class="ident">hovering_batch</span>, <span class="ident">selected_batch</span>);

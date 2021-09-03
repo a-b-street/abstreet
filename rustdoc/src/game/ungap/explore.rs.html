@@ -220,6 +220,8 @@
 <span id="218">218</span>
 <span id="219">219</span>
 <span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">geom::Distance</span>;
 <span class="kw">use</span> <span class="ident">map_gui::tools::URLManager</span>;
@@ -348,7 +350,9 @@
                     <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">share::upload_proposal</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
                 }
                 <span class="ident">x</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">return</span> <span class="ident">Tab::Explore</span>.<span class="ident">handle_action</span>::<span class="op">&lt;</span><span class="ident">ExploreMap</span><span class="op">&gt;</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">x</span>);
+                    <span class="kw">return</span> <span class="ident">Tab::Explore</span>
+                        .<span class="ident">handle_action</span>::<span class="op">&lt;</span><span class="ident">ExploreMap</span><span class="op">&gt;</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">x</span>)
+                        .<span class="ident">unwrap</span>();
                 }
             }
         }

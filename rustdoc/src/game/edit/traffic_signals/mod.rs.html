@@ -983,7 +983,7 @@
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">include_labeled_bytes</span>, <span class="ident">lctrl</span>, <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">DragDrop</span>, <span class="ident">DrawBaselayer</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>,
     <span class="ident">GeomBatch</span>, <span class="ident">GeomBatchStack</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Image</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>,
-    <span class="ident">RewriteColor</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">RewriteColor</span>, <span class="ident">StackAxis</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::app</span>::{<span class="ident">App</span>, <span class="ident">ShowEverything</span>, <span class="ident">Transition</span>};
@@ -1663,7 +1663,7 @@
             .<span class="ident">collect</span>(),
     );
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">drag_drop</span> <span class="op">=</span> <span class="ident">DragDrop::new</span>(<span class="ident">ctx</span>, <span class="string">&quot;stage cards&quot;</span>);
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">drag_drop</span> <span class="op">=</span> <span class="ident">DragDrop::new</span>(<span class="ident">ctx</span>, <span class="string">&quot;stage cards&quot;</span>, <span class="ident">StackAxis::Horizontal</span>);
     <span class="kw">for</span> <span class="ident">idx</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">canonical_signal</span>.<span class="ident">stages</span>.<span class="ident">len</span>() {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stack</span> <span class="op">=</span> <span class="ident">GeomBatchStack::vertical</span>(<span class="macro">vec!</span>[
             <span class="ident">Text::from</span>(<span class="ident">Line</span>(<span class="macro">format!</span>(
@@ -1705,7 +1705,7 @@
     }
     <span class="ident">drag_drop</span>.<span class="ident">set_initial_state</span>(<span class="prelude-val">Some</span>(<span class="ident">selected</span>), <span class="prelude-val">None</span>);
 
-    <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">drag_drop</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;stage cards&quot;</span>));
+    <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">drag_drop</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>));
 
     <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
         <span class="comment">// TODO Say &quot;normally&quot; to account for variable stages?</span>

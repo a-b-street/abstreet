@@ -342,6 +342,9 @@
 <span id="340">340</span>
 <span id="341">341</span>
 <span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">Color</span>, <span class="ident">ContentMode</span>, <span class="ident">CornerRounding</span>, <span class="ident">DrawWithTooltips</span>, <span class="ident">EdgeInsets</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>,
@@ -438,9 +441,12 @@
     }
 
     <span class="doccomment">/// Create a new `Image` from a [`GeomBatch`].</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// By default, the given `bounds` will be used for padding, background, etc.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_batch</span>(<span class="ident">batch</span>: <span class="ident">GeomBatch</span>, <span class="ident">bounds</span>: <span class="ident">Bounds</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">source</span>: <span class="prelude-val">Some</span>(<span class="ident">Cow::Owned</span>(<span class="ident">ImageSource::GeomBatch</span>(<span class="ident">batch</span>, <span class="ident">bounds</span>))),
+            <span class="ident">dims</span>: <span class="prelude-val">Some</span>(<span class="ident">bounds</span>.<span class="ident">into</span>()),
             ..<span class="ident">Default::default</span>()
         }
     }
@@ -527,7 +533,7 @@
     }
 
     <span class="doccomment">/// Scale the bounds containing the image. If `dims` are not specified, the image&#39;s intrinsic</span>
-    <span class="doccomment">/// size will be used.</span>
+    <span class="doccomment">/// size will be used, but padding and background settings will be ignored.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// See [`Self::content_mode`] to control how the image scales to fit its custom bounds.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dims</span><span class="op">&lt;</span><span class="ident">D</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">ScreenDims</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">dims</span>: <span class="ident">D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {

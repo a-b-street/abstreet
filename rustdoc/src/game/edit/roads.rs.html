@@ -1020,7 +1020,6 @@
 <span id="1018">1018</span>
 <span id="1019">1019</span>
 <span id="1020">1020</span>
-<span id="1021">1021</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
@@ -1034,7 +1033,7 @@
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">lctrl</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">DragDrop</span>, <span class="ident">Drawable</span>, <span class="ident">EdgeInsets</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>,
     <span class="ident">GeomBatchStack</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Image</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">PersistentSplit</span>,
-    <span class="ident">Spinner</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>, <span class="ident">DEFAULT_CORNER_RADIUS</span>,
+    <span class="ident">Spinner</span>, <span class="ident">StackAxis</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>, <span class="ident">DEFAULT_CORNER_RADIUS</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
@@ -1649,7 +1648,7 @@
             <span class="ident">row</span>
         }),
     ]);
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">drag_drop</span> <span class="op">=</span> <span class="ident">DragDrop::new</span>(<span class="ident">ctx</span>, <span class="string">&quot;lane cards&quot;</span>);
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">drag_drop</span> <span class="op">=</span> <span class="ident">DragDrop::new</span>(<span class="ident">ctx</span>, <span class="string">&quot;lane cards&quot;</span>, <span class="ident">StackAxis::Horizontal</span>);
 
     <span class="kw">let</span> <span class="ident">road_width</span> <span class="op">=</span> <span class="ident">road</span>.<span class="ident">get_width</span>(<span class="ident">map</span>);
     <span class="kw">let</span> <span class="ident">lanes_ltr</span> <span class="op">=</span> <span class="ident">road</span>.<span class="ident">lanes_ltr</span>();
@@ -1916,7 +1915,6 @@
             .<span class="ident">margin_below</span>(<span class="number">16</span>),
             <span class="ident">drag_drop</span>
                 .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
-                .<span class="ident">named</span>(<span class="string">&quot;lane cards&quot;</span>)
                 .<span class="ident">bg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_primary_color</span>.<span class="ident">tint</span>(<span class="number">0.3</span>))
                 .<span class="ident">margin_left</span>(<span class="number">16</span>),
             <span class="comment">// We use a sort of &quot;tab&quot; metaphor for the selected lane above and this &quot;edit&quot; section</span>

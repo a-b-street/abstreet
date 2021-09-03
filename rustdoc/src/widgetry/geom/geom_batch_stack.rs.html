@@ -181,17 +181,17 @@
 
 <span class="kw">impl</span> <span class="ident">GeomBatchStack</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">horizontal</span>(<span class="ident">batches</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">GeomBatch</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="ident">GeomBatchStack</span> {
-            <span class="ident">batches</span>,
-            <span class="ident">axis</span>: <span class="ident">Axis::Horizontal</span>,
-            ..<span class="ident">Default::default</span>()
-        }
+        <span class="self">Self</span><span class="ident">::from_axis</span>(<span class="ident">batches</span>, <span class="ident">Axis::Horizontal</span>)
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">vertical</span>(<span class="ident">batches</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">GeomBatch</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="self">Self</span><span class="ident">::from_axis</span>(<span class="ident">batches</span>, <span class="ident">Axis::Vertical</span>)
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_axis</span>(<span class="ident">batches</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">GeomBatch</span><span class="op">&gt;</span>, <span class="ident">axis</span>: <span class="ident">Axis</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="ident">GeomBatchStack</span> {
             <span class="ident">batches</span>,
-            <span class="ident">axis</span>: <span class="ident">Axis::Vertical</span>,
+            <span class="ident">axis</span>,
             ..<span class="ident">Default::default</span>()
         }
     }
