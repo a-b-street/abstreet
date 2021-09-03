@@ -77,11 +77,11 @@ impl Tab {
         ctx: &mut EventCtx,
         app: &mut App,
         action: &str,
-    ) -> Transition {
+    ) -> Option<Transition> {
         match action {
-            "about A/B Street" => Transition::Push(About::new_state(ctx)),
+            "about A/B Street" => Some(Transition::Push(About::new_state(ctx))),
             "change map" => {
-                Transition::Push(CityPicker::new_state(
+                Some(Transition::Push(CityPicker::new_state(
                     ctx,
                     app,
                     Box::new(move |ctx, app| {
@@ -98,33 +98,33 @@ impl Tab {
                             }),
                         ])
                     }),
-                ))
+                )))
             }
-            "Explore" => Transition::ConsumeState(Box::new(|state, ctx, app| {
+            "Explore" => Some(Transition::ConsumeState(Box::new(|state, ctx, app| {
                 let state = state.downcast::<T>().ok().unwrap();
                 vec![ExploreMap::new_state(ctx, app, state.take_layers())]
-            })),
+            }))),
             "Create new bike lanes" => {
                 // This is only necessary to do coming from ExploreMap, but eh
                 app.primary.current_selection = None;
-                Transition::ConsumeState(Box::new(|state, ctx, app| {
+                Some(Transition::ConsumeState(Box::new(|state, ctx, app| {
                     let state = state.downcast::<T>().ok().unwrap();
                     vec![quick_sketch::QuickSketch::new_state(
                         ctx,
                         app,
                         state.take_layers(),
                     )]
-                }))
+                })))
             }
-            "Plan a route" => Transition::ConsumeState(Box::new(|state, ctx, app| {
+            "Plan a route" => Some(Transition::ConsumeState(Box::new(|state, ctx, app| {
                 let state = state.downcast::<T>().ok().unwrap();
                 vec![route::RoutePlanner::new_state(
                     ctx,
                     app,
                     state.take_layers(),
                 )]
-            })),
-            x => panic!("Unhandled action {}", x),
+            }))),
+            _ => None,
         }
     }
 }

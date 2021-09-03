@@ -53,6 +53,16 @@ impl InputWaypoints {
         }
     }
 
+    pub fn overwrite(&mut self, ctx: &mut EventCtx, app: &App, waypoints: Vec<TripEndpoint>) {
+        self.waypoints.clear();
+        for at in waypoints {
+            self.waypoints
+                .push(Waypoint::new(ctx, app, at, self.waypoints.len()));
+        }
+        self.update_waypoints_drawable(ctx);
+        self.update_hover(ctx);
+    }
+
     pub fn get_panel_widget(&self, ctx: &mut EventCtx) -> Widget {
         let mut col = Vec::new();
 

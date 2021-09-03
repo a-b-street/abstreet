@@ -401,6 +401,13 @@ pub fn path_all_saves(name: &MapName, edits_name: &str, run_name: &str) -> Strin
     ))
 }
 
+pub fn path_routes(name: &MapName) -> String {
+    path(format!(
+        "player/routes/{}/{}/{}.json",
+        name.city.country, name.city.city, name.map
+    ))
+}
+
 // Input data (For developers to build maps, not needed at runtime)
 
 pub fn path_popdat() -> String {

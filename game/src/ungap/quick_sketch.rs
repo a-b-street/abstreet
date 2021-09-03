@@ -102,7 +102,9 @@ impl State<App> for QuickSketch {
                     }));
                 }
                 x => {
-                    return Tab::Create.handle_action::<QuickSketch>(ctx, app, x);
+                    return Tab::Create
+                        .handle_action::<QuickSketch>(ctx, app, x)
+                        .unwrap();
                 }
             }
         }

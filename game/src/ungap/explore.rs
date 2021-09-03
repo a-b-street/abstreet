@@ -125,7 +125,9 @@ impl State<App> for ExploreMap {
                     return Transition::Push(share::upload_proposal(ctx, app));
                 }
                 x => {
-                    return Tab::Explore.handle_action::<ExploreMap>(ctx, app, x);
+                    return Tab::Explore
+                        .handle_action::<ExploreMap>(ctx, app, x)
+                        .unwrap();
                 }
             }
         }

@@ -1,11 +1,15 @@
-use std::collections::HashSet;
+use std::collections::{BTreeMap, HashSet};
 
+use serde::{Deserialize, Serialize};
+
+use abstutil::Timer;
 use geom::{Circle, Distance, Duration, FindClosest, PolyLine};
+use map_gui::tools::ChooseSomething;
 use map_model::{Path, PathStep, NORMAL_LANE_THICKNESS};
 use sim::{TripEndpoint, TripMode};
 use widgetry::{
-    Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line, LinePlot, Outcome,
-    Panel, PlotOptions, Series, State, Text, VerticalAlignment, Widget,
+    Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, LinePlot,
+    Outcome, Panel, PlotOptions, Series, State, Text, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -19,6 +23,7 @@ pub struct RoutePlanner {
     input_panel: Panel,
     waypoints: InputWaypoints,
     results: RouteResults,
+    files: RouteManagement,
 }
 
 impl TakeLayers for RoutePlanner {
@@ -36,6 +41,7 @@ impl RoutePlanner {
             input_panel: Panel::empty(ctx),
             waypoints: InputWaypoints::new(ctx, app),
             results: RouteResults::new(ctx, app, Vec::new()),
+            files: RouteManagement::new(app),
         };
         rp.update_input_panel(ctx, app);
         Box::new(rp)
@@ -44,10 +50,18 @@ impl RoutePlanner {
     fn update_input_panel(&mut self, ctx: &mut EventCtx, app: &App) {
         self.input_panel = Panel::new_builder(Widget::col(vec![
             Tab::Route.make_header(ctx, app),
+            self.files.get_panel_widget(ctx),
             self.waypoints.get_panel_widget(ctx),
         ]))
         .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
         .build(ctx);
+    }
+
+    fn sync_from_file_management(&mut self, ctx: &mut EventCtx, app: &App) {
+        self.waypoints
+            .overwrite(ctx, app, self.files.current.waypoints.clone());
+        self.update_input_panel(ctx, app);
+        self.results = RouteResults::new(ctx, app, self.waypoints.get_waypoints());
     }
 }
 
@@ -62,17 +76,26 @@ impl State<App> for RoutePlanner {
             });
         }
 
-        match self.input_panel.event(ctx) {
-            // TODO Inverting control is hard. Who should try to handle the outcome first?
-            Outcome::Clicked(x) if !x.starts_with("delete waypoint ") => {
-                return Tab::Route.handle_action::<RoutePlanner>(ctx, app, &x);
+        let outcome = self.input_panel.event(ctx);
+        if let Outcome::Clicked(ref x) = outcome {
+            if let Some(t) = Tab::Route.handle_action::<RoutePlanner>(ctx, app, x) {
+                return t;
             }
-            outcome => {
-                if self.waypoints.event(ctx, app, outcome) {
-                    self.update_input_panel(ctx, app);
-                    self.results = RouteResults::new(ctx, app, self.waypoints.get_waypoints());
+            if let Some(t) = self.files.on_click(ctx, app, x) {
+                // Bit hacky...
+                if matches!(t, Transition::Keep) {
+                    self.sync_from_file_management(ctx, app);
                 }
+                return t;
             }
+        }
+        // Send all other outcomes here
+        if self.waypoints.event(ctx, app, outcome) {
+            // Sync from waypoints to file management
+            // TODO Maaaybe this directly live in the InputWaypoints system?
+            self.files.current.waypoints = self.waypoints.get_waypoints();
+            self.update_input_panel(ctx, app);
+            self.results = RouteResults::new(ctx, app, self.waypoints.get_waypoints());
         }
 
         self.results.event(ctx, app);
@@ -325,6 +348,169 @@ impl RouteResults {
         g.redraw(&self.draw_route);
         if let Some((_, ref draw)) = self.hover_on_line_plot {
             g.redraw(draw);
+        }
+    }
+}
+
+/// Save sequences of waypoints as named routes. Basic file management -- save, load, browse. This
+/// is useful to define "test cases," then edit the bike network and "run the tests" to compare
+/// results.
+struct RouteManagement {
+    current: NamedRoute,
+    // We assume the file won't change out from beneath us
+    all: SavedRoutes,
+}
+
+#[derive(Clone, PartialEq, Serialize, Deserialize)]
+struct NamedRoute {
+    name: String,
+    waypoints: Vec<TripEndpoint>,
+}
+
+#[derive(Serialize, Deserialize)]
+struct SavedRoutes {
+    routes: BTreeMap<String, NamedRoute>,
+}
+
+impl SavedRoutes {
+    fn load(app: &App) -> SavedRoutes {
+        abstio::maybe_read_json::<SavedRoutes>(
+            abstio::path_routes(app.primary.map.get_name()),
+            &mut Timer::throwaway(),
+        )
+        .unwrap_or_else(|_| SavedRoutes {
+            routes: BTreeMap::new(),
+        })
+    }
+
+    fn save(&self, app: &App) {
+        abstio::write_json(abstio::path_routes(app.primary.map.get_name()), self);
+    }
+
+    fn prev(&self, current: &str) -> Option<&NamedRoute> {
+        self.routes
+            .range(..current.to_string())
+            .next_back()
+            .map(|pair| pair.1)
+    }
+
+    fn next(&self, current: &str) -> Option<&NamedRoute> {
+        let mut iter = self.routes.range(current.to_string()..);
+        iter.next();
+        iter.next().map(|pair| pair.1)
+    }
+
+    fn new_name(&self) -> String {
+        let mut i = self.routes.len() + 1;
+        loop {
+            let name = format!("Route {}", i);
+            if self.routes.contains_key(&name) {
+                i += 1;
+            } else {
+                return name;
+            }
+        }
+    }
+}
+
+impl RouteManagement {
+    fn new(app: &App) -> RouteManagement {
+        let all = SavedRoutes::load(app);
+        let current = NamedRoute {
+            name: all.new_name(),
+            waypoints: Vec::new(),
+        };
+        RouteManagement { all, current }
+    }
+
+    fn get_panel_widget(&self, ctx: &mut EventCtx) -> Widget {
+        let current_name = &self.current.name;
+        let can_save = self.current.waypoints.len() >= 2
+            && Some(&self.current) != self.all.routes.get(current_name);
+        Widget::row(vec![
+            Line(current_name).into_widget(ctx).centered_vert(),
+            ctx.style()
+                .btn_plain
+                .icon_text("system/assets/tools/save.svg", "Save")
+                .disabled(!can_save)
+                .build_def(ctx),
+            ctx.style()
+                .btn_plain_destructive
+                .icon_text("system/assets/tools/trash.svg", "Delete")
+                .build_def(ctx),
+            // TODO Autosave first?
+            ctx.style()
+                .btn_outline
+                .text("Load another route")
+                .build_def(ctx),
+            ctx.style()
+                .btn_prev()
+                .hotkey(Key::LeftArrow)
+                .disabled(self.all.prev(current_name).is_none())
+                .build_widget(ctx, "previous route"),
+            ctx.style()
+                .btn_next()
+                .hotkey(Key::RightArrow)
+                .disabled(self.all.next(current_name).is_none())
+                .build_widget(ctx, "next route"),
+            ctx.style()
+                .btn_outline
+                .text("Start new route")
+                .build_def(ctx),
+        ])
+        .section(ctx)
+    }
+
+    fn on_click(&mut self, ctx: &mut EventCtx, app: &App, action: &str) -> Option<Transition> {
+        match action {
+            "Save" => {
+                self.all
+                    .routes
+                    .insert(self.current.name.clone(), self.current.clone());
+                self.all.save(app);
+                Some(Transition::Keep)
+            }
+            "Delete" => {
+                if self.all.routes.remove(&self.current.name).is_some() {
+                    self.all.save(app);
+                }
+                self.current = NamedRoute {
+                    name: self.all.new_name(),
+                    waypoints: Vec::new(),
+                };
+                Some(Transition::Keep)
+            }
+            "Start new route" => {
+                self.current = NamedRoute {
+                    name: self.all.new_name(),
+                    waypoints: Vec::new(),
+                };
+                Some(Transition::Keep)
+            }
+            "Load another route" => Some(Transition::Push(ChooseSomething::new_state(
+                ctx,
+                "Load another route",
+                self.all.routes.keys().map(|x| Choice::string(x)).collect(),
+                Box::new(move |choice, _, _| {
+                    Transition::Multi(vec![
+                        Transition::Pop,
+                        Transition::ModifyState(Box::new(move |state, ctx, app| {
+                            let state = state.downcast_mut::<RoutePlanner>().unwrap();
+                            state.files.current = state.files.all.routes[&choice].clone();
+                            state.sync_from_file_management(ctx, app);
+                        })),
+                    ])
+                }),
+            ))),
+            "previous route" => {
+                self.current = self.all.prev(&self.current.name).unwrap().clone();
+                Some(Transition::Keep)
+            }
+            "next route" => {
+                self.current = self.all.next(&self.current.name).unwrap().clone();
+                Some(Transition::Keep)
+            }
+            _ => None,
         }
     }
 }
