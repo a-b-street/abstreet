@@ -744,10 +744,6 @@
 <span id="742">742</span>
 <span id="743">743</span>
 <span id="744">744</span>
-<span id="745">745</span>
-<span id="746">746</span>
-<span id="747">747</span>
-<span id="748">748</span>
 </pre><pre class="rust">
 <span class="doccomment">//! The convert_osm crate produces a RawMap from OSM and other data. Storing this intermediate</span>
 <span class="doccomment">//! structure is useful to iterate quickly on parts of the map importing pipeline without having to</span>
@@ -922,17 +918,14 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">preview_intersection</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">id</span>: <span class="ident">osm::NodeID</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">Polygon</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">Polygon</span>)<span class="op">&gt;</span>) {
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">Polygon</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">Polygon</span>)<span class="op">&gt;</span>)<span class="op">&gt;</span> {
         <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::make::initial</span>;
 
         <span class="kw">let</span> <span class="ident">intersection_roads</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">OriginalRoad</span><span class="op">&gt;</span> <span class="op">=</span>
             <span class="self">self</span>.<span class="ident">roads_per_intersection</span>(<span class="ident">id</span>).<span class="ident">into_iter</span>().<span class="ident">collect</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">roads</span> <span class="op">=</span> <span class="ident">BTreeMap::new</span>();
         <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">intersection_roads</span> {
-            <span class="ident">roads</span>.<span class="ident">insert</span>(
-                <span class="kw-2">*</span><span class="ident">r</span>,
-                <span class="ident">initial::Road::new</span>(<span class="kw-2">*</span><span class="ident">r</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">roads</span>[<span class="ident">r</span>], <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">config</span>).<span class="ident">unwrap</span>(),
-            );
+            <span class="ident">roads</span>.<span class="ident">insert</span>(<span class="kw-2">*</span><span class="ident">r</span>, <span class="ident">initial::Road::new</span>(<span class="kw-2">*</span><span class="ident">r</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">roads</span>[<span class="ident">r</span>], <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">config</span>)<span class="question-mark">?</span>);
         }
 
         <span class="comment">// trim_roads_for_merging will be empty unless we&#39;ve called merge_short_road</span>
@@ -941,16 +934,15 @@
             <span class="ident">intersection_roads</span>,
             <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">roads</span>,
             <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">intersections</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>].<span class="ident">trim_roads_for_merging</span>,
-        )
-        .<span class="ident">unwrap</span>();
-        (
+        )<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>((
             <span class="ident">poly</span>,
             <span class="ident">roads</span>
                 .<span class="ident">values</span>()
                 .<span class="ident">map</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="ident">r</span>.<span class="ident">trimmed_center_pts</span>.<span class="ident">make_polygons</span>(<span class="number">2.0</span> <span class="op">*</span> <span class="ident">r</span>.<span class="ident">half_width</span>))
                 .<span class="ident">collect</span>(),
             <span class="ident">debug</span>,
-        )
+        ))
     }
 
     <span class="doccomment">/// Generate the trimmed `PolyLine` for a single RawRoad by calculating both intersections</span>
