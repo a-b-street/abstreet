@@ -183,8 +183,13 @@ impl Model {
         };
 
         let poly = if self.intersection_geom && !self.map.roads_per_intersection(id).is_empty() {
-            let (poly, _, _) = self.map.preview_intersection(id);
-            poly
+            match self.map.preview_intersection(id) {
+                Ok((poly, _, _)) => poly,
+                Err(err) => {
+                    error!("No geometry for {}: {}", id, err);
+                    Circle::new(i.point, INTERSECTION_RADIUS).to_polygon()
+                }
+            }
         } else {
             Circle::new(i.point, INTERSECTION_RADIUS).to_polygon()
         };
@@ -238,13 +243,17 @@ impl Model {
         self.intersection_added(ctx, id);
     }
 
-    pub fn show_intersection_geometry(&mut self, ctx: &EventCtx, show: bool) {
+    pub fn show_intersection_geometry(&mut self, ctx: &mut EventCtx, show: bool) {
         self.intersection_geom = show;
 
-        for id in self.map.intersections.keys().cloned().collect::<Vec<_>>() {
-            self.world.delete(ID::Intersection(id));
-            self.intersection_added(ctx, id);
-        }
+        ctx.loading_screen("show intersection geometry", |ctx, timer| {
+            timer.start_iter("intersection geometry", self.map.intersections.len());
+            for id in self.map.intersections.keys().cloned().collect::<Vec<_>>() {
+                timer.next();
+                self.world.delete(ID::Intersection(id));
+                self.intersection_added(ctx, id);
+            }
+        });
 
         // Also clear out any debugged intersections
         self.draw_extra = Drawable::empty(ctx);
@@ -252,14 +261,20 @@ impl Model {
 
     pub fn debug_intersection_geometry(&mut self, ctx: &EventCtx, id: osm::NodeID) {
         let mut batch = GeomBatch::new();
-        let (_, _, labels) = self.map.preview_intersection(id);
-        for (label, polygon) in labels {
-            let txt_batch = Text::from(Line(label).fg(Color::CYAN))
-                .render_autocropped(ctx)
-                .scale(0.1)
-                .centered_on(polygon.polylabel());
-            batch.push(Color::BLUE, polygon);
-            batch.append(txt_batch);
+        match self.map.preview_intersection(id) {
+            Ok((_, _, labels)) => {
+                for (label, polygon) in labels {
+                    let txt_batch = Text::from(Line(label).fg(Color::CYAN))
+                        .render_autocropped(ctx)
+                        .scale(0.1)
+                        .centered_on(polygon.polylabel());
+                    batch.push(Color::BLUE, polygon);
+                    batch.append(txt_batch);
+                }
+            }
+            Err(err) => {
+                error!("No geometry for {}: {}", id, err);
+            }
         }
         self.draw_extra = batch.upload(ctx);
     }

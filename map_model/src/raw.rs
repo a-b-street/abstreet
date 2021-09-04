@@ -171,17 +171,14 @@ impl RawMap {
     pub fn preview_intersection(
         &self,
         id: osm::NodeID,
-    ) -> (Polygon, Vec<Polygon>, Vec<(String, Polygon)>) {
+    ) -> Result<(Polygon, Vec<Polygon>, Vec<(String, Polygon)>)> {
         use crate::make::initial;
 
         let intersection_roads: BTreeSet<OriginalRoad> =
             self.roads_per_intersection(id).into_iter().collect();
         let mut roads = BTreeMap::new();
         for r in &intersection_roads {
-            roads.insert(
-                *r,
-                initial::Road::new(*r, &self.roads[r], &self.config).unwrap(),
-            );
+            roads.insert(*r, initial::Road::new(*r, &self.roads[r], &self.config)?);
         }
 
         // trim_roads_for_merging will be empty unless we've called merge_short_road
@@ -190,16 +187,15 @@ impl RawMap {
             intersection_roads,
             &mut roads,
             &self.intersections[&id].trim_roads_for_merging,
-        )
-        .unwrap();
-        (
+        )?;
+        Ok((
             poly,
             roads
                 .values()
                 .map(|r| r.trimmed_center_pts.make_polygons(2.0 * r.half_width))
                 .collect(),
             debug,
-        )
+        ))
     }
 
     /// Generate the trimmed `PolyLine` for a single RawRoad by calculating both intersections
