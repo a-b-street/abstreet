@@ -124,7 +124,6 @@ fn nuke_random_parking(map: &Map, rng: &mut XorShiftRng, edits: &mut MapEdits) {
 
     let mut parking_lanes: Vec<LaneID> = map
         .all_lanes()
-        .values()
         .filter(|l| l.is_parking())
         .map(|l| l.id)
         .collect();

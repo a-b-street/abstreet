@@ -34,11 +34,7 @@ pub fn make_stops_and_routes(map: &mut Map, raw_routes: &[RawBusRoute], timer: &
         .collect::<Vec<_>>()
     {
         map.bus_stops.remove(&id);
-        map.lanes
-            .get_mut(&id.sidewalk)
-            .unwrap()
-            .bus_stops
-            .remove(&id);
+        map.mut_lane(id.sidewalk).bus_stops.remove(&id);
     }
 
     timer.stop("make transit stops and routes");
@@ -69,11 +65,7 @@ fn make_route(
                         idx: map.get_l(sidewalk_pos.lane()).bus_stops.len(),
                     };
                     pt_to_stop.insert((sidewalk_pos, driving_pos), id);
-                    map.lanes
-                        .get_mut(&sidewalk_pos.lane())
-                        .unwrap()
-                        .bus_stops
-                        .insert(id);
+                    map.mut_lane(sidewalk_pos.lane()).bus_stops.insert(id);
                     map.bus_stops.insert(
                         id,
                         BusStop {
@@ -213,9 +205,8 @@ impl Matcher {
             }
         }
         let sidewalk_pts = match_points_to_lanes(
-            map.get_bounds(),
+            map,
             lookup_sidewalk_pts,
-            map.all_lanes(),
             |l| l.is_walkable(),
             Distance::ZERO,
             // TODO Generous for cap hill light rail platform
@@ -223,9 +214,8 @@ impl Matcher {
             timer,
         );
         let light_rail_pts = match_points_to_lanes(
-            map.get_bounds(),
+            map,
             lookup_light_rail_pts,
-            map.all_lanes(),
             |l| l.lane_type == LaneType::LightRail,
             Distance::ZERO,
             Distance::meters(10.0),

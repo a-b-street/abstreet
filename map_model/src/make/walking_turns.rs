@@ -1,4 +1,4 @@
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::BTreeSet;
 
 use abstutil::wraparound_get;
 use geom::{Distance, Line, PolyLine, Pt2D, Ring};
@@ -19,13 +19,11 @@ pub fn make_walking_turns(map: &Map, i: &Intersection) -> Vec<Turn> {
     }
 
     let driving_side = map.config.driving_side;
-    let all_roads = map.all_roads();
-    let lanes = map.all_lanes();
 
     let roads: Vec<&Road> = i
-        .get_roads_sorted_by_incoming_angle(all_roads)
+        .get_roads_sorted_by_incoming_angle(map.all_roads())
         .into_iter()
-        .map(|id| &all_roads[id.0])
+        .map(|id| map.get_r(id))
         .collect();
     let mut result: Vec<Turn> = Vec::new();
 
@@ -38,14 +36,14 @@ pub fn make_walking_turns(map: &Map, i: &Intersection) -> Vec<Turn> {
     };
 
     if roads.len() == 2 {
-        if let Some(turns) = make_degenerate_crosswalks(i.id, lanes, roads[0], roads[1]) {
+        if let Some(turns) = make_degenerate_crosswalks(map, i.id, roads[0], roads[1]) {
             result.extend(turns);
         }
         // TODO Argh, duplicate logic for SharedSidewalkCorners
         for idx1 in 0..roads.len() {
-            if let Some(l1) = get_sidewalk(lanes, roads[idx1].incoming_lanes(i.id)) {
+            if let Some(l1) = get_sidewalk(map, roads[idx1].incoming_lanes(i.id)) {
                 if let Some(l2) = get_sidewalk(
-                    lanes,
+                    map,
                     wraparound_get(&roads, (idx1 as isize) + idx_offset).outgoing_lanes(i.id),
                 ) {
                     if l1.last_pt() != l2.first_pt() {
@@ -69,8 +67,8 @@ pub fn make_walking_turns(map: &Map, i: &Intersection) -> Vec<Turn> {
         return result;
     }
     if roads.len() == 1 {
-        if let Some(l1) = get_sidewalk(lanes, roads[0].incoming_lanes(i.id)) {
-            if let Some(l2) = get_sidewalk(lanes, roads[0].outgoing_lanes(i.id)) {
+        if let Some(l1) = get_sidewalk(map, roads[0].incoming_lanes(i.id)) {
+            if let Some(l2) = get_sidewalk(map, roads[0].outgoing_lanes(i.id)) {
                 let geom = make_shared_sidewalk_corner(driving_side, i, l1, l2);
                 result.push(Turn {
                     id: turn_id(i.id, l1.id, l2.id),
@@ -90,9 +88,9 @@ pub fn make_walking_turns(map: &Map, i: &Intersection) -> Vec<Turn> {
     }
 
     for idx1 in 0..roads.len() {
-        if let Some(l1) = get_sidewalk(lanes, roads[idx1].incoming_lanes(i.id)) {
+        if let Some(l1) = get_sidewalk(map, roads[idx1].incoming_lanes(i.id)) {
             // Make the crosswalk to the other side
-            if let Some(l2) = get_sidewalk(lanes, roads[idx1].outgoing_lanes(i.id)) {
+            if let Some(l2) = get_sidewalk(map, roads[idx1].outgoing_lanes(i.id)) {
                 result.extend(
                     make_crosswalks(i.id, l1, l2, driving_side)
                         .into_iter()
@@ -102,7 +100,7 @@ pub fn make_walking_turns(map: &Map, i: &Intersection) -> Vec<Turn> {
 
             // Find the shared corner
             if let Some(l2) = get_sidewalk(
-                lanes,
+                map,
                 wraparound_get(&roads, (idx1 as isize) + idx_offset).outgoing_lanes(i.id),
             ) {
                 if l1.last_pt() != l2.first_pt() {
@@ -121,7 +119,7 @@ pub fn make_walking_turns(map: &Map, i: &Intersection) -> Vec<Turn> {
                     });
                 }
             } else if let Some(l2) = get_sidewalk(
-                lanes,
+                map,
                 wraparound_get(&roads, (idx1 as isize) + idx_offset).incoming_lanes(i.id),
             ) {
                 // Adjacent road is missing a sidewalk on the near side, but has one on the far
@@ -136,7 +134,7 @@ pub fn make_walking_turns(map: &Map, i: &Intersection) -> Vec<Turn> {
                 // sidewalks at all. There might be a few in the way -- think highway onramps.
                 // TODO Refactor and loop until we find something to connect it to?
                 if let Some(l2) = get_sidewalk(
-                    lanes,
+                    map,
                     wraparound_get(&roads, (idx1 as isize) + 2 * idx_offset).outgoing_lanes(i.id),
                 ) {
                     result.extend(
@@ -145,7 +143,7 @@ pub fn make_walking_turns(map: &Map, i: &Intersection) -> Vec<Turn> {
                             .flatten(),
                     );
                 } else if let Some(l2) = get_sidewalk(
-                    lanes,
+                    map,
                     wraparound_get(&roads, (idx1 as isize) + 2 * idx_offset).incoming_lanes(i.id),
                 ) {
                     result.extend(
@@ -155,7 +153,7 @@ pub fn make_walking_turns(map: &Map, i: &Intersection) -> Vec<Turn> {
                     );
                 } else if roads.len() > 3 {
                     if let Some(l2) = get_sidewalk(
-                        lanes,
+                        map,
                         wraparound_get(&roads, (idx1 as isize) + 3 * idx_offset)
                             .outgoing_lanes(i.id),
                     ) {
@@ -199,29 +197,27 @@ pub fn filter_turns(mut input: Vec<Turn>, map: &Map, i: &Intersection) -> Vec<Tu
 /// - one centered crosswalk for degenerate intersections
 fn make_walking_turns_v2(map: &Map, i: &Intersection) -> Vec<Turn> {
     let driving_side = map.config.driving_side;
-    let all_roads = map.all_roads();
-    let all_lanes = map.all_lanes();
 
     // Consider all roads in counter-clockwise order. Every road has up to two sidewalks. Gather
     // those in order, remembering what roads don't have them.
     let mut lanes: Vec<Option<&Lane>> = Vec::new();
     let mut num_sidewalks = 0;
-    let mut sorted_roads = i.get_roads_sorted_by_incoming_angle(all_roads);
+    let mut sorted_roads = i.get_roads_sorted_by_incoming_angle(map.all_roads());
     // And for left-handed driving, we need to walk around in the opposite order.
     if driving_side == DrivingSide::Left {
         sorted_roads.reverse();
     }
 
     for r in sorted_roads {
-        let r = &all_roads[r.0];
+        let r = map.get_r(r);
         let mut fwd = None;
         let mut back = None;
         for (l, dir, lt) in r.lanes_ltr() {
             if lt.is_walkable() {
                 if dir == Direction::Fwd {
-                    fwd = Some(&all_lanes[&l]);
+                    fwd = Some(map.get_l(l));
                 } else {
-                    back = Some(&all_lanes[&l]);
+                    back = Some(map.get_l(l));
                 }
             }
         }
@@ -394,15 +390,15 @@ fn make_crosswalks(
 
 // Only one physical crosswalk for degenerate intersections, right in the middle.
 fn make_degenerate_crosswalks(
+    map: &Map,
     i: IntersectionID,
-    lanes: &BTreeMap<LaneID, Lane>,
     r1: &Road,
     r2: &Road,
 ) -> Option<Vec<Turn>> {
-    let l1_in = get_sidewalk(lanes, r1.incoming_lanes(i))?;
-    let l1_out = get_sidewalk(lanes, r1.outgoing_lanes(i))?;
-    let l2_in = get_sidewalk(lanes, r2.incoming_lanes(i))?;
-    let l2_out = get_sidewalk(lanes, r2.outgoing_lanes(i))?;
+    let l1_in = get_sidewalk(map, r1.incoming_lanes(i))?;
+    let l1_out = get_sidewalk(map, r1.outgoing_lanes(i))?;
+    let l2_in = get_sidewalk(map, r2.incoming_lanes(i))?;
+    let l2_out = get_sidewalk(map, r2.outgoing_lanes(i))?;
 
     let pt1 = Line::new(l1_in.last_pt(), l2_out.first_pt())?.percent_along(0.5)?;
     let pt2 = Line::new(l1_out.first_pt(), l2_in.last_pt())?.percent_along(0.5)?;
@@ -565,13 +561,10 @@ fn turn_id(parent: IntersectionID, src: LaneID, dst: LaneID) -> TurnID {
     TurnID { parent, src, dst }
 }
 
-fn get_sidewalk(
-    lanes: &'_ BTreeMap<LaneID, Lane>,
-    children: Vec<(LaneID, LaneType)>,
-) -> Option<&'_ Lane> {
+fn get_sidewalk(map: &Map, children: Vec<(LaneID, LaneType)>) -> Option<&Lane> {
     for (id, lt) in children {
         if lt.is_walkable() {
-            return Some(&lanes[&id]);
+            return Some(map.get_l(id));
         }
     }
     None

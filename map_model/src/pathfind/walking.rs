@@ -257,7 +257,7 @@ fn make_input_graph(
     let max_speed = Some(crate::MAX_WALKING_SPEED);
     let mut input_graph = InputGraph::new();
 
-    for l in map.all_lanes().values() {
+    for l in map.all_lanes() {
         if l.is_walkable() {
             // Sidewalks can be crossed in two directions. When there's a steep incline, of course
             // it flips.

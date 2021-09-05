@@ -64,8 +64,8 @@ impl DrawMap {
         }
 
         let mut lanes: HashMap<LaneID, DrawLane> = HashMap::new();
-        timer.start_iter("make DrawLanes", map.all_lanes().len());
-        for l in map.all_lanes().values() {
+        timer.start_iter("make DrawLanes", map.all_lanes().count());
+        for l in map.all_lanes() {
             timer.next();
             lanes.insert(l.id, DrawLane::new(l, map));
         }
@@ -150,8 +150,8 @@ impl DrawMap {
         // Since lanes is a HashMap, iteration order is nondeterministic. When lanes happen to
         // cover each other up, this leads to nondeterministic drawing order! This manifests quite
         // prominently in screenshot diff tests.
-        for l in map.all_lanes().keys() {
-            let obj = &lanes[l];
+        for l in map.all_lanes() {
+            let obj = &lanes[&l.id];
             let item_id =
                 quadtree.insert_with_box(obj.get_id(), obj.get_outline(map).get_bounds().as_bbox());
             quadtree_ids.insert(obj.get_id(), item_id);
@@ -456,7 +456,7 @@ impl DrawMap {
             batch.append(DrawParkingLot::new(ctx, pl, cs, &mut GeomBatch::new()).render(app));
         }
 
-        for l in map.all_lanes().values() {
+        for l in map.all_lanes() {
             batch.append(DrawLane::new(l, map).render(ctx, app));
         }
 

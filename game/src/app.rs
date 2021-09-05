@@ -676,9 +676,8 @@ impl PerMap {
             .or_else(|| {
                 self.map
                     .all_lanes()
-                    .keys()
                     .choose(&mut rng)
-                    .and_then(|l| self.canonical_point(ID::Lane(*l)))
+                    .and_then(|l| self.canonical_point(ID::Lane(l.id)))
             })
             .unwrap_or_else(|| self.map.get_bounds().center());
 

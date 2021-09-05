@@ -83,7 +83,6 @@ mod traversable;
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Map {
     roads: Vec<Road>,
-    lanes: BTreeMap<LaneID, Lane>,
     intersections: Vec<Intersection>,
     buildings: Vec<Building>,
     #[serde(

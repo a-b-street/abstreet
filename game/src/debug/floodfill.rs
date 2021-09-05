@@ -147,7 +147,7 @@ impl Source {
                 }
 
                 let mut unreached = HashSet::new();
-                for l in map.all_lanes().values() {
+                for l in map.all_lanes() {
                     if constraints.can_use(l, map) && !visited.contains(&l.id) {
                         unreached.insert(l.id);
                     }

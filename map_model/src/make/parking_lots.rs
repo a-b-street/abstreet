@@ -32,9 +32,8 @@ pub fn make_all_parking_lots(
 
     let sidewalk_buffer = Distance::meters(7.5);
     let sidewalk_pts = match_points_to_lanes(
-        map.get_bounds(),
+        map,
         query,
-        map.all_lanes(),
         |l| l.is_walkable(),
         sidewalk_buffer,
         Distance::meters(1000.0),
