@@ -514,11 +514,7 @@ impl Road {
         id
     }
 
-    pub(crate) fn create_lanes(
-        &self,
-        lane_specs_ltr: Vec<LaneSpec>,
-        lane_id_counter: &mut usize,
-    ) -> Vec<Lane> {
+    pub(crate) fn create_lanes(&self, lane_specs_ltr: Vec<LaneSpec>) -> Vec<Lane> {
         let mut total_width = Distance::ZERO;
         for lane in &lane_specs_ltr {
             total_width += lane.width;
@@ -533,8 +529,10 @@ impl Road {
         let mut width_so_far = Distance::ZERO;
         let mut lanes = Vec::new();
         for lane in lane_specs_ltr {
-            let id = LaneID(*lane_id_counter);
-            *lane_id_counter += 1;
+            let id = LaneID {
+                road: self.id,
+                offset: lanes.len(),
+            };
 
             let (src_i, dst_i) = if lane.dir == Direction::Fwd {
                 (self.src_i, self.dst_i)

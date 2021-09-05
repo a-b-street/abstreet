@@ -551,17 +551,15 @@ fn modify_lanes(map: &mut Map, r: RoadID, lanes_ltr: Vec<LaneSpec>, effects: &mu
     // We may be adding lanes, deleting lanes, or just modifying existing ones. The width of
     // existing lanes may change. We could try to preserve existing LaneIDs and modify them, but
     // it's simpler to just delete all of the lanes and create them again.
+    // TODO Revisit. We should probably just change EditEffects here to state the roads edited.
 
     for (l, _, _) in road.lanes_ltr.drain(..) {
         map.lanes.remove(&l).unwrap();
         effects.deleted_lanes.insert(l);
     }
 
-    // Create all of the road's lanes again, assigning new IDs.
-    // This approach creates gaps in the lane ID space, since it deletes the contiguous block of a
-    // road's lanes, then creates it again at the end. If this winds up mattering, we could use
-    // different approaches for "filling in the gaps."
-    let new_lanes = road.create_lanes(lanes_ltr, &mut map.lane_id_counter);
+    // Create all of the road's lanes again.
+    let new_lanes = road.create_lanes(lanes_ltr);
     for lane in &new_lanes {
         road.lanes_ltr.push((lane.id, lane.dir, lane.lane_type));
     }
@@ -569,17 +567,16 @@ fn modify_lanes(map: &mut Map, r: RoadID, lanes_ltr: Vec<LaneSpec>, effects: &mu
         map.lanes.insert(lane.id, lane);
     }
 
-    // We might've affected the geometry of other nearby roads. Recalculate the lanes for them as
-    // well, but don't change the IDs.
+    // We might've affected the geometry of other nearby roads.
     let mut modified_lanes = BTreeSet::new();
     for r in road_geom_changed {
+        // TODO Revisit
         effects.changed_roads.insert(r);
-        let mut dummy_id_counter = 0;
         let lanes_ltr = map.get_r(r).lane_specs(map);
         let real_lane_ids = map.get_r(r).lanes_ltr().into_iter().map(|(l, _, _)| l);
         for (lane, id) in map
             .get_r(r)
-            .create_lanes(lanes_ltr, &mut dummy_id_counter)
+            .create_lanes(lanes_ltr)
             .into_iter()
             .zip(real_lane_ids.into_iter())
         {

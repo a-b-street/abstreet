@@ -435,8 +435,7 @@ impl SidewalkSpot {
     pub fn deferred_parking_spot() -> SidewalkSpot {
         SidewalkSpot {
             connection: SidewalkPOI::DeferredParkingSpot,
-            // Dummy value
-            sidewalk_pos: Position::start(LaneID(0)),
+            sidewalk_pos: Position::start(LaneID::dummy()),
         }
     }
 

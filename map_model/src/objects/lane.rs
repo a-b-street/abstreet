@@ -1,9 +1,9 @@
 use std::collections::BTreeSet;
 use std::fmt;
 
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
-use abstutil::{deserialize_usize, serialize_usize, wraparound_get, Tags};
+use abstutil::{wraparound_get, Tags};
 use geom::{Distance, Line, PolyLine, Polygon, Pt2D, Ring};
 
 use crate::{
@@ -20,18 +20,61 @@ const SERVICE_ROAD_LANE_THICKNESS: Distance = Distance::const_meters(1.5);
 pub const SIDEWALK_THICKNESS: Distance = Distance::const_meters(1.5);
 const SHOULDER_THICKNESS: Distance = Distance::const_meters(0.5);
 
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
-pub struct LaneID(
-    #[serde(
-        serialize_with = "serialize_usize",
-        deserialize_with = "deserialize_usize"
-    )]
-    pub usize,
-);
+/// A lane is identified by its parent road and its position, ordered from the left.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord)]
+pub struct LaneID {
+    pub(crate) road: RoadID,
+    pub(crate) offset: usize,
+}
 
 impl fmt::Display for LaneID {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Lane #{}", self.0)
+        write!(f, "Lane #{}", self.encode_u32())
+    }
+}
+
+impl LaneID {
+    // TODO Do we have an endianness problem, or does serde take care of us?
+    pub fn encode_u32(self) -> u32 {
+        // The first 27 bits encode the RoadID, the last 5 the offset.
+        //
+        // (In some Houston area dystopia, we might want 2^5 = 32 lanes on one road. That leaves 27
+        // bits for roads -- 134 million roads should be plenty.)
+        let road = self.road.0 << 5;
+        (road | self.offset) as u32
+    }
+
+    pub fn decode_u32(x: u32) -> LaneID {
+        let road = RoadID((x >> 5) as usize);
+        // My bit twiddling is weak. Easier way to get a binary mask starting with 11111?
+        let offset = (x & (1 + 2 + 4 + 8 + 16)) as usize;
+        LaneID { road, offset }
+    }
+
+    pub fn dummy() -> LaneID {
+        LaneID {
+            road: RoadID(0),
+            offset: 0,
+        }
+    }
+}
+
+impl Serialize for LaneID {
+    fn serialize<S>(&self, s: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        self.encode_u32().serialize(s)
+    }
+}
+
+impl<'de> Deserialize<'de> for LaneID {
+    fn deserialize<D>(d: D) -> Result<LaneID, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let x = <u32>::deserialize(d)?;
+        Ok(LaneID::decode_u32(x))
     }
 }
 
@@ -553,5 +596,19 @@ fn parse_turn_type_from_osm(x: &str) -> Vec<TurnType> {
             warn!("Unknown turn restriction {}", x);
             vec![]
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_lane_id_encoding() {
+        let l = LaneID {
+            road: RoadID(42),
+            offset: 3,
+        };
+        assert_eq!(l, LaneID::decode_u32(l.encode_u32()));
     }
 }

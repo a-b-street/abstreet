@@ -64,7 +64,6 @@ impl Map {
         let mut map = Map {
             roads: Vec::new(),
             lanes: BTreeMap::new(),
-            lane_id_counter: 0,
             intersections: Vec::new(),
             buildings: Vec::new(),
             bus_stops: BTreeMap::new(),
@@ -164,7 +163,7 @@ impl Map {
             road.speed_limit = road.speed_limit_from_osm();
             road.access_restrictions = road.access_restrictions_from_osm();
 
-            for lane in road.create_lanes(r.lane_specs_ltr, &mut map.lane_id_counter) {
+            for lane in road.create_lanes(r.lane_specs_ltr) {
                 map.intersections[lane.src_i.0].outgoing_lanes.push(lane.id);
                 map.intersections[lane.dst_i.0].incoming_lanes.push(lane.id);
                 road.lanes_ltr.push((lane.id, lane.dir, lane.lane_type));

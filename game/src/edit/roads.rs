@@ -279,7 +279,7 @@ impl State<App> for RoadEditor {
         match self.main_panel.event(ctx) {
             Outcome::Clicked(x) => {
                 if let Some(idx) = x.strip_prefix("modify Lane #") {
-                    self.selected_lane = Some(LaneID(idx.parse().unwrap()));
+                    self.selected_lane = Some(LaneID::decode_u32(idx.parse().unwrap()));
                     panels_need_recalc = true;
                 } else if x == "delete lane" {
                     return self.modify_current_lane(ctx, app, None, |new, idx| {

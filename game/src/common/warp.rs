@@ -204,7 +204,7 @@ fn inner_warp_to_id(ctx: &mut EventCtx, app: &mut App, line: &str) -> Option<Tra
                     })),
                 ]));
             }
-            'l' => ID::Lane(LaneID(idx)),
+            'l' => ID::Lane(LaneID::decode_u32(idx as u32)),
             'L' => ID::ParkingLot(ParkingLotID(idx)),
             'i' => ID::Intersection(IntersectionID(idx)),
             'b' => ID::Building(BuildingID(idx)),
