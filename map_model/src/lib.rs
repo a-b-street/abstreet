@@ -84,7 +84,6 @@ mod traversable;
 pub struct Map {
     roads: Vec<Road>,
     lanes: BTreeMap<LaneID, Lane>,
-    lane_id_counter: usize,
     intersections: Vec<Intersection>,
     buildings: Vec<Building>,
     #[serde(

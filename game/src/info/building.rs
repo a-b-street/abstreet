@@ -310,7 +310,7 @@ pub fn draw_occupants(details: &mut Details, app: &App, id: BuildingID, focus: O
                     preparing_bike: false,
                     // Both hands and feet!
                     waiting_for_bus: true,
-                    on: Traversable::Lane(LaneID(0)),
+                    on: Traversable::Lane(LaneID::dummy()),
                 },
                 0,
             );

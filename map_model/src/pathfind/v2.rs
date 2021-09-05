@@ -10,7 +10,7 @@ use geom::Duration;
 use crate::pathfind::uber_turns::UberTurnV2;
 use crate::{
     DirectedRoadID, IntersectionID, LaneID, Map, MovementID, Path, PathConstraints, PathRequest,
-    PathStep, TurnID, UberTurn,
+    PathStep, RoadID, TurnID, UberTurn,
 };
 
 /// One step along a path.
@@ -141,7 +141,10 @@ impl PathV2 {
         // allow starting from any lane on the same side of the road. Since petgraph can only start
         // from a single node and since we want to prefer the originally requested lane anyway,
         // create a virtual start node and connect it to all possible starting lanes.
-        let virtual_start_node = LaneID(map.lane_id_counter + 1);
+        let virtual_start_node = LaneID {
+            road: RoadID(map.all_roads().len()),
+            offset: 0,
+        };
         let start_lane = self.req.start.lane();
         let start_road = map.get_parent(start_lane);
         let start_lane_idx = start_road.offset(start_lane) as isize;

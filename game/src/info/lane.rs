@@ -270,7 +270,7 @@ fn header(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID, tab: Tab
 
     // Navbar
     rows.push(Widget::row(vec![
-        Line(format!("{} #{}", label, id.0))
+        Line(format!("{} #{}", label, id.encode_u32()))
             .small_heading()
             .into_widget(ctx),
         header_btns(ctx),

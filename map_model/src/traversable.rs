@@ -140,7 +140,7 @@ pub enum Traversable {
 impl fmt::Display for Traversable {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            Traversable::Lane(id) => write!(f, "Traversable::Lane({})", id.0),
+            Traversable::Lane(id) => write!(f, "Traversable::Lane({})", id.encode_u32()),
             Traversable::Turn(id) => write!(
                 f,
                 "Traversable::Turn({}, {}, {})",
