@@ -67,7 +67,7 @@ impl TransitNetwork {
             categories.push(("routes", app.cs.bus_layer));
         }
         let mut colorer = ColorDiscrete::new(app, categories);
-        for l in map.all_lanes().values() {
+        for l in map.all_lanes() {
             if l.is_bus() && show_buses {
                 colorer.add_l(l.id, "bus lanes / rails");
             }

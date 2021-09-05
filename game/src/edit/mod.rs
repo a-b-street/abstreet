@@ -723,8 +723,8 @@ pub fn apply_map_edits(ctx: &mut EventCtx, app: &mut App, edits: MapEdits) {
 
         // An edit to one lane potentially affects markings in all lanes in the same road, because
         // of one-way markings, driving lines, etc.
-        for l in road.all_lanes() {
-            app.primary.draw_map.create_lane(l, &app.primary.map);
+        for l in &road.lanes {
+            app.primary.draw_map.create_lane(l.id, &app.primary.map);
         }
     }
 

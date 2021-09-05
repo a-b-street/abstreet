@@ -166,7 +166,7 @@ impl NormalParkingSimState {
 
             events: Vec::new(),
         };
-        for l in map.all_lanes().values() {
+        for l in map.all_lanes() {
             if let Some(lane) = ParkingLane::new(l, map) {
                 sim.driving_to_parking_lanes.insert(lane.driving_lane, l.id);
                 sim.onstreet_lanes.insert(lane.parking_lane, lane);

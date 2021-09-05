@@ -101,11 +101,6 @@ impl Map {
                     serialized_size_bytes(&self.roads),
                 ),
                 (
-                    "lanes",
-                    self.lanes.len(),
-                    serialized_size_bytes(&self.lanes),
-                ),
-                (
                     "intersections",
                     self.intersections.len(),
                     serialized_size_bytes(&self.intersections),
@@ -154,7 +149,6 @@ impl Map {
     pub fn blank() -> Map {
         Map {
             roads: Vec::new(),
-            lanes: BTreeMap::new(),
             intersections: Vec::new(),
             buildings: Vec::new(),
             bus_stops: BTreeMap::new(),
@@ -193,8 +187,8 @@ impl Map {
         &self.roads
     }
 
-    pub fn all_lanes(&self) -> &BTreeMap<LaneID, Lane> {
-        &self.lanes
+    pub fn all_lanes(&self) -> impl Iterator<Item = &Lane> {
+        self.roads.iter().flat_map(|r| r.lanes.iter())
     }
 
     pub fn all_intersections(&self) -> &Vec<Intersection> {
@@ -226,7 +220,7 @@ impl Map {
     }
 
     pub fn maybe_get_l(&self, id: LaneID) -> Option<&Lane> {
-        self.lanes.get(&id)
+        self.maybe_get_r(id.road)?.lanes.get(id.offset)
     }
 
     pub fn maybe_get_i(&self, id: IntersectionID) -> Option<&Intersection> {
@@ -277,7 +271,11 @@ impl Map {
     }
 
     pub fn get_l(&self, id: LaneID) -> &Lane {
-        &self.lanes[&id]
+        &self.roads[id.road.0].lanes[id.offset]
+    }
+
+    pub(crate) fn mut_lane(&mut self, id: LaneID) -> &mut Lane {
+        &mut self.roads[id.road.0].lanes[id.offset]
     }
 
     pub fn get_i(&self, id: IntersectionID) -> &Intersection {

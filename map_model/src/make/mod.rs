@@ -4,7 +4,7 @@
 use std::collections::{BTreeMap, HashMap, HashSet};
 
 use abstutil::{MultiMap, Tags, Timer};
-use geom::{Bounds, Distance, FindClosest, HashablePt2D, Line, Polygon, Speed, EPSILON_DIST};
+use geom::{Distance, FindClosest, HashablePt2D, Line, Polygon, Speed, EPSILON_DIST};
 
 pub use self::parking_lots::snap_driveway;
 use crate::pathfind::{CreateEngine, Pathfinder};
@@ -63,7 +63,6 @@ impl Map {
 
         let mut map = Map {
             roads: Vec::new(),
-            lanes: BTreeMap::new(),
             intersections: Vec::new(),
             buildings: Vec::new(),
             bus_stops: BTreeMap::new(),
@@ -150,6 +149,7 @@ impl Map {
                     })
                     .collect(),
                 orig_id: r.id,
+                lanes: Vec::new(),
                 lanes_ltr: Vec::new(),
                 center_pts: r.trimmed_center_pts,
                 untrimmed_center_pts: raw_road.get_geometry(r.id, map.get_config()).unwrap().0,
@@ -163,11 +163,10 @@ impl Map {
             road.speed_limit = road.speed_limit_from_osm();
             road.access_restrictions = road.access_restrictions_from_osm();
 
-            for lane in road.create_lanes(r.lane_specs_ltr) {
+            road.recreate_lanes(r.lane_specs_ltr);
+            for lane in &road.lanes {
                 map.intersections[lane.src_i.0].outgoing_lanes.push(lane.id);
                 map.intersections[lane.dst_i.0].incoming_lanes.push(lane.id);
-                road.lanes_ltr.push((lane.id, lane.dir, lane.lane_type));
-                map.lanes.insert(lane.id, lane);
             }
 
             map.roads.push(road);
@@ -229,10 +228,10 @@ impl Map {
 
         timer.start("find blackholes");
         for l in connectivity::find_scc(&map, PathConstraints::Car).1 {
-            map.lanes.get_mut(&l).unwrap().driving_blackhole = true;
+            map.mut_lane(l).driving_blackhole = true;
         }
         for l in connectivity::find_scc(&map, PathConstraints::Bike).1 {
-            map.lanes.get_mut(&l).unwrap().biking_blackhole = true;
+            map.mut_lane(l).biking_blackhole = true;
         }
         timer.stop("find blackholes");
 
@@ -333,9 +332,8 @@ impl Map {
 /// Snap points to an exact Position along the nearest lane. If the result doesn't contain a
 /// requested point, then there was no matching lane close enough.
 pub fn match_points_to_lanes<F: Fn(&Lane) -> bool>(
-    bounds: &Bounds,
+    map: &Map,
     pts: HashSet<HashablePt2D>,
-    lanes: &BTreeMap<LaneID, Lane>,
     filter: F,
     buffer: Distance,
     max_dist_away: Distance,
@@ -345,9 +343,9 @@ pub fn match_points_to_lanes<F: Fn(&Lane) -> bool>(
         return HashMap::new();
     }
 
-    let mut closest: FindClosest<LaneID> = FindClosest::new(bounds);
-    timer.start_iter("index lanes", lanes.len());
-    for l in lanes.values() {
+    let mut closest: FindClosest<LaneID> = FindClosest::new(map.get_bounds());
+    timer.start_iter("index lanes", map.all_lanes().count());
+    for l in map.all_lanes() {
         timer.next();
         if filter(l) && l.length() > (buffer + EPSILON_DIST) * 2.0 {
             closest.add(
@@ -367,13 +365,15 @@ pub fn match_points_to_lanes<F: Fn(&Lane) -> bool>(
             pts.into_iter().collect(),
             |query_pt| {
                 if let Some((l, pt)) = closest.closest_pt(query_pt.to_pt2d(), max_dist_away) {
-                    if let Some(dist_along) = lanes[&l].dist_along_of_point(pt) {
+                    if let Some(dist_along) = map.get_l(l).dist_along_of_point(pt) {
                         Some((query_pt, Position::new(l, dist_along)))
                     } else {
                         panic!(
                             "{} isn't on {} according to dist_along_of_point, even though \
                              closest_point thinks it is.\n{}",
-                            pt, l, lanes[&l].lane_center_pts
+                            pt,
+                            l,
+                            map.get_l(l).lane_center_pts
                         );
                     }
                 } else {

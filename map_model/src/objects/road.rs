@@ -147,7 +147,9 @@ pub struct Road {
     /// positive is uphill from src_i -> dst_i, negative is downhill.
     pub percent_incline: f64,
 
-    /// Invariant: A road must contain at least one child
+    /// Invariant: A road must contain at least one child. These are ordered from left-to-right.
+    pub lanes: Vec<Lane>,
+    // TODO Remove -- this becomes redundant
     pub(crate) lanes_ltr: Vec<(LaneID, Direction, LaneType)>,
 
     /// The physical center of the road, including sidewalks, after trimming to account for the
@@ -270,10 +272,6 @@ impl Road {
             .map(|(_, l)| l)
     }
 
-    pub fn all_lanes(&self) -> Vec<LaneID> {
-        self.lanes_ltr().into_iter().map(|(l, _, _)| l).collect()
-    }
-
     /// This is the FIRST yellow line where the direction of the road changes. If multiple direction
     /// changes happen, the result is kind of arbitrary.
     pub fn get_dir_change_pl(&self, map: &Map) -> PolyLine {
@@ -304,10 +302,7 @@ impl Road {
     }
 
     pub fn get_width(&self, map: &Map) -> Distance {
-        self.all_lanes()
-            .into_iter()
-            .map(|l| map.get_l(l).width)
-            .sum::<Distance>()
+        self.lanes.iter().map(|l| l.width).sum::<Distance>()
     }
 
     pub fn get_thick_polygon(&self, map: &Map) -> Polygon {
@@ -408,11 +403,11 @@ impl Road {
     }
 
     pub fn all_bus_stops(&self, map: &Map) -> Vec<BusStopID> {
-        let mut stops = Vec::new();
-        for id in self.all_lanes() {
-            stops.extend(map.get_l(id).bus_stops.iter().cloned());
-        }
-        stops
+        self.lanes
+            .iter()
+            .flat_map(|l| l.bus_stops.iter())
+            .cloned()
+            .collect()
     }
 
     pub fn is_light_rail(&self) -> bool {
@@ -514,7 +509,10 @@ impl Road {
         id
     }
 
-    pub(crate) fn create_lanes(&self, lane_specs_ltr: Vec<LaneSpec>) -> Vec<Lane> {
+    pub(crate) fn recreate_lanes(&mut self, lane_specs_ltr: Vec<LaneSpec>) {
+        self.lanes.clear();
+        self.lanes_ltr.clear();
+
         let mut total_width = Distance::ZERO;
         for lane in &lane_specs_ltr {
             total_width += lane.width;
@@ -527,11 +525,10 @@ impl Road {
             .unwrap_or_else(|_| self.center_pts.clone());
 
         let mut width_so_far = Distance::ZERO;
-        let mut lanes = Vec::new();
         for lane in lane_specs_ltr {
             let id = LaneID {
                 road: self.id,
-                offset: lanes.len(),
+                offset: self.lanes.len(),
             };
 
             let (src_i, dst_i) = if lane.dir == Direction::Fwd {
@@ -553,7 +550,9 @@ impl Road {
             };
             width_so_far += lane.width;
 
-            lanes.push(Lane {
+            // TODO Revisit
+            self.lanes_ltr.push((id, lane.dir, lane.lt));
+            self.lanes.push(Lane {
                 id,
                 lane_center_pts,
                 width: lane.width,
@@ -567,7 +566,6 @@ impl Road {
                 biking_blackhole: false,
             });
         }
-        lanes
     }
 
     /// Returns all lanes located between l1 and l2, exclusive.

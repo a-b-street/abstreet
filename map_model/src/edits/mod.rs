@@ -400,12 +400,12 @@ impl EditCmd {
                     i.outgoing_lanes.clear();
                     i.incoming_lanes.clear();
                     for r in &i.roads {
-                        for (l, _, _) in map.roads[r.0].lanes_ltr() {
-                            if map.lanes[&l].src_i == i.id {
-                                i.outgoing_lanes.push(l);
+                        for lane in &map.roads[r.0].lanes {
+                            if lane.src_i == i.id {
+                                i.outgoing_lanes.push(lane.id);
                             } else {
-                                assert_eq!(map.lanes[&l].dst_i, i.id);
-                                i.incoming_lanes.push(l);
+                                assert_eq!(lane.dst_i, i.id);
+                                i.incoming_lanes.push(lane.id);
                             }
                         }
                     }
@@ -545,43 +545,25 @@ fn modify_lanes(map: &mut Map, r: RoadID, lanes_ltr: Vec<LaneSpec>, effects: &mu
         ));
     }
 
-    // Reborrow
-    let road = &mut map.roads[r.0];
-
-    // We may be adding lanes, deleting lanes, or just modifying existing ones. The width of
-    // existing lanes may change. We could try to preserve existing LaneIDs and modify them, but
-    // it's simpler to just delete all of the lanes and create them again.
-    // TODO Revisit. We should probably just change EditEffects here to state the roads edited.
-
-    for (l, _, _) in road.lanes_ltr.drain(..) {
-        map.lanes.remove(&l).unwrap();
-        effects.deleted_lanes.insert(l);
-    }
-
-    // Create all of the road's lanes again.
-    let new_lanes = road.create_lanes(lanes_ltr);
-    for lane in &new_lanes {
-        road.lanes_ltr.push((lane.id, lane.dir, lane.lane_type));
-    }
-    for lane in new_lanes {
-        map.lanes.insert(lane.id, lane);
+    {
+        let road = &mut map.roads[r.0];
+        // TODO Revisit -- effects.deleted_lanes should probably totally go away. It is used below,
+        // though
+        for lane in &road.lanes {
+            effects.deleted_lanes.insert(lane.id);
+        }
+        road.recreate_lanes(lanes_ltr);
     }
 
     // We might've affected the geometry of other nearby roads.
     let mut modified_lanes = BTreeSet::new();
     for r in road_geom_changed {
-        // TODO Revisit
         effects.changed_roads.insert(r);
-        let lanes_ltr = map.get_r(r).lane_specs(map);
-        let real_lane_ids = map.get_r(r).lanes_ltr().into_iter().map(|(l, _, _)| l);
-        for (lane, id) in map
-            .get_r(r)
-            .create_lanes(lanes_ltr)
-            .into_iter()
-            .zip(real_lane_ids.into_iter())
-        {
-            map.lanes.get_mut(&id).unwrap().lane_center_pts = lane.lane_center_pts;
-            modified_lanes.insert(id);
+        let lane_specs = map.get_r(r).lane_specs(map);
+        let road = &mut map.roads[r.0];
+        road.recreate_lanes(lane_specs);
+        for lane in &road.lanes {
+            modified_lanes.insert(lane.id);
         }
     }
     modified_lanes.extend(effects.deleted_lanes.clone());
@@ -705,9 +687,8 @@ fn fix_building_driveways(map: &mut Map, input: Vec<BuildingID>, effects: &mut E
 
     let sidewalk_buffer = Distance::meters(7.5);
     let mut sidewalk_pts = match_points_to_lanes(
-        map.get_bounds(),
+        map,
         query,
-        map.all_lanes(),
         |l| l.is_walkable(),
         // Don't put connections too close to intersections
         sidewalk_buffer,
@@ -751,9 +732,8 @@ fn fix_parking_lot_driveways(map: &mut Map, input: Vec<ParkingLotID>) {
 
     let sidewalk_buffer = Distance::meters(7.5);
     let sidewalk_pts = match_points_to_lanes(
-        map.get_bounds(),
+        map,
         query,
-        map.all_lanes(),
         |l| l.is_walkable(),
         sidewalk_buffer,
         Distance::meters(1000.0),
@@ -961,15 +941,17 @@ impl Map {
 
         // Also recompute blackholes. This is cheap enough to do from scratch.
         timer.start("recompute blackholes");
-        for l in self.lanes.values_mut() {
-            l.driving_blackhole = false;
-            l.biking_blackhole = false;
+        for road in &mut self.roads {
+            for lane in &mut road.lanes {
+                lane.driving_blackhole = false;
+                lane.biking_blackhole = false;
+            }
         }
         for l in connectivity::find_scc(self, PathConstraints::Car).1 {
-            self.lanes.get_mut(&l).unwrap().driving_blackhole = true;
+            self.mut_lane(l).driving_blackhole = true;
         }
         for l in connectivity::find_scc(self, PathConstraints::Bike).1 {
-            self.lanes.get_mut(&l).unwrap().biking_blackhole = true;
+            self.mut_lane(l).biking_blackhole = true;
         }
         timer.stop("recompute blackholes");
 

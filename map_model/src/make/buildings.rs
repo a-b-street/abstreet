@@ -33,9 +33,8 @@ pub fn make_all_buildings(
 
     let sidewalk_buffer = Distance::meters(7.5);
     let sidewalk_pts = match_points_to_lanes(
-        map.get_bounds(),
+        map,
         query,
-        map.all_lanes(),
         |l| l.is_walkable(),
         // Don't put connections too close to intersections
         sidewalk_buffer,
