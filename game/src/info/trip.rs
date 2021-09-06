@@ -558,7 +558,7 @@ fn draw_problems(
                 );
                 details.tooltips.push((
                     match on {
-                        Traversable::Lane(l) => map.get_parent(*l).get_thick_polygon(map),
+                        Traversable::Lane(l) => map.get_parent(*l).get_thick_polygon(),
                         Traversable::Turn(t) => map.get_i(t.parent).polygon.clone(),
                     },
                     Text::from("A vehicle wanted to over-take this cyclist near here."),

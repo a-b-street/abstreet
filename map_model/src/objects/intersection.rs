@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 use abstutil::{deserialize_usize, serialize_usize};
 use geom::{Distance, Polygon};
 
-use crate::{osm, DirectedRoadID, LaneID, Map, PathConstraints, Road, RoadID, Turn};
+use crate::{osm, DirectedRoadID, LaneID, Map, PathConstraints, RoadID, Turn};
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct IntersectionID(
@@ -130,11 +130,11 @@ impl Intersection {
             .unwrap()
     }
 
-    pub fn get_roads_sorted_by_incoming_angle(&self, all_roads: &[Road]) -> Vec<RoadID> {
+    pub fn get_roads_sorted_by_incoming_angle(&self, map: &Map) -> Vec<RoadID> {
         let center = self.polygon.center();
         let mut roads: Vec<RoadID> = self.roads.iter().cloned().collect();
         roads.sort_by_key(|id| {
-            let r = &all_roads[id.0];
+            let r = map.get_r(*id);
             let endpt = if r.src_i == self.id {
                 r.center_pts.first_pt()
             } else if r.dst_i == self.id {
@@ -153,7 +153,7 @@ impl Intersection {
     /// carriageway (split into two one-ways).
     pub fn get_sorted_incoming_roads(&self, map: &Map) -> Vec<RoadID> {
         let mut roads = Vec::new();
-        for r in self.get_roads_sorted_by_incoming_angle(map.all_roads()) {
+        for r in self.get_roads_sorted_by_incoming_angle(map) {
             if !map.get_r(r).incoming_lanes(self.id).is_empty() {
                 roads.push(r);
             }

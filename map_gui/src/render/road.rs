@@ -42,7 +42,7 @@ impl DrawRoad {
             let ((l1, dir1, lt1), (_, dir2, lt2)) = (pair[0], pair[1]);
             width += app.map().get_l(l1).width;
             if dir1 != dir2 && lt1.is_for_moving_vehicles() && lt2.is_for_moving_vehicles() {
-                let pl = r.get_left_side(app.map()).must_shift_right(width);
+                let pl = r.get_left_side().must_shift_right(width);
                 batch.extend(
                     center_line_color,
                     pl.dashed_lines(
@@ -132,11 +132,11 @@ impl Renderable for DrawRoad {
 
     fn get_outline(&self, map: &Map) -> Polygon {
         // Highlight the entire thing, not just an outline
-        map.get_r(self.id).get_thick_polygon(map)
+        map.get_r(self.id).get_thick_polygon()
     }
 
     fn contains_pt(&self, pt: Pt2D, map: &Map) -> bool {
-        map.get_r(self.id).get_thick_polygon(map).contains_pt(pt)
+        map.get_r(self.id).get_thick_polygon().contains_pt(pt)
     }
 
     fn get_zorder(&self) -> isize {

@@ -153,7 +153,7 @@ pub fn snap_driveway(
     let sidewalk_lane = sidewalk_pos.lane();
     if let Some(driving_pos) = map
         .get_parent(sidewalk_lane)
-        .find_closest_lane(sidewalk_lane, |l| PathConstraints::Car.can_use(l, map), map)
+        .find_closest_lane(sidewalk_lane, |l| PathConstraints::Car.can_use(l, map))
         .and_then(|l| {
             sidewalk_pos
                 .equiv_pos(l, map)

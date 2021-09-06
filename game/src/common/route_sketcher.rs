@@ -107,7 +107,7 @@ impl RouteSketcher {
         for pair in self.route.full_path.windows(2) {
             // TODO Inefficient!
             let r = map.find_road_between(pair[0], pair[1]).unwrap();
-            batch.push(Color::RED.alpha(0.5), map.get_r(r).get_thick_polygon(map));
+            batch.push(Color::RED.alpha(0.5), map.get_r(r).get_thick_polygon());
         }
         for i in &self.route.full_path {
             batch.push(
@@ -145,7 +145,7 @@ impl RouteSketcher {
                     map.simple_path_btwn(self.route.waypoints[0], i)
                 {
                     for r in roads {
-                        batch.push(Color::BLUE.alpha(0.5), map.get_r(r).get_thick_polygon(map));
+                        batch.push(Color::BLUE.alpha(0.5), map.get_r(r).get_thick_polygon());
                     }
                     for i in intersections {
                         batch.push(Color::BLUE.alpha(0.5), map.get_i(i).polygon.clone());

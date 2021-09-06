@@ -88,7 +88,7 @@ impl DrawNetworkLayer {
                 } else {
                     Fill::Color(color)
                 },
-                r.center_pts.make_polygons(thickness * r.get_width(map)),
+                r.center_pts.make_polygons(thickness * r.get_width()),
             );
 
             // Arbitrarily pick a color when two different types of roads meet

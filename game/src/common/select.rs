@@ -81,10 +81,7 @@ impl RoadSelector {
         for r in &self.roads {
             batch.push(
                 Color::BLUE.alpha(0.5),
-                app.primary
-                    .map
-                    .get_r(*r)
-                    .get_thick_polygon(&app.primary.map),
+                app.primary.map.get_r(*r).get_thick_polygon(),
             );
         }
         self.intersections.clear();
@@ -223,10 +220,7 @@ impl RoadSelector {
                             for r in &roads {
                                 batch.push(
                                     Color::RED.alpha(0.5),
-                                    app.primary
-                                        .map
-                                        .get_r(*r)
-                                        .get_thick_polygon(&app.primary.map),
+                                    app.primary.map.get_r(*r).get_thick_polygon(),
                                 );
                             }
                             for i in intersections {

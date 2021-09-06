@@ -585,7 +585,7 @@ pub fn draw_unwalkable_roads(ctx: &mut EventCtx, app: &App, opts: &Options) -> D
             }
         }
         // TODO Skip highways
-        batch.push(Color::BLUE.alpha(0.5), road.get_thick_polygon(&app.map));
+        batch.push(Color::BLUE.alpha(0.5), road.get_thick_polygon());
     }
     ctx.upload(batch)
 }

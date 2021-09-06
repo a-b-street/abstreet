@@ -74,25 +74,25 @@ impl ParkingMapper {
             {
                 todo.insert(r.orig_id.osm_way_id);
                 if show == Show::ToDo {
-                    batch.push(color, map.get_r(r.id).get_thick_polygon(map));
+                    batch.push(color, map.get_r(r.id).get_thick_polygon());
                 }
             } else {
                 done.insert(r.orig_id.osm_way_id);
                 if show == Show::Done {
-                    batch.push(color, map.get_r(r.id).get_thick_polygon(map));
+                    batch.push(color, map.get_r(r.id).get_thick_polygon());
                 }
             }
         }
         if show == Show::DividedHighways {
             for r in find_divided_highways(app) {
-                batch.push(color, map.get_r(r).get_thick_polygon(map));
+                batch.push(color, map.get_r(r).get_thick_polygon());
             }
         }
         if show == Show::UnmappedDividedHighways {
             for r in find_divided_highways(app) {
                 let r = map.get_r(r);
                 if !r.osm_tags.is("dual_carriageway", "yes") {
-                    batch.push(color, r.get_thick_polygon(map));
+                    batch.push(color, r.get_thick_polygon());
                 }
             }
         }
@@ -217,7 +217,7 @@ impl State<App> for ParkingMapper {
                     for r in map.all_roads() {
                         if r.orig_id.osm_way_id == way {
                             ids.insert(r.id);
-                            batch.push(Color::CYAN.alpha(0.5), r.get_thick_polygon(map));
+                            batch.push(Color::CYAN.alpha(0.5), r.get_thick_polygon());
                         }
                     }
 
@@ -405,13 +405,13 @@ impl ChangeWay {
             batch.push(
                 Color::GREEN,
                 r.center_pts
-                    .must_shift_right(r.get_half_width(map))
+                    .must_shift_right(r.get_half_width())
                     .make_polygons(thickness),
             );
             batch.push(
                 Color::BLUE,
                 r.center_pts
-                    .must_shift_left(r.get_half_width(map))
+                    .must_shift_left(r.get_half_width())
                     .make_polygons(thickness),
             );
         }
@@ -650,7 +650,7 @@ fn find_overlapping_stuff(app: &App, timer: &mut Timer) -> Vec<Polygon> {
         for (r, _, _) in closest.all_close_pts(b.label_center, Distance::meters(500.0)) {
             if !b
                 .polygon
-                .intersection(&map.get_r(r).get_thick_polygon(map))
+                .intersection(&map.get_r(r).get_thick_polygon())
                 .is_empty()
             {
                 polygons.push(b.polygon.clone());
@@ -664,7 +664,7 @@ fn find_overlapping_stuff(app: &App, timer: &mut Timer) -> Vec<Polygon> {
         for (r, _, _) in closest.all_close_pts(pl.polygon.center(), Distance::meters(500.0)) {
             if !pl
                 .polygon
-                .intersection(&map.get_r(r).get_thick_polygon(map))
+                .intersection(&map.get_r(r).get_thick_polygon())
                 .is_empty()
             {
                 polygons.push(pl.polygon.clone());

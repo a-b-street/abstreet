@@ -284,11 +284,9 @@ impl Matcher {
         } else {
             let sidewalk = map
                 .get_parent(driving_pos.lane())
-                .find_closest_lane(
-                    driving_pos.lane(),
-                    |l| PathConstraints::Pedestrian.can_use(l, map),
-                    map,
-                )
+                .find_closest_lane(driving_pos.lane(), |l| {
+                    PathConstraints::Pedestrian.can_use(l, map)
+                })
                 .ok_or_else(|| anyhow!("driving {} to sidewalk failed", driving_pos.lane()))?;
             driving_pos.equiv_pos(sidewalk, map)
         };

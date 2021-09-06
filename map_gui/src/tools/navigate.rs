@@ -92,7 +92,7 @@ impl CrossStreet {
         let mut batch = GeomBatch::new();
         for r in &first {
             let road = map.get_r(*r);
-            batch.push(Color::RED, road.get_thick_polygon(map));
+            batch.push(Color::RED, road.get_thick_polygon());
             for i in [road.src_i, road.dst_i] {
                 for cross in &map.get_i(i).roads {
                     cross_streets.insert(*cross);

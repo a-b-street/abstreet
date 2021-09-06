@@ -85,7 +85,7 @@ impl SelectSegments {
         // Point out the road we're using as the template
         if let Ok(outline) = map
             .get_r(self.base_road)
-            .get_thick_polygon(map)
+            .get_thick_polygon()
             .to_outline(Distance::meters(3.0))
         {
             batch.push(color.alpha(0.9), outline);
@@ -94,7 +94,7 @@ impl SelectSegments {
             let alpha = if self.current.contains(r) { 0.9 } else { 0.5 };
             batch.push(
                 Fill::ColoredTexture(Color::CYAN.alpha(alpha), Texture::CROSS_HATCH),
-                map.get_r(*r).get_thick_polygon(map),
+                map.get_r(*r).get_thick_polygon(),
             );
         }
         self.draw = ctx.upload(batch);

@@ -130,7 +130,7 @@ fn generate_buildings_on_empty_residential_roads(
     quadtree = QuadTree::default(map.get_bounds().as_bbox());
     let mut static_polygons = Vec::new();
     for r in map.all_roads() {
-        let poly = r.get_thick_polygon(map);
+        let poly = r.get_thick_polygon();
         quadtree.insert_with_box(static_polygons.len(), poly.get_bounds().as_bbox());
         static_polygons.push(poly);
     }

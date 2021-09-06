@@ -627,7 +627,7 @@ fn make_main_panel(
     ]);
     let mut drag_drop = DragDrop::new(ctx, "lane cards", StackAxis::Horizontal);
 
-    let road_width = road.get_width(map);
+    let road_width = road.get_width();
     let lanes_ltr = road.lanes_ltr();
     let lanes_len = lanes_ltr.len();
 
@@ -987,7 +987,7 @@ fn can_reverse(_: LaneType) -> bool {
 fn fade_irrelevant(app: &App, r: RoadID) -> GeomBatch {
     let map = &app.primary.map;
     let road = map.get_r(r);
-    let mut holes = vec![road.get_thick_polygon(map)];
+    let mut holes = vec![road.get_thick_polygon()];
     for i in [road.src_i, road.dst_i] {
         let i = map.get_i(i);
         holes.push(i.polygon.clone());
@@ -1013,7 +1013,7 @@ fn draw_drop_position(app: &App, r: RoadID, from: usize, to: usize) -> GeomBatch
     for (l, _, _) in road.lanes_ltr().into_iter().take(take_num) {
         width += map.get_l(l).width;
     }
-    if let Ok(pl) = road.get_left_side(map).shift_right(width) {
+    if let Ok(pl) = road.get_left_side().shift_right(width) {
         batch.push(app.cs.selected, pl.make_polygons(OUTLINE_THICKNESS));
     }
     batch
