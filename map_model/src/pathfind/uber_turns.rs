@@ -93,7 +93,7 @@ impl IntersectionCluster {
         let mut entrances = Vec::new();
         let mut exits = BTreeSet::new();
         for i in &members {
-            for turn in map.get_turns_in_intersection(*i) {
+            for turn in &map.get_i(*i).turns {
                 if turn.between_sidewalks() {
                     continue;
                 }

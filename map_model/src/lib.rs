@@ -52,13 +52,12 @@ pub use crate::objects::lane::{
     BufferType, Lane, LaneID, LaneSpec, LaneType, NORMAL_LANE_THICKNESS, PARKING_LOT_SPOT_LENGTH,
     SIDEWALK_THICKNESS,
 };
+pub use crate::objects::movement::{CompressedMovementID, Movement, MovementID};
 pub use crate::objects::parking_lot::{ParkingLot, ParkingLotID};
 pub use crate::objects::road::{DirectedRoadID, Direction, Road, RoadID};
 pub use crate::objects::stop_signs::{ControlStopSign, RoadWithStopSign};
 pub use crate::objects::traffic_signals::{ControlTrafficSignal, Stage, StageType};
-pub use crate::objects::turn::{
-    CompressedMovementID, Movement, MovementID, Turn, TurnID, TurnPriority, TurnType,
-};
+pub use crate::objects::turn::{Turn, TurnID, TurnPriority, TurnType};
 pub use crate::objects::zone::{AccessRestrictions, Zone};
 pub use crate::pathfind::uber_turns::{IntersectionCluster, UberTurn};
 use crate::pathfind::Pathfinder;

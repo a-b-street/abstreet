@@ -1,4 +1,5 @@
-use std::collections::BTreeSet;
+use std::collections::{BTreeMap, BTreeSet};
+use std::convert::TryFrom;
 use std::fmt;
 
 use serde::{Deserialize, Serialize};
@@ -6,7 +7,10 @@ use serde::{Deserialize, Serialize};
 use abstutil::{deserialize_usize, serialize_usize};
 use geom::{Distance, Polygon};
 
-use crate::{osm, DirectedRoadID, LaneID, Map, PathConstraints, RoadID, Turn};
+use crate::{
+    osm, CompressedMovementID, DirectedRoadID, LaneID, Map, Movement, MovementID, PathConstraints,
+    RoadID, Turn, TurnID,
+};
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct IntersectionID(
@@ -57,6 +61,10 @@ pub struct Intersection {
 
     /// Was a short road adjacent to this intersection merged?
     pub merged: bool,
+    // These increase the map file size, so instead, just use `recalculate_all_movements` after
+    // deserializing.
+    #[serde(skip_serializing, skip_deserializing)]
+    pub movements: BTreeMap<MovementID, Movement>,
 }
 
 impl Intersection {
@@ -180,5 +188,25 @@ impl Intersection {
             .map(|r| map.get_r(*r).get_name(lang))
             .collect::<BTreeSet<_>>();
         abstutil::plain_list_names(road_names)
+    }
+
+    /// Don't call for SharedSidewalkCorners
+    pub fn turn_to_movement(&self, turn: TurnID) -> (MovementID, CompressedMovementID) {
+        for (idx, m) in self.movements.values().enumerate() {
+            if m.members.contains(&turn) {
+                return (
+                    m.id,
+                    CompressedMovementID {
+                        i: self.id,
+                        idx: u8::try_from(idx).unwrap(),
+                    },
+                );
+            }
+        }
+
+        panic!(
+            "{} doesn't belong to any movements in {} or is a SharedSidewalkCorner maybe",
+            turn, self.id
+        )
     }
 }

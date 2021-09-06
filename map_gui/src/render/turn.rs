@@ -16,7 +16,7 @@ pub struct DrawMovement {
 }
 
 impl DrawMovement {
-    // Also returns the stuff to draw each movement
+    // Only for traffic signals! Also returns the stuff to draw each movement
     pub fn for_i(
         prerender: &Prerender,
         map: &Map,
@@ -30,7 +30,7 @@ impl DrawMovement {
         // TODO Sort by angle here if we want some consistency
         let mut offset_per_lane: HashMap<LaneID, usize> = HashMap::new();
         let mut results = Vec::new();
-        for movement in signal.movements.values() {
+        for movement in map.get_i(i).movements.values() {
             let mut batch = GeomBatch::new();
             // TODO Refactor the slice_start/slice_end stuff from draw_signal_stage.
             let hitbox = if stage.protected_movements.contains(&movement.id) {
@@ -137,7 +137,7 @@ impl DrawMovement {
         batch: &mut GeomBatch,
         next_priority: Option<TurnPriority>,
     ) {
-        let movement = &app.map().get_traffic_signal(self.id.parent).movements[&self.id];
+        let movement = &app.map().get_i(self.id.parent).movements[&self.id];
         let pl = &movement.geom;
 
         let green = Color::hex("#72CE36");

@@ -4,7 +4,7 @@ use abstutil::{prettyprint_usize, Counter, Timer};
 use geom::{ArrowCap, Distance, Duration, Polygon, Time};
 use map_gui::render::DrawOptions;
 use map_gui::ID;
-use map_model::{ControlTrafficSignal, IntersectionID, MovementID, PathStep, TurnType};
+use map_model::{Intersection, IntersectionID, MovementID, PathStep, TurnType};
 use sim::TripEndpoint;
 use widgetry::{
     Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
@@ -75,10 +75,11 @@ impl State<App> for TrafficSignalDemand {
             self.selected = None;
             app.recalculate_current_selection(ctx);
             if let Some(ID::Intersection(i)) = app.primary.current_selection.take() {
-                if let Some(ts) = app.primary.map.maybe_get_traffic_signal(i) {
+                let i = app.primary.map.get_i(i);
+                if i.is_traffic_signal() {
                     // If we're mousing over something, the cursor is on the map.
                     let pt = ctx.canvas.get_cursor_in_map_space().unwrap();
-                    for (arrow, count) in self.all_demand[&i].make_arrows(ts, self.hour) {
+                    for (arrow, count) in self.all_demand[&i.id].make_arrows(i, self.hour) {
                         if arrow.contains_pt(pt) {
                             let mut batch = GeomBatch::new();
                             batch.push(Color::hex("#EE702E"), arrow.clone());
@@ -88,7 +89,7 @@ impl State<App> for TrafficSignalDemand {
                             let txt = Text::from(format!(
                                 "{} / {}",
                                 prettyprint_usize(count),
-                                self.all_demand[&i].count(self.hour).sum()
+                                self.all_demand[&i.id].count(self.hour).sum()
                             ));
                             self.selected = Some((ctx.upload(batch), txt));
                             break;
@@ -198,7 +199,7 @@ impl Demand {
                         if let Some(demand) = all_demand.get_mut(&t.parent) {
                             demand
                                 .raw
-                                .push((now, map.get_traffic_signal(t.parent).turn_to_movement(*t)));
+                                .push((now, map.get_i(t.parent).turn_to_movement(*t).0));
                         }
                     }
                 }
@@ -219,14 +220,14 @@ impl Demand {
         cnt
     }
 
-    fn make_arrows(&self, ts: &ControlTrafficSignal, hour: Time) -> Vec<(Polygon, usize)> {
+    fn make_arrows(&self, i: &Intersection, hour: Time) -> Vec<(Polygon, usize)> {
         let cnt = self.count(hour);
         let total_demand = cnt.sum() as f64;
 
         let mut arrows = Vec::new();
         for (m, demand) in cnt.consume() {
             let percent = (demand as f64) / total_demand;
-            let arrow = ts.movements[&m]
+            let arrow = i.movements[&m]
                 .geom
                 .make_arrow(percent * Distance::meters(3.0), ArrowCap::Triangle);
             arrows.push((arrow, demand));
@@ -243,7 +244,7 @@ impl Demand {
         let mut batch = GeomBatch::new();
         for (i, demand) in all_demand {
             let mut outlines = Vec::new();
-            for (arrow, _) in demand.make_arrows(app.primary.map.get_traffic_signal(*i), hour) {
+            for (arrow, _) in demand.make_arrows(app.primary.map.get_i(*i), hour) {
                 if let Ok(p) = arrow.to_outline(Distance::meters(0.1)) {
                     outlines.push(p);
                 }

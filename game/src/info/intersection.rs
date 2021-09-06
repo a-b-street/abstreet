@@ -175,7 +175,7 @@ fn current_demand_body(ctx: &mut EventCtx, app: &App, id: IntersectionID) -> Wid
     let mut rows = vec![];
     let mut total_demand = 0;
     let mut demand_per_movement: Vec<(&PolyLine, usize)> = Vec::new();
-    for m in app.primary.map.get_traffic_signal(id).movements.values() {
+    for m in app.primary.map.get_i(id).movements.values() {
         let demand = app
             .primary
             .sim

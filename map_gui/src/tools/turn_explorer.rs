@@ -80,7 +80,7 @@ impl<A: AppLike + 'static> State<A> for TurnExplorer {
             let current = &app.map().get_turns_from_lane(self.l)[self.idx - 1];
 
             let mut batch = GeomBatch::new();
-            for t in app.map().get_turns_in_intersection(current.id.parent) {
+            for t in &app.map().get_i(current.id.parent).turns {
                 if current.conflicts_with(t) {
                     batch.extend(
                         CONFLICTING_TURN,

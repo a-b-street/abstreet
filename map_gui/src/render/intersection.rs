@@ -56,7 +56,7 @@ impl DrawIntersection {
             default_geom.extend(app.cs().curb(rank), calculate_corner_curbs(i, map));
         }
 
-        for turn in map.get_turns_in_intersection(i.id) {
+        for turn in &i.turns {
             // Avoid double-rendering
             if turn.turn_type == TurnType::Crosswalk
                 && !turn.other_crosswalk_ids.iter().any(|id| *id < turn.id)
@@ -265,7 +265,7 @@ pub fn calculate_corners(i: &Intersection, map: &Map) -> Vec<Polygon> {
 
     let mut corners = Vec::new();
 
-    for turn in map.get_turns_in_intersection(i.id) {
+    for turn in &i.turns {
         if turn.turn_type == TurnType::SharedSidewalkCorner {
             // Avoid double-rendering
             if map.get_l(turn.id.src).dst_i != i.id {
@@ -332,7 +332,7 @@ fn calculate_corner_curbs(i: &Intersection, map: &Map) -> Vec<Polygon> {
     let thickness = Distance::meters(0.2);
     let shift = |width| (width - thickness) / 2.0;
 
-    for turn in map.get_turns_in_intersection(i.id) {
+    for turn in &i.turns {
         if turn.turn_type == TurnType::SharedSidewalkCorner {
             // Avoid double-rendering
             if map.get_l(turn.id.src).dst_i != i.id {
