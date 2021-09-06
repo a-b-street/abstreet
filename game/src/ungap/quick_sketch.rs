@@ -155,6 +155,7 @@ fn make_quick_changes(
     vec![format!("Changed {} segments", num_changes)]
 }
 
+#[allow(clippy::unnecessary_unwrap)]
 fn maybe_add_bike_lanes(r: &mut EditRoad, buffer_type: Option<BufferType>) {
     let dummy_tags = Tags::empty();
 

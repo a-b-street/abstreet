@@ -168,6 +168,7 @@ impl RawMap {
     }
 
     /// (Intersection polygon, polygons for roads, list of labeled polygons to debug)
+    #[allow(clippy::type_complexity)]
     pub fn preview_intersection(
         &self,
         id: osm::NodeID,
