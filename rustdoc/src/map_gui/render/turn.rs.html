@@ -241,7 +241,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">DrawMovement</span> {
-    <span class="comment">// Also returns the stuff to draw each movement</span>
+    <span class="comment">// Only for traffic signals! Also returns the stuff to draw each movement</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">for_i</span>(
         <span class="ident">prerender</span>: <span class="kw-2">&amp;</span><span class="ident">Prerender</span>,
         <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
@@ -255,7 +255,7 @@
         <span class="comment">// TODO Sort by angle here if we want some consistency</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">offset_per_lane</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">LaneID</span>, <span class="ident">usize</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">results</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">for</span> <span class="ident">movement</span> <span class="kw">in</span> <span class="ident">signal</span>.<span class="ident">movements</span>.<span class="ident">values</span>() {
+        <span class="kw">for</span> <span class="ident">movement</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>).<span class="ident">movements</span>.<span class="ident">values</span>() {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
             <span class="comment">// TODO Refactor the slice_start/slice_end stuff from draw_signal_stage.</span>
             <span class="kw">let</span> <span class="ident">hitbox</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">stage</span>.<span class="ident">protected_movements</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">movement</span>.<span class="ident">id</span>) {
@@ -362,7 +362,7 @@
         <span class="ident">batch</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GeomBatch</span>,
         <span class="ident">next_priority</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TurnPriority</span><span class="op">&gt;</span>,
     ) {
-        <span class="kw">let</span> <span class="ident">movement</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">map</span>().<span class="ident">get_traffic_signal</span>(<span class="self">self</span>.<span class="ident">id</span>.<span class="ident">parent</span>).<span class="ident">movements</span>[<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">id</span>];
+        <span class="kw">let</span> <span class="ident">movement</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">map</span>().<span class="ident">get_i</span>(<span class="self">self</span>.<span class="ident">id</span>.<span class="ident">parent</span>).<span class="ident">movements</span>[<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">id</span>];
         <span class="kw">let</span> <span class="ident">pl</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">movement</span>.<span class="ident">geom</span>;
 
         <span class="kw">let</span> <span class="ident">green</span> <span class="op">=</span> <span class="ident">Color::hex</span>(<span class="string">&quot;#72CE36&quot;</span>);

@@ -184,8 +184,37 @@
 <span id="182">182</span>
 <span id="183">183</span>
 <span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
 </pre><pre class="rust">
-<span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
+<span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
+<span class="kw">use</span> <span class="ident">std::convert::TryFrom</span>;
 <span class="kw">use</span> <span class="ident">std::fmt</span>;
 
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
@@ -193,7 +222,10 @@
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">deserialize_usize</span>, <span class="ident">serialize_usize</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Polygon</span>};
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">osm</span>, <span class="ident">DirectedRoadID</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">PathConstraints</span>, <span class="ident">RoadID</span>, <span class="ident">Turn</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{
+    <span class="ident">osm</span>, <span class="ident">CompressedMovementID</span>, <span class="ident">DirectedRoadID</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">Movement</span>, <span class="ident">MovementID</span>, <span class="ident">PathConstraints</span>,
+    <span class="ident">RoadID</span>, <span class="ident">Turn</span>, <span class="ident">TurnID</span>,
+};
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">Eq</span>, <span class="ident">Hash</span>, <span class="ident">PartialEq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">IntersectionID</span>(
@@ -244,6 +276,10 @@
 
     <span class="doccomment">/// Was a short road adjacent to this intersection merged?</span>
     <span class="kw">pub</span> <span class="ident">merged</span>: <span class="ident">bool</span>,
+    <span class="comment">// These increase the map file size, so instead, just use `recalculate_all_movements` after</span>
+    <span class="comment">// deserializing.</span>
+    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">skip_serializing</span>, <span class="ident">skip_deserializing</span>)]</span>
+    <span class="kw">pub</span> <span class="ident">movements</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">MovementID</span>, <span class="ident">Movement</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Intersection</span> {
@@ -367,6 +403,26 @@
             .<span class="ident">map</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>).<span class="ident">get_name</span>(<span class="ident">lang</span>))
             .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
         <span class="ident">abstutil::plain_list_names</span>(<span class="ident">road_names</span>)
+    }
+
+    <span class="doccomment">/// Don&#39;t call for SharedSidewalkCorners</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">turn_to_movement</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">turn</span>: <span class="ident">TurnID</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">MovementID</span>, <span class="ident">CompressedMovementID</span>) {
+        <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">m</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">movements</span>.<span class="ident">values</span>().<span class="ident">enumerate</span>() {
+            <span class="kw">if</span> <span class="ident">m</span>.<span class="ident">members</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">turn</span>) {
+                <span class="kw">return</span> (
+                    <span class="ident">m</span>.<span class="ident">id</span>,
+                    <span class="ident">CompressedMovementID</span> {
+                        <span class="ident">i</span>: <span class="self">self</span>.<span class="ident">id</span>,
+                        <span class="ident">idx</span>: <span class="ident">u8::try_from</span>(<span class="ident">idx</span>).<span class="ident">unwrap</span>(),
+                    },
+                );
+            }
+        }
+
+        <span class="macro">panic!</span>(
+            <span class="string">&quot;{} doesn&#39;t belong to any movements in {} or is a SharedSidewalkCorner maybe&quot;</span>,
+            <span class="ident">turn</span>, <span class="self">self</span>.<span class="ident">id</span>
+        )
     }
 }
 </pre></div>

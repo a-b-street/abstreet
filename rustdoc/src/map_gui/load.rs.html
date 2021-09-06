@@ -636,7 +636,7 @@
                 <span class="kw">match</span> <span class="ident">map</span> {
                     <span class="prelude-val">Ok</span>(<span class="kw-2">mut</span> <span class="ident">map</span>) <span class="op">=</span><span class="op">&gt;</span> {
                         <span class="comment">// Kind of a hack. We can&#39;t generically call Map::new with the FileLoader.</span>
-                        <span class="ident">map</span>.<span class="ident">map_loaded_directly</span>();
+                        <span class="ident">map</span>.<span class="ident">map_loaded_directly</span>(<span class="ident">timer</span>);
 
                         <span class="ident">app</span>.<span class="ident">map_switched</span>(<span class="ident">ctx</span>, <span class="ident">map</span>, <span class="ident">timer</span>);
 

@@ -119,7 +119,6 @@
 <span id="117">117</span>
 <span id="118">118</span>
 <span id="119">119</span>
-<span id="120">120</span>
 </pre><pre class="rust">
 <span class="doccomment">//! `map_model` describes the world where simulations occur. Importing a map from OSM partly happens</span>
 <span class="doccomment">//! in `convert_osm` and here.</span>
@@ -175,13 +174,12 @@
     <span class="ident">BufferType</span>, <span class="ident">Lane</span>, <span class="ident">LaneID</span>, <span class="ident">LaneSpec</span>, <span class="ident">LaneType</span>, <span class="ident">NORMAL_LANE_THICKNESS</span>, <span class="ident">PARKING_LOT_SPOT_LENGTH</span>,
     <span class="ident">SIDEWALK_THICKNESS</span>,
 };
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::objects::movement</span>::{<span class="ident">CompressedMovementID</span>, <span class="ident">Movement</span>, <span class="ident">MovementID</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::objects::parking_lot</span>::{<span class="ident">ParkingLot</span>, <span class="ident">ParkingLotID</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::objects::road</span>::{<span class="ident">DirectedRoadID</span>, <span class="ident">Direction</span>, <span class="ident">Road</span>, <span class="ident">RoadID</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::objects::stop_signs</span>::{<span class="ident">ControlStopSign</span>, <span class="ident">RoadWithStopSign</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::objects::traffic_signals</span>::{<span class="ident">ControlTrafficSignal</span>, <span class="ident">Stage</span>, <span class="ident">StageType</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::objects::turn</span>::{
-    <span class="ident">CompressedMovementID</span>, <span class="ident">Movement</span>, <span class="ident">MovementID</span>, <span class="ident">Turn</span>, <span class="ident">TurnID</span>, <span class="ident">TurnPriority</span>, <span class="ident">TurnType</span>,
-};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::objects::turn</span>::{<span class="ident">Turn</span>, <span class="ident">TurnID</span>, <span class="ident">TurnPriority</span>, <span class="ident">TurnType</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::objects::zone</span>::{<span class="ident">AccessRestrictions</span>, <span class="ident">Zone</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::pathfind::uber_turns</span>::{<span class="ident">IntersectionCluster</span>, <span class="ident">UberTurn</span>};
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::pathfind::Pathfinder</span>;

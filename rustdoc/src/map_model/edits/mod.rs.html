@@ -967,6 +967,8 @@
 <span id="965">965</span>
 <span id="966">966</span>
 <span id="967">967</span>
+<span id="968">968</span>
+<span id="969">969</span>
 </pre><pre class="rust">
 <span class="doccomment">//! Once a Map exists, the player can edit it in the UI (producing `MapEdits` in-memory), then save</span>
 <span class="doccomment">//! the changes to a file (as `PermanentMapEdits`). See</span>
@@ -986,7 +988,8 @@
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">connectivity</span>, <span class="ident">AccessRestrictions</span>, <span class="ident">BuildingID</span>, <span class="ident">BusRouteID</span>, <span class="ident">ControlStopSign</span>,
     <span class="ident">ControlTrafficSignal</span>, <span class="ident">Direction</span>, <span class="ident">IntersectionID</span>, <span class="ident">IntersectionType</span>, <span class="ident">LaneID</span>, <span class="ident">LaneSpec</span>, <span class="ident">LaneType</span>,
-    <span class="ident">Map</span>, <span class="ident">MapConfig</span>, <span class="ident">ParkingLotID</span>, <span class="ident">PathConstraints</span>, <span class="ident">Pathfinder</span>, <span class="ident">Road</span>, <span class="ident">RoadID</span>, <span class="ident">TurnID</span>, <span class="ident">Zone</span>,
+    <span class="ident">Map</span>, <span class="ident">MapConfig</span>, <span class="ident">Movement</span>, <span class="ident">ParkingLotID</span>, <span class="ident">PathConstraints</span>, <span class="ident">Pathfinder</span>, <span class="ident">Road</span>, <span class="ident">RoadID</span>, <span class="ident">TurnID</span>,
+    <span class="ident">Zone</span>,
 };
 
 <span class="kw">mod</span> <span class="ident">compat</span>;
@@ -1463,16 +1466,17 @@
         <span class="kw">return</span>;
     }
 
-    <span class="kw">let</span> <span class="ident">turns</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::make::turns::make_all_turns</span>(<span class="ident">map</span>, <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">id</span>));
-    <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">map</span>.<span class="ident">intersections</span>[<span class="ident">id</span>.<span class="number">0</span>];
-    <span class="kw">for</span> <span class="ident">t</span> <span class="kw">in</span> <span class="ident">turns</span> {
-        <span class="ident">effects</span>.<span class="ident">added_turns</span>.<span class="ident">insert</span>(<span class="ident">t</span>.<span class="ident">id</span>);
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">_existing_t</span>) <span class="op">=</span> <span class="ident">old_turns</span>.<span class="ident">iter</span>().<span class="ident">find</span>(<span class="op">|</span><span class="ident">turn</span><span class="op">|</span> <span class="ident">turn</span>.<span class="ident">id</span> <span class="op">=</span><span class="op">=</span> <span class="ident">t</span>.<span class="ident">id</span>) {
-            <span class="comment">// TODO Except for lookup_idx</span>
-            <span class="comment">//assert_eq!(t, *existing_t);</span>
+    {
+        <span class="kw">let</span> <span class="ident">turns</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::make::turns::make_all_turns</span>(<span class="ident">map</span>, <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">id</span>));
+        <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">map</span>.<span class="ident">intersections</span>[<span class="ident">id</span>.<span class="number">0</span>];
+        <span class="kw">for</span> <span class="ident">t</span> <span class="kw">in</span> <span class="ident">turns</span> {
+            <span class="ident">effects</span>.<span class="ident">added_turns</span>.<span class="ident">insert</span>(<span class="ident">t</span>.<span class="ident">id</span>);
+            <span class="ident">i</span>.<span class="ident">turns</span>.<span class="ident">push</span>(<span class="ident">t</span>);
         }
-        <span class="ident">i</span>.<span class="ident">turns</span>.<span class="ident">push</span>(<span class="ident">t</span>);
     }
+    <span class="kw">let</span> <span class="ident">movements</span> <span class="op">=</span> <span class="ident">Movement::for_i</span>(<span class="ident">id</span>, <span class="ident">map</span>);
+    <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">map</span>.<span class="ident">intersections</span>[<span class="ident">id</span>.<span class="number">0</span>];
+    <span class="ident">i</span>.<span class="ident">movements</span> <span class="op">=</span> <span class="ident">movements</span>;
 
     <span class="kw">match</span> <span class="ident">i</span>.<span class="ident">intersection_type</span> {
         <span class="ident">IntersectionType::StopSign</span> <span class="op">=</span><span class="op">&gt;</span> {

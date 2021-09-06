@@ -634,7 +634,7 @@
             <span class="ident">default_geom</span>.<span class="ident">extend</span>(<span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">curb</span>(<span class="ident">rank</span>), <span class="ident">calculate_corner_curbs</span>(<span class="ident">i</span>, <span class="ident">map</span>));
         }
 
-        <span class="kw">for</span> <span class="ident">turn</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">get_turns_in_intersection</span>(<span class="ident">i</span>.<span class="ident">id</span>) {
+        <span class="kw">for</span> <span class="ident">turn</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">i</span>.<span class="ident">turns</span> {
             <span class="comment">// Avoid double-rendering</span>
             <span class="kw">if</span> <span class="ident">turn</span>.<span class="ident">turn_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">TurnType::Crosswalk</span>
                 <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">turn</span>.<span class="ident">other_crosswalk_ids</span>.<span class="ident">iter</span>().<span class="ident">any</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">id</span> <span class="op">&lt;</span> <span class="ident">turn</span>.<span class="ident">id</span>)
@@ -843,7 +843,7 @@
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">corners</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
 
-    <span class="kw">for</span> <span class="ident">turn</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">get_turns_in_intersection</span>(<span class="ident">i</span>.<span class="ident">id</span>) {
+    <span class="kw">for</span> <span class="ident">turn</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">i</span>.<span class="ident">turns</span> {
         <span class="kw">if</span> <span class="ident">turn</span>.<span class="ident">turn_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">TurnType::SharedSidewalkCorner</span> {
             <span class="comment">// Avoid double-rendering</span>
             <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">src</span>).<span class="ident">dst_i</span> <span class="op">!</span><span class="op">=</span> <span class="ident">i</span>.<span class="ident">id</span> {
@@ -910,7 +910,7 @@
     <span class="kw">let</span> <span class="ident">thickness</span> <span class="op">=</span> <span class="ident">Distance::meters</span>(<span class="number">0.2</span>);
     <span class="kw">let</span> <span class="ident">shift</span> <span class="op">=</span> <span class="op">|</span><span class="ident">width</span><span class="op">|</span> (<span class="ident">width</span> <span class="op">-</span> <span class="ident">thickness</span>) <span class="op">/</span> <span class="number">2.0</span>;
 
-    <span class="kw">for</span> <span class="ident">turn</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">get_turns_in_intersection</span>(<span class="ident">i</span>.<span class="ident">id</span>) {
+    <span class="kw">for</span> <span class="ident">turn</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">i</span>.<span class="ident">turns</span> {
         <span class="kw">if</span> <span class="ident">turn</span>.<span class="ident">turn_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">TurnType::SharedSidewalkCorner</span> {
             <span class="comment">// Avoid double-rendering</span>
             <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">src</span>).<span class="ident">dst_i</span> <span class="op">!</span><span class="op">=</span> <span class="ident">i</span>.<span class="ident">id</span> {

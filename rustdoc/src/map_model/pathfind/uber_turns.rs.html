@@ -383,7 +383,7 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">entrances</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">exits</span> <span class="op">=</span> <span class="ident">BTreeSet::new</span>();
         <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">members</span> {
-            <span class="kw">for</span> <span class="ident">turn</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">get_turns_in_intersection</span>(<span class="kw-2">*</span><span class="ident">i</span>) {
+            <span class="kw">for</span> <span class="ident">turn</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">get_i</span>(<span class="kw-2">*</span><span class="ident">i</span>).<span class="ident">turns</span> {
                 <span class="kw">if</span> <span class="ident">turn</span>.<span class="ident">between_sidewalks</span>() {
                     <span class="kw">continue</span>;
                 }

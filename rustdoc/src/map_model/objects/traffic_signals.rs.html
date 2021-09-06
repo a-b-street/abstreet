@@ -534,57 +534,19 @@
 <span id="532">532</span>
 <span id="533">533</span>
 <span id="534">534</span>
-<span id="535">535</span>
-<span id="536">536</span>
-<span id="537">537</span>
-<span id="538">538</span>
-<span id="539">539</span>
-<span id="540">540</span>
-<span id="541">541</span>
-<span id="542">542</span>
-<span id="543">543</span>
-<span id="544">544</span>
-<span id="545">545</span>
-<span id="546">546</span>
-<span id="547">547</span>
-<span id="548">548</span>
-<span id="549">549</span>
-<span id="550">550</span>
-<span id="551">551</span>
-<span id="552">552</span>
-<span id="553">553</span>
-<span id="554">554</span>
-<span id="555">555</span>
-<span id="556">556</span>
-<span id="557">557</span>
-<span id="558">558</span>
-<span id="559">559</span>
-<span id="560">560</span>
-<span id="561">561</span>
-<span id="562">562</span>
-<span id="563">563</span>
-<span id="564">564</span>
-<span id="565">565</span>
-<span id="566">566</span>
-<span id="567">567</span>
-<span id="568">568</span>
-<span id="569">569</span>
-<span id="570">570</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
-<span class="kw">use</span> <span class="ident">std::convert::TryFrom</span>;
 
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">deserialize_btreemap</span>, <span class="ident">serialize_btreemap</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Speed</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::make::traffic_signals::get_possible_policies</span>;
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::raw::OriginalRoad</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">osm</span>, <span class="ident">CompressedMovementID</span>, <span class="ident">DirectedRoadID</span>, <span class="ident">Direction</span>, <span class="ident">IntersectionID</span>, <span class="ident">Map</span>, <span class="ident">Movement</span>,
-    <span class="ident">MovementID</span>, <span class="ident">RoadID</span>, <span class="ident">TurnID</span>, <span class="ident">TurnPriority</span>, <span class="ident">TurnType</span>,
+    <span class="ident">osm</span>, <span class="ident">DirectedRoadID</span>, <span class="ident">Direction</span>, <span class="ident">Intersection</span>, <span class="ident">IntersectionID</span>, <span class="ident">Map</span>, <span class="ident">Movement</span>, <span class="ident">MovementID</span>,
+    <span class="ident">RoadID</span>, <span class="ident">TurnID</span>, <span class="ident">TurnPriority</span>, <span class="ident">TurnType</span>,
 };
 
 <span class="comment">// The pace to use for crosswalk pace in m/s</span>
@@ -599,12 +561,6 @@
     <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">IntersectionID</span>,
     <span class="kw">pub</span> <span class="ident">stages</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Stage</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">offset</span>: <span class="ident">Duration</span>,
-
-    <span class="attribute">#[<span class="ident">serde</span>(
-        <span class="ident">serialize_with</span> <span class="op">=</span> <span class="string">&quot;serialize_btreemap&quot;</span>,
-        <span class="ident">deserialize_with</span> <span class="op">=</span> <span class="string">&quot;deserialize_btreemap&quot;</span>
-    )]</span>
-    <span class="kw">pub</span> <span class="ident">movements</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">MovementID</span>, <span class="ident">Movement</span><span class="op">&gt;</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>)]</span>
@@ -663,12 +619,11 @@
         <span class="ident">get_possible_policies</span>(<span class="ident">map</span>, <span class="ident">id</span>, <span class="bool-val">false</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_min_crossing_time</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">idx</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Duration</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_min_crossing_time</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">idx</span>: <span class="ident">usize</span>, <span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">Intersection</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Duration</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">max_distance</span> <span class="op">=</span> <span class="ident">Distance::meters</span>(<span class="number">0.0</span>);
         <span class="kw">for</span> <span class="ident">movement</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">stages</span>[<span class="ident">idx</span>].<span class="ident">protected_movements</span> {
             <span class="kw">if</span> <span class="ident">movement</span>.<span class="ident">crosswalk</span> {
-                <span class="ident">max_distance</span> <span class="op">=</span>
-                    <span class="ident">max_distance</span>.<span class="ident">max</span>(<span class="self">self</span>.<span class="ident">movements</span>.<span class="ident">get</span>(<span class="ident">movement</span>).<span class="ident">unwrap</span>().<span class="ident">geom</span>.<span class="ident">length</span>());
+                <span class="ident">max_distance</span> <span class="op">=</span> <span class="ident">max_distance</span>.<span class="ident">max</span>(<span class="ident">i</span>.<span class="ident">movements</span>[<span class="ident">movement</span>].<span class="ident">geom</span>.<span class="ident">length</span>());
             }
         }
         <span class="kw">let</span> <span class="ident">time</span> <span class="op">=</span> <span class="ident">max_distance</span> <span class="op">/</span> <span class="ident">CROSSWALK_PACE</span>;
@@ -677,9 +632,9 @@
         <span class="ident">Duration::seconds</span>(<span class="ident">time</span>.<span class="ident">inner_seconds</span>().<span class="ident">ceil</span>())
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">validate</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">validate</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">Intersection</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="comment">// Does the assignment cover the correct set of movements?</span>
-        <span class="kw">let</span> <span class="ident">expected_movements</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">MovementID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">movements</span>.<span class="ident">keys</span>().<span class="ident">cloned</span>().<span class="ident">collect</span>();
+        <span class="kw">let</span> <span class="ident">expected_movements</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">MovementID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">movements</span>.<span class="ident">keys</span>().<span class="ident">cloned</span>().<span class="ident">collect</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">actual_movements</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">MovementID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">BTreeSet::new</span>();
         <span class="kw">for</span> <span class="ident">stage</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">stages</span> {
             <span class="ident">actual_movements</span>.<span class="ident">extend</span>(<span class="ident">stage</span>.<span class="ident">protected_movements</span>.<span class="ident">iter</span>());
@@ -701,8 +656,8 @@
         }
         <span class="kw">for</span> (<span class="ident">stage_index</span>, <span class="ident">stage</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">stages</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
             <span class="comment">// Do any of the priority movements in one stage conflict?</span>
-            <span class="kw">for</span> <span class="ident">m1</span> <span class="kw">in</span> <span class="ident">stage</span>.<span class="ident">protected_movements</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">m</span><span class="op">|</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">movements</span>[<span class="ident">m</span>]) {
-                <span class="kw">for</span> <span class="ident">m2</span> <span class="kw">in</span> <span class="ident">stage</span>.<span class="ident">protected_movements</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">m</span><span class="op">|</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">movements</span>[<span class="ident">m</span>]) {
+            <span class="kw">for</span> <span class="ident">m1</span> <span class="kw">in</span> <span class="ident">stage</span>.<span class="ident">protected_movements</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">m</span><span class="op">|</span> <span class="kw-2">&amp;</span><span class="ident">i</span>.<span class="ident">movements</span>[<span class="ident">m</span>]) {
+                <span class="kw">for</span> <span class="ident">m2</span> <span class="kw">in</span> <span class="ident">stage</span>.<span class="ident">protected_movements</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">m</span><span class="op">|</span> <span class="kw-2">&amp;</span><span class="ident">i</span>.<span class="ident">movements</span>[<span class="ident">m</span>]) {
                     <span class="kw">if</span> <span class="ident">m1</span>.<span class="ident">conflicts_with</span>(<span class="ident">m2</span>) {
                         <span class="macro">bail!</span>(
                             <span class="string">&quot;Traffic signal has conflicting protected movements in one \
@@ -715,11 +670,11 @@
             }
 
             <span class="comment">// Do any of the crosswalks yield?</span>
-            <span class="kw">for</span> <span class="ident">m</span> <span class="kw">in</span> <span class="ident">stage</span>.<span class="ident">yield_movements</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">m</span><span class="op">|</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">movements</span>[<span class="ident">m</span>]) {
+            <span class="kw">for</span> <span class="ident">m</span> <span class="kw">in</span> <span class="ident">stage</span>.<span class="ident">yield_movements</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">m</span><span class="op">|</span> <span class="kw-2">&amp;</span><span class="ident">i</span>.<span class="ident">movements</span>[<span class="ident">m</span>]) {
                 <span class="macro">assert!</span>(<span class="ident">m</span>.<span class="ident">turn_type</span> <span class="op">!</span><span class="op">=</span> <span class="ident">TurnType::Crosswalk</span>);
             }
             <span class="comment">// Is there enough time in each stage to walk across the crosswalk</span>
-            <span class="kw">let</span> <span class="ident">min_crossing_time</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_min_crossing_time</span>(<span class="ident">stage_index</span>);
+            <span class="kw">let</span> <span class="ident">min_crossing_time</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_min_crossing_time</span>(<span class="ident">stage_index</span>, <span class="ident">i</span>);
             <span class="kw">if</span> <span class="ident">stage</span>.<span class="ident">stage_type</span>.<span class="ident">simple_duration</span>() <span class="op">&lt;</span> <span class="ident">min_crossing_time</span> {
                 <span class="macro">bail!</span>(
                     <span class="string">&quot;Traffic signal does not allow enough time in stage to complete the \
@@ -736,20 +691,24 @@
 
     <span class="doccomment">/// Move crosswalks from stages, adding them to an all-walk as last stage. This may promote</span>
     <span class="doccomment">/// yields to protected. True is returned if any stages were added or modified.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">convert_to_ped_scramble</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">internal_convert_to_ped_scramble</span>(<span class="bool-val">true</span>)
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">convert_to_ped_scramble</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">Intersection</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="ident">internal_convert_to_ped_scramble</span>(<span class="bool-val">true</span>, <span class="ident">i</span>)
     }
     <span class="doccomment">/// Move crosswalks from stages, adding them to an all-walk as last stage. This does not promote</span>
     <span class="doccomment">/// yields to protected. True is returned if any stages were added or modified.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">convert_to_ped_scramble_without_promotion</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">internal_convert_to_ped_scramble</span>(<span class="bool-val">false</span>)
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">convert_to_ped_scramble_without_promotion</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">Intersection</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="ident">internal_convert_to_ped_scramble</span>(<span class="bool-val">false</span>, <span class="ident">i</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">internal_convert_to_ped_scramble</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">promote_yield_to_protected</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">internal_convert_to_ped_scramble</span>(
+        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="ident">promote_yield_to_protected</span>: <span class="ident">bool</span>,
+        <span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">Intersection</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="kw">let</span> <span class="ident">orig</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">clone</span>();
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">all_walk_stage</span> <span class="op">=</span> <span class="ident">Stage::new</span>();
-        <span class="kw">for</span> <span class="ident">m</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">movements</span>.<span class="ident">values</span>() {
+        <span class="kw">for</span> <span class="ident">m</span> <span class="kw">in</span> <span class="ident">i</span>.<span class="ident">movements</span>.<span class="ident">values</span>() {
             <span class="kw">if</span> <span class="ident">m</span>.<span class="ident">turn_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">TurnType::Crosswalk</span> {
                 <span class="ident">all_walk_stage</span>.<span class="ident">edit_movement</span>(<span class="ident">m</span>, <span class="ident">TurnPriority::Protected</span>);
             }
@@ -767,13 +726,13 @@
             <span class="comment">// Crosswalks are only in protected_movements.</span>
             <span class="ident">stage</span>
                 .<span class="ident">protected_movements</span>
-                .<span class="ident">retain</span>(<span class="op">|</span><span class="ident">m</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">movements</span>[<span class="ident">m</span>].<span class="ident">turn_type</span> <span class="op">!</span><span class="op">=</span> <span class="ident">TurnType::Crosswalk</span>);
+                .<span class="ident">retain</span>(<span class="op">|</span><span class="ident">m</span><span class="op">|</span> <span class="ident">i</span>.<span class="ident">movements</span>[<span class="ident">m</span>].<span class="ident">turn_type</span> <span class="op">!</span><span class="op">=</span> <span class="ident">TurnType::Crosswalk</span>);
             <span class="kw">if</span> <span class="ident">promote_yield_to_protected</span> {
                 <span class="comment">// Blindly try to promote yield movements to protected, now that crosswalks are</span>
                 <span class="comment">// gone.</span>
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">promoted</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
                 <span class="kw">for</span> <span class="ident">m</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">stage</span>.<span class="ident">yield_movements</span> {
-                    <span class="kw">if</span> <span class="ident">stage</span>.<span class="ident">could_be_protected</span>(<span class="kw-2">*</span><span class="ident">m</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">movements</span>) {
+                    <span class="kw">if</span> <span class="ident">stage</span>.<span class="ident">could_be_protected</span>(<span class="kw-2">*</span><span class="ident">m</span>, <span class="ident">i</span>) {
                         <span class="ident">stage</span>.<span class="ident">protected_movements</span>.<span class="ident">insert</span>(<span class="kw-2">*</span><span class="ident">m</span>);
                         <span class="ident">promoted</span>.<span class="ident">push</span>(<span class="kw-2">*</span><span class="ident">m</span>);
                     }
@@ -848,16 +807,8 @@
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">turn_to_movement</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">turn</span>: <span class="ident">TurnID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">MovementID</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">m</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">movements</span>.<span class="ident">values</span>().<span class="ident">find</span>(<span class="op">|</span><span class="ident">m</span><span class="op">|</span> <span class="ident">m</span>.<span class="ident">members</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">turn</span>)) {
-            <span class="ident">m</span>.<span class="ident">id</span>
-        } <span class="kw">else</span> {
-            <span class="macro">panic!</span>(<span class="string">&quot;{} doesn&#39;t belong to any movements in {}&quot;</span>, <span class="ident">turn</span>, <span class="self">self</span>.<span class="ident">id</span>)
-        }
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">missing_turns</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">MovementID</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">missing</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">MovementID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">movements</span>.<span class="ident">keys</span>().<span class="ident">cloned</span>().<span class="ident">collect</span>();
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">missing_turns</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">Intersection</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">MovementID</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">missing</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">MovementID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">movements</span>.<span class="ident">keys</span>().<span class="ident">cloned</span>().<span class="ident">collect</span>();
         <span class="kw">for</span> <span class="ident">stage</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">stages</span> {
             <span class="kw">for</span> <span class="ident">m</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">stage</span>.<span class="ident">protected_movements</span> {
                 <span class="ident">missing</span>.<span class="ident">remove</span>(<span class="ident">m</span>);
@@ -867,21 +818,6 @@
             }
         }
         <span class="ident">missing</span>
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">compressed_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">turn</span>: <span class="ident">TurnID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">CompressedMovementID</span> {
-        <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">m</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">movements</span>.<span class="ident">values</span>().<span class="ident">enumerate</span>() {
-            <span class="kw">if</span> <span class="ident">m</span>.<span class="ident">members</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">turn</span>) {
-                <span class="kw">return</span> <span class="ident">CompressedMovementID</span> {
-                    <span class="ident">i</span>: <span class="self">self</span>.<span class="ident">id</span>,
-                    <span class="ident">idx</span>: <span class="ident">u8::try_from</span>(<span class="ident">idx</span>).<span class="ident">unwrap</span>(),
-                };
-            }
-        }
-        <span class="macro">panic!</span>(
-            <span class="string">&quot;{} doesn&#39;t belong to any turn movements in {}&quot;</span>,
-            <span class="ident">turn</span>, <span class="self">self</span>.<span class="ident">id</span>
-        )
     }
 
     <span class="doccomment">/// How long a full cycle of the signal lasts, assuming no actuated timings.</span>
@@ -904,22 +840,18 @@
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">could_be_protected</span>(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">m1</span>: <span class="ident">MovementID</span>,
-        <span class="ident">movements</span>: <span class="kw-2">&amp;</span><span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">MovementID</span>, <span class="ident">Movement</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="kw">let</span> <span class="ident">movement1</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">movements</span>[<span class="kw-2">&amp;</span><span class="ident">m1</span>];
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">could_be_protected</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">m1</span>: <span class="ident">MovementID</span>, <span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">Intersection</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+        <span class="kw">let</span> <span class="ident">movement1</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">i</span>.<span class="ident">movements</span>[<span class="kw-2">&amp;</span><span class="ident">m1</span>];
         <span class="kw">for</span> <span class="ident">m2</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">protected_movements</span> {
-            <span class="kw">if</span> <span class="ident">m1</span> <span class="op">=</span><span class="op">=</span> <span class="kw-2">*</span><span class="ident">m2</span> <span class="op">|</span><span class="op">|</span> <span class="ident">movement1</span>.<span class="ident">conflicts_with</span>(<span class="kw-2">&amp;</span><span class="ident">movements</span>[<span class="ident">m2</span>]) {
+            <span class="kw">if</span> <span class="ident">m1</span> <span class="op">=</span><span class="op">=</span> <span class="kw-2">*</span><span class="ident">m2</span> <span class="op">|</span><span class="op">|</span> <span class="ident">movement1</span>.<span class="ident">conflicts_with</span>(<span class="kw-2">&amp;</span><span class="ident">i</span>.<span class="ident">movements</span>[<span class="ident">m2</span>]) {
                 <span class="kw">return</span> <span class="bool-val">false</span>;
             }
         }
         <span class="bool-val">true</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_priority_of_turn</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">t</span>: <span class="ident">TurnID</span>, <span class="ident">parent</span>: <span class="kw-2">&amp;</span><span class="ident">ControlTrafficSignal</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TurnPriority</span> {
-        <span class="self">self</span>.<span class="ident">get_priority_of_movement</span>(<span class="ident">parent</span>.<span class="ident">turn_to_movement</span>(<span class="ident">t</span>))
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_priority_of_turn</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">t</span>: <span class="ident">TurnID</span>, <span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">Intersection</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TurnPriority</span> {
+        <span class="self">self</span>.<span class="ident">get_priority_of_movement</span>(<span class="ident">i</span>.<span class="ident">turn_to_movement</span>(<span class="ident">t</span>).<span class="number">0</span>)
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_priority_of_movement</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">m</span>: <span class="ident">MovementID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TurnPriority</span> {
@@ -971,14 +903,11 @@
     }
 
     <span class="comment">// A trivial function that returns max crosswalk time if the stage is just crosswalks.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">max_crosswalk_time</span>(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">movements</span>: <span class="kw-2">&amp;</span><span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">MovementID</span>, <span class="ident">Movement</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">max_crosswalk_time</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">Intersection</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">max_distance</span> <span class="op">=</span> <span class="ident">Distance::const_meters</span>(<span class="number">0.0</span>);
         <span class="kw">for</span> <span class="ident">m</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">protected_movements</span> {
             <span class="kw">if</span> <span class="ident">m</span>.<span class="ident">crosswalk</span> {
-                <span class="ident">max_distance</span> <span class="op">=</span> <span class="ident">max_distance</span>.<span class="ident">max</span>(<span class="ident">movements</span>.<span class="ident">get</span>(<span class="ident">m</span>).<span class="ident">unwrap</span>().<span class="ident">geom</span>.<span class="ident">length</span>());
+                <span class="ident">max_distance</span> <span class="op">=</span> <span class="ident">max_distance</span>.<span class="ident">max</span>(<span class="ident">i</span>.<span class="ident">movements</span>[<span class="ident">m</span>].<span class="ident">geom</span>.<span class="ident">length</span>());
             } <span class="kw">else</span> {
                 <span class="kw">return</span> <span class="prelude-val">None</span>;
             }
@@ -1090,9 +1019,8 @@
             <span class="ident">id</span>,
             <span class="ident">stages</span>,
             <span class="ident">offset</span>: <span class="ident">Duration::seconds</span>(<span class="ident">plan</span>.<span class="ident">offset_seconds</span> <span class="kw">as</span> <span class="ident">f64</span>),
-            <span class="ident">movements</span>: <span class="ident">Movement::for_i</span>(<span class="ident">id</span>, <span class="ident">map</span>).<span class="ident">unwrap</span>(),
         };
-        <span class="ident">ts</span>.<span class="ident">validate</span>()<span class="question-mark">?</span>;
+        <span class="ident">ts</span>.<span class="ident">validate</span>(<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">id</span>))<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(<span class="ident">ts</span>)
     }
 }

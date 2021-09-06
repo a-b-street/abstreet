@@ -19,7 +19,7 @@
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">args</span> <span class="op">=</span> <span class="ident">CmdArgs::new</span>();
     <span class="comment">// TODO This can&#39;t handle the output of dump_map! What?!</span>
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">map</span>: <span class="ident">Map</span> <span class="op">=</span> <span class="ident">abstio::read_json</span>(<span class="ident">args</span>.<span class="ident">required</span>(<span class="string">&quot;--input&quot;</span>), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer::throwaway</span>());
-    <span class="ident">map</span>.<span class="ident">map_loaded_directly</span>();
+    <span class="ident">map</span>.<span class="ident">map_loaded_directly</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer::throwaway</span>());
     <span class="ident">abstio::write_binary</span>(<span class="ident">args</span>.<span class="ident">required</span>(<span class="string">&quot;--output&quot;</span>), <span class="kw-2">&amp;</span><span class="ident">map</span>);
     <span class="ident">args</span>.<span class="ident">done</span>();
 }

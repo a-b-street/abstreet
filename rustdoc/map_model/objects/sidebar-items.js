@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["area",""],["building",""],["bus_stop","Bus stops and routes."],["intersection",""],["lane",""],["parking_lot",""],["road",""],["stop_signs",""],["traffic_signals",""],["turn",""],["zone","Zones and AccessRestrictions are used to model things like:"]]});
+initSidebarItems({"mod":[["area",""],["building",""],["bus_stop","Bus stops and routes."],["intersection",""],["lane",""],["movement",""],["parking_lot",""],["road",""],["stop_signs",""],["traffic_signals",""],["turn",""],["zone","Zones and AccessRestrictions are used to model things like:"]]});

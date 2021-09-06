@@ -491,6 +491,7 @@
 <span id="489">489</span>
 <span id="490">490</span>
 <span id="491">491</span>
+<span id="492">492</span>
 </pre><pre class="rust">
 <span class="doccomment">//! The various traffic signal generators live in the traffic signal module. Eventually, we</span>
 <span class="doccomment">//! might want to move to a trait. For now, there&#39;s a single make_traffic_signal static method</span>
@@ -502,7 +503,7 @@
 <span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeSet</span>, <span class="ident">HashSet</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">ControlTrafficSignal</span>, <span class="ident">DrivingSide</span>, <span class="ident">IntersectionCluster</span>, <span class="ident">IntersectionID</span>, <span class="ident">Map</span>, <span class="ident">Movement</span>,
+    <span class="ident">ControlTrafficSignal</span>, <span class="ident">DrivingSide</span>, <span class="ident">Intersection</span>, <span class="ident">IntersectionCluster</span>, <span class="ident">IntersectionID</span>, <span class="ident">Map</span>,
     <span class="ident">MovementID</span>, <span class="ident">RoadID</span>, <span class="ident">Stage</span>, <span class="ident">StageType</span>, <span class="ident">TurnPriority</span>, <span class="ident">TurnType</span>,
 };
 <span class="kw">use</span> <span class="ident">geom::Duration</span>;
@@ -523,16 +524,16 @@
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">ControlTrafficSignal</span>)<span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">results</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
 
+    <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">id</span>);
     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">raw</span>) <span class="op">=</span> <span class="ident">traffic_signal_data::load_all_data</span>()
         .<span class="ident">unwrap</span>()
-        .<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">id</span>).<span class="ident">orig_id</span>.<span class="number">0</span>)
+        .<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">i</span>.<span class="ident">orig_id</span>.<span class="number">0</span>)
     {
-        <span class="kw">match</span> <span class="ident">ControlTrafficSignal::import</span>(<span class="ident">raw</span>, <span class="ident">id</span>, <span class="ident">map</span>).<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">ts</span><span class="op">|</span> <span class="ident">ts</span>.<span class="ident">validate</span>().<span class="ident">map</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">ts</span>)) {
+        <span class="kw">match</span> <span class="ident">ControlTrafficSignal::import</span>(<span class="ident">raw</span>, <span class="ident">id</span>, <span class="ident">map</span>).<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">ts</span><span class="op">|</span> <span class="ident">ts</span>.<span class="ident">validate</span>(<span class="ident">i</span>).<span class="ident">map</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">ts</span>)) {
             <span class="prelude-val">Ok</span>(<span class="ident">ts</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="ident">results</span>.<span class="ident">push</span>((<span class="string">&quot;manually specified settings&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">ts</span>));
             }
             <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">id</span>);
                 <span class="kw">if</span> <span class="ident">enforce_manual_signals</span> {
                     <span class="macro">panic!</span>(
                         <span class="string">&quot;traffic_signal_data data for {} ({}) out of date, go update it: {}&quot;</span>,
@@ -552,32 +553,29 @@
 
     <span class="comment">// As long as we&#39;re using silly heuristics for these by default, prefer shorter cycle</span>
     <span class="comment">// length.</span>
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ts</span>) <span class="op">=</span> <span class="ident">four_way_two_stage</span>(<span class="ident">map</span>, <span class="ident">id</span>) {
+    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ts</span>) <span class="op">=</span> <span class="ident">four_way_two_stage</span>(<span class="ident">map</span>, <span class="ident">i</span>) {
         <span class="ident">results</span>.<span class="ident">push</span>((<span class="string">&quot;two-stage&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">ts</span>));
     }
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ts</span>) <span class="op">=</span> <span class="ident">three_way</span>(<span class="ident">map</span>, <span class="ident">id</span>) {
+    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ts</span>) <span class="op">=</span> <span class="ident">three_way</span>(<span class="ident">map</span>, <span class="ident">i</span>) {
         <span class="ident">results</span>.<span class="ident">push</span>((<span class="string">&quot;three-stage&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">ts</span>));
     }
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ts</span>) <span class="op">=</span> <span class="ident">four_way_four_stage</span>(<span class="ident">map</span>, <span class="ident">id</span>) {
+    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ts</span>) <span class="op">=</span> <span class="ident">four_way_four_stage</span>(<span class="ident">map</span>, <span class="ident">i</span>) {
         <span class="ident">results</span>.<span class="ident">push</span>((<span class="string">&quot;four-stage&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">ts</span>));
     }
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ts</span>) <span class="op">=</span> <span class="ident">half_signal</span>(<span class="ident">map</span>, <span class="ident">id</span>) {
+    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ts</span>) <span class="op">=</span> <span class="ident">half_signal</span>(<span class="ident">i</span>) {
         <span class="ident">results</span>.<span class="ident">push</span>((<span class="string">&quot;half signal (2 roads with crosswalk)&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">ts</span>));
     }
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ts</span>) <span class="op">=</span> <span class="ident">degenerate</span>(<span class="ident">map</span>, <span class="ident">id</span>) {
+    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ts</span>) <span class="op">=</span> <span class="ident">degenerate</span>(<span class="ident">map</span>, <span class="ident">i</span>) {
         <span class="ident">results</span>.<span class="ident">push</span>((<span class="string">&quot;degenerate (2 roads)&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">ts</span>));
     }
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ts</span>) <span class="op">=</span> <span class="ident">lagging_green::make_traffic_signal</span>(<span class="ident">map</span>, <span class="ident">id</span>) {
+    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ts</span>) <span class="op">=</span> <span class="ident">lagging_green::make_traffic_signal</span>(<span class="ident">map</span>, <span class="ident">i</span>) {
         <span class="ident">results</span>.<span class="ident">push</span>((<span class="string">&quot;lagging green&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">ts</span>));
     }
-    <span class="ident">results</span>.<span class="ident">push</span>((<span class="string">&quot;stage per road&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">stage_per_road</span>(<span class="ident">map</span>, <span class="ident">id</span>)));
-    <span class="ident">results</span>.<span class="ident">push</span>((
-        <span class="string">&quot;arbitrary assignment&quot;</span>.<span class="ident">to_string</span>(),
-        <span class="ident">greedy_assignment</span>(<span class="ident">map</span>, <span class="ident">id</span>),
-    ));
+    <span class="ident">results</span>.<span class="ident">push</span>((<span class="string">&quot;stage per road&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">stage_per_road</span>(<span class="ident">map</span>, <span class="ident">i</span>)));
+    <span class="ident">results</span>.<span class="ident">push</span>((<span class="string">&quot;arbitrary assignment&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">greedy_assignment</span>(<span class="ident">i</span>)));
     <span class="ident">results</span>.<span class="ident">push</span>((
         <span class="string">&quot;all walk, then free-for-all yield&quot;</span>.<span class="ident">to_string</span>(),
-        <span class="ident">all_walk_all_yield</span>(<span class="ident">map</span>, <span class="ident">id</span>),
+        <span class="ident">all_walk_all_yield</span>(<span class="ident">i</span>),
     ));
 
     <span class="comment">// Make sure all possible policies have a minimum crosswalk time enforced</span>
@@ -590,34 +588,33 @@
                 .<span class="ident">cloned</span>()
                 .<span class="ident">collect</span>();
             <span class="kw">for</span> <span class="ident">id</span> <span class="kw">in</span> <span class="ident">crosswalks</span> {
-                <span class="ident">stage</span>.<span class="ident">enforce_minimum_crosswalk_time</span>(<span class="kw-2">&amp;</span><span class="ident">signal</span>.<span class="ident">movements</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>]);
+                <span class="ident">stage</span>.<span class="ident">enforce_minimum_crosswalk_time</span>(<span class="kw-2">&amp;</span><span class="ident">i</span>.<span class="ident">movements</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>]);
             }
         }
     }
 
-    <span class="ident">results</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="ident">pair</span><span class="op">|</span> <span class="ident">pair</span>.<span class="number">1</span>.<span class="ident">validate</span>().<span class="ident">is_ok</span>());
+    <span class="ident">results</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="ident">pair</span><span class="op">|</span> <span class="ident">pair</span>.<span class="number">1</span>.<span class="ident">validate</span>(<span class="ident">i</span>).<span class="ident">is_ok</span>());
     <span class="ident">results</span>
 }
 
-<span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">id</span>: <span class="ident">IntersectionID</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ControlTrafficSignal</span> {
+<span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">id</span>: <span class="ident">IntersectionID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ControlTrafficSignal</span> {
     <span class="ident">ControlTrafficSignal</span> {
         <span class="ident">id</span>,
         <span class="ident">stages</span>: <span class="ident">Vec::new</span>(),
         <span class="ident">offset</span>: <span class="ident">Duration::ZERO</span>,
-        <span class="ident">movements</span>: <span class="ident">Movement::for_i</span>(<span class="ident">id</span>, <span class="ident">map</span>).<span class="ident">unwrap</span>(),
     }
 }
 
-<span class="kw">fn</span> <span class="ident">greedy_assignment</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">i</span>: <span class="ident">IntersectionID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ControlTrafficSignal</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ts</span> <span class="op">=</span> <span class="ident">new</span>(<span class="ident">i</span>, <span class="ident">map</span>);
+<span class="kw">fn</span> <span class="ident">greedy_assignment</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">Intersection</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ControlTrafficSignal</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ts</span> <span class="op">=</span> <span class="ident">new</span>(<span class="ident">i</span>.<span class="ident">id</span>);
 
     <span class="comment">// Greedily partition movements into stages that only have protected movements.</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">remaining_movements</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">MovementID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">ts</span>.<span class="ident">movements</span>.<span class="ident">keys</span>().<span class="ident">cloned</span>().<span class="ident">collect</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">remaining_movements</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">MovementID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">movements</span>.<span class="ident">keys</span>().<span class="ident">cloned</span>().<span class="ident">collect</span>();
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">current_stage</span> <span class="op">=</span> <span class="ident">Stage::new</span>();
     <span class="kw">loop</span> {
         <span class="kw">let</span> <span class="ident">add</span> <span class="op">=</span> <span class="ident">remaining_movements</span>
             .<span class="ident">iter</span>()
-            .<span class="ident">position</span>(<span class="op">|</span><span class="kw-2">&amp;</span><span class="ident">g</span><span class="op">|</span> <span class="ident">current_stage</span>.<span class="ident">could_be_protected</span>(<span class="ident">g</span>, <span class="kw-2">&amp;</span><span class="ident">ts</span>.<span class="ident">movements</span>));
+            .<span class="ident">position</span>(<span class="op">|</span><span class="kw-2">&amp;</span><span class="ident">g</span><span class="op">|</span> <span class="ident">current_stage</span>.<span class="ident">could_be_protected</span>(<span class="ident">g</span>, <span class="ident">i</span>));
         <span class="kw">match</span> <span class="ident">add</span> {
             <span class="prelude-val">Some</span>(<span class="ident">idx</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="ident">current_stage</span>
@@ -635,36 +632,37 @@
         }
     }
 
-    <span class="ident">expand_all_stages</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ts</span>);
+    <span class="ident">expand_all_stages</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ts</span>, <span class="ident">i</span>);
 
     <span class="ident">ts</span>
 }
 
-<span class="kw">fn</span> <span class="ident">degenerate</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">i</span>: <span class="ident">IntersectionID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ControlTrafficSignal</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">roads</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>).<span class="ident">get_sorted_incoming_roads</span>(<span class="ident">map</span>);
+<span class="kw">fn</span> <span class="ident">degenerate</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">Intersection</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ControlTrafficSignal</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">roads</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">get_sorted_incoming_roads</span>(<span class="ident">map</span>);
     <span class="kw">if</span> <span class="ident">roads</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">2</span> {
         <span class="kw">return</span> <span class="prelude-val">None</span>;
     }
     <span class="kw">let</span> (<span class="ident">r1</span>, <span class="ident">r2</span>) <span class="op">=</span> (<span class="ident">roads</span>[<span class="number">0</span>], <span class="ident">roads</span>[<span class="number">1</span>]);
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ts</span> <span class="op">=</span> <span class="ident">new</span>(<span class="ident">i</span>, <span class="ident">map</span>);
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ts</span> <span class="op">=</span> <span class="ident">new</span>(<span class="ident">i</span>.<span class="ident">id</span>);
     <span class="ident">make_stages</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ts</span>,
         <span class="ident">map</span>.<span class="ident">config</span>.<span class="ident">driving_side</span>,
+        <span class="ident">i</span>,
         <span class="macro">vec!</span>[<span class="macro">vec!</span>[(<span class="macro">vec!</span>[<span class="ident">r1</span>, <span class="ident">r2</span>], <span class="ident">TurnType::Straight</span>, <span class="ident">PROTECTED</span>)]],
     );
     <span class="prelude-val">Some</span>(<span class="ident">ts</span>)
 }
 
-<span class="kw">fn</span> <span class="ident">half_signal</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">i</span>: <span class="ident">IntersectionID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ControlTrafficSignal</span><span class="op">&gt;</span> {
-    <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>).<span class="ident">roads</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">2</span> {
+<span class="kw">fn</span> <span class="ident">half_signal</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">Intersection</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ControlTrafficSignal</span><span class="op">&gt;</span> {
+    <span class="kw">if</span> <span class="ident">i</span>.<span class="ident">roads</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">2</span> {
         <span class="kw">return</span> <span class="prelude-val">None</span>;
     }
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ts</span> <span class="op">=</span> <span class="ident">new</span>(<span class="ident">i</span>, <span class="ident">map</span>);
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ts</span> <span class="op">=</span> <span class="ident">new</span>(<span class="ident">i</span>.<span class="ident">id</span>);
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">vehicle_stage</span> <span class="op">=</span> <span class="ident">Stage::new</span>();
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ped_stage</span> <span class="op">=</span> <span class="ident">Stage::new</span>();
-    <span class="kw">for</span> (<span class="ident">id</span>, <span class="ident">movement</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">ts</span>.<span class="ident">movements</span> {
+    <span class="kw">for</span> (<span class="ident">id</span>, <span class="ident">movement</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">i</span>.<span class="ident">movements</span> {
         <span class="kw">if</span> <span class="ident">id</span>.<span class="ident">crosswalk</span> {
             <span class="ident">ped_stage</span>.<span class="ident">edit_movement</span>(<span class="ident">movement</span>, <span class="ident">TurnPriority::Protected</span>);
         } <span class="kw">else</span> {
@@ -678,15 +676,15 @@
     <span class="prelude-val">Some</span>(<span class="ident">ts</span>)
 }
 
-<span class="kw">fn</span> <span class="ident">three_way</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">i</span>: <span class="ident">IntersectionID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ControlTrafficSignal</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">roads</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>).<span class="ident">get_sorted_incoming_roads</span>(<span class="ident">map</span>);
+<span class="kw">fn</span> <span class="ident">three_way</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">Intersection</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ControlTrafficSignal</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">roads</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">get_sorted_incoming_roads</span>(<span class="ident">map</span>);
     <span class="kw">if</span> <span class="ident">roads</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">3</span> {
         <span class="kw">return</span> <span class="prelude-val">None</span>;
     }
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ts</span> <span class="op">=</span> <span class="ident">new</span>(<span class="ident">i</span>, <span class="ident">map</span>);
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ts</span> <span class="op">=</span> <span class="ident">new</span>(<span class="ident">i</span>.<span class="ident">id</span>);
 
     <span class="comment">// Picture a T intersection. Use turn angles to figure out the &quot;main&quot; two roads.</span>
-    <span class="kw">let</span> <span class="ident">straight</span> <span class="op">=</span> <span class="ident">ts</span>
+    <span class="kw">let</span> <span class="ident">straight</span> <span class="op">=</span> <span class="ident">i</span>
         .<span class="ident">movements</span>
         .<span class="ident">values</span>()
         .<span class="ident">find</span>(<span class="op">|</span><span class="ident">g</span><span class="op">|</span> <span class="ident">g</span>.<span class="ident">turn_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">TurnType::Straight</span>)<span class="question-mark">?</span>;
@@ -700,6 +698,7 @@
     <span class="ident">make_stages</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ts</span>,
         <span class="ident">map</span>.<span class="ident">config</span>.<span class="ident">driving_side</span>,
+        <span class="ident">i</span>,
         <span class="macro">vec!</span>[
             <span class="macro">vec!</span>[
                 (<span class="macro">vec!</span>[<span class="ident">north</span>, <span class="ident">south</span>], <span class="ident">TurnType::Straight</span>, <span class="ident">PROTECTED</span>),
@@ -721,8 +720,8 @@
     <span class="prelude-val">Some</span>(<span class="ident">ts</span>)
 }
 
-<span class="kw">fn</span> <span class="ident">four_way_four_stage</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">i</span>: <span class="ident">IntersectionID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ControlTrafficSignal</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">roads</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>).<span class="ident">get_sorted_incoming_roads</span>(<span class="ident">map</span>);
+<span class="kw">fn</span> <span class="ident">four_way_four_stage</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">Intersection</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ControlTrafficSignal</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">roads</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">get_sorted_incoming_roads</span>(<span class="ident">map</span>);
     <span class="kw">if</span> <span class="ident">roads</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">4</span> {
         <span class="kw">return</span> <span class="prelude-val">None</span>;
     }
@@ -732,10 +731,11 @@
 
     <span class="comment">// Four-stage with protected lefts, right turn on red (except for the protected lefts),</span>
     <span class="comment">// turning cars yield to peds</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ts</span> <span class="op">=</span> <span class="ident">new</span>(<span class="ident">i</span>, <span class="ident">map</span>);
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ts</span> <span class="op">=</span> <span class="ident">new</span>(<span class="ident">i</span>.<span class="ident">id</span>);
     <span class="ident">make_stages</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ts</span>,
         <span class="ident">map</span>.<span class="ident">config</span>.<span class="ident">driving_side</span>,
+        <span class="ident">i</span>,
         <span class="macro">vec!</span>[
             <span class="macro">vec!</span>[
                 (<span class="macro">vec!</span>[<span class="ident">north</span>, <span class="ident">south</span>], <span class="ident">TurnType::Straight</span>, <span class="ident">PROTECTED</span>),
@@ -754,8 +754,8 @@
     <span class="prelude-val">Some</span>(<span class="ident">ts</span>)
 }
 
-<span class="kw">fn</span> <span class="ident">four_way_two_stage</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">i</span>: <span class="ident">IntersectionID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ControlTrafficSignal</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">roads</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>).<span class="ident">get_sorted_incoming_roads</span>(<span class="ident">map</span>);
+<span class="kw">fn</span> <span class="ident">four_way_two_stage</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">Intersection</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ControlTrafficSignal</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">roads</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">get_sorted_incoming_roads</span>(<span class="ident">map</span>);
     <span class="kw">if</span> <span class="ident">roads</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">4</span> {
         <span class="kw">return</span> <span class="prelude-val">None</span>;
     }
@@ -764,10 +764,11 @@
     <span class="kw">let</span> (<span class="ident">north</span>, <span class="ident">west</span>, <span class="ident">south</span>, <span class="ident">east</span>) <span class="op">=</span> (<span class="ident">roads</span>[<span class="number">0</span>], <span class="ident">roads</span>[<span class="number">1</span>], <span class="ident">roads</span>[<span class="number">2</span>], <span class="ident">roads</span>[<span class="number">3</span>]);
 
     <span class="comment">// Two-stage with no protected lefts, right turn on red, turning cars yielding to peds</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ts</span> <span class="op">=</span> <span class="ident">new</span>(<span class="ident">i</span>, <span class="ident">map</span>);
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ts</span> <span class="op">=</span> <span class="ident">new</span>(<span class="ident">i</span>.<span class="ident">id</span>);
     <span class="ident">make_stages</span>(
         <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ts</span>,
         <span class="ident">map</span>.<span class="ident">config</span>.<span class="ident">driving_side</span>,
+        <span class="ident">i</span>,
         <span class="macro">vec!</span>[
             <span class="macro">vec!</span>[
                 (<span class="macro">vec!</span>[<span class="ident">north</span>, <span class="ident">south</span>], <span class="ident">TurnType::Straight</span>, <span class="ident">PROTECTED</span>),
@@ -786,13 +787,13 @@
     <span class="prelude-val">Some</span>(<span class="ident">ts</span>)
 }
 
-<span class="kw">fn</span> <span class="ident">all_walk_all_yield</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">i</span>: <span class="ident">IntersectionID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ControlTrafficSignal</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ts</span> <span class="op">=</span> <span class="ident">new</span>(<span class="ident">i</span>, <span class="ident">map</span>);
+<span class="kw">fn</span> <span class="ident">all_walk_all_yield</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">Intersection</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ControlTrafficSignal</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ts</span> <span class="op">=</span> <span class="ident">new</span>(<span class="ident">i</span>.<span class="ident">id</span>);
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">all_walk</span> <span class="op">=</span> <span class="ident">Stage::new</span>();
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">all_yield</span> <span class="op">=</span> <span class="ident">Stage::new</span>();
 
-    <span class="kw">for</span> <span class="ident">movement</span> <span class="kw">in</span> <span class="ident">ts</span>.<span class="ident">movements</span>.<span class="ident">values</span>() {
+    <span class="kw">for</span> <span class="ident">movement</span> <span class="kw">in</span> <span class="ident">i</span>.<span class="ident">movements</span>.<span class="ident">values</span>() {
         <span class="kw">match</span> <span class="ident">movement</span>.<span class="ident">turn_type</span> {
             <span class="ident">TurnType::Crosswalk</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="ident">all_walk</span>.<span class="ident">protected_movements</span>.<span class="ident">insert</span>(<span class="ident">movement</span>.<span class="ident">id</span>);
@@ -807,17 +808,17 @@
     <span class="ident">ts</span>
 }
 
-<span class="kw">fn</span> <span class="ident">stage_per_road</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">i</span>: <span class="ident">IntersectionID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ControlTrafficSignal</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ts</span> <span class="op">=</span> <span class="ident">new</span>(<span class="ident">i</span>, <span class="ident">map</span>);
+<span class="kw">fn</span> <span class="ident">stage_per_road</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">Intersection</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ControlTrafficSignal</span> {
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ts</span> <span class="op">=</span> <span class="ident">new</span>(<span class="ident">i</span>.<span class="ident">id</span>);
 
-    <span class="kw">let</span> <span class="ident">sorted_roads</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>).<span class="ident">get_roads_sorted_by_incoming_angle</span>(<span class="ident">map</span>);
+    <span class="kw">let</span> <span class="ident">sorted_roads</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">get_roads_sorted_by_incoming_angle</span>(<span class="ident">map</span>);
     <span class="kw">for</span> <span class="ident">idx</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">sorted_roads</span>.<span class="ident">len</span>() {
         <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">sorted_roads</span>[<span class="ident">idx</span>];
         <span class="kw">let</span> <span class="ident">adj1</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">abstutil::wraparound_get</span>(<span class="kw-2">&amp;</span><span class="ident">sorted_roads</span>, (<span class="ident">idx</span> <span class="kw">as</span> <span class="ident">isize</span>) <span class="op">-</span> <span class="number">1</span>);
         <span class="kw">let</span> <span class="ident">adj2</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">abstutil::wraparound_get</span>(<span class="kw-2">&amp;</span><span class="ident">sorted_roads</span>, (<span class="ident">idx</span> <span class="kw">as</span> <span class="ident">isize</span>) <span class="op">+</span> <span class="number">1</span>);
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stage</span> <span class="op">=</span> <span class="ident">Stage::new</span>();
-        <span class="kw">for</span> <span class="ident">movement</span> <span class="kw">in</span> <span class="ident">ts</span>.<span class="ident">movements</span>.<span class="ident">values</span>() {
+        <span class="kw">for</span> <span class="ident">movement</span> <span class="kw">in</span> <span class="ident">i</span>.<span class="ident">movements</span>.<span class="ident">values</span>() {
             <span class="kw">if</span> <span class="ident">movement</span>.<span class="ident">turn_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">TurnType::Crosswalk</span> {
                 <span class="kw">if</span> <span class="ident">movement</span>.<span class="ident">id</span>.<span class="ident">from</span>.<span class="ident">id</span> <span class="op">=</span><span class="op">=</span> <span class="ident">adj1</span> <span class="op">|</span><span class="op">|</span> <span class="ident">movement</span>.<span class="ident">id</span>.<span class="ident">from</span>.<span class="ident">id</span> <span class="op">=</span><span class="op">=</span> <span class="ident">adj2</span> {
                     <span class="ident">stage</span>.<span class="ident">protected_movements</span>.<span class="ident">insert</span>(<span class="ident">movement</span>.<span class="ident">id</span>);
@@ -835,10 +836,10 @@
 }
 
 <span class="comment">// Add all possible protected movements to existing stages.</span>
-<span class="kw">fn</span> <span class="ident">expand_all_stages</span>(<span class="ident">ts</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ControlTrafficSignal</span>) {
+<span class="kw">fn</span> <span class="ident">expand_all_stages</span>(<span class="ident">ts</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ControlTrafficSignal</span>, <span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">Intersection</span>) {
     <span class="kw">for</span> <span class="ident">stage</span> <span class="kw">in</span> <span class="ident">ts</span>.<span class="ident">stages</span>.<span class="ident">iter_mut</span>() {
-        <span class="kw">for</span> <span class="ident">g</span> <span class="kw">in</span> <span class="ident">ts</span>.<span class="ident">movements</span>.<span class="ident">keys</span>() {
-            <span class="kw">if</span> <span class="ident">stage</span>.<span class="ident">could_be_protected</span>(<span class="kw-2">*</span><span class="ident">g</span>, <span class="kw-2">&amp;</span><span class="ident">ts</span>.<span class="ident">movements</span>) {
+        <span class="kw">for</span> <span class="ident">g</span> <span class="kw">in</span> <span class="ident">i</span>.<span class="ident">movements</span>.<span class="ident">keys</span>() {
+            <span class="kw">if</span> <span class="ident">stage</span>.<span class="ident">could_be_protected</span>(<span class="kw-2">*</span><span class="ident">g</span>, <span class="ident">i</span>) {
                 <span class="ident">stage</span>.<span class="ident">protected_movements</span>.<span class="ident">insert</span>(<span class="kw-2">*</span><span class="ident">g</span>);
             }
         }
@@ -851,6 +852,7 @@
 <span class="kw">fn</span> <span class="ident">make_stages</span>(
     <span class="ident">ts</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ControlTrafficSignal</span>,
     <span class="ident">driving_side</span>: <span class="ident">DrivingSide</span>,
+    <span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">Intersection</span>,
     <span class="ident">stage_specs</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span>, <span class="ident">TurnType</span>, <span class="ident">bool</span>)<span class="op">&gt;</span><span class="op">&gt;</span>,
 ) {
     <span class="kw">for</span> <span class="ident">specs</span> <span class="kw">in</span> <span class="ident">stage_specs</span> {
@@ -870,7 +872,7 @@
                 <span class="ident">explicit_crosswalks</span> <span class="op">=</span> <span class="bool-val">true</span>;
             }
 
-            <span class="kw">for</span> <span class="ident">movement</span> <span class="kw">in</span> <span class="ident">ts</span>.<span class="ident">movements</span>.<span class="ident">values</span>() {
+            <span class="kw">for</span> <span class="ident">movement</span> <span class="kw">in</span> <span class="ident">i</span>.<span class="ident">movements</span>.<span class="ident">values</span>() {
                 <span class="kw">if</span> <span class="op">!</span><span class="ident">roads</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">movement</span>.<span class="ident">id</span>.<span class="ident">from</span>.<span class="ident">id</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">turn_type</span> <span class="op">!</span><span class="op">=</span> <span class="ident">movement</span>.<span class="ident">turn_type</span> {
                     <span class="kw">continue</span>;
                 }
@@ -893,9 +895,9 @@
             <span class="comment">// TODO If a stage has no protected turns at all, this adds the crosswalk to multiple</span>
             <span class="comment">// stages in a pretty weird way. It&#39;d be better to add to just one stage -- the one</span>
             <span class="comment">// with the least conflicting yields.</span>
-            <span class="kw">for</span> <span class="ident">movement</span> <span class="kw">in</span> <span class="ident">ts</span>.<span class="ident">movements</span>.<span class="ident">values</span>() {
+            <span class="kw">for</span> <span class="ident">movement</span> <span class="kw">in</span> <span class="ident">i</span>.<span class="ident">movements</span>.<span class="ident">values</span>() {
                 <span class="kw">if</span> <span class="ident">movement</span>.<span class="ident">turn_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">TurnType::Crosswalk</span>
-                    <span class="op">&amp;&amp;</span> <span class="ident">stage</span>.<span class="ident">could_be_protected</span>(<span class="ident">movement</span>.<span class="ident">id</span>, <span class="kw-2">&amp;</span><span class="ident">ts</span>.<span class="ident">movements</span>)
+                    <span class="op">&amp;&amp;</span> <span class="ident">stage</span>.<span class="ident">could_be_protected</span>(<span class="ident">movement</span>.<span class="ident">id</span>, <span class="ident">i</span>)
                 {
                     <span class="ident">stage</span>.<span class="ident">edit_movement</span>(<span class="ident">movement</span>, <span class="ident">TurnPriority::Protected</span>);
                 }

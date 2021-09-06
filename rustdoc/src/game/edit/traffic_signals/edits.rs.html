@@ -406,6 +406,8 @@
 <span id="404">404</span>
 <span id="405">405</span>
 <span id="406">406</span>
+<span id="407">407</span>
+<span id="408">408</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">geom::Duration</span>;
 <span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">ChooseSomething</span>, <span class="ident">FilePicker</span>, <span class="ident">PopupMsg</span>};
@@ -433,6 +435,7 @@
         <span class="ident">signal</span>: <span class="kw-2">&amp;</span><span class="ident">ControlTrafficSignal</span>,
         <span class="ident">idx</span>: <span class="ident">usize</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">signal</span>.<span class="ident">id</span>);
         <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
             <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
                 <span class="ident">Line</span>(<span class="string">&quot;How long should this stage last?&quot;</span>)
@@ -445,7 +448,7 @@
                 <span class="ident">Spinner::widget</span>(
                     <span class="ident">ctx</span>,
                     <span class="string">&quot;duration&quot;</span>,
-                    (<span class="ident">signal</span>.<span class="ident">get_min_crossing_time</span>(<span class="ident">idx</span>), <span class="ident">Duration::minutes</span>(<span class="number">5</span>)),
+                    (<span class="ident">signal</span>.<span class="ident">get_min_crossing_time</span>(<span class="ident">idx</span>, <span class="ident">i</span>), <span class="ident">Duration::minutes</span>(<span class="number">5</span>)),
                     <span class="ident">signal</span>.<span class="ident">stages</span>[<span class="ident">idx</span>].<span class="ident">stage_type</span>.<span class="ident">simple_duration</span>(),
                     <span class="ident">Duration::seconds</span>(<span class="number">1.0</span>),
                 ),
@@ -587,7 +590,8 @@
     <span class="kw">let</span> <span class="ident">has_sidewalks</span> <span class="op">=</span> <span class="ident">app</span>
         .<span class="ident">primary</span>
         .<span class="ident">map</span>
-        .<span class="ident">get_turns_in_intersection</span>(<span class="ident">i</span>)
+        .<span class="ident">get_i</span>(<span class="ident">i</span>)
+        .<span class="ident">turns</span>
         .<span class="ident">iter</span>()
         .<span class="ident">any</span>(<span class="op">|</span><span class="ident">t</span><span class="op">|</span> <span class="ident">t</span>.<span class="ident">between_sidewalks</span>());
 
@@ -650,7 +654,7 @@
                 <span class="ident">Transition::Pop</span>,
                 <span class="ident">Transition::ModifyState</span>(<span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">new_signal</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_traffic_signal</span>(<span class="ident">i</span>).<span class="ident">clone</span>();
-                    <span class="kw">if</span> <span class="ident">new_signal</span>.<span class="ident">convert_to_ped_scramble</span>() {
+                    <span class="kw">if</span> <span class="ident">new_signal</span>.<span class="ident">convert_to_ped_scramble</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>)) {
                         <span class="kw">let</span> <span class="ident">editor</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">downcast_mut</span>::<span class="op">&lt;</span><span class="ident">TrafficSignalEditor</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
                         <span class="ident">editor</span>.<span class="ident">add_new_edit</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="number">0</span>, <span class="op">|</span><span class="ident">ts</span><span class="op">|</span> {
                             <span class="kw-2">*</span><span class="ident">ts</span> <span class="op">=</span> <span class="ident">new_signal</span>.<span class="ident">clone</span>();
