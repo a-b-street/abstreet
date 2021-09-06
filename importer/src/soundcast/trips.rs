@@ -22,6 +22,7 @@ struct Trip {
 ///
 /// When `only_passthrough_trips` is true, only trips beginning and ending off-map are returned.
 /// When it's false, all other trips are returned.
+#[allow(clippy::too_many_arguments)]
 fn endpoints(
     from: &Endpoint,
     to: &Endpoint,

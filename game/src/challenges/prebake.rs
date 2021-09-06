@@ -30,7 +30,7 @@ pub fn prebake_all() {
     let mut summaries = Vec::new();
     for name in vec![
         MapName::seattle("arboretum"),
-        MapName::seattle("greenlake"),
+        //MapName::seattle("greenlake"),
         MapName::seattle("montlake"),
         MapName::seattle("lakeslice"),
         //MapName::seattle("phinney"),

@@ -328,7 +328,7 @@ impl RouteResults {
                             .get_step_at_dist_along(map, dist_here)
                             // We often seem to slightly exceed the total length, so just clamp
                             // here...
-                            .unwrap_or(self.paths[idx].0.last_step())
+                            .unwrap_or_else(|_| self.paths[idx].0.last_step())
                         {
                             PathStep::Lane(l) | PathStep::ContraflowLane(l) => {
                                 // TODO Interpolate

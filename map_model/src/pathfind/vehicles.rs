@@ -318,7 +318,9 @@ pub fn vehicle_cost(
     };
 
     let mut multiplier = 1.0;
-    if constraints == PathConstraints::Bike && params.avoid_steep_incline_penalty != 1.0 {
+    if constraints == PathConstraints::Bike
+        && (params.avoid_steep_incline_penalty - 1.0).abs() > f64::EPSILON
+    {
         let road = map.get_r(dr.id);
         let percent_incline = if dr.dir == Direction::Fwd {
             road.percent_incline
@@ -330,7 +332,8 @@ pub fn vehicle_cost(
         }
     }
 
-    if constraints == PathConstraints::Bike && params.avoid_high_stress != 1.0 {
+    if constraints == PathConstraints::Bike && (params.avoid_high_stress - 1.0).abs() > f64::EPSILON
+    {
         let road = map.get_r(dr.id);
         if road.high_stress_for_bikes(map) {
             multiplier *= params.avoid_high_stress;

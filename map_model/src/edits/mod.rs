@@ -323,18 +323,15 @@ impl MapEdits {
             // What exactly changed?
             if r.speed_limit != orig.speed_limit
                 || r.access_restrictions != orig.access_restrictions
+                // If a lane was added or deleted, figuring out if any were modified is kind of
+                // unclear -- just mark the entire road.
+                || r.lanes.len() != orig.lanes_ltr.len()
             {
                 roads.insert(r.id);
             } else {
-                if r.lanes.len() != orig.lanes_ltr.len() {
-                    // If a lane was added or deleted, figuring out if any were modified is kind of
-                    // unclear -- just mark the entire road.
-                    roads.insert(r.id);
-                } else {
-                    for (l, spec) in r.lanes.iter().zip(orig.lanes_ltr.iter()) {
-                        if l.dir != spec.dir || l.lane_type != spec.lt || l.width != spec.width {
-                            lanes.insert(l.id);
-                        }
+                for (l, spec) in r.lanes.iter().zip(orig.lanes_ltr.iter()) {
+                    if l.dir != spec.dir || l.lane_type != spec.lt || l.width != spec.width {
+                        lanes.insert(l.id);
                     }
                 }
             }

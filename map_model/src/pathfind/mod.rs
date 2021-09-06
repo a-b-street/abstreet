@@ -172,16 +172,9 @@ pub struct RoutingParams {
     // that cost already includes a reduction of speed to account for the incline -- this is a
     // further "delay" on top of that!)
     // TODO But even steeper roads matter more!
-    // TODO Serialize as usual. Requires regenerating all maps, not ready to do that yet.
-    #[serde(skip_serializing, skip_deserializing, default = "one")]
     pub avoid_steep_incline_penalty: f64,
     // If the road is `high_stress_for_bikes`, multiply by the base cost.
-    #[serde(skip_serializing, skip_deserializing, default = "one")]
     pub avoid_high_stress: f64,
-}
-
-fn one() -> f64 {
-    1.0
 }
 
 impl RoutingParams {

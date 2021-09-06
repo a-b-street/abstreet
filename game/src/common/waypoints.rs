@@ -132,10 +132,8 @@ impl InputWaypoints {
     /// `get_panel_widget` again.
     pub fn event(&mut self, ctx: &mut EventCtx, app: &mut App, outcome: Outcome) -> bool {
         if self.dragging {
-            if ctx.redo_mouseover() {
-                if self.update_dragging(ctx, app) == Some(true) {
-                    return true;
-                }
+            if ctx.redo_mouseover() && self.update_dragging(ctx, app) == Some(true) {
+                return true;
             }
             if ctx.input.left_mouse_button_released() {
                 self.dragging = false;
