@@ -1082,7 +1082,7 @@ impl DrivingSimState {
         // Don't overtake in the middle of a turn!
         let current_lane = map.get_l(car.router.head().maybe_lane()?);
         let road = map.get_parent(current_lane.id);
-        let idx = road.offset(current_lane.id);
+        let idx = current_lane.id.offset;
 
         let mut candidates = Vec::new();
         if idx != 0 {

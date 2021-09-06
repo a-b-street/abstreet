@@ -178,14 +178,6 @@ impl Road {
         self.center_pts.must_shift_left(self.get_half_width())
     }
 
-    /// Counting from the left side of the road
-    pub fn offset(&self, lane: LaneID) -> usize {
-        match self.lanes.iter().position(|l| l.id == lane) {
-            Some(x) => x,
-            None => panic!("{} doesn't contain {}", self.id, lane),
-        }
-    }
-
     /// lane must belong to this road. Offset 0 is the centermost lane on each side of a road, then
     /// it counts up from there. Note this is a different offset than `offset`!
     pub(crate) fn dir_and_offset(&self, lane: LaneID) -> (Direction, usize) {
@@ -246,7 +238,7 @@ impl Road {
         from: LaneID,
         filter: F,
     ) -> Option<LaneID> {
-        let our_idx = self.offset(from) as isize;
+        let our_idx = from.offset as isize;
         self.lanes
             .iter()
             .enumerate()

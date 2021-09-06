@@ -496,6 +496,6 @@ impl OriginalLane {
         } else {
             current_back[self.idx].0
         };
-        Ok((r.id, r.offset(l)))
+        Ok((r.id, l.offset))
     }
 }

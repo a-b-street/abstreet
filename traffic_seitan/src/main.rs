@@ -98,9 +98,8 @@ fn alter_turn_destinations(sim: &Sim, map: &Map, rng: &mut XorShiftRng, edits: &
 
     for l in active_destinations.into_iter().take(num_edits) {
         info!("Closing someone's target {}", l);
-        let r = map.get_parent(l);
-        edits.commands.push(map.edit_road_cmd(r.id, |new| {
-            new.lanes_ltr[r.offset(l)].lt = LaneType::Construction;
+        edits.commands.push(map.edit_road_cmd(l.road, |new| {
+            new.lanes_ltr[l.offset].lt = LaneType::Construction;
 
             // If we're getting rid of the last driving lane, also remove any parking lanes. This
             // mimics the check that the UI does.
@@ -130,9 +129,8 @@ fn nuke_random_parking(map: &Map, rng: &mut XorShiftRng, edits: &mut MapEdits) {
     parking_lanes.shuffle(rng);
     for l in parking_lanes.into_iter().take(num_edits) {
         info!("Closing parking {}", l);
-        let r = map.get_parent(l);
-        edits.commands.push(map.edit_road_cmd(r.id, |new| {
-            new.lanes_ltr[r.offset(l)].lt = LaneType::Construction;
+        edits.commands.push(map.edit_road_cmd(l.road, |new| {
+            new.lanes_ltr[l.offset].lt = LaneType::Construction;
         }));
     }
 }
