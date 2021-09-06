@@ -835,6 +835,7 @@
 <span id="833">833</span>
 <span id="834">834</span>
 <span id="835">835</span>
+<span id="836">836</span>
 </pre><pre class="rust">
 <span class="doccomment">//! A bunch of (mostly read-only) queries on a Map.</span>
 
@@ -1663,10 +1664,11 @@
         <span class="self">self</span>.<span class="ident">name</span>.<span class="ident">map</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;minified_{}&quot;</span>, <span class="self">self</span>.<span class="ident">name</span>.<span class="ident">map</span>);
 
         <span class="comment">// Don&#39;t need CHs or even the graph for anything except bikes.</span>
-        <span class="self">self</span>.<span class="ident">pathfinder</span> <span class="op">=</span> <span class="ident">Pathfinder::just_bikes</span>(
+        <span class="self">self</span>.<span class="ident">pathfinder</span> <span class="op">=</span> <span class="ident">Pathfinder::new_for_one_mode</span>(
             <span class="self">self</span>,
             <span class="self">self</span>.<span class="ident">routing_params</span>().<span class="ident">clone</span>(),
             <span class="kw">crate</span><span class="ident">::pathfind::CreateEngine::Dijkstra</span>,
+            <span class="ident">PathConstraints::Bike</span>,
             <span class="ident">timer</span>,
         );
     }

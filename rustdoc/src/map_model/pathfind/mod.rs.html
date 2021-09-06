@@ -189,6 +189,27 @@
 <span id="187">187</span>
 <span id="188">188</span>
 <span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
 </pre><pre class="rust">
 <span class="doccomment">//! Everything related to pathfinding through a map for different types of agents.</span>
 
@@ -351,11 +372,28 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RoutingParams</span> {
     <span class="comment">// For all vehicles. This is added to the cost of a movement as an additional delay.</span>
     <span class="kw">pub</span> <span class="ident">unprotected_turn_penalty</span>: <span class="ident">Duration</span>,
+
     <span class="comment">// For bike routing. Multiplied by the base cost, since spending more time on the wrong lane</span>
     <span class="comment">// type matters.</span>
     <span class="kw">pub</span> <span class="ident">bike_lane_penalty</span>: <span class="ident">f64</span>,
     <span class="kw">pub</span> <span class="ident">bus_lane_penalty</span>: <span class="ident">f64</span>,
     <span class="kw">pub</span> <span class="ident">driving_lane_penalty</span>: <span class="ident">f64</span>,
+
+    <span class="comment">// For bike routing.</span>
+    <span class="comment">// &quot;Steep&quot; is a fixed threshold of 8% incline, uphill only. Multiply by the base cost. (Note</span>
+    <span class="comment">// that cost already includes a reduction of speed to account for the incline -- this is a</span>
+    <span class="comment">// further &quot;delay&quot; on top of that!)</span>
+    <span class="comment">// TODO But even steeper roads matter more!</span>
+    <span class="comment">// TODO Serialize as usual. Requires regenerating all maps, not ready to do that yet.</span>
+    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">skip_serializing</span>, <span class="ident">skip_deserializing</span>, <span class="ident">default</span> <span class="op">=</span> <span class="string">&quot;one&quot;</span>)]</span>
+    <span class="kw">pub</span> <span class="ident">avoid_steep_incline_penalty</span>: <span class="ident">f64</span>,
+    <span class="comment">// If the road is `high_stress_for_bikes`, multiply by the base cost.</span>
+    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">skip_serializing</span>, <span class="ident">skip_deserializing</span>, <span class="ident">default</span> <span class="op">=</span> <span class="string">&quot;one&quot;</span>)]</span>
+    <span class="kw">pub</span> <span class="ident">avoid_high_stress</span>: <span class="ident">f64</span>,
+}
+
+<span class="kw">fn</span> <span class="ident">one</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">f64</span> {
+    <span class="number">1.0</span>
 }
 
 <span class="kw">impl</span> <span class="ident">RoutingParams</span> {
@@ -364,9 +402,13 @@
             <span class="comment">// This is a total guess -- it really depends on the traffic patterns of the particular</span>
             <span class="comment">// road at the time we&#39;re routing.</span>
             <span class="ident">unprotected_turn_penalty</span>: <span class="ident">Duration::const_seconds</span>(<span class="number">30.0</span>),
+
             <span class="ident">bike_lane_penalty</span>: <span class="number">1.0</span>,
             <span class="ident">bus_lane_penalty</span>: <span class="number">1.1</span>,
             <span class="ident">driving_lane_penalty</span>: <span class="number">1.5</span>,
+
+            <span class="ident">avoid_steep_incline_penalty</span>: <span class="number">1.0</span>,
+            <span class="ident">avoid_high_stress</span>: <span class="number">1.0</span>,
         }
     }
 }

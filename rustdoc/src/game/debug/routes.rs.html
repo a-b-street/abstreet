@@ -586,6 +586,30 @@
 <span id="584">584</span>
 <span id="585">585</span>
 <span id="586">586</span>
+<span id="587">587</span>
+<span id="588">588</span>
+<span id="589">589</span>
+<span id="590">590</span>
+<span id="591">591</span>
+<span id="592">592</span>
+<span id="593">593</span>
+<span id="594">594</span>
+<span id="595">595</span>
+<span id="596">596</span>
+<span id="597">597</span>
+<span id="598">598</span>
+<span id="599">599</span>
+<span id="600">600</span>
+<span id="601">601</span>
+<span id="602">602</span>
+<span id="603">603</span>
+<span id="604">604</span>
+<span id="605">605</span>
+<span id="606">606</span>
+<span id="607">607</span>
+<span id="608">608</span>
+<span id="609">609</span>
+<span id="610">610</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
@@ -796,7 +820,7 @@
                 .<span class="ident">margin_right</span>(<span class="number">20</span>),
             <span class="ident">Spinner::widget</span>(
                 <span class="ident">ctx</span>,
-                <span class="string">&quot;unprotected turn penalty&quot;</span>,
+                <span class="string">&quot;unprotected_turn_penalty&quot;</span>,
                 (<span class="ident">Duration::seconds</span>(<span class="number">1.0</span>), <span class="ident">Duration::seconds</span>(<span class="number">100.0</span>)),
                 <span class="ident">params</span>.<span class="ident">unprotected_turn_penalty</span>,
                 <span class="ident">Duration::seconds</span>(<span class="number">1.0</span>),
@@ -808,7 +832,7 @@
             <span class="string">&quot;Bike lane penalty:&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">margin_right</span>(<span class="number">20</span>),
             <span class="ident">Spinner::widget</span>(
                 <span class="ident">ctx</span>,
-                <span class="string">&quot;bike lane penalty&quot;</span>,
+                <span class="string">&quot;bike_lane_penalty&quot;</span>,
                 (<span class="number">0.0</span>, <span class="number">2.0</span>),
                 <span class="ident">params</span>.<span class="ident">bike_lane_penalty</span>,
                 <span class="number">0.1</span>,
@@ -818,7 +842,7 @@
             <span class="string">&quot;Bus lane penalty:&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">margin_right</span>(<span class="number">20</span>),
             <span class="ident">Spinner::widget</span>(
                 <span class="ident">ctx</span>,
-                <span class="string">&quot;bus lane penalty&quot;</span>,
+                <span class="string">&quot;bus_lane_penalty&quot;</span>,
                 (<span class="number">0.0</span>, <span class="number">2.0</span>),
                 <span class="ident">params</span>.<span class="ident">bus_lane_penalty</span>,
                 <span class="number">0.1</span>,
@@ -828,9 +852,31 @@
             <span class="string">&quot;Driving lane penalty:&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">margin_right</span>(<span class="number">20</span>),
             <span class="ident">Spinner::widget</span>(
                 <span class="ident">ctx</span>,
-                <span class="string">&quot;driving lane penalty&quot;</span>,
+                <span class="string">&quot;driving_lane_penalty&quot;</span>,
                 (<span class="number">0.0</span>, <span class="number">2.0</span>),
                 <span class="ident">params</span>.<span class="ident">driving_lane_penalty</span>,
+                <span class="number">0.1</span>,
+            ),
+        ]));
+        <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
+            <span class="string">&quot;Avoid steep inclines (&gt;= 8%):&quot;</span>
+                .<span class="ident">text_widget</span>(<span class="ident">ctx</span>)
+                .<span class="ident">margin_right</span>(<span class="number">20</span>),
+            <span class="ident">Spinner::widget</span>(
+                <span class="ident">ctx</span>,
+                <span class="string">&quot;avoid_steep_incline_penalty&quot;</span>,
+                (<span class="number">0.0</span>, <span class="number">2.0</span>),
+                <span class="ident">params</span>.<span class="ident">avoid_steep_incline_penalty</span>,
+                <span class="number">0.1</span>,
+            ),
+        ]));
+        <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
+            <span class="string">&quot;Avoid high-stress roads:&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">margin_right</span>(<span class="number">20</span>),
+            <span class="ident">Spinner::widget</span>(
+                <span class="ident">ctx</span>,
+                <span class="string">&quot;avoid_high_stress&quot;</span>,
+                (<span class="number">0.0</span>, <span class="number">2.0</span>),
+                <span class="ident">params</span>.<span class="ident">avoid_high_stress</span>,
                 <span class="number">0.1</span>,
             ),
         ]));
@@ -841,16 +887,18 @@
 <span class="kw">fn</span> <span class="ident">controls_to_params</span>(<span class="ident">panel</span>: <span class="kw-2">&amp;</span><span class="ident">Panel</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">TripMode</span>, <span class="ident">RoutingParams</span>) {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">params</span> <span class="op">=</span> <span class="ident">RoutingParams::default</span>();
     <span class="kw">if</span> <span class="op">!</span><span class="ident">panel</span>.<span class="ident">is_button_enabled</span>(<span class="string">&quot;cars&quot;</span>) {
-        <span class="ident">params</span>.<span class="ident">unprotected_turn_penalty</span> <span class="op">=</span> <span class="ident">panel</span>.<span class="ident">spinner</span>(<span class="string">&quot;unprotected turn penalty&quot;</span>);
+        <span class="ident">params</span>.<span class="ident">unprotected_turn_penalty</span> <span class="op">=</span> <span class="ident">panel</span>.<span class="ident">spinner</span>(<span class="string">&quot;unprotected_turn_penalty&quot;</span>);
         <span class="kw">return</span> (<span class="ident">TripMode::Drive</span>, <span class="ident">params</span>);
     }
     <span class="kw">if</span> <span class="op">!</span><span class="ident">panel</span>.<span class="ident">is_button_enabled</span>(<span class="string">&quot;pedestrians&quot;</span>) {
         <span class="kw">return</span> (<span class="ident">TripMode::Walk</span>, <span class="ident">params</span>);
     }
-    <span class="ident">params</span>.<span class="ident">unprotected_turn_penalty</span> <span class="op">=</span> <span class="ident">panel</span>.<span class="ident">spinner</span>(<span class="string">&quot;unprotected turn penalty&quot;</span>);
-    <span class="ident">params</span>.<span class="ident">bike_lane_penalty</span> <span class="op">=</span> <span class="ident">panel</span>.<span class="ident">spinner</span>(<span class="string">&quot;bike lane penalty&quot;</span>);
-    <span class="ident">params</span>.<span class="ident">bus_lane_penalty</span> <span class="op">=</span> <span class="ident">panel</span>.<span class="ident">spinner</span>(<span class="string">&quot;bus lane penalty&quot;</span>);
-    <span class="ident">params</span>.<span class="ident">driving_lane_penalty</span> <span class="op">=</span> <span class="ident">panel</span>.<span class="ident">spinner</span>(<span class="string">&quot;driving lane penalty&quot;</span>);
+    <span class="ident">params</span>.<span class="ident">unprotected_turn_penalty</span> <span class="op">=</span> <span class="ident">panel</span>.<span class="ident">spinner</span>(<span class="string">&quot;unprotected_turn_penalty&quot;</span>);
+    <span class="ident">params</span>.<span class="ident">bike_lane_penalty</span> <span class="op">=</span> <span class="ident">panel</span>.<span class="ident">spinner</span>(<span class="string">&quot;bike_lane_penalty&quot;</span>);
+    <span class="ident">params</span>.<span class="ident">bus_lane_penalty</span> <span class="op">=</span> <span class="ident">panel</span>.<span class="ident">spinner</span>(<span class="string">&quot;bus_lane_penalty&quot;</span>);
+    <span class="ident">params</span>.<span class="ident">driving_lane_penalty</span> <span class="op">=</span> <span class="ident">panel</span>.<span class="ident">spinner</span>(<span class="string">&quot;driving_lane_penalty&quot;</span>);
+    <span class="ident">params</span>.<span class="ident">avoid_steep_incline_penalty</span> <span class="op">=</span> <span class="ident">panel</span>.<span class="ident">spinner</span>(<span class="string">&quot;avoid_steep_incline_penalty&quot;</span>);
+    <span class="ident">params</span>.<span class="ident">avoid_high_stress</span> <span class="op">=</span> <span class="ident">panel</span>.<span class="ident">spinner</span>(<span class="string">&quot;avoid_high_stress&quot;</span>);
     (<span class="ident">TripMode::Bike</span>, <span class="ident">params</span>)
 }
 
@@ -989,7 +1037,7 @@
                                     ((<span class="kw-2">*</span><span class="ident">after</span> <span class="kw">as</span> <span class="ident">isize</span>) <span class="op">-</span> (<span class="kw-2">*</span><span class="ident">before</span> <span class="kw">as</span> <span class="ident">isize</span>)).<span class="ident">abs</span>() <span class="kw">as</span> <span class="ident">usize</span>
                                 })
                                 .<span class="ident">max</span>()
-                                .<span class="ident">unwrap</span>() <span class="kw">as</span> <span class="ident">f64</span>;
+                                .<span class="ident">unwrap_or</span>(<span class="number">0</span>) <span class="kw">as</span> <span class="ident">f64</span>;
                             <span class="kw">for</span> (<span class="ident">r</span>, <span class="ident">before</span>, <span class="ident">after</span>) <span class="kw">in</span> <span class="ident">comparisons</span> {
                                 <span class="kw">match</span> <span class="ident">after</span>.<span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="ident">before</span>) {
                                     <span class="ident">std::cmp::Ordering::Less</span> <span class="op">=</span><span class="op">&gt;</span> {

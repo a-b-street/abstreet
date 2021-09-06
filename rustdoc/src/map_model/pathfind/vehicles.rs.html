@@ -326,6 +326,27 @@
 <span id="324">324</span>
 <span id="325">325</span>
 <span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
+<span id="347">347</span>
 </pre><pre class="rust">
 <span class="doccomment">//! Pathfinding for cars, bikes, buses, and trains using contraction hierarchies</span>
 
@@ -646,12 +667,33 @@
         <span class="ident">PathConstraints::Pedestrian</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
     };
 
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">multiplier</span> <span class="op">=</span> <span class="number">1.0</span>;
+    <span class="kw">if</span> <span class="ident">constraints</span> <span class="op">=</span><span class="op">=</span> <span class="ident">PathConstraints::Bike</span> <span class="op">&amp;&amp;</span> <span class="ident">params</span>.<span class="ident">avoid_steep_incline_penalty</span> <span class="op">!</span><span class="op">=</span> <span class="number">1.0</span> {
+        <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">dr</span>.<span class="ident">id</span>);
+        <span class="kw">let</span> <span class="ident">percent_incline</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">dr</span>.<span class="ident">dir</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Direction::Fwd</span> {
+            <span class="ident">road</span>.<span class="ident">percent_incline</span>
+        } <span class="kw">else</span> {
+            <span class="op">-</span><span class="ident">road</span>.<span class="ident">percent_incline</span>
+        };
+        <span class="kw">if</span> <span class="ident">percent_incline</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">0.08</span> {
+            <span class="ident">multiplier</span> <span class="kw-2">*</span><span class="op">=</span> <span class="ident">params</span>.<span class="ident">avoid_steep_incline_penalty</span>;
+        }
+    }
+
+    <span class="kw">if</span> <span class="ident">constraints</span> <span class="op">=</span><span class="op">=</span> <span class="ident">PathConstraints::Bike</span> <span class="op">&amp;&amp;</span> <span class="ident">params</span>.<span class="ident">avoid_high_stress</span> <span class="op">!</span><span class="op">=</span> <span class="number">1.0</span> {
+        <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">dr</span>.<span class="ident">id</span>);
+        <span class="kw">if</span> <span class="ident">road</span>.<span class="ident">high_stress_for_bikes</span>(<span class="ident">map</span>) {
+            <span class="ident">multiplier</span> <span class="kw-2">*</span><span class="op">=</span> <span class="ident">params</span>.<span class="ident">avoid_high_stress</span>;
+        }
+    }
+
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">extra</span> <span class="op">=</span> <span class="ident">Duration::ZERO</span>;
     <span class="comment">// Penalize unprotected turns at a stop sign from smaller to larger roads.</span>
     <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">is_unprotected_turn</span>(<span class="ident">dr</span>.<span class="ident">id</span>, <span class="ident">mvmnt</span>.<span class="ident">to</span>.<span class="ident">id</span>, <span class="ident">mvmnt_turn_type</span>) {
-        <span class="ident">base</span> <span class="op">+</span> <span class="ident">params</span>.<span class="ident">unprotected_turn_penalty</span>
-    } <span class="kw">else</span> {
-        <span class="ident">base</span>
+        <span class="ident">extra</span> <span class="op">+</span><span class="op">=</span> <span class="ident">params</span>.<span class="ident">unprotected_turn_penalty</span>
     }
+
+    <span class="ident">multiplier</span> <span class="op">*</span> <span class="ident">base</span> <span class="op">+</span> <span class="ident">extra</span>
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_model" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div><script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script></body></html>
