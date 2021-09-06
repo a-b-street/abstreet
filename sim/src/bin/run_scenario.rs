@@ -6,7 +6,7 @@ fn main() {
     let interruptible = args.enabled("--interruptible");
     let hours = geom::Duration::hours(args.required("--hours").parse::<usize>().unwrap());
     let (mut map, mut sim, _) =
-        sim::SimFlags::from_args(&mut args).load(&mut abstutil::Timer::new("setup"));
+        sim::SimFlags::from_args(&mut args).load_synchronously(&mut abstutil::Timer::new("setup"));
     args.done();
 
     if interruptible {
@@ -43,7 +43,9 @@ fn main() {
         }
         println!("\n\nInterrupting at {}", sim.time());
         sim.save();
-        println!("{}", sim.describe_scheduler_stats());
+        for x in sim.describe_internal_stats() {
+            println!("{}", x);
+        }
     } else {
         sim.timed_step(
             &mut map,
