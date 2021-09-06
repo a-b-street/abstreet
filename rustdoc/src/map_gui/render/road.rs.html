@@ -175,6 +175,8 @@
 <span id="173">173</span>
 <span id="174">174</span>
 <span id="175">175</span>
+<span id="176">176</span>
+<span id="177">177</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::cell::RefCell</span>;
 
@@ -216,11 +218,13 @@
         <span class="comment">// Draw a center line every time two driving/bike/bus lanes of opposite direction are</span>
         <span class="comment">// adjacent.</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">width</span> <span class="op">=</span> <span class="ident">Distance::ZERO</span>;
-        <span class="kw">for</span> <span class="ident">pair</span> <span class="kw">in</span> <span class="ident">r</span>.<span class="ident">lanes_ltr</span>().<span class="ident">windows</span>(<span class="number">2</span>) {
-            <span class="kw">let</span> ((<span class="ident">l1</span>, <span class="ident">dir1</span>, <span class="ident">lt1</span>), (<span class="kw">_</span>, <span class="ident">dir2</span>, <span class="ident">lt2</span>)) <span class="op">=</span> (<span class="ident">pair</span>[<span class="number">0</span>], <span class="ident">pair</span>[<span class="number">1</span>]);
-            <span class="ident">width</span> <span class="op">+</span><span class="op">=</span> <span class="ident">app</span>.<span class="ident">map</span>().<span class="ident">get_l</span>(<span class="ident">l1</span>).<span class="ident">width</span>;
-            <span class="kw">if</span> <span class="ident">dir1</span> <span class="op">!</span><span class="op">=</span> <span class="ident">dir2</span> <span class="op">&amp;&amp;</span> <span class="ident">lt1</span>.<span class="ident">is_for_moving_vehicles</span>() <span class="op">&amp;&amp;</span> <span class="ident">lt2</span>.<span class="ident">is_for_moving_vehicles</span>() {
-                <span class="kw">let</span> <span class="ident">pl</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">get_left_side</span>(<span class="ident">app</span>.<span class="ident">map</span>()).<span class="ident">must_shift_right</span>(<span class="ident">width</span>);
+        <span class="kw">for</span> <span class="ident">pair</span> <span class="kw">in</span> <span class="ident">r</span>.<span class="ident">lanes</span>.<span class="ident">windows</span>(<span class="number">2</span>) {
+            <span class="ident">width</span> <span class="op">+</span><span class="op">=</span> <span class="ident">pair</span>[<span class="number">0</span>].<span class="ident">width</span>;
+            <span class="kw">if</span> <span class="ident">pair</span>[<span class="number">0</span>].<span class="ident">dir</span> <span class="op">!</span><span class="op">=</span> <span class="ident">pair</span>[<span class="number">1</span>].<span class="ident">dir</span>
+                <span class="op">&amp;&amp;</span> <span class="ident">pair</span>[<span class="number">0</span>].<span class="ident">lane_type</span>.<span class="ident">is_for_moving_vehicles</span>()
+                <span class="op">&amp;&amp;</span> <span class="ident">pair</span>[<span class="number">1</span>].<span class="ident">lane_type</span>.<span class="ident">is_for_moving_vehicles</span>()
+            {
+                <span class="kw">let</span> <span class="ident">pl</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">get_left_side</span>().<span class="ident">must_shift_right</span>(<span class="ident">width</span>);
                 <span class="ident">batch</span>.<span class="ident">extend</span>(
                     <span class="ident">center_line_color</span>,
                     <span class="ident">pl</span>.<span class="ident">dashed_lines</span>(
@@ -310,11 +314,11 @@
 
     <span class="kw">fn</span> <span class="ident">get_outline</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Polygon</span> {
         <span class="comment">// Highlight the entire thing, not just an outline</span>
-        <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="self">self</span>.<span class="ident">id</span>).<span class="ident">get_thick_polygon</span>(<span class="ident">map</span>)
+        <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="self">self</span>.<span class="ident">id</span>).<span class="ident">get_thick_polygon</span>()
     }
 
     <span class="kw">fn</span> <span class="ident">contains_pt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pt</span>: <span class="ident">Pt2D</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="self">self</span>.<span class="ident">id</span>).<span class="ident">get_thick_polygon</span>(<span class="ident">map</span>).<span class="ident">contains_pt</span>(<span class="ident">pt</span>)
+        <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="self">self</span>.<span class="ident">id</span>).<span class="ident">get_thick_polygon</span>().<span class="ident">contains_pt</span>(<span class="ident">pt</span>)
     }
 
     <span class="kw">fn</span> <span class="ident">get_zorder</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">isize</span> {

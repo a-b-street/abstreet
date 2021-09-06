@@ -2497,16 +2497,16 @@
                             ))
                             .<span class="ident">unwrap</span>(),
                         );
-                        <span class="macro">assert_eq!</span>(<span class="ident">r</span>.<span class="ident">lanes_ltr</span>().<span class="ident">len</span>(), <span class="number">6</span>);
-                        <span class="ident">r</span>.<span class="ident">lanes_ltr</span>()[<span class="number">2</span>].<span class="number">0</span>
+                        <span class="macro">assert_eq!</span>(<span class="ident">r</span>.<span class="ident">lanes</span>.<span class="ident">len</span>(), <span class="number">6</span>);
+                        <span class="ident">r</span>.<span class="ident">lanes</span>[<span class="number">2</span>].<span class="ident">id</span>
                     };
                     <span class="kw">let</span> <span class="ident">lane_near_bldg</span> <span class="op">=</span> {
                         <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(
                             <span class="ident">map</span>.<span class="ident">find_r_by_osm_id</span>(<span class="ident">OriginalRoad::new</span>(<span class="number">6484869</span>, (<span class="number">53163501</span>, <span class="number">53069236</span>)))
                                 .<span class="ident">unwrap</span>(),
                         );
-                        <span class="macro">assert_eq!</span>(<span class="ident">r</span>.<span class="ident">lanes_ltr</span>().<span class="ident">len</span>(), <span class="number">6</span>);
-                        <span class="ident">r</span>.<span class="ident">lanes_ltr</span>()[<span class="number">3</span>].<span class="number">0</span>
+                        <span class="macro">assert_eq!</span>(<span class="ident">r</span>.<span class="ident">lanes</span>.<span class="ident">len</span>(), <span class="number">6</span>);
+                        <span class="ident">r</span>.<span class="ident">lanes</span>[<span class="number">3</span>].<span class="ident">id</span>
                     };
 
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">scenario</span> <span class="op">=</span> <span class="ident">Scenario::empty</span>(<span class="ident">map</span>, <span class="string">&quot;prank&quot;</span>);

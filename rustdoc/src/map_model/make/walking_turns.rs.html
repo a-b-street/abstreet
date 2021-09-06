@@ -569,17 +569,8 @@
 <span id="567">567</span>
 <span id="568">568</span>
 <span id="569">569</span>
-<span id="570">570</span>
-<span id="571">571</span>
-<span id="572">572</span>
-<span id="573">573</span>
-<span id="574">574</span>
-<span id="575">575</span>
-<span id="576">576</span>
-<span id="577">577</span>
-<span id="578">578</span>
 </pre><pre class="rust">
-<span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
+<span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
 
 <span class="kw">use</span> <span class="ident">abstutil::wraparound_get</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Line</span>, <span class="ident">PolyLine</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>};
@@ -600,13 +591,11 @@
     }
 
     <span class="kw">let</span> <span class="ident">driving_side</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">config</span>.<span class="ident">driving_side</span>;
-    <span class="kw">let</span> <span class="ident">all_roads</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">all_roads</span>();
-    <span class="kw">let</span> <span class="ident">lanes</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">all_lanes</span>();
 
     <span class="kw">let</span> <span class="ident">roads</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Road</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">i</span>
-        .<span class="ident">get_roads_sorted_by_incoming_angle</span>(<span class="ident">all_roads</span>)
+        .<span class="ident">get_roads_sorted_by_incoming_angle</span>(<span class="ident">map</span>)
         .<span class="ident">into_iter</span>()
-        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="kw-2">&amp;</span><span class="ident">all_roads</span>[<span class="ident">id</span>.<span class="number">0</span>])
+        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">id</span>))
         .<span class="ident">collect</span>();
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Turn</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
 
@@ -619,14 +608,14 @@
     };
 
     <span class="kw">if</span> <span class="ident">roads</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="number">2</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">turns</span>) <span class="op">=</span> <span class="ident">make_degenerate_crosswalks</span>(<span class="ident">i</span>.<span class="ident">id</span>, <span class="ident">lanes</span>, <span class="ident">roads</span>[<span class="number">0</span>], <span class="ident">roads</span>[<span class="number">1</span>]) {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">turns</span>) <span class="op">=</span> <span class="ident">make_degenerate_crosswalks</span>(<span class="ident">map</span>, <span class="ident">i</span>.<span class="ident">id</span>, <span class="ident">roads</span>[<span class="number">0</span>], <span class="ident">roads</span>[<span class="number">1</span>]) {
             <span class="ident">result</span>.<span class="ident">extend</span>(<span class="ident">turns</span>);
         }
         <span class="comment">// TODO Argh, duplicate logic for SharedSidewalkCorners</span>
         <span class="kw">for</span> <span class="ident">idx1</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">roads</span>.<span class="ident">len</span>() {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">l1</span>) <span class="op">=</span> <span class="ident">get_sidewalk</span>(<span class="ident">lanes</span>, <span class="ident">roads</span>[<span class="ident">idx1</span>].<span class="ident">incoming_lanes</span>(<span class="ident">i</span>.<span class="ident">id</span>)) {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">l1</span>) <span class="op">=</span> <span class="ident">get_sidewalk</span>(<span class="ident">map</span>, <span class="ident">roads</span>[<span class="ident">idx1</span>].<span class="ident">incoming_lanes</span>(<span class="ident">i</span>.<span class="ident">id</span>)) {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">l2</span>) <span class="op">=</span> <span class="ident">get_sidewalk</span>(
-                    <span class="ident">lanes</span>,
+                    <span class="ident">map</span>,
                     <span class="ident">wraparound_get</span>(<span class="kw-2">&amp;</span><span class="ident">roads</span>, (<span class="ident">idx1</span> <span class="kw">as</span> <span class="ident">isize</span>) <span class="op">+</span> <span class="ident">idx_offset</span>).<span class="ident">outgoing_lanes</span>(<span class="ident">i</span>.<span class="ident">id</span>),
                 ) {
                     <span class="kw">if</span> <span class="ident">l1</span>.<span class="ident">last_pt</span>() <span class="op">!</span><span class="op">=</span> <span class="ident">l2</span>.<span class="ident">first_pt</span>() {
@@ -650,8 +639,8 @@
         <span class="kw">return</span> <span class="ident">result</span>;
     }
     <span class="kw">if</span> <span class="ident">roads</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="number">1</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">l1</span>) <span class="op">=</span> <span class="ident">get_sidewalk</span>(<span class="ident">lanes</span>, <span class="ident">roads</span>[<span class="number">0</span>].<span class="ident">incoming_lanes</span>(<span class="ident">i</span>.<span class="ident">id</span>)) {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">l2</span>) <span class="op">=</span> <span class="ident">get_sidewalk</span>(<span class="ident">lanes</span>, <span class="ident">roads</span>[<span class="number">0</span>].<span class="ident">outgoing_lanes</span>(<span class="ident">i</span>.<span class="ident">id</span>)) {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">l1</span>) <span class="op">=</span> <span class="ident">get_sidewalk</span>(<span class="ident">map</span>, <span class="ident">roads</span>[<span class="number">0</span>].<span class="ident">incoming_lanes</span>(<span class="ident">i</span>.<span class="ident">id</span>)) {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">l2</span>) <span class="op">=</span> <span class="ident">get_sidewalk</span>(<span class="ident">map</span>, <span class="ident">roads</span>[<span class="number">0</span>].<span class="ident">outgoing_lanes</span>(<span class="ident">i</span>.<span class="ident">id</span>)) {
                 <span class="kw">let</span> <span class="ident">geom</span> <span class="op">=</span> <span class="ident">make_shared_sidewalk_corner</span>(<span class="ident">driving_side</span>, <span class="ident">i</span>, <span class="ident">l1</span>, <span class="ident">l2</span>);
                 <span class="ident">result</span>.<span class="ident">push</span>(<span class="ident">Turn</span> {
                     <span class="ident">id</span>: <span class="ident">turn_id</span>(<span class="ident">i</span>.<span class="ident">id</span>, <span class="ident">l1</span>.<span class="ident">id</span>, <span class="ident">l2</span>.<span class="ident">id</span>),
@@ -671,9 +660,9 @@
     }
 
     <span class="kw">for</span> <span class="ident">idx1</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">roads</span>.<span class="ident">len</span>() {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">l1</span>) <span class="op">=</span> <span class="ident">get_sidewalk</span>(<span class="ident">lanes</span>, <span class="ident">roads</span>[<span class="ident">idx1</span>].<span class="ident">incoming_lanes</span>(<span class="ident">i</span>.<span class="ident">id</span>)) {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">l1</span>) <span class="op">=</span> <span class="ident">get_sidewalk</span>(<span class="ident">map</span>, <span class="ident">roads</span>[<span class="ident">idx1</span>].<span class="ident">incoming_lanes</span>(<span class="ident">i</span>.<span class="ident">id</span>)) {
             <span class="comment">// Make the crosswalk to the other side</span>
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">l2</span>) <span class="op">=</span> <span class="ident">get_sidewalk</span>(<span class="ident">lanes</span>, <span class="ident">roads</span>[<span class="ident">idx1</span>].<span class="ident">outgoing_lanes</span>(<span class="ident">i</span>.<span class="ident">id</span>)) {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">l2</span>) <span class="op">=</span> <span class="ident">get_sidewalk</span>(<span class="ident">map</span>, <span class="ident">roads</span>[<span class="ident">idx1</span>].<span class="ident">outgoing_lanes</span>(<span class="ident">i</span>.<span class="ident">id</span>)) {
                 <span class="ident">result</span>.<span class="ident">extend</span>(
                     <span class="ident">make_crosswalks</span>(<span class="ident">i</span>.<span class="ident">id</span>, <span class="ident">l1</span>, <span class="ident">l2</span>, <span class="ident">driving_side</span>)
                         .<span class="ident">into_iter</span>()
@@ -683,7 +672,7 @@
 
             <span class="comment">// Find the shared corner</span>
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">l2</span>) <span class="op">=</span> <span class="ident">get_sidewalk</span>(
-                <span class="ident">lanes</span>,
+                <span class="ident">map</span>,
                 <span class="ident">wraparound_get</span>(<span class="kw-2">&amp;</span><span class="ident">roads</span>, (<span class="ident">idx1</span> <span class="kw">as</span> <span class="ident">isize</span>) <span class="op">+</span> <span class="ident">idx_offset</span>).<span class="ident">outgoing_lanes</span>(<span class="ident">i</span>.<span class="ident">id</span>),
             ) {
                 <span class="kw">if</span> <span class="ident">l1</span>.<span class="ident">last_pt</span>() <span class="op">!</span><span class="op">=</span> <span class="ident">l2</span>.<span class="ident">first_pt</span>() {
@@ -702,7 +691,7 @@
                     });
                 }
             } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">l2</span>) <span class="op">=</span> <span class="ident">get_sidewalk</span>(
-                <span class="ident">lanes</span>,
+                <span class="ident">map</span>,
                 <span class="ident">wraparound_get</span>(<span class="kw-2">&amp;</span><span class="ident">roads</span>, (<span class="ident">idx1</span> <span class="kw">as</span> <span class="ident">isize</span>) <span class="op">+</span> <span class="ident">idx_offset</span>).<span class="ident">incoming_lanes</span>(<span class="ident">i</span>.<span class="ident">id</span>),
             ) {
                 <span class="comment">// Adjacent road is missing a sidewalk on the near side, but has one on the far</span>
@@ -717,7 +706,7 @@
                 <span class="comment">// sidewalks at all. There might be a few in the way -- think highway onramps.</span>
                 <span class="comment">// TODO Refactor and loop until we find something to connect it to?</span>
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">l2</span>) <span class="op">=</span> <span class="ident">get_sidewalk</span>(
-                    <span class="ident">lanes</span>,
+                    <span class="ident">map</span>,
                     <span class="ident">wraparound_get</span>(<span class="kw-2">&amp;</span><span class="ident">roads</span>, (<span class="ident">idx1</span> <span class="kw">as</span> <span class="ident">isize</span>) <span class="op">+</span> <span class="number">2</span> <span class="op">*</span> <span class="ident">idx_offset</span>).<span class="ident">outgoing_lanes</span>(<span class="ident">i</span>.<span class="ident">id</span>),
                 ) {
                     <span class="ident">result</span>.<span class="ident">extend</span>(
@@ -726,7 +715,7 @@
                             .<span class="ident">flatten</span>(),
                     );
                 } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">l2</span>) <span class="op">=</span> <span class="ident">get_sidewalk</span>(
-                    <span class="ident">lanes</span>,
+                    <span class="ident">map</span>,
                     <span class="ident">wraparound_get</span>(<span class="kw-2">&amp;</span><span class="ident">roads</span>, (<span class="ident">idx1</span> <span class="kw">as</span> <span class="ident">isize</span>) <span class="op">+</span> <span class="number">2</span> <span class="op">*</span> <span class="ident">idx_offset</span>).<span class="ident">incoming_lanes</span>(<span class="ident">i</span>.<span class="ident">id</span>),
                 ) {
                     <span class="ident">result</span>.<span class="ident">extend</span>(
@@ -736,7 +725,7 @@
                     );
                 } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">roads</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">3</span> {
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">l2</span>) <span class="op">=</span> <span class="ident">get_sidewalk</span>(
-                        <span class="ident">lanes</span>,
+                        <span class="ident">map</span>,
                         <span class="ident">wraparound_get</span>(<span class="kw-2">&amp;</span><span class="ident">roads</span>, (<span class="ident">idx1</span> <span class="kw">as</span> <span class="ident">isize</span>) <span class="op">+</span> <span class="number">3</span> <span class="op">*</span> <span class="ident">idx_offset</span>)
                             .<span class="ident">outgoing_lanes</span>(<span class="ident">i</span>.<span class="ident">id</span>),
                     ) {
@@ -760,9 +749,7 @@
     <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">i</span>.<span class="ident">roads</span> {
         <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>).<span class="ident">is_extremely_short</span>() {
             <span class="ident">input</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="ident">t</span><span class="op">|</span> {
-                <span class="op">!</span>(<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">src</span>).<span class="ident">parent</span> <span class="op">=</span><span class="op">=</span> <span class="kw-2">*</span><span class="ident">r</span>
-                    <span class="op">&amp;&amp;</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">dst</span>).<span class="ident">parent</span> <span class="op">=</span><span class="op">=</span> <span class="kw-2">*</span><span class="ident">r</span>
-                    <span class="op">&amp;&amp;</span> <span class="ident">t</span>.<span class="ident">turn_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">TurnType::Crosswalk</span>)
+                <span class="op">!</span>(<span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">src</span>.<span class="ident">road</span> <span class="op">=</span><span class="op">=</span> <span class="kw-2">*</span><span class="ident">r</span> <span class="op">&amp;&amp;</span> <span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">dst</span>.<span class="ident">road</span> <span class="op">=</span><span class="op">=</span> <span class="kw-2">*</span><span class="ident">r</span> <span class="op">&amp;&amp;</span> <span class="ident">t</span>.<span class="ident">turn_type</span> <span class="op">=</span><span class="op">=</span> <span class="ident">TurnType::Crosswalk</span>)
             });
         }
     }
@@ -780,29 +767,27 @@
 <span class="doccomment">/// - one centered crosswalk for degenerate intersections</span>
 <span class="kw">fn</span> <span class="ident">make_walking_turns_v2</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">Intersection</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Turn</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">driving_side</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">config</span>.<span class="ident">driving_side</span>;
-    <span class="kw">let</span> <span class="ident">all_roads</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">all_roads</span>();
-    <span class="kw">let</span> <span class="ident">all_lanes</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">all_lanes</span>();
 
     <span class="comment">// Consider all roads in counter-clockwise order. Every road has up to two sidewalks. Gather</span>
     <span class="comment">// those in order, remembering what roads don&#39;t have them.</span>
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lanes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Lane</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">num_sidewalks</span> <span class="op">=</span> <span class="number">0</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">sorted_roads</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">get_roads_sorted_by_incoming_angle</span>(<span class="ident">all_roads</span>);
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">sorted_roads</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">get_roads_sorted_by_incoming_angle</span>(<span class="ident">map</span>);
     <span class="comment">// And for left-handed driving, we need to walk around in the opposite order.</span>
     <span class="kw">if</span> <span class="ident">driving_side</span> <span class="op">=</span><span class="op">=</span> <span class="ident">DrivingSide::Left</span> {
         <span class="ident">sorted_roads</span>.<span class="ident">reverse</span>();
     }
 
     <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">sorted_roads</span> {
-        <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">all_roads</span>[<span class="ident">r</span>.<span class="number">0</span>];
+        <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">fwd</span> <span class="op">=</span> <span class="prelude-val">None</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">back</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-        <span class="kw">for</span> (<span class="ident">l</span>, <span class="ident">dir</span>, <span class="ident">lt</span>) <span class="kw">in</span> <span class="ident">r</span>.<span class="ident">lanes_ltr</span>() {
-            <span class="kw">if</span> <span class="ident">lt</span>.<span class="ident">is_walkable</span>() {
-                <span class="kw">if</span> <span class="ident">dir</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Direction::Fwd</span> {
-                    <span class="ident">fwd</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">all_lanes</span>[<span class="kw-2">&amp;</span><span class="ident">l</span>]);
+        <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">road</span>.<span class="ident">lanes</span> {
+            <span class="kw">if</span> <span class="ident">l</span>.<span class="ident">lane_type</span>.<span class="ident">is_walkable</span>() {
+                <span class="kw">if</span> <span class="ident">l</span>.<span class="ident">dir</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Direction::Fwd</span> {
+                    <span class="ident">fwd</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">l</span>);
                 } <span class="kw">else</span> {
-                    <span class="ident">back</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">all_lanes</span>[<span class="kw-2">&amp;</span><span class="ident">l</span>]);
+                    <span class="ident">back</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">l</span>);
                 }
             }
         }
@@ -812,7 +797,7 @@
         <span class="kw">if</span> <span class="ident">back</span>.<span class="ident">is_some</span>() {
             <span class="ident">num_sidewalks</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
         }
-        <span class="kw">let</span> (<span class="ident">in_lane</span>, <span class="ident">out_lane</span>) <span class="op">=</span> <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">src_i</span> <span class="op">=</span><span class="op">=</span> <span class="ident">i</span>.<span class="ident">id</span> {
+        <span class="kw">let</span> (<span class="ident">in_lane</span>, <span class="ident">out_lane</span>) <span class="op">=</span> <span class="kw">if</span> <span class="ident">road</span>.<span class="ident">src_i</span> <span class="op">=</span><span class="op">=</span> <span class="ident">i</span>.<span class="ident">id</span> {
             (<span class="ident">back</span>, <span class="ident">fwd</span>)
         } <span class="kw">else</span> {
             (<span class="ident">fwd</span>, <span class="ident">back</span>)
@@ -856,7 +841,7 @@
         }
         <span class="kw">let</span> <span class="ident">l2</span> <span class="op">=</span> <span class="ident">l</span>.<span class="ident">unwrap</span>();
 
-        <span class="kw">if</span> <span class="ident">adj</span> <span class="op">&amp;&amp;</span> <span class="ident">l1</span>.<span class="ident">parent</span> <span class="op">!</span><span class="op">=</span> <span class="ident">l2</span>.<span class="ident">parent</span> {
+        <span class="kw">if</span> <span class="ident">adj</span> <span class="op">&amp;&amp;</span> <span class="ident">l1</span>.<span class="ident">id</span>.<span class="ident">road</span> <span class="op">!</span><span class="op">=</span> <span class="ident">l2</span>.<span class="ident">id</span>.<span class="ident">road</span> {
             <span class="comment">// Because of the order we go, have to swap l1 and l2 here. l1 is the outgoing, l2 the</span>
             <span class="comment">// incoming.</span>
             <span class="kw">let</span> <span class="ident">geom</span> <span class="op">=</span> <span class="ident">make_shared_sidewalk_corner</span>(<span class="ident">driving_side</span>, <span class="ident">i</span>, <span class="ident">l2</span>, <span class="ident">l1</span>);
@@ -975,15 +960,15 @@
 
 <span class="comment">// Only one physical crosswalk for degenerate intersections, right in the middle.</span>
 <span class="kw">fn</span> <span class="ident">make_degenerate_crosswalks</span>(
+    <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
     <span class="ident">i</span>: <span class="ident">IntersectionID</span>,
-    <span class="ident">lanes</span>: <span class="kw-2">&amp;</span><span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">LaneID</span>, <span class="ident">Lane</span><span class="op">&gt;</span>,
     <span class="ident">r1</span>: <span class="kw-2">&amp;</span><span class="ident">Road</span>,
     <span class="ident">r2</span>: <span class="kw-2">&amp;</span><span class="ident">Road</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Turn</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">l1_in</span> <span class="op">=</span> <span class="ident">get_sidewalk</span>(<span class="ident">lanes</span>, <span class="ident">r1</span>.<span class="ident">incoming_lanes</span>(<span class="ident">i</span>))<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">l1_out</span> <span class="op">=</span> <span class="ident">get_sidewalk</span>(<span class="ident">lanes</span>, <span class="ident">r1</span>.<span class="ident">outgoing_lanes</span>(<span class="ident">i</span>))<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">l2_in</span> <span class="op">=</span> <span class="ident">get_sidewalk</span>(<span class="ident">lanes</span>, <span class="ident">r2</span>.<span class="ident">incoming_lanes</span>(<span class="ident">i</span>))<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">l2_out</span> <span class="op">=</span> <span class="ident">get_sidewalk</span>(<span class="ident">lanes</span>, <span class="ident">r2</span>.<span class="ident">outgoing_lanes</span>(<span class="ident">i</span>))<span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">l1_in</span> <span class="op">=</span> <span class="ident">get_sidewalk</span>(<span class="ident">map</span>, <span class="ident">r1</span>.<span class="ident">incoming_lanes</span>(<span class="ident">i</span>))<span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">l1_out</span> <span class="op">=</span> <span class="ident">get_sidewalk</span>(<span class="ident">map</span>, <span class="ident">r1</span>.<span class="ident">outgoing_lanes</span>(<span class="ident">i</span>))<span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">l2_in</span> <span class="op">=</span> <span class="ident">get_sidewalk</span>(<span class="ident">map</span>, <span class="ident">r2</span>.<span class="ident">incoming_lanes</span>(<span class="ident">i</span>))<span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">l2_out</span> <span class="op">=</span> <span class="ident">get_sidewalk</span>(<span class="ident">map</span>, <span class="ident">r2</span>.<span class="ident">outgoing_lanes</span>(<span class="ident">i</span>))<span class="question-mark">?</span>;
 
     <span class="kw">let</span> <span class="ident">pt1</span> <span class="op">=</span> <span class="ident">Line::new</span>(<span class="ident">l1_in</span>.<span class="ident">last_pt</span>(), <span class="ident">l2_out</span>.<span class="ident">first_pt</span>())<span class="question-mark">?</span>.<span class="ident">percent_along</span>(<span class="number">0.5</span>)<span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">pt2</span> <span class="op">=</span> <span class="ident">Line::new</span>(<span class="ident">l1_out</span>.<span class="ident">first_pt</span>(), <span class="ident">l2_in</span>.<span class="ident">last_pt</span>())<span class="question-mark">?</span>.<span class="ident">percent_along</span>(<span class="number">0.5</span>)<span class="question-mark">?</span>;
@@ -1146,13 +1131,10 @@
     <span class="ident">TurnID</span> { <span class="ident">parent</span>, <span class="ident">src</span>, <span class="ident">dst</span> }
 }
 
-<span class="kw">fn</span> <span class="ident">get_sidewalk</span>(
-    <span class="ident">lanes</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">LaneID</span>, <span class="ident">Lane</span><span class="op">&gt;</span>,
-    <span class="ident">children</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">LaneID</span>, <span class="ident">LaneType</span>)<span class="op">&gt;</span>,
-) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;_</span> <span class="ident">Lane</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">get_sidewalk</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">children</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">LaneID</span>, <span class="ident">LaneType</span>)<span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Lane</span><span class="op">&gt;</span> {
     <span class="kw">for</span> (<span class="ident">id</span>, <span class="ident">lt</span>) <span class="kw">in</span> <span class="ident">children</span> {
         <span class="kw">if</span> <span class="ident">lt</span>.<span class="ident">is_walkable</span>() {
-            <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">lanes</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>]);
+            <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">id</span>));
         }
     }
     <span class="prelude-val">None</span>

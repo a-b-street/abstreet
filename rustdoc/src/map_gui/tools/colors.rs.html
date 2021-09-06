@@ -410,10 +410,6 @@
 <span id="408">408</span>
 <span id="409">409</span>
 <span id="410">410</span>
-<span id="411">411</span>
-<span id="412">412</span>
-<span id="413">413</span>
-<span id="414">414</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
@@ -458,7 +454,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_l</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">l</span>: <span class="ident">LaneID</span>, <span class="ident">category</span>: <span class="ident">I</span>) {
         <span class="kw">let</span> <span class="ident">color</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">colors</span>[<span class="ident">category</span>.<span class="ident">as_ref</span>()];
         <span class="self">self</span>.<span class="ident">unzoomed</span>
-            .<span class="ident">push</span>(<span class="ident">color</span>, <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">get_parent</span>(<span class="ident">l</span>).<span class="ident">get_thick_polygon</span>(<span class="self">self</span>.<span class="ident">map</span>));
+            .<span class="ident">push</span>(<span class="ident">color</span>, <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">get_parent</span>(<span class="ident">l</span>).<span class="ident">get_thick_polygon</span>());
         <span class="kw">let</span> <span class="ident">lane</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>);
         <span class="self">self</span>.<span class="ident">zoomed</span>.<span class="ident">push</span>(
             <span class="ident">color</span>.<span class="ident">alpha</span>(<span class="number">0.4</span>),
@@ -469,11 +465,9 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_r</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">r</span>: <span class="ident">RoadID</span>, <span class="ident">category</span>: <span class="ident">I</span>) {
         <span class="kw">let</span> <span class="ident">color</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">colors</span>[<span class="ident">category</span>.<span class="ident">as_ref</span>()];
         <span class="self">self</span>.<span class="ident">unzoomed</span>
-            .<span class="ident">push</span>(<span class="ident">color</span>, <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>).<span class="ident">get_thick_polygon</span>(<span class="self">self</span>.<span class="ident">map</span>));
-        <span class="self">self</span>.<span class="ident">zoomed</span>.<span class="ident">push</span>(
-            <span class="ident">color</span>.<span class="ident">alpha</span>(<span class="number">0.4</span>),
-            <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>).<span class="ident">get_thick_polygon</span>(<span class="self">self</span>.<span class="ident">map</span>),
-        );
+            .<span class="ident">push</span>(<span class="ident">color</span>, <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>).<span class="ident">get_thick_polygon</span>());
+        <span class="self">self</span>.<span class="ident">zoomed</span>
+            .<span class="ident">push</span>(<span class="ident">color</span>.<span class="ident">alpha</span>(<span class="number">0.4</span>), <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>).<span class="ident">get_thick_polygon</span>());
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_i</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">i</span>: <span class="ident">IntersectionID</span>, <span class="ident">category</span>: <span class="ident">I</span>) {
@@ -691,7 +685,7 @@
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_l</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">l</span>: <span class="ident">LaneID</span>, <span class="ident">color</span>: <span class="ident">Color</span>) {
         <span class="self">self</span>.<span class="ident">unzoomed</span>
-            .<span class="ident">push</span>(<span class="ident">color</span>, <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">get_parent</span>(<span class="ident">l</span>).<span class="ident">get_thick_polygon</span>(<span class="self">self</span>.<span class="ident">map</span>));
+            .<span class="ident">push</span>(<span class="ident">color</span>, <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">get_parent</span>(<span class="ident">l</span>).<span class="ident">get_thick_polygon</span>());
         <span class="kw">let</span> <span class="ident">lane</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>);
         <span class="self">self</span>.<span class="ident">zoomed</span>.<span class="ident">push</span>(
             <span class="ident">color</span>.<span class="ident">alpha</span>(<span class="number">0.4</span>),
@@ -701,11 +695,9 @@
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_r</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">r</span>: <span class="ident">RoadID</span>, <span class="ident">color</span>: <span class="ident">Color</span>) {
         <span class="self">self</span>.<span class="ident">unzoomed</span>
-            .<span class="ident">push</span>(<span class="ident">color</span>, <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>).<span class="ident">get_thick_polygon</span>(<span class="self">self</span>.<span class="ident">map</span>));
-        <span class="self">self</span>.<span class="ident">zoomed</span>.<span class="ident">push</span>(
-            <span class="ident">color</span>.<span class="ident">alpha</span>(<span class="number">0.4</span>),
-            <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>).<span class="ident">get_thick_polygon</span>(<span class="self">self</span>.<span class="ident">map</span>),
-        );
+            .<span class="ident">push</span>(<span class="ident">color</span>, <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>).<span class="ident">get_thick_polygon</span>());
+        <span class="self">self</span>.<span class="ident">zoomed</span>
+            .<span class="ident">push</span>(<span class="ident">color</span>.<span class="ident">alpha</span>(<span class="number">0.4</span>), <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>).<span class="ident">get_thick_polygon</span>());
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_i</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">i</span>: <span class="ident">IntersectionID</span>, <span class="ident">color</span>: <span class="ident">Color</span>) {

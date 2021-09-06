@@ -648,7 +648,6 @@
 <span id="646">646</span>
 <span id="647">647</span>
 <span id="648">648</span>
-<span id="649">649</span>
 </pre><pre class="rust">
 <span class="doccomment">//! The sim crate runs a traffic simulation on top of the map_model. See also</span>
 <span class="doccomment">//! https://a-b-street.github.io/docs/tech/trafficsim/index.html.</span>
@@ -1030,7 +1029,7 @@
                 <span class="ident">PathConstraints::Car</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">let</span> <span class="ident">driving_lane</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">find_driving_lane_near_building</span>(<span class="kw-2">*</span><span class="ident">b</span>);
                     <span class="kw">let</span> <span class="ident">sidewalk_pos</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_b</span>(<span class="kw-2">*</span><span class="ident">b</span>).<span class="ident">sidewalk_pos</span>;
-                    <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">driving_lane</span>).<span class="ident">parent</span> <span class="op">=</span><span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">sidewalk_pos</span>.<span class="ident">lane</span>()).<span class="ident">parent</span> {
+                    <span class="kw">if</span> <span class="ident">driving_lane</span>.<span class="ident">road</span> <span class="op">=</span><span class="op">=</span> <span class="ident">sidewalk_pos</span>.<span class="ident">lane</span>().<span class="ident">road</span> {
                         <span class="prelude-val">Some</span>(<span class="ident">sidewalk_pos</span>.<span class="ident">equiv_pos</span>(<span class="ident">driving_lane</span>, <span class="ident">map</span>))
                     } <span class="kw">else</span> {
                         <span class="prelude-val">Some</span>(<span class="ident">Position::start</span>(<span class="ident">driving_lane</span>))
@@ -1087,8 +1086,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">deferred_parking_spot</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">SidewalkSpot</span> {
         <span class="ident">SidewalkSpot</span> {
             <span class="ident">connection</span>: <span class="ident">SidewalkPOI::DeferredParkingSpot</span>,
-            <span class="comment">// Dummy value</span>
-            <span class="ident">sidewalk_pos</span>: <span class="ident">Position::start</span>(<span class="ident">LaneID</span>(<span class="number">0</span>)),
+            <span class="ident">sidewalk_pos</span>: <span class="ident">Position::start</span>(<span class="ident">LaneID::dummy</span>()),
         }
     }
 

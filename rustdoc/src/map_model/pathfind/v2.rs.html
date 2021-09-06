@@ -292,6 +292,9 @@
 <span id="290">290</span>
 <span id="291">291</span>
 <span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
 </pre><pre class="rust">
 <span class="doccomment">//! Structures related to the new road-based pathfinding</span>
 <span class="doccomment">//! (https://github.com/a-b-street/abstreet/issues/555) live here. When the transition is done,</span>
@@ -305,7 +308,7 @@
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::pathfind::uber_turns::UberTurnV2</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">DirectedRoadID</span>, <span class="ident">IntersectionID</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">MovementID</span>, <span class="ident">Path</span>, <span class="ident">PathConstraints</span>, <span class="ident">PathRequest</span>,
-    <span class="ident">PathStep</span>, <span class="ident">TurnID</span>, <span class="ident">UberTurn</span>,
+    <span class="ident">PathStep</span>, <span class="ident">RoadID</span>, <span class="ident">TurnID</span>, <span class="ident">UberTurn</span>,
 };
 
 <span class="doccomment">/// One step along a path.</span>
@@ -436,10 +439,13 @@
         <span class="comment">// allow starting from any lane on the same side of the road. Since petgraph can only start</span>
         <span class="comment">// from a single node and since we want to prefer the originally requested lane anyway,</span>
         <span class="comment">// create a virtual start node and connect it to all possible starting lanes.</span>
-        <span class="kw">let</span> <span class="ident">virtual_start_node</span> <span class="op">=</span> <span class="ident">LaneID</span>(<span class="ident">map</span>.<span class="ident">lane_id_counter</span> <span class="op">+</span> <span class="number">1</span>);
+        <span class="kw">let</span> <span class="ident">virtual_start_node</span> <span class="op">=</span> <span class="ident">LaneID</span> {
+            <span class="ident">road</span>: <span class="ident">RoadID</span>(<span class="ident">map</span>.<span class="ident">all_roads</span>().<span class="ident">len</span>()),
+            <span class="ident">offset</span>: <span class="number">0</span>,
+        };
         <span class="kw">let</span> <span class="ident">start_lane</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">req</span>.<span class="ident">start</span>.<span class="ident">lane</span>();
         <span class="kw">let</span> <span class="ident">start_road</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_parent</span>(<span class="ident">start_lane</span>);
-        <span class="kw">let</span> <span class="ident">start_lane_idx</span> <span class="op">=</span> <span class="ident">start_road</span>.<span class="ident">offset</span>(<span class="ident">start_lane</span>) <span class="kw">as</span> <span class="ident">isize</span>;
+        <span class="kw">let</span> <span class="ident">start_lane_idx</span> <span class="op">=</span> <span class="ident">start_lane</span>.<span class="ident">offset</span> <span class="kw">as</span> <span class="ident">isize</span>;
         <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="ident">map</span>
             .<span class="ident">get_l</span>(<span class="ident">start_lane</span>)
             .<span class="ident">get_directed_parent</span>()
@@ -449,7 +455,7 @@
             <span class="comment">// At the simulation layer, we may need to block intermediate lanes to exit a driveway,</span>
             <span class="comment">// so reflect that cost here. The high cost should only be worth it when the v2 path</span>
             <span class="comment">// requires that up-front turn from certain lanes.</span>
-            <span class="kw">let</span> <span class="ident">idx_dist</span> <span class="op">=</span> (<span class="ident">start_lane_idx</span> <span class="op">-</span> (<span class="ident">start_road</span>.<span class="ident">offset</span>(<span class="ident">l</span>) <span class="kw">as</span> <span class="ident">isize</span>)).<span class="ident">abs</span>();
+            <span class="kw">let</span> <span class="ident">idx_dist</span> <span class="op">=</span> (<span class="ident">start_lane_idx</span> <span class="op">-</span> (<span class="ident">l</span>.<span class="ident">offset</span> <span class="kw">as</span> <span class="ident">isize</span>)).<span class="ident">abs</span>();
             <span class="kw">let</span> <span class="ident">cost</span> <span class="op">=</span> <span class="number">100</span> <span class="op">*</span> <span class="ident">idx_dist</span> <span class="kw">as</span> <span class="ident">usize</span>;
             <span class="kw">let</span> <span class="ident">fake_turn</span> <span class="op">=</span> <span class="ident">TurnID</span> {
                 <span class="comment">// Just encode the cost here for convenience</span>

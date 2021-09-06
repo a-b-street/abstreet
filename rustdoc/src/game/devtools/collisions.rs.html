@@ -564,7 +564,7 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tooltips</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
         <span class="kw">for</span> (<span class="ident">r</span>, <span class="ident">cnt</span>) <span class="kw">in</span> <span class="ident">per_road</span>.<span class="ident">borrow</span>() {
             <span class="ident">tooltips</span>.<span class="ident">push</span>((
-                <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>).<span class="ident">get_thick_polygon</span>(<span class="ident">map</span>),
+                <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>).<span class="ident">get_thick_polygon</span>(),
                 <span class="ident">Text::from</span>(<span class="macro">format!</span>(<span class="string">&quot;{} collisions&quot;</span>, <span class="ident">prettyprint_usize</span>(<span class="kw-2">*</span><span class="ident">cnt</span>))),
             ));
         }

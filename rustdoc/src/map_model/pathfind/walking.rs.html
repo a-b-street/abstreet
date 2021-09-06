@@ -759,7 +759,7 @@
     <span class="kw">let</span> <span class="ident">max_speed</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="kw">crate</span><span class="ident">::MAX_WALKING_SPEED</span>);
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">input_graph</span> <span class="op">=</span> <span class="ident">InputGraph::new</span>();
 
-    <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_lanes</span>().<span class="ident">values</span>() {
+    <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_lanes</span>() {
         <span class="kw">if</span> <span class="ident">l</span>.<span class="ident">is_walkable</span>() {
             <span class="comment">// Sidewalks can be crossed in two directions. When there&#39;s a steep incline, of course</span>
             <span class="comment">// it flips.</span>

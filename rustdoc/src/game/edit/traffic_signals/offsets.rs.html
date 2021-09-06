@@ -542,7 +542,7 @@
         <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">path</span> {
             <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>);
             <span class="comment">// TODO Glue polylines together and do dashed_lines</span>
-            <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">route</span>, <span class="ident">r</span>.<span class="ident">get_thick_polygon</span>(<span class="ident">map</span>));
+            <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">route</span>, <span class="ident">r</span>.<span class="ident">get_thick_polygon</span>());
             <span class="ident">dist_btwn</span> <span class="op">+</span><span class="op">=</span> <span class="ident">r</span>.<span class="ident">center_pts</span>.<span class="ident">length</span>();
             <span class="ident">car_dt</span> <span class="op">+</span><span class="op">=</span> <span class="ident">r</span>.<span class="ident">center_pts</span>.<span class="ident">length</span>() <span class="op">/</span> <span class="ident">r</span>.<span class="ident">speed_limit</span>;
         }

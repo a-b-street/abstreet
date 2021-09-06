@@ -1660,7 +1660,6 @@
 <span id="1658">1658</span>
 <span id="1659">1659</span>
 <span id="1660">1660</span>
-<span id="1661">1661</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>, <span class="ident">VecDeque</span>};
 
@@ -1737,7 +1736,7 @@
             <span class="ident">sim</span>.<span class="ident">time_to_park_offstreet</span> <span class="op">=</span> <span class="ident">Duration::seconds</span>(<span class="number">0.1</span>);
         }
 
-        <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_lanes</span>().<span class="ident">values</span>() {
+        <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_lanes</span>() {
             <span class="kw">if</span> <span class="ident">l</span>.<span class="ident">lane_type</span>.<span class="ident">is_for_moving_vehicles</span>() {
                 <span class="kw">let</span> <span class="ident">q</span> <span class="op">=</span> <span class="ident">Queue::new</span>(<span class="ident">Traversable::Lane</span>(<span class="ident">l</span>.<span class="ident">id</span>), <span class="ident">map</span>);
                 <span class="ident">sim</span>.<span class="ident">queues</span>.<span class="ident">insert</span>(<span class="ident">q</span>.<span class="ident">id</span>, <span class="ident">q</span>);
@@ -2745,16 +2744,15 @@
     <span class="kw">fn</span> <span class="ident">pick_overtaking_lane</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">car</span>: <span class="kw-2">&amp;</span><span class="ident">Car</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">LaneID</span><span class="op">&gt;</span> {
         <span class="comment">// Don&#39;t overtake in the middle of a turn!</span>
         <span class="kw">let</span> <span class="ident">current_lane</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">car</span>.<span class="ident">router</span>.<span class="ident">head</span>().<span class="ident">maybe_lane</span>()<span class="question-mark">?</span>);
-        <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">current_lane</span>.<span class="ident">parent</span>);
-        <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="ident">road</span>.<span class="ident">offset</span>(<span class="ident">current_lane</span>.<span class="ident">id</span>);
-        <span class="kw">let</span> <span class="ident">lanes_ltr</span> <span class="op">=</span> <span class="ident">road</span>.<span class="ident">lanes_ltr</span>();
+        <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_parent</span>(<span class="ident">current_lane</span>.<span class="ident">id</span>);
+        <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="ident">current_lane</span>.<span class="ident">id</span>.<span class="ident">offset</span>;
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">candidates</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
         <span class="kw">if</span> <span class="ident">idx</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
-            <span class="ident">candidates</span>.<span class="ident">push</span>(<span class="ident">lanes_ltr</span>[<span class="ident">idx</span> <span class="op">-</span> <span class="number">1</span>].<span class="number">0</span>);
+            <span class="ident">candidates</span>.<span class="ident">push</span>(<span class="ident">road</span>.<span class="ident">lanes</span>[<span class="ident">idx</span> <span class="op">-</span> <span class="number">1</span>].<span class="ident">id</span>);
         }
-        <span class="kw">if</span> <span class="ident">idx</span> <span class="op">!</span><span class="op">=</span> <span class="ident">lanes_ltr</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span> {
-            <span class="ident">candidates</span>.<span class="ident">push</span>(<span class="ident">lanes_ltr</span>[<span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>].<span class="number">0</span>);
+        <span class="kw">if</span> <span class="ident">idx</span> <span class="op">!</span><span class="op">=</span> <span class="ident">road</span>.<span class="ident">lanes</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span> {
+            <span class="ident">candidates</span>.<span class="ident">push</span>(<span class="ident">road</span>.<span class="ident">lanes</span>[<span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>].<span class="ident">id</span>);
         }
         <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_config</span>().<span class="ident">driving_side</span> <span class="op">=</span><span class="op">=</span> <span class="ident">DrivingSide::Left</span> {
             <span class="ident">candidates</span>.<span class="ident">reverse</span>();
@@ -2889,7 +2887,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">handle_live_edits</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) {
         <span class="comment">// Calculate all queues that should exist now.</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">new_queues</span> <span class="op">=</span> <span class="ident">HashSet::new</span>();
-        <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_lanes</span>().<span class="ident">values</span>() {
+        <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_lanes</span>() {
             <span class="kw">if</span> <span class="ident">l</span>.<span class="ident">lane_type</span>.<span class="ident">is_for_moving_vehicles</span>() {
                 <span class="ident">new_queues</span>.<span class="ident">insert</span>(<span class="ident">Traversable::Lane</span>(<span class="ident">l</span>.<span class="ident">id</span>));
             }

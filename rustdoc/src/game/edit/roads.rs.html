@@ -1020,6 +1020,7 @@
 <span id="1018">1018</span>
 <span id="1019">1019</span>
 <span id="1020">1020</span>
+<span id="1021">1021</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
@@ -1065,7 +1066,7 @@
 <span class="kw">impl</span> <span class="ident">RoadEditor</span> {
     <span class="doccomment">/// Always starts focused on a certain lane.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>, <span class="ident">l</span>: <span class="ident">LaneID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="ident">RoadEditor::create</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">parent</span>, <span class="prelude-val">Some</span>(<span class="ident">l</span>))
+        <span class="ident">RoadEditor::create</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">l</span>.<span class="ident">road</span>, <span class="prelude-val">Some</span>(<span class="ident">l</span>))
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state_without_lane</span>(
@@ -1103,7 +1104,7 @@
     }
 
     <span class="kw">fn</span> <span class="ident">lane_for_idx</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">idx</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">LaneID</span> {
-        <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="self">self</span>.<span class="ident">r</span>).<span class="ident">lanes_ltr</span>()[<span class="ident">idx</span>].<span class="number">0</span>
+        <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="self">self</span>.<span class="ident">r</span>).<span class="ident">lanes</span>[<span class="ident">idx</span>].<span class="ident">id</span>
     }
 
     <span class="kw">fn</span> <span class="ident">modify_current_lane</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EditRoad</span>, <span class="ident">usize</span>)<span class="op">&gt;</span>(
@@ -1113,11 +1114,7 @@
         <span class="ident">select_new_lane_offset</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">isize</span><span class="op">&gt;</span>,
         <span class="ident">f</span>: <span class="ident">F</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span> {
-        <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="ident">app</span>
-            .<span class="ident">primary</span>
-            .<span class="ident">map</span>
-            .<span class="ident">get_r</span>(<span class="self">self</span>.<span class="ident">r</span>)
-            .<span class="ident">offset</span>(<span class="self">self</span>.<span class="ident">selected_lane</span>.<span class="ident">unwrap</span>());
+        <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">selected_lane</span>.<span class="ident">unwrap</span>().<span class="ident">offset</span>;
         <span class="kw">let</span> <span class="ident">cmd</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">edit_road_cmd</span>(<span class="self">self</span>.<span class="ident">r</span>, <span class="op">|</span><span class="ident">new</span><span class="op">|</span> (<span class="ident">f</span>)(<span class="ident">new</span>, <span class="ident">idx</span>));
 
         <span class="comment">// Special check here -- this invalid state can be reached in many ways.</span>
@@ -1302,7 +1299,7 @@
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">main_panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
             <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">idx</span>) <span class="op">=</span> <span class="ident">x</span>.<span class="ident">strip_prefix</span>(<span class="string">&quot;modify Lane #&quot;</span>) {
-                    <span class="self">self</span>.<span class="ident">selected_lane</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">LaneID</span>(<span class="ident">idx</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>()));
+                    <span class="self">self</span>.<span class="ident">selected_lane</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">LaneID::decode_u32</span>(<span class="ident">idx</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>()));
                     <span class="ident">panels_need_recalc</span> <span class="op">=</span> <span class="bool-val">true</span>;
                 } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;delete lane&quot;</span> {
                     <span class="kw">return</span> <span class="self">self</span>.<span class="ident">modify_current_lane</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="prelude-val">None</span>, <span class="op">|</span><span class="ident">new</span>, <span class="ident">idx</span><span class="op">|</span> {
@@ -1339,9 +1336,9 @@
                             .<span class="ident">primary</span>
                             .<span class="ident">map</span>
                             .<span class="ident">get_r</span>(<span class="self">self</span>.<span class="ident">r</span>)
-                            .<span class="ident">lanes_ltr</span>()
-                            .<span class="ident">into_iter</span>()
-                            .<span class="ident">all</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">lt</span>)<span class="op">|</span> <span class="ident">lt</span> <span class="op">!</span><span class="op">=</span> <span class="ident">LaneType::Driving</span>)
+                            .<span class="ident">lanes</span>
+                            .<span class="ident">iter</span>()
+                            .<span class="ident">all</span>(<span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="ident">l</span>.<span class="ident">lane_type</span> <span class="op">!</span><span class="op">=</span> <span class="ident">LaneType::Driving</span>)
                     {
                         <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">PopupMsg::new_state</span>(<span class="ident">ctx</span>, <span class="string">&quot;Error&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;Add a driving lane first. Parking can&#39;t exist without a way to access it.&quot;</span>]));
                     }
@@ -1465,7 +1462,7 @@
         }
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">l</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">hovering_on_lane</span> {
             <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">normal_left_click</span>() {
-                <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">parent</span> <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">r</span> {
+                <span class="kw">if</span> <span class="ident">l</span>.<span class="ident">road</span> <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">r</span> {
                     <span class="self">self</span>.<span class="ident">selected_lane</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">l</span>);
                     <span class="ident">panels_need_recalc</span> <span class="op">=</span> <span class="bool-val">true</span>;
                 } <span class="kw">else</span> {
@@ -1576,7 +1573,7 @@
 
     <span class="kw">let</span> <span class="ident">current_lt</span> <span class="op">=</span> <span class="ident">selected_lane</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">lane_type</span>);
 
-    <span class="kw">let</span> <span class="ident">current_lts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LaneType</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">road</span>.<span class="ident">lanes_ltr</span>().<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">lt</span>)<span class="op">|</span> <span class="ident">lt</span>).<span class="ident">collect</span>();
+    <span class="kw">let</span> <span class="ident">current_lts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LaneType</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">road</span>.<span class="ident">lanes</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="ident">l</span>.<span class="ident">lane_type</span>).<span class="ident">collect</span>();
 
     <span class="kw">let</span> <span class="ident">lane_types</span> <span class="op">=</span> [
         (<span class="ident">LaneType::Driving</span>, <span class="prelude-val">Some</span>(<span class="ident">Key::D</span>)),
@@ -1650,11 +1647,14 @@
     ]);
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">drag_drop</span> <span class="op">=</span> <span class="ident">DragDrop::new</span>(<span class="ident">ctx</span>, <span class="string">&quot;lane cards&quot;</span>, <span class="ident">StackAxis::Horizontal</span>);
 
-    <span class="kw">let</span> <span class="ident">road_width</span> <span class="op">=</span> <span class="ident">road</span>.<span class="ident">get_width</span>(<span class="ident">map</span>);
-    <span class="kw">let</span> <span class="ident">lanes_ltr</span> <span class="op">=</span> <span class="ident">road</span>.<span class="ident">lanes_ltr</span>();
-    <span class="kw">let</span> <span class="ident">lanes_len</span> <span class="op">=</span> <span class="ident">lanes_ltr</span>.<span class="ident">len</span>();
+    <span class="kw">let</span> <span class="ident">road_width</span> <span class="op">=</span> <span class="ident">road</span>.<span class="ident">get_width</span>();
 
-    <span class="kw">for</span> (<span class="ident">idx</span>, (<span class="ident">id</span>, <span class="ident">dir</span>, <span class="ident">lt</span>)) <span class="kw">in</span> <span class="ident">lanes_ltr</span>.<span class="ident">into_iter</span>().<span class="ident">enumerate</span>() {
+    <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">road</span>.<span class="ident">lanes</span> {
+        <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="ident">l</span>.<span class="ident">id</span>.<span class="ident">offset</span>;
+        <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">l</span>.<span class="ident">id</span>;
+        <span class="kw">let</span> <span class="ident">dir</span> <span class="op">=</span> <span class="ident">l</span>.<span class="ident">dir</span>;
+        <span class="kw">let</span> <span class="ident">lt</span> <span class="op">=</span> <span class="ident">l</span>.<span class="ident">lane_type</span>;
+
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">icon_stack</span> <span class="op">=</span> <span class="ident">GeomBatchStack::vertical</span>(<span class="macro">vec!</span>[
             <span class="ident">Image::from_path</span>(<span class="ident">lane_type_to_icon</span>(<span class="ident">lt</span>).<span class="ident">unwrap</span>())
                 .<span class="ident">dims</span>((<span class="number">60.0</span>, <span class="number">50.0</span>))
@@ -1687,7 +1687,7 @@
         <span class="kw">if</span> <span class="ident">idx</span> <span class="op">=</span><span class="op">=</span> <span class="number">0</span> {
             <span class="ident">rounding</span>.<span class="ident">top_left</span> <span class="op">=</span> <span class="ident">DEFAULT_CORNER_RADIUS</span>;
         }
-        <span class="kw">if</span> <span class="ident">idx</span> <span class="op">=</span><span class="op">=</span> <span class="ident">lanes_len</span> <span class="op">-</span> <span class="number">1</span> {
+        <span class="kw">if</span> <span class="ident">idx</span> <span class="op">=</span><span class="op">=</span> <span class="ident">road</span>.<span class="ident">lanes</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span> {
             <span class="ident">rounding</span>.<span class="ident">top_right</span> <span class="op">=</span> <span class="ident">DEFAULT_CORNER_RADIUS</span>;
         }
 
@@ -1809,7 +1809,7 @@
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
                     .<span class="ident">btn_solid_destructive</span>
                     .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/trash.svg&quot;</span>)
-                    .<span class="ident">disabled</span>(<span class="ident">road</span>.<span class="ident">lanes_ltr</span>().<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="number">1</span>)
+                    .<span class="ident">disabled</span>(<span class="ident">road</span>.<span class="ident">lanes</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="number">1</span>)
                     .<span class="ident">hotkey</span>(<span class="ident">Key::Backspace</span>)
                     .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;delete lane&quot;</span>)
                     .<span class="ident">centered_vert</span>(),
@@ -1986,8 +1986,10 @@
 
 <span class="kw">fn</span> <span class="ident">width_choices</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">l</span>: <span class="ident">LaneID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Choice</span><span class="op">&lt;</span><span class="ident">Distance</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">lane</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>);
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">choices</span> <span class="op">=</span>
-        <span class="ident">LaneSpec::typical_lane_widths</span>(<span class="ident">lane</span>.<span class="ident">lane_type</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">lane</span>.<span class="ident">parent</span>).<span class="ident">osm_tags</span>);
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">choices</span> <span class="op">=</span> <span class="ident">LaneSpec::typical_lane_widths</span>(
+        <span class="ident">lane</span>.<span class="ident">lane_type</span>,
+        <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">lane</span>.<span class="ident">id</span>.<span class="ident">road</span>).<span class="ident">osm_tags</span>,
+    );
     <span class="kw">if</span> <span class="op">!</span><span class="ident">choices</span>.<span class="ident">iter</span>().<span class="ident">any</span>(<span class="op">|</span>(<span class="ident">x</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="kw-2">*</span><span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="ident">lane</span>.<span class="ident">width</span>) {
         <span class="ident">choices</span>.<span class="ident">push</span>((<span class="ident">lane</span>.<span class="ident">width</span>, <span class="string">&quot;custom&quot;</span>));
     }
@@ -2010,7 +2012,7 @@
 <span class="kw">fn</span> <span class="ident">fade_irrelevant</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">r</span>: <span class="ident">RoadID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">GeomBatch</span> {
     <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>;
     <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>);
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">holes</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">road</span>.<span class="ident">get_thick_polygon</span>(<span class="ident">map</span>)];
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">holes</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">road</span>.<span class="ident">get_thick_polygon</span>()];
     <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> [<span class="ident">road</span>.<span class="ident">src_i</span>, <span class="ident">road</span>.<span class="ident">dst_i</span>] {
         <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>);
         <span class="ident">holes</span>.<span class="ident">push</span>(<span class="ident">i</span>.<span class="ident">polygon</span>.<span class="ident">clone</span>());
@@ -2033,10 +2035,10 @@
     <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>;
     <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>);
     <span class="kw">let</span> <span class="ident">take_num</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">from</span> <span class="op">&lt;</span> <span class="ident">to</span> { <span class="ident">to</span> <span class="op">+</span> <span class="number">1</span> } <span class="kw">else</span> { <span class="ident">to</span> };
-    <span class="kw">for</span> (<span class="ident">l</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="ident">road</span>.<span class="ident">lanes_ltr</span>().<span class="ident">into_iter</span>().<span class="ident">take</span>(<span class="ident">take_num</span>) {
-        <span class="ident">width</span> <span class="op">+</span><span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">width</span>;
+    <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="ident">road</span>.<span class="ident">lanes</span>.<span class="ident">iter</span>().<span class="ident">take</span>(<span class="ident">take_num</span>) {
+        <span class="ident">width</span> <span class="op">+</span><span class="op">=</span> <span class="ident">l</span>.<span class="ident">width</span>;
     }
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">pl</span>) <span class="op">=</span> <span class="ident">road</span>.<span class="ident">get_left_side</span>(<span class="ident">map</span>).<span class="ident">shift_right</span>(<span class="ident">width</span>) {
+    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">pl</span>) <span class="op">=</span> <span class="ident">road</span>.<span class="ident">get_left_side</span>().<span class="ident">shift_right</span>(<span class="ident">width</span>) {
         <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">selected</span>, <span class="ident">pl</span>.<span class="ident">make_polygons</span>(<span class="ident">OUTLINE_THICKNESS</span>));
     }
     <span class="ident">batch</span>

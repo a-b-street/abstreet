@@ -624,8 +624,8 @@
         }
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lanes</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">LaneID</span>, <span class="ident">DrawLane</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
-        <span class="ident">timer</span>.<span class="ident">start_iter</span>(<span class="string">&quot;make DrawLanes&quot;</span>, <span class="ident">map</span>.<span class="ident">all_lanes</span>().<span class="ident">len</span>());
-        <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_lanes</span>().<span class="ident">values</span>() {
+        <span class="ident">timer</span>.<span class="ident">start_iter</span>(<span class="string">&quot;make DrawLanes&quot;</span>, <span class="ident">map</span>.<span class="ident">all_lanes</span>().<span class="ident">count</span>());
+        <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_lanes</span>() {
             <span class="ident">timer</span>.<span class="ident">next</span>();
             <span class="ident">lanes</span>.<span class="ident">insert</span>(<span class="ident">l</span>.<span class="ident">id</span>, <span class="ident">DrawLane::new</span>(<span class="ident">l</span>, <span class="ident">map</span>));
         }
@@ -710,8 +710,8 @@
         <span class="comment">// Since lanes is a HashMap, iteration order is nondeterministic. When lanes happen to</span>
         <span class="comment">// cover each other up, this leads to nondeterministic drawing order! This manifests quite</span>
         <span class="comment">// prominently in screenshot diff tests.</span>
-        <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_lanes</span>().<span class="ident">keys</span>() {
-            <span class="kw">let</span> <span class="ident">obj</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">lanes</span>[<span class="ident">l</span>];
+        <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_lanes</span>() {
+            <span class="kw">let</span> <span class="ident">obj</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">lanes</span>[<span class="kw-2">&amp;</span><span class="ident">l</span>.<span class="ident">id</span>];
             <span class="kw">let</span> <span class="ident">item_id</span> <span class="op">=</span>
                 <span class="ident">quadtree</span>.<span class="ident">insert_with_box</span>(<span class="ident">obj</span>.<span class="ident">get_id</span>(), <span class="ident">obj</span>.<span class="ident">get_outline</span>(<span class="ident">map</span>).<span class="ident">get_bounds</span>().<span class="ident">as_bbox</span>());
             <span class="ident">quadtree_ids</span>.<span class="ident">insert</span>(<span class="ident">obj</span>.<span class="ident">get_id</span>(), <span class="ident">item_id</span>);
@@ -781,7 +781,7 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">unzoomed_pieces</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">isize</span>, <span class="ident">Color</span>, <span class="ident">Polygon</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
 
         <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_roads</span>() {
-            <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">get_width</span>(<span class="ident">map</span>);
+            <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">get_width</span>();
 
             <span class="ident">unzoomed_pieces</span>.<span class="ident">push</span>((
                 <span class="number">10</span> <span class="op">*</span> <span class="ident">r</span>.<span class="ident">zorder</span>,
@@ -1016,7 +1016,7 @@
             <span class="ident">batch</span>.<span class="ident">append</span>(<span class="ident">DrawParkingLot::new</span>(<span class="ident">ctx</span>, <span class="ident">pl</span>, <span class="ident">cs</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GeomBatch::new</span>()).<span class="ident">render</span>(<span class="ident">app</span>));
         }
 
-        <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_lanes</span>().<span class="ident">values</span>() {
+        <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_lanes</span>() {
             <span class="ident">batch</span>.<span class="ident">append</span>(<span class="ident">DrawLane::new</span>(<span class="ident">l</span>, <span class="ident">map</span>).<span class="ident">render</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
         }
 

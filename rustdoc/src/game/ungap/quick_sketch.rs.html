@@ -333,6 +333,7 @@
 <span id="331">331</span>
 <span id="332">332</span>
 <span id="333">333</span>
+<span id="334">334</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">abstutil::Tags</span>;
 <span class="kw">use</span> <span class="ident">map_gui::tools::PopupMsg</span>;
@@ -491,6 +492,7 @@
     <span class="macro">vec!</span>[<span class="macro">format!</span>(<span class="string">&quot;Changed {} segments&quot;</span>, <span class="ident">num_changes</span>)]
 }
 
+<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::unnecessary_unwrap</span>)]</span>
 <span class="kw">fn</span> <span class="ident">maybe_add_bike_lanes</span>(<span class="ident">r</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EditRoad</span>, <span class="ident">buffer_type</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BufferType</span><span class="op">&gt;</span>) {
     <span class="kw">let</span> <span class="ident">dummy_tags</span> <span class="op">=</span> <span class="ident">Tags::empty</span>();
 

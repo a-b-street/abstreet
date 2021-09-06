@@ -690,7 +690,7 @@
             <span class="kw">for</span> <span class="ident">step</span> <span class="kw">in</span> <span class="ident">path</span>.<span class="ident">get_steps</span>() {
                 <span class="kw">match</span> <span class="ident">step</span>.<span class="ident">as_traversable</span>() {
                     <span class="ident">Traversable::Lane</span>(<span class="ident">l</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                        <span class="ident">cnt_per_r</span>.<span class="ident">inc</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">parent</span>);
+                        <span class="ident">cnt_per_r</span>.<span class="ident">inc</span>(<span class="ident">l</span>.<span class="ident">road</span>);
                     }
                     <span class="ident">Traversable::Turn</span>(<span class="ident">t</span>) <span class="op">=</span><span class="op">&gt;</span> {
                         <span class="ident">cnt_per_i</span>.<span class="ident">inc</span>(<span class="ident">t</span>.<span class="ident">parent</span>);

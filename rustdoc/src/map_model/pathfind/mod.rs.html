@@ -204,12 +204,6 @@
 <span id="202">202</span>
 <span id="203">203</span>
 <span id="204">204</span>
-<span id="205">205</span>
-<span id="206">206</span>
-<span id="207">207</span>
-<span id="208">208</span>
-<span id="209">209</span>
-<span id="210">210</span>
 </pre><pre class="rust">
 <span class="doccomment">//! Everything related to pathfinding through a map for different types of agents.</span>
 
@@ -283,7 +277,7 @@
                     <span class="bool-val">true</span>
                 } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">lane</span>.<span class="ident">is_driving</span>() <span class="op">|</span><span class="op">|</span> (<span class="ident">lane</span>.<span class="ident">is_bus</span>() <span class="op">&amp;&amp;</span> <span class="ident">map</span>.<span class="ident">config</span>.<span class="ident">bikes_can_use_bus_lanes</span>)
                 {
-                    <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">lane</span>.<span class="ident">parent</span>);
+                    <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">lane</span>.<span class="ident">id</span>.<span class="ident">road</span>);
                     <span class="op">!</span><span class="ident">road</span>.<span class="ident">osm_tags</span>.<span class="ident">is</span>(<span class="string">&quot;bicycle&quot;</span>, <span class="string">&quot;no&quot;</span>)
                         <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">road</span>
                             .<span class="ident">osm_tags</span>
@@ -315,7 +309,8 @@
         <span class="comment">//    practice this isn&#39;t an issue; a bus lane often leads to another one, but the next bus</span>
         <span class="comment">//    lane won&#39;t also be an exclusive turn lane.</span>
         <span class="kw">if</span> <span class="ident">lane</span>.<span class="ident">is_bus</span>() {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">types</span>) <span class="op">=</span> <span class="ident">lane</span>.<span class="ident">get_lane_level_turn_restrictions</span>(<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">lane</span>.<span class="ident">parent</span>), <span class="bool-val">true</span>)
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">types</span>) <span class="op">=</span>
+                <span class="ident">lane</span>.<span class="ident">get_lane_level_turn_restrictions</span>(<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">lane</span>.<span class="ident">id</span>.<span class="ident">road</span>), <span class="bool-val">true</span>)
             {
                 <span class="kw">if</span> <span class="ident">types</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">TurnType::Right</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">types</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">TurnType::Left</span>) {
                     <span class="kw">return</span> <span class="bool-val">true</span>;
@@ -384,16 +379,9 @@
     <span class="comment">// that cost already includes a reduction of speed to account for the incline -- this is a</span>
     <span class="comment">// further &quot;delay&quot; on top of that!)</span>
     <span class="comment">// TODO But even steeper roads matter more!</span>
-    <span class="comment">// TODO Serialize as usual. Requires regenerating all maps, not ready to do that yet.</span>
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">skip_serializing</span>, <span class="ident">skip_deserializing</span>, <span class="ident">default</span> <span class="op">=</span> <span class="string">&quot;one&quot;</span>)]</span>
     <span class="kw">pub</span> <span class="ident">avoid_steep_incline_penalty</span>: <span class="ident">f64</span>,
     <span class="comment">// If the road is `high_stress_for_bikes`, multiply by the base cost.</span>
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">skip_serializing</span>, <span class="ident">skip_deserializing</span>, <span class="ident">default</span> <span class="op">=</span> <span class="string">&quot;one&quot;</span>)]</span>
     <span class="kw">pub</span> <span class="ident">avoid_high_stress</span>: <span class="ident">f64</span>,
-}
-
-<span class="kw">fn</span> <span class="ident">one</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">f64</span> {
-    <span class="number">1.0</span>
 }
 
 <span class="kw">impl</span> <span class="ident">RoutingParams</span> {

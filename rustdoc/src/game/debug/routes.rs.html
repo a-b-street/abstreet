@@ -1102,7 +1102,7 @@
         <span class="ident">timer</span>.<span class="ident">next</span>();
         <span class="kw">for</span> <span class="ident">step</span> <span class="kw">in</span> <span class="ident">path</span>.<span class="ident">get_steps</span>() {
             <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Traversable::Lane</span>(<span class="ident">l</span>) <span class="op">=</span> <span class="ident">step</span>.<span class="ident">as_traversable</span>() {
-                <span class="ident">counter</span>.<span class="ident">inc</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">parent</span>);
+                <span class="ident">counter</span>.<span class="ident">inc</span>(<span class="ident">l</span>.<span class="ident">road</span>);
             }
         }
     }

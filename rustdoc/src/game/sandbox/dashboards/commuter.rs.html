@@ -717,8 +717,6 @@
 <span id="715">715</span>
 <span id="716">716</span>
 <span id="717">717</span>
-<span id="718">718</span>
-<span id="719">719</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
@@ -1358,7 +1356,7 @@
             <span class="ident">groups</span>.<span class="ident">push</span>(<span class="ident">Loop</span> {
                 <span class="ident">bldgs</span>,
                 <span class="ident">proper</span>: <span class="bool-val">true</span>,
-                <span class="ident">roads</span>: <span class="ident">sidewalks</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">parent</span>).<span class="ident">collect</span>(),
+                <span class="ident">roads</span>: <span class="ident">sidewalks</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="ident">l</span>.<span class="ident">road</span>).<span class="ident">collect</span>(),
             });
         } <span class="kw">else</span> {
             <span class="ident">remainder</span>.<span class="ident">extend</span>(<span class="ident">bldgs</span>);
@@ -1406,9 +1404,7 @@
         <span class="ident">per_sidewalk</span>.<span class="ident">insert</span>(<span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">b</span>).<span class="ident">sidewalk</span>(), <span class="ident">b</span>);
     }
     <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">bldgs</span>) <span class="kw">in</span> <span class="ident">per_sidewalk</span>.<span class="ident">consume</span>() {
-        <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>
-            .<span class="ident">get_l</span>(<span class="ident">map</span>.<span class="ident">get_b</span>(<span class="kw-2">*</span><span class="ident">bldgs</span>.<span class="ident">iter</span>().<span class="ident">next</span>().<span class="ident">unwrap</span>()).<span class="ident">sidewalk</span>())
-            .<span class="ident">parent</span>;
+        <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_b</span>(<span class="kw-2">*</span><span class="ident">bldgs</span>.<span class="ident">iter</span>().<span class="ident">next</span>().<span class="ident">unwrap</span>()).<span class="ident">sidewalk</span>().<span class="ident">road</span>;
         <span class="ident">groups</span>.<span class="ident">push</span>(<span class="ident">Loop</span> {
             <span class="ident">bldgs</span>: <span class="ident">bldgs</span>.<span class="ident">into_iter</span>().<span class="ident">collect</span>(),
             <span class="ident">proper</span>: <span class="bool-val">false</span>,

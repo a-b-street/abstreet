@@ -609,14 +609,14 @@
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">incoming_pts</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">outgoing_pts</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
 
-            <span class="kw">for</span> (<span class="ident">l</span>, <span class="ident">dir</span>, <span class="ident">lt</span>) <span class="kw">in</span> <span class="ident">r</span>.<span class="ident">lanes_ltr</span>() {
-                <span class="kw">if</span> <span class="ident">lt</span>.<span class="ident">is_walkable</span>() {
+            <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">r</span>.<span class="ident">lanes</span> {
+                <span class="kw">if</span> <span class="ident">l</span>.<span class="ident">lane_type</span>.<span class="ident">is_walkable</span>() {
                     <span class="kw">continue</span>;
                 }
-                <span class="kw">if</span> <span class="ident">dir</span> <span class="op">=</span><span class="op">=</span> <span class="ident">incoming_id</span>.<span class="ident">dir</span> {
-                    <span class="ident">incoming_pts</span>.<span class="ident">push</span>(<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">lane_center_pts</span>.<span class="ident">last_pt</span>());
+                <span class="kw">if</span> <span class="ident">l</span>.<span class="ident">dir</span> <span class="op">=</span><span class="op">=</span> <span class="ident">incoming_id</span>.<span class="ident">dir</span> {
+                    <span class="ident">incoming_pts</span>.<span class="ident">push</span>(<span class="ident">l</span>.<span class="ident">lane_center_pts</span>.<span class="ident">last_pt</span>());
                 } <span class="kw">else</span> {
-                    <span class="ident">outgoing_pts</span>.<span class="ident">push</span>(<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">lane_center_pts</span>.<span class="ident">first_pt</span>());
+                    <span class="ident">outgoing_pts</span>.<span class="ident">push</span>(<span class="ident">l</span>.<span class="ident">lane_center_pts</span>.<span class="ident">first_pt</span>());
                 }
             }
 

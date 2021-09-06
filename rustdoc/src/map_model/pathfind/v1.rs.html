@@ -739,8 +739,6 @@
 <span id="737">737</span>
 <span id="738">738</span>
 <span id="739">739</span>
-<span id="740">740</span>
-<span id="741">741</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections::VecDeque</span>;
 <span class="kw">use</span> <span class="ident">std::fmt</span>;
@@ -1360,22 +1358,20 @@
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PathRequest</span> {
         <span class="kw">let</span> <span class="ident">alt_start</span> <span class="op">=</span> (<span class="op">|</span><span class="op">|</span> {
             <span class="kw">let</span> <span class="ident">start_lane</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">start</span>.<span class="ident">lane</span>());
-            <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">start_lane</span>.<span class="ident">parent</span>);
+            <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">start_lane</span>.<span class="ident">id</span>.<span class="ident">road</span>);
             <span class="comment">// If start and end road match, don&#39;t exit offside</span>
             <span class="comment">// TODO Sometimes this is valid! Just not if we&#39;re trying to go behind ourselves</span>
-            <span class="kw">if</span> <span class="ident">road</span>.<span class="ident">id</span> <span class="op">=</span><span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">end</span>.<span class="ident">lane</span>()).<span class="ident">parent</span> {
+            <span class="kw">if</span> <span class="ident">road</span>.<span class="ident">id</span> <span class="op">=</span><span class="op">=</span> <span class="ident">end</span>.<span class="ident">lane</span>().<span class="ident">road</span> {
                 <span class="kw">return</span> <span class="prelude-val">None</span>;
             }
             <span class="kw">let</span> <span class="ident">offside_dir</span> <span class="op">=</span> <span class="ident">start_lane</span>.<span class="ident">dir</span>.<span class="ident">opposite</span>();
-            <span class="kw">let</span> <span class="ident">alt_lane</span> <span class="op">=</span> <span class="ident">road</span>.<span class="ident">find_closest_lane</span>(
-                <span class="ident">start_lane</span>.<span class="ident">id</span>,
-                <span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="ident">l</span>.<span class="ident">dir</span> <span class="op">=</span><span class="op">=</span> <span class="ident">offside_dir</span> <span class="op">&amp;&amp;</span> <span class="ident">constraints</span>.<span class="ident">can_use</span>(<span class="ident">l</span>, <span class="ident">map</span>),
-                <span class="ident">map</span>,
-            )<span class="question-mark">?</span>;
+            <span class="kw">let</span> <span class="ident">alt_lane</span> <span class="op">=</span> <span class="ident">road</span>.<span class="ident">find_closest_lane</span>(<span class="ident">start_lane</span>.<span class="ident">id</span>, <span class="op">|</span><span class="ident">l</span><span class="op">|</span> {
+                <span class="ident">l</span>.<span class="ident">dir</span> <span class="op">=</span><span class="op">=</span> <span class="ident">offside_dir</span> <span class="op">&amp;&amp;</span> <span class="ident">constraints</span>.<span class="ident">can_use</span>(<span class="ident">l</span>, <span class="ident">map</span>)
+            })<span class="question-mark">?</span>;
             <span class="comment">// TODO Do we need buffer_dist like driving_connection does?</span>
             <span class="kw">let</span> <span class="ident">pos</span> <span class="op">=</span> <span class="ident">start</span>.<span class="ident">equiv_pos</span>(<span class="ident">alt_lane</span>, <span class="ident">map</span>);
             <span class="kw">let</span> <span class="ident">number_lanes_between</span> <span class="op">=</span>
-                ((<span class="ident">road</span>.<span class="ident">offset</span>(<span class="ident">start_lane</span>.<span class="ident">id</span>) <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">-</span> (<span class="ident">road</span>.<span class="ident">offset</span>(<span class="ident">alt_lane</span>) <span class="kw">as</span> <span class="ident">f64</span>)).<span class="ident">abs</span>();
+                ((<span class="ident">start_lane</span>.<span class="ident">id</span>.<span class="ident">offset</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">-</span> (<span class="ident">alt_lane</span>.<span class="ident">offset</span> <span class="kw">as</span> <span class="ident">f64</span>)).<span class="ident">abs</span>();
             <span class="comment">// TODO Tune the cost of cutting across lanes</span>
             <span class="kw">let</span> <span class="ident">cost</span> <span class="op">=</span> <span class="ident">Duration::seconds</span>(<span class="number">10.0</span>) <span class="op">*</span> <span class="ident">number_lanes_between</span>;
             <span class="prelude-val">Some</span>((<span class="ident">pos</span>, <span class="ident">cost</span>))
@@ -1438,8 +1434,8 @@
             (<span class="ident">triple</span>[<span class="number">0</span>], <span class="ident">triple</span>[<span class="number">2</span>], <span class="ident">triple</span>[<span class="number">4</span>])
         {
             <span class="kw">let</span> <span class="ident">from</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_parent</span>(<span class="ident">l1</span>);
-            <span class="kw">let</span> <span class="ident">via</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l2</span>).<span class="ident">parent</span>;
-            <span class="kw">let</span> <span class="ident">to</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l3</span>).<span class="ident">parent</span>;
+            <span class="kw">let</span> <span class="ident">via</span> <span class="op">=</span> <span class="ident">l2</span>.<span class="ident">road</span>;
+            <span class="kw">let</span> <span class="ident">to</span> <span class="op">=</span> <span class="ident">l3</span>.<span class="ident">road</span>;
 
             <span class="kw">for</span> (<span class="ident">dont_via</span>, <span class="ident">dont_to</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">from</span>.<span class="ident">complicated_turn_restrictions</span> {
                 <span class="kw">if</span> <span class="ident">via</span> <span class="op">=</span><span class="op">=</span> <span class="kw-2">*</span><span class="ident">dont_via</span> <span class="op">&amp;&amp;</span> <span class="ident">to</span> <span class="op">=</span><span class="op">=</span> <span class="kw-2">*</span><span class="ident">dont_to</span> {

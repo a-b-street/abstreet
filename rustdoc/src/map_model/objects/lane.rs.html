@@ -557,13 +557,67 @@
 <span id="555">555</span>
 <span id="556">556</span>
 <span id="557">557</span>
+<span id="558">558</span>
+<span id="559">559</span>
+<span id="560">560</span>
+<span id="561">561</span>
+<span id="562">562</span>
+<span id="563">563</span>
+<span id="564">564</span>
+<span id="565">565</span>
+<span id="566">566</span>
+<span id="567">567</span>
+<span id="568">568</span>
+<span id="569">569</span>
+<span id="570">570</span>
+<span id="571">571</span>
+<span id="572">572</span>
+<span id="573">573</span>
+<span id="574">574</span>
+<span id="575">575</span>
+<span id="576">576</span>
+<span id="577">577</span>
+<span id="578">578</span>
+<span id="579">579</span>
+<span id="580">580</span>
+<span id="581">581</span>
+<span id="582">582</span>
+<span id="583">583</span>
+<span id="584">584</span>
+<span id="585">585</span>
+<span id="586">586</span>
+<span id="587">587</span>
+<span id="588">588</span>
+<span id="589">589</span>
+<span id="590">590</span>
+<span id="591">591</span>
+<span id="592">592</span>
+<span id="593">593</span>
+<span id="594">594</span>
+<span id="595">595</span>
+<span id="596">596</span>
+<span id="597">597</span>
+<span id="598">598</span>
+<span id="599">599</span>
+<span id="600">600</span>
+<span id="601">601</span>
+<span id="602">602</span>
+<span id="603">603</span>
+<span id="604">604</span>
+<span id="605">605</span>
+<span id="606">606</span>
+<span id="607">607</span>
+<span id="608">608</span>
+<span id="609">609</span>
+<span id="610">610</span>
+<span id="611">611</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
 <span class="kw">use</span> <span class="ident">std::fmt</span>;
 
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Deserializer</span>, <span class="ident">Serialize</span>, <span class="ident">Serializer</span>};
 
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">deserialize_usize</span>, <span class="ident">serialize_usize</span>, <span class="ident">wraparound_get</span>, <span class="ident">Tags</span>};
+<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">wraparound_get</span>, <span class="ident">Tags</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Line</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -580,18 +634,61 @@
 <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SIDEWALK_THICKNESS</span>: <span class="ident">Distance</span> <span class="op">=</span> <span class="ident">Distance::const_meters</span>(<span class="number">1.5</span>);
 <span class="kw">const</span> <span class="ident">SHOULDER_THICKNESS</span>: <span class="ident">Distance</span> <span class="op">=</span> <span class="ident">Distance::const_meters</span>(<span class="number">0.5</span>);
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">Eq</span>, <span class="ident">Hash</span>, <span class="ident">PartialEq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">LaneID</span>(
-    <span class="attribute">#[<span class="ident">serde</span>(
-        <span class="ident">serialize_with</span> <span class="op">=</span> <span class="string">&quot;serialize_usize&quot;</span>,
-        <span class="ident">deserialize_with</span> <span class="op">=</span> <span class="string">&quot;deserialize_usize&quot;</span>
-    )]</span>
-    <span class="kw">pub</span> <span class="ident">usize</span>,
-);
+<span class="doccomment">/// A lane is identified by its parent road and its position, ordered from the left.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">Eq</span>, <span class="ident">Hash</span>, <span class="ident">PartialEq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">LaneID</span> {
+    <span class="kw">pub</span> <span class="ident">road</span>: <span class="ident">RoadID</span>,
+    <span class="kw">pub</span> <span class="ident">offset</span>: <span class="ident">usize</span>,
+}
 
 <span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">LaneID</span> {
     <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt::Formatter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">fmt::Result</span> {
-        <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Lane #{}&quot;</span>, <span class="self">self</span>.<span class="number">0</span>)
+        <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Lane #{}&quot;</span>, <span class="self">self</span>.<span class="ident">encode_u32</span>())
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">LaneID</span> {
+    <span class="comment">// TODO Do we have an endianness problem, or does serde take care of us?</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">encode_u32</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">u32</span> {
+        <span class="comment">// The first 27 bits encode the RoadID, the last 5 the offset.</span>
+        <span class="comment">//</span>
+        <span class="comment">// (In some Houston area dystopia, we might want 2^5 = 32 lanes on one road. That leaves 27</span>
+        <span class="comment">// bits for roads -- 134 million roads should be plenty.)</span>
+        <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">road</span>.<span class="number">0</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">5</span>;
+        (<span class="ident">road</span> <span class="op">|</span> <span class="self">self</span>.<span class="ident">offset</span>) <span class="kw">as</span> <span class="ident">u32</span>
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">decode_u32</span>(<span class="ident">x</span>: <span class="ident">u32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">LaneID</span> {
+        <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">RoadID</span>((<span class="ident">x</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">5</span>) <span class="kw">as</span> <span class="ident">usize</span>);
+        <span class="comment">// My bit twiddling is weak. Easier way to get a binary mask starting with 11111?</span>
+        <span class="kw">let</span> <span class="ident">offset</span> <span class="op">=</span> (<span class="ident">x</span> <span class="op">&amp;</span> (<span class="number">1</span> <span class="op">+</span> <span class="number">2</span> <span class="op">+</span> <span class="number">4</span> <span class="op">+</span> <span class="number">8</span> <span class="op">+</span> <span class="number">16</span>)) <span class="kw">as</span> <span class="ident">usize</span>;
+        <span class="ident">LaneID</span> { <span class="ident">road</span>, <span class="ident">offset</span> }
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dummy</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">LaneID</span> {
+        <span class="ident">LaneID</span> {
+            <span class="ident">road</span>: <span class="ident">RoadID</span>(<span class="number">0</span>),
+            <span class="ident">offset</span>: <span class="number">0</span>,
+        }
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">Serialize</span> <span class="kw">for</span> <span class="ident">LaneID</span> {
+    <span class="kw">fn</span> <span class="ident">serialize</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">s</span>: <span class="ident">S</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">S::Ok</span>, <span class="ident">S::Error</span><span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="ident">S</span>: <span class="ident">Serializer</span>,
+    {
+        <span class="self">self</span>.<span class="ident">encode_u32</span>().<span class="ident">serialize</span>(<span class="ident">s</span>)
+    }
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="ident">Deserialize</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">LaneID</span> {
+    <span class="kw">fn</span> <span class="ident">deserialize</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>(<span class="ident">d</span>: <span class="ident">D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">LaneID</span>, <span class="ident">D::Error</span><span class="op">&gt;</span>
+    <span class="kw">where</span>
+        <span class="ident">D</span>: <span class="ident">Deserializer</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span>,
+    {
+        <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="ident">::deserialize</span>(<span class="ident">d</span>)<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(<span class="ident">LaneID::decode_u32</span>(<span class="ident">x</span>))
     }
 }
 
@@ -756,7 +853,6 @@
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Lane</span> {
     <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">LaneID</span>,
-    <span class="kw">pub</span> <span class="ident">parent</span>: <span class="ident">RoadID</span>,
     <span class="kw">pub</span> <span class="ident">lane_type</span>: <span class="ident">LaneType</span>,
     <span class="kw">pub</span> <span class="ident">lane_center_pts</span>: <span class="ident">PolyLine</span>,
     <span class="kw">pub</span> <span class="ident">width</span>: <span class="ident">Distance</span>,
@@ -879,7 +975,7 @@
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_directed_parent</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DirectedRoadID</span> {
         <span class="ident">DirectedRoadID</span> {
-            <span class="ident">id</span>: <span class="self">self</span>.<span class="ident">parent</span>,
+            <span class="ident">id</span>: <span class="self">self</span>.<span class="ident">id</span>.<span class="ident">road</span>,
             <span class="ident">dir</span>: <span class="self">self</span>.<span class="ident">dir</span>,
         }
     }
@@ -962,7 +1058,7 @@
         <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">id</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">current</span> <span class="op">=</span> <span class="ident">start</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">fwd</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_parent</span>(<span class="ident">start</span>).<span class="ident">lanes_ltr</span>()[<span class="number">0</span>].<span class="number">0</span> <span class="op">=</span><span class="op">=</span> <span class="ident">start</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">fwd</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_parent</span>(<span class="ident">start</span>).<span class="ident">lanes</span>[<span class="number">0</span>].<span class="ident">id</span> <span class="op">=</span><span class="op">=</span> <span class="ident">start</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">visited</span> <span class="op">=</span> <span class="ident">BTreeSet::new</span>();
         <span class="kw">loop</span> {
             <span class="kw">let</span> <span class="ident">l</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">current</span>);
@@ -993,19 +1089,17 @@
             <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">fwd</span> { <span class="ident">l</span>.<span class="ident">dst_i</span> } <span class="kw">else</span> { <span class="ident">l</span>.<span class="ident">src_i</span> };
             <span class="comment">// TODO Remove these debug statements entirely after stabilizing this</span>
             <span class="comment">//println!(&quot;{}, fwd={}, pointing to {}&quot;, current, fwd, i);</span>
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">roads</span> <span class="op">=</span> <span class="ident">map</span>
-                .<span class="ident">get_i</span>(<span class="ident">i</span>)
-                .<span class="ident">get_roads_sorted_by_incoming_angle</span>(<span class="ident">map</span>.<span class="ident">all_roads</span>());
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">roads</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>).<span class="ident">get_roads_sorted_by_incoming_angle</span>(<span class="ident">map</span>);
             <span class="ident">roads</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="op">!</span><span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>).<span class="ident">is_footway</span>());
-            <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="ident">roads</span>.<span class="ident">iter</span>().<span class="ident">position</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">r</span> <span class="op">=</span><span class="op">=</span> <span class="ident">l</span>.<span class="ident">parent</span>).<span class="ident">unwrap</span>();
+            <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="ident">roads</span>.<span class="ident">iter</span>().<span class="ident">position</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">r</span> <span class="op">=</span><span class="op">=</span> <span class="ident">l</span>.<span class="ident">id</span>.<span class="ident">road</span>).<span class="ident">unwrap</span>();
             <span class="comment">// Get the next road counter-clockwise</span>
             <span class="kw">let</span> <span class="ident">next_road</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">wraparound_get</span>(<span class="kw-2">&amp;</span><span class="ident">roads</span>, (<span class="ident">idx</span> <span class="kw">as</span> <span class="ident">isize</span>) <span class="op">+</span> <span class="number">1</span>));
             <span class="comment">// Depending on if this road points to or from the intersection, get the left- or</span>
             <span class="comment">// right-most lane.</span>
             <span class="kw">let</span> <span class="ident">next_lane</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">next_road</span>.<span class="ident">src_i</span> <span class="op">=</span><span class="op">=</span> <span class="ident">i</span> {
-                <span class="ident">next_road</span>.<span class="ident">lanes_ltr</span>()[<span class="number">0</span>].<span class="number">0</span>
+                <span class="ident">next_road</span>.<span class="ident">lanes</span>[<span class="number">0</span>].<span class="ident">id</span>
             } <span class="kw">else</span> {
-                <span class="ident">next_road</span>.<span class="ident">lanes_ltr</span>().<span class="ident">last</span>().<span class="ident">unwrap</span>().<span class="number">0</span>
+                <span class="ident">next_road</span>.<span class="ident">lanes</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>().<span class="ident">id</span>
             };
             <span class="kw">if</span> <span class="ident">next_lane</span> <span class="op">=</span><span class="op">=</span> <span class="ident">start</span> {
                 <span class="kw">break</span>;
@@ -1113,6 +1207,20 @@
             <span class="macro">warn!</span>(<span class="string">&quot;Unknown turn restriction {}&quot;</span>, <span class="ident">x</span>);
             <span class="macro">vec!</span>[]
         }
+    }
+}
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
+<span class="kw">mod</span> <span class="ident">tests</span> {
+    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_lane_id_encoding</span>() {
+        <span class="kw">let</span> <span class="ident">l</span> <span class="op">=</span> <span class="ident">LaneID</span> {
+            <span class="ident">road</span>: <span class="ident">RoadID</span>(<span class="number">42</span>),
+            <span class="ident">offset</span>: <span class="number">3</span>,
+        };
+        <span class="macro">assert_eq!</span>(<span class="ident">l</span>, <span class="ident">LaneID::decode_u32</span>(<span class="ident">l</span>.<span class="ident">encode_u32</span>()));
     }
 }
 </pre></div>

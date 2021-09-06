@@ -961,11 +961,6 @@
 <span id="959">959</span>
 <span id="960">960</span>
 <span id="961">961</span>
-<span id="962">962</span>
-<span id="963">963</span>
-<span id="964">964</span>
-<span id="965">965</span>
-<span id="966">966</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeSet</span>, <span class="ident">VecDeque</span>};
 
@@ -1918,12 +1913,7 @@
         <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="kw-2">*</span><span class="ident">i</span>);
         <span class="ident">holes</span>.<span class="ident">push</span>(<span class="ident">i</span>.<span class="ident">polygon</span>.<span class="ident">clone</span>());
         <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">i</span>.<span class="ident">roads</span> {
-            <span class="ident">holes</span>.<span class="ident">push</span>(
-                <span class="ident">app</span>.<span class="ident">primary</span>
-                    .<span class="ident">map</span>
-                    .<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>)
-                    .<span class="ident">get_thick_polygon</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>),
-            );
+            <span class="ident">holes</span>.<span class="ident">push</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>).<span class="ident">get_thick_polygon</span>());
         }
     }
     <span class="comment">// The convex hull illuminates a bit more of the surrounding area, looks better</span>

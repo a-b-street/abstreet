@@ -238,7 +238,6 @@
 <span id="236">236</span>
 <span id="237">237</span>
 <span id="238">238</span>
-<span id="239">239</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashSet</span>};
 
@@ -275,9 +274,8 @@
 
     <span class="kw">let</span> <span class="ident">sidewalk_buffer</span> <span class="op">=</span> <span class="ident">Distance::meters</span>(<span class="number">7.5</span>);
     <span class="kw">let</span> <span class="ident">sidewalk_pts</span> <span class="op">=</span> <span class="ident">match_points_to_lanes</span>(
-        <span class="ident">map</span>.<span class="ident">get_bounds</span>(),
+        <span class="ident">map</span>,
         <span class="ident">query</span>,
-        <span class="ident">map</span>.<span class="ident">all_lanes</span>(),
         <span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="ident">l</span>.<span class="ident">is_walkable</span>(),
         <span class="comment">// Don&#39;t put connections too close to intersections</span>
         <span class="ident">sidewalk_buffer</span>,

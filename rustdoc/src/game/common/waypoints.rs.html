@@ -287,8 +287,6 @@
 <span id="285">285</span>
 <span id="286">286</span>
 <span id="287">287</span>
-<span id="288">288</span>
-<span id="289">289</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">FindClosest</span>, <span class="ident">Polygon</span>};
 <span class="kw">use</span> <span class="ident">sim::TripEndpoint</span>;
@@ -424,10 +422,8 @@
     <span class="doccomment">/// `get_panel_widget` again.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>, <span class="ident">outcome</span>: <span class="ident">Outcome</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">dragging</span> {
-            <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">redo_mouseover</span>() {
-                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">update_dragging</span>(<span class="ident">ctx</span>, <span class="ident">app</span>) <span class="op">=</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="bool-val">true</span>) {
-                    <span class="kw">return</span> <span class="bool-val">true</span>;
-                }
+            <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">redo_mouseover</span>() <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">update_dragging</span>(<span class="ident">ctx</span>, <span class="ident">app</span>) <span class="op">=</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="bool-val">true</span>) {
+                <span class="kw">return</span> <span class="bool-val">true</span>;
             }
             <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">left_mouse_button_released</span>() {
                 <span class="self">self</span>.<span class="ident">dragging</span> <span class="op">=</span> <span class="bool-val">false</span>;

@@ -896,7 +896,7 @@
                         <span class="ident">dir</span>,
                         <span class="comment">// Before this commit, lane widths weren&#39;t modifiable, so this lookup works</span>
                         <span class="comment">// for both &quot;old&quot; and &quot;new&quot;.</span>
-                        <span class="ident">width</span>: <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">road</span>.<span class="ident">lanes_ltr</span>()[<span class="ident">idx</span>].<span class="number">0</span>).<span class="ident">width</span>,
+                        <span class="ident">width</span>: <span class="ident">road</span>.<span class="ident">lanes</span>[<span class="ident">idx</span>].<span class="ident">width</span>,
                     });
                 }
                 <span class="ident">cmd</span>[<span class="ident">key</span>][<span class="string">&quot;lanes_ltr&quot;</span>] <span class="op">=</span> <span class="ident">serde_json::to_value</span>(<span class="ident">lanes_ltr</span>).<span class="ident">unwrap</span>();
@@ -1000,7 +1000,7 @@
         } <span class="kw">else</span> {
             <span class="ident">current_back</span>[<span class="self">self</span>.<span class="ident">idx</span>].<span class="number">0</span>
         };
-        <span class="prelude-val">Ok</span>((<span class="ident">r</span>.<span class="ident">id</span>, <span class="ident">r</span>.<span class="ident">offset</span>(<span class="ident">l</span>)))
+        <span class="prelude-val">Ok</span>((<span class="ident">r</span>.<span class="ident">id</span>, <span class="ident">l</span>.<span class="ident">offset</span>))
     }
 }
 </pre></div>

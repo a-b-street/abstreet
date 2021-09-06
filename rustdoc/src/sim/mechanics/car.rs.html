@@ -372,7 +372,6 @@
 <span id="370">370</span>
 <span id="371">371</span>
 <span id="372">372</span>
-<span id="373">373</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeSet</span>, <span class="ident">VecDeque</span>};
 
@@ -525,14 +524,14 @@
             } <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="ident">percent_time</span> <span class="op">=</span> <span class="number">1.0</span> <span class="op">-</span> <span class="ident">lc_time</span>.<span class="ident">percent</span>(<span class="ident">now</span>);
                 <span class="comment">// TODO Can probably simplify this! Lifted from the parking case</span>
-                <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_parent</span>(<span class="ident">from</span>);
                 <span class="comment">// The car&#39;s body is already at &#39;to&#39;, so shift back</span>
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">diff</span> <span class="op">=</span> (<span class="ident">r</span>.<span class="ident">offset</span>(<span class="ident">to</span>) <span class="kw">as</span> <span class="ident">isize</span>) <span class="op">-</span> (<span class="ident">r</span>.<span class="ident">offset</span>(<span class="ident">from</span>) <span class="kw">as</span> <span class="ident">isize</span>);
-                <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">from</span>).<span class="ident">dir</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Direction::Fwd</span> {
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">diff</span> <span class="op">=</span> (<span class="ident">to</span>.<span class="ident">offset</span> <span class="kw">as</span> <span class="ident">isize</span>) <span class="op">-</span> (<span class="ident">from</span>.<span class="ident">offset</span> <span class="kw">as</span> <span class="ident">isize</span>);
+                <span class="kw">let</span> <span class="ident">from</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">from</span>);
+                <span class="kw">if</span> <span class="ident">from</span>.<span class="ident">dir</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Direction::Fwd</span> {
                     <span class="ident">diff</span> <span class="kw-2">*</span><span class="op">=</span> <span class="op">-</span><span class="number">1</span>;
                 }
                 <span class="comment">// TODO Careful with this width math</span>
-                <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">from</span>).<span class="ident">width</span> <span class="op">*</span> (<span class="ident">diff</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">*</span> <span class="ident">percent_time</span>;
+                <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span> <span class="ident">from</span>.<span class="ident">width</span> <span class="op">*</span> (<span class="ident">diff</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">*</span> <span class="ident">percent_time</span>;
                 <span class="kw">match</span> <span class="ident">raw_body</span>.<span class="ident">shift_right</span>(<span class="ident">width</span>) {
                     <span class="prelude-val">Ok</span>(<span class="ident">pl</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">pl</span>,
                     <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> {
@@ -557,9 +556,8 @@
                 };
                 <span class="kw">match</span> <span class="ident">spot</span> {
                     <span class="ident">ParkingSpot::Onstreet</span>(<span class="ident">parking_l</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                        <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_parent</span>(<span class="kw-2">*</span><span class="ident">parking_l</span>);
-                        <span class="kw">let</span> <span class="ident">driving_offset</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">offset</span>(<span class="self">self</span>.<span class="ident">router</span>.<span class="ident">head</span>().<span class="ident">as_lane</span>());
-                        <span class="kw">let</span> <span class="ident">parking_offset</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">offset</span>(<span class="kw-2">*</span><span class="ident">parking_l</span>);
+                        <span class="kw">let</span> <span class="ident">driving_offset</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">router</span>.<span class="ident">head</span>().<span class="ident">as_lane</span>().<span class="ident">offset</span>;
+                        <span class="kw">let</span> <span class="ident">parking_offset</span> <span class="op">=</span> <span class="ident">parking_l</span>.<span class="ident">offset</span>;
                         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">diff</span> <span class="op">=</span> (<span class="ident">parking_offset</span> <span class="kw">as</span> <span class="ident">isize</span>) <span class="op">-</span> (<span class="ident">driving_offset</span> <span class="kw">as</span> <span class="ident">isize</span>);
                         <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="self">self</span>.<span class="ident">router</span>.<span class="ident">head</span>().<span class="ident">as_lane</span>()).<span class="ident">dir</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Direction::Back</span> {
                             <span class="ident">diff</span> <span class="kw-2">*</span><span class="op">=</span> <span class="op">-</span><span class="number">1</span>;

@@ -136,9 +136,6 @@
 <span id="134">134</span>
 <span id="135">135</span>
 <span id="136">136</span>
-<span id="137">137</span>
-<span id="138">138</span>
-<span id="139">139</span>
 </pre><pre class="rust">
 <span class="comment">// This is a tool that runs a simulation, constantly interrupting to apply random map edits to the</span>
 <span class="comment">// live sim without resetting to midnight. The purpose is to trigger crashes and find bugs.</span>
@@ -240,9 +237,8 @@
 
     <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="ident">active_destinations</span>.<span class="ident">into_iter</span>().<span class="ident">take</span>(<span class="ident">num_edits</span>) {
         <span class="macro">info!</span>(<span class="string">&quot;Closing someone&#39;s target {}&quot;</span>, <span class="ident">l</span>);
-        <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_parent</span>(<span class="ident">l</span>);
-        <span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">push</span>(<span class="ident">map</span>.<span class="ident">edit_road_cmd</span>(<span class="ident">r</span>.<span class="ident">id</span>, <span class="op">|</span><span class="ident">new</span><span class="op">|</span> {
-            <span class="ident">new</span>.<span class="ident">lanes_ltr</span>[<span class="ident">r</span>.<span class="ident">offset</span>(<span class="ident">l</span>)].<span class="ident">lt</span> <span class="op">=</span> <span class="ident">LaneType::Construction</span>;
+        <span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">push</span>(<span class="ident">map</span>.<span class="ident">edit_road_cmd</span>(<span class="ident">l</span>.<span class="ident">road</span>, <span class="op">|</span><span class="ident">new</span><span class="op">|</span> {
+            <span class="ident">new</span>.<span class="ident">lanes_ltr</span>[<span class="ident">l</span>.<span class="ident">offset</span>].<span class="ident">lt</span> <span class="op">=</span> <span class="ident">LaneType::Construction</span>;
 
             <span class="comment">// If we&#39;re getting rid of the last driving lane, also remove any parking lanes. This</span>
             <span class="comment">// mimics the check that the UI does.</span>
@@ -266,16 +262,14 @@
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">parking_lanes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LaneID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">map</span>
         .<span class="ident">all_lanes</span>()
-        .<span class="ident">values</span>()
         .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="ident">l</span>.<span class="ident">is_parking</span>())
         .<span class="ident">map</span>(<span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="ident">l</span>.<span class="ident">id</span>)
         .<span class="ident">collect</span>();
     <span class="ident">parking_lanes</span>.<span class="ident">shuffle</span>(<span class="ident">rng</span>);
     <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="ident">parking_lanes</span>.<span class="ident">into_iter</span>().<span class="ident">take</span>(<span class="ident">num_edits</span>) {
         <span class="macro">info!</span>(<span class="string">&quot;Closing parking {}&quot;</span>, <span class="ident">l</span>);
-        <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_parent</span>(<span class="ident">l</span>);
-        <span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">push</span>(<span class="ident">map</span>.<span class="ident">edit_road_cmd</span>(<span class="ident">r</span>.<span class="ident">id</span>, <span class="op">|</span><span class="ident">new</span><span class="op">|</span> {
-            <span class="ident">new</span>.<span class="ident">lanes_ltr</span>[<span class="ident">r</span>.<span class="ident">offset</span>(<span class="ident">l</span>)].<span class="ident">lt</span> <span class="op">=</span> <span class="ident">LaneType::Construction</span>;
+        <span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">push</span>(<span class="ident">map</span>.<span class="ident">edit_road_cmd</span>(<span class="ident">l</span>.<span class="ident">road</span>, <span class="op">|</span><span class="ident">new</span><span class="op">|</span> {
+            <span class="ident">new</span>.<span class="ident">lanes_ltr</span>[<span class="ident">l</span>.<span class="ident">offset</span>].<span class="ident">lt</span> <span class="op">=</span> <span class="ident">LaneType::Construction</span>;
         }));
     }
 }

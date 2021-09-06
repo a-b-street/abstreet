@@ -347,6 +347,9 @@
 <span id="345">345</span>
 <span id="346">346</span>
 <span id="347">347</span>
+<span id="348">348</span>
+<span id="349">349</span>
+<span id="350">350</span>
 </pre><pre class="rust">
 <span class="doccomment">//! Pathfinding for cars, bikes, buses, and trains using contraction hierarchies</span>
 
@@ -668,7 +671,9 @@
     };
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">multiplier</span> <span class="op">=</span> <span class="number">1.0</span>;
-    <span class="kw">if</span> <span class="ident">constraints</span> <span class="op">=</span><span class="op">=</span> <span class="ident">PathConstraints::Bike</span> <span class="op">&amp;&amp;</span> <span class="ident">params</span>.<span class="ident">avoid_steep_incline_penalty</span> <span class="op">!</span><span class="op">=</span> <span class="number">1.0</span> {
+    <span class="kw">if</span> <span class="ident">constraints</span> <span class="op">=</span><span class="op">=</span> <span class="ident">PathConstraints::Bike</span>
+        <span class="op">&amp;&amp;</span> (<span class="ident">params</span>.<span class="ident">avoid_steep_incline_penalty</span> <span class="op">-</span> <span class="number">1.0</span>).<span class="ident">abs</span>() <span class="op">&gt;</span> <span class="ident">f64::EPSILON</span>
+    {
         <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">dr</span>.<span class="ident">id</span>);
         <span class="kw">let</span> <span class="ident">percent_incline</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">dr</span>.<span class="ident">dir</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Direction::Fwd</span> {
             <span class="ident">road</span>.<span class="ident">percent_incline</span>
@@ -680,7 +685,8 @@
         }
     }
 
-    <span class="kw">if</span> <span class="ident">constraints</span> <span class="op">=</span><span class="op">=</span> <span class="ident">PathConstraints::Bike</span> <span class="op">&amp;&amp;</span> <span class="ident">params</span>.<span class="ident">avoid_high_stress</span> <span class="op">!</span><span class="op">=</span> <span class="number">1.0</span> {
+    <span class="kw">if</span> <span class="ident">constraints</span> <span class="op">=</span><span class="op">=</span> <span class="ident">PathConstraints::Bike</span> <span class="op">&amp;&amp;</span> (<span class="ident">params</span>.<span class="ident">avoid_high_stress</span> <span class="op">-</span> <span class="number">1.0</span>).<span class="ident">abs</span>() <span class="op">&gt;</span> <span class="ident">f64::EPSILON</span>
+    {
         <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">dr</span>.<span class="ident">id</span>);
         <span class="kw">if</span> <span class="ident">road</span>.<span class="ident">high_stress_for_bikes</span>(<span class="ident">map</span>) {
             <span class="ident">multiplier</span> <span class="kw-2">*</span><span class="op">=</span> <span class="ident">params</span>.<span class="ident">avoid_high_stress</span>;

@@ -1511,7 +1511,7 @@
                 );
                 <span class="ident">details</span>.<span class="ident">tooltips</span>.<span class="ident">push</span>((
                     <span class="kw">match</span> <span class="ident">on</span> {
-                        <span class="ident">Traversable::Lane</span>(<span class="ident">l</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">map</span>.<span class="ident">get_parent</span>(<span class="kw-2">*</span><span class="ident">l</span>).<span class="ident">get_thick_polygon</span>(<span class="ident">map</span>),
+                        <span class="ident">Traversable::Lane</span>(<span class="ident">l</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">map</span>.<span class="ident">get_parent</span>(<span class="kw-2">*</span><span class="ident">l</span>).<span class="ident">get_thick_polygon</span>(),
                         <span class="ident">Traversable::Turn</span>(<span class="ident">t</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">t</span>.<span class="ident">parent</span>).<span class="ident">polygon</span>.<span class="ident">clone</span>(),
                     },
                     <span class="ident">Text::from</span>(<span class="string">&quot;A vehicle wanted to over-take this cyclist near here.&quot;</span>),

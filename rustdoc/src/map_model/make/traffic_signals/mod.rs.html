@@ -491,8 +491,6 @@
 <span id="489">489</span>
 <span id="490">490</span>
 <span id="491">491</span>
-<span id="492">492</span>
-<span id="493">493</span>
 </pre><pre class="rust">
 <span class="doccomment">//! The various traffic signal generators live in the traffic signal module. Eventually, we</span>
 <span class="doccomment">//! might want to move to a trait. For now, there&#39;s a single make_traffic_signal static method</span>
@@ -812,9 +810,7 @@
 <span class="kw">fn</span> <span class="ident">stage_per_road</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">i</span>: <span class="ident">IntersectionID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ControlTrafficSignal</span> {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ts</span> <span class="op">=</span> <span class="ident">new</span>(<span class="ident">i</span>, <span class="ident">map</span>);
 
-    <span class="kw">let</span> <span class="ident">sorted_roads</span> <span class="op">=</span> <span class="ident">map</span>
-        .<span class="ident">get_i</span>(<span class="ident">i</span>)
-        .<span class="ident">get_roads_sorted_by_incoming_angle</span>(<span class="ident">map</span>.<span class="ident">all_roads</span>());
+    <span class="kw">let</span> <span class="ident">sorted_roads</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>).<span class="ident">get_roads_sorted_by_incoming_angle</span>(<span class="ident">map</span>);
     <span class="kw">for</span> <span class="ident">idx</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">sorted_roads</span>.<span class="ident">len</span>() {
         <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">sorted_roads</span>[<span class="ident">idx</span>];
         <span class="kw">let</span> <span class="ident">adj1</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">abstutil::wraparound_get</span>(<span class="kw-2">&amp;</span><span class="ident">sorted_roads</span>, (<span class="ident">idx</span> <span class="kw">as</span> <span class="ident">isize</span>) <span class="op">-</span> <span class="number">1</span>);
