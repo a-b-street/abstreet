@@ -5,8 +5,8 @@
 <body>
 
 <script type="module">
-  import { Santa } from "./santa/santa.bundle.js";
-  let app = new Santa("app");
+  import { MapEditor } from "./map_editor/map_editor.bundle.js";
+  let app = new MapEditor("app");
 
   document.addEventListener("DOMContentLoaded", function(event) {
     app.loadAndStart();
@@ -15,7 +15,7 @@
 
 <div class="widgetry-app full-screen-widgetry-app" id="app">
     <div class="preloading">
-        <h1>Fifteen Minute Santa</h1>
+        <h1>RawMap Editor</h1>
     </div>
 </div>
 

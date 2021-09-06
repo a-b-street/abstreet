@@ -2158,9 +2158,11 @@ dependencies = [
  "abstutil",
  "convert_osm",
  "geom",
+ "getrandom",
  "log",
  "map_gui",
  "map_model",
+ "wasm-bindgen",
  "widgetry",
 ]
 
