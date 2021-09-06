@@ -169,7 +169,7 @@ impl DrawIntersection {
                 .iter()
                 .map(|r| {
                     let road = map.get_r(*r);
-                    let half_width = road.get_half_width(map);
+                    let half_width = road.get_half_width();
                     let left = road.center_pts.must_shift_left(half_width);
                     let right = road.center_pts.must_shift_right(half_width);
                     if road.src_i == i.id {

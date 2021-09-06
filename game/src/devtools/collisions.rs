@@ -197,7 +197,7 @@ impl Dataviz {
         let mut tooltips = Vec::new();
         for (r, cnt) in per_road.borrow() {
             tooltips.push((
-                map.get_r(*r).get_thick_polygon(map),
+                map.get_r(*r).get_thick_polygon(),
                 Text::from(format!("{} collisions", prettyprint_usize(*cnt))),
             ));
         }

@@ -520,11 +520,10 @@ impl Map {
     // TODO Making driving_connection do this.
     pub fn find_driving_lane_near_building(&self, b: BuildingID) -> LaneID {
         let sidewalk = self.get_b(b).sidewalk();
-        if let Some(l) = self.get_parent(sidewalk).find_closest_lane(
-            sidewalk,
-            |l| PathConstraints::Car.can_use(l, self),
-            self,
-        ) {
+        if let Some(l) = self
+            .get_parent(sidewalk)
+            .find_closest_lane(sidewalk, |l| PathConstraints::Car.can_use(l, self))
+        {
             if !self.get_l(l).driving_blackhole {
                 return l;
             }

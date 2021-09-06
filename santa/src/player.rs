@@ -69,7 +69,7 @@ impl Player {
                 let road = app.map.get_r(r);
                 if valid_roads.contains(&r)
                     && !road.is_light_rail()
-                    && road.get_thick_polygon(&app.map).contains_pt(pos)
+                    && road.get_thick_polygon().contains_pt(pos)
                 {
                     // Where along the road are we?
                     let pt_on_center_line = road.center_pts.project_pt(pos);
@@ -151,7 +151,7 @@ impl Player {
                             On::Intersection(i) => app.map.get_i(i).polygon.clone().into_ring(),
                             On::Road(r, _, _) => {
                                 let road = app.map.get_r(r);
-                                road.center_pts.to_thick_ring(road.get_width(&app.map))
+                                road.center_pts.to_thick_ring(road.get_width())
                             }
                         };
                         // TODO Brittle order, but should be the first from the PolyLine's

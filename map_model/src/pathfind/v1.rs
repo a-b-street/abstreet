@@ -623,11 +623,9 @@ impl PathRequest {
                 return None;
             }
             let offside_dir = start_lane.dir.opposite();
-            let alt_lane = road.find_closest_lane(
-                start_lane.id,
-                |l| l.dir == offside_dir && constraints.can_use(l, map),
-                map,
-            )?;
+            let alt_lane = road.find_closest_lane(start_lane.id, |l| {
+                l.dir == offside_dir && constraints.can_use(l, map)
+            })?;
             // TODO Do we need buffer_dist like driving_connection does?
             let pos = start.equiv_pos(alt_lane, map);
             let number_lanes_between =

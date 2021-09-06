@@ -559,7 +559,7 @@ fn modify_lanes(map: &mut Map, r: RoadID, lanes_ltr: Vec<LaneSpec>, effects: &mu
     let mut modified_lanes = BTreeSet::new();
     for r in road_geom_changed {
         effects.changed_roads.insert(r);
-        let lane_specs = map.get_r(r).lane_specs(map);
+        let lane_specs = map.get_r(r).lane_specs();
         let road = &mut map.roads[r.0];
         road.recreate_lanes(lane_specs);
         for lane in &road.lanes {
@@ -613,7 +613,7 @@ fn recalculate_intersection_polygon(
         let half_width = if r.id == changed_road {
             changed_road_width / 2.0
         } else {
-            r.get_half_width(map)
+            r.get_half_width()
         };
 
         let mut trimmed_center_pts = r.center_pts.clone();
@@ -784,7 +784,7 @@ impl Map {
     pub fn get_r_edit(&self, r: RoadID) -> EditRoad {
         let r = self.get_r(r);
         EditRoad {
-            lanes_ltr: r.lane_specs(self),
+            lanes_ltr: r.lane_specs(),
             speed_limit: r.speed_limit,
             access_restrictions: r.access_restrictions.clone(),
         }
@@ -877,17 +877,15 @@ impl Map {
         // Might need to update bus stops.
         if enforce_valid {
             for id in &effects.changed_roads {
-                let stops = self.get_r(*id).all_bus_stops(self);
+                let stops = self.get_r(*id).all_bus_stops();
                 for s in stops {
                     let sidewalk_pos = self.get_bs(s).sidewalk_pos;
                     // Must exist, because we aren't allowed to orphan a bus stop.
                     let driving_lane = self
                         .get_r(*id)
-                        .find_closest_lane(
-                            sidewalk_pos.lane(),
-                            |l| PathConstraints::Bus.can_use(l, self),
-                            self,
-                        )
+                        .find_closest_lane(sidewalk_pos.lane(), |l| {
+                            PathConstraints::Bus.can_use(l, self)
+                        })
                         .unwrap();
                     let driving_pos = sidewalk_pos.equiv_pos(driving_lane, self);
                     self.bus_stops.get_mut(&s).unwrap().driving_pos = driving_pos;

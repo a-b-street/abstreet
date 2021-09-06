@@ -316,9 +316,7 @@ fn all_walk_all_yield(map: &Map, i: IntersectionID) -> ControlTrafficSignal {
 fn stage_per_road(map: &Map, i: IntersectionID) -> ControlTrafficSignal {
     let mut ts = new(i, map);
 
-    let sorted_roads = map
-        .get_i(i)
-        .get_roads_sorted_by_incoming_angle(map.all_roads());
+    let sorted_roads = map.get_i(i).get_roads_sorted_by_incoming_angle(map);
     for idx in 0..sorted_roads.len() {
         let r = sorted_roads[idx];
         let adj1 = *abstutil::wraparound_get(&sorted_roads, (idx as isize) - 1);

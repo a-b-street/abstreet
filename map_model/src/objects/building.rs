@@ -150,11 +150,9 @@ impl Building {
     /// The polyline goes from the building to the driving position
     // TODO Make this handle parking_blackhole
     pub fn driving_connection(&self, map: &Map) -> Option<(Position, PolyLine)> {
-        let lane = map.get_parent(self.sidewalk()).find_closest_lane(
-            self.sidewalk(),
-            |l| PathConstraints::Car.can_use(l, map),
-            map,
-        )?;
+        let lane = map
+            .get_parent(self.sidewalk())
+            .find_closest_lane(self.sidewalk(), |l| PathConstraints::Car.can_use(l, map))?;
         // TODO Do we need to insist on this buffer, now that we can make cars gradually appear?
         let pos = self
             .sidewalk_pos
@@ -217,11 +215,11 @@ impl Building {
 }
 
 fn sidewalk_to_bike(sidewalk_pos: Position, map: &Map) -> Option<(Position, Position)> {
-    let lane = map.get_parent(sidewalk_pos.lane()).find_closest_lane(
-        sidewalk_pos.lane(),
-        |l| !l.biking_blackhole && PathConstraints::Bike.can_use(l, map),
-        map,
-    )?;
+    let lane = map
+        .get_parent(sidewalk_pos.lane())
+        .find_closest_lane(sidewalk_pos.lane(), |l| {
+            !l.biking_blackhole && PathConstraints::Bike.can_use(l, map)
+        })?;
     // No buffer needed
     Some((sidewalk_pos.equiv_pos(lane, map), sidewalk_pos))
 }

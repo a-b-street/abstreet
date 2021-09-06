@@ -949,12 +949,7 @@ pub fn fade_irrelevant(app: &App, members: &BTreeSet<IntersectionID>) -> GeomBat
         let i = app.primary.map.get_i(*i);
         holes.push(i.polygon.clone());
         for r in &i.roads {
-            holes.push(
-                app.primary
-                    .map
-                    .get_r(*r)
-                    .get_thick_polygon(&app.primary.map),
-            );
+            holes.push(app.primary.map.get_r(*r).get_thick_polygon());
         }
     }
     // The convex hull illuminates a bit more of the surrounding area, looks better

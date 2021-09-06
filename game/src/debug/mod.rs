@@ -529,7 +529,7 @@ fn search_osm(filter: String, ctx: &mut EventCtx, app: &mut App) -> Transition {
             .any(|(k, v)| format!("{} = {}", k, v).contains(&filter))
         {
             num_matches += 1;
-            batch.push(color, r.get_thick_polygon(map));
+            batch.push(color, r.get_thick_polygon());
         }
     }
     for a in map.all_areas() {

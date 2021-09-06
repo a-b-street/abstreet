@@ -221,7 +221,7 @@ impl DrawMap {
         let mut unzoomed_pieces: Vec<(isize, Color, Polygon)> = Vec::new();
 
         for r in map.all_roads() {
-            let width = r.get_width(map);
+            let width = r.get_width();
 
             unzoomed_pieces.push((
                 10 * r.zorder,

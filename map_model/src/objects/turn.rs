@@ -376,7 +376,7 @@ impl Movement {
         }
 
         let mut pl = r
-            .get_left_side(map)
+            .get_left_side()
             .must_shift_right((leftmost + rightmost) / 2.0);
         if self.id.from.dir == Direction::Back {
             pl = pl.reversed();

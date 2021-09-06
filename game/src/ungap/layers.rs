@@ -381,7 +381,7 @@ impl Layers {
                 };
                 // TODO If it's a bike element, should probably thicken for the unzoomed scale...
                 // the maximum amount?
-                batch.push(color, r.get_thick_polygon(&app.primary.map));
+                batch.push(color, r.get_thick_polygon());
             }
         }
 

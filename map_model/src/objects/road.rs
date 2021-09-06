@@ -170,20 +170,20 @@ impl Road {
         self.lanes_ltr.clone()
     }
 
-    pub fn lane_specs(&self, map: &Map) -> Vec<LaneSpec> {
-        self.lanes_ltr()
-            .into_iter()
-            .map(|(l, dir, lt)| LaneSpec {
-                lt,
-                dir,
-                width: map.get_l(l).width,
+    pub(crate) fn lane_specs(&self) -> Vec<LaneSpec> {
+        self.lanes
+            .iter()
+            .map(|l| LaneSpec {
+                lt: l.lane_type,
+                dir: l.dir,
+                width: l.width,
             })
             .collect()
     }
 
     /// Gets the left PolyLine of the road
-    pub fn get_left_side(&self, map: &Map) -> PolyLine {
-        self.center_pts.must_shift_left(self.get_half_width(map))
+    pub fn get_left_side(&self) -> PolyLine {
+        self.center_pts.must_shift_left(self.get_half_width())
     }
 
     /// Counting from the left side of the road
@@ -207,8 +207,8 @@ impl Road {
         panic!("{} doesn't contain {}", self.id, lane);
     }
 
-    pub fn parking_to_driving(&self, parking: LaneID, map: &Map) -> Option<LaneID> {
-        self.find_closest_lane(parking, |l| l.is_driving(), map)
+    pub fn parking_to_driving(&self, parking: LaneID) -> Option<LaneID> {
+        self.find_closest_lane(parking, |l| l.is_driving())
     }
 
     pub(crate) fn speed_limit_from_osm(&self) -> Speed {
@@ -255,15 +255,14 @@ impl Road {
         &self,
         from: LaneID,
         filter: F,
-        map: &Map,
     ) -> Option<LaneID> {
         let our_idx = self.offset(from) as isize;
-        self.lanes_ltr()
-            .into_iter()
+        self.lanes
+            .iter()
             .enumerate()
-            .filter_map(|(idx, (l, _, _))| {
-                if (idx as isize) != our_idx && filter(map.get_l(l)) {
-                    Some((idx, l))
+            .filter_map(|(idx, l)| {
+                if (idx as isize) != our_idx && filter(l) {
+                    Some((idx, l.id))
                 } else {
                     None
                 }
@@ -275,15 +274,14 @@ impl Road {
     /// This is the FIRST yellow line where the direction of the road changes. If multiple direction
     /// changes happen, the result is kind of arbitrary.
     pub fn get_dir_change_pl(&self, map: &Map) -> PolyLine {
-        let mut found: Option<LaneID> = None;
-        for pair in self.lanes_ltr().windows(2) {
-            let ((l1, dir1, _), (_, dir2, _)) = (pair[0], pair[1]);
-            if dir1 != dir2 {
-                found = Some(l1);
+        let mut found: Option<&Lane> = None;
+        for pair in self.lanes.windows(2) {
+            if pair[0].dir != pair[1].dir {
+                found = Some(&pair[0]);
                 break;
             }
         }
-        let lane = map.get_l(found.unwrap_or(self.lanes_ltr()[0].0));
+        let lane = found.unwrap_or(&self.lanes[0]);
         // There's a weird edge case with single lane light rail on left-handed maps...
         let shifted = if map.get_config().driving_side == DrivingSide::Right || found.is_none() {
             lane.lane_center_pts.must_shift_left(lane.width / 2.0)
@@ -297,16 +295,16 @@ impl Road {
         }
     }
 
-    pub fn get_half_width(&self, map: &Map) -> Distance {
-        self.get_width(map) / 2.0
+    pub fn get_half_width(&self) -> Distance {
+        self.get_width() / 2.0
     }
 
-    pub fn get_width(&self, map: &Map) -> Distance {
+    pub fn get_width(&self) -> Distance {
         self.lanes.iter().map(|l| l.width).sum::<Distance>()
     }
 
-    pub fn get_thick_polygon(&self, map: &Map) -> Polygon {
-        self.center_pts.make_polygons(self.get_width(map))
+    pub fn get_thick_polygon(&self) -> Polygon {
+        self.center_pts.make_polygons(self.get_width())
     }
 
     /// Creates the thick polygon representing one half of the road. For roads with multipe
@@ -315,11 +313,11 @@ impl Road {
     pub fn get_half_polygon(&self, dir: Direction, map: &Map) -> Result<Polygon> {
         let mut width_fwd = Distance::ZERO;
         let mut width_back = Distance::ZERO;
-        for (l, dir, _) in self.lanes_ltr() {
-            if dir == Direction::Fwd {
-                width_fwd += map.get_l(l).width;
+        for l in &self.lanes {
+            if l.dir == Direction::Fwd {
+                width_fwd += l.width;
             } else {
-                width_back += map.get_l(l).width;
+                width_back += l.width;
             }
         }
         let center = self.get_dir_change_pl(map);
@@ -402,7 +400,7 @@ impl Road {
             .unwrap_or(0)
     }
 
-    pub fn all_bus_stops(&self, map: &Map) -> Vec<BusStopID> {
+    pub fn all_bus_stops(&self) -> Vec<BusStopID> {
         self.lanes
             .iter()
             .flat_map(|l| l.bus_stops.iter())
