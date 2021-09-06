@@ -147,10 +147,9 @@ pub struct Road {
     /// positive is uphill from src_i -> dst_i, negative is downhill.
     pub percent_incline: f64,
 
-    /// Invariant: A road must contain at least one child. These are ordered from left-to-right.
+    /// Invariant: A road must contain at least one child. These are ordered from the left side of
+    /// the road to the right, with that orientation determined by the direction of `center_pts`.
     pub lanes: Vec<Lane>,
-    // TODO Remove -- this becomes redundant
-    pub(crate) lanes_ltr: Vec<(LaneID, Direction, LaneType)>,
 
     /// The physical center of the road, including sidewalks, after trimming to account for the
     /// intersection geometry. The order implies road orientation.
@@ -163,13 +162,6 @@ pub struct Road {
 }
 
 impl Road {
-    /// Returns all lanes from the left side of the road to right. Left/right is determined by the
-    /// orientation of center_pts.
-    pub fn lanes_ltr(&self) -> Vec<(LaneID, Direction, LaneType)> {
-        // TODO Change this to return &Vec
-        self.lanes_ltr.clone()
-    }
-
     pub(crate) fn lane_specs(&self) -> Vec<LaneSpec> {
         self.lanes
             .iter()
@@ -188,12 +180,10 @@ impl Road {
 
     /// Counting from the left side of the road
     pub fn offset(&self, lane: LaneID) -> usize {
-        for (idx, (l, _, _)) in self.lanes_ltr().into_iter().enumerate() {
-            if lane == l {
-                return idx;
-            }
+        match self.lanes.iter().position(|l| l.id == lane) {
+            Some(x) => x,
+            None => panic!("{} doesn't contain {}", self.id, lane),
         }
-        panic!("{} doesn't contain {}", self.id, lane);
     }
 
     /// lane must belong to this road. Offset 0 is the centermost lane on each side of a road, then
@@ -409,11 +399,11 @@ impl Road {
     }
 
     pub fn is_light_rail(&self) -> bool {
-        self.lanes_ltr().len() == 1 && self.lanes_ltr()[0].2 == LaneType::LightRail
+        self.lanes.len() == 1 && self.lanes[0].lane_type == LaneType::LightRail
     }
 
     pub fn is_footway(&self) -> bool {
-        self.lanes_ltr().len() == 1 && self.lanes_ltr()[0].2 == LaneType::Sidewalk
+        self.lanes.len() == 1 && self.lanes[0].lane_type == LaneType::Sidewalk
     }
 
     pub fn is_service(&self) -> bool {
@@ -422,10 +412,10 @@ impl Road {
 
     pub fn is_cycleway(&self) -> bool {
         let mut bike = false;
-        for (_, _, lt) in self.lanes_ltr() {
-            if lt == LaneType::Biking {
+        for lane in &self.lanes {
+            if lane.lane_type == LaneType::Biking {
                 bike = true;
-            } else if lt != LaneType::Shoulder {
+            } else if lane.lane_type != LaneType::Shoulder {
                 return false;
             }
         }
@@ -509,7 +499,6 @@ impl Road {
 
     pub(crate) fn recreate_lanes(&mut self, lane_specs_ltr: Vec<LaneSpec>) {
         self.lanes.clear();
-        self.lanes_ltr.clear();
 
         let mut total_width = Distance::ZERO;
         for lane in &lane_specs_ltr {
@@ -548,8 +537,6 @@ impl Road {
             };
             width_so_far += lane.width;
 
-            // TODO Revisit
-            self.lanes_ltr.push((id, lane.dir, lane.lt));
             self.lanes.push(Lane {
                 id,
                 lane_center_pts,
@@ -570,13 +557,13 @@ impl Road {
     pub fn get_lanes_between(&self, l1: LaneID, l2: LaneID) -> Vec<LaneID> {
         let mut results = Vec::new();
         let mut found_start = false;
-        for (l, _, _) in self.lanes_ltr() {
+        for l in &self.lanes {
             if found_start {
-                if l == l1 || l == l2 {
+                if l.id == l1 || l.id == l2 {
                     return results;
                 }
-                results.push(l);
-            } else if l == l1 || l == l2 {
+                results.push(l.id);
+            } else if l.id == l1 || l.id == l2 {
                 found_start = true;
             }
         }
@@ -594,11 +581,11 @@ impl Road {
         let mut bike_lanes = false;
         let mut can_use = false;
         // Can a bike even use it, or is it a highway?
-        for (l, _, lt) in self.lanes_ltr() {
-            if lt == LaneType::Biking {
+        for l in &self.lanes {
+            if l.lane_type == LaneType::Biking {
                 bike_lanes = true;
             }
-            if PathConstraints::Bike.can_use(map.get_l(l), map) {
+            if PathConstraints::Bike.can_use(l, map) {
                 can_use = true;
             }
         }
@@ -609,26 +596,26 @@ impl Road {
     }
 }
 
-// TODO All of this is kind of deprecated? During the transiton towards lanes_ltr, some pieces
-// seemed to really need to still handle lanes going outward from the "center" line. Should keep
-// whittling this down, probably. These very much don't handle multiple direction changes.
+// TODO All of this is kind of deprecated? Some callers seem to really need to still handle lanes
+// going outward from the "center" line. Should keep whittling this down, probably. These very much
+// don't handle multiple direction changes.
 impl Road {
     /// These are ordered from closest to center lane (left-most when driving on the right) to
     /// farthest (sidewalk)
     pub(crate) fn children_forwards(&self) -> Vec<(LaneID, LaneType)> {
         let mut result = Vec::new();
-        for (l, dir, lt) in self.lanes_ltr() {
-            if dir == Direction::Fwd {
-                result.push((l, lt));
+        for l in &self.lanes {
+            if l.dir == Direction::Fwd {
+                result.push((l.id, l.lane_type));
             }
         }
         result
     }
     pub(crate) fn children_backwards(&self) -> Vec<(LaneID, LaneType)> {
         let mut result = Vec::new();
-        for (l, dir, lt) in self.lanes_ltr() {
-            if dir == Direction::Back {
-                result.push((l, lt));
+        for l in &self.lanes {
+            if l.dir == Direction::Back {
+                result.push((l.id, l.lane_type));
             }
         }
         result.reverse();

@@ -15,8 +15,8 @@ fn road(id: RoadID, map: &Map) -> serde_json::Map<String, serde_json::value::Val
     // TODO Many more fields
 
     let mut segments = Vec::new();
-    for (l, dir, _) in r.lanes_ltr() {
-        segments.push(serde_json::value::Value::Object(lane(map.get_l(l), dir)));
+    for l in &r.lanes {
+        segments.push(serde_json::value::Value::Object(lane(l, l.dir)));
     }
     street.insert(
         "segments".to_string(),

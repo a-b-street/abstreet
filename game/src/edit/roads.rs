@@ -80,7 +80,7 @@ impl RoadEditor {
     }
 
     fn lane_for_idx(&self, app: &App, idx: usize) -> LaneID {
-        app.primary.map.get_r(self.r).lanes_ltr()[idx].0
+        app.primary.map.get_r(self.r).lanes[idx].id
     }
 
     fn modify_current_lane<F: Fn(&mut EditRoad, usize)>(
@@ -316,9 +316,9 @@ impl State<App> for RoadEditor {
                             .primary
                             .map
                             .get_r(self.r)
-                            .lanes_ltr()
-                            .into_iter()
-                            .all(|(_, _, lt)| lt != LaneType::Driving)
+                            .lanes
+                            .iter()
+                            .all(|l| l.lane_type != LaneType::Driving)
                     {
                         return Transition::Push(PopupMsg::new_state(ctx, "Error", vec!["Add a driving lane first. Parking can't exist without a way to access it."]));
                     }
@@ -553,7 +553,7 @@ fn make_main_panel(
 
     let current_lt = selected_lane.map(|l| map.get_l(l).lane_type);
 
-    let current_lts: Vec<LaneType> = road.lanes_ltr().into_iter().map(|(_, _, lt)| lt).collect();
+    let current_lts: Vec<LaneType> = road.lanes.iter().map(|l| l.lane_type).collect();
 
     let lane_types = [
         (LaneType::Driving, Some(Key::D)),
@@ -628,10 +628,13 @@ fn make_main_panel(
     let mut drag_drop = DragDrop::new(ctx, "lane cards", StackAxis::Horizontal);
 
     let road_width = road.get_width();
-    let lanes_ltr = road.lanes_ltr();
-    let lanes_len = lanes_ltr.len();
 
-    for (idx, (id, dir, lt)) in lanes_ltr.into_iter().enumerate() {
+    for l in &road.lanes {
+        let idx = l.id.offset;
+        let id = l.id;
+        let dir = l.dir;
+        let lt = l.lane_type;
+
         let mut icon_stack = GeomBatchStack::vertical(vec![
             Image::from_path(lane_type_to_icon(lt).unwrap())
                 .dims((60.0, 50.0))
@@ -664,7 +667,7 @@ fn make_main_panel(
         if idx == 0 {
             rounding.top_left = DEFAULT_CORNER_RADIUS;
         }
-        if idx == lanes_len - 1 {
+        if idx == road.lanes.len() - 1 {
             rounding.top_right = DEFAULT_CORNER_RADIUS;
         }
 
@@ -786,7 +789,7 @@ fn make_main_panel(
                 ctx.style()
                     .btn_solid_destructive
                     .icon("system/assets/tools/trash.svg")
-                    .disabled(road.lanes_ltr().len() == 1)
+                    .disabled(road.lanes.len() == 1)
                     .hotkey(Key::Backspace)
                     .build_widget(ctx, "delete lane")
                     .centered_vert(),
@@ -1010,8 +1013,8 @@ fn draw_drop_position(app: &App, r: RoadID, from: usize, to: usize) -> GeomBatch
     let map = &app.primary.map;
     let road = map.get_r(r);
     let take_num = if from < to { to + 1 } else { to };
-    for (l, _, _) in road.lanes_ltr().into_iter().take(take_num) {
-        width += map.get_l(l).width;
+    for l in road.lanes.iter().take(take_num) {
+        width += l.width;
     }
     if let Ok(pl) = road.get_left_side().shift_right(width) {
         batch.push(app.cs.selected, pl.make_polygons(OUTLINE_THICKNESS));

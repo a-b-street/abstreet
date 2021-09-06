@@ -35,11 +35,11 @@ fn road(id: RoadID, map: &Map) -> Feature {
     properties.insert("sharedstreetid".to_string(), id.0.into());
 
     let mut slices = Vec::new();
-    for (l, dir, _) in r.lanes_ltr() {
-        if let Some(mut slice) = lane(map.get_l(l)) {
+    for l in &r.lanes {
+        if let Some(mut slice) = lane(l) {
             slice
                 .entry("direction".to_string())
-                .or_insert(if dir == Direction::Fwd {
+                .or_insert(if l.dir == Direction::Fwd {
                     "forward".into()
                 } else {
                     "reverse".into()

@@ -281,17 +281,19 @@ fn calculate_parking_lines(lane: &Lane, map: &Map) -> Vec<Polygon> {
 // Because the stripe straddles two lanes, it'll be partly hidden on one side. There are a bunch of
 // ways to work around this z-order issue. The current approach is to rely on the fact that
 // quadtrees return LaneIDs in order, and lanes are always created from left->right.
-fn calculate_driving_lines(lane: &Lane, parent: &Road) -> Vec<Polygon> {
-    let lanes = parent.lanes_ltr();
-    let idx = parent.offset(lane.id);
+fn calculate_driving_lines(lane: &Lane, road: &Road) -> Vec<Polygon> {
+    let idx = road.offset(lane.id);
 
     // If the lane to the left of us isn't in the same direction or isn't the same type, don't
     // need dashed lines.
-    if idx == 0 || lanes[idx].1 != lanes[idx - 1].1 || lanes[idx].2 != lanes[idx - 1].2 {
+    if idx == 0
+        || lane.dir != road.lanes[idx - 1].dir
+        || lane.lane_type != road.lanes[idx - 1].lane_type
+    {
         return Vec::new();
     }
 
-    let lane_edge_pts = if lanes[idx].1 == Direction::Fwd {
+    let lane_edge_pts = if lane.dir == Direction::Fwd {
         lane.lane_center_pts.must_shift_left(lane.width / 2.0)
     } else {
         lane.lane_center_pts.must_shift_right(lane.width / 2.0)
@@ -359,12 +361,12 @@ fn calculate_turn_markings(map: &Map, lane: &Lane) -> Vec<Polygon> {
     results
 }
 
-fn calculate_one_way_markings(lane: &Lane, parent: &Road) -> Vec<Polygon> {
+fn calculate_one_way_markings(lane: &Lane, road: &Road) -> Vec<Polygon> {
     let mut results = Vec::new();
-    let lanes = parent.lanes_ltr();
-    if lanes
-        .into_iter()
-        .any(|(_, d, lt)| lane.dir != d && lt == LaneType::Driving)
+    if road
+        .lanes
+        .iter()
+        .any(|l| l.dir != lane.dir && l.lane_type == LaneType::Driving)
     {
         // Not a one-way
         return results;

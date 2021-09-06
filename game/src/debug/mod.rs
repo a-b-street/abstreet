@@ -784,8 +784,8 @@ impl ContextualActions for Actions {
                         if let Some((dist, _)) = pl.dist_along_of_point(pl.project_pt(pt)) {
                             let base_pos = Position::new(l, dist);
                             let mut batch = GeomBatch::new();
-                            for (l, _, _) in map.get_parent(l).lanes_ltr() {
-                                let pt = base_pos.equiv_pos(l, map).pt(map);
+                            for l in &map.get_parent(l).lanes {
+                                let pt = base_pos.equiv_pos(l.id, map).pt(map);
                                 batch.push(
                                     Color::RED,
                                     Circle::new(pt, Distance::meters(1.0)).to_polygon(),
@@ -891,14 +891,14 @@ fn find_degenerate_roads(app: &App) {
             continue;
         }
         if r1
-            .lanes_ltr()
-            .into_iter()
-            .map(|(_, dir, lt)| (dir, lt))
+            .lanes
+            .iter()
+            .map(|l| (l.dir, l.lane_type))
             .collect::<Vec<_>>()
             != r2
-                .lanes_ltr()
-                .into_iter()
-                .map(|(_, dir, lt)| (dir, lt))
+                .lanes
+                .iter()
+                .map(|l| (l.dir, l.lane_type))
                 .collect::<Vec<_>>()
         {
             continue;

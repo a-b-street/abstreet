@@ -150,7 +150,6 @@ impl Map {
                     .collect(),
                 orig_id: r.id,
                 lanes: Vec::new(),
-                lanes_ltr: Vec::new(),
                 center_pts: r.trimmed_center_pts,
                 untrimmed_center_pts: raw_road.get_geometry(r.id, map.get_config()).unwrap().0,
                 src_i: i1,

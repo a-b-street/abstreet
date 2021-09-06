@@ -38,10 +38,12 @@ impl DrawRoad {
         // Draw a center line every time two driving/bike/bus lanes of opposite direction are
         // adjacent.
         let mut width = Distance::ZERO;
-        for pair in r.lanes_ltr().windows(2) {
-            let ((l1, dir1, lt1), (_, dir2, lt2)) = (pair[0], pair[1]);
-            width += app.map().get_l(l1).width;
-            if dir1 != dir2 && lt1.is_for_moving_vehicles() && lt2.is_for_moving_vehicles() {
+        for pair in r.lanes.windows(2) {
+            width += pair[0].width;
+            if pair[0].dir != pair[1].dir
+                && pair[0].lane_type.is_for_moving_vehicles()
+                && pair[1].lane_type.is_for_moving_vehicles()
+            {
                 let pl = r.get_left_side().must_shift_right(width);
                 batch.extend(
                     center_line_color,

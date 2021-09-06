@@ -209,15 +209,15 @@ fn make_walking_turns_v2(map: &Map, i: &Intersection) -> Vec<Turn> {
     }
 
     for r in sorted_roads {
-        let r = map.get_r(r);
+        let road = map.get_r(r);
         let mut fwd = None;
         let mut back = None;
-        for (l, dir, lt) in r.lanes_ltr() {
-            if lt.is_walkable() {
-                if dir == Direction::Fwd {
-                    fwd = Some(map.get_l(l));
+        for l in &road.lanes {
+            if l.lane_type.is_walkable() {
+                if l.dir == Direction::Fwd {
+                    fwd = Some(l);
                 } else {
-                    back = Some(map.get_l(l));
+                    back = Some(l);
                 }
             }
         }
@@ -227,7 +227,7 @@ fn make_walking_turns_v2(map: &Map, i: &Intersection) -> Vec<Turn> {
         if back.is_some() {
             num_sidewalks += 1;
         }
-        let (in_lane, out_lane) = if r.src_i == i.id {
+        let (in_lane, out_lane) = if road.src_i == i.id {
             (back, fwd)
         } else {
             (fwd, back)

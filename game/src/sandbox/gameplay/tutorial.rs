@@ -1062,16 +1062,16 @@ impl TutorialState {
                             ))
                             .unwrap(),
                         );
-                        assert_eq!(r.lanes_ltr().len(), 6);
-                        r.lanes_ltr()[2].0
+                        assert_eq!(r.lanes.len(), 6);
+                        r.lanes[2].id
                     };
                     let lane_near_bldg = {
                         let r = map.get_r(
                             map.find_r_by_osm_id(OriginalRoad::new(6484869, (53163501, 53069236)))
                                 .unwrap(),
                         );
-                        assert_eq!(r.lanes_ltr().len(), 6);
-                        r.lanes_ltr()[3].0
+                        assert_eq!(r.lanes.len(), 6);
+                        r.lanes[3].id
                     };
 
                     let mut scenario = Scenario::empty(map, "prank");

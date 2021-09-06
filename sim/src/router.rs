@@ -399,27 +399,27 @@ impl Router {
             let mut original_cost = None;
             let dir = map.get_l(orig_target_lane).dir;
             let best = parent
-                .lanes_ltr()
-                .into_iter()
-                .filter(|(l, d, _)| dir == *d && constraints.can_use(map.get_l(*l), map))
-                .filter_map(|(l, _, _)| {
+                .lanes
+                .iter()
+                .filter(|l| l.dir == dir && constraints.can_use(l, map))
+                .filter_map(|l| {
                     // Make sure we can go from this lane to next_lane.
 
                     let t1 = TurnID {
                         parent: current_turn.parent,
                         src: current_turn.src,
-                        dst: l,
+                        dst: l.id,
                     };
                     let turn1 = map.maybe_get_t(t1)?;
 
                     let t2 = TurnID {
                         parent: next_parent,
-                        src: l,
+                        src: l.id,
                         dst: next_lane,
                     };
                     let turn2 = map.maybe_get_t(t2)?;
 
-                    Some((turn1, l, turn2))
+                    Some((turn1, l.id, turn2))
                 })
                 .map(|(turn1, l, turn2)| {
                     let cost = compute_cost(turn1, l);
