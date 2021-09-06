@@ -194,7 +194,7 @@ impl State<App> for ParkingMapper {
         if ctx.redo_mouseover() {
             let mut maybe_r = match app.mouseover_unzoomed_roads_and_intersections(ctx) {
                 Some(ID::Road(r)) => Some(r),
-                Some(ID::Lane(l)) => Some(map.get_l(l).parent),
+                Some(ID::Lane(l)) => Some(l.road),
                 _ => None,
             };
             if let Some(r) = maybe_r {

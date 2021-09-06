@@ -169,8 +169,8 @@ impl RouteResults {
                                 num_traffic_signals += 1;
                             }
                             if map.is_unprotected_turn(
-                                map.get_l(t.src).parent,
-                                map.get_l(t.dst).parent,
+                                t.src.road,
+                                t.dst.road,
                                 map.get_t(*t).turn_type,
                             ) {
                                 num_unprotected_turns += 1;

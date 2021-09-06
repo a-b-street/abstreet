@@ -41,7 +41,7 @@ pub fn make_all_turns(map: &Map, i: &Intersection) -> Vec<Turn> {
                 // U-turns at divided highways are sometimes legal (and a common movement --
                 // https://www.openstreetmap.org/way/361443212), so let OSM turn:lanes override.
                 if src_lane
-                    .get_lane_level_turn_restrictions(map.get_r(src_lane.parent), false)
+                    .get_lane_level_turn_restrictions(map.get_r(src_lane.id.road), false)
                     .map(|set| !set.contains(&TurnType::UTurn))
                     .unwrap_or(true)
                 {
@@ -153,7 +153,7 @@ fn make_vehicle_turns(i: &Intersection, map: &Map) -> Vec<Turn> {
                 continue;
             }
             // Only allow U-turns at deadends
-            if src.parent == dst.parent && !is_deadend {
+            if src.id.road == dst.id.road && !is_deadend {
                 continue;
             }
             // Can't go between light rail and normal roads
@@ -192,14 +192,14 @@ fn make_vehicle_turns(i: &Intersection, map: &Map) -> Vec<Turn> {
                 }
             } else if let Some(expected_type) = expected_turn_types
                 .as_ref()
-                .and_then(|e| e.get(&(src.parent, dst.parent)))
+                .and_then(|e| e.get(&(src.id.road, dst.id.road)))
             {
                 // At some 4-way intersections, roads meet at strange angles, throwing off
                 // turn_type_from_angles. Correct it based on relative ordering.
                 if turn_type != *expected_type {
                     warn!(
                         "Turn from {} to {} looks like {:?} by angle, but is {:?} by ordering",
-                        src.parent, dst.parent, turn_type, expected_type
+                        src.id.road, dst.id.road, turn_type, expected_type
                     );
                     turn_type = *expected_type;
                 }
@@ -290,7 +290,7 @@ fn remove_merging_turns(map: &Map, input: Vec<Turn>, turn_type: TurnType) -> Vec
 
         if t.turn_type == turn_type {
             pairs
-                .entry((map.get_l(t.id.src).parent, map.get_l(t.id.dst).parent))
+                .entry((t.id.src.road, t.id.dst.road))
                 .or_insert_with(Vec::new)
                 .push(t);
         } else {

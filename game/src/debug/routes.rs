@@ -489,7 +489,7 @@ fn calculate_demand(app: &App, requests: &[PathRequest], timer: &mut Timer) -> C
         timer.next();
         for step in path.get_steps() {
             if let Traversable::Lane(l) = step.as_traversable() {
-                counter.inc(app.primary.map.get_l(l).parent);
+                counter.inc(l.road);
             }
         }
     }

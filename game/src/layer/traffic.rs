@@ -56,7 +56,7 @@ impl Backpressure {
             for step in path.get_steps() {
                 match step.as_traversable() {
                     Traversable::Lane(l) => {
-                        cnt_per_r.inc(app.primary.map.get_l(l).parent);
+                        cnt_per_r.inc(l.road);
                     }
                     Traversable::Turn(t) => {
                         cnt_per_i.inc(t.parent);

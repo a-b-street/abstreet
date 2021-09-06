@@ -4,7 +4,7 @@ use abstutil::{prettyprint_usize, Counter};
 use geom::{Circle, Distance, Duration, Pt2D, Time};
 use map_gui::render::unzoomed_agent_radius;
 use map_gui::tools::{ColorLegend, ColorNetwork};
-use map_model::{BuildingID, Map, OffstreetParking, ParkingLotID, PathRequest, RoadID};
+use map_model::{BuildingID, OffstreetParking, ParkingLotID, PathRequest, RoadID};
 use sim::{ParkingSpot, VehicleType};
 use widgetry::{Drawable, EventCtx, GeomBatch, GfxCtx, Line, Outcome, Panel, Text, Toggle, Widget};
 
@@ -186,7 +186,7 @@ impl Occupancy {
                     }
                 }
 
-                let loc = Loc::new(spot, &app.primary.map);
+                let loc = Loc::new(spot);
                 keys.insert(loc);
                 spots.inc(loc);
             }
@@ -290,9 +290,9 @@ enum Loc {
 }
 
 impl Loc {
-    fn new(spot: ParkingSpot, map: &Map) -> Loc {
+    fn new(spot: ParkingSpot) -> Loc {
         match spot {
-            ParkingSpot::Onstreet(l, _) => Loc::Road(map.get_l(l).parent),
+            ParkingSpot::Onstreet(l, _) => Loc::Road(l.road),
             ParkingSpot::Offstreet(b, _) => Loc::Bldg(b),
             ParkingSpot::Lot(pl, _) => Loc::Lot(pl),
         }

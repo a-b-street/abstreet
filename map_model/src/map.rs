@@ -431,8 +431,7 @@ impl Map {
     }
 
     pub fn get_parent(&self, id: LaneID) -> &Road {
-        let l = self.get_l(id);
-        self.get_r(l.parent)
+        self.get_r(id.road)
     }
 
     pub fn get_gps_bounds(&self) -> &GPSBounds {
@@ -773,7 +772,7 @@ impl Map {
     pub(crate) fn recalculate_road_to_buildings(&mut self) {
         let mut mapping = MultiMap::new();
         for b in self.all_buildings() {
-            mapping.insert(self.get_l(b.sidewalk_pos.lane()).parent, b.id);
+            mapping.insert(b.sidewalk_pos.lane().road, b.id);
         }
         self.road_to_buildings = mapping;
     }

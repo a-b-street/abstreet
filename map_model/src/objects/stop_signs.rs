@@ -162,7 +162,7 @@ impl ControlStopSign {
             // TODO This actually feels like a policy bit that should be flippable.
             TurnType::Crosswalk => TurnPriority::Protected,
             _ => {
-                if self.roads[&map.get_l(turn.src).parent].must_stop {
+                if self.roads[&turn.src.road].must_stop {
                     TurnPriority::Yield
                 } else {
                     TurnPriority::Protected

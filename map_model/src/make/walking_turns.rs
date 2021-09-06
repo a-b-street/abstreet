@@ -177,9 +177,7 @@ pub fn filter_turns(mut input: Vec<Turn>, map: &Map, i: &Intersection) -> Vec<Tu
     for r in &i.roads {
         if map.get_r(*r).is_extremely_short() {
             input.retain(|t| {
-                !(map.get_l(t.id.src).parent == *r
-                    && map.get_l(t.id.dst).parent == *r
-                    && t.turn_type == TurnType::Crosswalk)
+                !(t.id.src.road == *r && t.id.dst.road == *r && t.turn_type == TurnType::Crosswalk)
             });
         }
     }
@@ -271,7 +269,7 @@ fn make_walking_turns_v2(map: &Map, i: &Intersection) -> Vec<Turn> {
         }
         let l2 = l.unwrap();
 
-        if adj && l1.parent != l2.parent {
+        if adj && l1.id.road != l2.id.road {
             // Because of the order we go, have to swap l1 and l2 here. l1 is the outgoing, l2 the
             // incoming.
             let geom = make_shared_sidewalk_corner(driving_side, i, l2, l1);

@@ -107,15 +107,10 @@ impl Analytics {
         if let Event::AgentEntersTraversable(a, _, to, passengers) = ev {
             match to {
                 Traversable::Lane(l) => {
-                    self.road_thruput
-                        .record(time, map.get_l(l).parent, a.to_type(), 1);
+                    self.road_thruput.record(time, l.road, a.to_type(), 1);
                     if let Some(n) = passengers {
-                        self.road_thruput.record(
-                            time,
-                            map.get_l(l).parent,
-                            AgentType::TransitRider,
-                            n,
-                        );
+                        self.road_thruput
+                            .record(time, l.road, AgentType::TransitRider, n);
                     }
                 }
                 Traversable::Turn(t) => {

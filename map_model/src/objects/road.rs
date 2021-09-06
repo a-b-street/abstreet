@@ -545,7 +545,6 @@ impl Road {
                 dst_i,
                 lane_type: lane.lt,
                 dir: lane.dir,
-                parent: self.id,
                 bus_stops: BTreeSet::new(),
                 driving_blackhole: false,
                 biking_blackhole: false,

@@ -311,15 +311,15 @@ fn seed_parked_cars(
         BTreeMap::new();
     for spot in sim.get_all_parking_spots().1 {
         let (r, restriction) = match spot {
-            ParkingSpot::Onstreet(l, _) => (map.get_l(l).parent, None),
+            ParkingSpot::Onstreet(l, _) => (l.road, None),
             ParkingSpot::Offstreet(b, _) => (
-                map.get_l(map.get_b(b).sidewalk()).parent,
+                map.get_b(b).sidewalk().road,
                 match map.get_b(b).parking {
                     OffstreetParking::PublicGarage(_, _) => None,
                     OffstreetParking::Private(_, _) => Some(b),
                 },
             ),
-            ParkingSpot::Lot(pl, _) => (map.get_l(map.get_pl(pl).driving_pos.lane()).parent, None),
+            ParkingSpot::Lot(pl, _) => (map.get_pl(pl).driving_pos.lane().road, None),
         };
         open_spots_per_road
             .entry(r)

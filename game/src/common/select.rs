@@ -109,7 +109,7 @@ impl RoadSelector {
                     app.primary.current_selection =
                         match app.mouseover_unzoomed_roads_and_intersections(ctx) {
                             Some(ID::Road(r)) => Some(r),
-                            Some(ID::Lane(l)) => Some(app.primary.map.get_l(l).parent),
+                            Some(ID::Lane(l)) => Some(l.road),
                             _ => None,
                         }
                         .and_then(|r| {

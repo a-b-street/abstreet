@@ -115,7 +115,7 @@ impl Turn {
         // lane? Filters by the lane type and ignores lanes that don't go to the target road.
         let from_idx = {
             let mut cnt = 0;
-            let r = map.get_r(from.parent);
+            let r = map.get_r(from.id.road);
             for (l, lt) in r.children(from.dir).iter().rev() {
                 if from.lane_type != *lt {
                     continue;
@@ -123,7 +123,7 @@ impl Turn {
                 if map
                     .get_turns_from_lane(*l)
                     .into_iter()
-                    .any(|t| map.get_l(t.id.dst).parent == to.parent)
+                    .any(|t| t.id.dst.road == to.id.road)
                 {
                     cnt += 1;
                     if from.id == *l {
@@ -138,7 +138,7 @@ impl Turn {
         // lane? Filters by the lane type.
         let to_idx = {
             let mut cnt = 0;
-            let r = map.get_r(to.parent);
+            let r = map.get_r(to.id.road);
             for (l, lt) in r.children(to.dir).iter().rev() {
                 if to.lane_type != *lt {
                     continue;
@@ -220,7 +220,7 @@ impl Turn {
         }
 
         let src = map.get_parent(self.id.src);
-        let dst = map.get_l(self.id.dst).parent;
+        let dst = self.id.dst.road;
 
         for (restriction, to) in &src.turn_restrictions {
             // The restriction only applies to one direction of the road.
