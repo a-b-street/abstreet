@@ -205,8 +205,8 @@ impl Player {
             On::Intersection(i) => app.map.get_i(i).roads.iter().cloned().collect(),
         };
         for r in roads {
-            for (_, _, lt) in app.map.get_r(r).lanes_ltr() {
-                if lt == LaneType::Biking || lt == LaneType::Bus {
+            for l in &app.map.get_r(r).lanes {
+                if l.lane_type == LaneType::Biking || l.lane_type == LaneType::Bus {
                     return true;
                 }
             }

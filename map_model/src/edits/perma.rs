@@ -93,7 +93,7 @@ impl PermanentEditCmd {
         match self {
             PermanentEditCmd::ChangeRoad { r, new, old } => {
                 let id = map.find_r_by_osm_id(r)?;
-                let num_current = map.get_r(id).lanes_ltr().len();
+                let num_current = map.get_r(id).lanes.len();
                 // The basemap changed -- it'd be pretty hard to understand the original
                 // intent of the edit.
                 if num_current != old.lanes_ltr.len() {

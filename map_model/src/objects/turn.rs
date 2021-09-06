@@ -364,10 +364,10 @@ impl Movement {
         let mut rightmost = Distance::ZERO;
         let mut left = Distance::ZERO;
 
-        for (l, _, _) in r.lanes_ltr() {
-            let right = left + map.get_l(l).width;
+        for l in &r.lanes {
+            let right = left + l.width;
 
-            if self.members.iter().any(|t| t.src == l) {
+            if self.members.iter().any(|t| t.src == l.id) {
                 leftmost = leftmost.min(left);
                 rightmost = rightmost.max(right);
             }

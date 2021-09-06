@@ -93,10 +93,9 @@ impl Isochrone {
         let mut onstreet_parking_spots = 0;
         for r in all_roads {
             let r = app.map.get_r(r);
-            for (l, _, lt) in r.lanes_ltr() {
-                if lt == LaneType::Parking {
-                    onstreet_parking_spots +=
-                        app.map.get_l(l).number_parking_spots(app.map.get_config());
+            for l in &r.lanes {
+                if l.lane_type == LaneType::Parking {
+                    onstreet_parking_spots += l.number_parking_spots(app.map.get_config());
                 }
             }
         }

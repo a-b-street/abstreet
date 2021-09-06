@@ -396,11 +396,11 @@ fn calculate_border_arrows(i: &Intersection, r: &Road, map: &Map) -> Vec<Polygon
 
     let mut width_fwd = Distance::ZERO;
     let mut width_back = Distance::ZERO;
-    for (l, dir, _) in r.lanes_ltr() {
-        if dir == Direction::Fwd {
-            width_fwd += map.get_l(l).width;
+    for l in &r.lanes {
+        if l.dir == Direction::Fwd {
+            width_fwd += l.width;
         } else {
-            width_back += map.get_l(l).width;
+            width_back += l.width;
         }
     }
     let center = r.get_dir_change_pl(map);

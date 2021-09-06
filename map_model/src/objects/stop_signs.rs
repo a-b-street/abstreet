@@ -65,11 +65,11 @@ impl ControlStopSign {
                 Direction::Back
             };
             let travel_lanes: Vec<LaneID> = r
-                .lanes_ltr()
-                .into_iter()
-                .filter_map(|(id, dir, lt)| {
-                    if dir == want_dir && lt.is_for_moving_vehicles() {
-                        Some(id)
+                .lanes
+                .iter()
+                .filter_map(|l| {
+                    if l.dir == want_dir && l.lane_type.is_for_moving_vehicles() {
+                        Some(l.id)
                     } else {
                         None
                     }

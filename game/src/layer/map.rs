@@ -94,9 +94,9 @@ impl BikeActivity {
                     .primary
                     .map
                     .get_r(*r)
-                    .lanes_ltr()
-                    .into_iter()
-                    .any(|(_, _, lt)| lt == LaneType::Biking)
+                    .lanes
+                    .iter()
+                    .any(|l| l.lane_type == LaneType::Biking)
                 {
                     on_bike_lanes.add(*r, *count);
                 } else {

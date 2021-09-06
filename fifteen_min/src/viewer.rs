@@ -579,8 +579,10 @@ pub fn draw_unwalkable_roads(ctx: &mut EventCtx, app: &App, opts: &Options) -> D
         if road.is_light_rail() {
             continue;
         }
-        for (_, _, lt) in road.lanes_ltr() {
-            if lt == LaneType::Sidewalk || (lt == LaneType::Shoulder && allow_shoulders) {
+        for l in &road.lanes {
+            if l.lane_type == LaneType::Sidewalk
+                || (l.lane_type == LaneType::Shoulder && allow_shoulders)
+            {
                 continue 'ROADS;
             }
         }

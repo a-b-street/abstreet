@@ -1083,14 +1083,13 @@ impl DrivingSimState {
         let current_lane = map.get_l(car.router.head().maybe_lane()?);
         let road = map.get_r(current_lane.parent);
         let idx = road.offset(current_lane.id);
-        let lanes_ltr = road.lanes_ltr();
 
         let mut candidates = Vec::new();
         if idx != 0 {
-            candidates.push(lanes_ltr[idx - 1].0);
+            candidates.push(road.lanes[idx - 1].id);
         }
-        if idx != lanes_ltr.len() - 1 {
-            candidates.push(lanes_ltr[idx + 1].0);
+        if idx != road.lanes.len() - 1 {
+            candidates.push(road.lanes[idx + 1].id);
         }
         if map.get_config().driving_side == DrivingSide::Left {
             candidates.reverse();

@@ -15,8 +15,7 @@ pub fn find_medians(map: &Map) -> Vec<Polygon> {
     for r in map.all_roads() {
         if r.osm_tags.is("dual_carriageway", "yes") {
             // TODO Always to the left? Maybe driving side matters; test in southbank too
-            let lanes_ltr = r.lanes_ltr();
-            candidates.push(lanes_ltr[0].0);
+            candidates.push(r.lanes[0].id);
         }
     }
 

@@ -183,7 +183,7 @@ fn inner_warp_to_id(ctx: &mut EventCtx, app: &mut App, line: &str) -> Option<Tra
         Ok(idx) => match line.chars().next().unwrap() {
             'r' => {
                 let r = app.primary.map.maybe_get_r(RoadID(idx))?;
-                ID::Lane(r.lanes_ltr()[0].0)
+                ID::Lane(r.lanes[0].id)
             }
             'R' => {
                 let r = BusRouteID(idx);

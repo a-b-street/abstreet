@@ -326,15 +326,14 @@ impl MapEdits {
             {
                 roads.insert(r.id);
             } else {
-                let lanes_ltr = r.lanes_ltr();
-                if lanes_ltr.len() != orig.lanes_ltr.len() {
+                if r.lanes.len() != orig.lanes_ltr.len() {
                     // If a lane was added or deleted, figuring out if any were modified is kind of
                     // unclear -- just mark the entire road.
                     roads.insert(r.id);
                 } else {
-                    for ((l, dir, lt), spec) in lanes_ltr.into_iter().zip(orig.lanes_ltr.iter()) {
-                        if dir != spec.dir || lt != spec.lt || map.get_l(l).width != spec.width {
-                            lanes.insert(l);
+                    for (l, spec) in r.lanes.iter().zip(orig.lanes_ltr.iter()) {
+                        if l.dir != spec.dir || l.lane_type != spec.lt || l.width != spec.width {
+                            lanes.insert(l.id);
                         }
                     }
                 }

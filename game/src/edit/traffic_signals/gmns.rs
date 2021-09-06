@@ -226,14 +226,14 @@ impl Snapper {
             let mut incoming_pts = Vec::new();
             let mut outgoing_pts = Vec::new();
 
-            for (l, dir, lt) in r.lanes_ltr() {
-                if lt.is_walkable() {
+            for l in &r.lanes {
+                if l.lane_type.is_walkable() {
                     continue;
                 }
-                if dir == incoming_id.dir {
-                    incoming_pts.push(map.get_l(l).lane_center_pts.last_pt());
+                if l.dir == incoming_id.dir {
+                    incoming_pts.push(l.lane_center_pts.last_pt());
                 } else {
-                    outgoing_pts.push(map.get_l(l).lane_center_pts.first_pt());
+                    outgoing_pts.push(l.lane_center_pts.first_pt());
                 }
             }
 

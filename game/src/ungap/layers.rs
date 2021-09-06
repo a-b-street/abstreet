@@ -356,10 +356,10 @@ impl Layers {
             let rank = r.get_rank();
             let mut bike_lane = false;
             let mut buffer = false;
-            for (_, _, lt) in r.lanes_ltr() {
-                if lt == LaneType::Biking {
+            for l in &r.lanes {
+                if l.lane_type == LaneType::Biking {
                     bike_lane = true;
-                } else if matches!(lt, LaneType::Buffer(_)) {
+                } else if matches!(l.lane_type, LaneType::Buffer(_)) {
                     buffer = true;
                 }
             }

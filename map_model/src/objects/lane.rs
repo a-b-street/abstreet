@@ -23,8 +23,8 @@ const SHOULDER_THICKNESS: Distance = Distance::const_meters(0.5);
 /// A lane is identified by its parent road and its position, ordered from the left.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord)]
 pub struct LaneID {
-    pub(crate) road: RoadID,
-    pub(crate) offset: usize,
+    pub road: RoadID,
+    pub offset: usize,
 }
 
 impl fmt::Display for LaneID {
@@ -445,7 +445,7 @@ impl Lane {
         let start = self.id;
         let mut pts = Vec::new();
         let mut current = start;
-        let mut fwd = map.get_parent(start).lanes_ltr()[0].0 == start;
+        let mut fwd = map.get_parent(start).lanes[0].id == start;
         let mut visited = BTreeSet::new();
         loop {
             let l = map.get_l(current);
@@ -484,9 +484,9 @@ impl Lane {
             // Depending on if this road points to or from the intersection, get the left- or
             // right-most lane.
             let next_lane = if next_road.src_i == i {
-                next_road.lanes_ltr()[0].0
+                next_road.lanes[0].id
             } else {
-                next_road.lanes_ltr().last().unwrap().0
+                next_road.lanes.last().unwrap().id
             };
             if next_lane == start {
                 break;
