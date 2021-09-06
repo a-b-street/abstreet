@@ -616,10 +616,10 @@ impl PathRequest {
     ) -> PathRequest {
         let alt_start = (|| {
             let start_lane = map.get_l(start.lane());
-            let road = map.get_r(start_lane.parent);
+            let road = map.get_r(start_lane.id.road);
             // If start and end road match, don't exit offside
             // TODO Sometimes this is valid! Just not if we're trying to go behind ourselves
-            if road.id == map.get_l(end.lane()).parent {
+            if road.id == end.lane().road {
                 return None;
             }
             let offside_dir = start_lane.dir.opposite();
@@ -692,8 +692,8 @@ fn validate_restrictions(map: &Map, steps: &[PathStep]) {
             (triple[0], triple[2], triple[4])
         {
             let from = map.get_parent(l1);
-            let via = map.get_l(l2).parent;
-            let to = map.get_l(l3).parent;
+            let via = l2.road;
+            let to = l3.road;
 
             for (dont_via, dont_to) in &from.complicated_turn_restrictions {
                 if via == *dont_via && to == *dont_to {

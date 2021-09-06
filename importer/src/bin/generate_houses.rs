@@ -74,7 +74,10 @@ fn generate_buildings_on_empty_residential_roads(
     for l in map.all_lanes() {
         if l.is_sidewalk()
             && !lanes_with_buildings.contains(&l.id)
-            && map.get_r(l.parent).osm_tags.is(osm::HIGHWAY, "residential")
+            && map
+                .get_parent(l.id)
+                .osm_tags
+                .is(osm::HIGHWAY, "residential")
         {
             empty_sidewalks.push(l.id);
         }

@@ -1081,7 +1081,7 @@ impl DrivingSimState {
     fn pick_overtaking_lane(&self, car: &Car, map: &Map) -> Option<LaneID> {
         // Don't overtake in the middle of a turn!
         let current_lane = map.get_l(car.router.head().maybe_lane()?);
-        let road = map.get_r(current_lane.parent);
+        let road = map.get_parent(current_lane.id);
         let idx = road.offset(current_lane.id);
 
         let mut candidates = Vec::new();

@@ -87,7 +87,7 @@ impl Isochrone {
                 }
                 _ => {}
             }
-            all_roads.insert(app.map.get_l(bldg.sidewalk_pos.lane()).parent);
+            all_roads.insert(bldg.sidewalk_pos.lane().road);
         }
 
         let mut onstreet_parking_spots = 0;

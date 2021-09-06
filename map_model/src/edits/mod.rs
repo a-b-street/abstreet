@@ -706,9 +706,7 @@ fn fix_building_driveways(map: &mut Map, input: Vec<BuildingID>, effects: &mut E
                 b.sidewalk_pos = sidewalk_pos;
                 b.driveway_geom = driveway_geom.to_polyline();
                 // We may need to redraw the road that now has this building snapped to it
-                effects
-                    .changed_roads
-                    .insert(map.get_l(sidewalk_pos.lane()).parent);
+                effects.changed_roads.insert(sidewalk_pos.lane().road);
             }
             None => {
                 // TODO Not sure what to do here yet.

@@ -239,7 +239,6 @@ impl LaneType {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Lane {
     pub id: LaneID,
-    pub parent: RoadID,
     pub lane_type: LaneType,
     pub lane_center_pts: PolyLine,
     pub width: Distance,
@@ -362,7 +361,7 @@ impl Lane {
 
     pub fn get_directed_parent(&self) -> DirectedRoadID {
         DirectedRoadID {
-            id: self.parent,
+            id: self.id.road,
             dir: self.dir,
         }
     }
@@ -478,7 +477,7 @@ impl Lane {
             //println!("{}, fwd={}, pointing to {}", current, fwd, i);
             let mut roads = map.get_i(i).get_roads_sorted_by_incoming_angle(map);
             roads.retain(|r| !map.get_r(*r).is_footway());
-            let idx = roads.iter().position(|r| *r == l.parent).unwrap();
+            let idx = roads.iter().position(|r| *r == l.id.road).unwrap();
             // Get the next road counter-clockwise
             let next_road = map.get_r(*wraparound_get(&roads, (idx as isize) + 1));
             // Depending on if this road points to or from the intersection, get the left- or

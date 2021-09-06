@@ -211,7 +211,7 @@ impl State<App> for SelectSegments {
             ctx.show_cursor();
             if let Some(r) = match app.mouseover_unzoomed_roads_and_intersections(ctx) {
                 Some(ID::Road(r)) => Some(r),
-                Some(ID::Lane(l)) => Some(app.primary.map.get_l(l).parent),
+                Some(ID::Lane(l)) => Some(l.road),
                 _ => None,
             } {
                 if self.candidates.contains(&r) {

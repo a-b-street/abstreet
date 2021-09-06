@@ -378,7 +378,7 @@ impl DrivingGoal {
                 PathConstraints::Car => {
                     let driving_lane = map.find_driving_lane_near_building(*b);
                     let sidewalk_pos = map.get_b(*b).sidewalk_pos;
-                    if map.get_l(driving_lane).parent == map.get_l(sidewalk_pos.lane()).parent {
+                    if driving_lane.road == sidewalk_pos.lane().road {
                         Some(sidewalk_pos.equiv_pos(driving_lane, map))
                     } else {
                         Some(Position::start(driving_lane))

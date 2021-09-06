@@ -125,9 +125,9 @@ impl IntersectionCluster {
         uber_turns.retain(|ut| {
             let mut ok = true;
             for pair in ut.path.windows(2) {
-                let r1 = map.get_l(pair[0].src).parent;
-                let r2 = map.get_l(pair[0].dst).parent;
-                let r3 = map.get_l(pair[1].dst).parent;
+                let r1 = pair[0].src.road;
+                let r2 = pair[0].dst.road;
+                let r3 = pair[1].dst.road;
                 if all_restrictions.contains(&(r1, r2, r3)) {
                     ok = false;
                     break;

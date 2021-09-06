@@ -82,7 +82,7 @@ impl Position {
     ) -> Position {
         let our_lane = map.get_l(self.lane);
         let other_lane = map.get_l(other_lane);
-        assert_eq!(our_lane.parent, other_lane.parent);
+        assert_eq!(our_lane.id.road, other_lane.id.road);
 
         let pl = &other_lane.lane_center_pts;
         let pt = self.pt(map);

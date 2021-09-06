@@ -771,11 +771,9 @@ impl ContextualActions for Actions {
                     mode.reset_info(ctx);
                 }))
             }
-            (ID::Lane(l), "export roads") => Transition::Push(select_roads::BulkSelect::new_state(
-                ctx,
-                app,
-                app.primary.map.get_l(l).parent,
-            )),
+            (ID::Lane(l), "export roads") => {
+                Transition::Push(select_roads::BulkSelect::new_state(ctx, app, l.road))
+            }
             (ID::Lane(l), "show equiv_pos") => {
                 Transition::ModifyState(Box::new(move |state, ctx, app| {
                     if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
@@ -1022,12 +1020,12 @@ fn draw_banned_turns(ctx: &mut EventCtx, app: &App) -> Drawable {
         // Don't call out one-ways, so use incoming/outgoing roads, and just for cars.
         for l1 in i.get_incoming_lanes(map, PathConstraints::Car) {
             for l2 in i.get_outgoing_lanes(map, PathConstraints::Car) {
-                pairs.insert((map.get_l(l1).parent, map.get_l(l2).parent));
+                pairs.insert((l1.road, l2.road));
             }
         }
         for t in &i.turns {
-            let r1 = map.get_l(t.id.src).parent;
-            let r2 = map.get_l(t.id.dst).parent;
+            let r1 = t.id.src.road;
+            let r2 = t.id.dst.road;
             pairs.remove(&(r1, r2));
         }
 

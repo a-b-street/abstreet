@@ -19,7 +19,7 @@ fn info_body(ctx: &EventCtx, app: &App, id: LaneID) -> Widget {
 
     let map = &app.primary.map;
     let l = map.get_l(id);
-    let r = map.get_r(l.parent);
+    let r = map.get_r(id.road);
 
     let mut kv = Vec::new();
 
@@ -114,7 +114,7 @@ fn debug_body(ctx: &EventCtx, app: &App, id: LaneID) -> Widget {
 
     let map = &app.primary.map;
     let l = map.get_l(id);
-    let r = map.get_r(l.parent);
+    let r = map.get_r(id.road);
 
     let mut kv = vec![("Parent".to_string(), r.id.to_string())];
 
@@ -215,21 +215,18 @@ pub fn traffic(
 fn traffic_body(ctx: &mut EventCtx, app: &App, id: LaneID, opts: &DataOptions) -> Widget {
     let mut rows = vec![];
 
-    let map = &app.primary.map;
-    let l = map.get_l(id);
-    let r = map.get_r(l.parent);
+    let r = id.road;
 
     // Since this applies to the entire road, ignore lane type.
     let mut txt = Text::from("Traffic over entire road, not just this lane");
     txt.add_line(format!(
         "Since midnight: {} commuters and vehicles crossed",
-        prettyprint_usize(app.primary.sim.get_analytics().road_thruput.total_for(r.id))
+        prettyprint_usize(app.primary.sim.get_analytics().road_thruput.total_for(r))
     ));
     rows.push(txt.into_widget(ctx));
 
     rows.push(opts.to_controls(ctx, app));
 
-    let r = map.get_l(id).parent;
     let time = if opts.show_end_of_day {
         app.primary.sim.get_end_of_day()
     } else {
@@ -258,7 +255,7 @@ fn header(ctx: &EventCtx, app: &App, details: &mut Details, id: LaneID, tab: Tab
 
     let map = &app.primary.map;
     let l = map.get_l(id);
-    let r = map.get_r(l.parent);
+    let r = map.get_r(id.road);
 
     let label = if l.is_shoulder() {
         "Shoulder"

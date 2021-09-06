@@ -636,7 +636,7 @@ fn partition_sidewalk_loops(app: &App) -> Vec<Loop> {
             groups.push(Loop {
                 bldgs,
                 proper: true,
-                roads: sidewalks.into_iter().map(|l| map.get_l(l).parent).collect(),
+                roads: sidewalks.into_iter().map(|l| l.road).collect(),
             });
         } else {
             remainder.extend(bldgs);
@@ -684,9 +684,7 @@ fn partition_sidewalk_loops(app: &App) -> Vec<Loop> {
         per_sidewalk.insert(map.get_b(b).sidewalk(), b);
     }
     for (_, bldgs) in per_sidewalk.consume() {
-        let r = map
-            .get_l(map.get_b(*bldgs.iter().next().unwrap()).sidewalk())
-            .parent;
+        let r = map.get_b(*bldgs.iter().next().unwrap()).sidewalk().road;
         groups.push(Loop {
             bldgs: bldgs.into_iter().collect(),
             proper: false,

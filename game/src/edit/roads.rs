@@ -42,7 +42,7 @@ pub struct RoadEditor {
 impl RoadEditor {
     /// Always starts focused on a certain lane.
     pub fn new_state(ctx: &mut EventCtx, app: &mut App, l: LaneID) -> Box<dyn State<App>> {
-        RoadEditor::create(ctx, app, app.primary.map.get_l(l).parent, Some(l))
+        RoadEditor::create(ctx, app, l.road, Some(l))
     }
 
     pub fn new_state_without_lane(
@@ -442,7 +442,7 @@ impl State<App> for RoadEditor {
         }
         if let Some(l) = self.hovering_on_lane {
             if ctx.normal_left_click() {
-                if app.primary.map.get_l(l).parent == self.r {
+                if l.road == self.r {
                     self.selected_lane = Some(l);
                     panels_need_recalc = true;
                 } else {
@@ -966,8 +966,10 @@ fn lane_type_to_icon(lt: LaneType) -> Option<&'static str> {
 
 fn width_choices(app: &App, l: LaneID) -> Vec<Choice<Distance>> {
     let lane = app.primary.map.get_l(l);
-    let mut choices =
-        LaneSpec::typical_lane_widths(lane.lane_type, &app.primary.map.get_r(lane.parent).osm_tags);
+    let mut choices = LaneSpec::typical_lane_widths(
+        lane.lane_type,
+        &app.primary.map.get_r(lane.id.road).osm_tags,
+    );
     if !choices.iter().any(|(x, _)| *x == lane.width) {
         choices.push((lane.width, "custom"));
     }

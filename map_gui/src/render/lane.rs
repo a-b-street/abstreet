@@ -23,7 +23,7 @@ impl DrawLane {
         DrawLane {
             id: lane.id,
             polygon: lane.lane_center_pts.make_polygons(lane.width),
-            zorder: map.get_r(lane.parent).zorder,
+            zorder: map.get_r(lane.id.road).zorder,
             draw_default: RefCell::new(None),
         }
     }
@@ -31,7 +31,7 @@ impl DrawLane {
     pub fn render<P: AsRef<Prerender>>(&self, prerender: &P, app: &dyn AppLike) -> GeomBatch {
         let map = app.map();
         let lane = map.get_l(self.id);
-        let road = map.get_r(lane.parent);
+        let road = map.get_r(lane.id.road);
         let rank = road.get_rank();
         let mut batch = GeomBatch::new();
 
@@ -316,7 +316,7 @@ fn calculate_turn_markings(map: &Map, lane: &Lane) -> Vec<Polygon> {
     if i.outgoing_lanes.iter().all(|l| {
         let l = map.get_l(*l);
         l.lane_type != lane.lane_type
-            || l.parent == lane.parent
+            || l.id.road == lane.id.road
             || map
                 .maybe_get_t(TurnID {
                     parent: i.id,
@@ -333,7 +333,7 @@ fn calculate_turn_markings(map: &Map, lane: &Lane) -> Vec<Polygon> {
     let mut angles_per_road: HashMap<RoadID, Vec<Angle>> = HashMap::new();
     for turn in map.get_turns_from_lane(lane.id) {
         angles_per_road
-            .entry(map.get_l(turn.id.dst).parent)
+            .entry(turn.id.dst.road)
             .or_insert_with(Vec::new)
             .push(turn.angle());
     }

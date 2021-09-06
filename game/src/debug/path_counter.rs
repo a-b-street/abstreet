@@ -39,7 +39,7 @@ impl PathCounter {
                     // Count what lanes they'll cross
                     for step in path.get_steps() {
                         if let Traversable::Lane(l) = step.as_traversable() {
-                            cnt.inc(map.get_l(l).parent);
+                            cnt.inc(l.road);
                         }
                     }
                 }
@@ -89,7 +89,7 @@ impl State<App> for PathCounter {
             app.primary.current_selection = app.mouseover_unzoomed_roads_and_intersections(ctx);
             self.tooltip = None;
             if let Some(r) = match app.primary.current_selection {
-                Some(ID::Lane(l)) => Some(app.primary.map.get_l(l).parent),
+                Some(ID::Lane(l)) => Some(l.road),
                 Some(ID::Road(r)) => Some(r),
                 _ => None,
             } {
