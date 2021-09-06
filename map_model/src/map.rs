@@ -13,10 +13,10 @@ use geom::{Bounds, Distance, Duration, GPSBounds, Polygon, Pt2D, Ring, Time};
 use crate::raw::{OriginalRoad, RawMap};
 use crate::{
     osm, Area, AreaID, AreaType, Building, BuildingID, BuildingType, BusRoute, BusRouteID, BusStop,
-    BusStopID, ControlStopSign, ControlTrafficSignal, DirectedRoadID, Intersection, IntersectionID,
-    Lane, LaneID, LaneType, Map, MapEdits, MovementID, OffstreetParking, ParkingLot, ParkingLotID,
-    Path, PathConstraints, PathRequest, PathV2, Pathfinder, Position, Road, RoadID, RoutingParams,
-    Turn, TurnID, TurnType, Zone,
+    BusStopID, CompressedMovementID, ControlStopSign, ControlTrafficSignal, DirectedRoadID,
+    Intersection, IntersectionID, Lane, LaneID, LaneType, Map, MapEdits, Movement, MovementID,
+    OffstreetParking, ParkingLot, ParkingLotID, Path, PathConstraints, PathRequest, PathV2,
+    Pathfinder, Position, Road, RoadID, RoutingParams, Turn, TurnID, TurnType, Zone,
 };
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -50,7 +50,7 @@ impl Map {
             match abstio::maybe_read_binary(path.clone(), timer) {
                 Ok(map) => {
                     let mut map: Map = map;
-                    map.map_loaded_directly();
+                    map.map_loaded_directly(timer);
                     return map;
                 }
                 Err(err) => {
@@ -83,12 +83,13 @@ impl Map {
     }
 
     /// After deserializing a map directly, call this after.
-    pub fn map_loaded_directly(&mut self) {
+    pub fn map_loaded_directly(&mut self, timer: &mut Timer) {
         #![allow(clippy::logic_bug)]
         // For debugging map file sizes
 
         self.edits = self.new_edits();
         self.recalculate_road_to_buildings();
+        self.recalculate_all_movements(timer);
 
         // Enable to work on shrinking map file sizes. Never run this on the web though --
         // trying to serialize fast_paths in wasm melts the browser, because the usize<->u32
@@ -312,10 +313,6 @@ impl Map {
     }
 
     // All these helpers should take IDs and return objects.
-
-    pub fn get_turns_in_intersection(&self, id: IntersectionID) -> &Vec<Turn> {
-        &self.get_i(id).turns
-    }
 
     /// The turns may belong to two different intersections!
     pub fn get_turns_from_lane(&self, l: LaneID) -> Vec<&Turn> {
@@ -612,20 +609,16 @@ impl Map {
         self.pathfinder.all_costs_from(req, self)
     }
 
-    // None for SharedSidewalkCorners
-    pub fn get_movement(&self, t: TurnID) -> Option<MovementID> {
-        if let Some(ts) = self.maybe_get_traffic_signal(t.parent) {
-            if self.get_t(t).turn_type == TurnType::SharedSidewalkCorner {
-                return None;
-            }
-            for m in ts.movements.values() {
-                if m.members.contains(&t) {
-                    return Some(m.id);
-                }
-            }
-            panic!("{} doesn't belong to any movements", t);
+    /// None for SharedSidewalkCorners and turns not belonging to traffic signals
+    pub fn get_movement_for_traffic_signal(
+        &self,
+        t: TurnID,
+    ) -> Option<(MovementID, CompressedMovementID)> {
+        let i = self.get_i(t.parent);
+        if !i.is_traffic_signal() || self.get_t(t).turn_type == TurnType::SharedSidewalkCorner {
+            return None;
         }
-        None
+        Some(i.turn_to_movement(t))
     }
 
     pub fn find_r_by_osm_id(&self, id: OriginalRoad) -> Result<RoadID> {
@@ -775,6 +768,17 @@ impl Map {
             mapping.insert(b.sidewalk_pos.lane().road, b.id);
         }
         self.road_to_buildings = mapping;
+    }
+
+    pub(crate) fn recalculate_all_movements(&mut self, timer: &mut Timer) {
+        let movements = timer.parallelize(
+            "generate movements",
+            self.intersections.iter().map(|i| i.id).collect(),
+            |i| Movement::for_i(i, self),
+        );
+        for (i, movements) in self.intersections.iter_mut().zip(movements.into_iter()) {
+            i.movements = movements;
+        }
     }
 
     /// Finds the road directly connecting two intersections.

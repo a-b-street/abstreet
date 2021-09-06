@@ -82,7 +82,7 @@ impl MapLoader {
                 match map {
                     Ok(mut map) => {
                         // Kind of a hack. We can't generically call Map::new with the FileLoader.
-                        map.map_loaded_directly();
+                        map.map_loaded_directly(timer);
 
                         app.map_switched(ctx, map, timer);
 

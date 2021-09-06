@@ -208,23 +208,21 @@ fn handle_command(
             Ok(format!("{} has been updated", id))
         }
         "/traffic-signals/get-delays" => {
-            let i = IntersectionID(get("id")?.parse::<usize>()?);
+            let i = map.get_i(IntersectionID(get("id")?.parse::<usize>()?));
             let t1 = Time::parse(get("t1")?)?;
             let t2 = Time::parse(get("t2")?)?;
-            let ts = if let Some(ts) = map.maybe_get_traffic_signal(i) {
-                ts
-            } else {
-                bail!("{} isn't a traffic signal", i);
-            };
-            let movements: Vec<&MovementID> = ts.movements.keys().collect();
+            if !i.is_traffic_signal() {
+                bail!("{} isn't a traffic signal", i.id);
+            }
+            let movements: Vec<&MovementID> = i.movements.keys().collect();
 
             let mut delays = Delays {
                 per_direction: BTreeMap::new(),
             };
-            for m in ts.movements.keys() {
+            for m in i.movements.keys() {
                 delays.per_direction.insert(*m, Vec::new());
             }
-            if let Some(list) = sim.get_analytics().intersection_delays.get(&i) {
+            if let Some(list) = sim.get_analytics().intersection_delays.get(&i.id) {
                 for (idx, t, dt, _) in list {
                     if *t >= t1 && *t <= t2 {
                         delays
@@ -238,23 +236,21 @@ fn handle_command(
             Ok(abstutil::to_json(&delays))
         }
         "/traffic-signals/get-cumulative-thruput" => {
-            let i = IntersectionID(get("id")?.parse::<usize>()?);
-            let ts = if let Some(ts) = map.maybe_get_traffic_signal(i) {
-                ts
-            } else {
-                bail!("{} isn't a traffic signal", i);
-            };
+            let i = map.get_i(IntersectionID(get("id")?.parse::<usize>()?));
+            if !i.is_traffic_signal() {
+                bail!("{} isn't a traffic signal", i.id);
+            }
 
             let mut thruput = Throughput {
                 per_direction: BTreeMap::new(),
             };
-            for (idx, m) in ts.movements.keys().enumerate() {
+            for (idx, m) in i.movements.keys().enumerate() {
                 thruput.per_direction.insert(
                     *m,
                     sim.get_analytics()
                         .traffic_signal_thruput
                         .total_for(CompressedMovementID {
-                            i,
+                            i: i.id,
                             idx: u8::try_from(idx).unwrap(),
                         }),
                 );

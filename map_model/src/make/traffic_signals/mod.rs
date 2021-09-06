@@ -8,7 +8,7 @@
 use std::collections::{BTreeSet, HashSet};
 
 use crate::{
-    ControlTrafficSignal, DrivingSide, IntersectionCluster, IntersectionID, Map, Movement,
+    ControlTrafficSignal, DrivingSide, Intersection, IntersectionCluster, IntersectionID, Map,
     MovementID, RoadID, Stage, StageType, TurnPriority, TurnType,
 };
 use geom::Duration;
@@ -29,16 +29,16 @@ pub fn get_possible_policies(
 ) -> Vec<(String, ControlTrafficSignal)> {
     let mut results = Vec::new();
 
+    let i = map.get_i(id);
     if let Some(raw) = traffic_signal_data::load_all_data()
         .unwrap()
-        .remove(&map.get_i(id).orig_id.0)
+        .remove(&i.orig_id.0)
     {
-        match ControlTrafficSignal::import(raw, id, map).and_then(|ts| ts.validate().map(|_| ts)) {
+        match ControlTrafficSignal::import(raw, id, map).and_then(|ts| ts.validate(i).map(|_| ts)) {
             Ok(ts) => {
                 results.push(("manually specified settings".to_string(), ts));
             }
             Err(err) => {
-                let i = map.get_i(id);
                 if enforce_manual_signals {
                     panic!(
                         "traffic_signal_data data for {} ({}) out of date, go update it: {}",
@@ -58,32 +58,29 @@ pub fn get_possible_policies(
 
     // As long as we're using silly heuristics for these by default, prefer shorter cycle
     // length.
-    if let Some(ts) = four_way_two_stage(map, id) {
+    if let Some(ts) = four_way_two_stage(map, i) {
         results.push(("two-stage".to_string(), ts));
     }
-    if let Some(ts) = three_way(map, id) {
+    if let Some(ts) = three_way(map, i) {
         results.push(("three-stage".to_string(), ts));
     }
-    if let Some(ts) = four_way_four_stage(map, id) {
+    if let Some(ts) = four_way_four_stage(map, i) {
         results.push(("four-stage".to_string(), ts));
     }
-    if let Some(ts) = half_signal(map, id) {
+    if let Some(ts) = half_signal(i) {
         results.push(("half signal (2 roads with crosswalk)".to_string(), ts));
     }
-    if let Some(ts) = degenerate(map, id) {
+    if let Some(ts) = degenerate(map, i) {
         results.push(("degenerate (2 roads)".to_string(), ts));
     }
-    if let Some(ts) = lagging_green::make_traffic_signal(map, id) {
+    if let Some(ts) = lagging_green::make_traffic_signal(map, i) {
         results.push(("lagging green".to_string(), ts));
     }
-    results.push(("stage per road".to_string(), stage_per_road(map, id)));
-    results.push((
-        "arbitrary assignment".to_string(),
-        greedy_assignment(map, id),
-    ));
+    results.push(("stage per road".to_string(), stage_per_road(map, i)));
+    results.push(("arbitrary assignment".to_string(), greedy_assignment(i)));
     results.push((
         "all walk, then free-for-all yield".to_string(),
-        all_walk_all_yield(map, id),
+        all_walk_all_yield(i),
     ));
 
     // Make sure all possible policies have a minimum crosswalk time enforced
@@ -96,34 +93,33 @@ pub fn get_possible_policies(
                 .cloned()
                 .collect();
             for id in crosswalks {
-                stage.enforce_minimum_crosswalk_time(&signal.movements[&id]);
+                stage.enforce_minimum_crosswalk_time(&i.movements[&id]);
             }
         }
     }
 
-    results.retain(|pair| pair.1.validate().is_ok());
+    results.retain(|pair| pair.1.validate(i).is_ok());
     results
 }
 
-fn new(id: IntersectionID, map: &Map) -> ControlTrafficSignal {
+fn new(id: IntersectionID) -> ControlTrafficSignal {
     ControlTrafficSignal {
         id,
         stages: Vec::new(),
         offset: Duration::ZERO,
-        movements: Movement::for_i(id, map).unwrap(),
     }
 }
 
-fn greedy_assignment(map: &Map, i: IntersectionID) -> ControlTrafficSignal {
-    let mut ts = new(i, map);
+fn greedy_assignment(i: &Intersection) -> ControlTrafficSignal {
+    let mut ts = new(i.id);
 
     // Greedily partition movements into stages that only have protected movements.
-    let mut remaining_movements: Vec<MovementID> = ts.movements.keys().cloned().collect();
+    let mut remaining_movements: Vec<MovementID> = i.movements.keys().cloned().collect();
     let mut current_stage = Stage::new();
     loop {
         let add = remaining_movements
             .iter()
-            .position(|&g| current_stage.could_be_protected(g, &ts.movements));
+            .position(|&g| current_stage.could_be_protected(g, i));
         match add {
             Some(idx) => {
                 current_stage
@@ -141,36 +137,37 @@ fn greedy_assignment(map: &Map, i: IntersectionID) -> ControlTrafficSignal {
         }
     }
 
-    expand_all_stages(&mut ts);
+    expand_all_stages(&mut ts, i);
 
     ts
 }
 
-fn degenerate(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
-    let roads = map.get_i(i).get_sorted_incoming_roads(map);
+fn degenerate(map: &Map, i: &Intersection) -> Option<ControlTrafficSignal> {
+    let roads = i.get_sorted_incoming_roads(map);
     if roads.len() != 2 {
         return None;
     }
     let (r1, r2) = (roads[0], roads[1]);
 
-    let mut ts = new(i, map);
+    let mut ts = new(i.id);
     make_stages(
         &mut ts,
         map.config.driving_side,
+        i,
         vec![vec![(vec![r1, r2], TurnType::Straight, PROTECTED)]],
     );
     Some(ts)
 }
 
-fn half_signal(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
-    if map.get_i(i).roads.len() != 2 {
+fn half_signal(i: &Intersection) -> Option<ControlTrafficSignal> {
+    if i.roads.len() != 2 {
         return None;
     }
 
-    let mut ts = new(i, map);
+    let mut ts = new(i.id);
     let mut vehicle_stage = Stage::new();
     let mut ped_stage = Stage::new();
-    for (id, movement) in &ts.movements {
+    for (id, movement) in &i.movements {
         if id.crosswalk {
             ped_stage.edit_movement(movement, TurnPriority::Protected);
         } else {
@@ -184,15 +181,15 @@ fn half_signal(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
     Some(ts)
 }
 
-fn three_way(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
-    let roads = map.get_i(i).get_sorted_incoming_roads(map);
+fn three_way(map: &Map, i: &Intersection) -> Option<ControlTrafficSignal> {
+    let roads = i.get_sorted_incoming_roads(map);
     if roads.len() != 3 {
         return None;
     }
-    let mut ts = new(i, map);
+    let mut ts = new(i.id);
 
     // Picture a T intersection. Use turn angles to figure out the "main" two roads.
-    let straight = ts
+    let straight = i
         .movements
         .values()
         .find(|g| g.turn_type == TurnType::Straight)?;
@@ -206,6 +203,7 @@ fn three_way(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
     make_stages(
         &mut ts,
         map.config.driving_side,
+        i,
         vec![
             vec![
                 (vec![north, south], TurnType::Straight, PROTECTED),
@@ -227,8 +225,8 @@ fn three_way(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
     Some(ts)
 }
 
-fn four_way_four_stage(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
-    let roads = map.get_i(i).get_sorted_incoming_roads(map);
+fn four_way_four_stage(map: &Map, i: &Intersection) -> Option<ControlTrafficSignal> {
+    let roads = i.get_sorted_incoming_roads(map);
     if roads.len() != 4 {
         return None;
     }
@@ -238,10 +236,11 @@ fn four_way_four_stage(map: &Map, i: IntersectionID) -> Option<ControlTrafficSig
 
     // Four-stage with protected lefts, right turn on red (except for the protected lefts),
     // turning cars yield to peds
-    let mut ts = new(i, map);
+    let mut ts = new(i.id);
     make_stages(
         &mut ts,
         map.config.driving_side,
+        i,
         vec![
             vec![
                 (vec![north, south], TurnType::Straight, PROTECTED),
@@ -260,8 +259,8 @@ fn four_way_four_stage(map: &Map, i: IntersectionID) -> Option<ControlTrafficSig
     Some(ts)
 }
 
-fn four_way_two_stage(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
-    let roads = map.get_i(i).get_sorted_incoming_roads(map);
+fn four_way_two_stage(map: &Map, i: &Intersection) -> Option<ControlTrafficSignal> {
+    let roads = i.get_sorted_incoming_roads(map);
     if roads.len() != 4 {
         return None;
     }
@@ -270,10 +269,11 @@ fn four_way_two_stage(map: &Map, i: IntersectionID) -> Option<ControlTrafficSign
     let (north, west, south, east) = (roads[0], roads[1], roads[2], roads[3]);
 
     // Two-stage with no protected lefts, right turn on red, turning cars yielding to peds
-    let mut ts = new(i, map);
+    let mut ts = new(i.id);
     make_stages(
         &mut ts,
         map.config.driving_side,
+        i,
         vec![
             vec![
                 (vec![north, south], TurnType::Straight, PROTECTED),
@@ -292,13 +292,13 @@ fn four_way_two_stage(map: &Map, i: IntersectionID) -> Option<ControlTrafficSign
     Some(ts)
 }
 
-fn all_walk_all_yield(map: &Map, i: IntersectionID) -> ControlTrafficSignal {
-    let mut ts = new(i, map);
+fn all_walk_all_yield(i: &Intersection) -> ControlTrafficSignal {
+    let mut ts = new(i.id);
 
     let mut all_walk = Stage::new();
     let mut all_yield = Stage::new();
 
-    for movement in ts.movements.values() {
+    for movement in i.movements.values() {
         match movement.turn_type {
             TurnType::Crosswalk => {
                 all_walk.protected_movements.insert(movement.id);
@@ -313,17 +313,17 @@ fn all_walk_all_yield(map: &Map, i: IntersectionID) -> ControlTrafficSignal {
     ts
 }
 
-fn stage_per_road(map: &Map, i: IntersectionID) -> ControlTrafficSignal {
-    let mut ts = new(i, map);
+fn stage_per_road(map: &Map, i: &Intersection) -> ControlTrafficSignal {
+    let mut ts = new(i.id);
 
-    let sorted_roads = map.get_i(i).get_roads_sorted_by_incoming_angle(map);
+    let sorted_roads = i.get_roads_sorted_by_incoming_angle(map);
     for idx in 0..sorted_roads.len() {
         let r = sorted_roads[idx];
         let adj1 = *abstutil::wraparound_get(&sorted_roads, (idx as isize) - 1);
         let adj2 = *abstutil::wraparound_get(&sorted_roads, (idx as isize) + 1);
 
         let mut stage = Stage::new();
-        for movement in ts.movements.values() {
+        for movement in i.movements.values() {
             if movement.turn_type == TurnType::Crosswalk {
                 if movement.id.from.id == adj1 || movement.id.from.id == adj2 {
                     stage.protected_movements.insert(movement.id);
@@ -341,10 +341,10 @@ fn stage_per_road(map: &Map, i: IntersectionID) -> ControlTrafficSignal {
 }
 
 // Add all possible protected movements to existing stages.
-fn expand_all_stages(ts: &mut ControlTrafficSignal) {
+fn expand_all_stages(ts: &mut ControlTrafficSignal, i: &Intersection) {
     for stage in ts.stages.iter_mut() {
-        for g in ts.movements.keys() {
-            if stage.could_be_protected(*g, &ts.movements) {
+        for g in i.movements.keys() {
+            if stage.could_be_protected(*g, i) {
                 stage.protected_movements.insert(*g);
             }
         }
@@ -357,6 +357,7 @@ const YIELD: bool = false;
 fn make_stages(
     ts: &mut ControlTrafficSignal,
     driving_side: DrivingSide,
+    i: &Intersection,
     stage_specs: Vec<Vec<(Vec<RoadID>, TurnType, bool)>>,
 ) {
     for specs in stage_specs {
@@ -376,7 +377,7 @@ fn make_stages(
                 explicit_crosswalks = true;
             }
 
-            for movement in ts.movements.values() {
+            for movement in i.movements.values() {
                 if !roads.contains(&movement.id.from.id) || turn_type != movement.turn_type {
                     continue;
                 }
@@ -399,9 +400,9 @@ fn make_stages(
             // TODO If a stage has no protected turns at all, this adds the crosswalk to multiple
             // stages in a pretty weird way. It'd be better to add to just one stage -- the one
             // with the least conflicting yields.
-            for movement in ts.movements.values() {
+            for movement in i.movements.values() {
                 if movement.turn_type == TurnType::Crosswalk
-                    && stage.could_be_protected(movement.id, &ts.movements)
+                    && stage.could_be_protected(movement.id, i)
                 {
                     stage.edit_movement(movement, TurnPriority::Protected);
                 }

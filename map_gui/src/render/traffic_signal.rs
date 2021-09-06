@@ -1,7 +1,9 @@
 use std::collections::BTreeSet;
 
 use geom::{Angle, ArrowCap, Circle, Distance, Duration, Line, PolyLine, Pt2D};
-use map_model::{IntersectionID, Movement, Stage, StageType, TurnPriority, SIDEWALK_THICKNESS};
+use map_model::{
+    Intersection, IntersectionID, Movement, Stage, StageType, TurnPriority, SIDEWALK_THICKNESS,
+};
 use widgetry::{Color, GeomBatch, Line, Prerender, RewriteColor, Text};
 
 use crate::options::TrafficSignalStyle;
@@ -19,13 +21,13 @@ pub fn draw_signal_stage(
     app: &dyn AppLike,
     signal_style: TrafficSignalStyle,
 ) {
-    let signal = app.map().get_traffic_signal(i);
+    let i = app.map().get_i(i);
 
     match signal_style {
         TrafficSignalStyle::Brian => {
             let mut dont_walk = BTreeSet::new();
             let mut crossed_roads = BTreeSet::new();
-            for m in signal.movements.keys() {
+            for m in i.movements.keys() {
                 if m.crosswalk {
                     dont_walk.insert(m);
                     // TODO This is incorrect; some crosswalks hop over intermediate roads. How do
@@ -61,7 +63,7 @@ pub fn draw_signal_stage(
 
             for m in &stage.yield_movements {
                 assert!(!m.crosswalk);
-                let pl = &signal.movements[m].geom;
+                let pl = &i.movements[m].geom;
                 // TODO Make dashed_arrow draw the last polygon without an awkward overlap. Then we
                 // can just make one call here and control the outline thickness just using
                 // to_outline.
@@ -108,7 +110,7 @@ pub fn draw_signal_stage(
                         Distance::ZERO
                     };
 
-                    let pl = &signal.movements[m].geom;
+                    let pl = &i.movements[m].geom;
                     if let Ok(pl) = pl.maybe_exact_slice(slice_start, pl.length() - slice_end) {
                         let arrow = pl.make_arrow(BIG_ARROW_THICKNESS, ArrowCap::Triangle);
                         batch.push(arrow_body_color, arrow.clone());
@@ -118,7 +120,7 @@ pub fn draw_signal_stage(
                     }
                 } else {
                     batch.append(
-                        walk_icon(&signal.movements[m], prerender)
+                        walk_icon(&i.movements[m], prerender)
                             .color(RewriteColor::ChangeAlpha(percent)),
                     );
                     dont_walk.remove(m);
@@ -126,15 +128,15 @@ pub fn draw_signal_stage(
             }
 
             for m in dont_walk {
-                batch.append(dont_walk_icon(&signal.movements[m], prerender));
+                batch.append(dont_walk_icon(&i.movements[m], prerender));
             }
 
-            draw_stage_number(app, prerender, i, idx, batch);
+            draw_stage_number(prerender, i, idx, batch);
         }
         TrafficSignalStyle::Yuwen => {
             for m in &stage.yield_movements {
                 assert!(!m.crosswalk);
-                let arrow = signal.movements[m]
+                let arrow = i.movements[m]
                     .geom
                     .make_arrow(BIG_ARROW_THICKNESS * 2.0, ArrowCap::Triangle);
                 batch.push(app.cs().signal_permitted_turn.alpha(0.3), arrow.clone());
@@ -148,14 +150,14 @@ pub fn draw_signal_stage(
                     // always drawn, so this awkwardly doubles some of them.
                     make_crosswalk(
                         batch,
-                        app.map().get_t(signal.movements[m].members[0]),
+                        app.map().get_t(i.movements[m].members[0]),
                         app.map(),
                         app.cs(),
                     );
                 } else {
                     batch.push(
                         app.cs().signal_protected_turn,
-                        signal.movements[m]
+                        i.movements[m]
                             .geom
                             .make_arrow(BIG_ARROW_THICKNESS * 2.0, ArrowCap::Triangle),
                     );
@@ -166,11 +168,11 @@ pub fn draw_signal_stage(
             }
         }
         TrafficSignalStyle::IndividualTurnArrows => {
-            for turn in app.map().get_turns_in_intersection(i) {
+            for turn in &i.turns {
                 if turn.between_sidewalks() {
                     continue;
                 }
-                match stage.get_priority_of_turn(turn.id, signal) {
+                match stage.get_priority_of_turn(turn.id, i) {
                     TurnPriority::Protected => {
                         batch.push(
                             app.cs().signal_protected_turn,
@@ -199,14 +201,13 @@ pub fn draw_signal_stage(
 }
 
 pub fn draw_stage_number(
-    app: &dyn AppLike,
     prerender: &Prerender,
-    i: IntersectionID,
+    i: &Intersection,
     idx: usize,
     batch: &mut GeomBatch,
 ) {
     let radius = Distance::meters(1.0);
-    let center = app.map().get_i(i).polygon.polylabel();
+    let center = i.polygon.polylabel();
     batch.push(
         Color::hex("#5B5B5B"),
         Circle::new(center, radius).to_polygon(),
@@ -223,13 +224,13 @@ fn draw_time_left(
     app: &dyn AppLike,
     prerender: &Prerender,
     stage: &Stage,
-    i: IntersectionID,
+    i: &Intersection,
     idx: usize,
     time_left: Duration,
     batch: &mut GeomBatch,
 ) {
     let radius = Distance::meters(2.0);
-    let center = app.map().get_i(i).polygon.center();
+    let center = i.polygon.center();
     let duration = stage.stage_type.simple_duration();
     let percent = if duration > Duration::ZERO {
         time_left / duration

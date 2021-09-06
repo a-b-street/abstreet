@@ -6,7 +6,7 @@ use fast_paths::InputGraph;
 use serde::{Deserialize, Serialize};
 
 use abstutil::MultiMap;
-use geom::{Distance, Duration};
+use geom::Duration;
 
 use crate::pathfind::engine::{CreateEngine, PathfindEngine};
 use crate::pathfind::node_map::{deserialize_nodemap, NodeMap};
@@ -15,7 +15,7 @@ use crate::pathfind::zone_cost;
 use crate::pathfind::{round, unround};
 use crate::{
     DirectedRoadID, Direction, LaneType, Map, MovementID, PathConstraints, PathRequest, PathV2,
-    Position, RoutingParams, Traversable, TurnType,
+    Position, RoutingParams, Traversable,
 };
 
 #[derive(Clone, Serialize, Deserialize)]
@@ -271,12 +271,7 @@ pub fn vehicle_cost(
     params: &RoutingParams,
     map: &Map,
 ) -> Duration {
-    // TODO Creating the consolidated polyline sometimes fails. It's rare, so just workaround
-    // temporarily by pretending the turn is 1m long.
-    let (mvmnt_length, mvmnt_turn_type) = mvmnt
-        .get(map)
-        .map(|m| (m.geom.length(), m.turn_type))
-        .unwrap_or((Distance::meters(1.0), TurnType::Straight));
+    let movement = &map.get_i(mvmnt.parent).movements[&mvmnt];
     let max_speed = match constraints {
         PathConstraints::Car | PathConstraints::Bus | PathConstraints::Train => None,
         PathConstraints::Bike => Some(crate::MAX_BIKE_SPEED),
@@ -284,8 +279,8 @@ pub fn vehicle_cost(
     };
     let t1 = map.get_r(dr.id).center_pts.length()
         / Traversable::max_speed_along_road(dr, max_speed, constraints, map).0;
-    let t2 =
-        mvmnt_length / Traversable::max_speed_along_movement(mvmnt, max_speed, constraints, map);
+    let t2 = movement.geom.length()
+        / Traversable::max_speed_along_movement(mvmnt, max_speed, constraints, map);
 
     let base = match constraints {
         PathConstraints::Car | PathConstraints::Train => t1 + t2,
@@ -342,7 +337,7 @@ pub fn vehicle_cost(
 
     let mut extra = Duration::ZERO;
     // Penalize unprotected turns at a stop sign from smaller to larger roads.
-    if map.is_unprotected_turn(dr.id, mvmnt.to.id, mvmnt_turn_type) {
+    if map.is_unprotected_turn(dr.id, mvmnt.to.id, movement.turn_type) {
         extra += params.unprotected_turn_penalty
     }
 

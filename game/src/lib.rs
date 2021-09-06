@@ -195,7 +195,7 @@ fn setup_app(ctx: &mut EventCtx, mut setup: Setup) -> (App, Vec<Box<dyn State<Ap
             // Use this low-level API, since the secondary map file probably isn't in the usual
             // directory structure
             let mut map: Map = abstio::read_binary(path.clone(), &mut timer);
-            map.map_loaded_directly();
+            map.map_loaded_directly(&mut timer);
             let sim = Sim::new(&map, setup.flags.sim_flags.opts.clone());
             let mut per_map = crate::app::PerMap::map_loaded(
                 map,

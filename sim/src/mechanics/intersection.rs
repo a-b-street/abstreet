@@ -222,8 +222,9 @@ impl IntersectionSimState {
             let current_stage = self.state[&i].signal.as_ref().unwrap().current_stage;
             let stage = &signal.stages[current_stage];
             let reserved = &self.state[&i].reserved;
+            let i = map.get_i(i);
             for (req, _, _) in all {
-                match stage.get_priority_of_turn(req.turn, signal) {
+                match stage.get_priority_of_turn(req.turn, i) {
                     TurnPriority::Protected => {
                         protected.push(req);
                     }
@@ -279,17 +280,20 @@ impl IntersectionSimState {
         map: &Map,
         scheduler: &mut Scheduler,
     ) {
+        let i = map.get_i(id);
+
         // trivial function that advances the signal stage and returns duration
         fn advance(
             signal_state: &mut SignalState,
             signal: &ControlTrafficSignal,
+            i: &Intersection,
             allow_crosswalk_skip: bool,
         ) -> Duration {
             signal_state.current_stage = (signal_state.current_stage + 1) % signal.stages.len();
             let stage = &signal.stages[signal_state.current_stage];
             // only skip for variable all-walk crosswalk
             if let StageType::Variable(_, _, _) = stage.stage_type {
-                if allow_crosswalk_skip && stage.max_crosswalk_time(&signal.movements).is_some() {
+                if allow_crosswalk_skip && stage.max_crosswalk_time(i).is_some() {
                     // we can skip this stage, as its all walk and we're allowed to skip (no
                     // pedestrian waiting).
                     signal_state.current_stage =
@@ -315,7 +319,7 @@ impl IntersectionSimState {
         let old_stage = &signal.stages[signal_state.current_stage];
         match old_stage.stage_type {
             StageType::Fixed(_) => {
-                duration = advance(signal_state, signal, !ped_waiting);
+                duration = advance(signal_state, signal, i, !ped_waiting);
             }
             StageType::Variable(min, delay, additional) => {
                 // test if anyone is waiting in current stage, and if so, extend the signal cycle.
@@ -333,7 +337,7 @@ impl IntersectionSimState {
                             min, delay, additional, signal_state.extensions_count
                         ),
                     ));
-                    duration = advance(signal_state, signal, !ped_waiting);
+                    duration = advance(signal_state, signal, i, !ped_waiting);
                     signal_state.extensions_count = 0;
                 } else if state.waiting.keys().all(|req| {
                     if let AgentID::Pedestrian(_) = req.agent {
@@ -341,10 +345,10 @@ impl IntersectionSimState {
                     }
                     // Should we only allow protected to extend or any not banned?
                     // currently only the protected demand control extended.
-                    old_stage.get_priority_of_turn(req.turn, signal) != TurnPriority::Protected
+                    old_stage.get_priority_of_turn(req.turn, i) != TurnPriority::Protected
                 }) {
                     signal_state.extensions_count = 0;
-                    duration = advance(signal_state, signal, !ped_waiting);
+                    duration = advance(signal_state, signal, i, !ped_waiting);
                 } else {
                     signal_state.extensions_count += 1;
                     duration = delay;
@@ -859,7 +863,7 @@ impl IntersectionSimState {
         let (our_time, _) = state.waiting[req];
 
         // Can't go at all this stage.
-        let our_priority = stage.get_priority_of_turn(req.turn, signal);
+        let our_priority = stage.get_priority_of_turn(req.turn, map.get_i(state.id));
         if our_priority == TurnPriority::Banned {
             return false;
         }
