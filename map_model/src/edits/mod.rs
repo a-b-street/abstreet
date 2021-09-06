@@ -16,7 +16,8 @@ use crate::make::{match_points_to_lanes, snap_driveway, trim_path};
 use crate::{
     connectivity, AccessRestrictions, BuildingID, BusRouteID, ControlStopSign,
     ControlTrafficSignal, Direction, IntersectionID, IntersectionType, LaneID, LaneSpec, LaneType,
-    Map, MapConfig, ParkingLotID, PathConstraints, Pathfinder, Road, RoadID, TurnID, Zone,
+    Map, MapConfig, Movement, ParkingLotID, PathConstraints, Pathfinder, Road, RoadID, TurnID,
+    Zone,
 };
 
 mod compat;
@@ -493,16 +494,17 @@ fn recalculate_turns(id: IntersectionID, map: &mut Map, effects: &mut EditEffect
         return;
     }
 
-    let turns = crate::make::turns::make_all_turns(map, map.get_i(id));
-    let i = &mut map.intersections[id.0];
-    for t in turns {
-        effects.added_turns.insert(t.id);
-        if let Some(_existing_t) = old_turns.iter().find(|turn| turn.id == t.id) {
-            // TODO Except for lookup_idx
-            //assert_eq!(t, *existing_t);
+    {
+        let turns = crate::make::turns::make_all_turns(map, map.get_i(id));
+        let i = &mut map.intersections[id.0];
+        for t in turns {
+            effects.added_turns.insert(t.id);
+            i.turns.push(t);
         }
-        i.turns.push(t);
     }
+    let movements = Movement::for_i(id, map);
+    let i = &mut map.intersections[id.0];
+    i.movements = movements;
 
     match i.intersection_type {
         IntersectionType::StopSign => {

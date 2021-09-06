@@ -6,57 +6,57 @@ use super::*;
 /// In some degenerate cases, usually with one or more one-way, this can reduce to stage per road.
 /// In some rare cases, usually with an alleyway, oncoming lanes can't both be protected left turns.
 /// In such cases the stage is split into two stages with each having a protected and yeild turn.
-pub fn make_traffic_signal(map: &Map, id: IntersectionID) -> Option<ControlTrafficSignal> {
+pub fn make_traffic_signal(map: &Map, i: &Intersection) -> Option<ControlTrafficSignal> {
     // Try to create the stages, this returns a unoptimized signal, which is then optimized.
-    if let Some(ts) = make_signal(map, id) {
-        return optimize(ts);
+    if let Some(ts) = make_signal(i, map) {
+        return optimize(ts, i);
     }
     None
 }
 
-fn make_signal(map: &Map, id: IntersectionID) -> Option<ControlTrafficSignal> {
-    let mut ts = new(id, map);
-    if let Some(other) = three_way_three_stage(map, id) {
+fn make_signal(i: &Intersection, map: &Map) -> Option<ControlTrafficSignal> {
+    let mut ts = new(i.id);
+    if let Some(other) = three_way_three_stage(i, map) {
         ts.stages = other.stages;
-    } else if let Some(other) = four_way_four_stage(map, id) {
+    } else if let Some(other) = four_way_four_stage(i, map) {
         ts.stages = other.stages;
     }
-    ts.convert_to_ped_scramble_without_promotion();
+    ts.convert_to_ped_scramble_without_promotion(i);
     // We don't always get a valid traffic signal from the default 3-way and 4-way. When we don't
     // we need to try assembling stages with a more complex algorithm.
-    if ts.validate().is_err() {
-        if let Some(other) = multi_way_stages(map, id) {
+    if ts.validate(i).is_err() {
+        if let Some(other) = multi_way_stages(i) {
             ts.stages = other.stages;
-            ts.convert_to_ped_scramble_without_promotion();
+            ts.convert_to_ped_scramble_without_promotion(i);
         }
     }
-    if let Err(err) = ts.validate() {
+    if let Err(err) = ts.validate(i) {
         // when all else fails, use stage per road and all-walk stage at the end
         debug!("multi-way validation_error={} ts={:#?}", err, ts);
-        ts = stage_per_road(map, id);
-        ts.convert_to_ped_scramble();
+        ts = stage_per_road(map, i);
+        ts.convert_to_ped_scramble(i);
     }
     Some(ts)
 }
 
-fn optimize(mut ts: ControlTrafficSignal) -> Option<ControlTrafficSignal> {
+fn optimize(mut ts: ControlTrafficSignal, i: &Intersection) -> Option<ControlTrafficSignal> {
     // Remove stages which don't contain a protected route.
     ts.stages.retain(|s| !s.protected_movements.is_empty());
     // Determine if any stages can be merged. We could merge turns, but if we end up not reducing
     // the stage as a result, its probably not worth doing, or can be easily added by the user.
-    while let Some(merged_ts) = merge_stages(&ts) {
+    while let Some(merged_ts) = merge_stages(&ts, i) {
         ts = merged_ts;
     }
     make_lagging_green_variable(&mut ts);
-    make_crosswalk_variable(&mut ts);
+    make_crosswalk_variable(&mut ts, i);
     Some(ts)
 }
 
 // convert walk to variable with a min duration not less than 15 seconds
-fn make_crosswalk_variable(ts: &mut ControlTrafficSignal) {
+fn make_crosswalk_variable(ts: &mut ControlTrafficSignal, i: &Intersection) {
     const MIN_CROSSWALK_TIME: Duration = Duration::const_seconds(15.0);
-    for mut s in ts.stages.iter_mut() {
-        if let Some(duration) = s.max_crosswalk_time(&ts.movements) {
+    for s in &mut ts.stages {
+        if let Some(duration) = s.max_crosswalk_time(i) {
             if let StageType::Fixed(_) = s.stage_type {
                 s.stage_type = StageType::Variable(
                     duration.max(MIN_CROSSWALK_TIME),
@@ -68,7 +68,7 @@ fn make_crosswalk_variable(ts: &mut ControlTrafficSignal) {
     }
 }
 
-fn merge_stages(ts: &ControlTrafficSignal) -> Option<ControlTrafficSignal> {
+fn merge_stages(ts: &ControlTrafficSignal, i: &Intersection) -> Option<ControlTrafficSignal> {
     for s_src in &ts.stages {
         // s_src is the stage we want to apply to the other stages
         for s_dst in &ts.stages {
@@ -83,7 +83,7 @@ fn merge_stages(ts: &ControlTrafficSignal) -> Option<ControlTrafficSignal> {
             let mut maybe_ts = ts.clone();
             // insert at the head, keeping crosswalk last
             maybe_ts.stages.insert(0, merged_stage);
-            if maybe_ts.validate().is_ok() {
+            if maybe_ts.validate(i).is_ok() {
                 let mut stages: Vec<Stage> = Vec::new();
                 for s in maybe_ts.stages {
                     if s != *s_src && s != *s_dst {
@@ -99,9 +99,9 @@ fn merge_stages(ts: &ControlTrafficSignal) -> Option<ControlTrafficSignal> {
 }
 
 // Sometimes protected oncoming left turns aren't possible.
-fn is_conflict(ts: &ControlTrafficSignal, stage: &Stage) -> Option<(MovementID, MovementID)> {
-    for m1 in stage.protected_movements.iter().map(|m| &ts.movements[m]) {
-        for m2 in stage.protected_movements.iter().map(|m| &ts.movements[m]) {
+fn is_conflict(stage: &Stage, i: &Intersection) -> Option<(MovementID, MovementID)> {
+    for m1 in stage.protected_movements.iter().map(|m| &i.movements[m]) {
+        for m2 in stage.protected_movements.iter().map(|m| &i.movements[m]) {
             // Use low-level turn conflict, since we know this a road to road movement.
             if m1.id != m2.id && m1.geom.intersection(&m2.geom).is_some() {
                 return Some((m1.id, m2.id));
@@ -127,9 +127,9 @@ fn protected_yield_stage(p: MovementID, y: MovementID) -> Stage {
 /// protected and other yield. Finally, any turns which weren't assigned, because there
 /// are no straights or there are more than just pairs of straight intersections, are assigned a
 /// stage. These, too are handled as pairs until one remains, which is handled as a one-way.
-fn multi_way_stages(map: &Map, id: IntersectionID) -> Option<ControlTrafficSignal> {
-    let mut ts = new(id, map);
-    let (mut right, mut left, straight, mut roads) = movements(&ts);
+fn multi_way_stages(i: &Intersection) -> Option<ControlTrafficSignal> {
+    let mut ts = new(i.id);
+    let (mut right, mut left, straight, mut roads) = movements(i);
     let (one_way, two_way) = straight_types(&straight);
     for m in &one_way {
         let mut stage = Stage::new();
@@ -164,7 +164,7 @@ fn multi_way_stages(map: &Map, id: IntersectionID) -> Option<ControlTrafficSigna
             stage2.protected_movements.insert(t);
         }
         add_stage(&mut ts, stage1);
-        if let Some((m1, m2)) = is_conflict(&ts, &stage2) {
+        if let Some((m1, m2)) = is_conflict(&stage2, i) {
             // We've hit the case where oncoming left turns can't both be protected.
             add_stage(&mut ts, protected_yield_stage(m1, m2));
             add_stage(&mut ts, protected_yield_stage(m2, m1));
@@ -255,15 +255,15 @@ fn remove_movement(from: &RoadID, to: &RoadID, turns: &mut Vec<MovementID>) -> O
     result
 }
 
-fn three_way_three_stage(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
-    let roads = map.get_i(i).get_sorted_incoming_roads(map);
+fn three_way_three_stage(i: &Intersection, map: &Map) -> Option<ControlTrafficSignal> {
+    let roads = i.get_sorted_incoming_roads(map);
     if roads.len() != 3 {
         return None;
     }
-    let mut ts = new(i, map);
+    let mut ts = new(i.id);
 
     // Picture a T intersection. Use turn angles to figure out the "main" two roads.
-    let straight = ts
+    let straight = i
         .movements
         .values()
         .find(|g| g.turn_type == TurnType::Straight)?;
@@ -277,6 +277,7 @@ fn three_way_three_stage(map: &Map, i: IntersectionID) -> Option<ControlTrafficS
     make_stages(
         &mut ts,
         map.config.driving_side,
+        i,
         vec![
             vec![
                 (vec![north, south], TurnType::Straight, PROTECTED),
@@ -299,8 +300,8 @@ fn three_way_three_stage(map: &Map, i: IntersectionID) -> Option<ControlTrafficS
     Some(ts)
 }
 
-fn four_way_four_stage(map: &Map, i: IntersectionID) -> Option<ControlTrafficSignal> {
-    let roads = map.get_i(i).get_sorted_incoming_roads(map);
+fn four_way_four_stage(i: &Intersection, map: &Map) -> Option<ControlTrafficSignal> {
+    let roads = i.get_sorted_incoming_roads(map);
     if roads.len() != 4 {
         return None;
     }
@@ -310,10 +311,11 @@ fn four_way_four_stage(map: &Map, i: IntersectionID) -> Option<ControlTrafficSig
 
     // Four-stage with protected lefts, right turn on red (except for the protected lefts),
     // turning cars yield to peds
-    let mut ts = new(i, map);
+    let mut ts = new(i.id);
     make_stages(
         &mut ts,
         map.config.driving_side,
+        i,
         vec![
             vec![
                 (vec![north, south], TurnType::Straight, PROTECTED),
@@ -341,7 +343,7 @@ fn four_way_four_stage(map: &Map, i: IntersectionID) -> Option<ControlTrafficSig
 }
 
 fn movements(
-    ts: &ControlTrafficSignal,
+    i: &Intersection,
 ) -> (
     Vec<MovementID>,
     Vec<MovementID>,
@@ -353,7 +355,7 @@ fn movements(
     let mut straight: Vec<MovementID> = Vec::new();
     let mut set: BTreeSet<RoadID> = BTreeSet::new();
 
-    for (id, m) in &ts.movements {
+    for (id, m) in &i.movements {
         if !id.crosswalk {
             match m.turn_type {
                 TurnType::Right => right.push(*id),

@@ -156,9 +156,8 @@ impl TrafficSignalEditor {
                 movements.push(m);
             }
             traffic_signal::draw_stage_number(
-                app,
                 ctx.prerender,
-                *i,
+                app.primary.map.get_i(*i),
                 self.current_stage,
                 &mut batch,
             );
@@ -181,7 +180,10 @@ impl TrafficSignalEditor {
     // We may have imported the signal configuration without validating it.
     fn validate_all_members(&self, app: &App) -> Result<()> {
         for i in &self.members {
-            app.primary.map.get_traffic_signal(*i).validate()?;
+            app.primary
+                .map
+                .get_traffic_signal(*i)
+                .validate(app.primary.map.get_i(*i))?;
         }
         Ok(())
     }
@@ -403,11 +405,12 @@ impl State<App> for TrafficSignalEditor {
             if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
                 for m in &self.movements {
                     let signal = app.primary.map.get_traffic_signal(m.id.parent);
+                    let i = app.primary.map.get_i(signal.id);
                     if m.hitbox.contains_pt(pt) {
                         let stage = &signal.stages[self.current_stage];
                         let next_priority = match stage.get_priority_of_movement(m.id) {
                             TurnPriority::Banned => {
-                                if stage.could_be_protected(m.id, &signal.movements) {
+                                if stage.could_be_protected(m.id, i) {
                                     Some(TurnPriority::Protected)
                                 } else if m.id.crosswalk {
                                     None
@@ -468,10 +471,10 @@ impl State<App> for TrafficSignalEditor {
                 ),
             ) {
                 let idx = self.current_stage;
-                let signal = signal.clone();
+                let movement = app.primary.map.get_i(id.parent).movements[&id].clone();
                 self.add_new_edit(ctx, app, idx, |ts| {
                     if ts.id == id.parent {
-                        ts.stages[idx].edit_movement(&signal.movements[&id], pri);
+                        ts.stages[idx].edit_movement(&movement, pri);
                     }
                 });
                 return Transition::KeepWithMouseover;
@@ -833,7 +836,12 @@ impl BundleEdits {
 fn check_for_missing_turns(app: &App, members: &BTreeSet<IntersectionID>) -> Option<BundleEdits> {
     let mut all_missing = BTreeSet::new();
     for i in members {
-        all_missing.extend(app.primary.map.get_traffic_signal(*i).missing_turns());
+        all_missing.extend(
+            app.primary
+                .map
+                .get_traffic_signal(*i)
+                .missing_turns(app.primary.map.get_i(*i)),
+        );
     }
     if all_missing.is_empty() {
         return None;

@@ -124,7 +124,7 @@ pub fn import_all(ctx: &mut EventCtx, app: &mut App, path: &str) -> Box<dyn Stat
         for i in all_signals {
             timer.next();
             match import(&app.primary.map, i, path)
-                .and_then(|signal| signal.validate().map(|_| signal))
+                .and_then(|signal| signal.validate(app.primary.map.get_i(i)).map(|_| signal))
             {
                 Ok(signal) => {
                     info!("Success at {}", i);
@@ -251,10 +251,12 @@ impl Snapper {
         Ok(Snapper {
             roads_incoming,
             roads_outgoing,
-            movements: ControlTrafficSignal::new(map, i)
+            movements: map
+                .get_i(i)
                 .movements
-                .into_iter()
+                .iter()
                 .filter(|(id, _)| !id.crosswalk)
+                .map(|(k, v)| (*k, v.clone()))
                 .collect(),
         })
     }
@@ -340,33 +342,32 @@ fn add_crosswalks(signal: &mut ControlTrafficSignal, map: &Map) {
         TurnType::Left
     };
 
+    let i = map.get_i(signal.id);
     let mut crosswalks: Vec<MovementID> = Vec::new();
-    for id in signal.movements.keys() {
+    for id in i.movements.keys() {
         if id.crosswalk {
             crosswalks.push(*id);
         }
     }
-    // Temporary for the borrow checker
-    let movements = std::mem::take(&mut signal.movements);
 
     // We could try to look for straight turns parallel to the crosswalk, but... just brute-force
     // it
     for stage in &mut signal.stages {
         crosswalks.retain(|id| {
-            if stage.could_be_protected(*id, &movements) {
-                stage.edit_movement(&movements[id], TurnPriority::Protected);
+            if stage.could_be_protected(*id, i) {
+                stage.edit_movement(&i.movements[id], TurnPriority::Protected);
                 false
             } else {
                 // There may be conflicting right turns that we can downgrade. Try that.
                 let mut stage_copy = stage.clone();
                 for maybe_right_turn in stage.protected_movements.clone() {
-                    if movements[&maybe_right_turn].turn_type == downgrade_type {
+                    if i.movements[&maybe_right_turn].turn_type == downgrade_type {
                         stage.protected_movements.remove(&maybe_right_turn);
                         stage.yield_movements.insert(maybe_right_turn);
                     }
                 }
-                if stage_copy.could_be_protected(*id, &movements) {
-                    stage_copy.edit_movement(&movements[id], TurnPriority::Protected);
+                if stage_copy.could_be_protected(*id, i) {
+                    stage_copy.edit_movement(&i.movements[id], TurnPriority::Protected);
                     *stage = stage_copy;
                     false
                 } else {
@@ -375,6 +376,4 @@ fn add_crosswalks(signal: &mut ControlTrafficSignal, map: &Map) {
             }
         });
     }
-
-    signal.movements = movements;
 }

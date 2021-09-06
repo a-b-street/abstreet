@@ -24,6 +24,7 @@ impl ChangeDuration {
         signal: &ControlTrafficSignal,
         idx: usize,
     ) -> Box<dyn State<App>> {
+        let i = app.primary.map.get_i(signal.id);
         let panel = Panel::new_builder(Widget::col(vec![
             Widget::row(vec![
                 Line("How long should this stage last?")
@@ -36,7 +37,7 @@ impl ChangeDuration {
                 Spinner::widget(
                     ctx,
                     "duration",
-                    (signal.get_min_crossing_time(idx), Duration::minutes(5)),
+                    (signal.get_min_crossing_time(idx, i), Duration::minutes(5)),
                     signal.stages[idx].stage_type.simple_duration(),
                     Duration::seconds(1.0),
                 ),
@@ -178,7 +179,8 @@ pub fn edit_entire_signal(
     let has_sidewalks = app
         .primary
         .map
-        .get_turns_in_intersection(i)
+        .get_i(i)
+        .turns
         .iter()
         .any(|t| t.between_sidewalks());
 
@@ -241,7 +243,7 @@ pub fn edit_entire_signal(
                 Transition::Pop,
                 Transition::ModifyState(Box::new(move |state, ctx, app| {
                     let mut new_signal = app.primary.map.get_traffic_signal(i).clone();
-                    if new_signal.convert_to_ped_scramble() {
+                    if new_signal.convert_to_ped_scramble(app.primary.map.get_i(i)) {
                         let editor = state.downcast_mut::<TrafficSignalEditor>().unwrap();
                         editor.add_new_edit(ctx, app, 0, |ts| {
                             *ts = new_signal.clone();

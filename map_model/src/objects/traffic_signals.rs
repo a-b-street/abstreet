@@ -1,17 +1,15 @@
 use std::collections::{BTreeMap, BTreeSet};
-use std::convert::TryFrom;
 
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
 
-use abstutil::{deserialize_btreemap, serialize_btreemap};
 use geom::{Distance, Duration, Speed};
 
 use crate::make::traffic_signals::get_possible_policies;
 use crate::raw::OriginalRoad;
 use crate::{
-    osm, CompressedMovementID, DirectedRoadID, Direction, IntersectionID, Map, Movement,
-    MovementID, RoadID, TurnID, TurnPriority, TurnType,
+    osm, DirectedRoadID, Direction, Intersection, IntersectionID, Map, Movement, MovementID,
+    RoadID, TurnID, TurnPriority, TurnType,
 };
 
 // The pace to use for crosswalk pace in m/s
@@ -26,12 +24,6 @@ pub struct ControlTrafficSignal {
     pub id: IntersectionID,
     pub stages: Vec<Stage>,
     pub offset: Duration,
-
-    #[serde(
-        serialize_with = "serialize_btreemap",
-        deserialize_with = "deserialize_btreemap"
-    )]
-    pub movements: BTreeMap<MovementID, Movement>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
@@ -90,12 +82,11 @@ impl ControlTrafficSignal {
         get_possible_policies(map, id, false)
     }
 
-    pub fn get_min_crossing_time(&self, idx: usize) -> Duration {
+    pub fn get_min_crossing_time(&self, idx: usize, i: &Intersection) -> Duration {
         let mut max_distance = Distance::meters(0.0);
         for movement in &self.stages[idx].protected_movements {
             if movement.crosswalk {
-                max_distance =
-                    max_distance.max(self.movements.get(movement).unwrap().geom.length());
+                max_distance = max_distance.max(i.movements[movement].geom.length());
             }
         }
         let time = max_distance / CROSSWALK_PACE;
@@ -104,9 +95,9 @@ impl ControlTrafficSignal {
         Duration::seconds(time.inner_seconds().ceil())
     }
 
-    pub fn validate(&self) -> Result<()> {
+    pub fn validate(&self, i: &Intersection) -> Result<()> {
         // Does the assignment cover the correct set of movements?
-        let expected_movements: BTreeSet<MovementID> = self.movements.keys().cloned().collect();
+        let expected_movements: BTreeSet<MovementID> = i.movements.keys().cloned().collect();
         let mut actual_movements: BTreeSet<MovementID> = BTreeSet::new();
         for stage in &self.stages {
             actual_movements.extend(stage.protected_movements.iter());
@@ -128,8 +119,8 @@ impl ControlTrafficSignal {
         }
         for (stage_index, stage) in self.stages.iter().enumerate() {
             // Do any of the priority movements in one stage conflict?
-            for m1 in stage.protected_movements.iter().map(|m| &self.movements[m]) {
-                for m2 in stage.protected_movements.iter().map(|m| &self.movements[m]) {
+            for m1 in stage.protected_movements.iter().map(|m| &i.movements[m]) {
+                for m2 in stage.protected_movements.iter().map(|m| &i.movements[m]) {
                     if m1.conflicts_with(m2) {
                         bail!(
                             "Traffic signal has conflicting protected movements in one \
@@ -142,11 +133,11 @@ impl ControlTrafficSignal {
             }
 
             // Do any of the crosswalks yield?
-            for m in stage.yield_movements.iter().map(|m| &self.movements[m]) {
+            for m in stage.yield_movements.iter().map(|m| &i.movements[m]) {
                 assert!(m.turn_type != TurnType::Crosswalk);
             }
             // Is there enough time in each stage to walk across the crosswalk
-            let min_crossing_time = self.get_min_crossing_time(stage_index);
+            let min_crossing_time = self.get_min_crossing_time(stage_index, i);
             if stage.stage_type.simple_duration() < min_crossing_time {
                 bail!(
                     "Traffic signal does not allow enough time in stage to complete the \
@@ -163,20 +154,24 @@ impl ControlTrafficSignal {
 
     /// Move crosswalks from stages, adding them to an all-walk as last stage. This may promote
     /// yields to protected. True is returned if any stages were added or modified.
-    pub fn convert_to_ped_scramble(&mut self) -> bool {
-        self.internal_convert_to_ped_scramble(true)
+    pub fn convert_to_ped_scramble(&mut self, i: &Intersection) -> bool {
+        self.internal_convert_to_ped_scramble(true, i)
     }
     /// Move crosswalks from stages, adding them to an all-walk as last stage. This does not promote
     /// yields to protected. True is returned if any stages were added or modified.
-    pub fn convert_to_ped_scramble_without_promotion(&mut self) -> bool {
-        self.internal_convert_to_ped_scramble(false)
+    pub fn convert_to_ped_scramble_without_promotion(&mut self, i: &Intersection) -> bool {
+        self.internal_convert_to_ped_scramble(false, i)
     }
 
-    fn internal_convert_to_ped_scramble(&mut self, promote_yield_to_protected: bool) -> bool {
+    fn internal_convert_to_ped_scramble(
+        &mut self,
+        promote_yield_to_protected: bool,
+        i: &Intersection,
+    ) -> bool {
         let orig = self.clone();
 
         let mut all_walk_stage = Stage::new();
-        for m in self.movements.values() {
+        for m in i.movements.values() {
             if m.turn_type == TurnType::Crosswalk {
                 all_walk_stage.edit_movement(m, TurnPriority::Protected);
             }
@@ -194,13 +189,13 @@ impl ControlTrafficSignal {
             // Crosswalks are only in protected_movements.
             stage
                 .protected_movements
-                .retain(|m| self.movements[m].turn_type != TurnType::Crosswalk);
+                .retain(|m| i.movements[m].turn_type != TurnType::Crosswalk);
             if promote_yield_to_protected {
                 // Blindly try to promote yield movements to protected, now that crosswalks are
                 // gone.
                 let mut promoted = Vec::new();
                 for m in &stage.yield_movements {
-                    if stage.could_be_protected(*m, &self.movements) {
+                    if stage.could_be_protected(*m, i) {
                         stage.protected_movements.insert(*m);
                         promoted.push(*m);
                     }
@@ -275,16 +270,8 @@ impl ControlTrafficSignal {
         Ok(())
     }
 
-    pub fn turn_to_movement(&self, turn: TurnID) -> MovementID {
-        if let Some(m) = self.movements.values().find(|m| m.members.contains(&turn)) {
-            m.id
-        } else {
-            panic!("{} doesn't belong to any movements in {}", turn, self.id)
-        }
-    }
-
-    pub fn missing_turns(&self) -> BTreeSet<MovementID> {
-        let mut missing: BTreeSet<MovementID> = self.movements.keys().cloned().collect();
+    pub fn missing_turns(&self, i: &Intersection) -> BTreeSet<MovementID> {
+        let mut missing: BTreeSet<MovementID> = i.movements.keys().cloned().collect();
         for stage in &self.stages {
             for m in &stage.protected_movements {
                 missing.remove(m);
@@ -294,21 +281,6 @@ impl ControlTrafficSignal {
             }
         }
         missing
-    }
-
-    pub fn compressed_id(&self, turn: TurnID) -> CompressedMovementID {
-        for (idx, m) in self.movements.values().enumerate() {
-            if m.members.contains(&turn) {
-                return CompressedMovementID {
-                    i: self.id,
-                    idx: u8::try_from(idx).unwrap(),
-                };
-            }
-        }
-        panic!(
-            "{} doesn't belong to any turn movements in {}",
-            turn, self.id
-        )
     }
 
     /// How long a full cycle of the signal lasts, assuming no actuated timings.
@@ -331,22 +303,18 @@ impl Stage {
         }
     }
 
-    pub fn could_be_protected(
-        &self,
-        m1: MovementID,
-        movements: &BTreeMap<MovementID, Movement>,
-    ) -> bool {
-        let movement1 = &movements[&m1];
+    pub fn could_be_protected(&self, m1: MovementID, i: &Intersection) -> bool {
+        let movement1 = &i.movements[&m1];
         for m2 in &self.protected_movements {
-            if m1 == *m2 || movement1.conflicts_with(&movements[m2]) {
+            if m1 == *m2 || movement1.conflicts_with(&i.movements[m2]) {
                 return false;
             }
         }
         true
     }
 
-    pub fn get_priority_of_turn(&self, t: TurnID, parent: &ControlTrafficSignal) -> TurnPriority {
-        self.get_priority_of_movement(parent.turn_to_movement(t))
+    pub fn get_priority_of_turn(&self, t: TurnID, i: &Intersection) -> TurnPriority {
+        self.get_priority_of_movement(i.turn_to_movement(t).0)
     }
 
     pub fn get_priority_of_movement(&self, m: MovementID) -> TurnPriority {
@@ -398,14 +366,11 @@ impl Stage {
     }
 
     // A trivial function that returns max crosswalk time if the stage is just crosswalks.
-    pub fn max_crosswalk_time(
-        &self,
-        movements: &BTreeMap<MovementID, Movement>,
-    ) -> Option<Duration> {
+    pub fn max_crosswalk_time(&self, i: &Intersection) -> Option<Duration> {
         let mut max_distance = Distance::const_meters(0.0);
         for m in &self.protected_movements {
             if m.crosswalk {
-                max_distance = max_distance.max(movements.get(m).unwrap().geom.length());
+                max_distance = max_distance.max(i.movements[m].geom.length());
             } else {
                 return None;
             }
@@ -517,9 +482,8 @@ impl ControlTrafficSignal {
             id,
             stages,
             offset: Duration::seconds(plan.offset_seconds as f64),
-            movements: Movement::for_i(id, map).unwrap(),
         };
-        ts.validate()?;
+        ts.validate(map.get_i(id))?;
         Ok(ts)
     }
 }

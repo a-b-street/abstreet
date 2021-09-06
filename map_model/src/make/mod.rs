@@ -12,7 +12,7 @@ use crate::raw::{OriginalRoad, RawMap};
 use crate::{
     connectivity, osm, AccessRestrictions, Area, AreaID, AreaType, ControlStopSign,
     ControlTrafficSignal, Intersection, IntersectionID, IntersectionType, Lane, LaneID, Map,
-    MapEdits, Movement, PathConstraints, Position, Road, RoadID, RoutingParams, Zone,
+    MapEdits, PathConstraints, Position, Road, RoadID, RoutingParams, Zone,
 };
 
 mod bridges;
@@ -99,6 +99,7 @@ impl Map {
                 id,
                 polygon: i.polygon.clone(),
                 turns: Vec::new(),
+                movements: BTreeMap::new(),
                 elevation: i.elevation,
                 // Might change later
                 intersection_type: i.intersection_type,
@@ -269,6 +270,8 @@ impl Map {
 
         bridges::find_bridges(&mut map.roads, &map.bounds, timer);
 
+        map.recalculate_all_movements(timer);
+
         let mut stop_signs: BTreeMap<IntersectionID, ControlStopSign> = BTreeMap::new();
         let mut traffic_signals: BTreeMap<IntersectionID, ControlTrafficSignal> = BTreeMap::new();
         for i in &map.intersections {
@@ -276,20 +279,15 @@ impl Map {
                 IntersectionType::StopSign => {
                     stop_signs.insert(i.id, ControlStopSign::new(&map, i.id));
                 }
-                IntersectionType::TrafficSignal => match Movement::for_i(i.id, &map) {
-                    Ok(_) => {
+                IntersectionType::TrafficSignal => {
+                    if i.movements.is_empty() {
+                        error!("Traffic signal at {} downgraded to stop sign, because it has no movements -- probably roads under construction", i.orig_id);
+                        stop_signs.insert(i.id, ControlStopSign::new(&map, i.id));
+                    } else {
                         traffic_signals
                             .insert(i.id, ControlTrafficSignal::validating_new(&map, i.id));
                     }
-                    Err(err) => {
-                        error!(
-                            "Traffic signal at {} downgraded to stop sign because of weird \
-                             problem: {}",
-                            i.orig_id, err
-                        );
-                        stop_signs.insert(i.id, ControlStopSign::new(&map, i.id));
-                    }
-                },
+                }
                 IntersectionType::Border | IntersectionType::Construction => {}
             };
         }

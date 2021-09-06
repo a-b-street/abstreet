@@ -6,7 +6,7 @@ use abstutil::Counter;
 use geom::{Duration, Time};
 use map_model::{
     BusRouteID, BusStopID, CompressedMovementID, IntersectionID, LaneID, Map, MovementID,
-    ParkingLotID, Path, PathRequest, RoadID, Traversable, TurnID, TurnType,
+    ParkingLotID, Path, PathRequest, RoadID, Traversable, TurnID,
 };
 
 use crate::{
@@ -125,14 +125,17 @@ impl Analytics {
                         );
                     }
 
-                    if let Some(id) = map.get_movement(t) {
+                    if let Some((id, compressed)) = map.get_movement_for_traffic_signal(t) {
                         *self.demand.entry(id).or_insert(0) -= 1;
-
-                        let m = map.get_traffic_signal(t.parent).compressed_id(t);
-                        self.traffic_signal_thruput.record(time, m, a.to_type(), 1);
+                        self.traffic_signal_thruput
+                            .record(time, compressed, a.to_type(), 1);
                         if let Some(n) = passengers {
-                            self.traffic_signal_thruput
-                                .record(time, m, AgentType::TransitRider, n);
+                            self.traffic_signal_thruput.record(
+                                time,
+                                compressed,
+                                AgentType::TransitRider,
+                                n,
+                            );
                         }
                     }
                 }
@@ -203,16 +206,13 @@ impl Analytics {
                     .push((time, Problem::IntersectionDelay(turn_id.parent, delay)));
             }
 
-            // SharedSidewalkCorner are always no-conflict, immediate turns; they're not
-            // interesting.
-            if map.get_t(turn_id).turn_type != TurnType::SharedSidewalkCorner {
-                // Save memory and space by only storing these measurements at traffic signals.
-                if let Some(ts) = map.maybe_get_traffic_signal(turn_id.parent) {
-                    self.intersection_delays
-                        .entry(turn_id.parent)
-                        .or_insert_with(Vec::new)
-                        .push((ts.compressed_id(turn_id).idx, time, delay, agent.to_type()));
-                }
+            // Save memory and space by only storing these measurements at traffic signals, for
+            // turns that actually conflict (so no SharedSidewalkCorners).
+            if let Some((_, compressed)) = map.get_movement_for_traffic_signal(turn_id) {
+                self.intersection_delays
+                    .entry(turn_id.parent)
+                    .or_insert_with(Vec::new)
+                    .push((compressed.idx, time, delay, agent.to_type()));
             }
         }
 
@@ -299,7 +299,7 @@ impl Analytics {
     pub fn record_demand(&mut self, path: &Path, map: &Map) {
         for step in path.get_steps() {
             if let Traversable::Turn(t) = step.as_traversable() {
-                if let Some(id) = map.get_movement(t) {
+                if let Some((id, _)) = map.get_movement_for_traffic_signal(t) {
                     *self.demand.entry(id).or_insert(0) += 1;
                 }
             }
