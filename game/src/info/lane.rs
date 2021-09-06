@@ -165,7 +165,7 @@ fn debug_body(ctx: &EventCtx, app: &App, id: LaneID) -> Widget {
     ));
     kv.push((
         "Dir and offset".to_string(),
-        format!("{}, {}", l.dir, r.offset(l.id)),
+        format!("{}, {}", l.dir, l.id.offset),
     ));
     if let Some((reserved, total)) = app.primary.sim.debug_queue_lengths(l.id) {
         kv.push((

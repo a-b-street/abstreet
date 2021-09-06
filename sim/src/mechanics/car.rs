@@ -149,14 +149,14 @@ impl Car {
             } => {
                 let percent_time = 1.0 - lc_time.percent(now);
                 // TODO Can probably simplify this! Lifted from the parking case
-                let r = map.get_parent(from);
                 // The car's body is already at 'to', so shift back
-                let mut diff = (r.offset(to) as isize) - (r.offset(from) as isize);
-                if map.get_l(from).dir == Direction::Fwd {
+                let mut diff = (to.offset as isize) - (from.offset as isize);
+                let from = map.get_l(from);
+                if from.dir == Direction::Fwd {
                     diff *= -1;
                 }
                 // TODO Careful with this width math
-                let width = map.get_l(from).width * (diff as f64) * percent_time;
+                let width = from.width * (diff as f64) * percent_time;
                 match raw_body.shift_right(width) {
                     Ok(pl) => pl,
                     Err(err) => {
@@ -181,9 +181,8 @@ impl Car {
                 };
                 match spot {
                     ParkingSpot::Onstreet(parking_l, _) => {
-                        let r = map.get_parent(*parking_l);
-                        let driving_offset = r.offset(self.router.head().as_lane());
-                        let parking_offset = r.offset(*parking_l);
+                        let driving_offset = self.router.head().as_lane().offset;
+                        let parking_offset = parking_l.offset;
                         let mut diff = (parking_offset as isize) - (driving_offset as isize);
                         if map.get_l(self.router.head().as_lane()).dir == Direction::Back {
                             diff *= -1;

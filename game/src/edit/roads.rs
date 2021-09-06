@@ -90,11 +90,7 @@ impl RoadEditor {
         select_new_lane_offset: Option<isize>,
         f: F,
     ) -> Transition {
-        let idx = app
-            .primary
-            .map
-            .get_r(self.r)
-            .offset(self.selected_lane.unwrap());
+        let idx = self.selected_lane.unwrap().offset;
         let cmd = app.primary.map.edit_road_cmd(self.r, |new| (f)(new, idx));
 
         // Special check here -- this invalid state can be reached in many ways.

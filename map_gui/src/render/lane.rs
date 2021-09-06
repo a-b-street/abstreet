@@ -282,7 +282,7 @@ fn calculate_parking_lines(lane: &Lane, map: &Map) -> Vec<Polygon> {
 // ways to work around this z-order issue. The current approach is to rely on the fact that
 // quadtrees return LaneIDs in order, and lanes are always created from left->right.
 fn calculate_driving_lines(lane: &Lane, road: &Road) -> Vec<Polygon> {
-    let idx = road.offset(lane.id);
+    let idx = lane.id.offset;
 
     // If the lane to the left of us isn't in the same direction or isn't the same type, don't
     // need dashed lines.

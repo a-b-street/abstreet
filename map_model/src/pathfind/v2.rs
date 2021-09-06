@@ -147,7 +147,7 @@ impl PathV2 {
         };
         let start_lane = self.req.start.lane();
         let start_road = map.get_parent(start_lane);
-        let start_lane_idx = start_road.offset(start_lane) as isize;
+        let start_lane_idx = start_lane.offset as isize;
         for l in map
             .get_l(start_lane)
             .get_directed_parent()
@@ -157,7 +157,7 @@ impl PathV2 {
             // At the simulation layer, we may need to block intermediate lanes to exit a driveway,
             // so reflect that cost here. The high cost should only be worth it when the v2 path
             // requires that up-front turn from certain lanes.
-            let idx_dist = (start_lane_idx - (start_road.offset(l) as isize)).abs();
+            let idx_dist = (start_lane_idx - (l.offset as isize)).abs();
             let cost = 100 * idx_dist as usize;
             let fake_turn = TurnID {
                 // Just encode the cost here for convenience

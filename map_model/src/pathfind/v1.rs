@@ -629,7 +629,7 @@ impl PathRequest {
             // TODO Do we need buffer_dist like driving_connection does?
             let pos = start.equiv_pos(alt_lane, map);
             let number_lanes_between =
-                ((road.offset(start_lane.id) as f64) - (road.offset(alt_lane) as f64)).abs();
+                ((start_lane.id.offset as f64) - (alt_lane.offset as f64)).abs();
             // TODO Tune the cost of cutting across lanes
             let cost = Duration::seconds(10.0) * number_lanes_between;
             Some((pos, cost))
