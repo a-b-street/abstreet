@@ -44,6 +44,19 @@
 <span id="42">42</span>
 <span id="43">43</span>
 <span id="44">44</span>
+<span id="45">45</span>
+<span id="46">46</span>
+<span id="47">47</span>
+<span id="48">48</span>
+<span id="49">49</span>
+<span id="50">50</span>
+<span id="51">51</span>
+<span id="52">52</span>
+<span id="53">53</span>
+<span id="54">54</span>
+<span id="55">55</span>
+<span id="56">56</span>
+<span id="57">57</span>
 </pre><pre class="rust">
 <span class="doccomment">//! The map_editor renders and lets you edit RawMaps, which are a format in between OSM and the</span>
 <span class="doccomment">//! full Map. It&#39;s useful for debugging maps imported from OSM, and for drawing synthetic maps for</span>
@@ -70,8 +83,21 @@
 <span class="kw">fn</span> <span class="ident">run</span>(<span class="kw-2">mut</span> <span class="ident">settings</span>: <span class="ident">Settings</span>) {
     <span class="ident">settings</span> <span class="op">=</span> <span class="ident">settings</span>.<span class="ident">read_svg</span>(<span class="ident">Box::new</span>(<span class="ident">abstio::slurp_bytes</span>));
     <span class="ident">widgetry::run</span>(<span class="ident">settings</span>, <span class="op">|</span><span class="ident">ctx</span><span class="op">|</span> {
-        <span class="kw">let</span> <span class="ident">app</span> <span class="op">=</span> <span class="ident">App::new</span>(<span class="ident">ctx</span>);
-        <span class="kw">let</span> <span class="ident">states</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">app::MainState::new_state</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>)];
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">args</span> <span class="op">=</span> <span class="ident">abstutil::CmdArgs::new</span>();
+        <span class="kw">let</span> <span class="ident">load</span> <span class="op">=</span> <span class="ident">args</span>.<span class="ident">optional_free</span>();
+        <span class="kw">let</span> <span class="ident">include_bldgs</span> <span class="op">=</span> <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--bldgs&quot;</span>);
+        <span class="ident">args</span>.<span class="ident">done</span>();
+
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">app</span> <span class="op">=</span> <span class="ident">App</span> {
+            <span class="ident">model</span>: <span class="ident">model::Model::blank</span>(<span class="ident">ctx</span>),
+        };
+        <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">include_bldgs</span> <span class="op">=</span> <span class="ident">include_bldgs</span>;
+
+        <span class="kw">let</span> <span class="ident">states</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">path</span>) <span class="op">=</span> <span class="ident">load</span> {
+            <span class="macro">vec!</span>[<span class="ident">load::load_map</span>(<span class="ident">ctx</span>, <span class="ident">path</span>, <span class="ident">include_bldgs</span>)]
+        } <span class="kw">else</span> {
+            <span class="macro">vec!</span>[<span class="ident">app::MainState::new_state</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>)]
+        };
         (<span class="ident">app</span>, <span class="ident">states</span>)
     });
 }
