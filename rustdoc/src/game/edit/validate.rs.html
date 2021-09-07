@@ -102,14 +102,6 @@
 <span id="100">100</span>
 <span id="101">101</span>
 <span id="102">102</span>
-<span id="103">103</span>
-<span id="104">104</span>
-<span id="105">105</span>
-<span id="106">106</span>
-<span id="107">107</span>
-<span id="108">108</span>
-<span id="109">109</span>
-<span id="110">110</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
 
@@ -147,19 +139,15 @@
         <span class="kw">return</span> <span class="prelude-val">None</span>;
     }
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">c</span> <span class="op">=</span> <span class="ident">ColorDiscrete::new</span>(<span class="ident">app</span>, <span class="macro">vec!</span>[(<span class="string">&quot;disconnected&quot;</span>, <span class="ident">Color::RED</span>)]);
-    <span class="kw">let</span> <span class="ident">num</span> <span class="op">=</span> <span class="ident">newly_disconnected</span>.<span class="ident">len</span>();
-    <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="ident">newly_disconnected</span> {
-        <span class="ident">c</span>.<span class="ident">add_l</span>(<span class="kw-2">*</span><span class="ident">l</span>, <span class="string">&quot;disconnected&quot;</span>);
-    }
-    <span class="kw">let</span> (<span class="ident">unzoomed</span>, <span class="ident">zoomed</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">c</span>.<span class="ident">build</span>(<span class="ident">ctx</span>);
-
-    <span class="prelude-val">Some</span>(<span class="ident">PopupMsg::also_draw</span>(
+    <span class="comment">// TODO Think through a proper UI for showing editing errors to the user and letting them</span>
+    <span class="comment">// understand the problem. We used to just draw problems in red and mostly cover it up with the</span>
+    <span class="comment">// popup.</span>
+    <span class="prelude-val">Some</span>(<span class="ident">PopupMsg::new_state</span>(
         <span class="ident">ctx</span>,
         <span class="string">&quot;Error&quot;</span>,
         <span class="macro">vec!</span>[<span class="macro">format!</span>(
             <span class="string">&quot;Can&#39;t close this intersection; {} sidewalks disconnected&quot;</span>,
-            <span class="ident">num</span>
+            <span class="ident">newly_disconnected</span>.<span class="ident">len</span>()
         )],
         <span class="ident">unzoomed</span>,
         <span class="ident">zoomed</span>,
@@ -206,17 +194,13 @@
         <span class="kw">return</span> <span class="prelude-val">None</span>;
     }
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">c</span> <span class="op">=</span> <span class="ident">ColorDiscrete::new</span>(<span class="ident">app</span>, <span class="macro">vec!</span>[(<span class="string">&quot;disconnected&quot;</span>, <span class="ident">Color::RED</span>)]);
-    <span class="kw">let</span> <span class="ident">num</span> <span class="op">=</span> <span class="ident">newly_disconnected</span>.<span class="ident">len</span>();
-    <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="ident">newly_disconnected</span> {
-        <span class="ident">c</span>.<span class="ident">add_l</span>(<span class="ident">l</span>, <span class="string">&quot;disconnected&quot;</span>);
-    }
-    <span class="kw">let</span> (<span class="ident">unzoomed</span>, <span class="ident">zoomed</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">c</span>.<span class="ident">build</span>(<span class="ident">ctx</span>);
-
-    <span class="prelude-val">Some</span>(<span class="ident">PopupMsg::also_draw</span>(
+    <span class="prelude-val">Some</span>(<span class="ident">PopupMsg::new_state</span>(
         <span class="ident">ctx</span>,
         <span class="string">&quot;Error&quot;</span>,
-        <span class="macro">vec!</span>[<span class="macro">format!</span>(<span class="string">&quot;{} lanes have been disconnected&quot;</span>, <span class="ident">num</span>)],
+        <span class="macro">vec!</span>[<span class="macro">format!</span>(
+            <span class="string">&quot;{} lanes have been disconnected&quot;</span>,
+            <span class="ident">newly_disconnected</span>.<span class="ident">len</span>()
+        )],
         <span class="ident">unzoomed</span>,
         <span class="ident">zoomed</span>,
     ))
