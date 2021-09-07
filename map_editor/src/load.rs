@@ -1,5 +1,4 @@
 use abstio::{Manifest, MapName};
-use geom::Percent;
 use map_gui::load::FileLoader;
 use map_gui::tools::{CameraState, PopupMsg, URLManager};
 use map_model::raw::RawMap;
@@ -15,20 +14,9 @@ pub struct PickMap {
 
 impl PickMap {
     pub fn new_state(ctx: &mut EventCtx) -> Box<dyn State<App>> {
-        let mut autocomplete_entries = Vec::new();
-        let mut buttons = Vec::new();
-
+        let mut entries = Vec::new();
         for name in MapName::list_all_maps_merged(&Manifest::load()) {
-            let path = abstio::path_raw_map(&name);
-            buttons.push(
-                ctx.style()
-                    .btn_outline
-                    .text(name.describe())
-                    .build_widget(ctx, &path)
-                    .margin_right(10)
-                    .margin_below(10),
-            );
-            autocomplete_entries.push((name.describe(), path));
+            entries.push((name.describe(), abstio::path_raw_map(&name)));
         }
 
         Box::new(PickMap {
@@ -39,10 +27,8 @@ impl PickMap {
                 ]),
                 Widget::row(vec![
                     Image::from_path("system/assets/tools/search.svg").into_widget(ctx),
-                    Autocomplete::new_widget(ctx, autocomplete_entries).named("search"),
-                ])
-                .padding(8),
-                Widget::custom_row(buttons).flex_wrap(ctx, Percent::int(70)),
+                    Autocomplete::new_widget(ctx, entries, 20).named("search"),
+                ]),
             ]))
             .exact_size_percent(80, 80)
             .build(ctx),
@@ -57,9 +43,7 @@ impl State<App> for PickMap {
                 "close" => {
                     return Transition::Pop;
                 }
-                _ => {
-                    return Transition::Push(load_map(ctx, x, app.model.include_bldgs, None));
-                }
+                _ => unreachable!(),
             }
         }
         if let Some(mut paths) = self.panel.autocomplete_done::<String>("search") {

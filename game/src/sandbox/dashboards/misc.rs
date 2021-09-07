@@ -158,6 +158,7 @@ impl TransitRoutes {
                         .iter()
                         .map(|(_, _, _, r, id)| (r.clone(), *id))
                         .collect(),
+                    10,
                 )
                 .named("search"),
             ])

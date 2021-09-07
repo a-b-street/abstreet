@@ -29,6 +29,7 @@ impl Navigator {
                         .iter()
                         .map(|r| (r.get_name(app.opts().language.as_ref()), r.id))
                         .collect(),
+                    10,
                 )
                 .named("street"),
                 ctx.style()
@@ -124,6 +125,7 @@ impl CrossStreet {
                         .into_iter()
                         .map(|r| (map.get_r(r).get_name(app.opts().language.as_ref()), r))
                         .collect(),
+                    10,
                 )
                 .named("street"),
             ]))
@@ -235,6 +237,7 @@ impl SearchBuildings {
                             results
                         })
                         .collect(),
+                    10,
                 )
                 .named("bldg"),
                 ctx.style()

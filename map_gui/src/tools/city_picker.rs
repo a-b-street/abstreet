@@ -275,7 +275,7 @@ impl<A: AppLike + 'static> AllCityPicker<A> {
                 ]),
                 Widget::row(vec![
                     Image::from_path("system/assets/tools/search.svg").into_widget(ctx),
-                    Autocomplete::new_widget(ctx, autocomplete_entries).named("search"),
+                    Autocomplete::new_widget(ctx, autocomplete_entries, 10).named("search"),
                 ])
                 .padding(8),
                 Widget::custom_row(buttons).flex_wrap(ctx, Percent::int(70)),

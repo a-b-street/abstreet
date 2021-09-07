@@ -5,12 +5,11 @@ use crate::{
     WidgetOutput,
 };
 
-const NUM_SEARCH_RESULTS: usize = 10;
-
 // TODO I don't even think we need to declare Clone...
 // If multiple names map to the same data, all of the possible values will be returned
 pub struct Autocomplete<T: Clone> {
     choices: Vec<(String, Vec<T>)>,
+    num_search_results: usize,
 
     tb: TextBox,
     menu: Menu<()>,
@@ -20,7 +19,11 @@ pub struct Autocomplete<T: Clone> {
 }
 
 impl<T: 'static + Clone + Ord> Autocomplete<T> {
-    pub fn new_widget(ctx: &mut EventCtx, raw_choices: Vec<(String, T)>) -> Widget {
+    pub fn new_widget(
+        ctx: &mut EventCtx,
+        raw_choices: Vec<(String, T)>,
+        num_search_results: usize,
+    ) -> Widget {
         let mut grouped: MultiMap<String, T> = MultiMap::new();
         for (name, data) in raw_choices {
             grouped.insert(name, data);
@@ -33,6 +36,7 @@ impl<T: 'static + Clone + Ord> Autocomplete<T> {
 
         let mut a = Autocomplete {
             choices,
+            num_search_results,
 
             tb: TextBox::new(
                 ctx,
@@ -66,7 +70,7 @@ impl<T: 'static + Clone> Autocomplete<T> {
             if name.to_ascii_lowercase().contains(&query) {
                 choices.push(Choice::new(name, ()));
             }
-            if choices.len() == NUM_SEARCH_RESULTS {
+            if choices.len() == self.num_search_results {
                 break;
             }
         }
