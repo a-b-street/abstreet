@@ -2162,6 +2162,7 @@ dependencies = [
  "log",
  "map_gui",
  "map_model",
+ "sim",
  "wasm-bindgen",
  "widgetry",
 ]

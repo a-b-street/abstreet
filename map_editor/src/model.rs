@@ -47,10 +47,9 @@ impl Model {
 
     pub fn import(ctx: &EventCtx, path: String, include_bldgs: bool) -> Model {
         let mut timer = Timer::new("import map");
-        let mut model = Model::blank(ctx);
-        model.include_bldgs = include_bldgs;
 
-        model.map = if path.ends_with(".osm") {
+        // TODO Is this really that useful?
+        let map = if path.ends_with(".osm") {
             convert_osm::convert(
                 convert_osm::Options {
                     name: MapName::new("zz", "oneshot", &abstutil::basename(&path)),
@@ -76,8 +75,14 @@ impl Model {
         } else {
             abstio::read_binary(path, &mut timer)
         };
+        Model::from_map(ctx, map, include_bldgs, &mut timer)
+    }
 
-        model.recreate_world(ctx, &mut timer);
+    pub fn from_map(ctx: &EventCtx, map: RawMap, include_bldgs: bool, timer: &mut Timer) -> Model {
+        let mut model = Model::blank(ctx);
+        model.include_bldgs = include_bldgs;
+        model.map = map;
+        model.recreate_world(ctx, timer);
         model
     }
 

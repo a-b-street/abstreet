@@ -1,6 +1,7 @@
 use abstutil::CmdArgs;
 use geom::{Distance, Line, Polygon, Pt2D};
 use map_gui::tools::CameraState;
+use map_gui::AppLike;
 use map_model::osm;
 use map_model::raw::OriginalRoad;
 use widgetry::{
@@ -15,6 +16,10 @@ pub struct App {
 }
 
 impl SharedAppState for App {
+    fn draw_default(&self, g: &mut GfxCtx) {
+        g.clear(Color::BLACK);
+    }
+
     fn dump_before_abort(&self, canvas: &Canvas) {
         if !self.model.map.name.map.is_empty() {
             CameraState::save(canvas, &self.model.map.name);
@@ -25,6 +30,76 @@ impl SharedAppState for App {
         if !self.model.map.name.map.is_empty() {
             CameraState::save(canvas, &self.model.map.name);
         }
+    }
+}
+
+// We use a few things from map_gui that don't actually require these... maybe meaning they should
+// be lifted even further to widgetry.
+
+impl AppLike for App {
+    fn map(&self) -> &map_model::Map {
+        unreachable!()
+    }
+    fn sim(&self) -> &sim::Sim {
+        unreachable!()
+    }
+    fn cs(&self) -> &map_gui::colors::ColorScheme {
+        unreachable!()
+    }
+    fn mut_cs(&mut self) -> &mut map_gui::colors::ColorScheme {
+        unreachable!()
+    }
+    fn draw_map(&self) -> &map_gui::render::DrawMap {
+        unreachable!()
+    }
+    fn mut_draw_map(&mut self) -> &mut map_gui::render::DrawMap {
+        unreachable!()
+    }
+    fn opts(&self) -> &map_gui::options::Options {
+        unreachable!()
+    }
+    fn mut_opts(&mut self) -> &mut map_gui::options::Options {
+        unreachable!()
+    }
+    fn map_switched(&mut self, _: &mut EventCtx, _: map_model::Map, _: &mut abstutil::Timer) {
+        unreachable!()
+    }
+    fn draw_with_opts(&self, _: &mut GfxCtx, _: map_gui::render::DrawOptions) {
+        unreachable!()
+    }
+    fn make_warper(
+        &mut self,
+        _: &EventCtx,
+        _: Pt2D,
+        _: Option<f64>,
+        _: Option<map_gui::ID>,
+    ) -> Box<dyn State<App>> {
+        unreachable!()
+    }
+    fn sim_time(&self) -> geom::Time {
+        unreachable!()
+    }
+    fn current_stage_and_remaining_time(
+        &self,
+        _: map_model::IntersectionID,
+    ) -> (usize, geom::Duration) {
+        unreachable!()
+    }
+}
+
+impl App {
+    pub fn new(ctx: &mut EventCtx) -> App {
+        let mut args = CmdArgs::new();
+        let load = args.optional_free();
+        let include_bldgs = args.enabled("--bldgs");
+        args.done();
+
+        let model = if let Some(path) = load {
+            Model::import(ctx, path, include_bldgs)
+        } else {
+            Model::blank(ctx)
+        };
+        App { model }
     }
 }
 
@@ -46,21 +121,11 @@ enum Mode {
 }
 
 impl MainState {
-    pub fn new(ctx: &mut EventCtx) -> (App, MainState) {
-        let mut args = CmdArgs::new();
-        let load = args.optional_free();
-        let include_bldgs = args.enabled("--bldgs");
-        args.done();
-
-        let model = if let Some(path) = load {
-            Model::import(ctx, path, include_bldgs)
-        } else {
-            Model::blank(ctx)
-        };
-        if !model.map.name.map.is_empty() {
-            CameraState::load(ctx, &model.map.name);
+    pub fn new_state(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
+        if !app.model.map.name.map.is_empty() {
+            CameraState::load(ctx, &app.model.map.name);
         }
-        let bounds = model.map.gps_bounds.to_bounds();
+        let bounds = app.model.map.gps_bounds.to_bounds();
         ctx.canvas.map_dims = (bounds.width(), bounds.height());
 
         // TODO Make these dynamic!
@@ -87,50 +152,51 @@ impl MainState {
             Line(" to delete something"),
         ]);
 
-        (
-            App { model },
-            MainState {
-                mode: Mode::Viewing,
-                panel: Panel::new_builder(Widget::col(vec![
-                    Widget::row(vec![
-                        Line("Map Editor").small_heading().into_widget(ctx),
-                        ctx.style().btn_close_widget(ctx),
-                    ]),
-                    Text::new().into_widget(ctx).named("instructions"),
-                    Widget::col(vec![
-                        Toggle::switch(ctx, "intersection geometry", Key::G, false),
-                        ctx.style()
-                            .btn_outline
-                            .text("adjust boundary")
-                            .build_def(ctx),
-                        ctx.style()
-                            .btn_outline
-                            .text("auto mark junctions")
-                            .build_def(ctx),
-                        ctx.style()
-                            .btn_outline
-                            .text("simplify RawMap")
-                            .build_def(ctx),
-                        ctx.style()
-                            .btn_solid_primary
-                            .text("export to OSM")
-                            .build_def(ctx),
-                        ctx.style()
-                            .btn_solid_destructive
-                            .text("overwrite RawMap")
-                            .build_def(ctx),
-                        ctx.style()
-                            .btn_solid_destructive
-                            .text("reload RawMap")
-                            .build_def(ctx),
-                    ]),
-                ]))
-                .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
-                .build(ctx),
+        Box::new(MainState {
+            mode: Mode::Viewing,
+            panel: Panel::new_builder(Widget::col(vec![
+                Widget::row(vec![
+                    Line("Map Editor").small_heading().into_widget(ctx),
+                    ctx.style().btn_close_widget(ctx),
+                ]),
+                Text::new().into_widget(ctx).named("instructions"),
+                Widget::col(vec![
+                    Toggle::switch(ctx, "intersection geometry", Key::G, false),
+                    ctx.style()
+                        .btn_outline
+                        .text("adjust boundary")
+                        .build_def(ctx),
+                    ctx.style()
+                        .btn_outline
+                        .text("auto mark junctions")
+                        .build_def(ctx),
+                    ctx.style()
+                        .btn_outline
+                        .text("simplify RawMap")
+                        .build_def(ctx),
+                    ctx.style()
+                        .btn_solid_primary
+                        .text("export to OSM")
+                        .build_def(ctx),
+                    ctx.style()
+                        .btn_solid_destructive
+                        .text("overwrite RawMap")
+                        .build_def(ctx),
+                    ctx.style()
+                        .btn_solid_destructive
+                        .text("reload RawMap")
+                        .build_def(ctx),
+                    ctx.style()
+                        .btn_outline
+                        .text("open another RawMap")
+                        .build_def(ctx),
+                ]),
+            ]))
+            .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
+            .build(ctx),
 
-                last_id: None,
-            },
-        )
+            last_id: None,
+        })
     }
 }
 
@@ -352,6 +418,9 @@ impl State<App> for MainState {
                                         self.panel.is_checked("intersection geometry"),
                                     );
                                 }
+                                "open another RawMap" => {
+                                    return Transition::Push(crate::load::PickMap::new_state(ctx));
+                                }
                                 _ => unreachable!(),
                             },
                             Outcome::Changed(_) => {
@@ -469,8 +538,6 @@ impl State<App> for MainState {
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        g.clear(Color::BLACK);
-
         // It's useful to see the origin.
         g.draw_polygon(Color::WHITE, Polygon::rectangle(100.0, 10.0));
         g.draw_polygon(Color::WHITE, Polygon::rectangle(10.0, 100.0));

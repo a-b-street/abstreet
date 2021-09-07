@@ -11,6 +11,7 @@ use crate::app::App;
 
 mod app;
 mod edit;
+mod load;
 mod model;
 mod world;
 
@@ -22,8 +23,9 @@ pub fn main() {
 fn run(mut settings: Settings) {
     settings = settings.read_svg(Box::new(abstio::slurp_bytes));
     widgetry::run(settings, |ctx| {
-        let (app, state) = app::MainState::new(ctx);
-        (app, vec![Box::new(state)])
+        let app = App::new(ctx);
+        let states = vec![app::MainState::new_state(ctx, &app)];
+        (app, states)
     });
 }
 
