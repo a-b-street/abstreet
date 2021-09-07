@@ -455,9 +455,6 @@
 <span id="453">453</span>
 <span id="454">454</span>
 <span id="455">455</span>
-<span id="456">456</span>
-<span id="457">457</span>
-<span id="458">458</span>
 </pre><pre class="rust">
 <span class="comment">// Disable some noisy lints</span>
 <span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::too_many_arguments</span>, <span class="ident">clippy::type_complexity</span>)]</span>
@@ -743,14 +740,11 @@
     <span class="ident">title</span>: <span class="ident">bool</span>,
     <span class="ident">setup</span>: <span class="ident">Setup</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">pt</span>, <span class="ident">zoom</span>)) <span class="op">=</span> <span class="ident">setup</span>
-        .<span class="ident">center_camera</span>
-        .<span class="ident">as_ref</span>()
-        .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">cam</span><span class="op">|</span> <span class="ident">URLManager::parse_center_camera</span>(<span class="ident">cam</span>, <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_gps_bounds</span>()))
-    {
-        <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span> <span class="op">=</span> <span class="ident">zoom</span>;
-        <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">center_on_map_pt</span>(<span class="ident">pt</span>);
-    } <span class="kw">else</span> {
+    <span class="kw">if</span> <span class="op">!</span><span class="ident">URLManager::change_camera</span>(
+        <span class="ident">ctx</span>,
+        <span class="ident">setup</span>.<span class="ident">center_camera</span>.<span class="ident">as_ref</span>(),
+        <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_gps_bounds</span>(),
+    ) {
         <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">init_camera_for_loaded_map</span>(<span class="ident">ctx</span>, <span class="ident">title</span>);
     }
 

@@ -217,12 +217,12 @@
             <span class="prelude-val">Ok</span>(<span class="ident">map</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="ident">app</span>.<span class="ident">model</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::model::Model::from_map</span>(<span class="ident">ctx</span>, <span class="ident">map</span>, <span class="ident">include_bldgs</span>, <span class="ident">timer</span>);
 
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">pt</span>, <span class="ident">zoom</span>)) <span class="op">=</span> <span class="ident">center_camera</span>.<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">cam</span><span class="op">|</span> {
-                    <span class="ident">URLManager::parse_center_camera</span>(<span class="kw-2">&amp;</span><span class="ident">cam</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">map</span>.<span class="ident">gps_bounds</span>)
-                }) {
-                    <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span> <span class="op">=</span> <span class="ident">zoom</span>;
-                    <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">center_on_map_pt</span>(<span class="ident">pt</span>);
-                } <span class="kw">else</span> <span class="kw">if</span> <span class="op">!</span><span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">map</span>.<span class="ident">name</span>.<span class="ident">map</span>.<span class="ident">is_empty</span>() {
+                <span class="kw">if</span> <span class="op">!</span><span class="ident">URLManager::change_camera</span>(
+                    <span class="ident">ctx</span>,
+                    <span class="ident">center_camera</span>.<span class="ident">as_ref</span>(),
+                    <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">map</span>.<span class="ident">gps_bounds</span>,
+                ) <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">map</span>.<span class="ident">name</span>.<span class="ident">map</span>.<span class="ident">is_empty</span>()
+                {
                     <span class="ident">CameraState::load</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">map</span>.<span class="ident">name</span>);
                 }
 
