@@ -73,12 +73,7 @@ impl<T: 'static> SimpleApp<T> {
             &app,
             map_name,
             Box::new(move |ctx, app| {
-                if let Some((pt, zoom)) = center_camera.and_then(|cam| {
-                    URLManager::parse_center_camera(&cam, app.map().get_gps_bounds())
-                }) {
-                    ctx.canvas.cam_zoom = zoom;
-                    ctx.canvas.center_on_map_pt(pt);
-                }
+                URLManager::change_camera(ctx, center_camera.as_ref(), app.map().get_gps_bounds());
                 Transition::Clear(init_states(ctx, app))
             }),
         )];

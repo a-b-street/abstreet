@@ -94,12 +94,12 @@ pub fn load_map(
             Ok(map) => {
                 app.model = crate::model::Model::from_map(ctx, map, include_bldgs, timer);
 
-                if let Some((pt, zoom)) = center_camera.and_then(|cam| {
-                    URLManager::parse_center_camera(&cam, &app.model.map.gps_bounds)
-                }) {
-                    ctx.canvas.cam_zoom = zoom;
-                    ctx.canvas.center_on_map_pt(pt);
-                } else if !app.model.map.name.map.is_empty() {
+                if !URLManager::change_camera(
+                    ctx,
+                    center_camera.as_ref(),
+                    &app.model.map.gps_bounds,
+                ) && !app.model.map.name.map.is_empty()
+                {
                     CameraState::load(ctx, &app.model.map.name);
                 }
 

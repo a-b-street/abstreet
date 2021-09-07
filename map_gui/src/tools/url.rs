@@ -40,9 +40,24 @@ impl URLManager {
     }
 
     /// Parse an OSM-style `zoom/lat/lon` string
+    /// (https://wiki.openstreetmap.org/wiki/Browsing#Other_URL_tricks), changing the canvas
+    /// appropriately. Returns true upon success.
+    pub fn change_camera(ctx: &mut EventCtx, raw: Option<&String>, gps_bounds: &GPSBounds) -> bool {
+        if let Some((pt, zoom)) =
+            raw.and_then(|raw| URLManager::parse_center_camera(raw, gps_bounds))
+        {
+            ctx.canvas.cam_zoom = zoom;
+            ctx.canvas.center_on_map_pt(pt);
+            true
+        } else {
+            false
+        }
+    }
+
+    /// Parse an OSM-style `zoom/lat/lon` string
     /// (https://wiki.openstreetmap.org/wiki/Browsing#Other_URL_tricks), returning the map point to
     /// center on and the camera zoom.
-    pub fn parse_center_camera(raw: &str, gps_bounds: &GPSBounds) -> Option<(Pt2D, f64)> {
+    fn parse_center_camera(raw: &str, gps_bounds: &GPSBounds) -> Option<(Pt2D, f64)> {
         let parts: Vec<&str> = raw.split('/').collect();
         if parts.len() != 3 {
             return None;

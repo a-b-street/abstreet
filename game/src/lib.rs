@@ -282,14 +282,11 @@ fn continue_app_setup(
     title: bool,
     setup: Setup,
 ) -> Vec<Box<dyn State<App>>> {
-    if let Some((pt, zoom)) = setup
-        .center_camera
-        .as_ref()
-        .and_then(|cam| URLManager::parse_center_camera(cam, app.primary.map.get_gps_bounds()))
-    {
-        ctx.canvas.cam_zoom = zoom;
-        ctx.canvas.center_on_map_pt(pt);
-    } else {
+    if !URLManager::change_camera(
+        ctx,
+        setup.center_camera.as_ref(),
+        app.primary.map.get_gps_bounds(),
+    ) {
         app.primary.init_camera_for_loaded_map(ctx, title);
     }
 
