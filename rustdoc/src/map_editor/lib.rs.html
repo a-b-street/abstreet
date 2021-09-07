@@ -42,6 +42,8 @@
 <span id="40">40</span>
 <span id="41">41</span>
 <span id="42">42</span>
+<span id="43">43</span>
+<span id="44">44</span>
 </pre><pre class="rust">
 <span class="doccomment">//! The map_editor renders and lets you edit RawMaps, which are a format in between OSM and the</span>
 <span class="doccomment">//! full Map. It&#39;s useful for debugging maps imported from OSM, and for drawing synthetic maps for</span>
@@ -56,6 +58,7 @@
 
 <span class="kw">mod</span> <span class="ident">app</span>;
 <span class="kw">mod</span> <span class="ident">edit</span>;
+<span class="kw">mod</span> <span class="ident">load</span>;
 <span class="kw">mod</span> <span class="ident">model</span>;
 <span class="kw">mod</span> <span class="ident">world</span>;
 
@@ -67,8 +70,9 @@
 <span class="kw">fn</span> <span class="ident">run</span>(<span class="kw-2">mut</span> <span class="ident">settings</span>: <span class="ident">Settings</span>) {
     <span class="ident">settings</span> <span class="op">=</span> <span class="ident">settings</span>.<span class="ident">read_svg</span>(<span class="ident">Box::new</span>(<span class="ident">abstio::slurp_bytes</span>));
     <span class="ident">widgetry::run</span>(<span class="ident">settings</span>, <span class="op">|</span><span class="ident">ctx</span><span class="op">|</span> {
-        <span class="kw">let</span> (<span class="ident">app</span>, <span class="ident">state</span>) <span class="op">=</span> <span class="ident">app::MainState::new</span>(<span class="ident">ctx</span>);
-        (<span class="ident">app</span>, <span class="macro">vec!</span>[<span class="ident">Box::new</span>(<span class="ident">state</span>)])
+        <span class="kw">let</span> <span class="ident">app</span> <span class="op">=</span> <span class="ident">App::new</span>(<span class="ident">ctx</span>);
+        <span class="kw">let</span> <span class="ident">states</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">app::MainState::new_state</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>)];
+        (<span class="ident">app</span>, <span class="ident">states</span>)
     });
 }
 

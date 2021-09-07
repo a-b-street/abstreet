@@ -509,10 +509,78 @@
 <span id="507">507</span>
 <span id="508">508</span>
 <span id="509">509</span>
+<span id="510">510</span>
+<span id="511">511</span>
+<span id="512">512</span>
+<span id="513">513</span>
+<span id="514">514</span>
+<span id="515">515</span>
+<span id="516">516</span>
+<span id="517">517</span>
+<span id="518">518</span>
+<span id="519">519</span>
+<span id="520">520</span>
+<span id="521">521</span>
+<span id="522">522</span>
+<span id="523">523</span>
+<span id="524">524</span>
+<span id="525">525</span>
+<span id="526">526</span>
+<span id="527">527</span>
+<span id="528">528</span>
+<span id="529">529</span>
+<span id="530">530</span>
+<span id="531">531</span>
+<span id="532">532</span>
+<span id="533">533</span>
+<span id="534">534</span>
+<span id="535">535</span>
+<span id="536">536</span>
+<span id="537">537</span>
+<span id="538">538</span>
+<span id="539">539</span>
+<span id="540">540</span>
+<span id="541">541</span>
+<span id="542">542</span>
+<span id="543">543</span>
+<span id="544">544</span>
+<span id="545">545</span>
+<span id="546">546</span>
+<span id="547">547</span>
+<span id="548">548</span>
+<span id="549">549</span>
+<span id="550">550</span>
+<span id="551">551</span>
+<span id="552">552</span>
+<span id="553">553</span>
+<span id="554">554</span>
+<span id="555">555</span>
+<span id="556">556</span>
+<span id="557">557</span>
+<span id="558">558</span>
+<span id="559">559</span>
+<span id="560">560</span>
+<span id="561">561</span>
+<span id="562">562</span>
+<span id="563">563</span>
+<span id="564">564</span>
+<span id="565">565</span>
+<span id="566">566</span>
+<span id="567">567</span>
+<span id="568">568</span>
+<span id="569">569</span>
+<span id="570">570</span>
+<span id="571">571</span>
+<span id="572">572</span>
+<span id="573">573</span>
+<span id="574">574</span>
+<span id="575">575</span>
+<span id="576">576</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">abstutil::CmdArgs</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Line</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
 <span class="kw">use</span> <span class="ident">map_gui::tools::CameraState</span>;
+<span class="kw">use</span> <span class="ident">map_gui::AppLike</span>;
 <span class="kw">use</span> <span class="ident">map_model::osm</span>;
 <span class="kw">use</span> <span class="ident">map_model::raw::OriginalRoad</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
@@ -527,6 +595,10 @@
 }
 
 <span class="kw">impl</span> <span class="ident">SharedAppState</span> <span class="kw">for</span> <span class="ident">App</span> {
+    <span class="kw">fn</span> <span class="ident">draw_default</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>) {
+        <span class="ident">g</span>.<span class="ident">clear</span>(<span class="ident">Color::BLACK</span>);
+    }
+
     <span class="kw">fn</span> <span class="ident">dump_before_abort</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">canvas</span>: <span class="kw-2">&amp;</span><span class="ident">Canvas</span>) {
         <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">model</span>.<span class="ident">map</span>.<span class="ident">name</span>.<span class="ident">map</span>.<span class="ident">is_empty</span>() {
             <span class="ident">CameraState::save</span>(<span class="ident">canvas</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">model</span>.<span class="ident">map</span>.<span class="ident">name</span>);
@@ -537,6 +609,76 @@
         <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">model</span>.<span class="ident">map</span>.<span class="ident">name</span>.<span class="ident">map</span>.<span class="ident">is_empty</span>() {
             <span class="ident">CameraState::save</span>(<span class="ident">canvas</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">model</span>.<span class="ident">map</span>.<span class="ident">name</span>);
         }
+    }
+}
+
+<span class="comment">// We use a few things from map_gui that don&#39;t actually require these... maybe meaning they should</span>
+<span class="comment">// be lifted even further to widgetry.</span>
+
+<span class="kw">impl</span> <span class="ident">AppLike</span> <span class="kw">for</span> <span class="ident">App</span> {
+    <span class="kw">fn</span> <span class="ident">map</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">map_model::Map</span> {
+        <span class="macro">unreachable!</span>()
+    }
+    <span class="kw">fn</span> <span class="ident">sim</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">sim::Sim</span> {
+        <span class="macro">unreachable!</span>()
+    }
+    <span class="kw">fn</span> <span class="ident">cs</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">map_gui::colors::ColorScheme</span> {
+        <span class="macro">unreachable!</span>()
+    }
+    <span class="kw">fn</span> <span class="ident">mut_cs</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">map_gui::colors::ColorScheme</span> {
+        <span class="macro">unreachable!</span>()
+    }
+    <span class="kw">fn</span> <span class="ident">draw_map</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">map_gui::render::DrawMap</span> {
+        <span class="macro">unreachable!</span>()
+    }
+    <span class="kw">fn</span> <span class="ident">mut_draw_map</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">map_gui::render::DrawMap</span> {
+        <span class="macro">unreachable!</span>()
+    }
+    <span class="kw">fn</span> <span class="ident">opts</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">map_gui::options::Options</span> {
+        <span class="macro">unreachable!</span>()
+    }
+    <span class="kw">fn</span> <span class="ident">mut_opts</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">map_gui::options::Options</span> {
+        <span class="macro">unreachable!</span>()
+    }
+    <span class="kw">fn</span> <span class="ident">map_switched</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw">_</span>: <span class="ident">map_model::Map</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">abstutil::Timer</span>) {
+        <span class="macro">unreachable!</span>()
+    }
+    <span class="kw">fn</span> <span class="ident">draw_with_opts</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>, <span class="kw">_</span>: <span class="ident">map_gui::render::DrawOptions</span>) {
+        <span class="macro">unreachable!</span>()
+    }
+    <span class="kw">fn</span> <span class="ident">make_warper</span>(
+        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>,
+        <span class="kw">_</span>: <span class="ident">Pt2D</span>,
+        <span class="kw">_</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>,
+        <span class="kw">_</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">map_gui::ID</span><span class="op">&gt;</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="macro">unreachable!</span>()
+    }
+    <span class="kw">fn</span> <span class="ident">sim_time</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">geom::Time</span> {
+        <span class="macro">unreachable!</span>()
+    }
+    <span class="kw">fn</span> <span class="ident">current_stage_and_remaining_time</span>(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        <span class="kw">_</span>: <span class="ident">map_model::IntersectionID</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">usize</span>, <span class="ident">geom::Duration</span>) {
+        <span class="macro">unreachable!</span>()
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">App</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">App</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">args</span> <span class="op">=</span> <span class="ident">CmdArgs::new</span>();
+        <span class="kw">let</span> <span class="ident">load</span> <span class="op">=</span> <span class="ident">args</span>.<span class="ident">optional_free</span>();
+        <span class="kw">let</span> <span class="ident">include_bldgs</span> <span class="op">=</span> <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--bldgs&quot;</span>);
+        <span class="ident">args</span>.<span class="ident">done</span>();
+
+        <span class="kw">let</span> <span class="ident">model</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">path</span>) <span class="op">=</span> <span class="ident">load</span> {
+            <span class="ident">Model::import</span>(<span class="ident">ctx</span>, <span class="ident">path</span>, <span class="ident">include_bldgs</span>)
+        } <span class="kw">else</span> {
+            <span class="ident">Model::blank</span>(<span class="ident">ctx</span>)
+        };
+        <span class="ident">App</span> { <span class="ident">model</span> }
     }
 }
 
@@ -558,21 +700,11 @@
 }
 
 <span class="kw">impl</span> <span class="ident">MainState</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">App</span>, <span class="ident">MainState</span>) {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">args</span> <span class="op">=</span> <span class="ident">CmdArgs::new</span>();
-        <span class="kw">let</span> <span class="ident">load</span> <span class="op">=</span> <span class="ident">args</span>.<span class="ident">optional_free</span>();
-        <span class="kw">let</span> <span class="ident">include_bldgs</span> <span class="op">=</span> <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--bldgs&quot;</span>);
-        <span class="ident">args</span>.<span class="ident">done</span>();
-
-        <span class="kw">let</span> <span class="ident">model</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">path</span>) <span class="op">=</span> <span class="ident">load</span> {
-            <span class="ident">Model::import</span>(<span class="ident">ctx</span>, <span class="ident">path</span>, <span class="ident">include_bldgs</span>)
-        } <span class="kw">else</span> {
-            <span class="ident">Model::blank</span>(<span class="ident">ctx</span>)
-        };
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">model</span>.<span class="ident">map</span>.<span class="ident">name</span>.<span class="ident">map</span>.<span class="ident">is_empty</span>() {
-            <span class="ident">CameraState::load</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">model</span>.<span class="ident">map</span>.<span class="ident">name</span>);
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="kw">if</span> <span class="op">!</span><span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">map</span>.<span class="ident">name</span>.<span class="ident">map</span>.<span class="ident">is_empty</span>() {
+            <span class="ident">CameraState::load</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">map</span>.<span class="ident">name</span>);
         }
-        <span class="kw">let</span> <span class="ident">bounds</span> <span class="op">=</span> <span class="ident">model</span>.<span class="ident">map</span>.<span class="ident">gps_bounds</span>.<span class="ident">to_bounds</span>();
+        <span class="kw">let</span> <span class="ident">bounds</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">map</span>.<span class="ident">gps_bounds</span>.<span class="ident">to_bounds</span>();
         <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">map_dims</span> <span class="op">=</span> (<span class="ident">bounds</span>.<span class="ident">width</span>(), <span class="ident">bounds</span>.<span class="ident">height</span>());
 
         <span class="comment">// TODO Make these dynamic!</span>
@@ -599,50 +731,51 @@
             <span class="ident">Line</span>(<span class="string">&quot; to delete something&quot;</span>),
         ]);
 
-        (
-            <span class="ident">App</span> { <span class="ident">model</span> },
-            <span class="ident">MainState</span> {
-                <span class="ident">mode</span>: <span class="ident">Mode::Viewing</span>,
-                <span class="ident">panel</span>: <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-                    <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                        <span class="ident">Line</span>(<span class="string">&quot;Map Editor&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                        <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
-                    ]),
-                    <span class="ident">Text::new</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;instructions&quot;</span>),
-                    <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-                        <span class="ident">Toggle::switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;intersection geometry&quot;</span>, <span class="ident">Key::G</span>, <span class="bool-val">false</span>),
-                        <span class="ident">ctx</span>.<span class="ident">style</span>()
-                            .<span class="ident">btn_outline</span>
-                            .<span class="ident">text</span>(<span class="string">&quot;adjust boundary&quot;</span>)
-                            .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-                        <span class="ident">ctx</span>.<span class="ident">style</span>()
-                            .<span class="ident">btn_outline</span>
-                            .<span class="ident">text</span>(<span class="string">&quot;auto mark junctions&quot;</span>)
-                            .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-                        <span class="ident">ctx</span>.<span class="ident">style</span>()
-                            .<span class="ident">btn_outline</span>
-                            .<span class="ident">text</span>(<span class="string">&quot;simplify RawMap&quot;</span>)
-                            .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-                        <span class="ident">ctx</span>.<span class="ident">style</span>()
-                            .<span class="ident">btn_solid_primary</span>
-                            .<span class="ident">text</span>(<span class="string">&quot;export to OSM&quot;</span>)
-                            .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-                        <span class="ident">ctx</span>.<span class="ident">style</span>()
-                            .<span class="ident">btn_solid_destructive</span>
-                            .<span class="ident">text</span>(<span class="string">&quot;overwrite RawMap&quot;</span>)
-                            .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-                        <span class="ident">ctx</span>.<span class="ident">style</span>()
-                            .<span class="ident">btn_solid_destructive</span>
-                            .<span class="ident">text</span>(<span class="string">&quot;reload RawMap&quot;</span>)
-                            .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-                    ]),
-                ]))
-                .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::Right</span>, <span class="ident">VerticalAlignment::Top</span>)
-                .<span class="ident">build</span>(<span class="ident">ctx</span>),
+        <span class="ident">Box::new</span>(<span class="ident">MainState</span> {
+            <span class="ident">mode</span>: <span class="ident">Mode::Viewing</span>,
+            <span class="ident">panel</span>: <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
+                <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
+                    <span class="ident">Line</span>(<span class="string">&quot;Map Editor&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+                    <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
+                ]),
+                <span class="ident">Text::new</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;instructions&quot;</span>),
+                <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
+                    <span class="ident">Toggle::switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;intersection geometry&quot;</span>, <span class="ident">Key::G</span>, <span class="bool-val">false</span>),
+                    <span class="ident">ctx</span>.<span class="ident">style</span>()
+                        .<span class="ident">btn_outline</span>
+                        .<span class="ident">text</span>(<span class="string">&quot;adjust boundary&quot;</span>)
+                        .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+                    <span class="ident">ctx</span>.<span class="ident">style</span>()
+                        .<span class="ident">btn_outline</span>
+                        .<span class="ident">text</span>(<span class="string">&quot;auto mark junctions&quot;</span>)
+                        .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+                    <span class="ident">ctx</span>.<span class="ident">style</span>()
+                        .<span class="ident">btn_outline</span>
+                        .<span class="ident">text</span>(<span class="string">&quot;simplify RawMap&quot;</span>)
+                        .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+                    <span class="ident">ctx</span>.<span class="ident">style</span>()
+                        .<span class="ident">btn_solid_primary</span>
+                        .<span class="ident">text</span>(<span class="string">&quot;export to OSM&quot;</span>)
+                        .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+                    <span class="ident">ctx</span>.<span class="ident">style</span>()
+                        .<span class="ident">btn_solid_destructive</span>
+                        .<span class="ident">text</span>(<span class="string">&quot;overwrite RawMap&quot;</span>)
+                        .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+                    <span class="ident">ctx</span>.<span class="ident">style</span>()
+                        .<span class="ident">btn_solid_destructive</span>
+                        .<span class="ident">text</span>(<span class="string">&quot;reload RawMap&quot;</span>)
+                        .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+                    <span class="ident">ctx</span>.<span class="ident">style</span>()
+                        .<span class="ident">btn_outline</span>
+                        .<span class="ident">text</span>(<span class="string">&quot;open another RawMap&quot;</span>)
+                        .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+                ]),
+            ]))
+            .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::Right</span>, <span class="ident">VerticalAlignment::Top</span>)
+            .<span class="ident">build</span>(<span class="ident">ctx</span>),
 
-                <span class="ident">last_id</span>: <span class="prelude-val">None</span>,
-            },
-        )
+            <span class="ident">last_id</span>: <span class="prelude-val">None</span>,
+        })
     }
 }
 
@@ -864,6 +997,9 @@
                                         <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;intersection geometry&quot;</span>),
                                     );
                                 }
+                                <span class="string">&quot;open another RawMap&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                                    <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="kw">crate</span><span class="ident">::load::PickMap::new_state</span>(<span class="ident">ctx</span>));
+                                }
                                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
                             },
                             <span class="ident">Outcome::Changed</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
@@ -981,8 +1117,6 @@
     }
 
     <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
-        <span class="ident">g</span>.<span class="ident">clear</span>(<span class="ident">Color::BLACK</span>);
-
         <span class="comment">// It&#39;s useful to see the origin.</span>
         <span class="ident">g</span>.<span class="ident">draw_polygon</span>(<span class="ident">Color::WHITE</span>, <span class="ident">Polygon::rectangle</span>(<span class="number">100.0</span>, <span class="number">10.0</span>));
         <span class="ident">g</span>.<span class="ident">draw_polygon</span>(<span class="ident">Color::WHITE</span>, <span class="ident">Polygon::rectangle</span>(<span class="number">10.0</span>, <span class="number">100.0</span>));
