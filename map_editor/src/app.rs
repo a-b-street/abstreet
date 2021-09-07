@@ -1,4 +1,3 @@
-use abstutil::CmdArgs;
 use geom::{Distance, Line, Polygon, Pt2D};
 use map_gui::tools::CameraState;
 use map_gui::AppLike;
@@ -84,22 +83,6 @@ impl AppLike for App {
         _: map_model::IntersectionID,
     ) -> (usize, geom::Duration) {
         unreachable!()
-    }
-}
-
-impl App {
-    pub fn new(ctx: &mut EventCtx) -> App {
-        let mut args = CmdArgs::new();
-        let load = args.optional_free();
-        let include_bldgs = args.enabled("--bldgs");
-        args.done();
-
-        let model = if let Some(path) = load {
-            Model::import(ctx, path, include_bldgs)
-        } else {
-            Model::blank(ctx)
-        };
-        App { model }
     }
 }
 
@@ -407,16 +390,11 @@ impl State<App> for MainState {
                                     app.model.map.save();
                                 }
                                 "reload RawMap" => {
-                                    let include_bldgs = false;
-                                    app.model = Model::import(
+                                    return Transition::Push(crate::load::load_map(
                                         ctx,
                                         abstio::path_raw_map(&app.model.map.name),
-                                        include_bldgs,
-                                    );
-                                    app.model.show_intersection_geometry(
-                                        ctx,
-                                        self.panel.is_checked("intersection geometry"),
-                                    );
+                                        app.model.include_bldgs,
+                                    ));
                                 }
                                 "open another RawMap" => {
                                     return Transition::Push(crate::load::PickMap::new_state(ctx));

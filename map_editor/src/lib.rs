@@ -23,8 +23,21 @@ pub fn main() {
 fn run(mut settings: Settings) {
     settings = settings.read_svg(Box::new(abstio::slurp_bytes));
     widgetry::run(settings, |ctx| {
-        let app = App::new(ctx);
-        let states = vec![app::MainState::new_state(ctx, &app)];
+        let mut args = abstutil::CmdArgs::new();
+        let load = args.optional_free();
+        let include_bldgs = args.enabled("--bldgs");
+        args.done();
+
+        let mut app = App {
+            model: model::Model::blank(ctx),
+        };
+        app.model.include_bldgs = include_bldgs;
+
+        let states = if let Some(path) = load {
+            vec![load::load_map(ctx, path, include_bldgs)]
+        } else {
+            vec![app::MainState::new_state(ctx, &app)]
+        };
         (app, states)
     });
 }

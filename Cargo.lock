@@ -2156,7 +2156,6 @@ dependencies = [
  "aabb-quadtree",
  "abstio",
  "abstutil",
- "convert_osm",
  "geom",
  "getrandom",
  "log",

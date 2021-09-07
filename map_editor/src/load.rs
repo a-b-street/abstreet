@@ -18,15 +18,16 @@ impl PickMap {
         let mut buttons = Vec::new();
 
         for name in MapName::list_all_maps_merged(&Manifest::load()) {
+            let path = abstio::path_raw_map(&name);
             buttons.push(
                 ctx.style()
                     .btn_outline
                     .text(name.describe())
-                    .build_widget(ctx, &name.path())
+                    .build_widget(ctx, &path)
                     .margin_right(10)
                     .margin_below(10),
             );
-            autocomplete_entries.push((name.describe(), name.path()));
+            autocomplete_entries.push((name.describe(), path));
         }
 
         Box::new(PickMap {
@@ -49,20 +50,20 @@ impl PickMap {
 }
 
 impl State<App> for PickMap {
-    fn event(&mut self, ctx: &mut EventCtx, _: &mut App) -> Transition<App> {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition<App> {
         if let Outcome::Clicked(x) = self.panel.event(ctx) {
             match x.as_ref() {
                 "close" => {
                     return Transition::Pop;
                 }
-                path => {
-                    return load_map(ctx, MapName::from_path(path).unwrap());
+                _ => {
+                    return Transition::Push(load_map(ctx, x, app.model.include_bldgs));
                 }
             }
         }
         if let Some(mut paths) = self.panel.autocomplete_done::<String>("search") {
             if !paths.is_empty() {
-                return load_map(ctx, MapName::from_path(&paths.remove(0)).unwrap());
+                return Transition::Push(load_map(ctx, paths.remove(0), app.model.include_bldgs));
             }
         }
 
@@ -74,16 +75,15 @@ impl State<App> for PickMap {
     }
 }
 
-fn load_map(ctx: &mut EventCtx, map: MapName) -> Transition<App> {
-    Transition::Push(FileLoader::<App, RawMap>::new_state(
+pub fn load_map(ctx: &mut EventCtx, path: String, include_bldgs: bool) -> Box<dyn State<App>> {
+    FileLoader::<App, RawMap>::new_state(
         ctx,
-        abstio::path_raw_map(&map),
-        Box::new(|ctx, app, timer, map| {
+        path,
+        Box::new(move |ctx, app, timer, map| {
             // TODO Handle corrupt files -- which especially might happen on the web!
             let map = map.unwrap();
-            let include_bldgs = false;
             app.model = crate::model::Model::from_map(ctx, map, include_bldgs, timer);
             Transition::Clear(vec![crate::app::MainState::new_state(ctx, app)])
         }),
-    ))
+    )
 }

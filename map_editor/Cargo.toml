@@ -15,7 +15,6 @@ wasm = ["getrandom/js", "map_gui/wasm", "wasm-bindgen", "widgetry/wasm-backend"]
 aabb-quadtree = "0.1.0"
 abstio = { path = "../abstio" }
 abstutil = { path = "../abstutil" }
-convert_osm = { path = "../convert_osm" }
 geom = { path = "../geom" }
 getrandom = { version = "0.2.3", optional = true }
 log = "0.4.14"

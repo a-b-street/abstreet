@@ -21,7 +21,7 @@ pub struct Model {
     pub world: World<ID>,
     pub draw_extra: Drawable,
 
-    include_bldgs: bool,
+    pub include_bldgs: bool,
     intersection_geom: bool,
 }
 
@@ -43,39 +43,6 @@ impl Model {
             world: World::new(),
             intersection_geom: false,
         }
-    }
-
-    pub fn import(ctx: &EventCtx, path: String, include_bldgs: bool) -> Model {
-        let mut timer = Timer::new("import map");
-
-        // TODO Is this really that useful?
-        let map = if path.ends_with(".osm") {
-            convert_osm::convert(
-                convert_osm::Options {
-                    name: MapName::new("zz", "oneshot", &abstutil::basename(&path)),
-                    osm_input: path,
-                    clip: None,
-                    map_config: map_model::MapConfig {
-                        driving_side: map_model::DrivingSide::Right,
-                        bikes_can_use_bus_lanes: true,
-                        inferred_sidewalks: true,
-                        street_parking_spot_length: Distance::meters(8.0),
-                    },
-                    onstreet_parking: convert_osm::OnstreetParking::JustOSM,
-                    public_offstreet_parking: convert_osm::PublicOffstreetParking::None,
-                    private_offstreet_parking: convert_osm::PrivateOffstreetParking::FixedPerBldg(
-                        0,
-                    ),
-                    include_railroads: true,
-                    extra_buildings: None,
-                    skip_local_roads: false,
-                },
-                &mut timer,
-            )
-        } else {
-            abstio::read_binary(path, &mut timer)
-        };
-        Model::from_map(ctx, map, include_bldgs, &mut timer)
     }
 
     pub fn from_map(ctx: &EventCtx, map: RawMap, include_bldgs: bool, timer: &mut Timer) -> Model {
