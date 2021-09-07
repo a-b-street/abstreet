@@ -29,7 +29,7 @@ impl ExploreMap {
     pub fn new_state(ctx: &mut EventCtx, app: &mut App, layers: Layers) -> Box<dyn State<App>> {
         app.opts.show_building_driveways = false;
 
-        if let Err(err) = URLManager::update_url_free_param(
+        URLManager::update_url_free_param(
             app.primary
                 .map
                 .get_name()
@@ -37,9 +37,7 @@ impl ExploreMap {
                 .strip_prefix(&abstio::path(""))
                 .unwrap()
                 .to_string(),
-        ) {
-            warn!("Couldn't update URL: {}", err);
-        }
+        );
 
         Box::new(ExploreMap {
             top_panel: Panel::empty(ctx),
@@ -60,18 +58,14 @@ impl State<App> for ExploreMap {
             self.map_edit_key = key;
             self.top_panel = make_top_panel(ctx, app);
 
-            if let Err(err) = URLManager::update_url_param(
+            URLManager::update_url_param(
                 "--edits".to_string(),
                 app.primary.map.get_edits().edits_name.clone(),
-            ) {
-                warn!("Couldn't update URL: {}", err);
-            }
+            );
         }
 
         if ctx.canvas_movement() {
-            if let Err(err) = URLManager::update_url_cam(ctx, app.primary.map.get_gps_bounds()) {
-                warn!("Couldn't update URL: {}", err);
-            }
+            URLManager::update_url_cam(ctx, app.primary.map.get_gps_bounds());
         }
 
         // Only when zoomed in, click to edit a road in detail

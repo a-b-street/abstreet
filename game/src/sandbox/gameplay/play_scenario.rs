@@ -34,7 +34,7 @@ impl PlayScenario {
         name: &str,
         modifiers: Vec<ScenarioModifier>,
     ) -> Box<dyn GameplayState> {
-        if let Err(err) = URLManager::update_url_free_param(
+        URLManager::update_url_free_param(
             // For dynamiclly generated scenarios like "random" and "home_to_work", this winds up
             // making up a filename that doesn't actually exist. But if you pass that in, it winds
             // up working, because we call abstio::parse_scenario_path() on the other side.
@@ -42,9 +42,7 @@ impl PlayScenario {
                 .strip_prefix(&abstio::path(""))
                 .unwrap()
                 .to_string(),
-        ) {
-            warn!("Couldn't update URL: {}", err);
-        }
+        );
 
         Box::new(PlayScenario {
             top_right: Panel::empty(ctx),

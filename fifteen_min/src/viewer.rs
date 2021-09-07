@@ -46,16 +46,14 @@ impl Viewer {
     }
 
     pub fn new_state(ctx: &mut EventCtx, app: &App, start: BuildingID) -> Box<dyn State<App>> {
-        if let Err(err) = URLManager::update_url_free_param(
+        URLManager::update_url_free_param(
             app.map
                 .get_name()
                 .path()
                 .strip_prefix(&abstio::path(""))
                 .unwrap()
                 .to_string(),
-        ) {
-            warn!("Couldn't update URL: {}", err);
-        }
+        );
 
         let options = Options::Walking(WalkingOptions::default());
         let start = app.map.get_b(start);
@@ -79,9 +77,7 @@ impl State<App> for Viewer {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition<App> {
         // Allow panning and zooming
         if ctx.canvas_movement() {
-            if let Err(err) = URLManager::update_url_cam(ctx, app.map.get_gps_bounds()) {
-                warn!("Couldn't update URL: {}", err);
-            }
+            URLManager::update_url_cam(ctx, app.map.get_gps_bounds());
         }
 
         if ctx.redo_mouseover() {

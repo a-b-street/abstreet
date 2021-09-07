@@ -10,21 +10,21 @@ pub struct URLManager;
 impl URLManager {
     /// This does nothing on native. On web, it modifies the current URL to change the first free
     /// parameter in the HTTP GET params to the specified value, adding it if needed.
-    pub fn update_url_free_param(free_param: String) -> Result<()> {
-        update_url(Box::new(move |url| change_url_free_param(url, &free_param)))
+    pub fn update_url_free_param(free_param: String) {
+        must_update_url(Box::new(move |url| change_url_free_param(url, &free_param)))
     }
 
     /// This does nothing on native. On web, it modifies the current URL to change the first named
     /// parameter in the HTTP GET params to the specified value, adding it if needed.
-    pub fn update_url_param(key: String, value: String) -> Result<()> {
-        update_url(Box::new(move |url| change_url_param(url, &key, &value)))
+    pub fn update_url_param(key: String, value: String) {
+        must_update_url(Box::new(move |url| change_url_param(url, &key, &value)))
     }
 
     /// This does nothing on native. On web, it modifies the current URL to set --cam to an
     /// OSM-style `zoom/lat/lon` string
     /// (https://wiki.openstreetmap.org/wiki/Browsing#Other_URL_tricks) based on the current
     /// viewport.
-    pub fn update_url_cam(ctx: &EventCtx, gps_bounds: &GPSBounds) -> Result<()> {
+    pub fn update_url_cam(ctx: &EventCtx, gps_bounds: &GPSBounds) {
         let center = ctx.canvas.center_to_map_pt().to_gps(gps_bounds);
 
         // To calculate zoom, just solve for the inverse of the code in parse_center_camera.
@@ -36,7 +36,7 @@ impl URLManager {
         // Trim precision
         let cam = format!("{:.2}/{:.5}/{:.5}", zoom_lvl, center.y(), center.x());
 
-        update_url(Box::new(move |url| change_url_param(url, "--cam", &cam)))
+        must_update_url(Box::new(move |url| change_url_param(url, "--cam", &cam)))
     }
 
     /// Parse an OSM-style `zoom/lat/lon` string
@@ -72,6 +72,12 @@ impl URLManager {
         let cam_zoom = 1.0 / horiz_meters_per_pixel;
 
         Some((pt, cam_zoom))
+    }
+}
+
+fn must_update_url(transform: Box<dyn Fn(String) -> String>) {
+    if let Err(err) = update_url(transform) {
+        warn!("Couldn't update URL: {}", err);
     }
 }
 

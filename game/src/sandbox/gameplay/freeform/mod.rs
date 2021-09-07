@@ -30,7 +30,7 @@ pub struct Freeform {
 
 impl Freeform {
     pub fn new_state(ctx: &mut EventCtx, app: &App) -> Box<dyn GameplayState> {
-        if let Err(err) = URLManager::update_url_free_param(
+        URLManager::update_url_free_param(
             app.primary
                 .map
                 .get_name()
@@ -38,9 +38,7 @@ impl Freeform {
                 .strip_prefix(&abstio::path(""))
                 .unwrap()
                 .to_string(),
-        ) {
-            warn!("Couldn't update URL: {}", err);
-        }
+        );
 
         Box::new(Freeform {
             top_right: Panel::empty(ctx),

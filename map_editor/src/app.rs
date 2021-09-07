@@ -106,14 +106,12 @@ enum Mode {
 impl MainState {
     pub fn new_state(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
         if !app.model.map.name.map.is_empty() {
-            if let Err(err) = URLManager::update_url_free_param(
+            URLManager::update_url_free_param(
                 abstio::path_raw_map(&app.model.map.name)
                     .strip_prefix(&abstio::path(""))
                     .unwrap()
                     .to_string(),
-            ) {
-                warn!("Couldn't update URL: {}", err);
-            }
+            );
         }
         let bounds = app.model.map.gps_bounds.to_bounds();
         ctx.canvas.map_dims = (bounds.width(), bounds.height());
@@ -207,9 +205,7 @@ impl MainState {
 impl State<App> for MainState {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition<App> {
         if ctx.canvas_movement() {
-            if let Err(err) = URLManager::update_url_cam(ctx, &app.model.map.gps_bounds) {
-                warn!("Couldn't update URL: {}", err);
-            }
+            URLManager::update_url_cam(ctx, &app.model.map.gps_bounds);
         }
         if ctx.redo_mouseover() {
             app.model.world.handle_mouseover(ctx);
