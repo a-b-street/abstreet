@@ -289,6 +289,9 @@
 <span id="287">287</span>
 <span id="288">288</span>
 <span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 
@@ -321,6 +324,7 @@
                         .<span class="ident">iter</span>()
                         .<span class="ident">map</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> (<span class="ident">r</span>.<span class="ident">get_name</span>(<span class="ident">app</span>.<span class="ident">opts</span>().<span class="ident">language</span>.<span class="ident">as_ref</span>()), <span class="ident">r</span>.<span class="ident">id</span>))
                         .<span class="ident">collect</span>(),
+                    <span class="number">10</span>,
                 )
                 .<span class="ident">named</span>(<span class="string">&quot;street&quot;</span>),
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
@@ -416,6 +420,7 @@
                         .<span class="ident">into_iter</span>()
                         .<span class="ident">map</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> (<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>).<span class="ident">get_name</span>(<span class="ident">app</span>.<span class="ident">opts</span>().<span class="ident">language</span>.<span class="ident">as_ref</span>()), <span class="ident">r</span>))
                         .<span class="ident">collect</span>(),
+                    <span class="number">10</span>,
                 )
                 .<span class="ident">named</span>(<span class="string">&quot;street&quot;</span>),
             ]))
@@ -527,6 +532,7 @@
                             <span class="ident">results</span>
                         })
                         .<span class="ident">collect</span>(),
+                    <span class="number">10</span>,
                 )
                 .<span class="ident">named</span>(<span class="string">&quot;bldg&quot;</span>),
                 <span class="ident">ctx</span>.<span class="ident">style</span>()

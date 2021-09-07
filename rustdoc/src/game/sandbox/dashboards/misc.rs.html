@@ -246,6 +246,7 @@
 <span id="244">244</span>
 <span id="245">245</span>
 <span id="246">246</span>
+<span id="247">247</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">Counter</span>};
 <span class="kw">use</span> <span class="ident">geom::Time</span>;
@@ -407,6 +408,7 @@
                         .<span class="ident">iter</span>()
                         .<span class="ident">map</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">r</span>, <span class="ident">id</span>)<span class="op">|</span> (<span class="ident">r</span>.<span class="ident">clone</span>(), <span class="kw-2">*</span><span class="ident">id</span>))
                         .<span class="ident">collect</span>(),
+                    <span class="number">10</span>,
                 )
                 .<span class="ident">named</span>(<span class="string">&quot;search&quot;</span>),
             ])

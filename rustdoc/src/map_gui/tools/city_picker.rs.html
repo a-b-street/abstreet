@@ -780,7 +780,7 @@
                 ]),
                 <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
                     <span class="ident">Image::from_path</span>(<span class="string">&quot;system/assets/tools/search.svg&quot;</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                    <span class="ident">Autocomplete::new_widget</span>(<span class="ident">ctx</span>, <span class="ident">autocomplete_entries</span>).<span class="ident">named</span>(<span class="string">&quot;search&quot;</span>),
+                    <span class="ident">Autocomplete::new_widget</span>(<span class="ident">ctx</span>, <span class="ident">autocomplete_entries</span>, <span class="number">10</span>).<span class="ident">named</span>(<span class="string">&quot;search&quot;</span>),
                 ])
                 .<span class="ident">padding</span>(<span class="number">8</span>),
                 <span class="ident">Widget::custom_row</span>(<span class="ident">buttons</span>).<span class="ident">flex_wrap</span>(<span class="ident">ctx</span>, <span class="ident">Percent::int</span>(<span class="number">70</span>)),

@@ -104,25 +104,8 @@
 <span id="102">102</span>
 <span id="103">103</span>
 <span id="104">104</span>
-<span id="105">105</span>
-<span id="106">106</span>
-<span id="107">107</span>
-<span id="108">108</span>
-<span id="109">109</span>
-<span id="110">110</span>
-<span id="111">111</span>
-<span id="112">112</span>
-<span id="113">113</span>
-<span id="114">114</span>
-<span id="115">115</span>
-<span id="116">116</span>
-<span id="117">117</span>
-<span id="118">118</span>
-<span id="119">119</span>
-<span id="120">120</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">abstio</span>::{<span class="ident">Manifest</span>, <span class="ident">MapName</span>};
-<span class="kw">use</span> <span class="ident">geom::Percent</span>;
 <span class="kw">use</span> <span class="ident">map_gui::load::FileLoader</span>;
 <span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">CameraState</span>, <span class="ident">PopupMsg</span>, <span class="ident">URLManager</span>};
 <span class="kw">use</span> <span class="ident">map_model::raw::RawMap</span>;
@@ -138,20 +121,9 @@
 
 <span class="kw">impl</span> <span class="ident">PickMap</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">autocomplete_entries</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buttons</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">entries</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
         <span class="kw">for</span> <span class="ident">name</span> <span class="kw">in</span> <span class="ident">MapName::list_all_maps_merged</span>(<span class="kw-2">&amp;</span><span class="ident">Manifest::load</span>()) {
-            <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">abstio::path_raw_map</span>(<span class="kw-2">&amp;</span><span class="ident">name</span>);
-            <span class="ident">buttons</span>.<span class="ident">push</span>(
-                <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_outline</span>
-                    .<span class="ident">text</span>(<span class="ident">name</span>.<span class="ident">describe</span>())
-                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">path</span>)
-                    .<span class="ident">margin_right</span>(<span class="number">10</span>)
-                    .<span class="ident">margin_below</span>(<span class="number">10</span>),
-            );
-            <span class="ident">autocomplete_entries</span>.<span class="ident">push</span>((<span class="ident">name</span>.<span class="ident">describe</span>(), <span class="ident">path</span>));
+            <span class="ident">entries</span>.<span class="ident">push</span>((<span class="ident">name</span>.<span class="ident">describe</span>(), <span class="ident">abstio::path_raw_map</span>(<span class="kw-2">&amp;</span><span class="ident">name</span>)));
         }
 
         <span class="ident">Box::new</span>(<span class="ident">PickMap</span> {
@@ -162,10 +134,8 @@
                 ]),
                 <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
                     <span class="ident">Image::from_path</span>(<span class="string">&quot;system/assets/tools/search.svg&quot;</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                    <span class="ident">Autocomplete::new_widget</span>(<span class="ident">ctx</span>, <span class="ident">autocomplete_entries</span>).<span class="ident">named</span>(<span class="string">&quot;search&quot;</span>),
-                ])
-                .<span class="ident">padding</span>(<span class="number">8</span>),
-                <span class="ident">Widget::custom_row</span>(<span class="ident">buttons</span>).<span class="ident">flex_wrap</span>(<span class="ident">ctx</span>, <span class="ident">Percent::int</span>(<span class="number">70</span>)),
+                    <span class="ident">Autocomplete::new_widget</span>(<span class="ident">ctx</span>, <span class="ident">entries</span>, <span class="number">20</span>).<span class="ident">named</span>(<span class="string">&quot;search&quot;</span>),
+                ]),
             ]))
             .<span class="ident">exact_size_percent</span>(<span class="number">80</span>, <span class="number">80</span>)
             .<span class="ident">build</span>(<span class="ident">ctx</span>),
@@ -180,9 +150,7 @@
                 <span class="string">&quot;close&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">return</span> <span class="ident">Transition::Pop</span>;
                 }
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">load_map</span>(<span class="ident">ctx</span>, <span class="ident">x</span>, <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">include_bldgs</span>, <span class="prelude-val">None</span>));
-                }
+                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
             }
         }
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">mut</span> <span class="ident">paths</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">autocomplete_done</span>::<span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>(<span class="string">&quot;search&quot;</span>) {
