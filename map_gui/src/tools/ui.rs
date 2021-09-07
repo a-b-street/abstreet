@@ -2,8 +2,9 @@
 
 use anyhow::Result;
 
+use geom::Polygon;
 use widgetry::{
-    hotkeys, Choice, DrawBaselayer, Drawable, EventCtx, GfxCtx, Key, Line, Menu, Outcome, Panel,
+    hotkeys, Choice, Color, DrawBaselayer, EventCtx, GfxCtx, Key, Line, Menu, Outcome, Panel,
     State, Text, TextBox, Transition, Widget,
 };
 
@@ -135,8 +136,6 @@ impl<A: AppLike + 'static> State<A> for PromptInput<A> {
 /// Display a message dialog.
 pub struct PopupMsg {
     panel: Panel,
-    unzoomed: Drawable,
-    zoomed: Drawable,
 }
 
 impl PopupMsg {
@@ -144,22 +143,6 @@ impl PopupMsg {
         ctx: &mut EventCtx,
         title: &str,
         lines: Vec<impl AsRef<str>>,
-    ) -> Box<dyn State<A>> {
-        PopupMsg::also_draw(
-            ctx,
-            title,
-            lines,
-            Drawable::empty(ctx),
-            Drawable::empty(ctx),
-        )
-    }
-
-    pub fn also_draw<A: AppLike>(
-        ctx: &mut EventCtx,
-        title: &str,
-        lines: Vec<impl AsRef<str>>,
-        unzoomed: Drawable,
-        zoomed: Drawable,
     ) -> Box<dyn State<A>> {
         let mut txt = Text::new();
         txt.add_line(Line(title).small_heading());
@@ -176,8 +159,6 @@ impl PopupMsg {
                     .build_def(ctx),
             ]))
             .build(ctx),
-            unzoomed,
-            zoomed,
         })
     }
 }
@@ -202,14 +183,16 @@ impl<A: AppLike> State<A> for PopupMsg {
         DrawBaselayer::PreviousState
     }
 
-    fn draw(&self, g: &mut GfxCtx, app: &A) {
-        grey_out_map(g, app);
+    fn draw(&self, g: &mut GfxCtx, _: &A) {
+        // This is a copy of grey_out_map from map_gui, with no dependencies on App
+        g.fork_screenspace();
+        g.draw_polygon(
+            Color::BLACK.alpha(0.6),
+            Polygon::rectangle(g.canvas.window_width, g.canvas.window_height),
+        );
+        g.unfork();
+
         self.panel.draw(g);
-        if g.canvas.cam_zoom < app.opts().min_zoom_for_detail {
-            g.redraw(&self.unzoomed);
-        } else {
-            g.redraw(&self.zoomed);
-        }
     }
 }
 

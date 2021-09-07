@@ -1,6 +1,7 @@
 use abstio::{Manifest, MapName};
 use geom::Percent;
 use map_gui::load::FileLoader;
+use map_gui::tools::PopupMsg;
 use map_model::raw::RawMap;
 use widgetry::{
     Autocomplete, EventCtx, GfxCtx, Image, Line, Outcome, Panel, State, Transition, Widget,
@@ -79,11 +80,21 @@ pub fn load_map(ctx: &mut EventCtx, path: String, include_bldgs: bool) -> Box<dy
     FileLoader::<App, RawMap>::new_state(
         ctx,
         path,
-        Box::new(move |ctx, app, timer, map| {
-            // TODO Handle corrupt files -- which especially might happen on the web!
-            let map = map.unwrap();
-            app.model = crate::model::Model::from_map(ctx, map, include_bldgs, timer);
-            Transition::Clear(vec![crate::app::MainState::new_state(ctx, app)])
+        Box::new(move |ctx, app, timer, map| match map {
+            Ok(map) => {
+                app.model = crate::model::Model::from_map(ctx, map, include_bldgs, timer);
+                Transition::Clear(vec![crate::app::MainState::new_state(ctx, app)])
+            }
+            Err(err) => Transition::Replace(PopupMsg::new_state(
+                ctx,
+                "Error",
+                vec![
+                    "The format of this file has become out-of-sync with this version of the code."
+                        .to_string(),
+                    "Please file an issue and ask for an update. Sorry for the hassle!".to_string(),
+                    format!("Error: {}", err),
+                ],
+            )),
         }),
     )
 }

@@ -4,7 +4,7 @@ use map_gui::AppLike;
 use map_model::osm;
 use map_model::raw::OriginalRoad;
 use widgetry::{
-    Canvas, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
+    lctrl, Canvas, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
     SharedAppState, State, Text, Toggle, Transition, VerticalAlignment, Widget,
 };
 
@@ -172,6 +172,7 @@ impl MainState {
                     ctx.style()
                         .btn_outline
                         .text("open another RawMap")
+                        .hotkey(lctrl(Key::L))
                         .build_def(ctx),
                 ]),
             ]))

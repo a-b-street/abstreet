@@ -34,7 +34,11 @@ fn run(mut settings: Settings) {
         app.model.include_bldgs = include_bldgs;
 
         let states = if let Some(path) = load {
-            vec![load::load_map(ctx, path, include_bldgs)]
+            // In case the initial load fails, stick a blank state at the bottom
+            vec![
+                app::MainState::new_state(ctx, &app),
+                load::load_map(ctx, path, include_bldgs),
+            ]
         } else {
             vec![app::MainState::new_state(ctx, &app)]
         };

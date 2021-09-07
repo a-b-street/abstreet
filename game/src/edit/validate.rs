@@ -34,19 +34,15 @@ pub fn check_sidewalk_connectivity(
         return None;
     }
 
-    let mut c = ColorDiscrete::new(app, vec![("disconnected", Color::RED)]);
-    let num = newly_disconnected.len();
-    for l in newly_disconnected {
-        c.add_l(*l, "disconnected");
-    }
-    let (unzoomed, zoomed, _) = c.build(ctx);
-
-    Some(PopupMsg::also_draw(
+    // TODO Think through a proper UI for showing editing errors to the user and letting them
+    // understand the problem. We used to just draw problems in red and mostly cover it up with the
+    // popup.
+    Some(PopupMsg::new_state(
         ctx,
         "Error",
         vec![format!(
             "Can't close this intersection; {} sidewalks disconnected",
-            num
+            newly_disconnected.len()
         )],
         unzoomed,
         zoomed,
@@ -93,17 +89,13 @@ pub fn check_blackholes(
         return None;
     }
 
-    let mut c = ColorDiscrete::new(app, vec![("disconnected", Color::RED)]);
-    let num = newly_disconnected.len();
-    for l in newly_disconnected {
-        c.add_l(l, "disconnected");
-    }
-    let (unzoomed, zoomed, _) = c.build(ctx);
-
-    Some(PopupMsg::also_draw(
+    Some(PopupMsg::new_state(
         ctx,
         "Error",
-        vec![format!("{} lanes have been disconnected", num)],
+        vec![format!(
+            "{} lanes have been disconnected",
+            newly_disconnected.len()
+        )],
         unzoomed,
         zoomed,
     ))
