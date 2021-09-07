@@ -228,19 +228,11 @@
 <span id="226">226</span>
 <span id="227">227</span>
 <span id="228">228</span>
-<span id="229">229</span>
-<span id="230">230</span>
-<span id="231">231</span>
-<span id="232">232</span>
-<span id="233">233</span>
-<span id="234">234</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
 
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">LonLat</span>, <span class="ident">Pt2D</span>};
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">GPSBounds</span>, <span class="ident">LonLat</span>, <span class="ident">Pt2D</span>};
 <span class="kw">use</span> <span class="ident">widgetry::EventCtx</span>;
-
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::AppLike</span>;
 
 <span class="doccomment">/// Utilities for reflecting the current map and viewport in the URL on the web. No effect on</span>
 <span class="doccomment">/// native.</span>
@@ -263,11 +255,8 @@
     <span class="doccomment">/// OSM-style `zoom/lat/lon` string</span>
     <span class="doccomment">/// (https://wiki.openstreetmap.org/wiki/Browsing#Other_URL_tricks) based on the current</span>
     <span class="doccomment">/// viewport.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">update_url_cam</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">AppLike</span><span class="op">&gt;</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">A</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">center</span> <span class="op">=</span> <span class="ident">ctx</span>
-            .<span class="ident">canvas</span>
-            .<span class="ident">center_to_map_pt</span>()
-            .<span class="ident">to_gps</span>(<span class="ident">app</span>.<span class="ident">map</span>().<span class="ident">get_gps_bounds</span>());
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">update_url_cam</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">gps_bounds</span>: <span class="kw-2">&amp;</span><span class="ident">GPSBounds</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">center</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">center_to_map_pt</span>().<span class="ident">to_gps</span>(<span class="ident">gps_bounds</span>);
 
         <span class="comment">// To calculate zoom, just solve for the inverse of the code in parse_center_camera.</span>
         <span class="kw">let</span> <span class="ident">earth_circumference_equator</span> <span class="op">=</span> <span class="number">40_075_016.686</span>;
@@ -284,8 +273,7 @@
     <span class="doccomment">/// Parse an OSM-style `zoom/lat/lon` string</span>
     <span class="doccomment">/// (https://wiki.openstreetmap.org/wiki/Browsing#Other_URL_tricks), returning the map point to</span>
     <span class="doccomment">/// center on and the camera zoom.</span>
-    <span class="comment">// TODO This flag would also be useful in the other tools; lift to map_gui.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_center_camera</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">AppLike</span><span class="op">&gt;</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">A</span>, <span class="ident">raw</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Pt2D</span>, <span class="ident">f64</span>)<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_center_camera</span>(<span class="ident">raw</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">gps_bounds</span>: <span class="kw-2">&amp;</span><span class="ident">GPSBounds</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Pt2D</span>, <span class="ident">f64</span>)<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">parts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">raw</span>.<span class="ident">split</span>(<span class="string">&#39;/&#39;</span>).<span class="ident">collect</span>();
         <span class="kw">if</span> <span class="ident">parts</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">3</span> {
             <span class="kw">return</span> <span class="prelude-val">None</span>;
@@ -294,10 +282,10 @@
         <span class="kw">let</span> <span class="ident">lat</span> <span class="op">=</span> <span class="ident">parts</span>[<span class="number">1</span>].<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>().<span class="ident">ok</span>()<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">lon</span> <span class="op">=</span> <span class="ident">parts</span>[<span class="number">2</span>].<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>().<span class="ident">ok</span>()<span class="question-mark">?</span>;
         <span class="kw">let</span> <span class="ident">gps</span> <span class="op">=</span> <span class="ident">LonLat::new</span>(<span class="ident">lon</span>, <span class="ident">lat</span>);
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">app</span>.<span class="ident">map</span>().<span class="ident">get_gps_bounds</span>().<span class="ident">contains</span>(<span class="ident">gps</span>) {
+        <span class="kw">if</span> <span class="op">!</span><span class="ident">gps_bounds</span>.<span class="ident">contains</span>(<span class="ident">gps</span>) {
             <span class="kw">return</span> <span class="prelude-val">None</span>;
         }
-        <span class="kw">let</span> <span class="ident">pt</span> <span class="op">=</span> <span class="ident">gps</span>.<span class="ident">to_pt</span>(<span class="ident">app</span>.<span class="ident">map</span>().<span class="ident">get_gps_bounds</span>());
+        <span class="kw">let</span> <span class="ident">pt</span> <span class="op">=</span> <span class="ident">gps</span>.<span class="ident">to_pt</span>(<span class="ident">gps_bounds</span>);
 
         <span class="comment">// To figure out zoom, first calculate horizontal meters per pixel, using the formula from</span>
         <span class="comment">// https://wiki.openstreetmap.org/wiki/Zoom_levels.</span>
