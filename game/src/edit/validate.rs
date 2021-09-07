@@ -1,8 +1,8 @@
 use std::collections::BTreeSet;
 
-use map_gui::tools::{ColorDiscrete, PopupMsg};
+use map_gui::tools::PopupMsg;
 use map_model::{connectivity, EditCmd, PathConstraints};
-use widgetry::{Color, EventCtx, State};
+use widgetry::{EventCtx, State};
 
 use crate::app::App;
 
@@ -44,8 +44,6 @@ pub fn check_sidewalk_connectivity(
             "Can't close this intersection; {} sidewalks disconnected",
             newly_disconnected.len()
         )],
-        unzoomed,
-        zoomed,
     ))
 }
 
@@ -96,7 +94,5 @@ pub fn check_blackholes(
             "{} lanes have been disconnected",
             newly_disconnected.len()
         )],
-        unzoomed,
-        zoomed,
     ))
 }

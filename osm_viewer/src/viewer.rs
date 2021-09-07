@@ -234,7 +234,7 @@ impl Viewer {
 impl State<App> for Viewer {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition<App> {
         if ctx.canvas_movement() {
-            if let Err(err) = URLManager::update_url_cam(ctx, app) {
+            if let Err(err) = URLManager::update_url_cam(ctx, app.map.get_gps_bounds()) {
                 warn!("Couldn't update URL: {}", err);
             }
         }

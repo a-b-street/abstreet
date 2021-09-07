@@ -1,9 +1,7 @@
 use anyhow::Result;
 
-use geom::{LonLat, Pt2D};
+use geom::{GPSBounds, LonLat, Pt2D};
 use widgetry::EventCtx;
-
-use crate::AppLike;
 
 /// Utilities for reflecting the current map and viewport in the URL on the web. No effect on
 /// native.
@@ -26,11 +24,8 @@ impl URLManager {
     /// OSM-style `zoom/lat/lon` string
     /// (https://wiki.openstreetmap.org/wiki/Browsing#Other_URL_tricks) based on the current
     /// viewport.
-    pub fn update_url_cam<A: AppLike>(ctx: &EventCtx, app: &A) -> Result<()> {
-        let center = ctx
-            .canvas
-            .center_to_map_pt()
-            .to_gps(app.map().get_gps_bounds());
+    pub fn update_url_cam(ctx: &EventCtx, gps_bounds: &GPSBounds) -> Result<()> {
+        let center = ctx.canvas.center_to_map_pt().to_gps(gps_bounds);
 
         // To calculate zoom, just solve for the inverse of the code in parse_center_camera.
         let earth_circumference_equator = 40_075_016.686;
@@ -47,8 +42,7 @@ impl URLManager {
     /// Parse an OSM-style `zoom/lat/lon` string
     /// (https://wiki.openstreetmap.org/wiki/Browsing#Other_URL_tricks), returning the map point to
     /// center on and the camera zoom.
-    // TODO This flag would also be useful in the other tools; lift to map_gui.
-    pub fn parse_center_camera<A: AppLike>(app: &A, raw: &str) -> Option<(Pt2D, f64)> {
+    pub fn parse_center_camera(raw: &str, gps_bounds: &GPSBounds) -> Option<(Pt2D, f64)> {
         let parts: Vec<&str> = raw.split('/').collect();
         if parts.len() != 3 {
             return None;
@@ -57,10 +51,10 @@ impl URLManager {
         let lat = parts[1].parse::<f64>().ok()?;
         let lon = parts[2].parse::<f64>().ok()?;
         let gps = LonLat::new(lon, lat);
-        if !app.map().get_gps_bounds().contains(gps) {
+        if !gps_bounds.contains(gps) {
             return None;
         }
-        let pt = gps.to_pt(app.map().get_gps_bounds());
+        let pt = gps.to_pt(gps_bounds);
 
         // To figure out zoom, first calculate horizontal meters per pixel, using the formula from
         // https://wiki.openstreetmap.org/wiki/Zoom_levels.

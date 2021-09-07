@@ -26,6 +26,7 @@ fn run(mut settings: Settings) {
         let mut args = abstutil::CmdArgs::new();
         let load = args.optional_free();
         let include_bldgs = args.enabled("--bldgs");
+        let center_camera = args.optional("--cam");
         args.done();
 
         let mut app = App {
@@ -37,7 +38,7 @@ fn run(mut settings: Settings) {
             // In case the initial load fails, stick a blank state at the bottom
             vec![
                 app::MainState::new_state(ctx, &app),
-                load::load_map(ctx, path, include_bldgs),
+                load::load_map(ctx, path, include_bldgs, center_camera),
             ]
         } else {
             vec![app::MainState::new_state(ctx, &app)]

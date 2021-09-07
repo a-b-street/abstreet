@@ -285,7 +285,7 @@ fn continue_app_setup(
     if let Some((pt, zoom)) = setup
         .center_camera
         .as_ref()
-        .and_then(|cam| URLManager::parse_center_camera(app, cam))
+        .and_then(|cam| URLManager::parse_center_camera(cam, app.primary.map.get_gps_bounds()))
     {
         ctx.canvas.cam_zoom = zoom;
         ctx.canvas.center_on_map_pt(pt);

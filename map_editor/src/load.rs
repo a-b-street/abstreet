@@ -1,7 +1,7 @@
 use abstio::{Manifest, MapName};
 use geom::Percent;
 use map_gui::load::FileLoader;
-use map_gui::tools::PopupMsg;
+use map_gui::tools::{CameraState, PopupMsg, URLManager};
 use map_model::raw::RawMap;
 use widgetry::{
     Autocomplete, EventCtx, GfxCtx, Image, Line, Outcome, Panel, State, Transition, Widget,
@@ -58,13 +58,18 @@ impl State<App> for PickMap {
                     return Transition::Pop;
                 }
                 _ => {
-                    return Transition::Push(load_map(ctx, x, app.model.include_bldgs));
+                    return Transition::Push(load_map(ctx, x, app.model.include_bldgs, None));
                 }
             }
         }
         if let Some(mut paths) = self.panel.autocomplete_done::<String>("search") {
             if !paths.is_empty() {
-                return Transition::Push(load_map(ctx, paths.remove(0), app.model.include_bldgs));
+                return Transition::Push(load_map(
+                    ctx,
+                    paths.remove(0),
+                    app.model.include_bldgs,
+                    None,
+                ));
             }
         }
 
@@ -76,13 +81,28 @@ impl State<App> for PickMap {
     }
 }
 
-pub fn load_map(ctx: &mut EventCtx, path: String, include_bldgs: bool) -> Box<dyn State<App>> {
+pub fn load_map(
+    ctx: &mut EventCtx,
+    path: String,
+    include_bldgs: bool,
+    center_camera: Option<String>,
+) -> Box<dyn State<App>> {
     FileLoader::<App, RawMap>::new_state(
         ctx,
         path,
         Box::new(move |ctx, app, timer, map| match map {
             Ok(map) => {
                 app.model = crate::model::Model::from_map(ctx, map, include_bldgs, timer);
+
+                if let Some((pt, zoom)) = center_camera.and_then(|cam| {
+                    URLManager::parse_center_camera(&cam, &app.model.map.gps_bounds)
+                }) {
+                    ctx.canvas.cam_zoom = zoom;
+                    ctx.canvas.center_on_map_pt(pt);
+                } else if !app.model.map.name.map.is_empty() {
+                    CameraState::load(ctx, &app.model.map.name);
+                }
+
                 Transition::Clear(vec![crate::app::MainState::new_state(ctx, app)])
             }
             Err(err) => Transition::Replace(PopupMsg::new_state(

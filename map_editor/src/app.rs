@@ -1,5 +1,5 @@
 use geom::{Distance, Line, Polygon, Pt2D};
-use map_gui::tools::CameraState;
+use map_gui::tools::{CameraState, URLManager};
 use map_gui::AppLike;
 use map_model::osm;
 use map_model::raw::OriginalRoad;
@@ -106,7 +106,14 @@ enum Mode {
 impl MainState {
     pub fn new_state(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
         if !app.model.map.name.map.is_empty() {
-            CameraState::load(ctx, &app.model.map.name);
+            if let Err(err) = URLManager::update_url_free_param(
+                abstio::path_raw_map(&app.model.map.name)
+                    .strip_prefix(&abstio::path(""))
+                    .unwrap()
+                    .to_string(),
+            ) {
+                warn!("Couldn't update URL: {}", err);
+            }
         }
         let bounds = app.model.map.gps_bounds.to_bounds();
         ctx.canvas.map_dims = (bounds.width(), bounds.height());
@@ -138,43 +145,56 @@ impl MainState {
         Box::new(MainState {
             mode: Mode::Viewing,
             panel: Panel::new_builder(Widget::col(vec![
-                Widget::row(vec![
-                    Line("Map Editor").small_heading().into_widget(ctx),
-                    ctx.style().btn_close_widget(ctx),
+                Line("RawMap Editor").small_heading().into_widget(ctx),
+                Widget::col(vec![
+                    Widget::col(vec![
+                        Widget::row(vec![
+                            ctx.style()
+                                .btn_popup_icon_text(
+                                    "system/assets/tools/map.svg",
+                                    &app.model.map.name.as_filename(),
+                                )
+                                .hotkey(lctrl(Key::L))
+                                .build_widget(ctx, "open another RawMap"),
+                            ctx.style()
+                                .btn_solid_destructive
+                                .text("reload")
+                                .build_def(ctx),
+                        ]),
+                        if cfg!(target_arch = "wasm32") {
+                            Widget::nothing()
+                        } else {
+                            Widget::row(vec![
+                                ctx.style()
+                                    .btn_solid_primary
+                                    .text("export to OSM")
+                                    .build_def(ctx),
+                                ctx.style()
+                                    .btn_solid_destructive
+                                    .text("overwrite RawMap")
+                                    .build_def(ctx),
+                            ])
+                        },
+                    ])
+                    .section(ctx),
+                    Widget::col(vec![
+                        Toggle::switch(ctx, "intersection geometry", Key::G, false),
+                        ctx.style()
+                            .btn_outline
+                            .text("adjust boundary")
+                            .build_def(ctx),
+                        ctx.style()
+                            .btn_outline
+                            .text("auto mark junctions")
+                            .build_def(ctx),
+                        ctx.style()
+                            .btn_outline
+                            .text("simplify RawMap")
+                            .build_def(ctx),
+                    ])
+                    .section(ctx),
                 ]),
                 Text::new().into_widget(ctx).named("instructions"),
-                Widget::col(vec![
-                    Toggle::switch(ctx, "intersection geometry", Key::G, false),
-                    ctx.style()
-                        .btn_outline
-                        .text("adjust boundary")
-                        .build_def(ctx),
-                    ctx.style()
-                        .btn_outline
-                        .text("auto mark junctions")
-                        .build_def(ctx),
-                    ctx.style()
-                        .btn_outline
-                        .text("simplify RawMap")
-                        .build_def(ctx),
-                    ctx.style()
-                        .btn_solid_primary
-                        .text("export to OSM")
-                        .build_def(ctx),
-                    ctx.style()
-                        .btn_solid_destructive
-                        .text("overwrite RawMap")
-                        .build_def(ctx),
-                    ctx.style()
-                        .btn_solid_destructive
-                        .text("reload RawMap")
-                        .build_def(ctx),
-                    ctx.style()
-                        .btn_outline
-                        .text("open another RawMap")
-                        .hotkey(lctrl(Key::L))
-                        .build_def(ctx),
-                ]),
             ]))
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
             .build(ctx),
@@ -186,7 +206,11 @@ impl MainState {
 
 impl State<App> for MainState {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition<App> {
-        ctx.canvas_movement();
+        if ctx.canvas_movement() {
+            if let Err(err) = URLManager::update_url_cam(ctx, &app.model.map.gps_bounds) {
+                warn!("Couldn't update URL: {}", err);
+            }
+        }
         if ctx.redo_mouseover() {
             app.model.world.handle_mouseover(ctx);
         }
@@ -366,9 +390,6 @@ impl State<App> for MainState {
                     None => {
                         match self.panel.event(ctx) {
                             Outcome::Clicked(x) => match x.as_ref() {
-                                "close" => {
-                                    return Transition::Pop;
-                                }
                                 "adjust boundary" => {
                                     self.mode = Mode::SetBoundaryPt1;
                                 }
@@ -390,12 +411,13 @@ impl State<App> for MainState {
                                 "overwrite RawMap" => {
                                     app.model.map.save();
                                 }
-                                "reload RawMap" => {
+                                "reload" => {
                                     CameraState::save(&ctx.canvas, &app.model.map.name);
                                     return Transition::Push(crate::load::load_map(
                                         ctx,
                                         abstio::path_raw_map(&app.model.map.name),
                                         app.model.include_bldgs,
+                                        None,
                                     ));
                                 }
                                 "open another RawMap" => {

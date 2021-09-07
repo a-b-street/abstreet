@@ -123,7 +123,7 @@ impl State<App> for SandboxMode {
 
         // Do this before gameplay
         if self.gameplay.can_move_canvas() && ctx.canvas_movement() {
-            if let Err(err) = URLManager::update_url_cam(ctx, app) {
+            if let Err(err) = URLManager::update_url_cam(ctx, app.primary.map.get_gps_bounds()) {
                 warn!("Couldn't update URL: {}", err);
             }
         }
