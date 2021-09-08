@@ -2,7 +2,9 @@ use std::collections::HashMap;
 
 use geom::{Bounds, Duration, Histogram, Polygon, Pt2D, Statistic};
 use map_model::{BuildingID, Map};
-use widgetry::{Choice, Color, EventCtx, GeomBatch, Panel, Spinner, TextExt, Toggle, Widget};
+use widgetry::{
+    Choice, Color, EventCtx, GeomBatch, Panel, RoundedF64, Spinner, TextExt, Toggle, Widget,
+};
 
 use crate::tools::{ColorLegend, ColorScale};
 
@@ -44,14 +46,14 @@ impl HeatmapOptions {
             // TODO Display the value...
             Widget::row(vec![
                 "Resolution (meters)".text_widget(ctx).centered_vert(),
-                Spinner::widget(ctx, "resolution", (1.0, 100.0), self.resolution, 1.0)
+                Spinner::f64_widget(ctx, "resolution", (1.0, 100.0), self.resolution, 1.0)
                     .align_right(),
             ]),
             Widget::row(vec![
                 "Radius (resolution multiplier)"
                     .text_widget(ctx)
                     .centered_vert(),
-                Spinner::widget(ctx, "radius", (0.0, 10.0), self.radius, 1.0).align_right(),
+                Spinner::f64_widget(ctx, "radius", (0.0, 10.0), self.radius, 1.0).align_right(),
             ]),
             Toggle::switch(ctx, "smoothing", None, self.smoothing),
             Toggle::switch(ctx, "contours", None, self.contours),
@@ -75,8 +77,8 @@ impl HeatmapOptions {
         // Did we just change?
         if c.has_widget("resolution") {
             HeatmapOptions {
-                resolution: c.spinner("resolution"),
-                radius: c.spinner("radius"),
+                resolution: c.spinner::<RoundedF64>("resolution").0,
+                radius: c.spinner::<RoundedF64>("radius").0,
                 smoothing: c.is_checked("smoothing"),
                 contours: c.is_checked("contours"),
                 color_scheme: c.dropdown_value("Color scheme"),

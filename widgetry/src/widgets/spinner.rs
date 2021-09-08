@@ -1,4 +1,6 @@
-use geom::{CornerRadii, Distance, Polygon, Pt2D};
+use std::ops;
+
+use geom::{trim_f64, CornerRadii, Distance, Polygon, Pt2D};
 
 use crate::{
     include_labeled_bytes, Button, Drawable, EdgeInsets, EventCtx, GeomBatch, GfxCtx, Outcome,
@@ -271,5 +273,63 @@ impl<T: 'static + SpinnerValue> WidgetImpl for Spinner<T> {
 
         self.up.draw(g);
         self.down.draw(g);
+    }
+}
+
+/// An f64 rounded to 4 decimal places. Useful with Spinners, to avoid values accumulating small
+/// drift.
+#[derive(Clone, Copy, PartialEq, PartialOrd)]
+pub struct RoundedF64(pub f64);
+
+impl ops::Add for RoundedF64 {
+    type Output = RoundedF64;
+
+    fn add(self, other: RoundedF64) -> RoundedF64 {
+        RoundedF64(trim_f64(self.0 + other.0))
+    }
+}
+
+impl ops::AddAssign for RoundedF64 {
+    fn add_assign(&mut self, other: RoundedF64) {
+        *self = *self + other;
+    }
+}
+
+impl ops::Sub for RoundedF64 {
+    type Output = RoundedF64;
+
+    fn sub(self, other: RoundedF64) -> RoundedF64 {
+        RoundedF64(trim_f64(self.0 - other.0))
+    }
+}
+
+impl ops::SubAssign for RoundedF64 {
+    fn sub_assign(&mut self, other: RoundedF64) {
+        *self = *self - other;
+    }
+}
+
+impl std::fmt::Display for RoundedF64 {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
+
+impl Spinner<RoundedF64> {
+    /// A spinner for f64s should prefer using this, which will round to 4 decimal places.
+    pub fn f64_widget(
+        ctx: &EventCtx,
+        label: impl Into<String>,
+        (low, high): (f64, f64),
+        current: f64,
+        step_size: f64,
+    ) -> Widget {
+        Spinner::widget(
+            ctx,
+            label,
+            (RoundedF64(low), RoundedF64(high)),
+            RoundedF64(current),
+            RoundedF64(step_size),
+        )
     }
 }

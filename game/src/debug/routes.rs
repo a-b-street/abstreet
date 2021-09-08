@@ -12,7 +12,7 @@ use map_model::{
 use sim::{TripEndpoint, TripMode};
 use widgetry::{
     Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
-    Spinner, State, Text, TextExt, TextSpan, VerticalAlignment, Widget,
+    RoundedF64, Spinner, State, Text, TextExt, TextSpan, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -217,7 +217,7 @@ fn params_to_controls(ctx: &mut EventCtx, mode: TripMode, params: &RoutingParams
     if mode == TripMode::Bike {
         rows.push(Widget::row(vec![
             "Bike lane penalty:".text_widget(ctx).margin_right(20),
-            Spinner::widget(
+            Spinner::f64_widget(
                 ctx,
                 "bike_lane_penalty",
                 (0.0, 2.0),
@@ -227,7 +227,7 @@ fn params_to_controls(ctx: &mut EventCtx, mode: TripMode, params: &RoutingParams
         ]));
         rows.push(Widget::row(vec![
             "Bus lane penalty:".text_widget(ctx).margin_right(20),
-            Spinner::widget(
+            Spinner::f64_widget(
                 ctx,
                 "bus_lane_penalty",
                 (0.0, 2.0),
@@ -237,7 +237,7 @@ fn params_to_controls(ctx: &mut EventCtx, mode: TripMode, params: &RoutingParams
         ]));
         rows.push(Widget::row(vec![
             "Driving lane penalty:".text_widget(ctx).margin_right(20),
-            Spinner::widget(
+            Spinner::f64_widget(
                 ctx,
                 "driving_lane_penalty",
                 (0.0, 2.0),
@@ -249,7 +249,7 @@ fn params_to_controls(ctx: &mut EventCtx, mode: TripMode, params: &RoutingParams
             "Avoid steep inclines (>= 8%):"
                 .text_widget(ctx)
                 .margin_right(20),
-            Spinner::widget(
+            Spinner::f64_widget(
                 ctx,
                 "avoid_steep_incline_penalty",
                 (0.0, 2.0),
@@ -259,7 +259,7 @@ fn params_to_controls(ctx: &mut EventCtx, mode: TripMode, params: &RoutingParams
         ]));
         rows.push(Widget::row(vec![
             "Avoid high-stress roads:".text_widget(ctx).margin_right(20),
-            Spinner::widget(
+            Spinner::f64_widget(
                 ctx,
                 "avoid_high_stress",
                 (0.0, 2.0),
@@ -281,11 +281,12 @@ fn controls_to_params(panel: &Panel) -> (TripMode, RoutingParams) {
         return (TripMode::Walk, params);
     }
     params.unprotected_turn_penalty = panel.spinner("unprotected_turn_penalty");
-    params.bike_lane_penalty = panel.spinner("bike_lane_penalty");
-    params.bus_lane_penalty = panel.spinner("bus_lane_penalty");
-    params.driving_lane_penalty = panel.spinner("driving_lane_penalty");
-    params.avoid_steep_incline_penalty = panel.spinner("avoid_steep_incline_penalty");
-    params.avoid_high_stress = panel.spinner("avoid_high_stress");
+    params.bike_lane_penalty = panel.spinner::<RoundedF64>("bike_lane_penalty").0;
+    params.bus_lane_penalty = panel.spinner::<RoundedF64>("bus_lane_penalty").0;
+    params.driving_lane_penalty = panel.spinner::<RoundedF64>("driving_lane_penalty").0;
+    params.avoid_steep_incline_penalty =
+        panel.spinner::<RoundedF64>("avoid_steep_incline_penalty").0;
+    params.avoid_high_stress = panel.spinner::<RoundedF64>("avoid_high_stress").0;
     (TripMode::Bike, params)
 }
 

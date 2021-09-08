@@ -67,7 +67,7 @@ pub use crate::widgets::persistent_split::PersistentSplit;
 pub use crate::widgets::plots::{PlotOptions, Series};
 pub use crate::widgets::scatter_plot::ScatterPlot;
 pub use crate::widgets::slider::Slider;
-pub use crate::widgets::spinner::Spinner;
+pub use crate::widgets::spinner::{RoundedF64, Spinner};
 pub use crate::widgets::stash::Stash;
 pub use crate::widgets::table;
 pub use crate::widgets::tabs::TabController;
