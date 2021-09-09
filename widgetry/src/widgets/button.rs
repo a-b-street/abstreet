@@ -1,9 +1,10 @@
 use geom::Polygon;
 
 use crate::{
-    style::DEFAULT_OUTLINE_THICKNESS, text::Font, Color, ContentMode, ControlState, CornerRounding,
-    Drawable, EdgeInsets, EventCtx, GeomBatch, GfxCtx, Image, Line, MultiKey, Outcome,
-    OutlineStyle, RewriteColor, ScreenDims, ScreenPt, Text, Widget, WidgetImpl, WidgetOutput,
+    style::DEFAULT_OUTLINE_THICKNESS, text::Font, ButtonStyle, Color, ContentMode, ControlState,
+    CornerRounding, Drawable, EdgeInsets, EventCtx, GeomBatch, GfxCtx, Image, Line, MultiKey,
+    Outcome, OutlineStyle, RewriteColor, ScreenDims, ScreenPt, Text, Widget, WidgetImpl,
+    WidgetOutput,
 };
 
 use crate::geom::geom_batch_stack::{Axis, GeomBatchStack};
@@ -365,6 +366,10 @@ impl<'b, 'a: 'b, 'c> ButtonBuilder<'a, 'c> {
         image = image.dims(dims);
         self.default_style.image = Some(image);
         self
+    }
+
+    pub fn override_style(self, style: &ButtonStyle) -> Self {
+        style.apply(self)
     }
 
     /// If a custom `image_dims` was set, control how the image should be scaled to its new bounds

@@ -96,8 +96,8 @@ impl InputWaypoints {
 
             delete_buttons.push(
                 ctx.style()
-                    .btn_plain_destructive
-                    .text("X")
+                    .btn_close()
+                    .override_style(&ctx.style().btn_plain_destructive)
                     .build_widget(ctx, &format!("delete waypoint {}", idx)),
             );
         }
