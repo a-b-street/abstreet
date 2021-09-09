@@ -716,7 +716,7 @@ fn make_side_panel(
         let icon_bounds = icon_batch.get_bounds();
         let image = Image::from_batch(icon_batch, icon_bounds)
             .dims(150.0)
-            .color(RewriteColor::NoOp)
+            .untinted()
             .padding(16);
         let (default_batch, bounds) = image.clone().build_batch(ctx).unwrap();
         let (hovering_batch, _) = image
