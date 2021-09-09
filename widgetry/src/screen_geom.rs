@@ -187,6 +187,12 @@ impl From<f64> for ScreenDims {
     }
 }
 
+impl From<i64> for ScreenDims {
+    fn from(square: i64) -> ScreenDims {
+        ScreenDims::square(square as f64)
+    }
+}
+
 /// (Width, Height) -> ScreenDims
 impl From<(f64, f64)> for ScreenDims {
     fn from(width_and_height: (f64, f64)) -> ScreenDims {
