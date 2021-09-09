@@ -1,6 +1,6 @@
 use crate::{
     Drawable, EventCtx, GeomBatch, GeomBatchStack, GfxCtx, Outcome, ScreenDims, ScreenPt,
-    ScreenRectangle, StackAxis, Widget, WidgetImpl, WidgetOutput,
+    ScreenRectangle, StackAlignment, StackAxis, Widget, WidgetImpl, WidgetOutput,
 };
 
 const SPACE_BETWEEN_CARDS: f64 = 2.0;
@@ -138,6 +138,14 @@ impl<T: 'static + Copy + PartialEq> DragDrop<T> {
     fn recalc_draw(&mut self, ctx: &EventCtx) {
         let mut stack = GeomBatchStack::from_axis(Vec::new(), self.axis);
         stack.set_spacing(SPACE_BETWEEN_CARDS);
+
+        // TODO: we could make alignment separately configurable, but these are the only
+        // combinations we currently use
+        stack.set_alignment(if self.axis == StackAxis::Vertical {
+            StackAlignment::Left
+        } else {
+            StackAlignment::Top
+        });
 
         let (dims, batch) = match self.state {
             State::Initial { hovering, selected } | State::Idle { hovering, selected } => {
