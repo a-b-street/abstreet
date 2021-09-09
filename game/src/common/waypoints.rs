@@ -1,8 +1,8 @@
 use geom::{Circle, Distance, FindClosest, Polygon};
 use sim::TripEndpoint;
 use widgetry::{
-    Color, ControlState, DragDrop, Drawable, EventCtx, GeomBatch, GfxCtx, Image, Line, Outcome,
-    StackAxis, Text, Widget,
+    Color, ControlState, CornerRounding, DragDrop, Drawable, EventCtx, GeomBatch, GfxCtx, Image,
+    Line, Outcome, StackAxis, Text, Widget,
 };
 
 use crate::app::App;
@@ -69,11 +69,25 @@ impl InputWaypoints {
         let mut delete_buttons = Vec::new();
 
         for (idx, waypt) in self.waypoints.iter().enumerate() {
+            let icon = {
+                let text = Text::from(Line(waypt.order.to_string()).fg(Color::WHITE).bold_body());
+                let batch = text.render(ctx);
+                let bounds = batch.get_bounds();
+                let image = Image::from_batch(batch, bounds)
+                    .untinted()
+                    .bg_color(Color::RED)
+                    .padding(10)
+                    .dims(16)
+                    .corner_rounding(CornerRounding::FullyRounded);
+                image
+            };
+
             let waypoint = ctx
                 .style()
                 .btn_plain
-                .text(format!("{}) {}", waypt.order, waypt.label))
-                .padding(16);
+                .text(&waypt.label)
+                .image(icon)
+                .padding(10);
 
             let build_batch = |control_state: ControlState| {
                 let batch = waypoint.batch(ctx, control_state);

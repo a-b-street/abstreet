@@ -298,6 +298,13 @@ impl<'b, 'a: 'b, 'c> ButtonBuilder<'a, 'c> {
         self
     }
 
+    pub fn image(mut self, image: Image<'a, 'c>) -> Self {
+        // Currently we don't support setting image for other states like "hover", we easily
+        // could, but the API gets more verbose for a thing we don't currently need.
+        self.default_style.image = Some(image);
+        self
+    }
+
     /// Set the image for the button. If not set, the button will have no image.
     ///
     /// This will replace any image previously set.
