@@ -130,8 +130,7 @@ impl MainState {
             Line(" to start/end a new road"),
         ]);
         instructions.add_appended(vec![
-            Line("- Hold "),
-            Key::LeftControl.txt(ctx),
+            Line("- Click and drag").fg(ctx.style().text_hotkey_color),
             Line(" to move it"),
         ]);
         instructions.add_appended(vec![
@@ -204,9 +203,24 @@ impl MainState {
 
 impl State<App> for MainState {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition<App> {
-        if ctx.canvas_movement() {
-            URLManager::update_url_cam(ctx, &app.model.map.gps_bounds);
+        let can_move_canvas = match self.mode {
+            // If we're hovering on anything except for a road, we can maybe start clicking and
+            // dragging
+            Mode::Viewing => matches!(app.model.world.get_selection(), None | Some(ID::Road(_))),
+            Mode::CreatingRoad(_) | Mode::SetBoundaryPt1 | Mode::SetBoundaryPt2(_) => true,
+            Mode::MovingIntersection(_) | Mode::MovingBuilding(_) | Mode::MovingRoadPoint(_, _) => {
+                false
+            }
+        };
+        if can_move_canvas {
+            if ctx.canvas_movement() {
+                URLManager::update_url_cam(ctx, &app.model.map.gps_bounds);
+            }
+        } else if let Some((_, dy)) = ctx.input.get_mouse_scroll() {
+            // While dragging something, allow zooming
+            ctx.canvas.zoom(dy, ctx.canvas.get_cursor());
         }
+
         if ctx.redo_mouseover() {
             app.model.world.handle_mouseover(ctx);
         }
@@ -245,7 +259,7 @@ impl State<App> for MainState {
 
                 match app.model.world.get_selection() {
                     Some(ID::Intersection(i)) => {
-                        if ctx.input.pressed(Key::LeftControl) {
+                        if ctx.input.left_mouse_button_pressed() {
                             self.mode = Mode::MovingIntersection(i);
                         } else if ctx.input.pressed(Key::R) {
                             self.mode = Mode::CreatingRoad(i);
@@ -270,8 +284,7 @@ impl State<App> for MainState {
                             Line(" to delete"),
                         ]);
                         txt.add_appended(vec![
-                            Line("- Hold "),
-                            Key::LeftControl.txt(ctx),
+                            Line("- Click and drag").fg(ctx.style().text_hotkey_color),
                             Line(" to move"),
                         ]);
                         txt.add_appended(vec![
@@ -288,7 +301,7 @@ impl State<App> for MainState {
                         self.panel.replace(ctx, "instructions", instructions);
                     }
                     Some(ID::Building(b)) => {
-                        if ctx.input.pressed(Key::LeftControl) {
+                        if ctx.input.left_mouse_button_pressed() {
                             self.mode = Mode::MovingBuilding(b);
                         } else if ctx.input.pressed(Key::Backspace) {
                             app.model.delete_b(b);
@@ -302,8 +315,7 @@ impl State<App> for MainState {
                             Line(" to delete"),
                         ]);
                         txt.add_appended(vec![
-                            Line("- Hold "),
-                            Key::LeftControl.txt(ctx),
+                            Line("- Click and drag").fg(ctx.style().text_hotkey_color),
                             Line(" to move"),
                         ]);
                         let instructions = txt.into_widget(ctx);
@@ -362,7 +374,7 @@ impl State<App> for MainState {
                         self.panel.replace(ctx, "instructions", instructions);
                     }
                     Some(ID::RoadPoint(r, idx)) => {
-                        if ctx.input.pressed(Key::LeftControl) {
+                        if ctx.input.left_mouse_button_pressed() {
                             self.mode = Mode::MovingRoadPoint(r, idx);
                         } else if ctx.input.pressed(Key::Backspace) {
                             app.model.delete_r_pt(ctx, r, idx);
@@ -376,8 +388,7 @@ impl State<App> for MainState {
                             Line(" to delete"),
                         ]);
                         txt.add_appended(vec![
-                            Line("- Hold "),
-                            Key::LeftControl.txt(ctx),
+                            Line("- Click and drag").fg(ctx.style().text_hotkey_color),
                             Line(" to move"),
                         ]);
                         let instructions = txt.into_widget(ctx);
@@ -465,7 +476,7 @@ impl State<App> for MainState {
             Mode::MovingIntersection(id) => {
                 if let Some(pt) = cursor {
                     app.model.move_i(ctx, id, pt);
-                    if ctx.input.key_released(Key::LeftControl) {
+                    if ctx.input.left_mouse_button_released() {
                         self.mode = Mode::Viewing;
                     }
                 }
@@ -473,7 +484,7 @@ impl State<App> for MainState {
             Mode::MovingBuilding(id) => {
                 if let Some(pt) = cursor {
                     app.model.move_b(ctx, id, pt);
-                    if ctx.input.key_released(Key::LeftControl) {
+                    if ctx.input.left_mouse_button_released() {
                         self.mode = Mode::Viewing;
                     }
                 }
@@ -481,7 +492,7 @@ impl State<App> for MainState {
             Mode::MovingRoadPoint(r, idx) => {
                 if let Some(pt) = cursor {
                     app.model.move_r_pt(ctx, r, idx, pt);
-                    if ctx.input.key_released(Key::LeftControl) {
+                    if ctx.input.left_mouse_button_released() {
                         self.mode = Mode::Viewing;
                     }
                 }
