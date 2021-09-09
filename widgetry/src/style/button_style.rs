@@ -17,7 +17,11 @@ pub struct ButtonStyle {
 
 impl<'a, 'c> ButtonStyle {
     pub fn btn(&self) -> ButtonBuilder<'a, 'c> {
-        let base = ButtonBuilder::new()
+        self.apply(ButtonBuilder::new())
+    }
+
+    pub fn apply(&self, builder: ButtonBuilder<'a, 'c>) -> ButtonBuilder<'a, 'c> {
+        let builder = builder
             .label_color(self.fg, ControlState::Default)
             .label_color(self.fg_disabled, ControlState::Disabled)
             .image_color(self.fg, ControlState::Default)
@@ -27,9 +31,9 @@ impl<'a, 'c> ButtonStyle {
             .bg_color(self.bg_disabled, ControlState::Disabled);
 
         if self.outline.0 > 0.0 {
-            base.outline(self.outline, ControlState::Default)
+            builder.outline(self.outline, ControlState::Default)
         } else {
-            base
+            builder
         }
     }
 
@@ -90,17 +94,19 @@ impl<'a, 'c> Style {
             .icon_bytes(include_labeled_bytes!("../../icons/prev.svg"))
     }
 
-    /// An "X" button to close the current state. Bound to the escape key.
+    /// An "X" button
     pub fn btn_close(&self) -> ButtonBuilder<'a, 'c> {
         self.btn_plain
             .icon_bytes(include_labeled_bytes!("../../icons/close.svg"))
-            .hotkey(Key::Escape)
     }
 
     /// An "X" button to close the current state. Bound to the escape key and aligned to the right,
     /// usually after a title.
     pub fn btn_close_widget(&self, ctx: &EventCtx) -> Widget {
-        self.btn_close().build_widget(ctx, "close").align_right()
+        self.btn_close()
+            .hotkey(Key::Escape)
+            .build_widget(ctx, "close")
+            .align_right()
     }
 
     pub fn btn_popup_icon_text(&self, icon_path: &'a str, text: &'a str) -> ButtonBuilder<'a, 'c> {
