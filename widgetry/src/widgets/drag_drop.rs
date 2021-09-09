@@ -337,6 +337,17 @@ impl<T: 'static + Copy + PartialEq> WidgetImpl for DragDrop<T> {
             self.state = new_state;
             self.recalc_draw(ctx);
         }
+
+        match self.state {
+            State::Initial {
+                hovering: Some(_), ..
+            }
+            | State::Idle {
+                hovering: Some(_), ..
+            } => ctx.cursor_grabbable(),
+            State::Dragging { .. } => ctx.cursor_grabbing(),
+            _ => {}
+        }
     }
 
     fn draw(&self, g: &mut GfxCtx) {
