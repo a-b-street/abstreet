@@ -1,7 +1,7 @@
 use geom::{Circle, Distance, FindClosest, Polygon};
 use sim::TripEndpoint;
 use widgetry::{
-    Color, DragDrop, Drawable, EventCtx, GeomBatch, GfxCtx, Image, Line, Outcome, RewriteColor,
+    Color, ControlState, DragDrop, Drawable, EventCtx, GeomBatch, GfxCtx, Image, Line, Outcome,
     StackAxis, Text, Widget,
 };
 
@@ -69,22 +69,22 @@ impl InputWaypoints {
         let mut delete_buttons = Vec::new();
 
         for (idx, waypt) in self.waypoints.iter().enumerate() {
-            let batch = Text::from(Line(format!("{}) {}", waypt.order, waypt.label))).render(ctx);
-            let bounds = batch.get_bounds();
-            let image = Image::from_batch(batch, bounds)
-                .color(RewriteColor::NoOp)
+            let waypoint = ctx
+                .style()
+                .btn_plain
+                .text(format!("{}) {}", waypt.order, waypt.label))
                 .padding(16);
 
-            let (default_batch, bounds) = image.clone().build_batch(ctx).unwrap();
-            let (hovering_batch, _) = image
-                .clone()
-                .bg_color(ctx.style().btn_tab.bg_disabled.dull(0.3))
-                .build_batch(ctx)
-                .unwrap();
-            let (selected_batch, _) = image
-                .bg_color(ctx.style().btn_solid_primary.bg)
-                .build_batch(ctx)
-                .unwrap();
+            let build_batch = |control_state: ControlState| {
+                let batch = waypoint.batch(ctx, control_state);
+                let bounds = batch.get_bounds();
+                let image = Image::from_batch(batch, bounds).untinted();
+                image.build_batch(ctx).unwrap()
+            };
+
+            let (default_batch, bounds) = build_batch(ControlState::Default);
+            let (hovering_batch, _) = build_batch(ControlState::Hovered);
+            let (selected_batch, _) = build_batch(ControlState::Hovered);
 
             drag_drop.push_card(
                 idx,
@@ -101,13 +101,14 @@ impl InputWaypoints {
                     .build_widget(ctx, &format!("delete waypoint {}", idx)),
             );
         }
-        drag_drop.set_initial_state(None, None);
 
         Widget::col(vec![
             Widget::row(vec![
                 drag_drop.into_widget(ctx),
-                // TODO The alignment doesn't match the cards, but it's... usable
-                Widget::col(delete_buttons).evenly_spaced(),
+                Widget::custom_col(delete_buttons)
+                    .evenly_spaced()
+                    .margin_above(8)
+                    .margin_below(8),
             ]),
             Widget::row(vec![
                 Image::from_path("system/assets/tools/mouse.svg").into_widget(ctx),
