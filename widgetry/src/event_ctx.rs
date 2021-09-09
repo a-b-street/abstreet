@@ -134,6 +134,18 @@ impl<'a> EventCtx<'a> {
             .set_cursor_icon(winit::window::CursorIcon::Hand);
     }
 
+    pub(crate) fn cursor_grabbable(&mut self) {
+        self.prerender
+            .inner
+            .set_cursor_icon(winit::window::CursorIcon::Grab);
+    }
+
+    pub(crate) fn cursor_grabbing(&mut self) {
+        self.prerender
+            .inner
+            .set_cursor_icon(winit::window::CursorIcon::Grabbing);
+    }
+
     pub fn style(&self) -> &Style {
         self.style
     }
