@@ -183,7 +183,9 @@ fn make_panel(
                             .clone()
                             .wrap_to_pct(ctx, 30)
                             .into_widget(ctx),
-                        Image::untinted("system/assets/characters/player.svg").into_widget(ctx),
+                        Image::from_path("system/assets/characters/player.svg")
+                            .untinted()
+                            .into_widget(ctx),
                     ])
                     .align_right(),
                 ]),
@@ -197,7 +199,8 @@ fn make_panel(
                         .clone()
                         .wrap_to_pct(ctx, 30)
                         .into_widget(ctx),
-                    Image::untinted("system/assets/characters/player.svg")
+                    Image::from_path("system/assets/characters/player.svg")
+                        .untinted()
                         .into_widget(ctx)
                         .align_right(),
                 ]),
@@ -220,7 +223,9 @@ fn make_panel(
                             .wrap_to_pct(ctx, 30)
                             .into_widget(ctx),
                     ]),
-                    Image::untinted("system/assets/characters/player.svg").into_widget(ctx),
+                    Image::from_path("system/assets/characters/player.svg")
+                        .untinted()
+                        .into_widget(ctx),
                 ])
                 .evenly_spaced(),
             }

@@ -68,14 +68,6 @@ impl<'a, 'c> Image<'a, 'c> {
         }
     }
 
-    /// Create an SVG `Image`, read from `filename`.
-    ///
-    /// The image's intrinsic colors will be used, it will not be tinted like `Image::icon`, unless
-    /// you also call `color()`
-    pub fn untinted(filename: &'a str) -> Self {
-        Self::from_path(filename).color(RewriteColor::NoOp)
-    }
-
     /// Create a new SVG `Image` from bytes.
     ///
     /// * `labeled_bytes`: is a (`label`, `bytes`) tuple you can generate with
@@ -182,6 +174,11 @@ impl<'a, 'c> Image<'a, 'c> {
     pub fn bg_color(mut self, value: Color) -> Self {
         self.bg_color = Some(value);
         self
+    }
+
+    /// The image's intrinsic colors will be used, it will not be tinted like `Image::icon`
+    pub fn untinted(self) -> Self {
+        self.color(RewriteColor::NoOp)
     }
 
     /// Scale the bounds containing the image. If `dims` are not specified, the image's intrinsic

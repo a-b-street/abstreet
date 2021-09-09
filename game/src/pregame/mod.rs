@@ -40,7 +40,9 @@ impl TitleScreen {
         TitleScreen {
             panel: Panel::new_builder(
                 Widget::col(vec![
-                    Image::untinted("system/assets/pregame/logo.svg").into_widget(ctx),
+                    Image::from_path("system/assets/pregame/logo.svg")
+                        .untinted()
+                        .into_widget(ctx),
                     // TODO that nicer font
                     // TODO Any key
                     ctx.style()
