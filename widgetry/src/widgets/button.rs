@@ -607,7 +607,7 @@ impl<'b, 'a: 'b, 'c> ButtonBuilder<'a, 'c> {
         }
     }
 
-    fn batch(&self, ctx: &EventCtx, for_state: ControlState) -> GeomBatch {
+    pub fn batch(&self, ctx: &EventCtx, for_state: ControlState) -> GeomBatch {
         let state_style = self.style(for_state);
         if let Some(custom_batch) = state_style.custom_batch.as_ref() {
             return custom_batch.clone();
