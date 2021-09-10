@@ -1686,7 +1686,7 @@
         <span class="kw">let</span> <span class="ident">icon_bounds</span> <span class="op">=</span> <span class="ident">icon_batch</span>.<span class="ident">get_bounds</span>();
         <span class="kw">let</span> <span class="ident">image</span> <span class="op">=</span> <span class="ident">Image::from_batch</span>(<span class="ident">icon_batch</span>, <span class="ident">icon_bounds</span>)
             .<span class="ident">dims</span>(<span class="number">150.0</span>)
-            .<span class="ident">color</span>(<span class="ident">RewriteColor::NoOp</span>)
+            .<span class="ident">untinted</span>()
             .<span class="ident">padding</span>(<span class="number">16</span>);
         <span class="kw">let</span> (<span class="ident">default_batch</span>, <span class="ident">bounds</span>) <span class="op">=</span> <span class="ident">image</span>.<span class="ident">clone</span>().<span class="ident">build_batch</span>(<span class="ident">ctx</span>).<span class="ident">unwrap</span>();
         <span class="kw">let</span> (<span class="ident">hovering_batch</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">image</span>

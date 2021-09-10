@@ -727,13 +727,26 @@
 <span id="727">727</span>
 <span id="728">728</span>
 <span id="729">729</span>
+<span id="730">730</span>
+<span id="731">731</span>
+<span id="732">732</span>
+<span id="733">733</span>
+<span id="734">734</span>
+<span id="735">735</span>
+<span id="736">736</span>
+<span id="737">737</span>
+<span id="738">738</span>
+<span id="739">739</span>
+<span id="740">740</span>
+<span id="741">741</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">geom::Polygon</span>;
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">style::DEFAULT_OUTLINE_THICKNESS</span>, <span class="ident">text::Font</span>, <span class="ident">Color</span>, <span class="ident">ContentMode</span>, <span class="ident">ControlState</span>, <span class="ident">CornerRounding</span>,
-    <span class="ident">Drawable</span>, <span class="ident">EdgeInsets</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Image</span>, <span class="ident">Line</span>, <span class="ident">MultiKey</span>, <span class="ident">Outcome</span>,
-    <span class="ident">OutlineStyle</span>, <span class="ident">RewriteColor</span>, <span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>, <span class="ident">Text</span>, <span class="ident">Widget</span>, <span class="ident">WidgetImpl</span>, <span class="ident">WidgetOutput</span>,
+    <span class="ident">style::DEFAULT_OUTLINE_THICKNESS</span>, <span class="ident">text::Font</span>, <span class="ident">ButtonStyle</span>, <span class="ident">Color</span>, <span class="ident">ContentMode</span>, <span class="ident">ControlState</span>,
+    <span class="ident">CornerRounding</span>, <span class="ident">Drawable</span>, <span class="ident">EdgeInsets</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Image</span>, <span class="ident">Line</span>, <span class="ident">MultiKey</span>,
+    <span class="ident">Outcome</span>, <span class="ident">OutlineStyle</span>, <span class="ident">RewriteColor</span>, <span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>, <span class="ident">Text</span>, <span class="ident">Widget</span>, <span class="ident">WidgetImpl</span>,
+    <span class="ident">WidgetOutput</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::geom::geom_batch_stack</span>::{<span class="ident">Axis</span>, <span class="ident">GeomBatchStack</span>};
@@ -1027,6 +1040,13 @@
         <span class="self">self</span>
     }
 
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">image</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">image</span>: <span class="ident">Image</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="comment">// Currently we don&#39;t support setting image for other states like &quot;hover&quot;, we easily</span>
+        <span class="comment">// could, but the API gets more verbose for a thing we don&#39;t currently need.</span>
+        <span class="self">self</span>.<span class="ident">default_style</span>.<span class="ident">image</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">image</span>);
+        <span class="self">self</span>
+    }
+
     <span class="doccomment">/// Set the image for the button. If not set, the button will have no image.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// This will replace any image previously set.</span>
@@ -1095,6 +1115,10 @@
         <span class="ident">image</span> <span class="op">=</span> <span class="ident">image</span>.<span class="ident">dims</span>(<span class="ident">dims</span>);
         <span class="self">self</span>.<span class="ident">default_style</span>.<span class="ident">image</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">image</span>);
         <span class="self">self</span>
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">override_style</span>(<span class="self">self</span>, <span class="ident">style</span>: <span class="kw-2">&amp;</span><span class="ident">ButtonStyle</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="ident">style</span>.<span class="ident">apply</span>(<span class="self">self</span>)
     }
 
     <span class="doccomment">/// If a custom `image_dims` was set, control how the image should be scaled to its new bounds</span>
@@ -1332,7 +1356,7 @@
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">batch</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">for_state</span>: <span class="ident">ControlState</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">GeomBatch</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">batch</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">for_state</span>: <span class="ident">ControlState</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">GeomBatch</span> {
         <span class="kw">let</span> <span class="ident">state_style</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">style</span>(<span class="ident">for_state</span>);
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">custom_batch</span>) <span class="op">=</span> <span class="ident">state_style</span>.<span class="ident">custom_batch</span>.<span class="ident">as_ref</span>() {
             <span class="kw">return</span> <span class="ident">custom_batch</span>.<span class="ident">clone</span>();

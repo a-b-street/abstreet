@@ -340,9 +340,6 @@
 <span id="340">340</span>
 <span id="341">341</span>
 <span id="342">342</span>
-<span id="343">343</span>
-<span id="344">344</span>
-<span id="345">345</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">Color</span>, <span class="ident">ContentMode</span>, <span class="ident">CornerRounding</span>, <span class="ident">DrawWithTooltips</span>, <span class="ident">EdgeInsets</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>,
@@ -412,14 +409,6 @@
             <span class="ident">source</span>: <span class="prelude-val">Some</span>(<span class="ident">Cow::Owned</span>(<span class="ident">ImageSource::Path</span>(<span class="ident">filename</span>))),
             ..<span class="ident">Default::default</span>()
         }
-    }
-
-    <span class="doccomment">/// Create an SVG `Image`, read from `filename`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// The image&#39;s intrinsic colors will be used, it will not be tinted like `Image::icon`, unless</span>
-    <span class="doccomment">/// you also call `color()`</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">untinted</span>(<span class="ident">filename</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="self">Self</span><span class="ident">::from_path</span>(<span class="ident">filename</span>).<span class="ident">color</span>(<span class="ident">RewriteColor::NoOp</span>)
     }
 
     <span class="doccomment">/// Create a new SVG `Image` from bytes.</span>
@@ -528,6 +517,11 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">bg_color</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">value</span>: <span class="ident">Color</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">bg_color</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">value</span>);
         <span class="self">self</span>
+    }
+
+    <span class="doccomment">/// The image&#39;s intrinsic colors will be used, it will not be tinted like `Image::icon`</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">untinted</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="self">self</span>.<span class="ident">color</span>(<span class="ident">RewriteColor::NoOp</span>)
     }
 
     <span class="doccomment">/// Scale the bounds containing the image. If `dims` are not specified, the image&#39;s intrinsic</span>

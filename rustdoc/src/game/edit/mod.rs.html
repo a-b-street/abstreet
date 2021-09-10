@@ -940,6 +940,7 @@
 <span id="940">940</span>
 <span id="941">941</span>
 <span id="942">942</span>
+<span id="943">943</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">maplit::btreeset</span>;
 
@@ -1838,7 +1839,8 @@
             <span class="ident">discard</span>,
             <span class="ident">panel</span>: <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
                 <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                    <span class="ident">Image::untinted</span>(<span class="string">&quot;system/assets/tools/alert.svg&quot;</span>)
+                    <span class="ident">Image::from_path</span>(<span class="string">&quot;system/assets/tools/alert.svg&quot;</span>)
+                        .<span class="ident">untinted</span>()
                         .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
                         .<span class="ident">container</span>()
                         .<span class="ident">padding_top</span>(<span class="number">6</span>),

@@ -301,6 +301,11 @@
 <span id="301">301</span>
 <span id="302">302</span>
 <span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">map_gui::tools::grey_out_map</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
@@ -487,7 +492,9 @@
                             .<span class="ident">clone</span>()
                             .<span class="ident">wrap_to_pct</span>(<span class="ident">ctx</span>, <span class="number">30</span>)
                             .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                        <span class="ident">Image::untinted</span>(<span class="string">&quot;system/assets/characters/player.svg&quot;</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+                        <span class="ident">Image::from_path</span>(<span class="string">&quot;system/assets/characters/player.svg&quot;</span>)
+                            .<span class="ident">untinted</span>()
+                            .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                     ])
                     .<span class="ident">align_right</span>(),
                 ]),
@@ -501,7 +508,8 @@
                         .<span class="ident">clone</span>()
                         .<span class="ident">wrap_to_pct</span>(<span class="ident">ctx</span>, <span class="number">30</span>)
                         .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                    <span class="ident">Image::untinted</span>(<span class="string">&quot;system/assets/characters/player.svg&quot;</span>)
+                    <span class="ident">Image::from_path</span>(<span class="string">&quot;system/assets/characters/player.svg&quot;</span>)
+                        .<span class="ident">untinted</span>()
                         .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
                         .<span class="ident">align_right</span>(),
                 ]),
@@ -524,7 +532,9 @@
                             .<span class="ident">wrap_to_pct</span>(<span class="ident">ctx</span>, <span class="number">30</span>)
                             .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                     ]),
-                    <span class="ident">Image::untinted</span>(<span class="string">&quot;system/assets/characters/player.svg&quot;</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+                    <span class="ident">Image::from_path</span>(<span class="string">&quot;system/assets/characters/player.svg&quot;</span>)
+                        .<span class="ident">untinted</span>()
+                        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                 ])
                 .<span class="ident">evenly_spaced</span>(),
             }

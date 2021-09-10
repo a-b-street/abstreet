@@ -421,6 +421,8 @@
 <span id="421">421</span>
 <span id="422">422</span>
 <span id="423">423</span>
+<span id="424">424</span>
+<span id="425">425</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">instant::Instant</span>;
 <span class="kw">use</span> <span class="ident">rand::Rng</span>;
@@ -464,7 +466,9 @@
         <span class="ident">TitleScreen</span> {
             <span class="ident">panel</span>: <span class="ident">Panel::new_builder</span>(
                 <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-                    <span class="ident">Image::untinted</span>(<span class="string">&quot;system/assets/pregame/logo.svg&quot;</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+                    <span class="ident">Image::from_path</span>(<span class="string">&quot;system/assets/pregame/logo.svg&quot;</span>)
+                        .<span class="ident">untinted</span>()
+                        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                     <span class="comment">// TODO that nicer font</span>
                     <span class="comment">// TODO Any key</span>
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
