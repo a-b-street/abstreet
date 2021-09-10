@@ -1019,6 +1019,22 @@
 <span id="1019">1019</span>
 <span id="1020">1020</span>
 <span id="1021">1021</span>
+<span id="1022">1022</span>
+<span id="1023">1023</span>
+<span id="1024">1024</span>
+<span id="1025">1025</span>
+<span id="1026">1026</span>
+<span id="1027">1027</span>
+<span id="1028">1028</span>
+<span id="1029">1029</span>
+<span id="1030">1030</span>
+<span id="1031">1031</span>
+<span id="1032">1032</span>
+<span id="1033">1033</span>
+<span id="1034">1034</span>
+<span id="1035">1035</span>
+<span id="1036">1036</span>
+<span id="1037">1037</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
@@ -1371,9 +1387,25 @@
             <span class="ident">Outcome::Changed</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
                 <span class="string">&quot;speed limit&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">let</span> <span class="ident">speed_limit</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">main_panel</span>.<span class="ident">dropdown_value</span>(<span class="string">&quot;speed limit&quot;</span>);
-                    <span class="kw">return</span> <span class="self">self</span>.<span class="ident">modify_current_lane</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="prelude-val">Some</span>(<span class="number">0</span>), <span class="op">|</span><span class="ident">new</span>, <span class="kw">_</span><span class="op">|</span> {
-                        <span class="ident">new</span>.<span class="ident">speed_limit</span> <span class="op">=</span> <span class="ident">speed_limit</span>;
+
+                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">clone</span>();
+                    <span class="kw">let</span> <span class="ident">old</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_r_edit</span>(<span class="self">self</span>.<span class="ident">r</span>);
+                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">new</span> <span class="op">=</span> <span class="ident">old</span>.<span class="ident">clone</span>();
+                    <span class="ident">new</span>.<span class="ident">speed_limit</span> <span class="op">=</span> <span class="ident">speed_limit</span>;
+                    <span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">push</span>(<span class="ident">EditCmd::ChangeRoad</span> {
+                        <span class="ident">r</span>: <span class="self">self</span>.<span class="ident">r</span>,
+                        <span class="ident">old</span>,
+                        <span class="ident">new</span>,
                     });
+                    <span class="ident">apply_map_edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">edits</span>);
+                    <span class="self">self</span>.<span class="ident">redo_stack</span>.<span class="ident">clear</span>();
+
+                    <span class="comment">// Keep selecting the same lane, if one was selected</span>
+                    <span class="self">self</span>.<span class="ident">selected_lane</span> <span class="op">=</span> <span class="self">self</span>
+                        .<span class="ident">selected_lane</span>
+                        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">lane_for_idx</span>(<span class="ident">app</span>, <span class="ident">id</span>.<span class="ident">offset</span>));
+                    <span class="self">self</span>.<span class="ident">recalc_hovering</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+                    <span class="ident">panels_need_recalc</span> <span class="op">=</span> <span class="bool-val">true</span>;
                 }
                 <span class="string">&quot;width preset&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">main_panel</span>.<span class="ident">dropdown_value</span>(<span class="string">&quot;width preset&quot;</span>);
