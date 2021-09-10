@@ -361,7 +361,7 @@
 
         <span class="comment">// Handle nav keys</span>
         <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::collapsible_if</span>)]</span>
-        <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key::Enter</span>) {
+        <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key::Enter</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key::Space</span>) {
             <span class="kw">let</span> <span class="ident">choice</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">choices</span>[<span class="self">self</span>.<span class="ident">current_idx</span>];
             <span class="kw">if</span> <span class="ident">choice</span>.<span class="ident">active</span> {
                 <span class="ident">output</span>.<span class="ident">outcome</span> <span class="op">=</span> <span class="ident">Outcome::Clicked</span>(<span class="ident">choice</span>.<span class="ident">label</span>.<span class="ident">clone</span>());
