@@ -113,7 +113,7 @@ impl State<App> for RoutePlanner {
         self.layers.draw(g, app);
         self.input_panel.draw(g);
         self.waypoints.draw(g);
-        self.results.draw(g);
+        self.results.draw(g, app);
     }
 }
 
@@ -125,13 +125,15 @@ struct RouteResults {
     closest_path_segment: FindClosest<usize>,
 
     hover_on_line_plot: Option<(Distance, Drawable)>,
-    draw_route: Drawable,
+    draw_route_unzoomed: Drawable,
+    draw_route_zoomed: Drawable,
     panel: Panel,
 }
 
 impl RouteResults {
     fn new(ctx: &mut EventCtx, app: &App, waypoints: Vec<TripEndpoint>) -> RouteResults {
-        let mut batch = GeomBatch::new();
+        let mut unzoomed_batch = GeomBatch::new();
+        let mut zoomed_batch = GeomBatch::new();
         let map = &app.primary.map;
 
         let mut total_distance = Distance::ZERO;
@@ -182,13 +184,16 @@ impl RouteResults {
 
                 let maybe_pl = path.trace(map);
                 if let Some(ref pl) = maybe_pl {
-                    batch.push(Color::CYAN, pl.make_polygons(5.0 * NORMAL_LANE_THICKNESS));
+                    let shape = pl.make_polygons(5.0 * NORMAL_LANE_THICKNESS);
+                    unzoomed_batch.push(Color::CYAN.alpha(0.8), shape.clone());
+                    zoomed_batch.push(Color::CYAN.alpha(0.5), shape);
                     closest_path_segment.add(paths.len(), pl.points());
                 }
                 paths.push((path, maybe_pl));
             }
         }
-        let draw_route = ctx.upload(batch);
+        let draw_route_unzoomed = ctx.upload(unzoomed_batch);
+        let draw_route_zoomed = ctx.upload(zoomed_batch);
 
         let mut total_up = Distance::ZERO;
         let mut total_down = Distance::ZERO;
@@ -265,7 +270,8 @@ impl RouteResults {
         .build(ctx);
 
         RouteResults {
-            draw_route,
+            draw_route_unzoomed,
+            draw_route_zoomed,
             panel,
             paths,
             closest_path_segment,
@@ -345,9 +351,13 @@ impl RouteResults {
         }
     }
 
-    fn draw(&self, g: &mut GfxCtx) {
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.panel.draw(g);
-        g.redraw(&self.draw_route);
+        if g.canvas.cam_zoom >= app.opts.min_zoom_for_detail {
+            g.redraw(&self.draw_route_zoomed);
+        } else {
+            g.redraw(&self.draw_route_unzoomed);
+        }
         if let Some((_, ref draw)) = self.hover_on_line_plot {
             g.redraw(draw);
         }
@@ -429,36 +439,40 @@ impl RouteManagement {
         let current_name = &self.current.name;
         let can_save = self.current.waypoints.len() >= 2
             && Some(&self.current) != self.all.routes.get(current_name);
-        Widget::row(vec![
-            Line(current_name).into_widget(ctx).centered_vert(),
-            ctx.style()
-                .btn_plain
-                .icon_text("system/assets/tools/save.svg", "Save")
-                .disabled(!can_save)
-                .build_def(ctx),
-            ctx.style()
-                .btn_plain_destructive
-                .icon_text("system/assets/tools/trash.svg", "Delete")
-                .build_def(ctx),
-            // TODO Autosave first?
-            ctx.style()
-                .btn_outline
-                .text("Load another route")
-                .build_def(ctx),
-            ctx.style()
-                .btn_prev()
-                .hotkey(Key::LeftArrow)
-                .disabled(self.all.prev(current_name).is_none())
-                .build_widget(ctx, "previous route"),
-            ctx.style()
-                .btn_next()
-                .hotkey(Key::RightArrow)
-                .disabled(self.all.next(current_name).is_none())
-                .build_widget(ctx, "next route"),
-            ctx.style()
-                .btn_outline
-                .text("Start new route")
-                .build_def(ctx),
+        Widget::col(vec![
+            Widget::row(vec![
+                Line(current_name).into_widget(ctx).centered_vert(),
+                ctx.style()
+                    .btn_outline
+                    .text("Start new route")
+                    .build_def(ctx),
+                ctx.style()
+                    .btn_plain
+                    .icon_text("system/assets/tools/save.svg", "Save")
+                    .disabled(!can_save)
+                    .build_def(ctx),
+                ctx.style()
+                    .btn_plain_destructive
+                    .icon_text("system/assets/tools/trash.svg", "Delete")
+                    .build_def(ctx),
+            ]),
+            Widget::row(vec![
+                ctx.style()
+                    .btn_prev()
+                    .hotkey(Key::LeftArrow)
+                    .disabled(self.all.prev(current_name).is_none())
+                    .build_widget(ctx, "previous route"),
+                // TODO Autosave first?
+                ctx.style()
+                    .btn_outline
+                    .text("Load another route")
+                    .build_def(ctx),
+                ctx.style()
+                    .btn_next()
+                    .hotkey(Key::RightArrow)
+                    .disabled(self.all.next(current_name).is_none())
+                    .build_widget(ctx, "next route"),
+            ]),
         ])
         .section(ctx)
     }
