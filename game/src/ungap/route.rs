@@ -125,6 +125,7 @@ struct RouteResults {
     closest_path_segment: FindClosest<usize>,
 
     hover_on_line_plot: Option<(Distance, Drawable)>,
+    hover_on_route_tooltip: Option<Text>,
     draw_route_unzoomed: Drawable,
     draw_route_zoomed: Drawable,
     panel: Panel,
@@ -276,6 +277,7 @@ impl RouteResults {
             paths,
             closest_path_segment,
             hover_on_line_plot: None,
+            hover_on_route_tooltip: None,
         }
     }
 
@@ -313,38 +315,45 @@ impl RouteResults {
             });
         }
 
-        if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
-            if let Some((idx, pt)) = self
-                .closest_path_segment
-                .closest_pt(pt, 10.0 * NORMAL_LANE_THICKNESS)
-            {
-                // Find the total distance along the route
-                let mut dist = Distance::ZERO;
-                for (path, _) in &self.paths[0..idx] {
-                    dist += path.total_length();
-                }
-                if let Some(ref pl) = self.paths[idx].1 {
-                    if let Some((dist_here, _)) = pl.dist_along_of_point(pt) {
-                        // The LinePlot doesn't hold onto the original Series, so it can't help us
-                        // figure out elevation here. Let's match this point to the original path
-                        // and guess elevation ourselves...
-                        let map = &app.primary.map;
-                        let elevation = match self.paths[idx]
-                            .0
-                            .get_step_at_dist_along(map, dist_here)
-                            // We often seem to slightly exceed the total length, so just clamp
-                            // here...
-                            .unwrap_or_else(|_| self.paths[idx].0.last_step())
-                        {
-                            PathStep::Lane(l) | PathStep::ContraflowLane(l) => {
-                                // TODO Interpolate
-                                map.get_i(map.get_l(l).src_i).elevation
-                            }
-                            PathStep::Turn(t) => map.get_i(t.parent).elevation,
-                        };
-                        self.panel
-                            .find_mut::<LinePlot<Distance, Distance>>("elevation")
-                            .set_hovering(ctx, dist + dist_here, elevation);
+        if ctx.redo_mouseover() {
+            self.hover_on_route_tooltip = None;
+            if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
+                if let Some((idx, pt)) = self
+                    .closest_path_segment
+                    .closest_pt(pt, 10.0 * NORMAL_LANE_THICKNESS)
+                {
+                    // Find the total distance along the route
+                    let mut dist = Distance::ZERO;
+                    for (path, _) in &self.paths[0..idx] {
+                        dist += path.total_length();
+                    }
+                    if let Some(ref pl) = self.paths[idx].1 {
+                        if let Some((dist_here, _)) = pl.dist_along_of_point(pt) {
+                            // The LinePlot doesn't hold onto the original Series, so it can't help
+                            // us figure out elevation here. Let's match this point to the original
+                            // path and guess elevation ourselves...
+                            let map = &app.primary.map;
+                            let elevation = match self.paths[idx]
+                                .0
+                                .get_step_at_dist_along(map, dist_here)
+                                // We often seem to slightly exceed the total length, so just clamp
+                                // here...
+                                .unwrap_or_else(|_| self.paths[idx].0.last_step())
+                            {
+                                PathStep::Lane(l) | PathStep::ContraflowLane(l) => {
+                                    // TODO Interpolate
+                                    map.get_i(map.get_l(l).src_i).elevation
+                                }
+                                PathStep::Turn(t) => map.get_i(t.parent).elevation,
+                            };
+                            self.panel
+                                .find_mut::<LinePlot<Distance, Distance>>("elevation")
+                                .set_hovering(ctx, dist + dist_here, elevation);
+                            self.hover_on_route_tooltip = Some(Text::from(Line(format!(
+                                "Elevation: {}",
+                                elevation.to_string(&app.opts.units)
+                            ))));
+                        }
                     }
                 }
             }
@@ -360,6 +369,9 @@ impl RouteResults {
         }
         if let Some((_, ref draw)) = self.hover_on_line_plot {
             g.redraw(draw);
+        }
+        if let Some(ref txt) = self.hover_on_route_tooltip {
+            g.draw_mouse_tooltip(txt.clone());
         }
     }
 }
