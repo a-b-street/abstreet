@@ -1,6 +1,8 @@
 use abstutil::Tags;
 use map_gui::tools::PopupMsg;
-use map_model::{BufferType, Direction, EditCmd, EditRoad, LaneSpec, LaneType, RoadID};
+use map_model::{
+    BufferType, Direction, DrivingSide, EditCmd, EditRoad, LaneSpec, LaneType, RoadID,
+};
 use widgetry::{
     Choice, EventCtx, GfxCtx, HorizontalAlignment, Key, Outcome, Panel, State, TextExt,
     VerticalAlignment, Widget,
@@ -144,7 +146,11 @@ fn make_quick_changes(
         }
         let old = app.primary.map.get_r_edit(r);
         let mut new = old.clone();
-        maybe_add_bike_lanes(&mut new, buffer_type);
+        maybe_add_bike_lanes(
+            &mut new,
+            buffer_type,
+            app.primary.map.get_config().driving_side,
+        );
         if old != new {
             num_changes += 1;
             edits.commands.push(EditCmd::ChangeRoad { r, old, new });
@@ -156,7 +162,11 @@ fn make_quick_changes(
 }
 
 #[allow(clippy::unnecessary_unwrap)]
-fn maybe_add_bike_lanes(r: &mut EditRoad, buffer_type: Option<BufferType>) {
+fn maybe_add_bike_lanes(
+    r: &mut EditRoad,
+    buffer_type: Option<BufferType>,
+    driving_side: DrivingSide,
+) {
     let dummy_tags = Tags::empty();
 
     // First decompose the existing lanes back into a fwd_side and back_side. This is not quite the
@@ -170,7 +180,11 @@ fn maybe_add_bike_lanes(r: &mut EditRoad, buffer_type: Option<BufferType>) {
             back_side.push(spec);
         }
     }
-    fwd_side.reverse();
+    if driving_side == DrivingSide::Right {
+        fwd_side.reverse();
+    } else {
+        back_side.reverse();
+    }
 
     for (dir, side) in [
         (Direction::Fwd, &mut fwd_side),
@@ -239,9 +253,15 @@ fn maybe_add_bike_lanes(r: &mut EditRoad, buffer_type: Option<BufferType>) {
     }
 
     // Now re-assemble...
-    r.lanes_ltr = back_side;
-    fwd_side.reverse();
-    r.lanes_ltr.extend(fwd_side);
+    if driving_side == DrivingSide::Right {
+        r.lanes_ltr = back_side;
+        fwd_side.reverse();
+        r.lanes_ltr.extend(fwd_side);
+    } else {
+        r.lanes_ltr = fwd_side;
+        back_side.reverse();
+        r.lanes_ltr.extend(back_side);
+    }
 }
 
 #[cfg(test)]
@@ -254,10 +274,30 @@ mod tests {
         let no_buffers = false;
 
         let mut ok = true;
-        for (description, url, input_lt, input_dir, buffer, expected_lt, expected_dir) in vec![
+        for (
+            description,
+            url,
+            driving_side,
+            input_lt,
+            input_dir,
+            buffer,
+            expected_lt,
+            expected_dir,
+        ) in vec![
+            (
+                "Two-way without room",
+                "https://www.openstreetmap.org/way/537698750",
+                DrivingSide::Right,
+                "sdds",
+                "vv^^",
+                no_buffers,
+                "sdds",
+                "vv^^",
+            ),
             (
                 "Two-way with parking, adding buffers",
                 "https://www.openstreetmap.org/way/40790122",
+                DrivingSide::Right,
                 "spddps",
                 "vvv^^^",
                 with_buffers,
@@ -267,6 +307,7 @@ mod tests {
             (
                 "Two-way with parking, no buffers",
                 "https://www.openstreetmap.org/way/40790122",
+                DrivingSide::Right,
                 "spddps",
                 "vvv^^^",
                 no_buffers,
@@ -276,6 +317,7 @@ mod tests {
             (
                 "Two-way without parking but many lanes",
                 "https://www.openstreetmap.org/way/394737309",
+                DrivingSide::Right,
                 "sddddds",
                 "vvv^^^^",
                 with_buffers,
@@ -285,6 +327,7 @@ mod tests {
             (
                 "One-way with parking on both sides",
                 "https://www.openstreetmap.org/way/559660378",
+                DrivingSide::Right,
                 "spddps",
                 "vv^^^^",
                 with_buffers,
@@ -294,6 +337,7 @@ mod tests {
             (
                 "One-way with bus lanes",
                 "https://www.openstreetmap.org/way/52840106",
+                DrivingSide::Right,
                 "ddBs",
                 "^^^^",
                 with_buffers,
@@ -303,11 +347,32 @@ mod tests {
             (
                 "Two-way with bus lanes",
                 "https://www.openstreetmap.org/way/368670632",
+                DrivingSide::Right,
                 "sBddCddBs",
                 "vvvv^^^^^",
                 with_buffers,
                 "sb|BdCdB|bs",
                 "vvvvv^^^^^^",
+            ),
+            (
+                "Two-way without room, on a left-handed map",
+                "https://www.openstreetmap.org/way/436838877",
+                DrivingSide::Left,
+                "sdds",
+                "^^vv",
+                no_buffers,
+                "sdds",
+                "^^vv",
+            ),
+            (
+                "Two-way, on a left-handed map",
+                "https://www.openstreetmap.org/way/312457180",
+                DrivingSide::Left,
+                "sdddds",
+                "^^^vvv",
+                no_buffers,
+                "sbddbs",
+                "^^^vvv",
             ),
         ] {
             let input = EditRoad::create_for_test(input_lt, input_dir);
@@ -319,6 +384,7 @@ mod tests {
                 } else {
                     None
                 },
+                driving_side,
             );
             actual_output.check_lanes_ltr(
                 format!("{} (example from {})", description, url),
