@@ -1368,7 +1368,7 @@ impl DrivingSimState {
                     }
                     // Manually enable to debug exiting driveways and lane-changing
                     Queued::StaticBlockage { cause, front, back } => {
-                        if false {
+                        if true {
                             Some(DrawCarInput {
                                 id: cause,
                                 waiting_for_turn: None,
@@ -1385,7 +1385,7 @@ impl DrivingSimState {
                         }
                     }
                     Queued::DynamicBlockage { cause, vehicle_len } => {
-                        if false {
+                        if true {
                             Some(DrawCarInput {
                                 id: cause,
                                 waiting_for_turn: None,
