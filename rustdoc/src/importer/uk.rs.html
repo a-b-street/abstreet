@@ -209,6 +209,8 @@
 <span id="209">209</span>
 <span id="210">210</span>
 <span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 <span class="kw">use</span> <span class="ident">std::fs::File</span>;
@@ -335,6 +337,8 @@
             <span class="ident">go_active</span>.<span class="ident">people</span>.<span class="ident">extend</span>(<span class="ident">scenario</span>.<span class="ident">people</span>);
             <span class="ident">go_active</span>.<span class="ident">scenario_name</span> <span class="op">=</span> <span class="string">&quot;go_active_with_bg&quot;</span>.<span class="ident">to_string</span>();
             <span class="ident">go_active</span>.<span class="ident">save</span>();
+
+            <span class="comment">// Don&#39;t save background.bin for actdev sites -- use base_with_bg instead.</span>
         }
         <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> {
             <span class="comment">// We&#39;re a &quot;normal&quot; city -- just save the background traffic.</span>
