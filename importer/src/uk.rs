@@ -123,6 +123,8 @@ pub async fn generate_scenario(
             go_active.people.extend(scenario.people);
             go_active.scenario_name = "go_active_with_bg".to_string();
             go_active.save();
+
+            // Don't save background.bin for actdev sites -- use base_with_bg instead.
         }
         Err(err) => {
             // We're a "normal" city -- just save the background traffic.
