@@ -172,6 +172,15 @@
 <span id="172">172</span>
 <span id="173">173</span>
 <span id="174">174</span>
+<span id="175">175</span>
+<span id="176">176</span>
+<span id="177">177</span>
+<span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::cell::RefCell</span>;
 <span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
@@ -332,13 +341,22 @@
                 );
 
                 <span class="ident">PathfindEngine::CH</span> {
-                    <span class="ident">graph</span>: <span class="ident">fast_paths::prepare</span>(<span class="kw-2">&amp;</span><span class="ident">input_graph</span>),
+                    <span class="ident">graph</span>: <span class="ident">fast_paths::prepare_with_params</span>(
+                        <span class="kw-2">&amp;</span><span class="ident">input_graph</span>,
+                        <span class="comment">// see discussion about fast_paths parameters here: https://github.com/easbar/fast_paths/pull/37</span>
+                        <span class="kw-2">&amp;</span><span class="ident">fast_paths::Params::new</span>(<span class="number">0.01</span>, <span class="number">100</span>, <span class="number">10</span>, <span class="number">100</span>),
+                    ),
                     <span class="ident">path_calc</span>: <span class="ident">ThreadLocal::new</span>(),
                 }
             }
             <span class="ident">CreateEngine::CHSeedingNodeOrdering</span>(<span class="ident">prev_graph</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="ident">node_ordering</span> <span class="op">=</span> <span class="ident">prev_graph</span>.<span class="ident">get_node_ordering</span>();
-                <span class="kw">let</span> <span class="ident">graph</span> <span class="op">=</span> <span class="ident">fast_paths::prepare_with_order</span>(<span class="kw-2">&amp;</span><span class="ident">input_graph</span>, <span class="kw-2">&amp;</span><span class="ident">node_ordering</span>).<span class="ident">unwrap</span>();
+                <span class="kw">let</span> <span class="ident">graph</span> <span class="op">=</span> <span class="ident">fast_paths::prepare_with_order_with_params</span>(
+                    <span class="kw-2">&amp;</span><span class="ident">input_graph</span>,
+                    <span class="kw-2">&amp;</span><span class="ident">node_ordering</span>,
+                    <span class="kw-2">&amp;</span><span class="ident">fast_paths::ParamsWithOrder::new</span>(<span class="number">100</span>),
+                )
+                .<span class="ident">unwrap</span>();
                 <span class="ident">PathfindEngine::CH</span> {
                     <span class="ident">graph</span>,
                     <span class="ident">path_calc</span>: <span class="ident">ThreadLocal::new</span>(),
