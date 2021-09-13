@@ -974,7 +974,7 @@ checksum = "7360491ce676a36bf9bb3c56c1aa791658183a54d2744120f27285738d90465a"
 [[package]]
 name = "fast_paths"
 version = "0.3.0-SNAPSHOT"
-source = "git+https://github.com/easbar/fast_paths?branch=settled_nodes_limit#6bcda87e38c930e1068dff0e8f609e5cbd43e03e"
+source = "git+https://github.com/easbar/fast_paths?rev=9a954e02f01ed16939d3c4a2dc9dd3fb4f6c03ee#9a954e02f01ed16939d3c4a2dc9dd3fb4f6c03ee"
 dependencies = [
  "log",
  "priority-queue",

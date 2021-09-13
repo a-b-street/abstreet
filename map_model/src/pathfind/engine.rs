@@ -157,13 +157,22 @@ impl<'a> CreateEngine<'a> {
                 );
 
                 PathfindEngine::CH {
-                    graph: fast_paths::prepare(&input_graph),
+                    graph: fast_paths::prepare_with_params(
+                        &input_graph,
+                        // see discussion about fast_paths parameters here: https://github.com/easbar/fast_paths/pull/37
+                        &fast_paths::Params::new(0.01, 100, 10, 100),
+                    ),
                     path_calc: ThreadLocal::new(),
                 }
             }
             CreateEngine::CHSeedingNodeOrdering(prev_graph) => {
                 let node_ordering = prev_graph.get_node_ordering();
-                let graph = fast_paths::prepare_with_order(&input_graph, &node_ordering).unwrap();
+                let graph = fast_paths::prepare_with_order_with_params(
+                    &input_graph,
+                    &node_ordering,
+                    &fast_paths::ParamsWithOrder::new(100),
+                )
+                .unwrap();
                 PathfindEngine::CH {
                     graph,
                     path_calc: ThreadLocal::new(),
