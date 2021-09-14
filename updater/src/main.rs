@@ -364,10 +364,7 @@ async fn download_file(version: &str, path: &str, dl_from_local: bool) -> Result
         ));
     }
 
-    let url = format!(
-        "http://abstreet.s3-website.us-east-2.amazonaws.com/{}/{}.gz",
-        version, path
-    );
+    let url = format!("http://play.abstreet.org/{}/{}.gz", version, path);
     println!("> download {}", url);
     let (mut tx, rx) = futures_channel::mpsc::channel(1000);
     abstio::print_download_progress(rx);

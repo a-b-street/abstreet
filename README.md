@@ -11,7 +11,7 @@ pedestrians. It works anywhere in the world, thanks to
   [Mac](https://github.com/a-b-street/abstreet/releases/download/v0.2.58/abstreet_mac_v0_2_58.zip),
   [Linux](https://github.com/a-b-street/abstreet/releases/download/v0.2.58/abstreet_linux_v0_2_58.zip),
   [FreeBSD](https://www.freshports.org/games/abstreet/),
-  [your web browser](http://abstreet.s3-website.us-east-2.amazonaws.com/0.2.58/abstreet.html),
+  [your web browser](http://play.abstreet.org/0.2.58/abstreet.html),
   or [read all instructions](https://a-b-street.github.io/docs/user/index.html)
   (new releases every Sunday)
 - [build from source](https://a-b-street.github.io/docs/tech/dev/index.html)

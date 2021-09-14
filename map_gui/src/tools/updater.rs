@@ -135,10 +135,7 @@ async fn download_cities(
     for (path, entry) in manifest.entries {
         files_so_far += 1;
         let local_path = abstio::path(path.strip_prefix("data/").unwrap());
-        let url = format!(
-            "http://abstreet.s3-website.us-east-2.amazonaws.com/{}/{}.gz",
-            version, path
-        );
+        let url = format!("http://play.abstreet.org/{}/{}.gz", version, path);
         if let Err(err) = outer_progress.try_send(format!(
             "Downloading file {}/{}: {} ({})",
             files_so_far,
