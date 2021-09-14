@@ -1,18 +1,12 @@
 use anyhow::{anyhow, bail, Result};
 use serde::Deserialize;
 
-use abstutil::{prettyprint_usize, CmdArgs, Timer};
+use abstutil::{prettyprint_usize, Timer};
 use geom::{Duration, LonLat, Time};
 use map_model::Map;
 use sim::{ExternalPerson, ExternalTrip, ExternalTripEndpoint, Scenario, TripMode, TripPurpose};
 
-/// Import a scenario from https://github.com/asu-trans-ai-lab/grid2demand.
-fn main() -> Result<()> {
-    let mut args = CmdArgs::new();
-    let csv_path = args.required("--input");
-    let map = args.required("--map");
-    args.done();
-
+pub fn run(csv_path: String, map: String) -> Result<()> {
     let mut timer = Timer::new("import grid2demand");
     timer.start("parse CSV");
     let people = parse_trips(csv_path)?;

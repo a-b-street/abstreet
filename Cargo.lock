@@ -427,9 +427,16 @@ version = "0.1.0"
 dependencies = [
  "abstio",
  "abstutil",
+ "anyhow",
+ "csv",
+ "geo",
+ "geom",
+ "log",
  "map_model",
+ "osmio",
  "rand",
  "rand_xorshift",
+ "serde",
  "sim",
  "structopt",
 ]

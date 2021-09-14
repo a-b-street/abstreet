@@ -8,19 +8,9 @@ use geo::{LineString, Point, Polygon};
 use osmio::obj_types::ArcOSMObj;
 use osmio::{Node, OSMObj, OSMObjBase, OSMObjectType, OSMReader, OSMWriter, Relation, Way};
 
-use abstutil::CmdArgs;
 use geom::LonLat;
 
-/// Clips an .osm.pbf specified by `--pbf` using the Osmosis boundary polygon specified by
-/// `--clip`, writing the result as .osm.xml to `--out`. This is a simple Rust port of `osmconvert
-/// large_map.osm -B=clipping.poly --complete-ways -o=smaller_map.osm`.
-fn main() -> Result<()> {
-    let mut args = CmdArgs::new();
-    let pbf_path = args.required("--pbf");
-    let clip_path = args.required("--clip");
-    let out_path = args.required("--out");
-    args.done();
-
+pub fn run(pbf_path: String, clip_path: String, out_path: String) -> Result<()> {
     let boundary_pts = LonLat::read_osmosis_polygon(&clip_path)?;
     let raw_pts: Vec<(f64, f64)> = boundary_pts
         .into_iter()
