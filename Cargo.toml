@@ -3,6 +3,7 @@
 members = [
   "abstio",
   "abstutil",
+  "cli",
   "collisions",
   "convert_osm",
   "fifteen_min",
