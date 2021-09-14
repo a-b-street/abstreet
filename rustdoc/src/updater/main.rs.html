@@ -417,9 +417,6 @@
 <span id="417">417</span>
 <span id="418">418</span>
 <span id="419">419</span>
-<span id="420">420</span>
-<span id="421">421</span>
-<span id="422">422</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections::BTreeMap</span>;
 <span class="kw">use</span> <span class="ident">std::fs::File</span>;
@@ -787,10 +784,7 @@
         ));
     }
 
-    <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="macro">format!</span>(
-        <span class="string">&quot;http://abstreet.s3-website.us-east-2.amazonaws.com/{}/{}.gz&quot;</span>,
-        <span class="ident">version</span>, <span class="ident">path</span>
-    );
+    <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;http://play.abstreet.org/{}/{}.gz&quot;</span>, <span class="ident">version</span>, <span class="ident">path</span>);
     <span class="macro">println!</span>(<span class="string">&quot;&gt; download {}&quot;</span>, <span class="ident">url</span>);
     <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">tx</span>, <span class="ident">rx</span>) <span class="op">=</span> <span class="ident">futures_channel::mpsc::channel</span>(<span class="number">1000</span>);
     <span class="ident">abstio::print_download_progress</span>(<span class="ident">rx</span>);
