@@ -16,7 +16,7 @@ CITY=`echo $SITE | sed -r 's/-/_/g'`
 cp -Rv importer/config/gb/leeds importer/config/gb/$CITY
 rm -fv importer/config/gb/$CITY/*.poly
 wget https://raw.githubusercontent.com/cyipt/actdev/main/data-small/$SITE/small-study-area.geojson
-cargo run --bin geojson_to_osmosis < small-study-area.geojson
+cargo run --bin cli -- geojson-to-osmosis small-study-area.geojson
 rm -fv small-study-area.geojson
 mv boundary0.poly importer/config/gb/$CITY/center.poly
 GEOFABRIK=`cargo run --bin pick_geofabrik importer/config/gb/$CITY/center.poly`
@@ -28,7 +28,7 @@ wget https://raw.githubusercontent.com/cyipt/actdev/main/data-small/$SITE/site.g
 ./import.sh --raw --map --city=gb/$CITY
 
 # Procedurally generate houses, if needed
-if cargo run --release --bin generate_houses -- --map=data/system/gb/$CITY/maps/center.bin --num_required=1000 --rng_seed=42 --out=data/input/gb/$CITY/procgen_houses.json; then
+if cargo run --release --bin cli -- generate-houses --map=data/system/gb/$CITY/maps/center.bin --num_required=1000 --rng_seed=42 --out=data/input/gb/$CITY/procgen_houses.json; then
 	# Update the importer config, and import again
 	perl -pi -e "s#\"extra_buildings\": null#\"extra_buildings\": \"data/input/gb/$CITY/procgen_houses.json\"#" importer/config/gb/$CITY/cfg.json
 	./import.sh --raw --map --city=gb/$CITY

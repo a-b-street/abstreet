@@ -264,8 +264,6 @@ pub fn find_exe(cmd: &str) -> String {
         "./target/release",
         "../target/release",
         "../../target/release",
-        "./tools",
-        "../tools",
     ]
     .into_iter()
     .find(|x| std::path::Path::new(x).exists())

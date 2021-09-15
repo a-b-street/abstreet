@@ -102,8 +102,11 @@ impl<A: AppLike + 'static> State<A> for ImportCity<A> {
                     Transition::Keep
                 }
                 "Import the area from your clipboard" => {
-                    let mut args =
-                        vec![find_exe("one_step_import"), "boundary.geojson".to_string()];
+                    let mut args = vec![
+                        find_exe("cli"),
+                        "one-step-import".to_string(),
+                        "boundary.geojson".to_string(),
+                    ];
                     if self.panel.is_checked("left handed driving") {
                         args.push("--drive_on_left".to_string());
                     }
