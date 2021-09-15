@@ -47,7 +47,7 @@ rm -fv data/input/us/seattle/raw_maps/huge_seattle.bin data/input/us/seattle/pop
 # Run this as root so Docker works. We could add the current user to the group,
 # but then we have to fiddle with the shell a weird way to pick up the change
 # immediately.
-sudo ./target/release/importer --regen_all --shard_num=$WORKER_NUM --num_shards=$NUM_WORKERS
+sudo ./target/release/cli importer -- --regen_all --shard_num=$WORKER_NUM --num_shards=$NUM_WORKERS
 
 # Upload the results
 ./target/release/updater --inc_upload --version=$EXPERIMENT_TAG

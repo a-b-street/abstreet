@@ -23,7 +23,8 @@ pub fn import_grid2demand(ctx: &mut EventCtx) -> Transition {
                     ctx,
                     true,
                     vec![
-                        find_exe("import_grid2demand"),
+                        find_exe("cli"),
+                        "import-grid2-demand".to_string(),
                         format!("--map={}", app.primary.map.get_name().path()),
                         format!("--input={}", path),
                     ],

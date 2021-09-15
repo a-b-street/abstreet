@@ -1069,7 +1069,8 @@ fn reimport_map(
         ctx,
         false,
         vec![
-            map_gui::tools::find_exe("importer"),
+            map_gui::tools::find_exe("cli"),
+            "importer".to_string(),
             "--map".to_string(),
             app.primary.map.get_name().map.clone(),
             format!("--city={}", app.primary.map.get_name().city.to_path()),
