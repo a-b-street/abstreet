@@ -37,9 +37,8 @@ cp release/play_abstreet.$ext release/ungap_the_map.$ext release/INSTRUCTIONS.tx
 # the game binary directly, it'll still work.
 mkdir $output/game
 cp target/release/game${suffix} $output/game
-cp target/release/cli ${suffix} $output/cli
 
-for name in fifteen_min osm_viewer parking_mapper santa; do
+for name in cli fifteen_min osm_viewer parking_mapper santa; do
 	cp target/release/${name}${suffix} $output;
 done
 

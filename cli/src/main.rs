@@ -1,30 +1,5 @@
-// TODO Can we list example invocations in the help text?
-//
-// dump-json data/system/us/seattle/maps/montlake.bin
-//
-// dump-json data/system/us/seattle/scenarios/montlake/weekday.bin
-//
-// random-scenario --map data/system/us/seattle/maps/montlake.bin --rng-seed 42 --scenario-name thursday
-//
-// augment-scenario --input-scenario=data/system/us/seattle/scenarios/montlake/thursday.bin --add-lunch-trips
-//
-// clip-osm --pbf-path data/input/us/seattle/osm/washington-latest.osm.pbf --clip-path importer/config/us/seattle/montlake.poly --out-path montlake.osm.xml
-//
-// geo-json-to-osmosis boundary.geojson
-//
-// import-grid2-demand --input=sample.csv --map data/system/us/seattle/maps/montlake.bin
-//
-// import-scenario --map data/system/us/seattle/maps/montlake.bin --input scenario.json --skip-problems
-//
-// import-json-map --input montlake.json --output data/system/us/seattle/maps/montlake_modified.bin
-//
-// minify-map data/system/us/seattle/maps/huge_seattle.bin
-//
-// generate-houses --map data/system/us/seattle/maps/montlake.bin --num-required 100 --output houses.json
-//
-// pick-geofabrik importer/config/jp/hiroshima/uni.poly
-//
-// one-step-import foo.json
+//! A collection of tools, mostly related to importing maps and scenarios. These are bundled as a
+//! single executable to reduce the cost of static linking in the release's file size.
 
 #[macro_use]
 extern crate log;
