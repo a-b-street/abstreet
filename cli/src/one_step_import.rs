@@ -1,23 +1,13 @@
-use std::io::Write;
 use std::path::Path;
-use std::process::{Command, Stdio};
+use std::process::Command;
 
 use anyhow::Result;
 
 use abstio::CityName;
-use abstutil::{must_run_cmd, CmdArgs};
+use abstutil::must_run_cmd;
 use geom::LonLat;
 
-/// Import a one-shot A/B Street map in a single command. Takes a GeoJSON file with a boundary as
-/// input. Automatically fetches the OSM data, clips it, and runs the importer.
-#[tokio::main]
-async fn main() -> Result<()> {
-    let mut args = CmdArgs::new();
-    let geojson_path = args.required_free();
-    let drive_on_left = args.enabled("--drive_on_left");
-    let use_overpass = args.enabled("--use_overpass");
-    args.done();
-
+pub async fn run(geojson_path: String, drive_on_left: bool, use_geofabrik: bool) -> Result<()> {
     // Handle running from a binary release or from git. If the latter and the user hasn't built
     // the tools, they'll get an error.
     let bin_dir = vec![
@@ -32,17 +22,10 @@ async fn main() -> Result<()> {
     .expect("Can't find target/ or tools/ directory");
     println!("Found other executables at {}", bin_dir);
 
-    // Convert to a boundary polygon. This tool reads from STDIN.
-    let geojson = abstio::slurp_file(geojson_path)?;
+    // Convert to a boundary polygon.
     {
         println!("Converting GeoJSON to Osmosis boundary");
-        let mut cmd = Command::new(format!("{}/geojson_to_osmosis", bin_dir))
-            .stdin(Stdio::piped())
-            .spawn()?;
-        let stdin = cmd.stdin.as_mut().unwrap();
-        stdin.write_all(&geojson)?;
-        assert!(cmd.wait()?.success());
-
+        crate::geojson_to_osmosis::run(geojson_path.clone())?;
         if Path::new("boundary1.poly").exists() {
             abstio::delete_file("boundary0.poly");
             abstio::delete_file("boundary1.poly");
@@ -57,11 +40,12 @@ async fn main() -> Result<()> {
     let city = CityName::new("zz", "oneshot");
     let name;
     let osm;
-    if use_overpass {
+    if !use_geofabrik {
         // No easy guess on this without looking at the XML file
         name = "overpass".to_string();
         osm = city.input_path(format!("osm/{}.osm", name));
 
+        let geojson = abstio::slurp_file(geojson_path)?;
         let mut polygons = LonLat::parse_geojson_polygons(String::from_utf8(geojson)?)?;
         let mut filter = "poly:\"".to_string();
         for pt in polygons.pop().unwrap() {
@@ -77,17 +61,8 @@ async fn main() -> Result<()> {
         abstio::download_to_file("https://overpass-api.de/api/interpreter", Some(query), &osm)
             .await?;
     } else {
-        // What file should we download?
-        let url = {
-            println!("Figuring out what Geofabrik file contains your boundary");
-            let out = Command::new(format!("{}/pick_geofabrik", bin_dir))
-                .arg("boundary0.poly")
-                .output()?;
-            assert!(out.status.success());
-            // pick_geofabrik might output extra lines while downloading the index. Grab the last line.
-            let output = String::from_utf8(out.stdout)?;
-            output.trim().split('\n').last().unwrap().trim().to_string()
-        };
+        println!("Figuring out what Geofabrik file contains your boundary");
+        let url = crate::pick_geofabrik::run("boundary0.poly".to_string()).await?;
 
         // Name the temporary map based on the Geofabrik region.
         name = abstutil::basename(&url)
@@ -108,12 +83,7 @@ async fn main() -> Result<()> {
 
         // Clip it
         println!("Clipping osm.pbf file to your boundary");
-        must_run_cmd(
-            Command::new(format!("{}/clip_osm", bin_dir))
-                .arg(format!("--pbf={}", pbf))
-                .arg("--clip=boundary0.poly")
-                .arg(format!("--out={}", osm)),
-        );
+        crate::clip_osm::run(pbf, "boundary0.poly".to_string(), osm.clone())?;
     }
 
     // Import!
