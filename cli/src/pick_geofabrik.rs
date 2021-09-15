@@ -1,6 +1,3 @@
-#[macro_use]
-extern crate log;
-
 use std::convert::TryInto;
 
 use anyhow::Result;
@@ -8,20 +5,10 @@ use geo::algorithm::area::Area;
 use geo::algorithm::contains::Contains;
 use geojson::GeoJson;
 
-use abstutil::{CmdArgs, Timer};
+use abstutil::Timer;
 use geom::LonLat;
 
-/// Takes an [osmosis polygon boundary
-/// file](https://wiki.openstreetmap.org/wiki/Osmosis/Polygon_Filter_File_Format) as input, then
-/// prints the osm.pbf file from download.geofabrik.de that covers this region.
-///
-/// This is a useful tool when importing a new map, if you don't already know which geofabrik file
-/// you should use as your OSM input.
-#[tokio::main]
-async fn main() -> Result<()> {
-    let mut args = CmdArgs::new();
-    let input = args.required_free();
-    args.done();
+pub async fn run(input: String) -> Result<String> {
     let boundary_pts = LonLat::read_osmosis_polygon(&input)?;
     // For now, just use the boundary's center. Some boundaries might cross multiple geofabrik
     // regions; don't handle that yet.
@@ -43,9 +30,7 @@ async fn main() -> Result<()> {
         .into_iter()
         .min_by_key(|(mp, _)| mp.unsigned_area() as usize)
         .unwrap();
-    println!("{}", url);
-
-    Ok(())
+    Ok(url)
 }
 
 async fn load_remote_geojson(path: String, url: &str) -> Result<GeoJson> {

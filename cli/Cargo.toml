@@ -20,3 +20,4 @@ rand_xorshift = "0.3.0"
 serde = "1.0.123"
 sim = { path = "../sim" }
 structopt = "0.3.23"
+tokio = { version = "1.1.1", features = ["full"] }

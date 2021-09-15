@@ -10,7 +10,7 @@
 //
 // clip-osm --pbf-path data/input/us/seattle/osm/washington-latest.osm.pbf --clip-path importer/config/us/seattle/montlake.poly --out-path montlake.osm.xml
 //
-// geo-json-to-osmosis < boundary.geojson
+// geo-json-to-osmosis boundary.geojson
 //
 // import-grid2-demand --input=sample.csv --map data/system/us/seattle/maps/montlake.bin
 //
@@ -21,6 +21,10 @@
 // minify-map data/system/us/seattle/maps/huge_seattle.bin
 //
 // generate-houses --map data/system/us/seattle/maps/montlake.bin --num-required 100 --output houses.json
+//
+// pick-geofabrik importer/config/jp/hiroshima/uni.poly
+//
+// one-step-import foo.json
 
 #[macro_use]
 extern crate log;
@@ -28,9 +32,13 @@ extern crate log;
 mod augment_scenario;
 mod clip_osm;
 mod generate_houses;
+mod geojson_to_osmosis;
 mod import_grid2demand;
 mod import_scenario;
+mod one_step_import;
+mod pick_geofabrik;
 
+use anyhow::Result;
 use structopt::StructOpt;
 
 use abstutil::Timer;
@@ -87,10 +95,14 @@ enum Command {
         #[structopt(long)]
         out_path: String,
     },
-    /// Reads GeoJSON input from STDIN, extracts a polygon from every feature, and writes numbered
-    /// files in the https://wiki.openstreetmap.org/wiki/Osmosis/Polygon_Filter_File_Format format
-    /// as output.
-    GeoJSONToOsmosis,
+    /// Reads a GeoJSON file, extracts a polygon from every feature, and writes numbered files in
+    /// the https://wiki.openstreetmap.org/wiki/Osmosis/Polygon_Filter_File_Format format as
+    /// output.
+    GeoJSONToOsmosis {
+        /// The path to a GeoJSON file
+        #[structopt()]
+        input: String,
+    },
     /// Import a scenario from https://github.com/asu-trans-ai-lab/grid2demand.
     ImportGrid2Demand {
         /// The path to a grid2demand CSV file
@@ -146,9 +158,32 @@ enum Command {
         #[structopt(long)]
         output: String,
     },
+    /// Prints the osm.pbf file from download.geofabrik.de that covers a given boundary.
+    ///
+    /// This is a useful tool when importing a new map, if you don't already know which geofabrik
+    /// file you should use as your OSM input.
+    PickGeofabrik {
+        /// The path to an [osmosis polygon boundary
+        /// file](https://wiki.openstreetmap.org/wiki/Osmosis/Polygon_Filter_File_Format)
+        #[structopt()]
+        input: String,
+    },
+    /// Imports a one-shot A/B Street map in a single command.
+    OneStepImport {
+        /// The path to a GeoJSON file with a boundary
+        #[structopt()]
+        geojson_path: String,
+        /// Do people drive on the left side of the road in this map?
+        #[structopt(long)]
+        drive_on_left: bool,
+        /// Use Geofabrik to grab OSM input if true, or Overpass if false. Overpass is faster.
+        #[structopt(long)]
+        use_geofabrik: bool,
+    },
 }
 
-fn main() {
+#[tokio::main]
+async fn main() -> Result<()> {
     // Short implementations can stay in this file, but please split larger subcommands to their
     // own module.
     match Command::from_args() {
@@ -168,9 +203,9 @@ fn main() {
             pbf_path,
             clip_path,
             out_path,
-        } => clip_osm::run(pbf_path, clip_path, out_path).unwrap(),
-        Command::GeoJSONToOsmosis => geojson_to_osmosis().unwrap(),
-        Command::ImportGrid2Demand { input, map } => import_grid2demand::run(input, map).unwrap(),
+        } => clip_osm::run(pbf_path, clip_path, out_path)?,
+        Command::GeoJSONToOsmosis { input } => geojson_to_osmosis::run(input)?,
+        Command::ImportGrid2Demand { input, map } => import_grid2demand::run(input, map)?,
         Command::ImportScenario {
             input,
             map,
@@ -184,7 +219,16 @@ fn main() {
             rng_seed,
             output,
         } => generate_houses::run(map, num_required, rng_seed, output),
+        Command::PickGeofabrik { input } => {
+            println!("{}", pick_geofabrik::run(input).await?)
+        }
+        Command::OneStepImport {
+            geojson_path,
+            drive_on_left,
+            use_geofabrik,
+        } => one_step_import::run(geojson_path, drive_on_left, use_geofabrik).await?,
     }
+    Ok(())
 }
 
 fn dump_json(path: String) {
@@ -216,22 +260,6 @@ fn random_scenario(rng_seed: u64, map: String, scenario_name: String) {
         "Wrote {}",
         abstio::path_scenario(&scenario.map_name, &scenario.scenario_name)
     );
-}
-
-fn geojson_to_osmosis() -> anyhow::Result<()> {
-    use std::io::{self, Read};
-
-    let mut buffer = String::new();
-    io::stdin().read_to_string(&mut buffer)?;
-    for (idx, points) in geom::LonLat::parse_geojson_polygons(buffer)?
-        .into_iter()
-        .enumerate()
-    {
-        let path = format!("boundary{}.poly", idx);
-        geom::LonLat::write_osmosis_polygon(&path, &points)?;
-        println!("Wrote {}", path);
-    }
-    Ok(())
 }
 
 fn import_json_map(input: String, output: String) {

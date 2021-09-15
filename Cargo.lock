@@ -441,6 +441,7 @@ dependencies = [
  "serde",
  "sim",
  "structopt",
+ "tokio",
 ]
 
 [[package]]
