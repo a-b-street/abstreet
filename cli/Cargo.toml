@@ -4,11 +4,13 @@ version = "0.1.0"
 edition = "2018"
 
 [dependencies]
+aabb-quadtree = "0.1.0"
 abstio = { path = "../abstio" }
 abstutil = { path = "../abstutil" }
 anyhow = "1.0.38"
 csv = "1.1.4"
 geo = "0.18.0"
+geojson = { version = "0.22.0", features = ["geo-types"] }
 geom = { path = "../geom" }
 log = "0.4.14"
 map_model = { path = "../map_model" }

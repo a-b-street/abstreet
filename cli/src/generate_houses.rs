@@ -1,7 +1,3 @@
-//! Procedurally generates houses along empty residential roads of a map. Writes a GeoJSON file
-//! with the results if the number of houses is at least `--num_required`. This can be used to
-//! autodetect if a map probably already has houses filled out in OSM.
-
 use std::collections::HashSet;
 
 use aabb_quadtree::QuadTree;
@@ -9,27 +5,14 @@ use geojson::{Feature, FeatureCollection, GeoJson};
 use rand::{Rng, SeedableRng};
 use rand_xorshift::XorShiftRng;
 
-use abstutil::{CmdArgs, Timer};
+use abstutil::Timer;
 use geom::{Distance, Polygon};
 use map_model::{osm, Map};
 
-fn main() {
+pub fn run(map: String, num_required: usize, rng_seed: u64, output: String) {
     let mut timer = Timer::new("generate houses");
-    let mut args = CmdArgs::new();
-    let num_required = args.required("--num_required").parse::<usize>().unwrap();
-    let out = args.required("--out");
-    let mut rng = XorShiftRng::seed_from_u64(args.required("--rng_seed").parse::<u64>().unwrap());
-    let map = if let Some(path) = args.optional("--map") {
-        Map::load_synchronously(path, &mut timer)
-    } else {
-        import_map(
-            args.required("--osm"),
-            args.optional("--clip"),
-            !args.enabled("--drive_on_left"),
-            &mut timer,
-        )
-    };
-    args.done();
+    let mut rng = XorShiftRng::seed_from_u64(rng_seed);
+    let map = Map::load_synchronously(map, &mut timer);
 
     let houses = generate_buildings_on_empty_residential_roads(&map, &mut rng, &mut timer);
     if houses.len() <= num_required {
@@ -55,7 +38,7 @@ fn main() {
         features,
         foreign_members: None,
     });
-    abstio::write_json(out, &geojson);
+    abstio::write_json(output, &geojson);
 }
 
 fn generate_buildings_on_empty_residential_roads(
@@ -174,47 +157,4 @@ fn generate_buildings_on_empty_residential_roads(
 fn rand_dist(rng: &mut XorShiftRng, low: f64, high: f64) -> Distance {
     assert!(high > low);
     Distance::meters(rng.gen_range(low..high))
-}
-
-fn import_map(
-    osm_input: String,
-    clip: Option<String>,
-    drive_on_right: bool,
-    timer: &mut Timer,
-) -> Map {
-    let raw = convert_osm::convert(
-        convert_osm::Options {
-            osm_input,
-            name: abstio::MapName::new("zz", "oneshot", "procgen"),
-
-            clip,
-            map_config: map_model::MapConfig {
-                driving_side: if drive_on_right {
-                    map_model::DrivingSide::Right
-                } else {
-                    map_model::DrivingSide::Left
-                },
-                bikes_can_use_bus_lanes: true,
-                inferred_sidewalks: true,
-                street_parking_spot_length: Distance::meters(8.0),
-            },
-
-            onstreet_parking: convert_osm::OnstreetParking::JustOSM,
-            public_offstreet_parking: convert_osm::PublicOffstreetParking::None,
-            private_offstreet_parking: convert_osm::PrivateOffstreetParking::FixedPerBldg(1),
-            include_railroads: true,
-            extra_buildings: None,
-            skip_local_roads: false,
-        },
-        timer,
-    );
-    map_model::Map::create_from_raw(
-        raw,
-        map_model::RawToMapOptions {
-            build_ch: false,
-            consolidate_all_intersections: false,
-            keep_bldg_tags: false,
-        },
-        timer,
-    )
 }

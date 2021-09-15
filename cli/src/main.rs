@@ -13,13 +13,23 @@
 // geo-json-to-osmosis < boundary.geojson
 //
 // import-grid2-demand --input=sample.csv --map data/system/us/seattle/maps/montlake.bin
+//
+// import-scenario --map data/system/us/seattle/maps/montlake.bin --input scenario.json --skip-problems
+//
+// import-json-map --input montlake.json --output data/system/us/seattle/maps/montlake_modified.bin
+//
+// minify-map data/system/us/seattle/maps/huge_seattle.bin
+//
+// generate-houses --map data/system/us/seattle/maps/montlake.bin --num-required 100 --output houses.json
 
 #[macro_use]
 extern crate log;
 
 mod augment_scenario;
 mod clip_osm;
+mod generate_houses;
 mod import_grid2demand;
+mod import_scenario;
 
 use structopt::StructOpt;
 
@@ -90,6 +100,52 @@ enum Command {
         #[structopt(long)]
         map: String,
     },
+    /// Import a JSON scenario in the
+    /// https://a-b-street.github.io/docs/tech/dev/formats/scenarios.html format
+    ImportScenario {
+        /// The path to a JSON scenario file
+        #[structopt(long)]
+        input: String,
+        /// The path to a map matching the scenario data
+        #[structopt(long)]
+        map: String,
+        /// Problems occur when a position is within the map boundary, but not close enough to
+        /// buildings. Skip people with problematic positions if true, abort otherwise.
+        #[structopt(long)]
+        skip_problems: bool,
+    },
+    /// Transform a JSON map that's been manually edited into the binary format suitable for
+    /// simulation.
+    ImportJSONMap {
+        /// The path to a JSON map file to import
+        #[structopt(long)]
+        input: String,
+        /// The path to write
+        #[structopt(long)]
+        output: String,
+    },
+    /// Removes nonessential parts of a Map, for the bike network tool.
+    MinifyMap {
+        /// The path to a map to shrink
+        #[structopt()]
+        map: String,
+    },
+    /// Procedurally generates houses along empty residential roads of a map
+    GenerateHouses {
+        /// The path to a map to generate houses for
+        #[structopt(long)]
+        map: String,
+        /// If the tool doesn't generate at least this many houses, then fail. This can be used to
+        /// autodetect if a map probably already has most houses tagged in OSM.
+        #[structopt(long)]
+        num_required: usize,
+        /// A seed for generating random numbers
+        #[structopt(long, default_value = "42")]
+        rng_seed: u64,
+        /// The GeoJSON file to write
+        #[structopt(long)]
+        output: String,
+    },
 }
 
 fn main() {
@@ -115,6 +171,19 @@ fn main() {
         } => clip_osm::run(pbf_path, clip_path, out_path).unwrap(),
         Command::GeoJSONToOsmosis => geojson_to_osmosis().unwrap(),
         Command::ImportGrid2Demand { input, map } => import_grid2demand::run(input, map).unwrap(),
+        Command::ImportScenario {
+            input,
+            map,
+            skip_problems,
+        } => import_scenario::run(input, map, skip_problems),
+        Command::ImportJSONMap { input, output } => import_json_map(input, output),
+        Command::MinifyMap { map } => minify_map(map),
+        Command::GenerateHouses {
+            map,
+            num_required,
+            rng_seed,
+            output,
+        } => generate_houses::run(map, num_required, rng_seed, output),
     }
 }
 
@@ -163,4 +232,19 @@ fn geojson_to_osmosis() -> anyhow::Result<()> {
         println!("Wrote {}", path);
     }
     Ok(())
+}
+
+fn import_json_map(input: String, output: String) {
+    // TODO This can't handle the output of dump_map! What?!
+    let mut map: map_model::Map = abstio::read_json(input, &mut Timer::throwaway());
+    map.map_loaded_directly(&mut Timer::throwaway());
+    abstio::write_binary(output, &map);
+}
+
+fn minify_map(path: String) {
+    let mut timer = Timer::new("minify map");
+    let mut map = map_model::Map::load_synchronously(path, &mut timer);
+    map.minify(&mut timer);
+    // This also changes the name, so this won't overwrite anything
+    map.save();
 }
