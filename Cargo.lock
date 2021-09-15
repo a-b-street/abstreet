@@ -433,6 +433,7 @@ dependencies = [
  "geo",
  "geojson",
  "geom",
+ "importer",
  "log",
  "map_model",
  "osmio",
@@ -1831,7 +1832,6 @@ dependencies = [
  "csv",
  "gdal",
  "geo",
- "geojson",
  "geom",
  "hashbrown",
  "kml",
@@ -1839,14 +1839,12 @@ dependencies = [
  "log",
  "map_model",
  "num-integer",
- "osmio",
  "popdat",
  "rand",
  "rand_xorshift",
  "serde",
  "serde_json",
  "sim",
- "tokio",
 ]
 
 [[package]]

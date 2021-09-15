@@ -26,11 +26,10 @@ mod utils;
 
 // TODO Might be cleaner to express as a dependency graph?
 
-#[tokio::main]
-async fn main() {
+pub async fn run(raw_args: Vec<String>) {
     let config: ImporterConfiguration = load_configuration();
 
-    let mut args = abstutil::CmdArgs::new();
+    let mut args = abstutil::CmdArgs::from_args(raw_args);
     let opts = RawToMapOptions {
         build_ch: !args.enabled("--skip_ch"),
         consolidate_all_intersections: args.enabled("--consolidate_all_intersections"),

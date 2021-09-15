@@ -31,7 +31,7 @@ impl CmdArgs {
         }
     }
 
-    fn from_args(raw: Vec<String>) -> CmdArgs {
+    pub fn from_args(raw: Vec<String>) -> CmdArgs {
         let mut args = CmdArgs {
             kv: HashMap::new(),
             bits: HashSet::new(),

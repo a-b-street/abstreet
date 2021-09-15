@@ -12,6 +12,7 @@ csv = "1.1.4"
 geo = "0.18.0"
 geojson = { version = "0.22.0", features = ["geo-types"] }
 geom = { path = "../geom" }
+importer = { path = "../importer" }
 log = "0.4.14"
 map_model = { path = "../map_model" }
 osmio = "0.4.0"
