@@ -42,14 +42,14 @@ function build_payload {
 	# This is needed to regenerate popdat.bin for Seattle. It requires the
 	# VMs to have a matching GDAL version. Since the VM runs the same
 	# version of Ubuntu as I do locally, this works out fine.
-	cargo build --release --manifest-path importer/Cargo.toml --features scenarios
+	cargo build --release --bin cli --features importer/scenarios
 
 	# Build our payload for the VMs
 	# This mkdir deliberately fails if the directory is already there; it probably
 	# means the last run broke somehow
 	mkdir worker_payload
 	mkdir -p worker_payload/target/release
-	cp target/release/importer worker_payload/target/release/
+	cp target/release/cli worker_payload/target/release/cli
 	cp target/release/updater worker_payload/target/release/
 	mkdir worker_payload/data
 	cp data/MANIFEST.json worker_payload/data

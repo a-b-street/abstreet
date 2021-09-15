@@ -20,8 +20,8 @@ if ! command -v multitail &> /dev/null; then
 fi
 
 if $USE_MULTITAIL; then
-	RUST_BACKTRACE=1 RUST_LOG_STYLE=always cargo run --bin importer $SPEED --manifest-path importer/Cargo.toml --features scenarios -- $@ > /tmp/abst_stdout 2> /tmp/abst_stderr &
+	RUST_BACKTRACE=1 RUST_LOG_STYLE=always cargo run --bin cli $SPEED --features importer/scenarios -- import -- $@ > /tmp/abst_stdout 2> /tmp/abst_stderr &
 	multitail /tmp/abst_stdout -cT ANSI /tmp/abst_stderr
 else
-	RUST_BACKTRACE=1 cargo run --bin importer $SPEED --manifest-path importer/Cargo.toml --features scenarios -- $@
+	RUST_BACKTRACE=1 cargo run --bin cli $SPEED --features importer/scenarios -- import -- $@
 fi

@@ -1,27 +1,11 @@
 use std::path::Path;
-use std::process::Command;
 
 use anyhow::Result;
 
 use abstio::CityName;
-use abstutil::must_run_cmd;
 use geom::LonLat;
 
 pub async fn run(geojson_path: String, drive_on_left: bool, use_geofabrik: bool) -> Result<()> {
-    // Handle running from a binary release or from git. If the latter and the user hasn't built
-    // the tools, they'll get an error.
-    let bin_dir = vec![
-        "./target/release",
-        "../target/release",
-        "../../target/release",
-        "./tools",
-        "../tools",
-    ]
-    .into_iter()
-    .find(|x| Path::new(x).exists())
-    .expect("Can't find target/ or tools/ directory");
-    println!("Found other executables at {}", bin_dir);
-
     // Convert to a boundary polygon.
     {
         println!("Converting GeoJSON to Osmosis boundary");
@@ -88,14 +72,15 @@ pub async fn run(geojson_path: String, drive_on_left: bool, use_geofabrik: bool)
 
     // Import!
     {
-        let mut cmd = Command::new(format!("{}/importer", bin_dir));
-        cmd.arg(format!("--oneshot={}", osm));
-        cmd.arg("--oneshot_clip=boundary0.poly");
+        let mut args = vec![
+            format!("--oneshot={}", osm),
+            "--oneshot_clip=boundary0.poly".to_string(),
+        ];
         if drive_on_left {
-            cmd.arg("--oneshot_drive_on_left");
+            args.push("--oneshot_drive_on_left".to_string());
         }
         println!("Running importer");
-        must_run_cmd(&mut cmd);
+        importer::run(args).await;
     }
 
     // Clean up temporary files. If we broke before this, deliberately leave them around for

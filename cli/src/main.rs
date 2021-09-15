@@ -180,6 +180,13 @@ enum Command {
         #[structopt(long)]
         use_geofabrik: bool,
     },
+    /// Runs the main A/B Street importer, which manages maps and scenarios for many cities.
+    Import {
+        /// See the importer's source code for the defined flags. You should first pass a bare "--"
+        /// to avoid arguments being parsed.
+        #[structopt()]
+        raw_args: Vec<String>,
+    },
 }
 
 #[tokio::main]
@@ -227,6 +234,7 @@ async fn main() -> Result<()> {
             drive_on_left,
             use_geofabrik,
         } => one_step_import::run(geojson_path, drive_on_left, use_geofabrik).await?,
+        Command::Import { raw_args } => importer::run(raw_args).await,
     }
     Ok(())
 }
