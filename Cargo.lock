@@ -425,11 +425,13 @@ dependencies = [
 name = "cli"
 version = "0.1.0"
 dependencies = [
+ "aabb-quadtree",
  "abstio",
  "abstutil",
  "anyhow",
  "csv",
  "geo",
+ "geojson",
  "geom",
  "log",
  "map_model",
