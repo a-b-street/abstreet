@@ -110,8 +110,8 @@ impl<A: AppLike + 'static> State<A> for ImportCity<A> {
                     if self.panel.is_checked("left handed driving") {
                         args.push("--drive_on_left".to_string());
                     }
-                    if !self.panel.is_checked("source") {
-                        args.push("--use_overpass".to_string());
+                    if self.panel.is_checked("source") {
+                        args.push("--use_geofabrik".to_string());
                     }
                     match grab_geojson_from_clipboard() {
                         Ok(()) => Transition::Push(crate::tools::RunCommand::new_state(

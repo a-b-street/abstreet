@@ -260,19 +260,25 @@ pub fn open_browser<I: AsRef<str>>(url: I) {
 
 /// Returns the path to an executable. Native-only.
 pub fn find_exe(cmd: &str) -> String {
-    let dir = vec![
+    for dir in [
+        // When running from source
         "./target/release",
         "../target/release",
         "../../target/release",
-    ]
-    .into_iter()
-    .find(|x| std::path::Path::new(x).exists())
-    .unwrap_or("./target/release");
-    // Apparently std::path on Windows doesn't do any of this correction. We could build up a
-    // PathBuf properly, I guess
-    if cfg!(windows) {
-        format!("{}/{}.exe", dir, cmd).replace("/", "\\")
-    } else {
-        format!("{}/{}", dir, cmd)
+        // When running from the .zip release
+        ".",
+        "..",
+    ] {
+        // Apparently std::path on Windows doesn't do any of this correction. We could build up a
+        // PathBuf properly, I guess
+        let path = if cfg!(windows) {
+            format!("{}/{}.exe", dir, cmd).replace("/", "\\")
+        } else {
+            format!("{}/{}", dir, cmd)
+        };
+        if std::path::Path::new(&path).exists() {
+            return path;
+        }
     }
+    panic!("Couldn't find the {} executable", cmd);
 }
