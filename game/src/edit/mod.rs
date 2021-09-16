@@ -502,7 +502,7 @@ impl State<App> for SaveEdits {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         if let Outcome::Clicked(x) = self.panel.event(ctx) {
             match x.as_ref() {
-                "Save" | "Overwrite existing proposal" => {
+                "Save" => {
                     let mut edits = app.primary.map.get_edits().clone();
                     edits.edits_name = self.current_name.clone();
                     app.primary.map.must_apply_edits(edits);

@@ -4,12 +4,13 @@ use serde::{Deserialize, Serialize};
 
 use abstutil::Timer;
 use geom::{Circle, Distance, Duration, FindClosest, PolyLine};
-use map_gui::tools::ChooseSomething;
+use map_gui::tools::{grey_out_map, ChooseSomething};
 use map_model::{Path, PathStep, NORMAL_LANE_THICKNESS};
 use sim::{TripEndpoint, TripMode};
 use widgetry::{
     Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, LinePlot,
-    Outcome, Panel, PlotOptions, Series, State, Text, VerticalAlignment, Widget,
+    Outcome, Panel, PlotOptions, Series, SimpleState, State, Text, TextBox, TextExt,
+    VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -453,7 +454,11 @@ impl RouteManagement {
             && Some(&self.current) != self.all.routes.get(current_name);
         Widget::col(vec![
             Widget::row(vec![
-                Line(current_name).into_widget(ctx).centered_vert(),
+                ctx.style()
+                    .btn_plain
+                    .btn()
+                    .label_underlined_text(current_name)
+                    .build_widget(ctx, "rename route"),
                 ctx.style()
                     .btn_outline
                     .text("Start new route")
@@ -538,7 +543,115 @@ impl RouteManagement {
                 self.current = self.all.next(&self.current.name).unwrap().clone();
                 Some(Transition::Keep)
             }
+            "rename route" => Some(Transition::Push(RenameEdits::new_state(
+                ctx,
+                &self.current,
+                &self.all,
+            ))),
             _ => None,
         }
+    }
+}
+
+struct RenameEdits {
+    current_name: String,
+    all_names: HashSet<String>,
+}
+
+impl RenameEdits {
+    fn new_state(
+        ctx: &mut EventCtx,
+        current: &NamedRoute,
+        all: &SavedRoutes,
+    ) -> Box<dyn State<App>> {
+        let panel = Panel::new_builder(Widget::col(vec![
+            Widget::row(vec![
+                Line("Name this route").small_heading().into_widget(ctx),
+                ctx.style().btn_close_widget(ctx),
+            ]),
+            Widget::row(vec![
+                "Name:".text_widget(ctx).centered_vert(),
+                TextBox::default_widget(ctx, "name", current.name.clone()),
+            ]),
+            Text::new().into_widget(ctx).named("warning"),
+            ctx.style()
+                .btn_solid_primary
+                .text("Rename")
+                .hotkey(Key::Enter)
+                .build_def(ctx),
+        ]))
+        .build(ctx);
+        <dyn SimpleState<_>>::new_state(
+            panel,
+            Box::new(RenameEdits {
+                current_name: current.name.clone(),
+                all_names: all.routes.keys().cloned().collect(),
+            }),
+        )
+    }
+}
+
+impl SimpleState<App> for RenameEdits {
+    fn on_click(&mut self, _: &mut EventCtx, _: &mut App, x: &str, panel: &Panel) -> Transition {
+        match x {
+            "close" => Transition::Pop,
+            "Rename" => {
+                let old_name = self.current_name.clone();
+                let new_name = panel.text_box("name");
+                Transition::Multi(vec![
+                    Transition::Pop,
+                    Transition::ModifyState(Box::new(move |state, ctx, app| {
+                        let state = state.downcast_mut::<RoutePlanner>().unwrap();
+                        state.files.all.routes.remove(&old_name);
+                        state.files.current.name = new_name.clone();
+                        state
+                            .files
+                            .all
+                            .routes
+                            .insert(new_name, state.files.current.clone());
+                        state.files.all.save(app);
+                        state.sync_from_file_management(ctx, app);
+                    })),
+                ])
+            }
+            _ => unreachable!(),
+        }
+    }
+
+    fn panel_changed(
+        &mut self,
+        ctx: &mut EventCtx,
+        _: &mut App,
+        panel: &mut Panel,
+    ) -> Option<Transition> {
+        let new_name = panel.text_box("name");
+        let can_save = if new_name != self.current_name && self.all_names.contains(&new_name) {
+            panel.replace(
+                ctx,
+                "warning",
+                Line("A route with this name already exists")
+                    .fg(Color::hex("#FF5E5E"))
+                    .into_widget(ctx),
+            );
+            false
+        } else {
+            panel.replace(ctx, "warning", Text::new().into_widget(ctx));
+            true
+        };
+        panel.replace(
+            ctx,
+            "Rename",
+            ctx.style()
+                .btn_solid_primary
+                .text("Rename")
+                .hotkey(Key::Enter)
+                .disabled(!can_save)
+                .build_def(ctx),
+        );
+        None
+    }
+
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
+        grey_out_map(g, app);
     }
 }
