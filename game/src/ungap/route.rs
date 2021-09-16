@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 use abstutil::Timer;
 use geom::{Circle, Distance, Duration, FindClosest, PolyLine};
-use map_gui::tools::{grey_out_map, ChooseSomething};
+use map_gui::tools::{grey_out_map, ChooseSomething, PopupMsg};
 use map_model::{Path, PathStep, NORMAL_LANE_THICKNESS};
 use sim::{TripEndpoint, TripMode};
 use widgetry::{
@@ -101,7 +101,9 @@ impl State<App> for RoutePlanner {
             self.results = RouteResults::new(ctx, app, self.waypoints.get_waypoints());
         }
 
-        self.results.event(ctx, app);
+        if let Some(t) = self.results.event(ctx, app) {
+            return t;
+        }
 
         if let Some(t) = self.layers.event(ctx, app) {
             return t;
@@ -129,6 +131,9 @@ struct RouteResults {
     hover_on_route_tooltip: Option<Text>,
     draw_route_unzoomed: Drawable,
     draw_route_zoomed: Drawable,
+
+    draw_high_stress: Drawable,
+
     panel: Panel,
 }
 
@@ -136,6 +141,7 @@ impl RouteResults {
     fn new(ctx: &mut EventCtx, app: &App, waypoints: Vec<TripEndpoint>) -> RouteResults {
         let mut unzoomed_batch = GeomBatch::new();
         let mut zoomed_batch = GeomBatch::new();
+        let mut draw_high_stress = GeomBatch::new();
         let map = &app.primary.map;
 
         let mut total_distance = Distance::ZERO;
@@ -159,11 +165,18 @@ impl RouteResults {
                 total_time += path.estimate_duration(map, Some(map_model::MAX_BIKE_SPEED));
 
                 for step in path.get_steps() {
-                    let this_dist = step.as_traversable().get_polyline(map).length();
+                    let this_pl = step.as_traversable().get_polyline(map);
                     match step {
                         PathStep::Lane(l) | PathStep::ContraflowLane(l) => {
                             if map.get_parent(*l).high_stress_for_bikes(map) {
-                                dist_along_high_stress_roads += this_dist;
+                                dist_along_high_stress_roads += this_pl.length();
+
+                                // TODO It'd be nicer to build up contiguous subsets of the path
+                                // that're stressful, and use trace
+                                draw_high_stress.push(
+                                    Color::RED,
+                                    this_pl.make_polygons(5.0 * NORMAL_LANE_THICKNESS),
+                                );
                             }
                         }
                         PathStep::Turn(t) => {
@@ -181,7 +194,7 @@ impl RouteResults {
                             }
                         }
                     }
-                    current_dist += this_dist;
+                    current_dist += this_pl.length();
                 }
 
                 let maybe_pl = path.trace(map);
@@ -213,36 +226,47 @@ impl RouteResults {
         } else {
             ((dist_along_high_stress_roads / total_distance) * 100.0).round()
         };
-        let mut txt = Text::from(Line("Your route").small_heading());
-        txt.add_appended(vec![
-            Line("Distance: ").secondary(),
-            Line(total_distance.to_string(&app.opts.units)),
-        ]);
-        // TODO Hover to see definition of high-stress, and also highlight those segments
-        txt.add_appended(vec![
-            Line(format!(
-                "  {} or {}%",
-                dist_along_high_stress_roads.to_string(&app.opts.units),
-                pct_stressful
-            )),
-            Line(" along high-stress roads").secondary(),
-        ]);
-        txt.add_appended(vec![
-            Line("Estimated time: ").secondary(),
-            Line(total_time.to_string(&app.opts.units)),
-        ]);
-        txt.add_appended(vec![
-            Line("Traffic signals crossed: ").secondary(),
-            Line(num_traffic_signals.to_string()),
-        ]);
-        // TODO Need tooltips and highlighting to explain and show where these are
-        txt.add_appended(vec![
-            Line("Unprotected left turns onto busy roads: ").secondary(),
-            Line(num_unprotected_turns.to_string()),
-        ]);
 
         let panel = Panel::new_builder(Widget::col(vec![
-            txt.into_widget(ctx),
+            Line("Your route").small_heading().into_widget(ctx),
+            Text::from_all(vec![
+                Line("Distance: ").secondary(),
+                Line(total_distance.to_string(&app.opts.units)),
+            ])
+            .into_widget(ctx),
+            Widget::row(vec![
+                Text::from_all(vec![
+                    Line(format!(
+                        "  {} or {}%",
+                        dist_along_high_stress_roads.to_string(&app.opts.units),
+                        pct_stressful
+                    )),
+                    Line(" along ").secondary(),
+                ])
+                .into_widget(ctx)
+                .centered_vert(),
+                ctx.style()
+                    .btn_plain
+                    .btn()
+                    .label_underlined_text("high-stress roads")
+                    .build_def(ctx),
+            ]),
+            Text::from_all(vec![
+                Line("Estimated time: ").secondary(),
+                Line(total_time.to_string(&app.opts.units)),
+            ])
+            .into_widget(ctx),
+            Text::from_all(vec![
+                Line("Traffic signals crossed: ").secondary(),
+                Line(num_traffic_signals.to_string()),
+            ])
+            .into_widget(ctx),
+            // TODO Need tooltips and highlighting to explain and show where these are
+            Text::from_all(vec![
+                Line("Unprotected left turns onto busy roads: ").secondary(),
+                Line(num_unprotected_turns.to_string()),
+            ])
+            .into_widget(ctx),
             Text::from_all(vec![
                 Line("Elevation change: ").secondary(),
                 Line(format!(
@@ -274,6 +298,7 @@ impl RouteResults {
         RouteResults {
             draw_route_unzoomed,
             draw_route_zoomed,
+            draw_high_stress: ctx.upload(draw_high_stress),
             panel,
             paths,
             closest_path_segment,
@@ -282,9 +307,24 @@ impl RouteResults {
         }
     }
 
-    fn event(&mut self, ctx: &mut EventCtx, app: &App) {
-        // No outcomes, just trigger the LinePlot to update hover state
-        self.panel.event(ctx);
+    fn event(&mut self, ctx: &mut EventCtx, app: &App) -> Option<Transition> {
+        match self.panel.event(ctx) {
+            Outcome::Clicked(x) => match x.as_ref() {
+                "high-stress roads" => {
+                    return Some(Transition::Push(PopupMsg::new_state(
+                        ctx,
+                        "High-stress roads",
+                        vec![
+                            "Roads are defined as high-stress for biking if:",
+                            "- they're classified as arterials",
+                            "- they lack dedicated space for biking",
+                        ],
+                    )));
+                }
+                _ => unreachable!(),
+            },
+            _ => {}
+        }
 
         let current_dist_along = self
             .panel
@@ -359,6 +399,8 @@ impl RouteResults {
                 }
             }
         }
+
+        None
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
@@ -373,6 +415,9 @@ impl RouteResults {
         }
         if let Some(ref txt) = self.hover_on_route_tooltip {
             g.draw_mouse_tooltip(txt.clone());
+        }
+        if self.panel.currently_hovering() == Some(&"high-stress roads".to_string()) {
+            g.redraw(&self.draw_high_stress);
         }
     }
 }
