@@ -133,6 +133,7 @@ struct RouteResults {
     draw_route_zoomed: Drawable,
 
     draw_high_stress: Drawable,
+    draw_traffic_signals: Drawable,
 
     panel: Panel,
 }
@@ -142,6 +143,7 @@ impl RouteResults {
         let mut unzoomed_batch = GeomBatch::new();
         let mut zoomed_batch = GeomBatch::new();
         let mut draw_high_stress = GeomBatch::new();
+        let mut draw_traffic_signals = GeomBatch::new();
         let map = &app.primary.map;
 
         let mut total_distance = Distance::ZERO;
@@ -184,6 +186,7 @@ impl RouteResults {
                             elevation_pts.push((current_dist, i.elevation));
                             if i.is_traffic_signal() {
                                 num_traffic_signals += 1;
+                                draw_traffic_signals.push(Color::RED, i.polygon.clone());
                             }
                             if map.is_unprotected_turn(
                                 t.src.road,
@@ -256,11 +259,17 @@ impl RouteResults {
                 Line(total_time.to_string(&app.opts.units)),
             ])
             .into_widget(ctx),
-            Text::from_all(vec![
-                Line("Traffic signals crossed: ").secondary(),
-                Line(num_traffic_signals.to_string()),
-            ])
-            .into_widget(ctx),
+            Widget::row(vec![
+                Line("Traffic signals crossed: ")
+                    .secondary()
+                    .into_widget(ctx)
+                    .centered_vert(),
+                ctx.style()
+                    .btn_plain
+                    .btn()
+                    .label_underlined_text(num_traffic_signals.to_string())
+                    .build_widget(ctx, "traffic signals"),
+            ]),
             // TODO Need tooltips and highlighting to explain and show where these are
             Text::from_all(vec![
                 Line("Unprotected left turns onto busy roads: ").secondary(),
@@ -299,6 +308,7 @@ impl RouteResults {
             draw_route_unzoomed,
             draw_route_zoomed,
             draw_high_stress: ctx.upload(draw_high_stress),
+            draw_traffic_signals: ctx.upload(draw_traffic_signals),
             panel,
             paths,
             closest_path_segment,
@@ -321,6 +331,9 @@ impl RouteResults {
                         ],
                     )));
                 }
+                // No effect. Maybe these should be toggles, so people can pan the map around and
+                // see these in more detail?
+                "traffic signals" => {}
                 _ => unreachable!(),
             },
             _ => {}
@@ -418,6 +431,9 @@ impl RouteResults {
         }
         if self.panel.currently_hovering() == Some(&"high-stress roads".to_string()) {
             g.redraw(&self.draw_high_stress);
+        }
+        if self.panel.currently_hovering() == Some(&"traffic signals".to_string()) {
+            g.redraw(&self.draw_traffic_signals);
         }
     }
 }
