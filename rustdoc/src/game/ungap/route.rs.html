@@ -738,6 +738,46 @@
 <span id="738">738</span>
 <span id="739">739</span>
 <span id="740">740</span>
+<span id="741">741</span>
+<span id="742">742</span>
+<span id="743">743</span>
+<span id="744">744</span>
+<span id="745">745</span>
+<span id="746">746</span>
+<span id="747">747</span>
+<span id="748">748</span>
+<span id="749">749</span>
+<span id="750">750</span>
+<span id="751">751</span>
+<span id="752">752</span>
+<span id="753">753</span>
+<span id="754">754</span>
+<span id="755">755</span>
+<span id="756">756</span>
+<span id="757">757</span>
+<span id="758">758</span>
+<span id="759">759</span>
+<span id="760">760</span>
+<span id="761">761</span>
+<span id="762">762</span>
+<span id="763">763</span>
+<span id="764">764</span>
+<span id="765">765</span>
+<span id="766">766</span>
+<span id="767">767</span>
+<span id="768">768</span>
+<span id="769">769</span>
+<span id="770">770</span>
+<span id="771">771</span>
+<span id="772">772</span>
+<span id="773">773</span>
+<span id="774">774</span>
+<span id="775">775</span>
+<span id="776">776</span>
+<span id="777">777</span>
+<span id="778">778</span>
+<span id="779">779</span>
+<span id="780">780</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashSet</span>};
 
@@ -750,13 +790,15 @@
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">TripEndpoint</span>, <span class="ident">TripMode</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">LinePlot</span>,
-    <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">PlotOptions</span>, <span class="ident">Series</span>, <span class="ident">SimpleState</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextBox</span>, <span class="ident">TextExt</span>,
+    <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">PlotOptions</span>, <span class="ident">Series</span>, <span class="ident">SimpleState</span>, <span class="ident">Slider</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextBox</span>, <span class="ident">TextExt</span>,
     <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::common::InputWaypoints</span>;
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::ungap</span>::{<span class="ident">Layers</span>, <span class="ident">Tab</span>, <span class="ident">TakeLayers</span>};
+
+<span class="kw">const</span> <span class="ident">MAX_AVOID_PARAM</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="number">2.0</span>;
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RoutePlanner</span> {
     <span class="ident">layers</span>: <span class="ident">Layers</span>,
@@ -790,10 +832,32 @@
     }
 
     <span class="kw">fn</span> <span class="ident">update_input_panel</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
+        <span class="kw">let</span> <span class="ident">params</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">routing_params</span>;
         <span class="self">self</span>.<span class="ident">input_panel</span> <span class="op">=</span> <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
             <span class="ident">Tab::Route</span>.<span class="ident">make_header</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
             <span class="self">self</span>.<span class="ident">files</span>.<span class="ident">get_panel_widget</span>(<span class="ident">ctx</span>),
             <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">get_panel_widget</span>(<span class="ident">ctx</span>),
+            <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
+                <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
+                    <span class="string">&quot;Avoid steep hills (&gt; 8% incline)&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
+                    <span class="ident">Slider::area</span>(
+                        <span class="ident">ctx</span>,
+                        <span class="number">100.0</span>,
+                        <span class="ident">params</span>.<span class="ident">avoid_steep_incline_penalty</span> <span class="op">/</span> <span class="ident">MAX_AVOID_PARAM</span>,
+                        <span class="string">&quot;avoid_steep_incline_penalty&quot;</span>,
+                    ),
+                ]),
+                <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
+                    <span class="string">&quot;Avoid high-stress roads&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
+                    <span class="ident">Slider::area</span>(
+                        <span class="ident">ctx</span>,
+                        <span class="number">100.0</span>,
+                        <span class="ident">params</span>.<span class="ident">avoid_high_stress</span> <span class="op">/</span> <span class="ident">MAX_AVOID_PARAM</span>,
+                        <span class="string">&quot;avoid_high_stress&quot;</span>,
+                    ),
+                ]),
+            ])
+            .<span class="ident">section</span>(<span class="ident">ctx</span>),
         ]))
         .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::Left</span>, <span class="ident">VerticalAlignment::Top</span>)
         <span class="comment">// Hovering on a card</span>
@@ -831,6 +895,19 @@
                     <span class="self">self</span>.<span class="ident">sync_from_file_management</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
                 }
                 <span class="kw">return</span> <span class="ident">t</span>;
+            }
+        }
+        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome::Changed</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) <span class="op">=</span> <span class="ident">outcome</span> {
+            <span class="kw">if</span> <span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;avoid_steep_incline_penalty&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;avoid_high_stress&quot;</span> {
+                <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">routing_params</span>.<span class="ident">avoid_steep_incline_penalty</span> <span class="op">=</span> <span class="ident">MAX_AVOID_PARAM</span>
+                    <span class="op">*</span> <span class="self">self</span>
+                        .<span class="ident">input_panel</span>
+                        .<span class="ident">slider</span>(<span class="string">&quot;avoid_steep_incline_penalty&quot;</span>)
+                        .<span class="ident">get_percent</span>();
+                <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">routing_params</span>.<span class="ident">avoid_high_stress</span> <span class="op">=</span>
+                    <span class="ident">MAX_AVOID_PARAM</span> <span class="op">*</span> <span class="self">self</span>.<span class="ident">input_panel</span>.<span class="ident">slider</span>(<span class="string">&quot;avoid_high_stress&quot;</span>).<span class="ident">get_percent</span>();
+                <span class="self">self</span>.<span class="ident">results</span> <span class="op">=</span> <span class="ident">RouteResults::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">get_waypoints</span>());
+                <span class="kw">return</span> <span class="ident">Transition::Keep</span>;
             }
         }
         <span class="comment">// Send all other outcomes here</span>
@@ -904,7 +981,10 @@
 
         <span class="kw">for</span> <span class="ident">pair</span> <span class="kw">in</span> <span class="ident">waypoints</span>.<span class="ident">windows</span>(<span class="number">2</span>) {
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">path</span>) <span class="op">=</span> <span class="ident">TripEndpoint::path_req</span>(<span class="ident">pair</span>[<span class="number">0</span>], <span class="ident">pair</span>[<span class="number">1</span>], <span class="ident">TripMode::Bike</span>, <span class="ident">map</span>)
-                .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">req</span><span class="op">|</span> <span class="ident">map</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>).<span class="ident">ok</span>())
+                .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">req</span><span class="op">|</span> {
+                    <span class="ident">map</span>.<span class="ident">pathfind_with_params</span>(<span class="ident">req</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">routing_params</span>)
+                        .<span class="ident">ok</span>()
+                })
             {
                 <span class="ident">total_distance</span> <span class="op">+</span><span class="op">=</span> <span class="ident">path</span>.<span class="ident">total_length</span>();
                 <span class="ident">total_time</span> <span class="op">+</span><span class="op">=</span> <span class="ident">path</span>.<span class="ident">estimate_duration</span>(<span class="ident">map</span>, <span class="prelude-val">Some</span>(<span class="ident">map_model::MAX_BIKE_SPEED</span>));
