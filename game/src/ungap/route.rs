@@ -134,6 +134,7 @@ struct RouteResults {
 
     draw_high_stress: Drawable,
     draw_traffic_signals: Drawable,
+    draw_unprotected_turns: Drawable,
 
     panel: Panel,
 }
@@ -144,6 +145,7 @@ impl RouteResults {
         let mut zoomed_batch = GeomBatch::new();
         let mut draw_high_stress = GeomBatch::new();
         let mut draw_traffic_signals = GeomBatch::new();
+        let mut draw_unprotected_turns = GeomBatch::new();
         let map = &app.primary.map;
 
         let mut total_distance = Distance::ZERO;
@@ -194,6 +196,7 @@ impl RouteResults {
                                 map.get_t(*t).turn_type,
                             ) {
                                 num_unprotected_turns += 1;
+                                draw_unprotected_turns.push(Color::RED, i.polygon.clone());
                             }
                         }
                     }
@@ -270,12 +273,17 @@ impl RouteResults {
                     .label_underlined_text(num_traffic_signals.to_string())
                     .build_widget(ctx, "traffic signals"),
             ]),
-            // TODO Need tooltips and highlighting to explain and show where these are
-            Text::from_all(vec![
-                Line("Unprotected left turns onto busy roads: ").secondary(),
-                Line(num_unprotected_turns.to_string()),
-            ])
-            .into_widget(ctx),
+            Widget::row(vec![
+                Line("Unprotected left turns onto busy roads: ")
+                    .secondary()
+                    .into_widget(ctx)
+                    .centered_vert(),
+                ctx.style()
+                    .btn_plain
+                    .btn()
+                    .label_underlined_text(num_unprotected_turns.to_string())
+                    .build_widget(ctx, "unprotected turns"),
+            ]),
             Text::from_all(vec![
                 Line("Elevation change: ").secondary(),
                 Line(format!(
@@ -309,6 +317,7 @@ impl RouteResults {
             draw_route_zoomed,
             draw_high_stress: ctx.upload(draw_high_stress),
             draw_traffic_signals: ctx.upload(draw_traffic_signals),
+            draw_unprotected_turns: ctx.upload(draw_unprotected_turns),
             panel,
             paths,
             closest_path_segment,
@@ -334,6 +343,7 @@ impl RouteResults {
                 // No effect. Maybe these should be toggles, so people can pan the map around and
                 // see these in more detail?
                 "traffic signals" => {}
+                "unprotected turns" => {}
                 _ => unreachable!(),
             },
             _ => {}
@@ -434,6 +444,9 @@ impl RouteResults {
         }
         if self.panel.currently_hovering() == Some(&"traffic signals".to_string()) {
             g.redraw(&self.draw_traffic_signals);
+        }
+        if self.panel.currently_hovering() == Some(&"unprotected turns".to_string()) {
+            g.redraw(&self.draw_unprotected_turns);
         }
     }
 }
