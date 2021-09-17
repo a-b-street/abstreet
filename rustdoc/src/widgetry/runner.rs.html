@@ -463,6 +463,23 @@
 <span id="463">463</span>
 <span id="464">464</span>
 <span id="465">465</span>
+<span id="466">466</span>
+<span id="467">467</span>
+<span id="468">468</span>
+<span id="469">469</span>
+<span id="470">470</span>
+<span id="471">471</span>
+<span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
+<span id="476">476</span>
+<span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
+<span id="482">482</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::cell::Cell</span>;
 <span class="kw">use</span> <span class="ident">std::panic</span>;
@@ -573,12 +590,28 @@
                 <span class="ident">prerender</span>,
                 <span class="ident">style</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">style</span>,
                 <span class="ident">updates_requested</span>: <span class="macro">vec!</span>[],
+                <span class="ident">canvas_movement_called</span>: <span class="bool-val">false</span>,
             };
             <span class="kw">let</span> <span class="ident">started</span> <span class="op">=</span> <span class="ident">Instant::now</span>();
             <span class="self">self</span>.<span class="ident">app</span>.<span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ctx</span>);
             <span class="kw">if</span> <span class="ident">DEBUG_PERFORMANCE</span> {
                 <span class="macro">println!</span>(<span class="string">&quot;- event() took {}s&quot;</span>, <span class="ident">elapsed_seconds</span>(<span class="ident">started</span>));
             }
+
+            <span class="comment">// If the user is dragging the canvas, but then another UI state interrupts things</span>
+            <span class="comment">// (like a panel popping up that blocks the canvas) and canvas_movement() isn&#39;t called</span>
+            <span class="comment">// for this event, then cancel the drag.</span>
+            <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">drag_canvas_from</span>.<span class="ident">is_some</span>() <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">ctx</span>.<span class="ident">canvas_movement_called</span> {
+                <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">drag_canvas_from</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+                <span class="comment">// TODO When the user releases the mouse button, it&#39;ll count as</span>
+                <span class="comment">// normal_left_click(). An example why this is a bug:</span>
+                <span class="comment">//</span>
+                <span class="comment">// 1) Start dragging the map in A/B Street&#39;s sandbox mode</span>
+                <span class="comment">// 2) Press escape, bringing up a menu</span>
+                <span class="comment">// 3) Release the mouse while hovering off of the panel</span>
+                <span class="comment">// This counts as clicking &quot;off the panel&quot; and closes it immediately.</span>
+            }
+
             <span class="comment">// TODO We should always do has_been_consumed, but various hacks prevent this from being</span>
             <span class="comment">// true. For now, just avoid the specific annoying redraw case when a KeyRelease event</span>
             <span class="comment">// is unused.</span>
@@ -805,6 +838,7 @@
         <span class="ident">prerender</span>: <span class="kw-2">&amp;</span><span class="ident">prerender</span>,
         <span class="ident">style</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">style</span>,
         <span class="ident">updates_requested</span>: <span class="macro">vec!</span>[],
+        <span class="ident">canvas_movement_called</span>: <span class="bool-val">false</span>,
     });
     <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;setup app&quot;</span>);
     <span class="kw">let</span> <span class="ident">app</span> <span class="op">=</span> <span class="ident">App</span> {
