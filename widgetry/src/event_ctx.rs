@@ -34,6 +34,7 @@ pub struct EventCtx<'a> {
     pub prerender: &'a Prerender,
     pub(crate) style: &'a mut Style,
     pub(crate) updates_requested: Vec<UpdateType>,
+    pub(crate) canvas_movement_called: bool,
 }
 
 impl<'a> EventCtx<'a> {
@@ -63,6 +64,7 @@ impl<'a> EventCtx<'a> {
     /// auto-pan at the edge of the screen, using arrow keys, etc) depend on options set. Returns
     /// true if the canvas moved at all.
     pub fn canvas_movement(&mut self) -> bool {
+        self.canvas_movement_called = true;
         let prev = (self.canvas.cam_x, self.canvas.cam_y, self.canvas.cam_zoom);
         self.updates_requested
             .extend(self.canvas.handle_event(&mut self.input));
@@ -82,6 +84,7 @@ impl<'a> EventCtx<'a> {
             prerender: self.prerender,
             style: self.style,
             updates_requested: vec![],
+            canvas_movement_called: false,
         };
         let result = cb(&mut tmp);
         self.updates_requested.extend(tmp.updates_requested);
@@ -269,6 +272,7 @@ impl<'a> LoadingScreen<'a> {
             prerender: self.prerender,
             style: &mut self.style,
             updates_requested: vec![],
+            canvas_movement_called: false,
         };
 
         let mut txt = Text::from(Line(&self.title).small_heading());

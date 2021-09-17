@@ -107,12 +107,28 @@ impl<A: SharedAppState> State<A> {
                 prerender,
                 style: &mut self.style,
                 updates_requested: vec![],
+                canvas_movement_called: false,
             };
             let started = Instant::now();
             self.app.event(&mut ctx);
             if DEBUG_PERFORMANCE {
                 println!("- event() took {}s", elapsed_seconds(started));
             }
+
+            // If the user is dragging the canvas, but then another UI state interrupts things
+            // (like a panel popping up that blocks the canvas) and canvas_movement() isn't called
+            // for this event, then cancel the drag.
+            if ctx.canvas.drag_canvas_from.is_some() && !ctx.canvas_movement_called {
+                ctx.canvas.drag_canvas_from = None;
+                // TODO When the user releases the mouse button, it'll count as
+                // normal_left_click(). An example why this is a bug:
+                //
+                // 1) Start dragging the map in A/B Street's sandbox mode
+                // 2) Press escape, bringing up a menu
+                // 3) Release the mouse while hovering off of the panel
+                // This counts as clicking "off the panel" and closes it immediately.
+            }
+
             // TODO We should always do has_been_consumed, but various hacks prevent this from being
             // true. For now, just avoid the specific annoying redraw case when a KeyRelease event
             // is unused.
@@ -339,6 +355,7 @@ pub fn run<
         prerender: &prerender,
         style: &mut style,
         updates_requested: vec![],
+        canvas_movement_called: false,
     });
     timer.stop("setup app");
     let app = App {
