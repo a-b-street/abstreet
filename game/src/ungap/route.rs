@@ -9,13 +9,15 @@ use map_model::{Path, PathStep, NORMAL_LANE_THICKNESS};
 use sim::{TripEndpoint, TripMode};
 use widgetry::{
     Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, LinePlot,
-    Outcome, Panel, PlotOptions, Series, SimpleState, State, Text, TextBox, TextExt,
+    Outcome, Panel, PlotOptions, Series, SimpleState, Slider, State, Text, TextBox, TextExt,
     VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
 use crate::common::InputWaypoints;
 use crate::ungap::{Layers, Tab, TakeLayers};
+
+const MAX_AVOID_PARAM: f64 = 2.0;
 
 pub struct RoutePlanner {
     layers: Layers,
@@ -49,10 +51,32 @@ impl RoutePlanner {
     }
 
     fn update_input_panel(&mut self, ctx: &mut EventCtx, app: &App) {
+        let params = &app.session.routing_params;
         self.input_panel = Panel::new_builder(Widget::col(vec![
             Tab::Route.make_header(ctx, app),
             self.files.get_panel_widget(ctx),
             self.waypoints.get_panel_widget(ctx),
+            Widget::col(vec![
+                Widget::row(vec![
+                    "Avoid steep hills (> 8% incline)".text_widget(ctx),
+                    Slider::area(
+                        ctx,
+                        100.0,
+                        params.avoid_steep_incline_penalty / MAX_AVOID_PARAM,
+                        "avoid_steep_incline_penalty",
+                    ),
+                ]),
+                Widget::row(vec![
+                    "Avoid high-stress roads".text_widget(ctx),
+                    Slider::area(
+                        ctx,
+                        100.0,
+                        params.avoid_high_stress / MAX_AVOID_PARAM,
+                        "avoid_high_stress",
+                    ),
+                ]),
+            ])
+            .section(ctx),
         ]))
         .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
         // Hovering on a card
@@ -90,6 +114,19 @@ impl State<App> for RoutePlanner {
                     self.sync_from_file_management(ctx, app);
                 }
                 return t;
+            }
+        }
+        if let Outcome::Changed(ref x) = outcome {
+            if x == "avoid_steep_incline_penalty" || x == "avoid_high_stress" {
+                app.session.routing_params.avoid_steep_incline_penalty = MAX_AVOID_PARAM
+                    * self
+                        .input_panel
+                        .slider("avoid_steep_incline_penalty")
+                        .get_percent();
+                app.session.routing_params.avoid_high_stress =
+                    MAX_AVOID_PARAM * self.input_panel.slider("avoid_high_stress").get_percent();
+                self.results = RouteResults::new(ctx, app, self.waypoints.get_waypoints());
+                return Transition::Keep;
             }
         }
         // Send all other outcomes here
@@ -163,7 +200,10 @@ impl RouteResults {
 
         for pair in waypoints.windows(2) {
             if let Some(path) = TripEndpoint::path_req(pair[0], pair[1], TripMode::Bike, map)
-                .and_then(|req| map.pathfind(req).ok())
+                .and_then(|req| {
+                    map.pathfind_with_params(req, &app.session.routing_params)
+                        .ok()
+                })
             {
                 total_distance += path.total_length();
                 total_time += path.estimate_duration(map, Some(map_model::MAX_BIKE_SPEED));

@@ -14,7 +14,7 @@ use map_gui::render::{unzoomed_agent_radius, AgentCache, DrawMap, DrawOptions, R
 use map_gui::tools::CameraState;
 use map_gui::ID;
 use map_model::AreaType;
-use map_model::{BufferType, IntersectionID, LaneType, Map, Traversable};
+use map_model::{BufferType, IntersectionID, LaneType, Map, RoutingParams, Traversable};
 use sim::{AgentID, Analytics, Scenario, Sim, SimCallback, SimFlags, VehicleType};
 use widgetry::{Cached, Canvas, Drawable, EventCtx, GfxCtx, Prerender, SharedAppState, State};
 
@@ -728,8 +728,11 @@ pub struct SessionState {
     pub info_panel_tab: BTreeMap<&'static str, &'static str>,
     pub last_gmns_timing_csv: Option<String>,
     pub dash_tab: DashTab,
-    pub elevation_contours: Cached<MapName, (FindClosest<Distance>, Drawable)>,
     pub buffer_lane_type: LaneType,
+
+    // Specific to the ungap tool
+    pub elevation_contours: Cached<MapName, (FindClosest<Distance>, Drawable)>,
+    pub routing_params: RoutingParams,
 }
 
 impl SessionState {
@@ -746,8 +749,10 @@ impl SessionState {
             },
             last_gmns_timing_csv: None,
             dash_tab: DashTab::TripTable,
-            elevation_contours: Cached::new(),
             buffer_lane_type: LaneType::Buffer(BufferType::Stripes),
+
+            elevation_contours: Cached::new(),
+            routing_params: RoutingParams::default(),
         }
     }
 }
