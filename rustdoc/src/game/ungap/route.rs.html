@@ -716,6 +716,19 @@
 <span id="716">716</span>
 <span id="717">717</span>
 <span id="718">718</span>
+<span id="719">719</span>
+<span id="720">720</span>
+<span id="721">721</span>
+<span id="722">722</span>
+<span id="723">723</span>
+<span id="724">724</span>
+<span id="725">725</span>
+<span id="726">726</span>
+<span id="727">727</span>
+<span id="728">728</span>
+<span id="729">729</span>
+<span id="730">730</span>
+<span id="731">731</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashSet</span>};
 
@@ -853,6 +866,7 @@
 
     <span class="ident">draw_high_stress</span>: <span class="ident">Drawable</span>,
     <span class="ident">draw_traffic_signals</span>: <span class="ident">Drawable</span>,
+    <span class="ident">draw_unprotected_turns</span>: <span class="ident">Drawable</span>,
 
     <span class="ident">panel</span>: <span class="ident">Panel</span>,
 }
@@ -863,6 +877,7 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">zoomed_batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">draw_high_stress</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">draw_traffic_signals</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">draw_unprotected_turns</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
         <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>;
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">total_distance</span> <span class="op">=</span> <span class="ident">Distance::ZERO</span>;
@@ -913,6 +928,7 @@
                                 <span class="ident">map</span>.<span class="ident">get_t</span>(<span class="kw-2">*</span><span class="ident">t</span>).<span class="ident">turn_type</span>,
                             ) {
                                 <span class="ident">num_unprotected_turns</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+                                <span class="ident">draw_unprotected_turns</span>.<span class="ident">push</span>(<span class="ident">Color::RED</span>, <span class="ident">i</span>.<span class="ident">polygon</span>.<span class="ident">clone</span>());
                             }
                         }
                     }
@@ -989,12 +1005,17 @@
                     .<span class="ident">label_underlined_text</span>(<span class="ident">num_traffic_signals</span>.<span class="ident">to_string</span>())
                     .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;traffic signals&quot;</span>),
             ]),
-            <span class="comment">// TODO Need tooltips and highlighting to explain and show where these are</span>
-            <span class="ident">Text::from_all</span>(<span class="macro">vec!</span>[
-                <span class="ident">Line</span>(<span class="string">&quot;Unprotected left turns onto busy roads: &quot;</span>).<span class="ident">secondary</span>(),
-                <span class="ident">Line</span>(<span class="ident">num_unprotected_turns</span>.<span class="ident">to_string</span>()),
-            ])
-            .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
+                <span class="ident">Line</span>(<span class="string">&quot;Unprotected left turns onto busy roads: &quot;</span>)
+                    .<span class="ident">secondary</span>()
+                    .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
+                    .<span class="ident">centered_vert</span>(),
+                <span class="ident">ctx</span>.<span class="ident">style</span>()
+                    .<span class="ident">btn_plain</span>
+                    .<span class="ident">btn</span>()
+                    .<span class="ident">label_underlined_text</span>(<span class="ident">num_unprotected_turns</span>.<span class="ident">to_string</span>())
+                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;unprotected turns&quot;</span>),
+            ]),
             <span class="ident">Text::from_all</span>(<span class="macro">vec!</span>[
                 <span class="ident">Line</span>(<span class="string">&quot;Elevation change: &quot;</span>).<span class="ident">secondary</span>(),
                 <span class="ident">Line</span>(<span class="macro">format!</span>(
@@ -1028,6 +1049,7 @@
             <span class="ident">draw_route_zoomed</span>,
             <span class="ident">draw_high_stress</span>: <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">draw_high_stress</span>),
             <span class="ident">draw_traffic_signals</span>: <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">draw_traffic_signals</span>),
+            <span class="ident">draw_unprotected_turns</span>: <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">draw_unprotected_turns</span>),
             <span class="ident">panel</span>,
             <span class="ident">paths</span>,
             <span class="ident">closest_path_segment</span>,
@@ -1053,6 +1075,7 @@
                 <span class="comment">// No effect. Maybe these should be toggles, so people can pan the map around and</span>
                 <span class="comment">// see these in more detail?</span>
                 <span class="string">&quot;traffic signals&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {}
+                <span class="string">&quot;unprotected turns&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {}
                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
             },
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
@@ -1153,6 +1176,9 @@
         }
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">currently_hovering</span>() <span class="op">=</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="string">&quot;traffic signals&quot;</span>.<span class="ident">to_string</span>()) {
             <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">draw_traffic_signals</span>);
+        }
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">currently_hovering</span>() <span class="op">=</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="string">&quot;unprotected turns&quot;</span>.<span class="ident">to_string</span>()) {
+            <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">draw_unprotected_turns</span>);
         }
     }
 }
