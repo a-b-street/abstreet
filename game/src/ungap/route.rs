@@ -487,16 +487,25 @@ impl SavedRoutes {
     }
 
     fn prev(&self, current: &str) -> Option<&NamedRoute> {
-        self.routes
-            .range(..current.to_string())
-            .next_back()
-            .map(|pair| pair.1)
+        // Pretend unsaved routes are at the end of the list
+        if self.routes.contains_key(current) {
+            self.routes
+                .range(..current.to_string())
+                .next_back()
+                .map(|pair| pair.1)
+        } else {
+            self.routes.values().last()
+        }
     }
 
     fn next(&self, current: &str) -> Option<&NamedRoute> {
-        let mut iter = self.routes.range(current.to_string()..);
-        iter.next();
-        iter.next().map(|pair| pair.1)
+        if self.routes.contains_key(current) {
+            let mut iter = self.routes.range(current.to_string()..);
+            iter.next();
+            iter.next().map(|pair| pair.1)
+        } else {
+            None
+        }
     }
 
     fn new_name(&self) -> String {
