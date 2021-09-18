@@ -1,4 +1,4 @@
-use geom::{Circle, Distance, FindClosest, Polygon, Pt2D};
+use geom::{Circle, Distance, FindClosest, Polygon};
 use sim::TripEndpoint;
 use widgetry::{
     Color, ControlState, CornerRounding, DragDrop, Drawable, EventCtx, GeomBatch, GfxCtx, Image,
@@ -26,7 +26,6 @@ struct Waypoint {
     at: TripEndpoint,
     label: String,
     hitbox: Polygon,
-    center: Pt2D,
 }
 
 fn get_waypoint_text(idx: usize) -> char {
@@ -229,14 +228,14 @@ impl InputWaypoints {
         let mut batch = GeomBatch::new();
         for (idx, waypt) in self.waypoints.iter().enumerate() {
             let color = self.get_waypoint_color(idx);
+            let text = get_waypoint_text(idx);
 
             let mut geom = GeomBatch::new();
             geom.push(color, waypt.hitbox.clone());
-            let text = get_waypoint_text(idx);
             geom.append(
                 Text::from(Line(format!("{}", text)).fg(Color::WHITE))
                     .render(ctx)
-                    .centered_on(waypt.center),
+                    .centered_on(waypt.hitbox.center()),
             );
 
             batch.append(geom);
@@ -299,12 +298,6 @@ impl Waypoint {
         };
 
         let hitbox = Circle::new(center, Distance::meters(30.0)).to_polygon();
-
-        Waypoint {
-            at,
-            label,
-            hitbox,
-            center,
-        }
+        Waypoint { at, label, hitbox }
     }
 }
