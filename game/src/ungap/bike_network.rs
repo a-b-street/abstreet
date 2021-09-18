@@ -1,7 +1,7 @@
 use std::cell::RefCell;
 use std::collections::HashMap;
 
-use geom::{Circle, Distance};
+use geom::{Circle, Distance, PolyLine};
 use map_model::{LaneType, PathConstraints, Road};
 use widgetry::{Color, Drawable, Fill, GeomBatch, GfxCtx, Texture};
 
@@ -114,7 +114,21 @@ impl DrawNetworkLayer {
                 // Painted bike lane is just a solid line
                 batch.push(color, r.center_pts.make_polygons(width));
             } else if is_greenway(r) {
-                //*GREENWAY
+                // Slanted dashes along the road
+                for (pt, angle) in r
+                    .center_pts
+                    .step_along(Distance::meters(thickness * 10.0), Distance::ZERO)
+                {
+                    batch.push(
+                        color,
+                        PolyLine::must_new(vec![
+                            // Extend past the road
+                            pt.project_away(width, angle.rotate_degs(125.0)),
+                            pt.project_away(width, angle.rotate_degs(-90.0)),
+                        ])
+                        .make_polygons(thickness * Distance::meters(5.0)),
+                    );
+                }
             } else {
                 continue;
             };
