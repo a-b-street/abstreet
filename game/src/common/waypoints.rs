@@ -1,4 +1,4 @@
-use geom::{Circle, Distance, FindClosest, Polygon};
+use geom::{Circle, Distance, FindClosest, Polygon, Pt2D};
 use sim::TripEndpoint;
 use widgetry::{
     Color, ControlState, CornerRounding, DragDrop, Drawable, EventCtx, GeomBatch, GfxCtx, Image,
@@ -23,12 +23,12 @@ pub struct InputWaypoints {
 // TODO Maybe it's been a while and I've forgotten some UI patterns, but this is painfully manual.
 // I think we need a draggable map-space thing.
 struct Waypoint {
-    // TODO Different colors would also be helpful
-    order: char,
+    idx: usize, // TODO(): if waypoints are meant to be organized as Vecs and exposed then the idx should not be known to the waypoint, that is the Vecs job
+    order: char, // TODO(): This is not technically the order, the order is the idx + the containing Vec context - this is just the waypoint Text
     at: TripEndpoint,
     label: String,
-    geom: GeomBatch,
     hitbox: Polygon,
+    center: Pt2D,
 }
 
 impl InputWaypoints {
@@ -55,12 +55,10 @@ impl InputWaypoints {
     }
 
     pub fn overwrite(&mut self, ctx: &mut EventCtx, app: &App, waypoints: Vec<TripEndpoint>) {
-        let total_waypoints = waypoints.len();
         self.waypoints.clear();
         for at in waypoints {
             let idx = self.waypoints.len();
-            self.waypoints
-                .push(Waypoint::new(ctx, app, at, idx, total_waypoints));
+            self.waypoints.push(Waypoint::new(app, at, idx));
         }
         self.update_waypoints_drawable(ctx);
         self.update_hover(ctx);
@@ -177,13 +175,8 @@ impl InputWaypoints {
                     if let Some((at, _)) =
                         self.snap_to_endpts.closest_pt(pt, Distance::meters(30.0))
                     {
-                        self.waypoints.push(Waypoint::new(
-                            ctx,
-                            app,
-                            at,
-                            self.waypoints.len(),
-                            self.waypoints.len(),
-                        ));
+                        self.waypoints
+                            .push(Waypoint::new(app, at, self.waypoints.len()));
                         self.update_waypoints_drawable(ctx);
                         self.update_hover(ctx);
                         return true;
@@ -195,12 +188,11 @@ impl InputWaypoints {
         match outcome {
             Outcome::Clicked(x) => {
                 if let Some(x) = x.strip_prefix("delete waypoint ") {
-                    let total_waypoints = self.waypoints.len();
                     let idx = x.parse::<usize>().unwrap();
                     self.waypoints.remove(idx);
                     // Recalculate labels, in case we deleted in the middle
                     for (idx, waypt) in self.waypoints.iter_mut().enumerate() {
-                        *waypt = Waypoint::new(ctx, app, waypt.at, idx, total_waypoints);
+                        *waypt = Waypoint::new(app, waypt.at, idx);
                     }
 
                     self.update_waypoints_drawable(ctx);
@@ -229,8 +221,41 @@ impl InputWaypoints {
 
     fn update_waypoints_drawable(&mut self, ctx: &mut EventCtx) {
         let mut batch = GeomBatch::new();
+        let total_waypoints = self.waypoints.len();
         for waypt in &self.waypoints {
-            batch.append(waypt.geom.clone());
+            let idx = waypt.idx;
+            let geom = {
+                let wp = {
+                    match idx {
+                        0 => WaypointPosition::Start,
+                        idx if idx == total_waypoints - 1 => WaypointPosition::End,
+                        // technically this includes the case where idx >= total_waypoints which should hopefully never happen
+                        _ => WaypointPosition::Middle,
+                    }
+                };
+
+                let color = {
+                    match wp {
+                        WaypointPosition::Start => Color::GREEN,
+                        WaypointPosition::End => Color::RED,
+                        WaypointPosition::Middle => {
+                            [Color::BLUE, Color::ORANGE, Color::PURPLE][idx % 3]
+                        }
+                    }
+                };
+
+                let mut geom = GeomBatch::new();
+
+                geom.push(color, waypt.hitbox.clone());
+                geom.append(
+                    Text::from(Line(format!("{}", waypt.order)).fg(Color::WHITE))
+                        .render(ctx)
+                        .centered_on(waypt.center),
+                );
+
+                geom
+            };
+            batch.append(geom);
         }
         self.draw_waypoints = ctx.upload(batch);
     }
@@ -260,7 +285,7 @@ impl InputWaypoints {
         let mut changed = false;
         let idx = self.hovering_on_waypt.unwrap();
         if self.waypoints[idx].at != at {
-            self.waypoints[idx] = Waypoint::new(ctx, app, at, idx, self.waypoints.len());
+            self.waypoints[idx] = Waypoint::new(app, at, idx);
             self.update_waypoints_drawable(ctx);
             changed = true;
         }
@@ -281,13 +306,7 @@ enum WaypointPosition {
 }
 
 impl Waypoint {
-    fn new(
-        ctx: &mut EventCtx,
-        app: &App,
-        at: TripEndpoint,
-        idx: usize,
-        total_waypoints: usize,
-    ) -> Waypoint {
+    fn new(app: &App, at: TripEndpoint, idx: usize) -> Waypoint {
         let order = char::from_u32('A' as u32 + idx as u32).unwrap();
         let map = &app.primary.map;
         let (center, label) = match at {
@@ -301,40 +320,16 @@ impl Waypoint {
             }
             TripEndpoint::SuddenlyAppear(pos) => (pos.pt(map), pos.to_string()),
         };
-        let circle = Circle::new(center, Distance::meters(30.0)).to_polygon();
-        let mut geom = GeomBatch::new();
 
-        let wp = {
-            match &idx {
-                0 => WaypointPosition::Start,
-                last_index if idx == &total_waypoints - 1 => WaypointPosition::End,
-                // technically this includes the case where idx >= total_waypoints which should hopefully never happen
-                _ => WaypointPosition::Middle,
-            }
-        };
-
-        let color = {
-            match &wp {
-                WaypointPosition::Start => Color::GREEN,
-                WaypointPosition::End => Color::RED,
-                &WaypointPosition::Middle => [Color::BLUE, Color::ORANGE, Color::PURPLE][idx % 3],
-            }
-        };
-
-        geom.push(color, circle.clone());
-        geom.append(
-            Text::from(Line(format!("{}", order)).fg(Color::WHITE))
-                .render(ctx)
-                .centered_on(center),
-        );
-        let hitbox = circle;
+        let hitbox = Circle::new(center, Distance::meters(30.0)).to_polygon();
 
         Waypoint {
+            idx,
             order,
             at,
             label,
-            geom,
             hitbox,
+            center,
         }
     }
 }
