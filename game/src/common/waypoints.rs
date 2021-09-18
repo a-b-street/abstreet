@@ -23,8 +23,6 @@ pub struct InputWaypoints {
 // TODO Maybe it's been a while and I've forgotten some UI patterns, but this is painfully manual.
 // I think we need a draggable map-space thing.
 struct Waypoint {
-    idx: usize, // TODO(): if waypoints are meant to be organized as Vecs and exposed then the idx should not be known to the waypoint, that is the Vecs job
-    order: char, // TODO(): This is not technically the order, the order is the idx + the containing Vec context - this is just the waypoint Text
     at: TripEndpoint,
     label: String,
     hitbox: Polygon,
@@ -57,8 +55,7 @@ impl InputWaypoints {
     pub fn overwrite(&mut self, ctx: &mut EventCtx, app: &App, waypoints: Vec<TripEndpoint>) {
         self.waypoints.clear();
         for at in waypoints {
-            let idx = self.waypoints.len();
-            self.waypoints.push(Waypoint::new(app, at, idx));
+            self.waypoints.push(Waypoint::new(app, at));
         }
         self.update_waypoints_drawable(ctx);
         self.update_hover(ctx);
@@ -69,8 +66,9 @@ impl InputWaypoints {
         let mut delete_buttons = Vec::new();
 
         for (idx, waypt) in self.waypoints.iter().enumerate() {
+            let order = char::from_u32('A' as u32 + idx as u32).unwrap();
             let icon = {
-                let text = Text::from(Line(waypt.order.to_string()).fg(Color::WHITE).bold_body());
+                let text = Text::from(Line(order.to_string()).fg(Color::WHITE).bold_body());
                 let batch = text.render(ctx);
                 let bounds = batch.get_bounds();
                 let image = Image::from_batch(batch, bounds)
@@ -175,8 +173,7 @@ impl InputWaypoints {
                     if let Some((at, _)) =
                         self.snap_to_endpts.closest_pt(pt, Distance::meters(30.0))
                     {
-                        self.waypoints
-                            .push(Waypoint::new(app, at, self.waypoints.len()));
+                        self.waypoints.push(Waypoint::new(app, at));
                         self.update_waypoints_drawable(ctx);
                         self.update_hover(ctx);
                         return true;
@@ -191,8 +188,8 @@ impl InputWaypoints {
                     let idx = x.parse::<usize>().unwrap();
                     self.waypoints.remove(idx);
                     // Recalculate labels, in case we deleted in the middle
-                    for (idx, waypt) in self.waypoints.iter_mut().enumerate() {
-                        *waypt = Waypoint::new(app, waypt.at, idx);
+                    for waypt in self.waypoints.iter_mut() {
+                        *waypt = Waypoint::new(app, waypt.at);
                     }
 
                     self.update_waypoints_drawable(ctx);
@@ -222,8 +219,7 @@ impl InputWaypoints {
     fn update_waypoints_drawable(&mut self, ctx: &mut EventCtx) {
         let mut batch = GeomBatch::new();
         let total_waypoints = self.waypoints.len();
-        for waypt in &self.waypoints {
-            let idx = waypt.idx;
+        for (idx, waypt) in &mut self.waypoints.iter().enumerate() {
             let geom = {
                 let wp = {
                     match idx {
@@ -247,8 +243,10 @@ impl InputWaypoints {
                 let mut geom = GeomBatch::new();
 
                 geom.push(color, waypt.hitbox.clone());
+
+                let order = char::from_u32('A' as u32 + idx as u32).unwrap();
                 geom.append(
-                    Text::from(Line(format!("{}", waypt.order)).fg(Color::WHITE))
+                    Text::from(Line(format!("{}", order)).fg(Color::WHITE))
                         .render(ctx)
                         .centered_on(waypt.center),
                 );
@@ -285,7 +283,7 @@ impl InputWaypoints {
         let mut changed = false;
         let idx = self.hovering_on_waypt.unwrap();
         if self.waypoints[idx].at != at {
-            self.waypoints[idx] = Waypoint::new(app, at, idx);
+            self.waypoints[idx] = Waypoint::new(app, at);
             self.update_waypoints_drawable(ctx);
             changed = true;
         }
@@ -306,8 +304,7 @@ enum WaypointPosition {
 }
 
 impl Waypoint {
-    fn new(app: &App, at: TripEndpoint, idx: usize) -> Waypoint {
-        let order = char::from_u32('A' as u32 + idx as u32).unwrap();
+    fn new(app: &App, at: TripEndpoint) -> Waypoint {
         let map = &app.primary.map;
         let (center, label) = match at {
             TripEndpoint::Bldg(b) => {
@@ -324,8 +321,6 @@ impl Waypoint {
         let hitbox = Circle::new(center, Distance::meters(30.0)).to_polygon();
 
         Waypoint {
-            idx,
-            order,
             at,
             label,
             hitbox,
