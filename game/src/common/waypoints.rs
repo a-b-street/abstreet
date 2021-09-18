@@ -55,10 +55,12 @@ impl InputWaypoints {
     }
 
     pub fn overwrite(&mut self, ctx: &mut EventCtx, app: &App, waypoints: Vec<TripEndpoint>) {
+        let total_waypoints = waypoints.len();
         self.waypoints.clear();
         for at in waypoints {
+            let idx = self.waypoints.len();
             self.waypoints
-                .push(Waypoint::new(ctx, app, at, self.waypoints.len()));
+                .push(Waypoint::new(ctx, app, at, idx, total_waypoints));
         }
         self.update_waypoints_drawable(ctx);
         self.update_hover(ctx);
@@ -175,8 +177,13 @@ impl InputWaypoints {
                     if let Some((at, _)) =
                         self.snap_to_endpts.closest_pt(pt, Distance::meters(30.0))
                     {
-                        self.waypoints
-                            .push(Waypoint::new(ctx, app, at, self.waypoints.len()));
+                        self.waypoints.push(Waypoint::new(
+                            ctx,
+                            app,
+                            at,
+                            self.waypoints.len(),
+                            self.waypoints.len(),
+                        ));
                         self.update_waypoints_drawable(ctx);
                         self.update_hover(ctx);
                         return true;
@@ -188,11 +195,12 @@ impl InputWaypoints {
         match outcome {
             Outcome::Clicked(x) => {
                 if let Some(x) = x.strip_prefix("delete waypoint ") {
+                    let total_waypoints = self.waypoints.len();
                     let idx = x.parse::<usize>().unwrap();
                     self.waypoints.remove(idx);
                     // Recalculate labels, in case we deleted in the middle
                     for (idx, waypt) in self.waypoints.iter_mut().enumerate() {
-                        *waypt = Waypoint::new(ctx, app, waypt.at, idx);
+                        *waypt = Waypoint::new(ctx, app, waypt.at, idx, total_waypoints);
                     }
 
                     self.update_waypoints_drawable(ctx);
@@ -252,7 +260,7 @@ impl InputWaypoints {
         let mut changed = false;
         let idx = self.hovering_on_waypt.unwrap();
         if self.waypoints[idx].at != at {
-            self.waypoints[idx] = Waypoint::new(ctx, app, at, idx);
+            self.waypoints[idx] = Waypoint::new(ctx, app, at, idx, self.waypoints.len());
             self.update_waypoints_drawable(ctx);
             changed = true;
         }
@@ -266,8 +274,20 @@ impl InputWaypoints {
     }
 }
 
+enum WaypointPosition {
+    Start,
+    Middle,
+    End,
+}
+
 impl Waypoint {
-    fn new(ctx: &mut EventCtx, app: &App, at: TripEndpoint, idx: usize) -> Waypoint {
+    fn new(
+        ctx: &mut EventCtx,
+        app: &App,
+        at: TripEndpoint,
+        idx: usize,
+        total_waypoints: usize,
+    ) -> Waypoint {
         let order = char::from_u32('A' as u32 + idx as u32).unwrap();
         let map = &app.primary.map;
         let (center, label) = match at {
@@ -283,7 +303,25 @@ impl Waypoint {
         };
         let circle = Circle::new(center, Distance::meters(30.0)).to_polygon();
         let mut geom = GeomBatch::new();
-        geom.push(Color::RED, circle.clone());
+
+        let wp = {
+            match &idx {
+                0 => WaypointPosition::Start,
+                last_index if idx == &total_waypoints - 1 => WaypointPosition::End,
+                // technically this includes the case where idx >= total_waypoints which should hopefully never happen
+                _ => WaypointPosition::Middle,
+            }
+        };
+
+        let color = {
+            match &wp {
+                WaypointPosition::Start => Color::GREEN,
+                WaypointPosition::End => Color::RED,
+                &WaypointPosition::Middle => [Color::BLUE, Color::ORANGE, Color::PURPLE][idx % 3],
+            }
+        };
+
+        geom.push(color, circle.clone());
         geom.append(
             Text::from(Line(format!("{}", order)).fg(Color::WHITE))
                 .render(ctx)
