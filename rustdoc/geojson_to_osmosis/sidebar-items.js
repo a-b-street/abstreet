@@ -1,1 +1,0 @@
-initSidebarItems({"fn":[["main","Reads GeoJSON input from STDIN, extracts a polygon from every feature, and writes numbered files in the https://wiki.openstreetmap.org/wiki/Osmosis/Polygon_Filter_File_Format format as output."]]});

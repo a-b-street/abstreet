@@ -112,6 +112,7 @@
 <span id="112">112</span>
 <span id="113">113</span>
 <span id="114">114</span>
+<span id="115">115</span>
 </pre><pre class="rust">
 <span class="comment">// TODO This doesn&#39;t really belong in gameplay/freeform</span>
 
@@ -138,7 +139,8 @@
                     <span class="ident">ctx</span>,
                     <span class="bool-val">true</span>,
                     <span class="macro">vec!</span>[
-                        <span class="ident">find_exe</span>(<span class="string">&quot;import_grid2demand&quot;</span>),
+                        <span class="ident">find_exe</span>(<span class="string">&quot;cli&quot;</span>),
+                        <span class="string">&quot;import-grid2-demand&quot;</span>.<span class="ident">to_string</span>(),
                         <span class="macro">format!</span>(<span class="string">&quot;--map={}&quot;</span>, <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">path</span>()),
                         <span class="macro">format!</span>(<span class="string">&quot;--input={}&quot;</span>, <span class="ident">path</span>),
                     ],

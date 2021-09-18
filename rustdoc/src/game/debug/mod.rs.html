@@ -1095,6 +1095,7 @@
 <span id="1095">1095</span>
 <span id="1096">1096</span>
 <span id="1097">1097</span>
+<span id="1098">1098</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 
@@ -2167,7 +2168,8 @@
         <span class="ident">ctx</span>,
         <span class="bool-val">false</span>,
         <span class="macro">vec!</span>[
-            <span class="ident">map_gui::tools::find_exe</span>(<span class="string">&quot;importer&quot;</span>),
+            <span class="ident">map_gui::tools::find_exe</span>(<span class="string">&quot;cli&quot;</span>),
+            <span class="string">&quot;importer&quot;</span>.<span class="ident">to_string</span>(),
             <span class="string">&quot;--map&quot;</span>.<span class="ident">to_string</span>(),
             <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">map</span>.<span class="ident">clone</span>(),
             <span class="macro">format!</span>(<span class="string">&quot;--city={}&quot;</span>, <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">city</span>.<span class="ident">to_path</span>()),
