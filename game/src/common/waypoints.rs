@@ -73,7 +73,7 @@ impl InputWaypoints {
                 let bounds = batch.get_bounds();
                 let image = Image::from_batch(batch, bounds)
                     .untinted()
-                    .bg_color(Color::RED)
+                    .bg_color(self.get_waypoint_color(idx))
                     .padding(10)
                     .dims(16)
                     .corner_rounding(CornerRounding::FullyRounded);
@@ -216,29 +216,29 @@ impl InputWaypoints {
         g.redraw(&self.draw_hover);
     }
 
+    fn get_waypoint_color(&self, idx: usize) -> Color {
+        let total_waypoints = self.waypoints.len();
+        let wp = {
+            match idx {
+                0 => WaypointPosition::Start,
+                idx if idx == total_waypoints - 1 => WaypointPosition::End,
+                // technically this includes the case where idx >= total_waypoints which should hopefully never happen
+                _ => WaypointPosition::Middle,
+            }
+        };
+
+        match wp {
+            WaypointPosition::Start => Color::GREEN,
+            WaypointPosition::End => Color::RED,
+            WaypointPosition::Middle => [Color::BLUE, Color::ORANGE, Color::PURPLE][idx % 3],
+        }
+    }
+
     fn update_waypoints_drawable(&mut self, ctx: &mut EventCtx) {
         let mut batch = GeomBatch::new();
-        let total_waypoints = self.waypoints.len();
         for (idx, waypt) in &mut self.waypoints.iter().enumerate() {
             let geom = {
-                let wp = {
-                    match idx {
-                        0 => WaypointPosition::Start,
-                        idx if idx == total_waypoints - 1 => WaypointPosition::End,
-                        // technically this includes the case where idx >= total_waypoints which should hopefully never happen
-                        _ => WaypointPosition::Middle,
-                    }
-                };
-
-                let color = {
-                    match wp {
-                        WaypointPosition::Start => Color::GREEN,
-                        WaypointPosition::End => Color::RED,
-                        WaypointPosition::Middle => {
-                            [Color::BLUE, Color::ORANGE, Color::PURPLE][idx % 3]
-                        }
-                    }
-                };
+                let color = self.get_waypoint_color(idx);
 
                 let mut geom = GeomBatch::new();
 
