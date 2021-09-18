@@ -29,6 +29,10 @@ struct Waypoint {
     center: Pt2D,
 }
 
+fn get_waypoint_text(idx: usize) -> char {
+    char::from_u32('A' as u32 + idx as u32).unwrap()
+}
+
 impl InputWaypoints {
     pub fn new(ctx: &mut EventCtx, app: &App) -> InputWaypoints {
         let map = &app.primary.map;
@@ -66,9 +70,9 @@ impl InputWaypoints {
         let mut delete_buttons = Vec::new();
 
         for (idx, waypt) in self.waypoints.iter().enumerate() {
-            let order = char::from_u32('A' as u32 + idx as u32).unwrap();
+            let text = get_waypoint_text(idx);
             let icon = {
-                let text = Text::from(Line(order.to_string()).fg(Color::WHITE).bold_body());
+                let text = Text::from(Line(text).fg(Color::WHITE).bold_body());
                 let batch = text.render(ctx);
                 let bounds = batch.get_bounds();
                 let image = Image::from_batch(batch, bounds)
@@ -187,11 +191,6 @@ impl InputWaypoints {
                 if let Some(x) = x.strip_prefix("delete waypoint ") {
                     let idx = x.parse::<usize>().unwrap();
                     self.waypoints.remove(idx);
-                    // Recalculate labels, in case we deleted in the middle
-                    for waypt in self.waypoints.iter_mut() {
-                        *waypt = Waypoint::new(app, waypt.at);
-                    }
-
                     self.update_waypoints_drawable(ctx);
                     return true;
                 } else {
@@ -218,41 +217,28 @@ impl InputWaypoints {
 
     fn get_waypoint_color(&self, idx: usize) -> Color {
         let total_waypoints = self.waypoints.len();
-        let wp = {
-            match idx {
-                0 => WaypointPosition::Start,
-                idx if idx == total_waypoints - 1 => WaypointPosition::End,
-                // technically this includes the case where idx >= total_waypoints which should hopefully never happen
-                _ => WaypointPosition::Middle,
-            }
-        };
-
-        match wp {
-            WaypointPosition::Start => Color::GREEN,
-            WaypointPosition::End => Color::RED,
-            WaypointPosition::Middle => [Color::BLUE, Color::ORANGE, Color::PURPLE][idx % 3],
+        match idx {
+            0 => Color::GREEN,
+            idx if idx == total_waypoints - 1 => Color::RED,
+            // technically this includes the case where idx >= total_waypoints which should hopefully never happen
+            _ => [Color::BLUE, Color::ORANGE, Color::PURPLE][idx % 3],
         }
     }
 
     fn update_waypoints_drawable(&mut self, ctx: &mut EventCtx) {
         let mut batch = GeomBatch::new();
-        for (idx, waypt) in &mut self.waypoints.iter().enumerate() {
-            let geom = {
-                let color = self.get_waypoint_color(idx);
+        for (idx, waypt) in self.waypoints.iter().enumerate() {
+            let color = self.get_waypoint_color(idx);
 
-                let mut geom = GeomBatch::new();
+            let mut geom = GeomBatch::new();
+            geom.push(color, waypt.hitbox.clone());
+            let text = get_waypoint_text(idx);
+            geom.append(
+                Text::from(Line(format!("{}", text)).fg(Color::WHITE))
+                    .render(ctx)
+                    .centered_on(waypt.center),
+            );
 
-                geom.push(color, waypt.hitbox.clone());
-
-                let order = char::from_u32('A' as u32 + idx as u32).unwrap();
-                geom.append(
-                    Text::from(Line(format!("{}", order)).fg(Color::WHITE))
-                        .render(ctx)
-                        .centered_on(waypt.center),
-                );
-
-                geom
-            };
             batch.append(geom);
         }
         self.draw_waypoints = ctx.upload(batch);
@@ -295,12 +281,6 @@ impl InputWaypoints {
 
         Some(changed)
     }
-}
-
-enum WaypointPosition {
-    Start,
-    Middle,
-    End,
 }
 
 impl Waypoint {
