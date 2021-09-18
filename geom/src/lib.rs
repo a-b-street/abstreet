@@ -64,7 +64,7 @@ fn deserialize_f64<'de, D: Deserializer<'de>>(d: D) -> Result<f64, D::Error> {
 }
 
 /// Specifies how to stringify different geom objects.
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize, Copy)]
 pub struct UnitFmt {
     /// Round `Duration`s to a whole number of seconds.
     pub round_durations: bool,

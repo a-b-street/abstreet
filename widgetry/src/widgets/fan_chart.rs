@@ -2,6 +2,7 @@ use std::collections::VecDeque;
 
 use geom::{
     Angle, Distance, Duration, HgramValue, Histogram, PolyLine, Polygon, Pt2D, Statistic, Time,
+    UnitFmt,
 };
 
 use crate::widgets::plots::{make_legend, thick_lineseries, Axis, PlotOptions};
@@ -23,6 +24,7 @@ impl FanChart {
         ctx: &EventCtx,
         mut series: Vec<Series<Time, Y>>,
         opts: PlotOptions<Time, Y>,
+        unit_fmt: UnitFmt,
     ) -> Widget {
         let legend = make_legend(ctx, &series, &opts);
         series.retain(|s| !opts.disabled.contains(&s.label));
@@ -164,7 +166,12 @@ impl FanChart {
         let mut col = Vec::new();
         for i in 0..num_y_labels {
             let percent_y = (i as f64) / ((num_y_labels - 1) as f64);
-            col.push(max_y.from_percent(percent_y).prettyprint().text_widget(ctx));
+            col.push(
+                max_y
+                    .from_percent(percent_y)
+                    .prettyprint(&unit_fmt)
+                    .text_widget(ctx),
+            );
         }
         col.reverse();
         let y_axis = Widget::custom_col(col).padding(10).evenly_spaced();

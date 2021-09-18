@@ -36,7 +36,7 @@ pub trait Axis<T>: 'static + Copy + std::cmp::Ord {
     // percent is [0.0, 1.0]
     fn from_percent(&self, percent: f64) -> T;
     fn to_percent(self, max: T) -> f64;
-    fn prettyprint(self) -> String;
+    fn prettyprint(self, unit_fmt: &UnitFmt) -> String;
     // For order of magnitude calculations
     fn to_f64(self) -> f64;
     fn from_f64(&self, x: f64) -> T;
@@ -54,7 +54,7 @@ impl Axis<usize> for usize {
             (self as f64) / (max as f64)
         }
     }
-    fn prettyprint(self) -> String {
+    fn prettyprint(self, _: &UnitFmt) -> String {
         prettyprint_usize(self)
     }
     fn to_f64(self) -> f64 {
@@ -79,7 +79,7 @@ impl Axis<Duration> for Duration {
             self / max
         }
     }
-    fn prettyprint(self) -> String {
+    fn prettyprint(self, _: &UnitFmt) -> String {
         self.to_string(&UnitFmt {
             metric: false,
             round_durations: true,
@@ -107,7 +107,7 @@ impl Axis<Time> for Time {
             self.to_percent(max)
         }
     }
-    fn prettyprint(self) -> String {
+    fn prettyprint(self, _: &UnitFmt) -> String {
         self.ampm_tostring()
     }
     fn to_f64(self) -> f64 {
@@ -132,11 +132,8 @@ impl Axis<Distance> for Distance {
             self / max
         }
     }
-    fn prettyprint(self) -> String {
-        self.to_string(&UnitFmt {
-            metric: false,
-            round_durations: true,
-        })
+    fn prettyprint(self, unit_fmt: &UnitFmt) -> String {
+        self.to_string(unit_fmt)
     }
     fn to_f64(self) -> f64 {
         self.inner_meters() as f64

@@ -347,6 +347,7 @@ impl RouteResults {
                     max_y: Some(map.max_elevation().round_up_for_axis()),
                     disabled: HashSet::new(),
                 },
+                app.opts.units,
             ),
         ]))
         .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)

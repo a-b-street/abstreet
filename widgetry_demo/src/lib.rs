@@ -3,7 +3,7 @@ use std::collections::HashSet;
 use rand::SeedableRng;
 use rand_xorshift::XorShiftRng;
 
-use geom::{Angle, Duration, Percent, Polygon, Pt2D, Time};
+use geom::{Angle, Duration, Percent, Polygon, Pt2D, Time, UnitFmt};
 use widgetry::{
     lctrl, Choice, Color, ContentMode, DragDrop, Drawable, EventCtx, Fill, GeomBatch, GfxCtx,
     HorizontalAlignment, Image, Key, Line, LinePlot, Outcome, Panel, PersistentSplit, PlotOptions,
@@ -120,6 +120,10 @@ impl Demo {
                     max_x: Some(Time::START_OF_DAY + self.elapsed),
                     max_y: None,
                     disabled: HashSet::new(),
+                },
+                UnitFmt {
+                    round_durations: true,
+                    metric: true,
                 },
             ),
         ]))

@@ -606,6 +606,7 @@ impl DepartureSummary {
                     pts,
                 }],
                 PlotOptions::fixed(),
+                app.opts.units,
             )
             .section(ctx),
             if first_trip - app.primary.sim.time() > Duration::minutes(15) {

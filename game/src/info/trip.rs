@@ -2,7 +2,7 @@ use std::collections::{BTreeMap, HashSet};
 
 use maplit::btreemap;
 
-use geom::{Distance, Duration, Percent, Polygon, Pt2D};
+use geom::{Distance, Duration, Percent, Polygon, Pt2D, UnitFmt};
 use map_gui::ID;
 use map_model::{Map, Path, PathStep, Traversable};
 use sim::{
@@ -777,6 +777,7 @@ fn make_trip_details(
                     p.phase_type == TripPhaseType::Walking,
                     path,
                     map_for_pathfinding,
+                    app.opts.units,
                 ));
             }
 
@@ -883,7 +884,14 @@ fn make_trip_details(
     Widget::col(col)
 }
 
-fn make_elevation(ctx: &EventCtx, color: Color, walking: bool, path: &Path, map: &Map) -> Widget {
+fn make_elevation(
+    ctx: &EventCtx,
+    color: Color,
+    walking: bool,
+    path: &Path,
+    map: &Map,
+    unit_fmt: UnitFmt,
+) -> Widget {
     let mut pts: Vec<(Distance, Distance)> = Vec::new();
     let mut dist = Distance::ZERO;
     for step in path.get_steps() {
@@ -917,6 +925,7 @@ fn make_elevation(ctx: &EventCtx, color: Color, walking: bool, path: &Path, map:
             max_y: Some(map.max_elevation().round_up_for_axis()),
             disabled: HashSet::new(),
         },
+        unit_fmt,
     )
 }
 
