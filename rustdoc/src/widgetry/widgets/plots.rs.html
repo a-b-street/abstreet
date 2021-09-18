@@ -222,9 +222,6 @@
 <span id="222">222</span>
 <span id="223">223</span>
 <span id="224">224</span>
-<span id="225">225</span>
-<span id="226">226</span>
-<span id="227">227</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 
@@ -264,7 +261,7 @@
     <span class="comment">// percent is [0.0, 1.0]</span>
     <span class="kw">fn</span> <span class="ident">from_percent</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">percent</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T</span>;
     <span class="kw">fn</span> <span class="ident">to_percent</span>(<span class="self">self</span>, <span class="ident">max</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">f64</span>;
-    <span class="kw">fn</span> <span class="ident">prettyprint</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span>;
+    <span class="kw">fn</span> <span class="ident">prettyprint</span>(<span class="self">self</span>, <span class="ident">unit_fmt</span>: <span class="kw-2">&amp;</span><span class="ident">UnitFmt</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span>;
     <span class="comment">// For order of magnitude calculations</span>
     <span class="kw">fn</span> <span class="ident">to_f64</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">f64</span>;
     <span class="kw">fn</span> <span class="ident">from_f64</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">x</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T</span>;
@@ -282,7 +279,7 @@
             (<span class="self">self</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> (<span class="ident">max</span> <span class="kw">as</span> <span class="ident">f64</span>)
         }
     }
-    <span class="kw">fn</span> <span class="ident">prettyprint</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+    <span class="kw">fn</span> <span class="ident">prettyprint</span>(<span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">UnitFmt</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
         <span class="ident">prettyprint_usize</span>(<span class="self">self</span>)
     }
     <span class="kw">fn</span> <span class="ident">to_f64</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">f64</span> {
@@ -307,7 +304,7 @@
             <span class="self">self</span> <span class="op">/</span> <span class="ident">max</span>
         }
     }
-    <span class="kw">fn</span> <span class="ident">prettyprint</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+    <span class="kw">fn</span> <span class="ident">prettyprint</span>(<span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">UnitFmt</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
         <span class="self">self</span>.<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">UnitFmt</span> {
             <span class="ident">metric</span>: <span class="bool-val">false</span>,
             <span class="ident">round_durations</span>: <span class="bool-val">true</span>,
@@ -335,7 +332,7 @@
             <span class="self">self</span>.<span class="ident">to_percent</span>(<span class="ident">max</span>)
         }
     }
-    <span class="kw">fn</span> <span class="ident">prettyprint</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+    <span class="kw">fn</span> <span class="ident">prettyprint</span>(<span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">UnitFmt</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
         <span class="self">self</span>.<span class="ident">ampm_tostring</span>()
     }
     <span class="kw">fn</span> <span class="ident">to_f64</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">f64</span> {
@@ -360,11 +357,8 @@
             <span class="self">self</span> <span class="op">/</span> <span class="ident">max</span>
         }
     }
-    <span class="kw">fn</span> <span class="ident">prettyprint</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
-        <span class="self">self</span>.<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">UnitFmt</span> {
-            <span class="ident">metric</span>: <span class="bool-val">false</span>,
-            <span class="ident">round_durations</span>: <span class="bool-val">true</span>,
-        })
+    <span class="kw">fn</span> <span class="ident">prettyprint</span>(<span class="self">self</span>, <span class="ident">unit_fmt</span>: <span class="kw-2">&amp;</span><span class="ident">UnitFmt</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+        <span class="self">self</span>.<span class="ident">to_string</span>(<span class="ident">unit_fmt</span>)
     }
     <span class="kw">fn</span> <span class="ident">to_f64</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">f64</span> {
         <span class="self">self</span>.<span class="ident">inner_meters</span>() <span class="kw">as</span> <span class="ident">f64</span>

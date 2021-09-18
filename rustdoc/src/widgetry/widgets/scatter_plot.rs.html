@@ -192,8 +192,14 @@
 <span id="192">192</span>
 <span id="193">193</span>
 <span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
 </pre><pre class="rust">
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">PolyLine</span>, <span class="ident">Pt2D</span>, <span class="ident">Time</span>};
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">PolyLine</span>, <span class="ident">Pt2D</span>, <span class="ident">Time</span>, <span class="ident">UnitFmt</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::widgets::plots</span>::{<span class="ident">make_legend</span>, <span class="ident">Axis</span>, <span class="ident">PlotOptions</span>, <span class="ident">Series</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -214,6 +220,7 @@
         <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>,
         <span class="kw-2">mut</span> <span class="ident">series</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Series</span><span class="op">&lt;</span><span class="ident">Time</span>, <span class="ident">Y</span><span class="op">&gt;</span><span class="op">&gt;</span>,
         <span class="ident">opts</span>: <span class="ident">PlotOptions</span><span class="op">&lt;</span><span class="ident">Time</span>, <span class="ident">Y</span><span class="op">&gt;</span>,
+        <span class="ident">unit_fmt</span>: <span class="ident">UnitFmt</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
         <span class="kw">let</span> <span class="ident">legend</span> <span class="op">=</span> <span class="ident">make_legend</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">series</span>, <span class="kw-2">&amp;</span><span class="ident">opts</span>);
         <span class="ident">series</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="op">!</span><span class="ident">opts</span>.<span class="ident">disabled</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">s</span>.<span class="ident">label</span>));
@@ -357,7 +364,12 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">col</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
         <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">num_y_labels</span> {
             <span class="kw">let</span> <span class="ident">percent_y</span> <span class="op">=</span> (<span class="ident">i</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> ((<span class="ident">num_y_labels</span> <span class="op">-</span> <span class="number">1</span>) <span class="kw">as</span> <span class="ident">f64</span>);
-            <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">max_y</span>.<span class="ident">from_percent</span>(<span class="ident">percent_y</span>).<span class="ident">prettyprint</span>().<span class="ident">text_widget</span>(<span class="ident">ctx</span>));
+            <span class="ident">col</span>.<span class="ident">push</span>(
+                <span class="ident">max_y</span>
+                    .<span class="ident">from_percent</span>(<span class="ident">percent_y</span>)
+                    .<span class="ident">prettyprint</span>(<span class="kw-2">&amp;</span><span class="ident">unit_fmt</span>)
+                    .<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
+            );
         }
         <span class="ident">col</span>.<span class="ident">reverse</span>();
         <span class="kw">let</span> <span class="ident">y_axis</span> <span class="op">=</span> <span class="ident">Widget::custom_col</span>(<span class="ident">col</span>).<span class="ident">padding</span>(<span class="number">10</span>).<span class="ident">evenly_spaced</span>();

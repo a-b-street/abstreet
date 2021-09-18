@@ -686,6 +686,7 @@
 <span id="686">686</span>
 <span id="687">687</span>
 <span id="688">688</span>
+<span id="689">689</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 
@@ -1295,6 +1296,7 @@
                     <span class="ident">pts</span>,
                 }],
                 <span class="ident">PlotOptions::fixed</span>(),
+                <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">units</span>,
             )
             .<span class="ident">section</span>(<span class="ident">ctx</span>),
             <span class="kw">if</span> <span class="ident">first_trip</span> <span class="op">-</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>() <span class="op">&gt;</span> <span class="ident">Duration::minutes</span>(<span class="number">15</span>) {

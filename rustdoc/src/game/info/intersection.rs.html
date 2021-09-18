@@ -899,9 +899,9 @@
             .<span class="ident">small_heading</span>()
             .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
         <span class="kw">if</span> <span class="ident">fan_chart</span> {
-            <span class="ident">FanChart::new_widget</span>(<span class="ident">ctx</span>, <span class="ident">series</span>, <span class="ident">plot_opts</span>)
+            <span class="ident">FanChart::new_widget</span>(<span class="ident">ctx</span>, <span class="ident">series</span>, <span class="ident">plot_opts</span>, <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">units</span>)
         } <span class="kw">else</span> {
-            <span class="ident">ScatterPlot::new_widget</span>(<span class="ident">ctx</span>, <span class="ident">series</span>, <span class="ident">plot_opts</span>)
+            <span class="ident">ScatterPlot::new_widget</span>(<span class="ident">ctx</span>, <span class="ident">series</span>, <span class="ident">plot_opts</span>, <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">units</span>)
         },
     ])
     .<span class="ident">padding</span>(<span class="number">10</span>)

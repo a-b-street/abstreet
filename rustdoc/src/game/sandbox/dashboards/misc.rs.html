@@ -245,6 +245,12 @@
 <span id="245">245</span>
 <span id="246">246</span>
 <span id="247">247</span>
+<span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
+<span id="251">251</span>
+<span id="252">252</span>
+<span id="253">253</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">Counter</span>};
 <span class="kw">use</span> <span class="ident">geom::Time</span>;
@@ -293,8 +299,14 @@
         <span class="ident">Box::new</span>(<span class="ident">ActiveTraffic</span> {
             <span class="ident">panel</span>: <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
                 <span class="ident">DashTab::ActiveTraffic</span>.<span class="ident">picker</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
-                <span class="ident">LinePlot::new_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;active traffic&quot;</span>, <span class="ident">active_agents</span>, <span class="ident">PlotOptions::fixed</span>())
-                    .<span class="ident">section</span>(<span class="ident">ctx</span>),
+                <span class="ident">LinePlot::new_widget</span>(
+                    <span class="ident">ctx</span>,
+                    <span class="string">&quot;active traffic&quot;</span>,
+                    <span class="ident">active_agents</span>,
+                    <span class="ident">PlotOptions::fixed</span>(),
+                    <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">units</span>,
+                )
+                .<span class="ident">section</span>(<span class="ident">ctx</span>),
             ]))
             .<span class="ident">exact_size_percent</span>(<span class="number">90</span>, <span class="number">90</span>)
             .<span class="ident">build</span>(<span class="ident">ctx</span>),

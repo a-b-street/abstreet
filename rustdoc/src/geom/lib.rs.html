@@ -204,7 +204,7 @@
 }
 
 <span class="doccomment">/// Specifies how to stringify different geom objects.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Copy</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">UnitFmt</span> {
     <span class="doccomment">/// Round `Duration`s to a whole number of seconds.</span>
     <span class="kw">pub</span> <span class="ident">round_durations</span>: <span class="ident">bool</span>,
