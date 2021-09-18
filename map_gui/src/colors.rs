@@ -365,6 +365,7 @@ impl ColorScheme {
         cs.unzoomed_highway = hex("#FE941E");
         cs.unzoomed_arterial = hex("#FFD529");
         cs.unzoomed_residential = Color::WHITE;
+        cs.unzoomed_trail = Color::WHITE;
 
         cs
     }

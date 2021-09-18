@@ -1,6 +1,7 @@
 use std::cell::RefCell;
 use std::collections::HashMap;
 
+use geom::{Circle, Distance};
 use map_model::{LaneType, PathConstraints, Road};
 use widgetry::{Color, Drawable, Fill, GeomBatch, GfxCtx, Texture};
 
@@ -36,7 +37,7 @@ impl DrawNetworkLayer {
 
     // Continuously changing road width as we zoom looks great, but it's terribly slow. We'd have
     // to move line thickening into the shader to do it better. So recalculate with less
-    // granularity.
+    // granularity. The
     fn discretize_zoom(zoom: f64) -> (f64, usize) {
         if zoom >= 1.0 {
             return (1.0, 10);
@@ -50,14 +51,17 @@ impl DrawNetworkLayer {
         let mut batch = GeomBatch::new();
         let map = &app.primary.map;
 
-        // Thicker lines as we zoom out. Scale up to 5x. Never shrink past the road's actual width.
-        let mut thickness = (0.5 / zoom).max(1.0);
+        // zoom ranges from 0.1 to 1.0
+        // Thicker lines as we zoom out. Scale up to 10x. Never shrink past the road's actual width.
+        let mut thickness = (1.0 / zoom);
         // And on gigantic maps, zoom may approach 0, so avoid NaNs.
         if !thickness.is_finite() {
-            thickness = 5.0;
+            thickness = 10.0;
         }
+        println!("at zoom {}, use thickness {}", zoom, thickness);
 
-        let mut intersections = HashMap::new();
+        let color = Color::hex("#44BC44");
+
         for r in map.all_roads() {
             let mut bike_lane = false;
             let mut buffer = false;
@@ -69,36 +73,52 @@ impl DrawNetworkLayer {
                 }
             }
 
-            let color = if r.is_cycleway() {
-                *DEDICATED_TRAIL
+            // The total road width, scaled up as we zoom out
+            let width = thickness * r.get_width();
+
+            if r.is_cycleway() {
+                let line_thickness = 1.0 * width;
+                let circle_radius = 0.5 * width;
+                let shift = line_thickness / 2.0 + 2.0 * circle_radius;
+
+                // Center dash
+                batch.push(color, r.center_pts.make_polygons(line_thickness));
+                // Dots, both sides
+                for side in [1.0, -1.0] {
+                    if let Ok(pl) = r.center_pts.shift_either_direction(side * shift) {
+                        for (pt, _) in
+                            pl.step_along(Distance::meters(thickness * 10.0), Distance::ZERO)
+                        {
+                            batch.push(color, Circle::new(pt, circle_radius).to_polygon());
+                        }
+                    }
+                }
             } else if bike_lane && buffer {
-                *PROTECTED_BIKE_LANE
+                // Protected bike lane is three lines
+                //
+                // 4 thick line
+                // 3 space
+                // 2 thin line
+                //
+                // 16
+                batch.push(color, r.center_pts.make_polygons((2.0 / 16.0) * width));
+                for side in [1.0, -1.0] {
+                    if let Ok(pl) = r
+                        .center_pts
+                        .shift_either_direction(side * (6.0 / 16.0) * width)
+                    {
+                        batch.push(color, pl.make_polygons((4.0 / 16.0) * width));
+                    }
+                }
             } else if bike_lane {
-                *PAINTED_BIKE_LANE
+                // Painted bike lane is just a solid line
+                batch.push(color, r.center_pts.make_polygons(width));
             } else if is_greenway(r) {
-                *GREENWAY
+                //*GREENWAY
             } else {
                 continue;
             };
-
-            batch.push(
-                // Also show edited roads in this layer
-                if map.get_edits().changed_roads.contains(&r.id) {
-                    Fill::ColoredTexture(color, Texture::CROSS_HATCH)
-                } else {
-                    Fill::Color(color)
-                },
-                r.center_pts.make_polygons(thickness * r.get_width()),
-            );
-
-            // Arbitrarily pick a color when two different types of roads meet
-            intersections.insert(r.src_i, color);
-            intersections.insert(r.dst_i, color);
-        }
-
-        for (i, color) in intersections {
-            // No clear way to thicken the intersection at different zoom levels
-            batch.push(color, map.get_i(i).polygon.clone());
+            // TODO Edits?
         }
 
         g.upload(batch)
