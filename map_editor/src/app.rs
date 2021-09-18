@@ -419,7 +419,7 @@ impl State<App> for MainState {
                                     app.model.map.save();
                                 }
                                 "reload" => {
-                                    CameraState::save(&ctx.canvas, &app.model.map.name);
+                                    CameraState::save(ctx.canvas, &app.model.map.name);
                                     return Transition::Push(crate::load::load_map(
                                         ctx,
                                         abstio::path_raw_map(&app.model.map.name),
@@ -428,7 +428,7 @@ impl State<App> for MainState {
                                     ));
                                 }
                                 "open another RawMap" => {
-                                    CameraState::save(&ctx.canvas, &app.model.map.name);
+                                    CameraState::save(ctx.canvas, &app.model.map.name);
                                     return Transition::Push(crate::load::PickMap::new_state(ctx));
                                 }
                                 _ => unreachable!(),

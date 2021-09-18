@@ -367,8 +367,8 @@ impl RouteResults {
     }
 
     fn event(&mut self, ctx: &mut EventCtx, app: &App) -> Option<Transition> {
-        match self.panel.event(ctx) {
-            Outcome::Clicked(x) => match x.as_ref() {
+        if let Outcome::Clicked(x) = self.panel.event(ctx) {
+            match x.as_ref() {
                 "high-stress roads" => {
                     return Some(Transition::Push(PopupMsg::new_state(
                         ctx,
@@ -385,8 +385,7 @@ impl RouteResults {
                 "traffic signals" => {}
                 "unprotected turns" => {}
                 _ => unreachable!(),
-            },
-            _ => {}
+            }
         }
 
         let current_dist_along = self
