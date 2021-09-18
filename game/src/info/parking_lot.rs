@@ -63,6 +63,7 @@ fn info_body(ctx: &mut EventCtx, app: &App, id: ParkingLotID) -> Widget {
                 max_y: Some(capacity),
                 disabled: HashSet::new(),
             },
+            app.opts.units,
         ),
     ])
     .padding(10)

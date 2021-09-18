@@ -420,9 +420,9 @@ fn delay_plot(
             .small_heading()
             .into_widget(ctx),
         if fan_chart {
-            FanChart::new_widget(ctx, series, plot_opts)
+            FanChart::new_widget(ctx, series, plot_opts, app.opts.units)
         } else {
-            ScatterPlot::new_widget(ctx, series, plot_opts)
+            ScatterPlot::new_widget(ctx, series, plot_opts, app.opts.units)
         },
     ])
     .padding(10)

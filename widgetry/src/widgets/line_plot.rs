@@ -1,4 +1,4 @@
-use geom::{Angle, Bounds, Circle, Distance, FindClosest, PolyLine, Pt2D};
+use geom::{Angle, Bounds, Circle, Distance, FindClosest, PolyLine, Pt2D, UnitFmt};
 
 use crate::widgets::plots::{make_legend, thick_lineseries, Axis, PlotOptions, Series};
 use crate::{
@@ -18,6 +18,7 @@ pub struct LinePlot<X: Axis<X>, Y: Axis<Y>> {
 
     top_left: ScreenPt,
     dims: ScreenDims,
+    unit_fmt: UnitFmt,
 }
 
 impl<X: Axis<X>, Y: Axis<Y>> LinePlot<X, Y> {
@@ -28,6 +29,7 @@ impl<X: Axis<X>, Y: Axis<Y>> LinePlot<X, Y> {
         label: &str,
         mut series: Vec<Series<X, Y>>,
         opts: PlotOptions<X, Y>,
+        unit_fmt: UnitFmt,
     ) -> Widget {
         let legend = make_legend(ctx, &series, &opts);
         series.retain(|s| !opts.disabled.contains(&s.label));
@@ -130,24 +132,13 @@ impl<X: Axis<X>, Y: Axis<Y>> LinePlot<X, Y> {
             }
         }
 
-        let plot = LinePlot {
-            draw: ctx.upload(batch),
-            closest,
-            max_x,
-            max_y,
-            hovering: None,
-
-            top_left: ScreenPt::new(0.0, 0.0),
-            dims: ScreenDims::new(width, height),
-        };
-
         let num_x_labels = 3;
         let mut row = Vec::new();
         for i in 0..num_x_labels {
             let percent_x = (i as f64) / ((num_x_labels - 1) as f64);
             let x = max_x.from_percent(percent_x);
             // TODO Need ticks now to actually see where this goes
-            let batch = Text::from(x.prettyprint())
+            let batch = Text::from(x.prettyprint(&unit_fmt))
                 .render(ctx)
                 .rotate(Angle::degrees(-15.0))
                 .autocrop();
@@ -159,10 +150,27 @@ impl<X: Axis<X>, Y: Axis<Y>> LinePlot<X, Y> {
         let mut col = Vec::new();
         for i in 0..num_y_labels {
             let percent_y = (i as f64) / ((num_y_labels - 1) as f64);
-            col.push(max_y.from_percent(percent_y).prettyprint().text_widget(ctx));
+            col.push(
+                max_y
+                    .from_percent(percent_y)
+                    .prettyprint(&unit_fmt)
+                    .text_widget(ctx),
+            );
         }
         col.reverse();
         let y_axis = Widget::custom_col(col).padding(10).evenly_spaced();
+
+        let plot = LinePlot {
+            draw: ctx.upload(batch),
+            closest,
+            max_x,
+            max_y,
+            hovering: None,
+
+            top_left: ScreenPt::new(0.0, 0.0),
+            dims: ScreenDims::new(width, height),
+            unit_fmt: unit_fmt,
+        };
 
         // Don't let the x-axis fill the parent container
         Widget::custom_col(vec![
@@ -185,7 +193,11 @@ impl<X: Axis<X>, Y: Axis<Y>> LinePlot<X, Y> {
     pub fn set_hovering(&mut self, ctx: &mut EventCtx, x: X, y: Y) {
         // TODO What series?
         let mut txt = Text::new().bg(Color::RED);
-        txt.add_line(format!("at {}, {}", x.prettyprint(), y.prettyprint()));
+        txt.add_line(format!(
+            "at {}, {}",
+            x.prettyprint(&self.unit_fmt),
+            y.prettyprint(&self.unit_fmt)
+        ));
 
         // Find this point in screen-space
         let pt = Pt2D::new(
@@ -231,8 +243,8 @@ impl<X: Axis<X>, Y: Axis<Y>> WidgetImpl for LinePlot<X, Y> {
                         txt.add_line(format!(
                             "{}: at {}, {}",
                             label,
-                            x.prettyprint(),
-                            y.prettyprint()
+                            x.prettyprint(&self.unit_fmt),
+                            y.prettyprint(&self.unit_fmt)
                         ));
                         hits.push((x, y));
                     }

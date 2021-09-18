@@ -91,6 +91,7 @@ fn info_body(ctx: &EventCtx, app: &App, id: LaneID) -> Widget {
                     max_y: Some(capacity),
                     disabled: HashSet::new(),
                 },
+                app.opts.units,
             ),
         ])
         .padding(10)
