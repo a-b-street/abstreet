@@ -31,6 +31,7 @@ pub enum ColorSchemeChoice {
     Pregame,
     Textured,
     ClassicDayMode,
+    MaraDay,
 }
 
 impl ColorSchemeChoice {
@@ -41,6 +42,7 @@ impl ColorSchemeChoice {
             Choice::new("pregame", ColorSchemeChoice::Pregame),
             Choice::new("textured", ColorSchemeChoice::Textured),
             Choice::new("classic", ColorSchemeChoice::ClassicDayMode),
+            Choice::new("Mara day mode", ColorSchemeChoice::MaraDay),
         ]
     }
 }
@@ -156,6 +158,7 @@ impl ColorScheme {
             ColorSchemeChoice::Pregame => ColorScheme::pregame(),
             ColorSchemeChoice::Textured => ColorScheme::textured(),
             ColorSchemeChoice::ClassicDayMode => ColorScheme::classic(),
+            ColorSchemeChoice::MaraDay => ColorScheme::mara_day(),
         };
         cs.scheme = scheme;
         ctx.set_style(cs.gui_style.clone());
@@ -347,6 +350,21 @@ impl ColorScheme {
 
         cs.residential_building = hex("#C5D2E5");
         cs.commercial_building = hex("#99AECC");
+
+        cs
+    }
+
+    fn mara_day() -> ColorScheme {
+        let mut cs = ColorScheme::day_mode();
+        cs.scheme = ColorSchemeChoice::MaraDay;
+
+        cs.grass = hex("#E8F7E8").into();
+        cs.water = hex("#EBF1F1").into();
+        cs.map_background = Color::WHITE.into();
+
+        cs.unzoomed_highway = hex("#FE941E");
+        cs.unzoomed_arterial = hex("#FFD529");
+        cs.unzoomed_residential = Color::WHITE;
 
         cs
     }

@@ -192,7 +192,7 @@ impl Layers {
     pub fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.panel.draw(g);
         if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
-            g.redraw(&self.fade_map);
+            //g.redraw(&self.fade_map);
 
             let mut draw_bike_layer = true;
 

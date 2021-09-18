@@ -413,6 +413,9 @@ fn finish_app_setup(
             vec![SandboxMode::simple_new(app, mode)]
         }
     } else if setup.ungap {
+        // TODO Why is the flag ignored?
+        use map_gui::AppLike;
+        app.change_color_scheme(ctx, map_gui::colors::ColorSchemeChoice::MaraDay);
         let layers = ungap::Layers::new(ctx, app);
         vec![ungap::ExploreMap::new_state(ctx, app, layers)]
     } else {
