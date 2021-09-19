@@ -245,6 +245,7 @@ pub fn nice_country_name(code: &str) -> &str {
         "at" => "Austria",
         "br" => "Brazil",
         "ca" => "Canada",
+        "ch" => "Switzerland",
         "cz" => "Czech Republic",
         "de" => "Germany",
         "fr" => "France",
