@@ -80,6 +80,61 @@
       "uncompressed_size_bytes": 4124980,
       "compressed_size_bytes": 958159
     },
+    "data/input/ch/zurich/osm/center.osm": {
+      "checksum": "c2851c4c0904eb0514299840f567c27d",
+      "uncompressed_size_bytes": 50794449,
+      "compressed_size_bytes": 5558357
+    },
+    "data/input/ch/zurich/osm/east.osm": {
+      "checksum": "ef952c10064732003be24fdaa9f44ead",
+      "uncompressed_size_bytes": 50503390,
+      "compressed_size_bytes": 5361282
+    },
+    "data/input/ch/zurich/osm/north.osm": {
+      "checksum": "4f4945c10191556f764dd69b1044f938",
+      "uncompressed_size_bytes": 34617230,
+      "compressed_size_bytes": 3789508
+    },
+    "data/input/ch/zurich/osm/south.osm": {
+      "checksum": "e8557b1eb66ae22fa92003cd56d329c5",
+      "uncompressed_size_bytes": 42149152,
+      "compressed_size_bytes": 4588877
+    },
+    "data/input/ch/zurich/osm/switzerland-latest.osm.pbf": {
+      "checksum": "d73c49064d8fd231845bb69ddb43257b",
+      "uncompressed_size_bytes": 373862267,
+      "compressed_size_bytes": 373584297
+    },
+    "data/input/ch/zurich/osm/west.osm": {
+      "checksum": "2cf335cf8229073417bfc14cb0e0fb77",
+      "uncompressed_size_bytes": 41762226,
+      "compressed_size_bytes": 4556499
+    },
+    "data/input/ch/zurich/raw_maps/center.bin": {
+      "checksum": "6a5cec11bf0fc4317278c0e97df0ea32",
+      "uncompressed_size_bytes": 12034276,
+      "compressed_size_bytes": 2298254
+    },
+    "data/input/ch/zurich/raw_maps/east.bin": {
+      "checksum": "5b50e1fb44d26b4509436c8d38170cc1",
+      "uncompressed_size_bytes": 11670913,
+      "compressed_size_bytes": 2205041
+    },
+    "data/input/ch/zurich/raw_maps/north.bin": {
+      "checksum": "37d700db1f770330ac7c0f9321cfb7a0",
+      "uncompressed_size_bytes": 7738778,
+      "compressed_size_bytes": 1526247
+    },
+    "data/input/ch/zurich/raw_maps/south.bin": {
+      "checksum": "88bf67f36d0fa15c72fed295ba762650",
+      "uncompressed_size_bytes": 8972210,
+      "compressed_size_bytes": 1839465
+    },
+    "data/input/ch/zurich/raw_maps/west.bin": {
+      "checksum": "b60ed33f76f53d42e167525c6d2cdbeb",
+      "uncompressed_size_bytes": 9524707,
+      "compressed_size_bytes": 1925676
+    },
     "data/input/cz/frydek_mistek/osm/czech-republic-latest.osm.pbf": {
       "checksum": "3253ca53e2d50acddfaebe195eb3b870",
       "uncompressed_size_bytes": 773986921,
@@ -1725,6 +1780,11 @@
       "uncompressed_size_bytes": 6229654,
       "compressed_size_bytes": 6225638
     },
+    "data/input/shared/elevation/srtm/srtm.8.47.tif": {
+      "checksum": "66c9f56f9091e9c6ae44470b9eca2745",
+      "uncompressed_size_bytes": 5792178,
+      "compressed_size_bytes": 5787252
+    },
     "data/input/shared/geofabrik-index.json": {
       "checksum": "9199b31132bd1231f4136ed38d4bdc43",
       "uncompressed_size_bytes": 2953856,
@@ -2369,6 +2429,36 @@
       "checksum": "f61027e76edb5c890ac033cadfb14b15",
       "uncompressed_size_bytes": 10748105,
       "compressed_size_bytes": 3682860
+    },
+    "data/system/ch/zurich/city.bin": {
+      "checksum": "a6b42ad0e987ecce87468abf72469437",
+      "uncompressed_size_bytes": 578592,
+      "compressed_size_bytes": 357426
+    },
+    "data/system/ch/zurich/maps/center.bin": {
+      "checksum": "c560f0906533100c3a6260457d9fdf9f",
+      "uncompressed_size_bytes": 24318678,
+      "compressed_size_bytes": 8410643
+    },
+    "data/system/ch/zurich/maps/east.bin": {
+      "checksum": "d33dcee04683e4e1004989b26a75343c",
+      "uncompressed_size_bytes": 22765071,
+      "compressed_size_bytes": 8326327
+    },
+    "data/system/ch/zurich/maps/north.bin": {
+      "checksum": "5d2e1bbb5337ef453832770aaae04809",
+      "uncompressed_size_bytes": 18882906,
+      "compressed_size_bytes": 6659382
+    },
+    "data/system/ch/zurich/maps/south.bin": {
+      "checksum": "0534753ab1a3fb6114e4026c9c0c44e4",
+      "uncompressed_size_bytes": 18650146,
+      "compressed_size_bytes": 6613461
+    },
+    "data/system/ch/zurich/maps/west.bin": {
+      "checksum": "818ad8c718b3ac2568689099b9c1407b",
+      "uncompressed_size_bytes": 21837281,
+      "compressed_size_bytes": 7632309
     },
     "data/system/cz/frydek_mistek/maps/huge.bin": {
       "checksum": "caa763663576345a12c2cdc97a08dcad",
