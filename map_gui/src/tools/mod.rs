@@ -79,6 +79,14 @@ pub fn nice_map_name(name: &MapName) -> &str {
             ("montreal", "plateau") => "Montréal (Plateau)",
             _ => &name.map,
         },
+        "ch" => match (name.city.city.as_ref(), name.map.as_ref()) {
+            ("zurich", "center") => "Zürich (city center)",
+            ("zurich", "north") => "Zürich (north)",
+            ("zurich", "south") => "Zürich (south)",
+            ("zurich", "east") => "Zürich (east)",
+            ("zurich", "west") => "Zürich (west)",
+            _ => &name.map,
+        },
         "cz" => match (name.city.city.as_ref(), name.map.as_ref()) {
             ("frytek_mistek", "huge") => "Frýdek-Místek (entire area)",
             _ => &name.map,
