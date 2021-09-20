@@ -372,7 +372,7 @@ impl Screensaver {
     }
 }
 
-fn default_scenario_for_map(name: &MapName) -> String {
+pub fn default_scenario_for_map(name: &MapName) -> String {
     if name.city == CityName::seattle()
         && abstio::file_exists(abstio::path_scenario(name, "weekday"))
     {

@@ -278,6 +278,10 @@ impl Scenario {
         );
         self
     }
+
+    pub fn all_trips(&self) -> impl Iterator<Item = &IndividTrip> {
+        self.people.iter().flat_map(|p| p.trips.iter())
+    }
 }
 
 fn seed_parked_cars(

@@ -3,6 +3,7 @@ mod explore;
 mod labels;
 mod layers;
 //mod magnifying;
+mod predict;
 mod quick_sketch;
 mod route;
 mod share;
@@ -15,6 +16,7 @@ use widgetry::{
 pub use self::explore::ExploreMap;
 pub use self::layers::Layers;
 use crate::app::{App, Transition};
+pub use predict::ModeShiftData;
 pub use share::PROPOSAL_HOST_URL;
 
 // The 3 modes are very different States, so TabController doesn't seem like the best fit
@@ -23,6 +25,7 @@ pub enum Tab {
     Explore,
     Create,
     Route,
+    PredictImpact,
 }
 
 pub trait TakeLayers {
@@ -68,6 +71,12 @@ impl Tab {
                     .hotkey(Key::Num3)
                     .disabled(self == Tab::Route)
                     .build_def(ctx),
+                ctx.style()
+                    .btn_tab
+                    .icon_text("system/assets/meters/trip_histogram.svg", "Predict impact")
+                    .hotkey(Key::Num4)
+                    .disabled(self == Tab::PredictImpact)
+                    .build_def(ctx),
             ]),
         ])
     }
@@ -95,6 +104,9 @@ impl Tab {
                                     quick_sketch::QuickSketch::new_state(ctx, app, layers)
                                 }
                                 Tab::Route => route::RoutePlanner::new_state(ctx, app, layers),
+                                Tab::PredictImpact => {
+                                    predict::ShowGaps::new_state(ctx, app, layers)
+                                }
                             }),
                         ])
                     }),
@@ -123,6 +135,10 @@ impl Tab {
                     app,
                     state.take_layers(),
                 )]
+            }))),
+            "Predict impact" => Some(Transition::ConsumeState(Box::new(|state, ctx, app| {
+                let state = state.downcast::<T>().ok().unwrap();
+                vec![predict::ShowGaps::new_state(ctx, app, state.take_layers())]
             }))),
             _ => None,
         }
