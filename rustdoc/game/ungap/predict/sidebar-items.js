@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["make_top_panel",""]],"struct":[["CandidateTrip",""],["Filters",""],["ModeShiftData",""],["ShowGaps",""]]});
+initSidebarItems({"fn":[["make_top_panel",""]],"struct":[["CandidateTrip",""],["Filters",""],["ModeShiftData",""],["NetworkGaps",""],["ShowGaps",""]]});

@@ -48,6 +48,11 @@
 <span id="48">48</span>
 <span id="49">49</span>
 <span id="50">50</span>
+<span id="51">51</span>
+<span id="52">52</span>
+<span id="53">53</span>
+<span id="54">54</span>
+<span id="55">55</span>
 </pre><pre class="rust">
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">screenshot</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">warper</span>;
@@ -91,6 +96,11 @@
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clear</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
         <span class="self">self</span>.<span class="ident">contents</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+    }
+
+    <span class="doccomment">/// Clears the current pair and returns it.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">take</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">K</span>, <span class="ident">V</span>)<span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">contents</span>.<span class="ident">take</span>()
     }
 }
 
