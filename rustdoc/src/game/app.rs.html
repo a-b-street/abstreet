@@ -869,6 +869,8 @@
 <span id="869">869</span>
 <span id="870">870</span>
 <span id="871">871</span>
+<span id="872">872</span>
+<span id="873">873</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::cell::RefCell</span>;
 <span class="kw">use</span> <span class="ident">std::collections::BTreeMap</span>;
@@ -1605,6 +1607,7 @@
     <span class="comment">// Specific to the ungap tool</span>
     <span class="kw">pub</span> <span class="ident">elevation_contours</span>: <span class="ident">Cached</span><span class="op">&lt;</span><span class="ident">MapName</span>, (<span class="ident">FindClosest</span><span class="op">&lt;</span><span class="ident">Distance</span><span class="op">&gt;</span>, <span class="ident">Drawable</span>)<span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">routing_params</span>: <span class="ident">RoutingParams</span>,
+    <span class="kw">pub</span> <span class="ident">mode_shift</span>: <span class="ident">Cached</span><span class="op">&lt;</span><span class="ident">MapName</span>, <span class="kw">crate</span><span class="ident">::ungap::ModeShiftData</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">SessionState</span> {
@@ -1625,6 +1628,7 @@
 
             <span class="ident">elevation_contours</span>: <span class="ident">Cached::new</span>(),
             <span class="ident">routing_params</span>: <span class="ident">RoutingParams::default</span>(),
+            <span class="ident">mode_shift</span>: <span class="ident">Cached::new</span>(),
         }
     }
 }
