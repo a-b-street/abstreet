@@ -41,6 +41,11 @@ impl<K: PartialEq + Clone, V> Cached<K, V> {
     pub fn clear(&mut self) {
         self.contents = None;
     }
+
+    /// Clears the current pair and returns it.
+    pub fn take(&mut self) -> Option<(K, V)> {
+        self.contents.take()
+    }
 }
 
 impl<K: PartialEq + Clone, V> Default for Cached<K, V> {
