@@ -31,6 +31,8 @@ impl ShowGaps {
     pub fn new_state(ctx: &mut EventCtx, app: &mut App, layers: Layers) -> Box<dyn State<App>> {
         let map_name = app.primary.map.get_name().clone();
         if app.session.mode_shift.key().as_ref() == Some(&map_name) {
+            // TODO If the map's been edited, recalculate_gaps
+
             return Box::new(ShowGaps {
                 top_panel: make_top_panel(ctx, app),
                 layers,
@@ -53,6 +55,7 @@ impl ShowGaps {
                         count_per_road: Counter::new(),
                     },
                     num_filtered_trips: 0,
+                    num_trips_benefiting_from_edits: 0,
                 },
             );
             ShowGaps::new_state(ctx, app, layers)
@@ -109,7 +112,7 @@ impl State<App> for ShowGaps {
                     data.recalculate_gaps(ctx, app, timer)
                 });
                 app.session.mode_shift.set(map_name, data);
-                // TODO This is heavy-handed for just updating the counter
+                // TODO This is heavy-handed for just updating the counters
                 self.top_panel = make_top_panel(ctx, app);
             }
             _ => {}
@@ -155,6 +158,12 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App) -> Panel {
             prettyprint_usize(data.num_filtered_trips)
         )
         .text_widget(ctx),
+        format!(
+            "\"{}\" would benefit {} of these trips",
+            app.primary.map.get_edits().edits_name,
+            prettyprint_usize(data.num_trips_benefiting_from_edits)
+        )
+        .text_widget(ctx),
     ];
 
     Panel::new_builder(Widget::col(col))
@@ -173,7 +182,10 @@ pub struct ModeShiftData {
     // From the unedited map, filtered
     gaps: NetworkGaps,
     num_filtered_trips: usize,
-    // TODO Then a score, comparing those gaps with the current map edits.
+    // Of the filtered trips, how many cross at least 1 edited road?
+    // TODO Many ways of defining this... maybe the edits need to plug the gap on at least 50% of
+    // stressful roads encountered by this trip?
+    num_trips_benefiting_from_edits: usize,
 }
 
 struct CandidateTrip {
@@ -332,6 +344,7 @@ impl ModeShiftData {
                 count_per_road: Counter::new(),
             },
             num_filtered_trips: 0,
+            num_trips_benefiting_from_edits: 0,
         };
         data.recalculate_gaps(ctx, app, timer);
         data
@@ -369,6 +382,7 @@ impl ModeShiftData {
             })
             .collect();
         self.num_filtered_trips = filtered_requests.len();
+        self.num_trips_benefiting_from_edits = 0;
 
         let mut count_per_road = Counter::new();
         for path in timer
@@ -378,13 +392,24 @@ impl ModeShiftData {
             .into_iter()
             .flatten()
         {
+            let mut crosses_edited_road = false;
             for step in path.get_steps() {
                 // No Contraflow steps for bike paths
                 if let PathStepV2::Along(dr) = step {
                     if high_stress.contains(&dr.id) {
                         count_per_road.inc(dr.id);
+
+                        // TODO Assumes the edits have made the road stop being high stress!
+                        if !crosses_edited_road
+                            && app.primary.map.get_edits().changed_roads.contains(&dr.id)
+                        {
+                            crosses_edited_road = true;
+                        }
                     }
                 }
+            }
+            if crosses_edited_road {
+                self.num_trips_benefiting_from_edits += 1;
             }
         }
 
