@@ -510,7 +510,7 @@
             <span class="self">self</span>.<span class="ident">road_types</span>.<span class="ident">clear</span>();
         }
 
-        <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">redo_mouseover</span>() <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">elevation</span> {
+        <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">redo_mouseover</span>() <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">elevation</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">minimized</span> {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">label</span> <span class="op">=</span> <span class="ident">Text::new</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>);
 
             <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span> <span class="op">&lt;</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">min_zoom_for_detail</span> {
