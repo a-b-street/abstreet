@@ -789,10 +789,6 @@
 <span id="789">789</span>
 <span id="790">790</span>
 <span id="791">791</span>
-<span id="792">792</span>
-<span id="793">793</span>
-<span id="794">794</span>
-<span id="795">795</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashSet</span>};
 
@@ -804,9 +800,8 @@
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">Path</span>, <span class="ident">PathStep</span>, <span class="ident">NORMAL_LANE_THICKNESS</span>};
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">TripEndpoint</span>, <span class="ident">TripMode</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">LinePlot</span>,
-    <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">PlotOptions</span>, <span class="ident">Series</span>, <span class="ident">SimpleState</span>, <span class="ident">Slider</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextBox</span>, <span class="ident">TextExt</span>,
-    <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">LinePlot</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>,
+    <span class="ident">PlotOptions</span>, <span class="ident">Series</span>, <span class="ident">SimpleState</span>, <span class="ident">Slider</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextBox</span>, <span class="ident">TextExt</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
@@ -851,8 +846,7 @@
         <span class="self">self</span>.<span class="ident">results</span> <span class="op">=</span> <span class="ident">results</span>;
 
         <span class="kw">let</span> <span class="ident">params</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">routing_params</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">new_panel</span> <span class="op">=</span> <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-            <span class="ident">Tab::Route</span>.<span class="ident">make_header</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
+        <span class="kw">let</span> <span class="ident">col</span> <span class="op">=</span> <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
             <span class="self">self</span>.<span class="ident">files</span>.<span class="ident">get_panel_widget</span>(<span class="ident">ctx</span>),
             <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">get_panel_widget</span>(<span class="ident">ctx</span>),
             <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
@@ -877,11 +871,9 @@
             ])
             .<span class="ident">section</span>(<span class="ident">ctx</span>),
             <span class="ident">results_widget</span>,
-        ]))
-        .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::Left</span>, <span class="ident">VerticalAlignment::Top</span>)
-        <span class="comment">// Hovering on a card</span>
-        .<span class="ident">ignore_initial_events</span>()
-        .<span class="ident">build</span>(<span class="ident">ctx</span>);
+        ]);
+
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">new_panel</span> <span class="op">=</span> <span class="ident">Tab::Route</span>.<span class="ident">make_left_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">col</span>);
 
         <span class="comment">// TODO After scrolling down and dragging a slider, sometimes releasing the slider</span>
         <span class="comment">// registers as clicking &quot;X&quot; on the waypoints! Maybe just replace() in that case?</span>
