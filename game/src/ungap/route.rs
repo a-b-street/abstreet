@@ -8,9 +8,8 @@ use map_gui::tools::{grey_out_map, ChooseSomething, PopupMsg};
 use map_model::{Path, PathStep, NORMAL_LANE_THICKNESS};
 use sim::{TripEndpoint, TripMode};
 use widgetry::{
-    Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, LinePlot,
-    Outcome, Panel, PlotOptions, Series, SimpleState, Slider, State, Text, TextBox, TextExt,
-    VerticalAlignment, Widget,
+    Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, LinePlot, Outcome, Panel,
+    PlotOptions, Series, SimpleState, Slider, State, Text, TextBox, TextExt, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -55,8 +54,7 @@ impl RoutePlanner {
         self.results = results;
 
         let params = &app.session.routing_params;
-        let mut new_panel = Panel::new_builder(Widget::col(vec![
-            Tab::Route.make_header(ctx, app),
+        let col = Widget::col(vec![
             self.files.get_panel_widget(ctx),
             self.waypoints.get_panel_widget(ctx),
             Widget::col(vec![
@@ -81,11 +79,9 @@ impl RoutePlanner {
             ])
             .section(ctx),
             results_widget,
-        ]))
-        .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
-        // Hovering on a card
-        .ignore_initial_events()
-        .build(ctx);
+        ]);
+
+        let mut new_panel = Tab::Route.make_left_panel(ctx, app, col);
 
         // TODO After scrolling down and dragging a slider, sometimes releasing the slider
         // registers as clicking "X" on the waypoints! Maybe just replace() in that case?

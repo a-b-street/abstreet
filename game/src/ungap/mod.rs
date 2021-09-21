@@ -10,7 +10,8 @@ mod share;
 
 use map_gui::tools::{grey_out_map, nice_map_name, open_browser, CityPicker};
 use widgetry::{
-    lctrl, EventCtx, GfxCtx, Key, Line, Panel, SimpleState, State, Text, TextExt, Widget,
+    lctrl, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Panel, SimpleState, State, Text,
+    TextExt, VerticalAlignment, Widget,
 };
 
 pub use self::explore::ExploreMap;
@@ -33,52 +34,86 @@ pub trait TakeLayers {
 }
 
 impl Tab {
-    pub fn make_header(self, ctx: &mut EventCtx, app: &App) -> Widget {
-        Widget::col(vec![
-            Widget::row(vec![
-                ctx.style()
-                    .btn_plain
-                    .btn()
-                    .image_path("system/assets/pregame/logo.svg")
-                    .image_dims(50.0)
-                    .build_widget(ctx, "about A/B Street"),
-                ctx.style()
-                    .btn_popup_icon_text(
-                        "system/assets/tools/map.svg",
-                        nice_map_name(app.primary.map.get_name()),
-                    )
-                    .hotkey(lctrl(Key::L))
-                    .build_widget(ctx, "change map")
-                    .centered_vert()
-                    .align_right(),
-            ]),
-            Widget::row(vec![
-                ctx.style()
-                    .btn_tab
-                    .icon_text("system/assets/tools/pan.svg", "Explore")
-                    .hotkey(Key::Num1)
-                    .disabled(self == Tab::Explore)
-                    .build_def(ctx),
-                ctx.style()
-                    .btn_tab
-                    .icon_text("system/assets/tools/pencil.svg", "Create new bike lanes")
-                    .hotkey(Key::Num2)
-                    .disabled(self == Tab::Create)
-                    .build_def(ctx),
-                ctx.style()
-                    .btn_tab
-                    .icon_text("system/assets/tools/pin.svg", "Plan a route")
-                    .hotkey(Key::Num3)
-                    .disabled(self == Tab::Route)
-                    .build_def(ctx),
-                ctx.style()
-                    .btn_tab
-                    .icon_text("system/assets/meters/trip_histogram.svg", "Predict impact")
-                    .hotkey(Key::Num4)
-                    .disabled(self == Tab::PredictImpact)
-                    .build_def(ctx),
-            ]),
-        ])
+    pub fn make_left_panel(self, ctx: &mut EventCtx, app: &App, contents: Widget) -> Panel {
+        // Ideally TabController could manage this, but the contents of each section are
+        // substantial, controlled by entirely different States.
+
+        let mut contents = Some(contents.section(ctx));
+
+        let mut col = vec![Widget::row(vec![
+            ctx.style()
+                .btn_plain
+                .btn()
+                .image_path("system/assets/pregame/logo.svg")
+                .image_dims(50.0)
+                .build_widget(ctx, "about A/B Street"),
+            ctx.style()
+                .btn_popup_icon_text(
+                    "system/assets/tools/map.svg",
+                    nice_map_name(app.primary.map.get_name()),
+                )
+                .hotkey(lctrl(Key::L))
+                .build_widget(ctx, "change map")
+                .centered_vert()
+                .align_right(),
+        ])];
+
+        col.push(
+            ctx.style()
+                .btn_tab
+                .icon_text("system/assets/tools/pan.svg", "Explore")
+                .hotkey(Key::Num1)
+                .disabled(self == Tab::Explore)
+                .build_def(ctx),
+        );
+        if self == Tab::Explore {
+            col.push(contents.take().unwrap());
+        }
+
+        col.push(
+            ctx.style()
+                .btn_tab
+                .icon_text("system/assets/tools/pencil.svg", "Create new bike lanes")
+                .hotkey(Key::Num2)
+                .disabled(self == Tab::Create)
+                .build_def(ctx),
+        );
+        if self == Tab::Create {
+            col.push(contents.take().unwrap());
+        }
+
+        col.push(
+            ctx.style()
+                .btn_tab
+                .icon_text("system/assets/tools/pin.svg", "Plan a route")
+                .hotkey(Key::Num3)
+                .disabled(self == Tab::Route)
+                .build_def(ctx),
+        );
+        if self == Tab::Route {
+            col.push(contents.take().unwrap());
+        }
+
+        col.push(
+            ctx.style()
+                .btn_tab
+                .icon_text("system/assets/meters/trip_histogram.svg", "Predict impact")
+                .hotkey(Key::Num4)
+                .disabled(self == Tab::PredictImpact)
+                .build_def(ctx),
+        );
+        if self == Tab::PredictImpact {
+            col.push(contents.take().unwrap());
+        }
+
+        let mut panel = Panel::new_builder(Widget::col(col))
+            .exact_height(ctx.canvas.window_height)
+            .aligned(HorizontalAlignment::Left, VerticalAlignment::Top);
+        if self == Tab::Route {
+            // Hovering on a card
+            panel = panel.ignore_initial_events();
+        }
+        panel.build(ctx)
     }
 
     pub fn handle_action<T: TakeLayers + State<App>>(

@@ -8,8 +8,7 @@ use map_gui::ID;
 use map_model::{PathRequest, PathStepV2, RoadID};
 use sim::{Scenario, TripEndpoint, TripMode};
 use widgetry::{
-    Drawable, EventCtx, GfxCtx, HorizontalAlignment, Line, Outcome, Panel, Spinner, State, Text,
-    TextExt, VerticalAlignment, Widget,
+    Drawable, EventCtx, GfxCtx, Line, Outcome, Panel, Spinner, State, Text, TextExt, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -133,7 +132,6 @@ impl State<App> for ShowGaps {
 fn make_top_panel(ctx: &mut EventCtx, app: &App) -> Panel {
     let data = app.session.mode_shift.value().unwrap();
     let col = vec![
-        Tab::PredictImpact.make_header(ctx, app),
         // TODO Info button with popup explaining all the assumptions... (where scenario data comes
         // from, only driving -> cycling, no off-map starts or ends, etc)
         format!(
@@ -155,9 +153,7 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App) -> Panel {
         data.results.describe().into_widget(ctx),
     ];
 
-    Panel::new_builder(Widget::col(col))
-        .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
-        .build(ctx)
+    Tab::PredictImpact.make_left_panel(ctx, app, Widget::col(col))
 }
 
 // TODO For now, it's easier to just copy pieces from sandbox/dashboards/mode_shift.rs. I'm not

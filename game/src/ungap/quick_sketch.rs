@@ -3,10 +3,7 @@ use map_gui::tools::PopupMsg;
 use map_model::{
     BufferType, Direction, DrivingSide, EditCmd, EditRoad, LaneSpec, LaneType, RoadID,
 };
-use widgetry::{
-    Choice, EventCtx, GfxCtx, HorizontalAlignment, Key, Outcome, Panel, State, TextExt,
-    VerticalAlignment, Widget,
-};
+use widgetry::{Choice, EventCtx, GfxCtx, Key, Outcome, Panel, State, TextExt, Widget};
 
 use crate::app::{App, Transition};
 use crate::common::RouteSketcher;
@@ -37,10 +34,7 @@ impl QuickSketch {
     }
 
     fn update_top_panel(&mut self, ctx: &mut EventCtx, app: &App) {
-        let mut col = vec![
-            Tab::Create.make_header(ctx, app),
-            self.route_sketcher.get_widget_to_describe(ctx),
-        ];
+        let mut col = vec![self.route_sketcher.get_widget_to_describe(ctx)];
 
         if self.route_sketcher.is_route_started() {
             // We're usually replacing an existing panel, except the very first time.
@@ -78,9 +72,8 @@ impl QuickSketch {
                 .evenly_spaced(),
             );
         }
-        self.top_panel = Panel::new_builder(Widget::col(col))
-            .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
-            .build(ctx);
+
+        self.top_panel = Tab::Create.make_left_panel(ctx, app, Widget::col(col));
     }
 }
 

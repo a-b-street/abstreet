@@ -2,10 +2,7 @@ use geom::Distance;
 use map_gui::tools::URLManager;
 use map_gui::ID;
 use map_model::{EditCmd, LaneType};
-use widgetry::{
-    lctrl, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State, TextExt,
-    VerticalAlignment, Widget,
-};
+use widgetry::{lctrl, EventCtx, GfxCtx, Key, Line, Outcome, Panel, State, TextExt, Widget};
 
 use crate::app::{App, Transition};
 use crate::edit::{LoadEdits, RoadEditor, SaveEdits};
@@ -207,10 +204,5 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App) -> Panel {
     }
     // TODO Should undo/redo, save, share functionality also live here?
 
-    Panel::new_builder(Widget::col(vec![
-        Tab::Explore.make_header(ctx, app),
-        Widget::col(file_management).section(ctx),
-    ]))
-    .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
-    .build(ctx)
+    Tab::Explore.make_left_panel(ctx, app, Widget::col(file_management))
 }
