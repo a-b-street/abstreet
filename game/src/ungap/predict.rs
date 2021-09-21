@@ -1,14 +1,15 @@
 use std::collections::HashSet;
 
 use abstutil::{prettyprint_usize, Counter, Timer};
-use geom::{Distance, Duration};
+use geom::{Distance, Duration, Polygon};
 use map_gui::load::FileLoader;
 use map_gui::tools::ColorNetwork;
 use map_gui::ID;
 use map_model::{PathRequest, PathStepV2, RoadID};
 use sim::{Scenario, TripEndpoint, TripMode};
 use widgetry::{
-    Drawable, EventCtx, GfxCtx, Line, Outcome, Panel, Spinner, State, Text, TextExt, Widget,
+    Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, Outcome, Panel, Spinner, State, Text,
+    TextExt, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -134,23 +135,46 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App) -> Panel {
     let col = vec![
         // TODO Info button with popup explaining all the assumptions... (where scenario data comes
         // from, only driving -> cycling, no off-map starts or ends, etc)
-        format!(
-            "{} candidate trips before filtering",
-            prettyprint_usize(data.all_candidate_trips.len())
-        )
-        .text_widget(ctx),
-        data.filters.to_controls(ctx),
-        format!(
-            "{} trips after filtering",
-            prettyprint_usize(data.filtered_trips.len())
-        )
-        .text_widget(ctx),
-        format!(
-            "Results for proposal \"{}\":",
-            app.primary.map.get_edits().edits_name
-        )
-        .text_widget(ctx),
-        data.results.describe().into_widget(ctx),
+        percentage_bar(
+            ctx,
+            Text::from(Line(format!(
+                "{} total driving trips in this area",
+                prettyprint_usize(data.all_candidate_trips.len())
+            ))),
+            1.0,
+        ),
+        Widget::col(vec![
+            "Who might cycle if it was safer?".text_widget(ctx),
+            data.filters.to_controls(ctx),
+            percentage_bar(
+                ctx,
+                Text::from(Line(format!(
+                    "{} / {} trips, based on these thresholds",
+                    data.filtered_trips.len(),
+                    data.all_candidate_trips.len()
+                ))),
+                pct(data.filtered_trips.len(), data.all_candidate_trips.len()),
+            ),
+        ])
+        .section(ctx),
+        Widget::col(vec![
+            format!(
+                "So does proposal \"{}\" make these trips safer?",
+                app.primary.map.get_edits().edits_name
+            )
+            .text_widget(ctx),
+            percentage_bar(
+                ctx,
+                Text::from(Line(format!(
+                    "{} / {} trips would switch!",
+                    data.results.num_trips,
+                    data.all_candidate_trips.len()
+                ))),
+                pct(data.results.num_trips, data.all_candidate_trips.len()),
+            ),
+            data.results.describe().into_widget(ctx),
+        ])
+        .section(ctx),
     ];
 
     Tab::PredictImpact.make_left_panel(ctx, app, Widget::col(col))
@@ -291,7 +315,6 @@ impl Results {
 
     fn describe(&self) -> Text {
         let mut txt = Text::new();
-        txt.add_line(Line(format!("{} trips", prettyprint_usize(self.num_trips))));
         txt.add_line(Line(format!(
             "{} total vehicle miles traveled daily",
             prettyprint_usize(self.total_driving_distance.to_miles() as usize)
@@ -452,5 +475,38 @@ impl ModeShiftData {
             draw_zoomed,
             count_per_road,
         };
+    }
+}
+
+fn percentage_bar(ctx: &mut EventCtx, txt: Text, pct_green: f64) -> Widget {
+    let car_color = Color::RED;
+    let bike_color = Color::GREEN;
+
+    let total_width = 450.0;
+    let height = 32.0;
+    let radius = 4.0;
+
+    let mut batch = GeomBatch::new();
+    // Background
+    batch.push(
+        car_color,
+        Polygon::rounded_rectangle(total_width, height, radius),
+    );
+    // Foreground
+    if let Some(poly) = Polygon::maybe_rounded_rectangle(pct_green * total_width, height, radius) {
+        batch.push(bike_color, poly);
+    }
+    // Text
+    let label = txt.render_autocropped(ctx);
+    let dims = label.get_dims();
+    batch.append(label.translate(10.0, height / 2.0 - dims.height / 2.0));
+    batch.into_widget(ctx)
+}
+
+fn pct(value: usize, total: usize) -> f64 {
+    if total == 0 {
+        1.0
+    } else {
+        value as f64 / total as f64
     }
 }
