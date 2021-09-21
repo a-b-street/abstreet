@@ -44,20 +44,9 @@ impl ShowGaps {
         if scenario_name == "home_to_work" {
             // TODO Should we generate and use this scenario? Or maybe just disable this mode
             // entirely?
-            app.session.mode_shift.set(
-                map_name,
-                ModeShiftData {
-                    all_candidate_trips: Vec::new(),
-                    filters: Filters::default(),
-                    gaps: NetworkGaps {
-                        draw_unzoomed: Drawable::empty(ctx),
-                        draw_zoomed: Drawable::empty(ctx),
-                        count_per_road: Counter::new(),
-                    },
-                    num_filtered_trips: 0,
-                    num_trips_benefiting_from_edits: 0,
-                },
-            );
+            app.session
+                .mode_shift
+                .set(map_name, ModeShiftData::empty(ctx));
             ShowGaps::new_state(ctx, app, layers)
         } else {
             FileLoader::<App, Scenario>::new_state(
@@ -155,15 +144,15 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App) -> Panel {
         data.filters.to_controls(ctx),
         format!(
             "{} trips after filtering",
-            prettyprint_usize(data.num_filtered_trips)
+            prettyprint_usize(data.filtered_trips.len())
         )
         .text_widget(ctx),
         format!(
-            "\"{}\" would benefit {} of these trips",
-            app.primary.map.get_edits().edits_name,
-            prettyprint_usize(data.num_trips_benefiting_from_edits)
+            "Results for proposal \"{}\":",
+            app.primary.map.get_edits().edits_name
         )
         .text_widget(ctx),
+        data.results.describe().into_widget(ctx),
     ];
 
     Panel::new_builder(Widget::col(col))
@@ -181,11 +170,9 @@ pub struct ModeShiftData {
     filters: Filters,
     // From the unedited map, filtered
     gaps: NetworkGaps,
-    num_filtered_trips: usize,
-    // Of the filtered trips, how many cross at least 1 edited road?
-    // TODO Many ways of defining this... maybe the edits need to plug the gap on at least 50% of
-    // stressful roads encountered by this trip?
-    num_trips_benefiting_from_edits: usize,
+    // Indices into all_candidate_trips
+    filtered_trips: Vec<usize>,
+    results: Results,
 }
 
 struct CandidateTrip {
@@ -193,6 +180,7 @@ struct CandidateTrip {
     estimated_driving_time: Duration,
     estimated_biking_time: Duration,
     biking_distance: Distance,
+    driving_distance: Distance,
     total_elevation_gain: Distance,
 }
 
@@ -209,9 +197,18 @@ struct NetworkGaps {
     count_per_road: Counter<RoadID>,
 }
 
+// Of the filtered trips, which cross at least 1 edited road?
+// TODO Many ways of defining this... maybe the edits need to plug the gap on at least 50% of
+// stressful roads encountered by this trip?
+struct Results {
+    num_trips: usize,
+    total_driving_distance: Distance,
+    annual_co2_emissions_tons: f64,
+}
+
 impl Filters {
-    fn default() -> Filters {
-        Filters {
+    fn default() -> Self {
+        Self {
             max_driving_time: Duration::minutes(30),
             max_biking_time: Duration::minutes(30),
             max_biking_distance: Distance::miles(10.0),
@@ -287,7 +284,44 @@ impl Filters {
     }
 }
 
+impl Results {
+    fn default() -> Self {
+        Self {
+            num_trips: 0,
+            total_driving_distance: Distance::ZERO,
+            annual_co2_emissions_tons: 0.0,
+        }
+    }
+
+    fn describe(&self) -> Text {
+        let mut txt = Text::new();
+        txt.add_line(Line(format!("{} trips", prettyprint_usize(self.num_trips))));
+        txt.add_line(Line(format!(
+            "{} total vehicle miles traveled daily",
+            prettyprint_usize(self.total_driving_distance.to_miles() as usize)
+        )));
+        // Round to 1 decimal place
+        let tons = (self.annual_co2_emissions_tons * 10.0).round() / 10.0;
+        txt.add_line(Line(format!("{} tons of CO2 emissions annually", tons)));
+        txt
+    }
+}
+
 impl ModeShiftData {
+    fn empty(ctx: &mut EventCtx) -> Self {
+        Self {
+            all_candidate_trips: Vec::new(),
+            filters: Filters::default(),
+            gaps: NetworkGaps {
+                draw_unzoomed: Drawable::empty(ctx),
+                draw_zoomed: Drawable::empty(ctx),
+                count_per_road: Counter::new(),
+            },
+            filtered_trips: Vec::new(),
+            results: Results::default(),
+        }
+    }
+
     fn from_scenario(
         ctx: &mut EventCtx,
         app: &App,
@@ -325,6 +359,7 @@ impl ModeShiftData {
                             estimated_biking_time: biking_path
                                 .estimate_duration(map, Some(map_model::MAX_BIKE_SPEED)),
                             biking_distance: biking_path.total_length(),
+                            driving_distance: driving_path.total_length(),
                             total_elevation_gain,
                         })
                     } else {
@@ -335,17 +370,8 @@ impl ModeShiftData {
             .into_iter()
             .flatten()
             .collect();
-        let mut data = ModeShiftData {
-            filters: Filters::default(),
-            all_candidate_trips,
-            gaps: NetworkGaps {
-                draw_unzoomed: Drawable::empty(ctx),
-                draw_zoomed: Drawable::empty(ctx),
-                count_per_road: Counter::new(),
-            },
-            num_filtered_trips: 0,
-            num_trips_benefiting_from_edits: 0,
-        };
+        let mut data = ModeShiftData::empty(ctx);
+        data.all_candidate_trips = all_candidate_trips;
         data.recalculate_gaps(ctx, app, timer);
         data
     }
@@ -370,24 +396,21 @@ impl ModeShiftData {
             })
             .collect();
 
-        let filtered_requests: Vec<PathRequest> = self
-            .all_candidate_trips
-            .iter()
-            .filter_map(|trip| {
-                if self.filters.apply(trip) {
-                    Some(trip.bike_req.clone())
-                } else {
-                    None
-                }
-            })
-            .collect();
-        self.num_filtered_trips = filtered_requests.len();
-        self.num_trips_benefiting_from_edits = 0;
+        self.filtered_trips.clear();
+        let mut filtered_requests = Vec::new();
+        for (idx, trip) in self.all_candidate_trips.iter().enumerate() {
+            if self.filters.apply(trip) {
+                self.filtered_trips.push(idx);
+                filtered_requests.push((idx, trip.bike_req.clone()));
+            }
+        }
+
+        self.results = Results::default();
 
         let mut count_per_road = Counter::new();
-        for path in timer
-            .parallelize("calculate routes", filtered_requests, |req| {
-                map.pathfind_v2(req)
+        for (idx, path) in timer
+            .parallelize("calculate routes", filtered_requests, |(idx, req)| {
+                map.pathfind_v2(req).map(|path| (idx, path))
             })
             .into_iter()
             .flatten()
@@ -409,9 +432,18 @@ impl ModeShiftData {
                 }
             }
             if crosses_edited_road {
-                self.num_trips_benefiting_from_edits += 1;
+                self.results.num_trips += 1;
+                self.results.total_driving_distance +=
+                    self.all_candidate_trips[idx].driving_distance;
             }
         }
+
+        // Assume this trip happens 5 times a week, 52 weeks a year.
+        let annual_mileage = 5.0 * 52.0 * self.results.total_driving_distance.to_miles();
+        // https://www.epa.gov/greenvehicles/greenhouse-gas-emissions-typical-passenger-vehicle#driving
+        // says 404 grams per mile.
+        // And convert grams to tons
+        self.results.annual_co2_emissions_tons = 404.0 * annual_mileage / 907185.0;
 
         let mut colorer = ColorNetwork::new(app);
         colorer.ranked_roads(count_per_road.clone(), &app.cs.good_to_bad_red);
