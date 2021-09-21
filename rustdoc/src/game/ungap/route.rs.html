@@ -778,6 +778,21 @@
 <span id="778">778</span>
 <span id="779">779</span>
 <span id="780">780</span>
+<span id="781">781</span>
+<span id="782">782</span>
+<span id="783">783</span>
+<span id="784">784</span>
+<span id="785">785</span>
+<span id="786">786</span>
+<span id="787">787</span>
+<span id="788">788</span>
+<span id="789">789</span>
+<span id="790">790</span>
+<span id="791">791</span>
+<span id="792">792</span>
+<span id="793">793</span>
+<span id="794">794</span>
+<span id="795">795</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashSet</span>};
 
@@ -824,7 +839,7 @@
 
             <span class="ident">input_panel</span>: <span class="ident">Panel::empty</span>(<span class="ident">ctx</span>),
             <span class="ident">waypoints</span>: <span class="ident">InputWaypoints::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
-            <span class="ident">results</span>: <span class="ident">RouteResults::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">Vec::new</span>()),
+            <span class="ident">results</span>: <span class="ident">RouteResults::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">Vec::new</span>()).<span class="number">0</span>,
             <span class="ident">files</span>: <span class="ident">RouteManagement::new</span>(<span class="ident">app</span>),
         };
         <span class="ident">rp</span>.<span class="ident">update_input_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
@@ -832,8 +847,11 @@
     }
 
     <span class="kw">fn</span> <span class="ident">update_input_panel</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
+        <span class="kw">let</span> (<span class="ident">results</span>, <span class="ident">results_widget</span>) <span class="op">=</span> <span class="ident">RouteResults::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">get_waypoints</span>());
+        <span class="self">self</span>.<span class="ident">results</span> <span class="op">=</span> <span class="ident">results</span>;
+
         <span class="kw">let</span> <span class="ident">params</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">routing_params</span>;
-        <span class="self">self</span>.<span class="ident">input_panel</span> <span class="op">=</span> <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">new_panel</span> <span class="op">=</span> <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
             <span class="ident">Tab::Route</span>.<span class="ident">make_header</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
             <span class="self">self</span>.<span class="ident">files</span>.<span class="ident">get_panel_widget</span>(<span class="ident">ctx</span>),
             <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">get_panel_widget</span>(<span class="ident">ctx</span>),
@@ -858,18 +876,23 @@
                 ]),
             ])
             .<span class="ident">section</span>(<span class="ident">ctx</span>),
+            <span class="ident">results_widget</span>,
         ]))
         .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::Left</span>, <span class="ident">VerticalAlignment::Top</span>)
         <span class="comment">// Hovering on a card</span>
         .<span class="ident">ignore_initial_events</span>()
         .<span class="ident">build</span>(<span class="ident">ctx</span>);
+
+        <span class="comment">// TODO After scrolling down and dragging a slider, sometimes releasing the slider</span>
+        <span class="comment">// registers as clicking &quot;X&quot; on the waypoints! Maybe just replace() in that case?</span>
+        <span class="ident">new_panel</span>.<span class="ident">restore_scroll</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">input_panel</span>);
+        <span class="self">self</span>.<span class="ident">input_panel</span> <span class="op">=</span> <span class="ident">new_panel</span>;
     }
 
     <span class="kw">fn</span> <span class="ident">sync_from_file_management</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
         <span class="self">self</span>.<span class="ident">waypoints</span>
             .<span class="ident">overwrite</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">files</span>.<span class="ident">current</span>.<span class="ident">waypoints</span>.<span class="ident">clone</span>());
         <span class="self">self</span>.<span class="ident">update_input_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
-        <span class="self">self</span>.<span class="ident">results</span> <span class="op">=</span> <span class="ident">RouteResults::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">get_waypoints</span>());
     }
 }
 
@@ -906,21 +929,23 @@
                         .<span class="ident">get_percent</span>();
                 <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">routing_params</span>.<span class="ident">avoid_high_stress</span> <span class="op">=</span>
                     <span class="ident">MAX_AVOID_PARAM</span> <span class="op">*</span> <span class="self">self</span>.<span class="ident">input_panel</span>.<span class="ident">slider</span>(<span class="string">&quot;avoid_high_stress&quot;</span>).<span class="ident">get_percent</span>();
-                <span class="self">self</span>.<span class="ident">results</span> <span class="op">=</span> <span class="ident">RouteResults::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">get_waypoints</span>());
+                <span class="self">self</span>.<span class="ident">update_input_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
                 <span class="kw">return</span> <span class="ident">Transition::Keep</span>;
             }
         }
         <span class="comment">// Send all other outcomes here</span>
+        <span class="comment">// TODO This routing of outcomes and the brittle ordering totally breaks encapsulation :(</span>
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="self">self</span>
+            .<span class="ident">results</span>
+            .<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="ident">outcome</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">input_panel</span>)
+        {
+            <span class="kw">return</span> <span class="ident">t</span>;
+        }
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">outcome</span>) {
             <span class="comment">// Sync from waypoints to file management</span>
             <span class="comment">// TODO Maaaybe this directly live in the InputWaypoints system?</span>
             <span class="self">self</span>.<span class="ident">files</span>.<span class="ident">current</span>.<span class="ident">waypoints</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">get_waypoints</span>();
             <span class="self">self</span>.<span class="ident">update_input_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
-            <span class="self">self</span>.<span class="ident">results</span> <span class="op">=</span> <span class="ident">RouteResults::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">get_waypoints</span>());
-        }
-
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">results</span>.<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="ident">app</span>) {
-            <span class="kw">return</span> <span class="ident">t</span>;
         }
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">layers</span>.<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="ident">app</span>) {
@@ -934,7 +959,7 @@
         <span class="self">self</span>.<span class="ident">layers</span>.<span class="ident">draw</span>(<span class="ident">g</span>, <span class="ident">app</span>);
         <span class="self">self</span>.<span class="ident">input_panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
         <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-        <span class="self">self</span>.<span class="ident">results</span>.<span class="ident">draw</span>(<span class="ident">g</span>, <span class="ident">app</span>);
+        <span class="self">self</span>.<span class="ident">results</span>.<span class="ident">draw</span>(<span class="ident">g</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">input_panel</span>);
     }
 }
 
@@ -953,12 +978,10 @@
     <span class="ident">draw_high_stress</span>: <span class="ident">Drawable</span>,
     <span class="ident">draw_traffic_signals</span>: <span class="ident">Drawable</span>,
     <span class="ident">draw_unprotected_turns</span>: <span class="ident">Drawable</span>,
-
-    <span class="ident">panel</span>: <span class="ident">Panel</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">RouteResults</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">waypoints</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TripEndpoint</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">RouteResults</span> {
+    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">waypoints</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TripEndpoint</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">RouteResults</span>, <span class="ident">Widget</span>) {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">unzoomed_batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">zoomed_batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">draw_high_stress</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
@@ -1054,7 +1077,7 @@
             ((<span class="ident">dist_along_high_stress_roads</span> <span class="op">/</span> <span class="ident">total_distance</span>) <span class="op">*</span> <span class="number">100.0</span>).<span class="ident">round</span>()
         };
 
-        <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
+        <span class="kw">let</span> <span class="ident">widget</span> <span class="op">=</span> <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
             <span class="ident">Line</span>(<span class="string">&quot;Your route&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
             <span class="ident">Text::from_all</span>(<span class="macro">vec!</span>[
                 <span class="ident">Line</span>(<span class="string">&quot;Distance: &quot;</span>).<span class="ident">secondary</span>(),
@@ -1130,26 +1153,32 @@
                 },
                 <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">units</span>,
             ),
-        ]))
-        .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::Right</span>, <span class="ident">VerticalAlignment::Top</span>)
-        .<span class="ident">build</span>(<span class="ident">ctx</span>);
+        ]);
 
-        <span class="ident">RouteResults</span> {
-            <span class="ident">draw_route_unzoomed</span>,
-            <span class="ident">draw_route_zoomed</span>,
-            <span class="ident">draw_high_stress</span>: <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">draw_high_stress</span>),
-            <span class="ident">draw_traffic_signals</span>: <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">draw_traffic_signals</span>),
-            <span class="ident">draw_unprotected_turns</span>: <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">draw_unprotected_turns</span>),
-            <span class="ident">panel</span>,
-            <span class="ident">paths</span>,
-            <span class="ident">closest_path_segment</span>,
-            <span class="ident">hover_on_line_plot</span>: <span class="prelude-val">None</span>,
-            <span class="ident">hover_on_route_tooltip</span>: <span class="prelude-val">None</span>,
-        }
+        (
+            <span class="ident">RouteResults</span> {
+                <span class="ident">draw_route_unzoomed</span>,
+                <span class="ident">draw_route_zoomed</span>,
+                <span class="ident">draw_high_stress</span>: <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">draw_high_stress</span>),
+                <span class="ident">draw_traffic_signals</span>: <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">draw_traffic_signals</span>),
+                <span class="ident">draw_unprotected_turns</span>: <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">draw_unprotected_turns</span>),
+                <span class="ident">paths</span>,
+                <span class="ident">closest_path_segment</span>,
+                <span class="ident">hover_on_line_plot</span>: <span class="prelude-val">None</span>,
+                <span class="ident">hover_on_route_tooltip</span>: <span class="prelude-val">None</span>,
+            },
+            <span class="ident">widget</span>,
+        )
     }
 
-    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Transition</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
+    <span class="kw">fn</span> <span class="ident">event</span>(
+        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
+        <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
+        <span class="ident">outcome</span>: <span class="kw-2">&amp;</span><span class="ident">Outcome</span>,
+        <span class="ident">panel</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Panel</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Transition</span><span class="op">&gt;</span> {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="ident">outcome</span> {
             <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
                 <span class="string">&quot;high-stress roads&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition::Push</span>(<span class="ident">PopupMsg::new_state</span>(
@@ -1164,14 +1193,16 @@
                 }
                 <span class="comment">// No effect. Maybe these should be toggles, so people can pan the map around and</span>
                 <span class="comment">// see these in more detail?</span>
-                <span class="string">&quot;traffic signals&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {}
-                <span class="string">&quot;unprotected turns&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {}
-                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
+                <span class="string">&quot;traffic signals&quot;</span> <span class="op">|</span> <span class="string">&quot;unprotected turns&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition::Keep</span>);
+                }
+                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="kw">return</span> <span class="prelude-val">None</span>;
+                }
             }
         }
 
-        <span class="kw">let</span> <span class="ident">current_dist_along</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">panel</span>
+        <span class="kw">let</span> <span class="ident">current_dist_along</span> <span class="op">=</span> <span class="ident">panel</span>
             .<span class="ident">find</span>::<span class="op">&lt;</span><span class="ident">LinePlot</span><span class="op">&lt;</span><span class="ident">Distance</span>, <span class="ident">Distance</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="string">&quot;elevation&quot;</span>)
             .<span class="ident">get_hovering</span>()
             .<span class="ident">get</span>(<span class="number">0</span>)
@@ -1231,7 +1262,7 @@
                                 }
                                 <span class="ident">PathStep::Turn</span>(<span class="ident">t</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">t</span>.<span class="ident">parent</span>).<span class="ident">elevation</span>,
                             };
-                            <span class="self">self</span>.<span class="ident">panel</span>
+                            <span class="ident">panel</span>
                                 .<span class="ident">find_mut</span>::<span class="op">&lt;</span><span class="ident">LinePlot</span><span class="op">&lt;</span><span class="ident">Distance</span>, <span class="ident">Distance</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="string">&quot;elevation&quot;</span>)
                                 .<span class="ident">set_hovering</span>(<span class="ident">ctx</span>, <span class="ident">dist</span> <span class="op">+</span> <span class="ident">dist_here</span>, <span class="ident">elevation</span>);
                             <span class="self">self</span>.<span class="ident">hover_on_route_tooltip</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Text::from</span>(<span class="ident">Line</span>(<span class="macro">format!</span>(
@@ -1247,8 +1278,7 @@
         <span class="prelude-val">None</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
-        <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
+    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">panel</span>: <span class="kw-2">&amp;</span><span class="ident">Panel</span>) {
         <span class="kw">if</span> <span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">min_zoom_for_detail</span> {
             <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">draw_route_zoomed</span>);
         } <span class="kw">else</span> {
@@ -1260,13 +1290,13 @@
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">txt</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">hover_on_route_tooltip</span> {
             <span class="ident">g</span>.<span class="ident">draw_mouse_tooltip</span>(<span class="ident">txt</span>.<span class="ident">clone</span>());
         }
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">currently_hovering</span>() <span class="op">=</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="string">&quot;high-stress roads&quot;</span>.<span class="ident">to_string</span>()) {
+        <span class="kw">if</span> <span class="ident">panel</span>.<span class="ident">currently_hovering</span>() <span class="op">=</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="string">&quot;high-stress roads&quot;</span>.<span class="ident">to_string</span>()) {
             <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">draw_high_stress</span>);
         }
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">currently_hovering</span>() <span class="op">=</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="string">&quot;traffic signals&quot;</span>.<span class="ident">to_string</span>()) {
+        <span class="kw">if</span> <span class="ident">panel</span>.<span class="ident">currently_hovering</span>() <span class="op">=</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="string">&quot;traffic signals&quot;</span>.<span class="ident">to_string</span>()) {
             <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">draw_traffic_signals</span>);
         }
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">currently_hovering</span>() <span class="op">=</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="string">&quot;unprotected turns&quot;</span>.<span class="ident">to_string</span>()) {
+        <span class="kw">if</span> <span class="ident">panel</span>.<span class="ident">currently_hovering</span>() <span class="op">=</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="string">&quot;unprotected turns&quot;</span>.<span class="ident">to_string</span>()) {
             <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">draw_unprotected_turns</span>);
         }
     }
