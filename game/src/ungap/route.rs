@@ -43,7 +43,7 @@ impl RoutePlanner {
 
             input_panel: Panel::empty(ctx),
             waypoints: InputWaypoints::new(ctx, app),
-            results: RouteResults::new(ctx, app, Vec::new()),
+            results: RouteResults::new(ctx, app, Vec::new()).0,
             files: RouteManagement::new(app),
         };
         rp.update_input_panel(ctx, app);
@@ -51,8 +51,11 @@ impl RoutePlanner {
     }
 
     fn update_input_panel(&mut self, ctx: &mut EventCtx, app: &App) {
+        let (results, results_widget) = RouteResults::new(ctx, app, self.waypoints.get_waypoints());
+        self.results = results;
+
         let params = &app.session.routing_params;
-        self.input_panel = Panel::new_builder(Widget::col(vec![
+        let mut new_panel = Panel::new_builder(Widget::col(vec![
             Tab::Route.make_header(ctx, app),
             self.files.get_panel_widget(ctx),
             self.waypoints.get_panel_widget(ctx),
@@ -77,18 +80,23 @@ impl RoutePlanner {
                 ]),
             ])
             .section(ctx),
+            results_widget,
         ]))
         .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
         // Hovering on a card
         .ignore_initial_events()
         .build(ctx);
+
+        // TODO After scrolling down and dragging a slider, sometimes releasing the slider
+        // registers as clicking "X" on the waypoints! Maybe just replace() in that case?
+        new_panel.restore_scroll(ctx, &self.input_panel);
+        self.input_panel = new_panel;
     }
 
     fn sync_from_file_management(&mut self, ctx: &mut EventCtx, app: &App) {
         self.waypoints
             .overwrite(ctx, app, self.files.current.waypoints.clone());
         self.update_input_panel(ctx, app);
-        self.results = RouteResults::new(ctx, app, self.waypoints.get_waypoints());
     }
 }
 
@@ -125,21 +133,23 @@ impl State<App> for RoutePlanner {
                         .get_percent();
                 app.session.routing_params.avoid_high_stress =
                     MAX_AVOID_PARAM * self.input_panel.slider("avoid_high_stress").get_percent();
-                self.results = RouteResults::new(ctx, app, self.waypoints.get_waypoints());
+                self.update_input_panel(ctx, app);
                 return Transition::Keep;
             }
         }
         // Send all other outcomes here
+        // TODO This routing of outcomes and the brittle ordering totally breaks encapsulation :(
+        if let Some(t) = self
+            .results
+            .event(ctx, app, &outcome, &mut self.input_panel)
+        {
+            return t;
+        }
         if self.waypoints.event(ctx, app, outcome) {
             // Sync from waypoints to file management
             // TODO Maaaybe this directly live in the InputWaypoints system?
             self.files.current.waypoints = self.waypoints.get_waypoints();
             self.update_input_panel(ctx, app);
-            self.results = RouteResults::new(ctx, app, self.waypoints.get_waypoints());
-        }
-
-        if let Some(t) = self.results.event(ctx, app) {
-            return t;
         }
 
         if let Some(t) = self.layers.event(ctx, app) {
@@ -153,7 +163,7 @@ impl State<App> for RoutePlanner {
         self.layers.draw(g, app);
         self.input_panel.draw(g);
         self.waypoints.draw(g);
-        self.results.draw(g, app);
+        self.results.draw(g, app, &self.input_panel);
     }
 }
 
@@ -172,12 +182,10 @@ struct RouteResults {
     draw_high_stress: Drawable,
     draw_traffic_signals: Drawable,
     draw_unprotected_turns: Drawable,
-
-    panel: Panel,
 }
 
 impl RouteResults {
-    fn new(ctx: &mut EventCtx, app: &App, waypoints: Vec<TripEndpoint>) -> RouteResults {
+    fn new(ctx: &mut EventCtx, app: &App, waypoints: Vec<TripEndpoint>) -> (RouteResults, Widget) {
         let mut unzoomed_batch = GeomBatch::new();
         let mut zoomed_batch = GeomBatch::new();
         let mut draw_high_stress = GeomBatch::new();
@@ -273,7 +281,7 @@ impl RouteResults {
             ((dist_along_high_stress_roads / total_distance) * 100.0).round()
         };
 
-        let panel = Panel::new_builder(Widget::col(vec![
+        let widget = Widget::col(vec![
             Line("Your route").small_heading().into_widget(ctx),
             Text::from_all(vec![
                 Line("Distance: ").secondary(),
@@ -349,26 +357,32 @@ impl RouteResults {
                 },
                 app.opts.units,
             ),
-        ]))
-        .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
-        .build(ctx);
+        ]);
 
-        RouteResults {
-            draw_route_unzoomed,
-            draw_route_zoomed,
-            draw_high_stress: ctx.upload(draw_high_stress),
-            draw_traffic_signals: ctx.upload(draw_traffic_signals),
-            draw_unprotected_turns: ctx.upload(draw_unprotected_turns),
-            panel,
-            paths,
-            closest_path_segment,
-            hover_on_line_plot: None,
-            hover_on_route_tooltip: None,
-        }
+        (
+            RouteResults {
+                draw_route_unzoomed,
+                draw_route_zoomed,
+                draw_high_stress: ctx.upload(draw_high_stress),
+                draw_traffic_signals: ctx.upload(draw_traffic_signals),
+                draw_unprotected_turns: ctx.upload(draw_unprotected_turns),
+                paths,
+                closest_path_segment,
+                hover_on_line_plot: None,
+                hover_on_route_tooltip: None,
+            },
+            widget,
+        )
     }
 
-    fn event(&mut self, ctx: &mut EventCtx, app: &App) -> Option<Transition> {
-        if let Outcome::Clicked(x) = self.panel.event(ctx) {
+    fn event(
+        &mut self,
+        ctx: &mut EventCtx,
+        app: &App,
+        outcome: &Outcome,
+        panel: &mut Panel,
+    ) -> Option<Transition> {
+        if let Outcome::Clicked(x) = outcome {
             match x.as_ref() {
                 "high-stress roads" => {
                     return Some(Transition::Push(PopupMsg::new_state(
@@ -383,14 +397,16 @@ impl RouteResults {
                 }
                 // No effect. Maybe these should be toggles, so people can pan the map around and
                 // see these in more detail?
-                "traffic signals" => {}
-                "unprotected turns" => {}
-                _ => unreachable!(),
+                "traffic signals" | "unprotected turns" => {
+                    return Some(Transition::Keep);
+                }
+                _ => {
+                    return None;
+                }
             }
         }
 
-        let current_dist_along = self
-            .panel
+        let current_dist_along = panel
             .find::<LinePlot<Distance, Distance>>("elevation")
             .get_hovering()
             .get(0)
@@ -450,7 +466,7 @@ impl RouteResults {
                                 }
                                 PathStep::Turn(t) => map.get_i(t.parent).elevation,
                             };
-                            self.panel
+                            panel
                                 .find_mut::<LinePlot<Distance, Distance>>("elevation")
                                 .set_hovering(ctx, dist + dist_here, elevation);
                             self.hover_on_route_tooltip = Some(Text::from(Line(format!(
@@ -466,8 +482,7 @@ impl RouteResults {
         None
     }
 
-    fn draw(&self, g: &mut GfxCtx, app: &App) {
-        self.panel.draw(g);
+    fn draw(&self, g: &mut GfxCtx, app: &App, panel: &Panel) {
         if g.canvas.cam_zoom >= app.opts.min_zoom_for_detail {
             g.redraw(&self.draw_route_zoomed);
         } else {
@@ -479,13 +494,13 @@ impl RouteResults {
         if let Some(ref txt) = self.hover_on_route_tooltip {
             g.draw_mouse_tooltip(txt.clone());
         }
-        if self.panel.currently_hovering() == Some(&"high-stress roads".to_string()) {
+        if panel.currently_hovering() == Some(&"high-stress roads".to_string()) {
             g.redraw(&self.draw_high_stress);
         }
-        if self.panel.currently_hovering() == Some(&"traffic signals".to_string()) {
+        if panel.currently_hovering() == Some(&"traffic signals".to_string()) {
             g.redraw(&self.draw_traffic_signals);
         }
-        if self.panel.currently_hovering() == Some(&"unprotected turns".to_string()) {
+        if panel.currently_hovering() == Some(&"unprotected turns".to_string()) {
             g.redraw(&self.draw_unprotected_turns);
         }
     }

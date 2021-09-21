@@ -373,6 +373,10 @@ impl Panel {
         });
     }
 
+    pub fn restore_scroll(&mut self, ctx: &mut EventCtx, prev: &Panel) {
+        self.set_scroll_offset(ctx, prev.scroll_offset());
+    }
+
     pub fn scroll_to_member(&mut self, ctx: &EventCtx, name: String) {
         if let Some(w) = self.top_level.find(&name) {
             let y1 = w.rect.y1;
