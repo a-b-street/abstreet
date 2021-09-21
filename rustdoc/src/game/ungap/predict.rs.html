@@ -426,6 +426,38 @@
 <span id="426">426</span>
 <span id="427">427</span>
 <span id="428">428</span>
+<span id="429">429</span>
+<span id="430">430</span>
+<span id="431">431</span>
+<span id="432">432</span>
+<span id="433">433</span>
+<span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
+<span id="443">443</span>
+<span id="444">444</span>
+<span id="445">445</span>
+<span id="446">446</span>
+<span id="447">447</span>
+<span id="448">448</span>
+<span id="449">449</span>
+<span id="450">450</span>
+<span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
+<span id="459">459</span>
+<span id="460">460</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 
@@ -473,20 +505,9 @@
         <span class="kw">if</span> <span class="ident">scenario_name</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;home_to_work&quot;</span> {
             <span class="comment">// TODO Should we generate and use this scenario? Or maybe just disable this mode</span>
             <span class="comment">// entirely?</span>
-            <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">mode_shift</span>.<span class="ident">set</span>(
-                <span class="ident">map_name</span>,
-                <span class="ident">ModeShiftData</span> {
-                    <span class="ident">all_candidate_trips</span>: <span class="ident">Vec::new</span>(),
-                    <span class="ident">filters</span>: <span class="ident">Filters::default</span>(),
-                    <span class="ident">gaps</span>: <span class="ident">NetworkGaps</span> {
-                        <span class="ident">draw_unzoomed</span>: <span class="ident">Drawable::empty</span>(<span class="ident">ctx</span>),
-                        <span class="ident">draw_zoomed</span>: <span class="ident">Drawable::empty</span>(<span class="ident">ctx</span>),
-                        <span class="ident">count_per_road</span>: <span class="ident">Counter::new</span>(),
-                    },
-                    <span class="ident">num_filtered_trips</span>: <span class="number">0</span>,
-                    <span class="ident">num_trips_benefiting_from_edits</span>: <span class="number">0</span>,
-                },
-            );
+            <span class="ident">app</span>.<span class="ident">session</span>
+                .<span class="ident">mode_shift</span>
+                .<span class="ident">set</span>(<span class="ident">map_name</span>, <span class="ident">ModeShiftData::empty</span>(<span class="ident">ctx</span>));
             <span class="ident">ShowGaps::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">layers</span>)
         } <span class="kw">else</span> {
             <span class="ident">FileLoader</span>::<span class="op">&lt;</span><span class="ident">App</span>, <span class="ident">Scenario</span><span class="op">&gt;</span><span class="ident">::new_state</span>(
@@ -584,15 +605,15 @@
         <span class="ident">data</span>.<span class="ident">filters</span>.<span class="ident">to_controls</span>(<span class="ident">ctx</span>),
         <span class="macro">format!</span>(
             <span class="string">&quot;{} trips after filtering&quot;</span>,
-            <span class="ident">prettyprint_usize</span>(<span class="ident">data</span>.<span class="ident">num_filtered_trips</span>)
+            <span class="ident">prettyprint_usize</span>(<span class="ident">data</span>.<span class="ident">filtered_trips</span>.<span class="ident">len</span>())
         )
         .<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
         <span class="macro">format!</span>(
-            <span class="string">&quot;\&quot;{}\&quot; would benefit {} of these trips&quot;</span>,
-            <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">edits_name</span>,
-            <span class="ident">prettyprint_usize</span>(<span class="ident">data</span>.<span class="ident">num_trips_benefiting_from_edits</span>)
+            <span class="string">&quot;Results for proposal \&quot;{}\&quot;:&quot;</span>,
+            <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">edits_name</span>
         )
         .<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
+        <span class="ident">data</span>.<span class="ident">results</span>.<span class="ident">describe</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
     ];
 
     <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="ident">col</span>))
@@ -610,11 +631,9 @@
     <span class="ident">filters</span>: <span class="ident">Filters</span>,
     <span class="comment">// From the unedited map, filtered</span>
     <span class="ident">gaps</span>: <span class="ident">NetworkGaps</span>,
-    <span class="ident">num_filtered_trips</span>: <span class="ident">usize</span>,
-    <span class="comment">// Of the filtered trips, how many cross at least 1 edited road?</span>
-    <span class="comment">// TODO Many ways of defining this... maybe the edits need to plug the gap on at least 50% of</span>
-    <span class="comment">// stressful roads encountered by this trip?</span>
-    <span class="ident">num_trips_benefiting_from_edits</span>: <span class="ident">usize</span>,
+    <span class="comment">// Indices into all_candidate_trips</span>
+    <span class="ident">filtered_trips</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>,
+    <span class="ident">results</span>: <span class="ident">Results</span>,
 }
 
 <span class="kw">struct</span> <span class="ident">CandidateTrip</span> {
@@ -622,6 +641,7 @@
     <span class="ident">estimated_driving_time</span>: <span class="ident">Duration</span>,
     <span class="ident">estimated_biking_time</span>: <span class="ident">Duration</span>,
     <span class="ident">biking_distance</span>: <span class="ident">Distance</span>,
+    <span class="ident">driving_distance</span>: <span class="ident">Distance</span>,
     <span class="ident">total_elevation_gain</span>: <span class="ident">Distance</span>,
 }
 
@@ -638,9 +658,18 @@
     <span class="ident">count_per_road</span>: <span class="ident">Counter</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span>,
 }
 
+<span class="comment">// Of the filtered trips, which cross at least 1 edited road?</span>
+<span class="comment">// TODO Many ways of defining this... maybe the edits need to plug the gap on at least 50% of</span>
+<span class="comment">// stressful roads encountered by this trip?</span>
+<span class="kw">struct</span> <span class="ident">Results</span> {
+    <span class="ident">num_trips</span>: <span class="ident">usize</span>,
+    <span class="ident">total_driving_distance</span>: <span class="ident">Distance</span>,
+    <span class="ident">annual_co2_emissions_tons</span>: <span class="ident">f64</span>,
+}
+
 <span class="kw">impl</span> <span class="ident">Filters</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Filters</span> {
-        <span class="ident">Filters</span> {
+    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="self">Self</span> {
             <span class="ident">max_driving_time</span>: <span class="ident">Duration::minutes</span>(<span class="number">30</span>),
             <span class="ident">max_biking_time</span>: <span class="ident">Duration::minutes</span>(<span class="number">30</span>),
             <span class="ident">max_biking_distance</span>: <span class="ident">Distance::miles</span>(<span class="number">10.0</span>),
@@ -716,7 +745,44 @@
     }
 }
 
+<span class="kw">impl</span> <span class="ident">Results</span> {
+    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="self">Self</span> {
+            <span class="ident">num_trips</span>: <span class="number">0</span>,
+            <span class="ident">total_driving_distance</span>: <span class="ident">Distance::ZERO</span>,
+            <span class="ident">annual_co2_emissions_tons</span>: <span class="number">0.0</span>,
+        }
+    }
+
+    <span class="kw">fn</span> <span class="ident">describe</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Text</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::new</span>();
+        <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">Line</span>(<span class="macro">format!</span>(<span class="string">&quot;{} trips&quot;</span>, <span class="ident">prettyprint_usize</span>(<span class="self">self</span>.<span class="ident">num_trips</span>))));
+        <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">Line</span>(<span class="macro">format!</span>(
+            <span class="string">&quot;{} total vehicle miles traveled daily&quot;</span>,
+            <span class="ident">prettyprint_usize</span>(<span class="self">self</span>.<span class="ident">total_driving_distance</span>.<span class="ident">to_miles</span>() <span class="kw">as</span> <span class="ident">usize</span>)
+        )));
+        <span class="comment">// Round to 1 decimal place</span>
+        <span class="kw">let</span> <span class="ident">tons</span> <span class="op">=</span> (<span class="self">self</span>.<span class="ident">annual_co2_emissions_tons</span> <span class="op">*</span> <span class="number">10.0</span>).<span class="ident">round</span>() <span class="op">/</span> <span class="number">10.0</span>;
+        <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">Line</span>(<span class="macro">format!</span>(<span class="string">&quot;{} tons of CO2 emissions annually&quot;</span>, <span class="ident">tons</span>)));
+        <span class="ident">txt</span>
+    }
+}
+
 <span class="kw">impl</span> <span class="ident">ModeShiftData</span> {
+    <span class="kw">fn</span> <span class="ident">empty</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="self">Self</span> {
+            <span class="ident">all_candidate_trips</span>: <span class="ident">Vec::new</span>(),
+            <span class="ident">filters</span>: <span class="ident">Filters::default</span>(),
+            <span class="ident">gaps</span>: <span class="ident">NetworkGaps</span> {
+                <span class="ident">draw_unzoomed</span>: <span class="ident">Drawable::empty</span>(<span class="ident">ctx</span>),
+                <span class="ident">draw_zoomed</span>: <span class="ident">Drawable::empty</span>(<span class="ident">ctx</span>),
+                <span class="ident">count_per_road</span>: <span class="ident">Counter::new</span>(),
+            },
+            <span class="ident">filtered_trips</span>: <span class="ident">Vec::new</span>(),
+            <span class="ident">results</span>: <span class="ident">Results::default</span>(),
+        }
+    }
+
     <span class="kw">fn</span> <span class="ident">from_scenario</span>(
         <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
         <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
@@ -754,6 +820,7 @@
                             <span class="ident">estimated_biking_time</span>: <span class="ident">biking_path</span>
                                 .<span class="ident">estimate_duration</span>(<span class="ident">map</span>, <span class="prelude-val">Some</span>(<span class="ident">map_model::MAX_BIKE_SPEED</span>)),
                             <span class="ident">biking_distance</span>: <span class="ident">biking_path</span>.<span class="ident">total_length</span>(),
+                            <span class="ident">driving_distance</span>: <span class="ident">driving_path</span>.<span class="ident">total_length</span>(),
                             <span class="ident">total_elevation_gain</span>,
                         })
                     } <span class="kw">else</span> {
@@ -764,17 +831,8 @@
             .<span class="ident">into_iter</span>()
             .<span class="ident">flatten</span>()
             .<span class="ident">collect</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">ModeShiftData</span> {
-            <span class="ident">filters</span>: <span class="ident">Filters::default</span>(),
-            <span class="ident">all_candidate_trips</span>,
-            <span class="ident">gaps</span>: <span class="ident">NetworkGaps</span> {
-                <span class="ident">draw_unzoomed</span>: <span class="ident">Drawable::empty</span>(<span class="ident">ctx</span>),
-                <span class="ident">draw_zoomed</span>: <span class="ident">Drawable::empty</span>(<span class="ident">ctx</span>),
-                <span class="ident">count_per_road</span>: <span class="ident">Counter::new</span>(),
-            },
-            <span class="ident">num_filtered_trips</span>: <span class="number">0</span>,
-            <span class="ident">num_trips_benefiting_from_edits</span>: <span class="number">0</span>,
-        };
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">ModeShiftData::empty</span>(<span class="ident">ctx</span>);
+        <span class="ident">data</span>.<span class="ident">all_candidate_trips</span> <span class="op">=</span> <span class="ident">all_candidate_trips</span>;
         <span class="ident">data</span>.<span class="ident">recalculate_gaps</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">timer</span>);
         <span class="ident">data</span>
     }
@@ -799,24 +857,21 @@
             })
             .<span class="ident">collect</span>();
 
-        <span class="kw">let</span> <span class="ident">filtered_requests</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PathRequest</span><span class="op">&gt;</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">all_candidate_trips</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">trip</span><span class="op">|</span> {
-                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">filters</span>.<span class="ident">apply</span>(<span class="ident">trip</span>) {
-                    <span class="prelude-val">Some</span>(<span class="ident">trip</span>.<span class="ident">bike_req</span>.<span class="ident">clone</span>())
-                } <span class="kw">else</span> {
-                    <span class="prelude-val">None</span>
-                }
-            })
-            .<span class="ident">collect</span>();
-        <span class="self">self</span>.<span class="ident">num_filtered_trips</span> <span class="op">=</span> <span class="ident">filtered_requests</span>.<span class="ident">len</span>();
-        <span class="self">self</span>.<span class="ident">num_trips_benefiting_from_edits</span> <span class="op">=</span> <span class="number">0</span>;
+        <span class="self">self</span>.<span class="ident">filtered_trips</span>.<span class="ident">clear</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">filtered_requests</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+        <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">trip</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">all_candidate_trips</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
+            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">filters</span>.<span class="ident">apply</span>(<span class="ident">trip</span>) {
+                <span class="self">self</span>.<span class="ident">filtered_trips</span>.<span class="ident">push</span>(<span class="ident">idx</span>);
+                <span class="ident">filtered_requests</span>.<span class="ident">push</span>((<span class="ident">idx</span>, <span class="ident">trip</span>.<span class="ident">bike_req</span>.<span class="ident">clone</span>()));
+            }
+        }
+
+        <span class="self">self</span>.<span class="ident">results</span> <span class="op">=</span> <span class="ident">Results::default</span>();
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">count_per_road</span> <span class="op">=</span> <span class="ident">Counter::new</span>();
-        <span class="kw">for</span> <span class="ident">path</span> <span class="kw">in</span> <span class="ident">timer</span>
-            .<span class="ident">parallelize</span>(<span class="string">&quot;calculate routes&quot;</span>, <span class="ident">filtered_requests</span>, <span class="op">|</span><span class="ident">req</span><span class="op">|</span> {
-                <span class="ident">map</span>.<span class="ident">pathfind_v2</span>(<span class="ident">req</span>)
+        <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">path</span>) <span class="kw">in</span> <span class="ident">timer</span>
+            .<span class="ident">parallelize</span>(<span class="string">&quot;calculate routes&quot;</span>, <span class="ident">filtered_requests</span>, <span class="op">|</span>(<span class="ident">idx</span>, <span class="ident">req</span>)<span class="op">|</span> {
+                <span class="ident">map</span>.<span class="ident">pathfind_v2</span>(<span class="ident">req</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">path</span><span class="op">|</span> (<span class="ident">idx</span>, <span class="ident">path</span>))
             })
             .<span class="ident">into_iter</span>()
             .<span class="ident">flatten</span>()
@@ -838,9 +893,18 @@
                 }
             }
             <span class="kw">if</span> <span class="ident">crosses_edited_road</span> {
-                <span class="self">self</span>.<span class="ident">num_trips_benefiting_from_edits</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+                <span class="self">self</span>.<span class="ident">results</span>.<span class="ident">num_trips</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+                <span class="self">self</span>.<span class="ident">results</span>.<span class="ident">total_driving_distance</span> <span class="op">+</span><span class="op">=</span>
+                    <span class="self">self</span>.<span class="ident">all_candidate_trips</span>[<span class="ident">idx</span>].<span class="ident">driving_distance</span>;
             }
         }
+
+        <span class="comment">// Assume this trip happens 5 times a week, 52 weeks a year.</span>
+        <span class="kw">let</span> <span class="ident">annual_mileage</span> <span class="op">=</span> <span class="number">5.0</span> <span class="op">*</span> <span class="number">52.0</span> <span class="op">*</span> <span class="self">self</span>.<span class="ident">results</span>.<span class="ident">total_driving_distance</span>.<span class="ident">to_miles</span>();
+        <span class="comment">// https://www.epa.gov/greenvehicles/greenhouse-gas-emissions-typical-passenger-vehicle#driving</span>
+        <span class="comment">// says 404 grams per mile.</span>
+        <span class="comment">// And convert grams to tons</span>
+        <span class="self">self</span>.<span class="ident">results</span>.<span class="ident">annual_co2_emissions_tons</span> <span class="op">=</span> <span class="number">404.0</span> <span class="op">*</span> <span class="ident">annual_mileage</span> <span class="op">/</span> <span class="number">907185.0</span>;
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">colorer</span> <span class="op">=</span> <span class="ident">ColorNetwork::new</span>(<span class="ident">app</span>);
         <span class="ident">colorer</span>.<span class="ident">ranked_roads</span>(<span class="ident">count_per_road</span>.<span class="ident">clone</span>(), <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">good_to_bad_red</span>);
