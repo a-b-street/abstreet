@@ -1,6 +1,6 @@
-use std::collections::HashSet;
+use std::collections::{BTreeSet, HashSet};
 
-use abstutil::{prettyprint_usize, Counter, Timer};
+use abstutil::{prettyprint_usize, Counter, MultiMap, Timer};
 use geom::{Distance, Duration, Polygon};
 use map_gui::load::FileLoader;
 use map_gui::tools::ColorNetwork;
@@ -8,8 +8,8 @@ use map_gui::ID;
 use map_model::{PathRequest, PathStepV2, RoadID};
 use sim::{Scenario, TripEndpoint, TripMode};
 use widgetry::{
-    Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, Outcome, Panel, Spinner, State, Text,
-    TextExt, Widget,
+    Cached, Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, Outcome, Panel, Spinner, State,
+    Text, TextExt, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -18,7 +18,7 @@ use crate::ungap::{Layers, Tab, TakeLayers};
 pub struct ShowGaps {
     top_panel: Panel,
     layers: Layers,
-    tooltip: Option<Text>,
+    hover_on_road: Cached<RoadID, (Text, Drawable)>,
 }
 
 impl TakeLayers for ShowGaps {
@@ -36,7 +36,7 @@ impl ShowGaps {
             return Box::new(ShowGaps {
                 top_panel: make_top_panel(ctx, app),
                 layers,
-                tooltip: None,
+                hover_on_road: Cached::new(),
             });
         }
 
@@ -70,22 +70,32 @@ impl State<App> for ShowGaps {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         ctx.canvas_movement();
         if ctx.redo_mouseover() {
-            self.tooltip = None;
-            if let Some(r) = match app.mouseover_unzoomed_roads_and_intersections(ctx) {
-                Some(ID::Road(r)) => Some(r),
-                Some(ID::Lane(l)) => Some(l.road),
-                _ => None,
-            } {
-                let data = app.session.mode_shift.value().unwrap();
-                let count = data.gaps.count_per_road.get(r);
-                if count > 0 {
+            let data = app.session.mode_shift.value().unwrap();
+            self.hover_on_road.update(
+                {
+                    match app.mouseover_unzoomed_roads_and_intersections(ctx) {
+                        Some(ID::Road(r)) => Some(r),
+                        Some(ID::Lane(l)) => Some(l.road),
+                        _ => None,
+                    }
+                    .and_then(|r| {
+                        if data.gaps.trips_per_road.get(r).is_empty() {
+                            None
+                        } else {
+                            Some(r)
+                        }
+                    })
+                },
+                |r| {
+                    let indices = data.gaps.trips_per_road.get(r);
                     // TODO Word more precisely... or less verbosely.
-                    self.tooltip = Some(Text::from(Line(format!(
+                    let tooltip = Text::from(Line(format!(
                         "{} trips might cross this high-stress road",
-                        prettyprint_usize(count)
-                    ))));
-                }
-            }
+                        prettyprint_usize(indices.len())
+                    )));
+                    (tooltip, data.draw_spider_map(ctx, app, indices))
+                },
+            );
         }
 
         match self.top_panel.event(ctx) {
@@ -118,14 +128,16 @@ impl State<App> for ShowGaps {
         self.top_panel.draw(g);
         self.layers.draw(g, app);
 
-        let data = app.session.mode_shift.value().unwrap();
-        if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
-            g.redraw(&data.gaps.draw_unzoomed);
-        } else {
-            g.redraw(&data.gaps.draw_zoomed);
-        }
-        if let Some(ref txt) = self.tooltip {
+        if let Some((txt, draw)) = self.hover_on_road.value() {
             g.draw_mouse_tooltip(txt.clone());
+            g.redraw(draw);
+        } else {
+            let data = app.session.mode_shift.value().unwrap();
+            if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
+                g.redraw(&data.gaps.draw_unzoomed);
+            } else {
+                g.redraw(&data.gaps.draw_zoomed);
+            }
         }
     }
 }
@@ -214,7 +226,8 @@ struct Filters {
 struct NetworkGaps {
     draw_unzoomed: Drawable,
     draw_zoomed: Drawable,
-    count_per_road: Counter<RoadID>,
+    // usize indices into all_candidate_trips
+    trips_per_road: MultiMap<RoadID, usize>,
 }
 
 // Of the filtered trips, which cross at least 1 edited road?
@@ -334,7 +347,7 @@ impl ModeShiftData {
             gaps: NetworkGaps {
                 draw_unzoomed: Drawable::empty(ctx),
                 draw_zoomed: Drawable::empty(ctx),
-                count_per_road: Counter::new(),
+                trips_per_road: MultiMap::new(),
             },
             filtered_trips: Vec::new(),
             results: Results::default(),
@@ -427,6 +440,7 @@ impl ModeShiftData {
         self.results = Results::default();
 
         let mut count_per_road = Counter::new();
+        let mut trips_per_road = MultiMap::new();
         for (idx, path) in timer
             .parallelize("calculate routes", filtered_requests, |(idx, req)| {
                 map.pathfind_v2(req).map(|path| (idx, path))
@@ -440,6 +454,7 @@ impl ModeShiftData {
                 if let PathStepV2::Along(dr) = step {
                     if high_stress.contains(&dr.id) {
                         count_per_road.inc(dr.id);
+                        trips_per_road.insert(dr.id, idx);
 
                         // TODO Assumes the edits have made the road stop being high stress!
                         if !crosses_edited_road
@@ -465,7 +480,7 @@ impl ModeShiftData {
         self.results.annual_co2_emissions_tons = 404.0 * annual_mileage / 907185.0;
 
         let mut colorer = ColorNetwork::new(app);
-        colorer.ranked_roads(count_per_road.clone(), &app.cs.good_to_bad_red);
+        colorer.ranked_roads(count_per_road, &app.cs.good_to_bad_red);
         // The Colorer fades the map as the very first thing in the batch, but we don't want to do
         // that twice.
         colorer.unzoomed.shift();
@@ -473,8 +488,43 @@ impl ModeShiftData {
         self.gaps = NetworkGaps {
             draw_unzoomed,
             draw_zoomed,
-            count_per_road,
+            trips_per_road,
         };
+    }
+
+    fn draw_spider_map(
+        &self,
+        ctx: &mut EventCtx,
+        app: &App,
+        indices: &BTreeSet<usize>,
+    ) -> Drawable {
+        // TODO Also show endpoints?
+
+        let mut count_per_road = Counter::new();
+        let map = &app.primary.map;
+        let all_candidate_trips = &self.all_candidate_trips;
+        for path in Timer::throwaway()
+            .parallelize(
+                "calculate routes",
+                indices.iter().cloned().collect(),
+                |idx| map.pathfind_v2(all_candidate_trips[idx].bike_req.clone()),
+            )
+            .into_iter()
+            .flatten()
+        {
+            for step in path.get_steps() {
+                if let PathStepV2::Along(dr) = step {
+                    count_per_road.inc(dr.id);
+                }
+            }
+        }
+
+        let mut colorer = ColorNetwork::new(app);
+        colorer.ranked_roads(count_per_road, &app.cs.good_to_bad_green);
+        // The Colorer fades the map as the very first thing in the batch, but we don't want to do
+        // that twice.
+        colorer.unzoomed.shift();
+        colorer.build(ctx).0
     }
 }
 
