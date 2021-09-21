@@ -19,6 +19,7 @@ use crate::{
 
 pub mod autocomplete;
 pub mod button;
+pub mod collapsible;
 pub mod compare_times;
 pub mod containers;
 pub mod drag_drop;

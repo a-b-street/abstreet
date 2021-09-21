@@ -8,7 +8,7 @@ use map_gui::tools::{grey_out_map, ChooseSomething, PopupMsg};
 use map_model::{Path, PathStep, NORMAL_LANE_THICKNESS};
 use sim::{TripEndpoint, TripMode};
 use widgetry::{
-    Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, LinePlot, Outcome, Panel,
+    CollapsibleSection, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, LinePlot, Outcome, Panel,
     PlotOptions, Series, SimpleState, Slider, State, Text, TextBox, TextExt, Widget,
 };
 
@@ -277,8 +277,7 @@ impl RouteResults {
             ((dist_along_high_stress_roads / total_distance) * 100.0).round()
         };
 
-        let widget = Widget::col(vec![
-            Line("Your route").small_heading().into_widget(ctx),
+        let widget = CollapsibleSection::new(ctx, "Route details", Widget::col(vec![
             Text::from_all(vec![
                 Line("Distance: ").secondary(),
                 Line(total_distance.to_string(&app.opts.units)),
@@ -353,7 +352,7 @@ impl RouteResults {
                 },
                 app.opts.units,
             ),
-        ]);
+        ]));
 
         (
             RouteResults {

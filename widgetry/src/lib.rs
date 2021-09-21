@@ -7,6 +7,7 @@
 //! * [`Autocomplete`] - select predefined value by combining text entry with menus
 //! * [`Button`] - clickable buttons with keybindings and tooltips
 //! * [`Toggle`] - checkboxes, switches, and other toggles
+//! * [`CollapsibleSection`] - show or hide something
 //! * [`CompareTimes`] - a scatter plot specialized for comparing times
 //! * [`DragDrop`] - a reorderable row of draggable cards
 //! * [`DrawWithTooltips`] - draw static geometry, with mouse tooltips in certain regions
@@ -69,6 +70,7 @@ pub use crate::widgets::scatter_plot::ScatterPlot;
 pub use crate::widgets::slider::Slider;
 pub use crate::widgets::spinner::{RoundedF64, Spinner};
 pub use crate::widgets::stash::Stash;
+pub use crate::widgets::collapsible::CollapsibleSection;
 pub use crate::widgets::table;
 pub use crate::widgets::tabs::TabController;
 pub use crate::widgets::text_box::TextBox;

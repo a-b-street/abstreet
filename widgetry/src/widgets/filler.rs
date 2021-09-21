@@ -1,6 +1,6 @@
 use crate::{EventCtx, GfxCtx, ScreenDims, ScreenPt, Widget, WidgetImpl, WidgetOutput};
 
-/// Doesn't do anything by itself, just used for widgetsing. Something else reaches in, asks for the
+/// Doesn't do anything by itself, just used for layouting. Something else reaches in, asks for the
 /// ScreenRectangle to use.
 pub struct Filler {
     resize: ResizeRule,
@@ -52,5 +52,5 @@ impl WidgetImpl for Filler {
         }
     }
 
-    fn draw(&self, _g: &mut GfxCtx) {}
+    fn draw(&self, _: &mut GfxCtx) {}
 }
