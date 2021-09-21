@@ -204,8 +204,6 @@
 <span id="204">204</span>
 <span id="205">205</span>
 <span id="206">206</span>
-<span id="207">207</span>
-<span id="208">208</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">geom::Distance</span>;
 <span class="kw">use</span> <span class="ident">map_gui::tools::URLManager</span>;
@@ -346,7 +344,7 @@
 }
 
 <span class="kw">fn</span> <span class="ident">make_top_panel</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Panel</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">file_management</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">col</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
     <span class="kw">let</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>();
 
     <span class="kw">let</span> <span class="ident">total_mileage</span> <span class="op">=</span> {
@@ -374,21 +372,19 @@
         <span class="ident">total</span>
     };
     <span class="kw">if</span> <span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">is_empty</span>() {
-        <span class="ident">file_management</span>.<span class="ident">push</span>(<span class="string">&quot;Today&#39;s network&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>));
+        <span class="ident">col</span>.<span class="ident">push</span>(<span class="string">&quot;Today&#39;s network&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>));
     } <span class="kw">else</span> {
-        <span class="ident">file_management</span>.<span class="ident">push</span>(<span class="ident">Line</span>(<span class="kw-2">&amp;</span><span class="ident">edits</span>.<span class="ident">edits_name</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>));
+        <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">Line</span>(<span class="kw-2">&amp;</span><span class="ident">edits</span>.<span class="ident">edits_name</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>));
     }
-    <span class="kw">if</span> <span class="bool-val">false</span> {
-        <span class="ident">file_management</span>.<span class="ident">push</span>(
-            <span class="ident">Line</span>(<span class="macro">format!</span>(
-                <span class="string">&quot;{:.1} miles of new bike lanes&quot;</span>,
-                <span class="ident">total_mileage</span>.<span class="ident">to_miles</span>()
-            ))
-            .<span class="ident">secondary</span>()
-            .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-        );
-    }
-    <span class="ident">file_management</span>.<span class="ident">push</span>(<span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
+    <span class="ident">col</span>.<span class="ident">push</span>(
+        <span class="ident">Line</span>(<span class="macro">format!</span>(
+            <span class="string">&quot;{:.1} miles of new bike lanes&quot;</span>,
+            <span class="ident">total_mileage</span>.<span class="ident">to_miles</span>()
+        ))
+        .<span class="ident">secondary</span>()
+        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+    );
+    <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
         <span class="ident">ctx</span>.<span class="ident">style</span>()
             .<span class="ident">btn_outline</span>
             .<span class="ident">text</span>(<span class="string">&quot;Open a proposal&quot;</span>)
@@ -403,7 +399,7 @@
     ]));
     <span class="kw">if</span> <span class="bool-val">false</span> {
         <span class="comment">// TODO Rethink UI of this, probably fold into save dialog</span>
-        <span class="ident">file_management</span>.<span class="ident">push</span>(
+        <span class="ident">col</span>.<span class="ident">push</span>(
             <span class="ident">ctx</span>.<span class="ident">style</span>()
                 .<span class="ident">btn_outline</span>
                 .<span class="ident">text</span>(<span class="string">&quot;Share proposal&quot;</span>)
@@ -413,7 +409,7 @@
     }
     <span class="comment">// TODO Should undo/redo, save, share functionality also live here?</span>
 
-    <span class="ident">Tab::Explore</span>.<span class="ident">make_left_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">Widget::col</span>(<span class="ident">file_management</span>))
+    <span class="ident">Tab::Explore</span>.<span class="ident">make_left_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">Widget::col</span>(<span class="ident">col</span>))
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="game" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
