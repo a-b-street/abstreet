@@ -34,7 +34,7 @@ impl Layers {
     pub fn new(ctx: &mut EventCtx, app: &App) -> Layers {
         let mut l = Layers {
             panel: Panel::empty(ctx),
-            minimized: false,
+            minimized: true,
             bike_network: Some(DrawNetworkLayer::new()),
             labels: Some(DrawRoadLabels::new()),
             elevation: false,
@@ -245,7 +245,8 @@ impl Layers {
             return ctx
                 .style()
                 .btn_plain
-                .icon("system/assets/tools/maximize.svg")
+                .icon("system/assets/tools/layers.svg")
+                .hotkey(Key::L)
                 .build_widget(ctx, "show panel");
         }
 
@@ -269,6 +270,7 @@ impl Layers {
                 ctx.style()
                     .btn_plain
                     .icon("system/assets/tools/minimize.svg")
+                    .hotkey(Key::L)
                     .build_widget(ctx, "hide panel")
                     .align_right(),
             ]),
@@ -296,7 +298,7 @@ impl Layers {
             // TODO Distinguish door-zone bike lanes?
             // TODO Call out bike turning boxes?
             // TODO Call out bike signals?
-            Toggle::checkbox(ctx, "road labels", Key::L, self.labels.is_some()),
+            Toggle::checkbox(ctx, "road labels", None, self.labels.is_some()),
             Widget::row(vec![
                 Toggle::checkbox(ctx, "elevation", Key::E, self.elevation),
                 ctx.style()

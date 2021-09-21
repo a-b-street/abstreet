@@ -137,7 +137,7 @@ impl State<App> for ExploreMap {
 }
 
 fn make_top_panel(ctx: &mut EventCtx, app: &App) -> Panel {
-    let mut file_management = Vec::new();
+    let mut col = Vec::new();
     let edits = app.primary.map.get_edits();
 
     let total_mileage = {
@@ -165,21 +165,19 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App) -> Panel {
         total
     };
     if edits.commands.is_empty() {
-        file_management.push("Today's network".text_widget(ctx));
+        col.push("Today's network".text_widget(ctx));
     } else {
-        file_management.push(Line(&edits.edits_name).into_widget(ctx));
+        col.push(Line(&edits.edits_name).into_widget(ctx));
     }
-    if false {
-        file_management.push(
-            Line(format!(
-                "{:.1} miles of new bike lanes",
-                total_mileage.to_miles()
-            ))
-            .secondary()
-            .into_widget(ctx),
-        );
-    }
-    file_management.push(Widget::row(vec![
+    col.push(
+        Line(format!(
+            "{:.1} miles of new bike lanes",
+            total_mileage.to_miles()
+        ))
+        .secondary()
+        .into_widget(ctx),
+    );
+    col.push(Widget::row(vec![
         ctx.style()
             .btn_outline
             .text("Open a proposal")
@@ -194,7 +192,7 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App) -> Panel {
     ]));
     if false {
         // TODO Rethink UI of this, probably fold into save dialog
-        file_management.push(
+        col.push(
             ctx.style()
                 .btn_outline
                 .text("Share proposal")
@@ -204,5 +202,5 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App) -> Panel {
     }
     // TODO Should undo/redo, save, share functionality also live here?
 
-    Tab::Explore.make_left_panel(ctx, app, Widget::col(file_management))
+    Tab::Explore.make_left_panel(ctx, app, Widget::col(col))
 }
