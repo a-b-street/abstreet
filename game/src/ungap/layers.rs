@@ -63,7 +63,7 @@ impl Layers {
             self.road_types.clear();
         }
 
-        if ctx.redo_mouseover() && self.elevation {
+        if ctx.redo_mouseover() && self.elevation && !self.minimized {
             let mut label = Text::new().into_widget(ctx);
 
             if ctx.canvas.cam_zoom < app.opts.min_zoom_for_detail {
