@@ -9,7 +9,7 @@ use geom::{Distance, Polygon};
 
 use crate::{
     osm, CompressedMovementID, DirectedRoadID, LaneID, Map, Movement, MovementID, PathConstraints,
-    RoadID, Turn, TurnID,
+    Road, RoadID, Turn, TurnID,
 };
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
@@ -208,5 +208,15 @@ impl Intersection {
             "{} doesn't belong to any movements in {} or is a SharedSidewalkCorner maybe",
             turn, self.id
         )
+    }
+
+    pub fn find_road_between<'a>(&self, other: IntersectionID, map: &'a Map) -> Option<&'a Road> {
+        for r in &self.roads {
+            let road = map.get_r(*r);
+            if road.other_endpt(self.id) == other {
+                return Some(road);
+            }
+        }
+        None
     }
 }
