@@ -259,6 +259,11 @@
 <span id="259">259</span>
 <span id="260">260</span>
 <span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
 </pre><pre class="rust">
 <span class="doccomment">//! A collection of tools, mostly related to importing maps and scenarios. These are bundled as a</span>
 <span class="doccomment">//! single executable to reduce the cost of static linking in the release&#39;s file size.</span>
@@ -408,8 +413,12 @@
     <span class="doccomment">/// Imports a one-shot A/B Street map in a single command.</span>
     <span class="ident">OneStepImport</span> {
         <span class="doccomment">/// The path to a GeoJSON file with a boundary</span>
-        <span class="attribute">#[<span class="ident">structopt</span>()]</span>
+        <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
         <span class="ident">geojson_path</span>: <span class="ident">String</span>,
+        <span class="doccomment">/// What to name the new imported map. The country will always be &quot;zz&quot; (a fake country</span>
+        <span class="doccomment">/// code), with the city as &quot;oneshot.&quot; This name shouldn&#39;t contain spaces or be empty.</span>
+        <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
+        <span class="ident">map_name</span>: <span class="ident">String</span>,
         <span class="doccomment">/// Do people drive on the left side of the road in this map?</span>
         <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
         <span class="ident">drive_on_left</span>: <span class="ident">bool</span>,
@@ -468,9 +477,10 @@
         }
         <span class="ident">Command::OneStepImport</span> {
             <span class="ident">geojson_path</span>,
+            <span class="ident">map_name</span>,
             <span class="ident">drive_on_left</span>,
             <span class="ident">use_geofabrik</span>,
-        } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">one_step_import::run</span>(<span class="ident">geojson_path</span>, <span class="ident">drive_on_left</span>, <span class="ident">use_geofabrik</span>).<span class="kw">await</span><span class="question-mark">?</span>,
+        } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">one_step_import::run</span>(<span class="ident">geojson_path</span>, <span class="ident">map_name</span>, <span class="ident">drive_on_left</span>, <span class="ident">use_geofabrik</span>).<span class="kw">await</span><span class="question-mark">?</span>,
         <span class="ident">Command::Import</span> { <span class="ident">raw_args</span> } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">importer::run</span>(<span class="ident">raw_args</span>).<span class="kw">await</span>,
     }
     <span class="prelude-val">Ok</span>(())
