@@ -414,6 +414,7 @@ impl Road {
         bike
     }
 
+    /// Returns the common intersection between two roads, panicking if they're not adjacent
     pub fn common_endpt(&self, other: &Road) -> IntersectionID {
         #![allow(clippy::suspicious_operation_groupings)] // false positive
         if self.src_i == other.src_i || self.src_i == other.dst_i {
@@ -422,6 +423,18 @@ impl Road {
             self.dst_i
         } else {
             panic!("{} and {} don't share an endpoint", self.id, other.id);
+        }
+    }
+
+    /// Returns the other intersection of this road, panicking if this road doesn't connect to the
+    /// input
+    pub fn other_endpt(&self, i: IntersectionID) -> IntersectionID {
+        if self.src_i == i {
+            self.dst_i
+        } else if self.dst_i == i {
+            self.src_i
+        } else {
+            panic!("{} doesn't touch {}", self.id, i);
         }
     }
 
