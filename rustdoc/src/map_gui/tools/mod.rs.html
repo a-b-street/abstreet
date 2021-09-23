@@ -291,6 +291,11 @@
 <span id="291">291</span>
 <span id="292">292</span>
 <span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
 </pre><pre class="rust">
 <span class="doccomment">//! Assorted tools and UI states that&#39;re useful for applications built to display maps.</span>
 
@@ -366,6 +371,7 @@
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">name</span>.<span class="ident">map</span>,
         },
         <span class="string">&quot;br&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> (<span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">city</span>.<span class="ident">as_ref</span>(), <span class="ident">name</span>.<span class="ident">map</span>.<span class="ident">as_ref</span>()) {
+            (<span class="string">&quot;sao_paulo&quot;</span>, <span class="string">&quot;aricanduva&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;São Paulo (Avenue Aricanduva)&quot;</span>,
             (<span class="string">&quot;sao_paulo&quot;</span>, <span class="string">&quot;center&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;São Paulo (city center)&quot;</span>,
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">name</span>.<span class="ident">map</span>,
         },
@@ -387,6 +393,9 @@
         },
         <span class="string">&quot;de&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> (<span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">city</span>.<span class="ident">as_ref</span>(), <span class="ident">name</span>.<span class="ident">map</span>.<span class="ident">as_ref</span>()) {
             (<span class="string">&quot;berlin&quot;</span>, <span class="string">&quot;center&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Berlin (city center)&quot;</span>,
+            (<span class="string">&quot;bonn&quot;</span>, <span class="string">&quot;center&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Bonn (city center)&quot;</span>,
+            (<span class="string">&quot;bonn&quot;</span>, <span class="string">&quot;nordstadt&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Bonn (Nordstadt)&quot;</span>,
+            (<span class="string">&quot;bonn&quot;</span>, <span class="string">&quot;venusberg&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Bonn (Venusberg)&quot;</span>,
             (<span class="string">&quot;rostock&quot;</span>, <span class="string">&quot;center&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Rostock&quot;</span>,
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">name</span>.<span class="ident">map</span>,
         },
@@ -526,6 +535,7 @@
             (<span class="string">&quot;seattle&quot;</span>, <span class="string">&quot;udistrict_ravenna&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;University District / Ravenna&quot;</span>,
             (<span class="string">&quot;seattle&quot;</span>, <span class="string">&quot;wallingford&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Wallingford&quot;</span>,
             (<span class="string">&quot;seattle&quot;</span>, <span class="string">&quot;west_seattle&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;West Seattle&quot;</span>,
+            (<span class="string">&quot;tucson&quot;</span>, <span class="string">&quot;center&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Tucson&quot;</span>,
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">name</span>.<span class="ident">map</span>,
         },
         <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">name</span>.<span class="ident">map</span>,
