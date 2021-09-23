@@ -1,5 +1,6 @@
 use std::collections::{BTreeSet, HashMap};
 
+use geom::Distance;
 use map_model::osm::RoadRank;
 use map_model::{IntersectionID, Map, PathConstraints, RoadID};
 
@@ -59,10 +60,13 @@ impl Neighborhood {
         //
         // We might be able to do this in one pass, seeding the queue with all borders. But I think
         // the "visited" bit would get tangled up between different possibilities...
-        self.borders
+        let mut runs: Vec<RatRun> = self
+            .borders
             .iter()
             .flat_map(|i| self.rat_run_from(map, *i))
-            .collect()
+            .collect();
+        runs.sort_by(|a, b| a.length_ratio.partial_cmp(&b.length_ratio).unwrap());
+        runs
     }
 
     fn rat_run_from(&self, map: &Map, start: IntersectionID) -> Option<RatRun> {
@@ -82,7 +86,7 @@ impl Neighborhood {
                 }
                 path.push(start);
                 path.reverse();
-                return Some(RatRun { path });
+                return Some(RatRun::new(path, map));
             }
 
             for r in &map.get_i(current).roads {
@@ -96,5 +100,23 @@ impl Neighborhood {
         }
 
         None
+    }
+}
+
+impl RatRun {
+    fn new(path: Vec<IntersectionID>, map: &Map) -> RatRun {
+        let mut run = RatRun {
+            path,
+            length_ratio: 1.0,
+        };
+        if let Some((roads, _)) = map.simple_path_btwn(run.path[0], *run.path.last().unwrap()) {
+            let shortest: Distance = roads
+                .into_iter()
+                .map(|r| map.get_r(r).center_pts.length())
+                .sum();
+            let this_path: Distance = run.roads(map).map(|r| r.center_pts.length()).sum();
+            run.length_ratio = this_path / shortest;
+        }
+        run
     }
 }

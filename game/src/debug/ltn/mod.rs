@@ -2,7 +2,7 @@ use std::collections::BTreeSet;
 
 use map_gui::tools::ColorDiscrete;
 use map_gui::ID;
-use map_model::{IntersectionID, RoadID};
+use map_model::{IntersectionID, Map, Road, RoadID};
 use widgetry::{
     Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
     State, Text, TextExt, VerticalAlignment, Widget,
@@ -31,7 +31,9 @@ struct Neighborhood {
 struct RatRun {
     // TODO Use PathV2, actually look at directed roads, etc
     path: Vec<IntersectionID>,
-    // TODO Some kind of rank for how likely it is
+    // length of the rat run / length of the shortest path between the endpoints. Lower is a more
+    // likely rat run to be observed.
+    length_ratio: f64,
 }
 
 impl Viewer {
@@ -59,50 +61,55 @@ impl Viewer {
             current_idx: 0,
             draw_rat_run: Drawable::empty(ctx),
         };
-        viewer.change_rat_run(ctx, app);
+        viewer.recalculate(ctx, app);
         Box::new(viewer)
     }
 
-    fn change_rat_run(&mut self, ctx: &mut EventCtx, app: &App) {
+    fn recalculate(&mut self, ctx: &mut EventCtx, app: &App) {
         if self.rat_runs.is_empty() {
             let controls = "No rat runs!".text_widget(ctx);
             self.panel.replace(ctx, "rat runs", controls);
             return;
         }
 
-        let controls = Widget::row(vec![
-            "Rat runs:".text_widget(ctx),
-            ctx.style()
-                .btn_prev()
-                .disabled(self.current_idx == 0)
-                .hotkey(Key::LeftArrow)
-                .build_widget(ctx, "previous rat run"),
-            Text::from(
-                Line(format!("{}/{}", self.current_idx + 1, self.rat_runs.len())).secondary(),
+        let run = &self.rat_runs[self.current_idx];
+
+        let controls = Widget::col(vec![
+            Widget::row(vec![
+                "Rat runs:".text_widget(ctx).centered_vert(),
+                ctx.style()
+                    .btn_prev()
+                    .disabled(self.current_idx == 0)
+                    .hotkey(Key::LeftArrow)
+                    .build_widget(ctx, "previous rat run"),
+                Text::from(
+                    Line(format!("{}/{}", self.current_idx + 1, self.rat_runs.len())).secondary(),
+                )
+                .into_widget(ctx)
+                .centered_vert(),
+                ctx.style()
+                    .btn_next()
+                    .disabled(self.current_idx == self.rat_runs.len() - 1)
+                    .hotkey(Key::RightArrow)
+                    .build_widget(ctx, "next rat run"),
+            ]),
+            format!(
+                "This run has a length ratio of {:.2} vs the shortest path",
+                run.length_ratio
             )
-            .into_widget(ctx)
-            .centered_vert(),
-            ctx.style()
-                .btn_next()
-                .disabled(self.current_idx == self.rat_runs.len() - 1)
-                .hotkey(Key::RightArrow)
-                .build_widget(ctx, "next rat run"),
+            .text_widget(ctx),
         ]);
         self.panel.replace(ctx, "rat runs", controls);
 
         let map = &app.primary.map;
         let mut batch = GeomBatch::new();
-        let path = &self.rat_runs[self.current_idx].path;
-        batch.push(Color::RED, map.get_i(path[0]).polygon.clone());
-        batch.push(Color::RED, map.get_i(*path.last().unwrap()).polygon.clone());
-        for pair in path.windows(2) {
-            batch.push(
-                Color::RED,
-                map.get_i(pair[0])
-                    .find_road_between(pair[1], map)
-                    .unwrap()
-                    .get_thick_polygon(),
-            );
+        batch.push(Color::RED, map.get_i(run.path[0]).polygon.clone());
+        batch.push(
+            Color::RED,
+            map.get_i(*run.path.last().unwrap()).polygon.clone(),
+        );
+        for road in run.roads(map) {
+            batch.push(Color::RED, road.get_thick_polygon());
         }
         self.draw_rat_run = batch.upload(ctx);
     }
@@ -132,11 +139,11 @@ impl State<App> for Viewer {
                 }
                 "previous rat run" => {
                     self.current_idx -= 1;
-                    self.change_rat_run(ctx, app);
+                    self.recalculate(ctx, app);
                 }
                 "next rat run" => {
                     self.current_idx += 1;
-                    self.change_rat_run(ctx, app);
+                    self.recalculate(ctx, app);
                 }
                 _ => unreachable!(),
             }
@@ -176,5 +183,13 @@ impl Neighborhood {
         }
         let (unzoomed, _, legend) = colorer.build(ctx);
         (unzoomed, legend)
+    }
+}
+
+impl RatRun {
+    fn roads<'a>(&'a self, map: &'a Map) -> impl Iterator<Item = &'a Road> {
+        self.path
+            .windows(2)
+            .map(move |pair| map.get_i(pair[0]).find_road_between(pair[1], map).unwrap())
     }
 }
