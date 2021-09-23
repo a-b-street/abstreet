@@ -4,9 +4,9 @@ use abstio::{CityName, Manifest, MapName};
 use geom::{Distance, Percent};
 use map_model::City;
 use widgetry::{
-    Autocomplete, ClickOutcome, ControlState, DrawBaselayer, DrawWithTooltips, EventCtx, GeomBatch,
-    GfxCtx, Image, Key, Line, Outcome, Panel, RewriteColor, State, Text, TextExt, Transition,
-    Widget,
+    lctrl, Autocomplete, ClickOutcome, ControlState, DrawBaselayer, DrawWithTooltips, EventCtx,
+    GeomBatch, GfxCtx, Image, Key, Line, Outcome, Panel, RewriteColor, State, Text, TextExt,
+    Transition, Widget,
 };
 
 use crate::load::{FileLoader, MapLoader};
@@ -135,13 +135,6 @@ impl<A: AppLike + 'static> CityPicker<A> {
                         );
                     }
                 }
-                other_places.push(
-                    ctx.style()
-                        .btn_outline
-                        .text("Search all maps")
-                        .hotkey(Key::Tab)
-                        .build_def(ctx),
-                );
 
                 Transition::Replace(Box::new(CityPicker {
                     on_load: Some(on_load),
@@ -150,12 +143,6 @@ impl<A: AppLike + 'static> CityPicker<A> {
                             Line("Select a district").small_heading().into_widget(ctx),
                             ctx.style().btn_close_widget(ctx),
                         ]),
-                        Widget::row(vec![
-                            Widget::col(other_places).centered_vert(),
-                            district_picker,
-                            Widget::col(this_city).centered_vert(),
-                        ]),
-                        "Don't see the place you want?".text_widget(ctx),
                         if cfg!(target_arch = "wasm32") {
                             // On web, this is a link, so it's styled appropriately.
                             ctx.style()
@@ -171,6 +158,16 @@ impl<A: AppLike + 'static> CityPicker<A> {
                                 .text("Import a new city into A/B Street")
                                 .build_widget(ctx, "import new city")
                         },
+                        ctx.style()
+                            .btn_outline
+                            .icon_text("system/assets/tools/search.svg", "Search all maps")
+                            .hotkey(lctrl(Key::F))
+                            .build_def(ctx),
+                        Widget::row(vec![
+                            Widget::col(other_places).centered_vert(),
+                            district_picker,
+                            Widget::col(this_city).centered_vert(),
+                        ]),
                     ]))
                     .build(ctx),
                 }))

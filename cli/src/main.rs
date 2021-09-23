@@ -146,8 +146,12 @@ enum Command {
     /// Imports a one-shot A/B Street map in a single command.
     OneStepImport {
         /// The path to a GeoJSON file with a boundary
-        #[structopt()]
+        #[structopt(long)]
         geojson_path: String,
+        /// What to name the new imported map. The country will always be "zz" (a fake country
+        /// code), with the city as "oneshot." This name shouldn't contain spaces or be empty.
+        #[structopt(long)]
+        map_name: String,
         /// Do people drive on the left side of the road in this map?
         #[structopt(long)]
         drive_on_left: bool,
@@ -206,9 +210,10 @@ async fn main() -> Result<()> {
         }
         Command::OneStepImport {
             geojson_path,
+            map_name,
             drive_on_left,
             use_geofabrik,
-        } => one_step_import::run(geojson_path, drive_on_left, use_geofabrik).await?,
+        } => one_step_import::run(geojson_path, map_name, drive_on_left, use_geofabrik).await?,
         Command::Import { raw_args } => importer::run(raw_args).await,
     }
     Ok(())

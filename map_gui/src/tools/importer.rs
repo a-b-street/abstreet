@@ -5,7 +5,7 @@ use clipboard::{ClipboardContext, ClipboardProvider};
 
 use abstio::MapName;
 use widgetry::{
-    EventCtx, GfxCtx, Line, Outcome, Panel, State, TextExt, Toggle, Transition, Widget,
+    EventCtx, GfxCtx, Line, Outcome, Panel, State, TextBox, TextExt, Toggle, Transition, Widget,
 };
 
 use crate::load::MapLoader;
@@ -49,29 +49,24 @@ impl<A: AppLike + 'static> ImportCity<A> {
                     "Copy the JSON text on the right into your clipboard".text_widget(ctx),
                 ])
                 .margin_below(16),
+                Toggle::choice(
+                    ctx,
+                    "left handed driving",
+                    "drive on the left",
+                    "right",
+                    None,
+                    false,
+                ),
+                Toggle::choice(ctx, "source", "GeoFabrik", "Overpass (faster)", None, false),
                 Widget::row(vec![
-                    "Step 4)".text_widget(ctx).centered_vert(),
-                    Toggle::choice(
-                        ctx,
-                        "left handed driving",
-                        "drive on the left",
-                        "right",
-                        None,
-                        false,
-                    ),
+                    "Name the map:".text_widget(ctx).centered_vert(),
+                    TextBox::widget(ctx, "new_map_name", generate_new_map_name(), true, 20),
                 ]),
-                Widget::row(vec![
-                    "Step 5)".text_widget(ctx).centered_vert(),
-                    Toggle::choice(ctx, "source", "GeoFabrik", "Overpass (faster)", None, false),
-                ]),
-                Widget::row(vec![
-                    "Step 6)".text_widget(ctx).centered_vert(),
-                    ctx.style()
-                        .btn_solid_primary
-                        .text("Import the area from your clipboard")
-                        .build_def(ctx),
-                ])
-                .margin_below(32),
+                ctx.style()
+                    .btn_solid_primary
+                    .text("Import the area from your clipboard")
+                    .build_def(ctx)
+                    .margin_below(32),
                 ctx.style()
                     .btn_plain
                     .btn()
@@ -102,23 +97,26 @@ impl<A: AppLike + 'static> State<A> for ImportCity<A> {
                     Transition::Keep
                 }
                 "Import the area from your clipboard" => {
+                    let name = sanitize_name(self.panel.text_box("new_map_name"));
+
                     let mut args = vec![
                         find_exe("cli"),
                         "one-step-import".to_string(),
-                        "boundary.geojson".to_string(),
+                        "--geojson-path=boundary.geojson".to_string(),
+                        format!("--map-name={}", name),
                     ];
                     if self.panel.is_checked("left handed driving") {
-                        args.push("--drive_on_left".to_string());
+                        args.push("--drive-on-left".to_string());
                     }
                     if self.panel.is_checked("source") {
-                        args.push("--use_geofabrik".to_string());
+                        args.push("--use-geofabrik".to_string());
                     }
                     match grab_geojson_from_clipboard() {
                         Ok(()) => Transition::Push(crate::tools::RunCommand::new_state(
                             ctx,
                             true,
                             args,
-                            Box::new(|_, _, success, mut lines| {
+                            Box::new(|_, _, success, _| {
                                 if success {
                                     abstio::delete_file("boundary.geojson");
 
@@ -126,11 +124,8 @@ impl<A: AppLike + 'static> State<A> for ImportCity<A> {
                                         let mut state =
                                             state.downcast::<ImportCity<A>>().ok().unwrap();
                                         let on_load = state.on_load.take().unwrap();
-                                        // one_step_import prints the name of the map as the last
-                                        // line.
-                                        let name =
-                                            MapName::new("zz", "oneshot", &lines.pop().unwrap());
-                                        vec![MapLoader::new_state(ctx, app, name, on_load)]
+                                        let map_name = MapName::new("zz", "oneshot", &name);
+                                        vec![MapLoader::new_state(ctx, app, map_name, on_load)]
                                     }))
                                 } else {
                                     // The popup already explained the failure
@@ -178,4 +173,19 @@ fn grab_geojson_from_clipboard() -> Result<()> {
     let mut f = std::fs::File::create("boundary.geojson")?;
     write!(f, "{}", contents)?;
     Ok(())
+}
+
+fn sanitize_name(x: String) -> String {
+    x.replace(" ", "_")
+}
+
+fn generate_new_map_name() -> String {
+    let mut i = 0;
+    loop {
+        let name = format!("imported_{}", i);
+        if !abstio::file_exists(MapName::new("zz", "oneshot", &name).path()) {
+            return name;
+        }
+        i += 1;
+    }
 }

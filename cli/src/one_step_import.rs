@@ -5,7 +5,19 @@ use anyhow::Result;
 use abstio::CityName;
 use geom::LonLat;
 
-pub async fn run(geojson_path: String, drive_on_left: bool, use_geofabrik: bool) -> Result<()> {
+pub async fn run(
+    geojson_path: String,
+    name: String,
+    drive_on_left: bool,
+    use_geofabrik: bool,
+) -> Result<()> {
+    if name.contains(" ") || name.is_empty() {
+        panic!(
+            "--map_name must be non-empty and contain no spaces: {}",
+            name
+        );
+    }
+
     // Convert to a boundary polygon.
     {
         println!("Converting GeoJSON to Osmosis boundary");
@@ -22,11 +34,9 @@ pub async fn run(geojson_path: String, drive_on_left: bool, use_geofabrik: bool)
     }
 
     let city = CityName::new("zz", "oneshot");
-    let name;
     let osm;
     if !use_geofabrik {
-        // No easy guess on this without looking at the XML file
-        name = "overpass".to_string();
+        println!("Downloading OSM data from Overpass...");
         osm = city.input_path(format!("osm/{}.osm", name));
 
         let geojson = abstio::slurp_file(geojson_path)?;
@@ -48,11 +58,6 @@ pub async fn run(geojson_path: String, drive_on_left: bool, use_geofabrik: bool)
         println!("Figuring out what Geofabrik file contains your boundary");
         let url = crate::pick_geofabrik::run("boundary0.poly".to_string()).await?;
 
-        // Name the temporary map based on the Geofabrik region.
-        name = abstutil::basename(&url)
-            .strip_suffix("-latest.osm")
-            .unwrap()
-            .to_string();
         let pbf = city.input_path(format!("osm/{}.pbf", abstutil::basename(&url)));
         osm = city.input_path(format!("osm/{}.osm", name));
         std::fs::create_dir_all(std::path::Path::new(&osm).parent().unwrap())
@@ -86,9 +91,6 @@ pub async fn run(geojson_path: String, drive_on_left: bool, use_geofabrik: bool)
     // Clean up temporary files. If we broke before this, deliberately leave them around for
     // debugging.
     abstio::delete_file("boundary0.poly");
-
-    // For the sake of the UI, print the name of the new map as the last line of output.
-    println!("{}", name);
 
     Ok(())
 }
