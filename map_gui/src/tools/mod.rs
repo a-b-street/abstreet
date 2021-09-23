@@ -72,6 +72,7 @@ pub fn nice_map_name(name: &MapName) -> &str {
             _ => &name.map,
         },
         "br" => match (name.city.city.as_ref(), name.map.as_ref()) {
+            ("sao_paulo", "aricanduva") => "São Paulo (Avenue Aricanduva)",
             ("sao_paulo", "center") => "São Paulo (city center)",
             _ => &name.map,
         },
@@ -93,6 +94,9 @@ pub fn nice_map_name(name: &MapName) -> &str {
         },
         "de" => match (name.city.city.as_ref(), name.map.as_ref()) {
             ("berlin", "center") => "Berlin (city center)",
+            ("bonn", "center") => "Bonn (city center)",
+            ("bonn", "nordstadt") => "Bonn (Nordstadt)",
+            ("bonn", "venusberg") => "Bonn (Venusberg)",
             ("rostock", "center") => "Rostock",
             _ => &name.map,
         },
@@ -232,6 +236,7 @@ pub fn nice_map_name(name: &MapName) -> &str {
             ("seattle", "udistrict_ravenna") => "University District / Ravenna",
             ("seattle", "wallingford") => "Wallingford",
             ("seattle", "west_seattle") => "West Seattle",
+            ("tucson", "center") => "Tucson",
             _ => &name.map,
         },
         _ => &name.map,

@@ -16,6 +16,7 @@ data/system/ca/montreal
 data/system/ch/zurich
 data/system/cz/frydek_mistek
 data/system/de/berlin
+data/system/de/bonn
 data/system/de/rostock
 data/system/fr/charleville_mezieres
 data/system/fr/lyon
@@ -88,3 +89,4 @@ data/system/us/phoenix
 data/system/us/providence
 data/system/us/san_francisco
 data/system/us/seattle
+data/system/us/tucson

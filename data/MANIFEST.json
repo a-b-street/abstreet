@@ -45,6 +45,11 @@
       "uncompressed_size_bytes": 8783230,
       "compressed_size_bytes": 2000715
     },
+    "data/input/br/sao_paulo/osm/aricanduva.osm": {
+      "checksum": "3708fb4be649c4f16d1de7f7c99369b6",
+      "uncompressed_size_bytes": 128106393,
+      "compressed_size_bytes": 10689416
+    },
     "data/input/br/sao_paulo/osm/center.osm": {
       "checksum": "32432f4c9aafa00d581c86f843be77ca",
       "uncompressed_size_bytes": 38981120,
@@ -54,6 +59,11 @@
       "checksum": "ab4882c15e07742079ddb78d4ef76741",
       "uncompressed_size_bytes": 650931502,
       "compressed_size_bytes": 649718446
+    },
+    "data/input/br/sao_paulo/raw_maps/aricanduva.bin": {
+      "checksum": "af8ecd127797223c323c4649673a2a0f",
+      "uncompressed_size_bytes": 34444887,
+      "compressed_size_bytes": 8646160
     },
     "data/input/br/sao_paulo/raw_maps/center.bin": {
       "checksum": "671ceb5a6ec965d11ead16883f0fbd6b",
@@ -179,6 +189,41 @@
       "checksum": "c90c6e6afd970918654c7477e5a0537d",
       "uncompressed_size_bytes": 10667430,
       "compressed_size_bytes": 2595163
+    },
+    "data/input/de/bonn/osm/center.osm": {
+      "checksum": "b38426dde3822d9030f0a7cb8822133c",
+      "uncompressed_size_bytes": 37402570,
+      "compressed_size_bytes": 3959144
+    },
+    "data/input/de/bonn/osm/koeln-regbez-latest.osm.pbf": {
+      "checksum": "b26dadcb87fb72d7bdda937dfc7b85c2",
+      "uncompressed_size_bytes": 188152970,
+      "compressed_size_bytes": 188024261
+    },
+    "data/input/de/bonn/osm/nordstadt.osm": {
+      "checksum": "45f82ea31a2ba58bba42559e6ab13415",
+      "uncompressed_size_bytes": 18703562,
+      "compressed_size_bytes": 1945848
+    },
+    "data/input/de/bonn/osm/venusberg.osm": {
+      "checksum": "ae861536fcbc72d4b7bd65a8fb63249e",
+      "uncompressed_size_bytes": 2919371,
+      "compressed_size_bytes": 329690
+    },
+    "data/input/de/bonn/raw_maps/center.bin": {
+      "checksum": "64e8fc21b77a535e76dcdf8d886f9d72",
+      "uncompressed_size_bytes": 9082715,
+      "compressed_size_bytes": 2016131
+    },
+    "data/input/de/bonn/raw_maps/nordstadt.bin": {
+      "checksum": "6af822515141d76ae32ffb3d9143710f",
+      "uncompressed_size_bytes": 4624305,
+      "compressed_size_bytes": 867071
+    },
+    "data/input/de/bonn/raw_maps/venusberg.bin": {
+      "checksum": "c486acd8b6ebdbf413669939ecf45d3e",
+      "uncompressed_size_bytes": 612677,
+      "compressed_size_bytes": 140517
     },
     "data/input/de/rostock/osm/center.osm": {
       "checksum": "abba2d14c1883e1622a882cc508bbb5d",
@@ -1525,6 +1570,16 @@
       "uncompressed_size_bytes": 2875981,
       "compressed_size_bytes": 2843899
     },
+    "data/input/shared/elevation/srtm/srtm.-111.32.tif": {
+      "checksum": "132c95241aec76fff2f4055fea4b2c30",
+      "uncompressed_size_bytes": 6999866,
+      "compressed_size_bytes": 6995535
+    },
+    "data/input/shared/elevation/srtm/srtm.-112.32.tif": {
+      "checksum": "77bf2c8b10cb79bb4ef1785439c99271",
+      "uncompressed_size_bytes": 3066458,
+      "compressed_size_bytes": 3057259
+    },
     "data/input/shared/elevation/srtm/srtm.-112.33.tif": {
       "checksum": "d4e193c34e5fb992cb63739a6e9902b7",
       "uncompressed_size_bytes": 6041224,
@@ -1779,6 +1834,11 @@
       "checksum": "ae91bcd1e298c61c6a9d8a37b5bad54a",
       "uncompressed_size_bytes": 6229654,
       "compressed_size_bytes": 6225638
+    },
+    "data/input/shared/elevation/srtm/srtm.7.50.tif": {
+      "checksum": "e613c55fa99f22f5b88f7c35a178b1cc",
+      "uncompressed_size_bytes": 4571786,
+      "compressed_size_bytes": 4528975
     },
     "data/input/shared/elevation/srtm/srtm.8.47.tif": {
       "checksum": "66c9f56f9091e9c6ae44470b9eca2745",
@@ -2395,6 +2455,21 @@
       "uncompressed_size_bytes": 777469024,
       "compressed_size_bytes": 59701039
     },
+    "data/input/us/tucson/osm/arizona-latest.osm.pbf": {
+      "checksum": "fcca68dc464427519147c8873e875769",
+      "uncompressed_size_bytes": 183750079,
+      "compressed_size_bytes": 183418317
+    },
+    "data/input/us/tucson/osm/center.osm": {
+      "checksum": "f48ff5d29e7c370f82b09c081c9bc9a9",
+      "uncompressed_size_bytes": 67167104,
+      "compressed_size_bytes": 5983699
+    },
+    "data/input/us/tucson/raw_maps/center.bin": {
+      "checksum": "0a9fb0f3156af5fa854d19f5036af097",
+      "uncompressed_size_bytes": 17802562,
+      "compressed_size_bytes": 3827096
+    },
     "data/system/at/salzburg/city.bin": {
       "checksum": "e26ef4a68d4b63c1fe0d9529218cc84f",
       "uncompressed_size_bytes": 693217,
@@ -2419,6 +2494,11 @@
       "checksum": "6be5b418feb74696e460d9cc8f8c6f2b",
       "uncompressed_size_bytes": 24188051,
       "compressed_size_bytes": 8763547
+    },
+    "data/system/br/sao_paulo/maps/aricanduva.bin": {
+      "checksum": "72dd7cc3b0ec33657634df0eb2d86e92",
+      "uncompressed_size_bytes": 55587071,
+      "compressed_size_bytes": 20382255
     },
     "data/system/br/sao_paulo/maps/center.bin": {
       "checksum": "2ea87086f7735ab492b1dac1941cbd5e",
@@ -2469,6 +2549,21 @@
       "checksum": "58d3a165dca8b5480448078a95929bb3",
       "uncompressed_size_bytes": 23350696,
       "compressed_size_bytes": 8225990
+    },
+    "data/system/de/bonn/maps/center.bin": {
+      "checksum": "462b1213f476ef9b2d92e9b3385ccbe2",
+      "uncompressed_size_bytes": 13057677,
+      "compressed_size_bytes": 4667360
+    },
+    "data/system/de/bonn/maps/nordstadt.bin": {
+      "checksum": "ad30fdec1b776a1d09d1d0bdc46704e5",
+      "uncompressed_size_bytes": 8806998,
+      "compressed_size_bytes": 3056786
+    },
+    "data/system/de/bonn/maps/venusberg.bin": {
+      "checksum": "54674a5ab270fa6123270b14c314f24c",
+      "uncompressed_size_bytes": 1337249,
+      "compressed_size_bytes": 480305
     },
     "data/system/de/rostock/maps/center.bin": {
       "checksum": "c5a6629b2623276c2729549fc0452c56",
@@ -4144,6 +4239,11 @@
       "checksum": "9ddf07c31dcfb4336f45e3a5d7602dd0",
       "uncompressed_size_bytes": 21648663,
       "compressed_size_bytes": 5538855
+    },
+    "data/system/us/tucson/maps/center.bin": {
+      "checksum": "2b75f97967e9914084e319d444812b51",
+      "uncompressed_size_bytes": 74998007,
+      "compressed_size_bytes": 27092876
     }
   }
 }
