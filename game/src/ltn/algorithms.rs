@@ -47,15 +47,29 @@ impl Neighborhood {
             }
         }
 
-        Neighborhood {
+        let mut n = Neighborhood {
             interior,
             perimeter,
             borders,
+
+            modal_filters: BTreeSet::new(),
+            rat_runs: Vec::new(),
+        };
+        n.rat_runs = n.find_rat_runs(map);
+        n
+    }
+
+    pub fn toggle_modal_filter(&mut self, map: &Map, r: RoadID) {
+        if self.modal_filters.contains(&r) {
+            self.modal_filters.remove(&r);
+        } else {
+            self.modal_filters.insert(r);
         }
+        self.rat_runs = self.find_rat_runs(map);
     }
 
     // Just returns a sampling of rat runs, not necessarily all of them
-    pub fn find_rat_runs(&self, map: &Map) -> Vec<RatRun> {
+    fn find_rat_runs(&self, map: &Map) -> Vec<RatRun> {
         // Just flood from each border and see if we can reach another border.
         //
         // We might be able to do this in one pass, seeding the queue with all borders. But I think
@@ -91,7 +105,10 @@ impl Neighborhood {
 
             for r in &map.get_i(current).roads {
                 let next = map.get_r(*r).other_endpt(current);
-                if !self.interior.contains(r) || back_refs.contains_key(&next) {
+                if !self.interior.contains(r)
+                    || self.modal_filters.contains(r)
+                    || back_refs.contains_key(&next)
+                {
                     continue;
                 }
                 back_refs.insert(next, current);
