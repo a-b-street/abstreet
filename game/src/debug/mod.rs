@@ -29,7 +29,6 @@ pub use self::routes::PathCostDebugger;
 
 mod blocked_by;
 mod floodfill;
-mod ltn;
 mod objects;
 pub mod path_counter;
 mod polygons;
@@ -611,7 +610,6 @@ impl ContextualActions for Actions {
                 if cfg!(not(target_arch = "wasm32")) {
                     actions.push((Key::M, "merge short segment".to_string()));
                 }
-                actions.push((Key::L, "LTN mode".to_string()));
             }
             ID::Intersection(i) => {
                 actions.push((Key::H, "hide this".to_string()));
@@ -812,9 +810,6 @@ impl ContextualActions for Actions {
                 ways.push(app.primary.map.get_parent(l).orig_id);
                 abstio::write_json("merge_osm_ways.json".to_string(), &ways);
                 Transition::Push(reimport_map(ctx, app, Some(orig_ways)))
-            }
-            (ID::Lane(l), "LTN mode") => {
-                Transition::Push(ltn::Viewer::start_from_road(ctx, app, l.road))
             }
             (ID::Area(a), "debug area geometry") => {
                 let pts = &app.primary.map.get_a(a).polygon.points();

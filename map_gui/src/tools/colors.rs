@@ -38,6 +38,15 @@ impl<'a> ColorDiscrete<'a> {
         }
     }
 
+    pub fn no_fading<I: Into<String>>(
+        app: &'a dyn AppLike,
+        categories: Vec<(I, Color)>,
+    ) -> ColorDiscrete<'a> {
+        let mut c = ColorDiscrete::new(app, categories);
+        c.unzoomed = GeomBatch::new();
+        c
+    }
+
     pub fn add_l<I: AsRef<str>>(&mut self, l: LaneID, category: I) {
         let color = self.colors[category.as_ref()];
         self.unzoomed
@@ -266,6 +275,14 @@ impl<'a> ColorNetwork<'a> {
         ColorNetwork {
             map: app.map(),
             unzoomed,
+            zoomed: GeomBatch::new(),
+        }
+    }
+
+    pub fn no_fading(app: &'a dyn AppLike) -> ColorNetwork {
+        ColorNetwork {
+            map: app.map(),
+            unzoomed: GeomBatch::new(),
             zoomed: GeomBatch::new(),
         }
     }
