@@ -9,6 +9,8 @@ use crate::ltn::{Neighborhood, RatRun};
 impl Neighborhood {
     // TODO Doesn't find the full perimeter. But do we really need that?
     pub fn from_road(map: &Map, start: RoadID) -> Neighborhood {
+        assert!(Neighborhood::is_interior_road(start, map));
+
         // Do a simple floodfill from this road, stopping anytime we find a major road
         let mut interior = BTreeSet::new();
         let mut perimeter = BTreeSet::new();
@@ -26,15 +28,11 @@ impl Neighborhood {
             }
             visited.insert(current.id);
             for i in [current.src_i, current.dst_i] {
-                let (minor, major): (Vec<&RoadID>, Vec<&RoadID>) =
-                    map.get_i(i).roads.iter().partition(|r| {
-                        let road = map.get_r(**r);
-                        road.get_rank() == RoadRank::Local
-                            && road
-                                .lanes
-                                .iter()
-                                .any(|l| PathConstraints::Car.can_use(l, map))
-                    });
+                let (minor, major): (Vec<&RoadID>, Vec<&RoadID>) = map
+                    .get_i(i)
+                    .roads
+                    .iter()
+                    .partition(|r| Neighborhood::is_interior_road(**r, map));
                 if major.is_empty() {
                     for r in minor {
                         interior.insert(*r);
@@ -66,6 +64,15 @@ impl Neighborhood {
             self.modal_filters.insert(r);
         }
         self.rat_runs = self.find_rat_runs(map);
+    }
+
+    pub fn is_interior_road(r: RoadID, map: &Map) -> bool {
+        let road = map.get_r(r);
+        road.get_rank() == RoadRank::Local
+            && road
+                .lanes
+                .iter()
+                .any(|l| PathConstraints::Car.can_use(l, map))
     }
 
     // Just returns a sampling of rat runs, not necessarily all of them
