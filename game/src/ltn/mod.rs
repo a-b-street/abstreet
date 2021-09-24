@@ -48,7 +48,7 @@ impl Viewer {
             .map
             .all_roads()
             .iter()
-            .find(|r| r.get_rank() == map_model::osm::RoadRank::Local)
+            .find(|r| Neighborhood::is_interior_road(r.id, &app.primary.map))
             .unwrap();
         Viewer::start_from_road(ctx, app, r.id)
     }
@@ -87,62 +87,63 @@ impl Viewer {
     }
 
     fn recalculate(&mut self, ctx: &mut EventCtx, app: &App) {
+        let mut col = Vec::new();
+        let mut batch = GeomBatch::new();
+        let map = &app.primary.map;
+
         if self.neighborhood.rat_runs.is_empty() {
-            let controls = "No rat runs!".text_widget(ctx);
-            self.panel.replace(ctx, "rat runs", controls);
-            return;
+            col.push("No rat runs!".text_widget(ctx));
+        } else {
+            let run = &self.neighborhood.rat_runs[self.current_rat_run_idx];
+
+            col.extend(vec![
+                Widget::row(vec![
+                    "Rat runs:".text_widget(ctx).centered_vert(),
+                    ctx.style()
+                        .btn_prev()
+                        .disabled(self.current_rat_run_idx == 0)
+                        .hotkey(Key::LeftArrow)
+                        .build_widget(ctx, "previous rat run"),
+                    Text::from(
+                        Line(format!(
+                            "{}/{}",
+                            self.current_rat_run_idx + 1,
+                            self.neighborhood.rat_runs.len()
+                        ))
+                        .secondary(),
+                    )
+                    .into_widget(ctx)
+                    .centered_vert(),
+                    ctx.style()
+                        .btn_next()
+                        .disabled(self.current_rat_run_idx == self.neighborhood.rat_runs.len() - 1)
+                        .hotkey(Key::RightArrow)
+                        .build_widget(ctx, "next rat run"),
+                ]),
+                format!(
+                    "This run has a length ratio of {:.2} vs the shortest path",
+                    run.length_ratio
+                )
+                .text_widget(ctx),
+            ]);
+
+            batch.push(Color::RED, map.get_i(run.path[0]).polygon.clone());
+            batch.push(
+                Color::RED,
+                map.get_i(*run.path.last().unwrap()).polygon.clone(),
+            );
+            for road in run.roads(map) {
+                batch.push(Color::RED, road.get_thick_polygon());
+            }
         }
 
-        let run = &self.neighborhood.rat_runs[self.current_rat_run_idx];
-
-        let controls = Widget::col(vec![
-            Widget::row(vec![
-                "Rat runs:".text_widget(ctx).centered_vert(),
-                ctx.style()
-                    .btn_prev()
-                    .disabled(self.current_rat_run_idx == 0)
-                    .hotkey(Key::LeftArrow)
-                    .build_widget(ctx, "previous rat run"),
-                Text::from(
-                    Line(format!(
-                        "{}/{}",
-                        self.current_rat_run_idx + 1,
-                        self.neighborhood.rat_runs.len()
-                    ))
-                    .secondary(),
-                )
-                .into_widget(ctx)
-                .centered_vert(),
-                ctx.style()
-                    .btn_next()
-                    .disabled(self.current_rat_run_idx == self.neighborhood.rat_runs.len() - 1)
-                    .hotkey(Key::RightArrow)
-                    .build_widget(ctx, "next rat run"),
-            ]),
-            format!(
-                "This run has a length ratio of {:.2} vs the shortest path",
-                run.length_ratio
-            )
-            .text_widget(ctx),
+        col.push(
             format!(
                 "{} modal filters currently added",
                 self.neighborhood.modal_filters.len()
             )
             .text_widget(ctx),
-        ]);
-        self.panel.replace(ctx, "rat runs", controls);
-
-        let map = &app.primary.map;
-        let mut batch = GeomBatch::new();
-        batch.push(Color::RED, map.get_i(run.path[0]).polygon.clone());
-        batch.push(
-            Color::RED,
-            map.get_i(*run.path.last().unwrap()).polygon.clone(),
         );
-        for road in run.roads(map) {
-            batch.push(Color::RED, road.get_thick_polygon());
-        }
-
         for r in &self.neighborhood.modal_filters {
             let road = map.get_r(*r);
             // TODO If these roads touch a border, probably place it closer to the border. If it's
@@ -161,6 +162,7 @@ impl Viewer {
             }
         }
 
+        self.panel.replace(ctx, "rat runs", Widget::col(col));
         self.draw_dynamic_stuff = batch.upload(ctx);
     }
 }
@@ -182,7 +184,7 @@ impl State<App> for Viewer {
                     self.neighborhood.toggle_modal_filter(&app.primary.map, r);
                     self.current_rat_run_idx = 0;
                     self.recalculate(ctx, app);
-                } else {
+                } else if Neighborhood::is_interior_road(r, &app.primary.map) {
                     return Transition::Replace(Viewer::start_from_road(ctx, app, r));
                 }
             }
@@ -223,7 +225,7 @@ impl State<App> for Viewer {
                 } else {
                     g.draw_mouse_tooltip(Text::from(Line("Click to add a modal filter here")));
                 }
-            } else {
+            } else if Neighborhood::is_interior_road(r, &app.primary.map) {
                 g.draw_mouse_tooltip(Text::from(Line("Click to analyze this neighborhood")));
             }
         }
