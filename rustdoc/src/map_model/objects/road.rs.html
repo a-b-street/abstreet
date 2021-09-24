@@ -644,6 +644,19 @@
 <span id="644">644</span>
 <span id="645">645</span>
 <span id="646">646</span>
+<span id="647">647</span>
+<span id="648">648</span>
+<span id="649">649</span>
+<span id="650">650</span>
+<span id="651">651</span>
+<span id="652">652</span>
+<span id="653">653</span>
+<span id="654">654</span>
+<span id="655">655</span>
+<span id="656">656</span>
+<span id="657">657</span>
+<span id="658">658</span>
+<span id="659">659</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
 <span class="kw">use</span> <span class="ident">std::fmt</span>;
@@ -1061,6 +1074,7 @@
         <span class="ident">bike</span>
     }
 
+    <span class="doccomment">/// Returns the common intersection between two roads, panicking if they&#39;re not adjacent</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">common_endpt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">Road</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IntersectionID</span> {
         <span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::suspicious_operation_groupings</span>)]</span> <span class="comment">// false positive</span>
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">src_i</span> <span class="op">=</span><span class="op">=</span> <span class="ident">other</span>.<span class="ident">src_i</span> <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">src_i</span> <span class="op">=</span><span class="op">=</span> <span class="ident">other</span>.<span class="ident">dst_i</span> {
@@ -1069,6 +1083,18 @@
             <span class="self">self</span>.<span class="ident">dst_i</span>
         } <span class="kw">else</span> {
             <span class="macro">panic!</span>(<span class="string">&quot;{} and {} don&#39;t share an endpoint&quot;</span>, <span class="self">self</span>.<span class="ident">id</span>, <span class="ident">other</span>.<span class="ident">id</span>);
+        }
+    }
+
+    <span class="doccomment">/// Returns the other intersection of this road, panicking if this road doesn&#39;t connect to the</span>
+    <span class="doccomment">/// input</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">other_endpt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">i</span>: <span class="ident">IntersectionID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">IntersectionID</span> {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">src_i</span> <span class="op">=</span><span class="op">=</span> <span class="ident">i</span> {
+            <span class="self">self</span>.<span class="ident">dst_i</span>
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">dst_i</span> <span class="op">=</span><span class="op">=</span> <span class="ident">i</span> {
+            <span class="self">self</span>.<span class="ident">src_i</span>
+        } <span class="kw">else</span> {
+            <span class="macro">panic!</span>(<span class="string">&quot;{} doesn&#39;t touch {}&quot;</span>, <span class="self">self</span>.<span class="ident">id</span>, <span class="ident">i</span>);
         }
     }
 

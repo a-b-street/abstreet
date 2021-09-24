@@ -210,6 +210,16 @@
 <span id="210">210</span>
 <span id="211">211</span>
 <span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 <span class="kw">use</span> <span class="ident">std::convert::TryFrom</span>;
@@ -222,7 +232,7 @@
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">osm</span>, <span class="ident">CompressedMovementID</span>, <span class="ident">DirectedRoadID</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">Movement</span>, <span class="ident">MovementID</span>, <span class="ident">PathConstraints</span>,
-    <span class="ident">RoadID</span>, <span class="ident">Turn</span>, <span class="ident">TurnID</span>,
+    <span class="ident">Road</span>, <span class="ident">RoadID</span>, <span class="ident">Turn</span>, <span class="ident">TurnID</span>,
 };
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">Eq</span>, <span class="ident">Hash</span>, <span class="ident">PartialEq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
@@ -421,6 +431,16 @@
             <span class="string">&quot;{} doesn&#39;t belong to any movements in {} or is a SharedSidewalkCorner maybe&quot;</span>,
             <span class="ident">turn</span>, <span class="self">self</span>.<span class="ident">id</span>
         )
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">find_road_between</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="ident">IntersectionID</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Road</span><span class="op">&gt;</span> {
+        <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">roads</span> {
+            <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>);
+            <span class="kw">if</span> <span class="ident">road</span>.<span class="ident">other_endpt</span>(<span class="self">self</span>.<span class="ident">id</span>) <span class="op">=</span><span class="op">=</span> <span class="ident">other</span> {
+                <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">road</span>);
+            }
+        }
+        <span class="prelude-val">None</span>
     }
 }
 </pre></div>

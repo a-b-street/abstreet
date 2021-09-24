@@ -408,6 +408,23 @@
 <span id="408">408</span>
 <span id="409">409</span>
 <span id="410">410</span>
+<span id="411">411</span>
+<span id="412">412</span>
+<span id="413">413</span>
+<span id="414">414</span>
+<span id="415">415</span>
+<span id="416">416</span>
+<span id="417">417</span>
+<span id="418">418</span>
+<span id="419">419</span>
+<span id="420">420</span>
+<span id="421">421</span>
+<span id="422">422</span>
+<span id="423">423</span>
+<span id="424">424</span>
+<span id="425">425</span>
+<span id="426">426</span>
+<span id="427">427</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
@@ -447,6 +464,15 @@
             <span class="ident">colors</span>: <span class="ident">categories</span>.<span class="ident">iter</span>().<span class="ident">cloned</span>().<span class="ident">collect</span>(),
             <span class="ident">categories</span>,
         }
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">no_fading</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>(
+        <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw">dyn</span> <span class="ident">AppLike</span>,
+        <span class="ident">categories</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">I</span>, <span class="ident">Color</span>)<span class="op">&gt;</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ColorDiscrete</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">c</span> <span class="op">=</span> <span class="ident">ColorDiscrete::new</span>(<span class="ident">app</span>, <span class="ident">categories</span>);
+        <span class="ident">c</span>.<span class="ident">unzoomed</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
+        <span class="ident">c</span>
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_l</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">l</span>: <span class="ident">LaneID</span>, <span class="ident">category</span>: <span class="ident">I</span>) {
@@ -677,6 +703,14 @@
         <span class="ident">ColorNetwork</span> {
             <span class="ident">map</span>: <span class="ident">app</span>.<span class="ident">map</span>(),
             <span class="ident">unzoomed</span>,
+            <span class="ident">zoomed</span>: <span class="ident">GeomBatch::new</span>(),
+        }
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">no_fading</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw">dyn</span> <span class="ident">AppLike</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ColorNetwork</span> {
+        <span class="ident">ColorNetwork</span> {
+            <span class="ident">map</span>: <span class="ident">app</span>.<span class="ident">map</span>(),
+            <span class="ident">unzoomed</span>: <span class="ident">GeomBatch::new</span>(),
             <span class="ident">zoomed</span>: <span class="ident">GeomBatch::new</span>(),
         }
     }

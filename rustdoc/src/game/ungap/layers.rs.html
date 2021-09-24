@@ -444,6 +444,7 @@
 <span id="444">444</span>
 <span id="445">445</span>
 <span id="446">446</span>
+<span id="447">447</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
@@ -612,6 +613,7 @@
                             <span class="kw">crate</span><span class="ident">::layer::elevation::SteepStreets::make_colorer</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
                         <span class="comment">// The Colorer fades the map as the very first thing in the batch, but we</span>
                         <span class="comment">// don&#39;t want to do that twice.</span>
+                        <span class="comment">// TODO Can&#39;t use no_fading without complicating make_colorer...</span>
                         <span class="ident">colorer</span>.<span class="ident">unzoomed</span>.<span class="ident">shift</span>();
                         <span class="self">self</span>.<span class="ident">steep_streets</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">colorer</span>.<span class="ident">unzoomed</span>.<span class="ident">upload</span>(<span class="ident">ctx</span>));
                     } <span class="kw">else</span> {
