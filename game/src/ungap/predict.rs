@@ -464,11 +464,8 @@ impl ModeShiftData {
         // And convert grams to tons
         self.results.annual_co2_emissions_tons = 404.0 * annual_mileage / 907185.0;
 
-        let mut colorer = ColorNetwork::new(app);
+        let mut colorer = ColorNetwork::no_fading(app);
         colorer.ranked_roads(count_per_road.clone(), &app.cs.good_to_bad_red);
-        // The Colorer fades the map as the very first thing in the batch, but we don't want to do
-        // that twice.
-        colorer.unzoomed.shift();
         let (draw_unzoomed, draw_zoomed) = colorer.build(ctx);
         self.gaps = NetworkGaps {
             draw_unzoomed,

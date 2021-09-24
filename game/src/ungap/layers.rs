@@ -165,6 +165,7 @@ impl Layers {
                             crate::layer::elevation::SteepStreets::make_colorer(ctx, app);
                         // The Colorer fades the map as the very first thing in the batch, but we
                         // don't want to do that twice.
+                        // TODO Can't use no_fading without complicating make_colorer...
                         colorer.unzoomed.shift();
                         self.steep_streets = Some(colorer.unzoomed.upload(ctx));
                     } else {

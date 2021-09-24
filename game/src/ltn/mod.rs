@@ -1,11 +1,11 @@
 use std::collections::BTreeSet;
 
-use map_gui::tools::ColorDiscrete;
+use map_gui::tools::{nice_map_name, CityPicker, ColorDiscrete};
 use map_gui::ID;
 use map_model::{IntersectionID, Map, Road, RoadID};
 use widgetry::{
-    Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
-    State, Text, TextExt, VerticalAlignment, Widget,
+    lctrl, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
+    Panel, State, Text, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -37,14 +37,34 @@ struct RatRun {
 }
 
 impl Viewer {
-    pub fn start_from_road(ctx: &mut EventCtx, app: &App, start: RoadID) -> Box<dyn State<App>> {
+    pub fn start_anywhere(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
+        // Find some residential road to start on
+        let r = app
+            .primary
+            .map
+            .all_roads()
+            .iter()
+            .find(|r| r.get_rank() == map_model::osm::RoadRank::Local)
+            .unwrap();
+        Viewer::start_from_road(ctx, app, r.id)
+    }
+
+    fn start_from_road(ctx: &mut EventCtx, app: &App, start: RoadID) -> Box<dyn State<App>> {
         let neighborhood = Neighborhood::from_road(&app.primary.map, start);
         let (draw_neighborhood, legend) = neighborhood.render(ctx, app);
         let rat_runs = neighborhood.find_rat_runs(&app.primary.map);
         let panel = Panel::new_builder(Widget::col(vec![
             Widget::row(vec![
                 Line("LTN tool").small_heading().into_widget(ctx),
-                ctx.style().btn_close_widget(ctx),
+                ctx.style()
+                    .btn_popup_icon_text(
+                        "system/assets/tools/map.svg",
+                        nice_map_name(app.primary.map.get_name()),
+                    )
+                    .hotkey(lctrl(Key::L))
+                    .build_widget(ctx, "change map")
+                    .centered_vert()
+                    .align_right(),
             ]),
             legend,
             "Click a road to re-center".text_widget(ctx),
@@ -134,8 +154,12 @@ impl State<App> for Viewer {
 
         if let Outcome::Clicked(x) = self.panel.event(ctx) {
             match x.as_ref() {
-                "close" => {
-                    return Transition::Pop;
+                "change map" => {
+                    return Transition::Push(CityPicker::new_state(
+                        ctx,
+                        app,
+                        Box::new(|ctx, app| Transition::Replace(Viewer::start_anywhere(ctx, app))),
+                    ));
                 }
                 "previous rat run" => {
                     self.current_idx -= 1;
@@ -164,7 +188,7 @@ impl Neighborhood {
         let interior = Color::BLUE;
         let perimeter = Color::hex("#40B5AD");
         let border = Color::CYAN;
-        let mut colorer = ColorDiscrete::new(
+        let mut colorer = ColorDiscrete::no_fading(
             app,
             vec![
                 ("interior", interior),

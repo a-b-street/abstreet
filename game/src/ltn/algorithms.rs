@@ -4,7 +4,7 @@ use geom::Distance;
 use map_model::osm::RoadRank;
 use map_model::{IntersectionID, Map, PathConstraints, RoadID};
 
-use crate::debug::ltn::{Neighborhood, RatRun};
+use crate::ltn::{Neighborhood, RatRun};
 
 impl Neighborhood {
     // TODO Doesn't find the full perimeter. But do we really need that?

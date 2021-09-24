@@ -29,6 +29,7 @@ mod devtools;
 mod edit;
 mod info;
 mod layer;
+mod ltn;
 mod pregame;
 mod sandbox;
 mod ungap;
@@ -49,6 +50,7 @@ struct Setup {
     load_kml: Option<String>,
     diff_map: Option<String>,
     ungap: bool,
+    ltn: bool,
 }
 
 fn run(mut settings: Settings) {
@@ -80,6 +82,7 @@ fn run(mut settings: Settings) {
         load_kml: args.optional("--kml"),
         diff_map: args.optional("--diff"),
         ungap: args.enabled("--ungap"),
+        ltn: args.enabled("--ltn"),
     };
 
     settings = settings.canvas_settings(setup.opts.canvas_settings.clone());
@@ -158,7 +161,8 @@ fn setup_app(ctx: &mut EventCtx, mut setup: Setup) -> (App, Vec<Box<dyn State<Ap
         && !setup.flags.sim_flags.load.contains("player/save")
         && !setup.flags.sim_flags.load.contains("/scenarios/")
         && setup.maybe_mode.is_none()
-        && !setup.ungap;
+        && !setup.ungap
+        && !setup.ltn;
 
     // Load the map used previously if we're starting on the title screen without any overrides.
     if title && setup.flags.sim_flags.load == MapName::seattle("montlake").path() {
@@ -184,7 +188,7 @@ fn setup_app(ctx: &mut EventCtx, mut setup: Setup) -> (App, Vec<Box<dyn State<Ap
     if title {
         setup.opts.color_scheme = map_gui::colors::ColorSchemeChoice::Pregame;
     }
-    if setup.ungap {
+    if setup.ungap || setup.ltn {
         setup.opts.color_scheme = map_gui::colors::ColorSchemeChoice::DayMode;
     }
     let cs = map_gui::colors::ColorScheme::new(ctx, setup.opts.color_scheme);
@@ -415,6 +419,8 @@ fn finish_app_setup(
     } else if setup.ungap {
         let layers = ungap::Layers::new(ctx, app);
         vec![ungap::ExploreMap::new_state(ctx, app, layers)]
+    } else if setup.ltn {
+        vec![ltn::Viewer::start_anywhere(ctx, app)]
     } else {
         // Not attempting to keep the primary and secondary simulations synchronized at the same
         // time yet. Just handle this one startup case, so we can switch maps without constantly
