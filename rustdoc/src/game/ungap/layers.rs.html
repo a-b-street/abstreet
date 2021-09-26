@@ -445,6 +445,21 @@
 <span id="445">445</span>
 <span id="446">446</span>
 <span id="447">447</span>
+<span id="448">448</span>
+<span id="449">449</span>
+<span id="450">450</span>
+<span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
+<span id="459">459</span>
+<span id="460">460</span>
+<span id="461">461</span>
+<span id="462">462</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
@@ -454,7 +469,8 @@
 <span class="kw">use</span> <span class="ident">map_model::LaneType</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">ButtonBuilder</span>, <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">Drawable</span>, <span class="ident">EdgeInsets</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>,
-    <span class="ident">HorizontalAlignment</span>, <span class="ident">Image</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">Text</span>, <span class="ident">Toggle</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">HorizontalAlignment</span>, <span class="ident">Image</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">ScreenPt</span>, <span class="ident">Text</span>, <span class="ident">Toggle</span>,
+    <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
@@ -678,6 +694,19 @@
         }
     }
 
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">layer_icon_pos</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ScreenPt</span> {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">minimized</span> {
+            <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">center_of</span>(<span class="string">&quot;show panel&quot;</span>)
+        } <span class="kw">else</span> {
+            <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">center_of</span>(<span class="string">&quot;layer icon&quot;</span>)
+        }
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">show_panel</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
+        <span class="self">self</span>.<span class="ident">minimized</span> <span class="op">=</span> <span class="bool-val">false</span>;
+        <span class="self">self</span>.<span class="ident">update_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+    }
+
     <span class="kw">fn</span> <span class="ident">update_panel</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
         <span class="self">self</span>.<span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
             <span class="ident">make_zoom_controls</span>(<span class="ident">ctx</span>).<span class="ident">align_right</span>().<span class="ident">padding_right</span>(<span class="number">16</span>),
@@ -704,7 +733,8 @@
                 <span class="ident">Image::from_path</span>(<span class="string">&quot;system/assets/tools/layers.svg&quot;</span>)
                     .<span class="ident">dims</span>(<span class="number">30.0</span>)
                     .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
-                    .<span class="ident">centered_vert</span>(),
+                    .<span class="ident">centered_vert</span>()
+                    .<span class="ident">named</span>(<span class="string">&quot;layer icon&quot;</span>),
                 <span class="ident">Widget::custom_row</span>(<span class="macro">vec!</span>[
                     <span class="comment">// TODO Looks too close to access restrictions</span>
                     <span class="ident">legend_btn</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">unzoomed_highway</span>, <span class="string">&quot;highway&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>),
