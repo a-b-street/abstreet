@@ -56,7 +56,6 @@ impl RoutePlanner {
         let params = &app.session.routing_params;
         let col = Widget::col(vec![
             self.files.get_panel_widget(ctx),
-            self.waypoints.get_panel_widget(ctx),
             Widget::col(vec![
                 Widget::row(vec![
                     "Avoid steep hills (> 8% incline)".text_widget(ctx),
@@ -78,7 +77,8 @@ impl RoutePlanner {
                 ]),
             ])
             .section(ctx),
-            results_widget,
+            self.waypoints.get_panel_widget(ctx).section(ctx),
+            results_widget.section(ctx),
         ]);
 
         let mut new_panel = Tab::Route.make_left_panel(ctx, app, col);
@@ -278,7 +278,7 @@ impl RouteResults {
         };
 
         let widget = Widget::col(vec![
-            Line("Your route").small_heading().into_widget(ctx),
+            Line("Route details").small_heading().into_widget(ctx),
             Text::from_all(vec![
                 Line("Distance: ").secondary(),
                 Line(total_distance.to_string(&app.opts.units)),
@@ -594,10 +594,6 @@ impl RouteManagement {
                     .label_underlined_text(current_name)
                     .build_widget(ctx, "rename route"),
                 ctx.style()
-                    .btn_outline
-                    .text("Start new route")
-                    .build_def(ctx),
-                ctx.style()
                     .btn_plain
                     .icon_text("system/assets/tools/save.svg", "Save")
                     .disabled(!can_save)
@@ -608,6 +604,7 @@ impl RouteManagement {
                     .build_def(ctx),
             ]),
             Widget::row(vec![
+                ctx.style().btn_plain.text("Start new route").build_def(ctx),
                 ctx.style()
                     .btn_prev()
                     .hotkey(Key::LeftArrow)
@@ -615,7 +612,7 @@ impl RouteManagement {
                     .build_widget(ctx, "previous route"),
                 // TODO Autosave first?
                 ctx.style()
-                    .btn_outline
+                    .btn_plain
                     .text("Load another route")
                     .build_def(ctx),
                 ctx.style()

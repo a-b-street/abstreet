@@ -6,7 +6,8 @@ use map_model::osm::RoadRank;
 use map_model::LaneType;
 use widgetry::{
     ButtonBuilder, Color, ControlState, Drawable, EdgeInsets, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Image, Key, Line, Outcome, Panel, Text, Toggle, VerticalAlignment, Widget,
+    HorizontalAlignment, Image, Key, Line, Outcome, Panel, ScreenPt, Text, Toggle,
+    VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -230,6 +231,19 @@ impl Layers {
         }
     }
 
+    pub fn layer_icon_pos(&self) -> ScreenPt {
+        if self.minimized {
+            self.panel.center_of("show panel")
+        } else {
+            self.panel.center_of("layer icon")
+        }
+    }
+
+    pub fn show_panel(&mut self, ctx: &mut EventCtx, app: &App) {
+        self.minimized = false;
+        self.update_panel(ctx, app);
+    }
+
     fn update_panel(&mut self, ctx: &mut EventCtx, app: &App) {
         self.panel = Panel::new_builder(Widget::col(vec![
             make_zoom_controls(ctx).align_right().padding_right(16),
@@ -256,7 +270,8 @@ impl Layers {
                 Image::from_path("system/assets/tools/layers.svg")
                     .dims(30.0)
                     .into_widget(ctx)
-                    .centered_vert(),
+                    .centered_vert()
+                    .named("layer icon"),
                 Widget::custom_row(vec![
                     // TODO Looks too close to access restrictions
                     legend_btn(app.cs.unzoomed_highway, "highway").build_def(ctx),

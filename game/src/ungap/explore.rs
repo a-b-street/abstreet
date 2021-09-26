@@ -1,8 +1,8 @@
-use geom::Distance;
+use geom::{ArrowCap, Distance, PolyLine};
 use map_gui::tools::URLManager;
 use map_gui::ID;
 use map_model::{EditCmd, LaneType};
-use widgetry::{lctrl, EventCtx, GfxCtx, Key, Line, Outcome, Panel, State, TextExt, Widget};
+use widgetry::{lctrl, Color, EventCtx, GfxCtx, Key, Line, Outcome, Panel, State, TextExt, Widget};
 
 use crate::app::{App, Transition};
 use crate::edit::{LoadEdits, RoadEditor, SaveEdits};
@@ -115,6 +115,9 @@ impl State<App> for ExploreMap {
                 "Share proposal" => {
                     return Transition::Push(share::upload_proposal(ctx, app));
                 }
+                "Show more layers" => {
+                    self.layers.show_panel(ctx, app);
+                }
                 x => {
                     return Tab::Explore
                         .handle_action::<ExploreMap>(ctx, app, x)
@@ -133,6 +136,20 @@ impl State<App> for ExploreMap {
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.top_panel.draw(g);
         self.layers.draw(g, app);
+
+        if self.top_panel.currently_hovering() == Some(&"Show more layers".to_string()) {
+            g.fork_screenspace();
+            if let Ok(pl) = PolyLine::new(vec![
+                self.top_panel.center_of("Show more layers").to_pt(),
+                self.layers.layer_icon_pos().to_pt(),
+            ]) {
+                g.draw_polygon(
+                    Color::RED,
+                    pl.make_arrow(Distance::meters(20.0), ArrowCap::Triangle),
+                );
+            }
+            g.unfork();
+        }
     }
 }
 
@@ -185,7 +202,7 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App) -> Panel {
             .build_def(ctx),
         ctx.style()
             .btn_outline
-            .text("Save this proposal")
+            .icon_text("system/assets/tools/save.svg", "Save this proposal")
             .hotkey(lctrl(Key::S))
             .disabled(edits.commands.is_empty())
             .build_def(ctx),
@@ -201,6 +218,13 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App) -> Panel {
         );
     }
     // TODO Should undo/redo, save, share functionality also live here?
+
+    col.push(
+        ctx.style()
+            .btn_plain
+            .icon_text("system/assets/tools/layers.svg", "Show more layers")
+            .build_def(ctx),
+    );
 
     Tab::Explore.make_left_panel(ctx, app, Widget::col(col))
 }
