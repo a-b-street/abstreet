@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["algorithms",""]],"struct":[["Neighborhood",""],["RatRun",""],["Viewer",""]]});
+initSidebarItems({"mod":[["algorithms",""],["browse",""]],"struct":[["Neighborhood",""],["RatRun",""],["Viewer",""]]});
