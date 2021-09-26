@@ -11,7 +11,7 @@ pub async fn run(
     drive_on_left: bool,
     use_geofabrik: bool,
 ) -> Result<()> {
-    if name.contains(" ") || name.is_empty() {
+    if name.contains(' ') || name.is_empty() {
         panic!(
             "--map_name must be non-empty and contain no spaces: {}",
             name

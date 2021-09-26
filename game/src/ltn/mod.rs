@@ -77,7 +77,7 @@ impl Viewer {
 
         let mut viewer = Viewer {
             panel,
-            neighborhood: neighborhood,
+            neighborhood,
             draw_neighborhood,
             current_rat_run_idx: 0,
             draw_dynamic_stuff: Drawable::empty(ctx),
@@ -148,7 +148,7 @@ impl Viewer {
             let road = map.get_r(*r);
             // TODO If these roads touch a border, probably place it closer to the border. If it's
             // an inner neighborhood split, maybe in the middle is more reasonable.
-            if let Ok((pt, angle)) = road.center_pts.dist_along(road.center_pts.length() / 2.0) {
+            if let Ok((pt, angle)) = road.center_pts.dist_along(road.length() / 2.0) {
                 let filter_len = road.get_width();
                 let barrier = Line::must_new(
                     pt.project_away(filter_len, angle.rotate_degs(90.0)),

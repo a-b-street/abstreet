@@ -289,6 +289,10 @@ impl Road {
         self.center_pts.make_polygons(self.get_width())
     }
 
+    pub fn length(&self) -> Distance {
+        self.center_pts.length()
+    }
+
     /// Creates the thick polygon representing one half of the road. For roads with multipe
     /// direction changes (like a two-way cycletrack adjacent to a regular two-way road), the
     /// results are probably weird.
@@ -476,7 +480,7 @@ impl Road {
     /// reality, these segments are likely located within the interior of an intersection. This
     /// method uses a hardcoded threshold to detect these cases.
     pub fn is_extremely_short(&self) -> bool {
-        self.center_pts.length() < Distance::meters(2.0)
+        self.length() < Distance::meters(2.0)
     }
 
     /// Get the DirectedRoadID pointing to the intersection. Panics if the intersection isn't an

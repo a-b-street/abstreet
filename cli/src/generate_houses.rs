@@ -72,7 +72,7 @@ fn generate_buildings_on_empty_residential_roads(
     for l in empty_sidewalks {
         let lane = map.get_l(l);
         let mut dist_along = rand_dist(rng, 1.0, 5.0);
-        while dist_along < lane.lane_center_pts.length() {
+        while dist_along < lane.length() {
             let (sidewalk_pt, angle) = lane.lane_center_pts.must_dist_along(dist_along);
             let width = rng.gen_range(6.0..14.0);
             let height = rng.gen_range(6.0..14.0);

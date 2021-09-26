@@ -741,7 +741,7 @@ impl Map {
             &graph,
             i1,
             |i| i == i2,
-            |(_, _, r)| self.get_r(*r).center_pts.length(),
+            |(_, _, r)| self.get_r(*r).length(),
             |_| Distance::ZERO,
         )?;
         let roads: Vec<RoadID> = path

@@ -158,7 +158,7 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App) -> Panel {
                     .count();
                 if num_before != num_after {
                     let multiplier = (num_after as f64) - (num_before) as f64;
-                    total += multiplier * app.primary.map.get_r(*r).center_pts.length();
+                    total += multiplier * app.primary.map.get_r(*r).length();
                 }
             }
         }

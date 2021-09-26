@@ -220,8 +220,8 @@ impl TuneRelative {
             let r = map.get_r(r);
             // TODO Glue polylines together and do dashed_lines
             batch.push(app.cs.route, r.get_thick_polygon());
-            dist_btwn += r.center_pts.length();
-            car_dt += r.center_pts.length() / r.speed_limit;
+            dist_btwn += r.length();
+            car_dt += r.length() / r.speed_limit;
         }
 
         let offset1 = map.get_traffic_signal(i1).offset;

@@ -54,7 +54,7 @@ impl DrawRoadLabels {
         'ROAD: for r in map.all_roads() {
             if r.get_rank() == osm::RoadRank::Local
                 || r.is_light_rail()
-                || r.center_pts.length() < Distance::meters(30.0)
+                || r.length() < Distance::meters(30.0)
             {
                 continue;
             }
@@ -63,7 +63,7 @@ impl DrawRoadLabels {
             } else {
                 continue;
             };
-            let (pt, angle) = r.center_pts.must_dist_along(r.center_pts.length() / 2.0);
+            let (pt, angle) = r.center_pts.must_dist_along(r.length() / 2.0);
 
             fn cheaply_overestimate_bounds(
                 text: &str,

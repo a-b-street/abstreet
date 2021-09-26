@@ -348,7 +348,7 @@ pub fn match_points_to_lanes<F: Fn(&Lane) -> bool>(
             closest.add(
                 l.id,
                 l.lane_center_pts
-                    .exact_slice(buffer, l.lane_center_pts.length() - buffer)
+                    .exact_slice(buffer, l.length() - buffer)
                     .points(),
             );
         }

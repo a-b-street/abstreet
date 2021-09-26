@@ -277,7 +277,7 @@ pub fn vehicle_cost(
         PathConstraints::Bike => Some(crate::MAX_BIKE_SPEED),
         PathConstraints::Pedestrian => unreachable!(),
     };
-    let t1 = map.get_r(dr.id).center_pts.length()
+    let t1 = map.get_r(dr.id).length()
         / Traversable::max_speed_along_road(dr, max_speed, constraints, map).0;
     let t2 = movement.geom.length()
         / Traversable::max_speed_along_movement(mvmnt, max_speed, constraints, map);

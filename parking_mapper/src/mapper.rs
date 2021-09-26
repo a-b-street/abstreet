@@ -605,11 +605,7 @@ fn find_divided_highways(app: &App) -> HashSet<RoadID> {
     let mut found = HashSet::new();
     for r1 in oneways {
         let r1 = map.get_r(r1);
-        for dist in [
-            Distance::ZERO,
-            r1.center_pts.length() / 2.0,
-            r1.center_pts.length(),
-        ] {
+        for dist in [Distance::ZERO, r1.length() / 2.0, r1.length()] {
             let (pt, angle) = r1.center_pts.must_dist_along(dist);
             for (r2, _, _) in closest.all_close_pts(pt, Distance::meters(250.0)) {
                 if r1.id != r2

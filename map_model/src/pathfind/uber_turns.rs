@@ -172,7 +172,7 @@ impl IntersectionCluster {
             found.insert(i.id);
             for r in &i.roads {
                 let r = map.get_r(*r);
-                if r.center_pts.length() > threshold {
+                if r.length() > threshold {
                     continue;
                 }
                 let other = if r.src_i == i.id { r.dst_i } else { r.src_i };

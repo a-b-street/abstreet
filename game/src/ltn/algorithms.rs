@@ -134,11 +134,8 @@ impl RatRun {
             length_ratio: 1.0,
         };
         if let Some((roads, _)) = map.simple_path_btwn(run.path[0], *run.path.last().unwrap()) {
-            let shortest: Distance = roads
-                .into_iter()
-                .map(|r| map.get_r(r).center_pts.length())
-                .sum();
-            let this_path: Distance = run.roads(map).map(|r| r.center_pts.length()).sum();
+            let shortest: Distance = roads.into_iter().map(|r| map.get_r(r).length()).sum();
+            let this_path: Distance = run.roads(map).map(|r| r.length()).sum();
             run.length_ratio = this_path / shortest;
         }
         run

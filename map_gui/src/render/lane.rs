@@ -471,7 +471,7 @@ fn calculate_buffer_markings(
             let buffer_ends = Distance::meters(2.0);
             if let Ok(pl) = lane
                 .lane_center_pts
-                .maybe_exact_slice(buffer_ends, lane.lane_center_pts.length() - buffer_ends)
+                .maybe_exact_slice(buffer_ends, lane.length() - buffer_ends)
             {
                 batch.push(dark_grey, pl.make_polygons(0.8 * lane.width));
                 batch.push(light_grey, pl.make_polygons(0.5 * lane.width));

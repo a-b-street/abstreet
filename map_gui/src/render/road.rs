@@ -73,7 +73,7 @@ impl DrawRoad {
         // Draw the label
         if !r.is_light_rail() {
             let name = r.get_name(app.opts().language.as_ref());
-            if r.center_pts.length() >= Distance::meters(30.0) && name != "???" {
+            if r.length() >= Distance::meters(30.0) && name != "???" {
                 // TODO If it's definitely straddling bus/bike lanes, change the color? Or
                 // even easier, just skip the center lines?
                 let bg = if r.is_private() {
@@ -94,7 +94,7 @@ impl DrawRoad {
                     ));
                 } else {
                     let txt = Text::from(Line(name).fg(center_line_color)).bg(bg);
-                    let (pt, angle) = r.center_pts.must_dist_along(r.center_pts.length() / 2.0);
+                    let (pt, angle) = r.center_pts.must_dist_along(r.length() / 2.0);
                     batch.append(
                         txt.render_autocropped(prerender)
                             .scale(0.1)

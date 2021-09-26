@@ -169,7 +169,7 @@ impl<X: Axis<X>, Y: Axis<Y>> LinePlot<X, Y> {
 
             top_left: ScreenPt::new(0.0, 0.0),
             dims: ScreenDims::new(width, height),
-            unit_fmt: unit_fmt,
+            unit_fmt,
         };
 
         // Don't let the x-axis fill the parent container

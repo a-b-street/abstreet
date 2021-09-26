@@ -78,7 +78,7 @@ impl Player {
                         // We'll adjust the direction at the call-site if we're moving along the
                         // same road. This heuristic is reasonable for moving from intersections to
                         // roads.
-                        let dir = if dist < road.center_pts.length() / 2.0 {
+                        let dir = if dist < road.length() / 2.0 {
                             Direction::Fwd
                         } else {
                             Direction::Back
@@ -269,7 +269,7 @@ impl BuildingsAlongRoad {
             let road = app.map.get_parent(b.sidewalk_pos.lane());
             let dist = match app.map.get_l(b.sidewalk_pos.lane()).dir {
                 Direction::Fwd => b.sidewalk_pos.dist_along(),
-                Direction::Back => road.center_pts.length() - b.sidewalk_pos.dist_along(),
+                Direction::Back => road.length() - b.sidewalk_pos.dist_along(),
             };
             raw.insert(road.id, (dist, b.id));
         }
