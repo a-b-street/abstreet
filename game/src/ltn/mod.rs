@@ -10,6 +10,7 @@ use widgetry::{
 };
 
 use crate::app::{App, Transition};
+use crate::common::intersections_from_roads;
 
 mod algorithms;
 
@@ -127,13 +128,11 @@ impl Viewer {
                 .text_widget(ctx),
             ]);
 
-            batch.push(Color::RED, map.get_i(run.path[0]).polygon.clone());
-            batch.push(
-                Color::RED,
-                map.get_i(*run.path.last().unwrap()).polygon.clone(),
-            );
+            for i in &run.path {
+                batch.push(Color::RED.alpha(0.8), map.get_i(*i).polygon.clone());
+            }
             for road in run.roads(map) {
-                batch.push(Color::RED, road.get_thick_polygon());
+                batch.push(Color::RED.alpha(0.8), road.get_thick_polygon());
             }
         }
 
@@ -247,6 +246,9 @@ impl Neighborhood {
         );
         for r in &self.interior {
             colorer.add_r(*r, "interior");
+        }
+        for i in intersections_from_roads(&self.interior, &app.primary.map) {
+            colorer.add_i(i, "interior");
         }
         for r in &self.perimeter {
             colorer.add_r(*r, "perimeter");
