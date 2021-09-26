@@ -45,16 +45,29 @@ impl Neighborhood {
             }
         }
 
-        let mut n = Neighborhood {
+        Neighborhood {
             interior,
             perimeter,
             borders,
 
             modal_filters: BTreeSet::new(),
             rat_runs: Vec::new(),
-        };
-        n.rat_runs = n.find_rat_runs(map);
-        n
+        }
+    }
+
+    // Just finds a sampling of rat runs, not necessarily all of them
+    pub fn calculate_rat_runs(&mut self, map: &Map) {
+        // Just flood from each border and see if we can reach another border.
+        //
+        // We might be able to do this in one pass, seeding the queue with all borders. But I think
+        // the "visited" bit would get tangled up between different possibilities...
+        self.rat_runs = self
+            .borders
+            .iter()
+            .flat_map(|i| self.rat_run_from(map, *i))
+            .collect();
+        self.rat_runs
+            .sort_by(|a, b| a.length_ratio.partial_cmp(&b.length_ratio).unwrap());
     }
 
     pub fn toggle_modal_filter(&mut self, map: &Map, r: RoadID) {
@@ -63,7 +76,7 @@ impl Neighborhood {
         } else {
             self.modal_filters.insert(r);
         }
-        self.rat_runs = self.find_rat_runs(map);
+        self.calculate_rat_runs(map);
     }
 
     pub fn is_interior_road(r: RoadID, map: &Map) -> bool {
@@ -73,21 +86,6 @@ impl Neighborhood {
                 .lanes
                 .iter()
                 .any(|l| PathConstraints::Car.can_use(l, map))
-    }
-
-    // Just returns a sampling of rat runs, not necessarily all of them
-    fn find_rat_runs(&self, map: &Map) -> Vec<RatRun> {
-        // Just flood from each border and see if we can reach another border.
-        //
-        // We might be able to do this in one pass, seeding the queue with all borders. But I think
-        // the "visited" bit would get tangled up between different possibilities...
-        let mut runs: Vec<RatRun> = self
-            .borders
-            .iter()
-            .flat_map(|i| self.rat_run_from(map, *i))
-            .collect();
-        runs.sort_by(|a, b| a.length_ratio.partial_cmp(&b.length_ratio).unwrap());
-        runs
     }
 
     fn rat_run_from(&self, map: &Map, start: IntersectionID) -> Option<RatRun> {

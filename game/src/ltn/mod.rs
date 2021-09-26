@@ -11,8 +11,10 @@ use widgetry::{
 
 use crate::app::{App, Transition};
 use crate::common::intersections_from_roads;
+pub use browse::BrowseNeighborhoods;
 
 mod algorithms;
+mod browse;
 
 pub struct Viewer {
     panel: Panel,
@@ -42,20 +44,9 @@ struct RatRun {
 }
 
 impl Viewer {
-    pub fn start_anywhere(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
-        // Find some residential road to start on
-        let r = app
-            .primary
-            .map
-            .all_roads()
-            .iter()
-            .find(|r| Neighborhood::is_interior_road(r.id, &app.primary.map))
-            .unwrap();
-        Viewer::start_from_road(ctx, app, r.id)
-    }
-
     fn start_from_road(ctx: &mut EventCtx, app: &App, start: RoadID) -> Box<dyn State<App>> {
-        let neighborhood = Neighborhood::from_road(&app.primary.map, start);
+        let mut neighborhood = Neighborhood::from_road(&app.primary.map, start);
+        neighborhood.calculate_rat_runs(&app.primary.map);
         let (draw_neighborhood, legend) = neighborhood.render(ctx, app);
         let panel = Panel::new_builder(Widget::col(vec![
             Widget::row(vec![
@@ -70,6 +61,11 @@ impl Viewer {
                     .centered_vert()
                     .align_right(),
             ]),
+            ctx.style()
+                .btn_outline
+                .text("Browse neighborhoods")
+                .hotkey(Key::B)
+                .build_def(ctx),
             legend,
             Text::new().into_widget(ctx).named("rat runs"),
         ]))
@@ -195,7 +191,9 @@ impl State<App> for Viewer {
                     return Transition::Push(CityPicker::new_state(
                         ctx,
                         app,
-                        Box::new(|ctx, app| Transition::Replace(Viewer::start_anywhere(ctx, app))),
+                        Box::new(|ctx, app| {
+                            Transition::Replace(BrowseNeighborhoods::new_state(ctx, app))
+                        }),
                     ));
                 }
                 "previous rat run" => {
@@ -205,6 +203,9 @@ impl State<App> for Viewer {
                 "next rat run" => {
                     self.current_rat_run_idx += 1;
                     self.recalculate(ctx, app);
+                }
+                "Browse neighborhoods" => {
+                    return Transition::Replace(BrowseNeighborhoods::new_state(ctx, app));
                 }
                 _ => unreachable!(),
             }
@@ -263,8 +264,9 @@ impl Neighborhood {
 
 impl RatRun {
     fn roads<'a>(&'a self, map: &'a Map) -> impl Iterator<Item = &'a Road> {
+        // TODO Find the neighborhoods that aren't being defined right, instead of flat_map here
         self.path
             .windows(2)
-            .map(move |pair| map.get_i(pair[0]).find_road_between(pair[1], map).unwrap())
+            .flat_map(move |pair| map.get_i(pair[0]).find_road_between(pair[1], map))
     }
 }

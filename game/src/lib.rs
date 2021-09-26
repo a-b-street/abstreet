@@ -420,7 +420,7 @@ fn finish_app_setup(
         let layers = ungap::Layers::new(ctx, app);
         vec![ungap::ExploreMap::new_state(ctx, app, layers)]
     } else if setup.ltn {
-        vec![ltn::Viewer::start_anywhere(ctx, app)]
+        vec![ltn::BrowseNeighborhoods::new_state(ctx, app)]
     } else {
         // Not attempting to keep the primary and secondary simulations synchronized at the same
         // time yet. Just handle this one startup case, so we can switch maps without constantly
