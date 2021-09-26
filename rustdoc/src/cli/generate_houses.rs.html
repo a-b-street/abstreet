@@ -233,7 +233,7 @@
     <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="ident">empty_sidewalks</span> {
         <span class="kw">let</span> <span class="ident">lane</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">dist_along</span> <span class="op">=</span> <span class="ident">rand_dist</span>(<span class="ident">rng</span>, <span class="number">1.0</span>, <span class="number">5.0</span>);
-        <span class="kw">while</span> <span class="ident">dist_along</span> <span class="op">&lt;</span> <span class="ident">lane</span>.<span class="ident">lane_center_pts</span>.<span class="ident">length</span>() {
+        <span class="kw">while</span> <span class="ident">dist_along</span> <span class="op">&lt;</span> <span class="ident">lane</span>.<span class="ident">length</span>() {
             <span class="kw">let</span> (<span class="ident">sidewalk_pt</span>, <span class="ident">angle</span>) <span class="op">=</span> <span class="ident">lane</span>.<span class="ident">lane_center_pts</span>.<span class="ident">must_dist_along</span>(<span class="ident">dist_along</span>);
             <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span> <span class="ident">rng</span>.<span class="ident">gen_range</span>(<span class="number">6.0</span>..<span class="number">14.0</span>);
             <span class="kw">let</span> <span class="ident">height</span> <span class="op">=</span> <span class="ident">rng</span>.<span class="ident">gen_range</span>(<span class="number">6.0</span>..<span class="number">14.0</span>);

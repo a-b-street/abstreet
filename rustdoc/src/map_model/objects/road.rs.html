@@ -657,6 +657,10 @@
 <span id="657">657</span>
 <span id="658">658</span>
 <span id="659">659</span>
+<span id="660">660</span>
+<span id="661">661</span>
+<span id="662">662</span>
+<span id="663">663</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
 <span class="kw">use</span> <span class="ident">std::fmt</span>;
@@ -949,6 +953,10 @@
         <span class="self">self</span>.<span class="ident">center_pts</span>.<span class="ident">make_polygons</span>(<span class="self">self</span>.<span class="ident">get_width</span>())
     }
 
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">length</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Distance</span> {
+        <span class="self">self</span>.<span class="ident">center_pts</span>.<span class="ident">length</span>()
+    }
+
     <span class="doccomment">/// Creates the thick polygon representing one half of the road. For roads with multipe</span>
     <span class="doccomment">/// direction changes (like a two-way cycletrack adjacent to a regular two-way road), the</span>
     <span class="doccomment">/// results are probably weird.</span>
@@ -1136,7 +1144,7 @@
     <span class="doccomment">/// reality, these segments are likely located within the interior of an intersection. This</span>
     <span class="doccomment">/// method uses a hardcoded threshold to detect these cases.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_extremely_short</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">center_pts</span>.<span class="ident">length</span>() <span class="op">&lt;</span> <span class="ident">Distance::meters</span>(<span class="number">2.0</span>)
+        <span class="self">self</span>.<span class="ident">length</span>() <span class="op">&lt;</span> <span class="ident">Distance::meters</span>(<span class="number">2.0</span>)
     }
 
     <span class="doccomment">/// Get the DirectedRoadID pointing to the intersection. Panics if the intersection isn&#39;t an</span>

@@ -460,7 +460,7 @@
             <span class="ident">found</span>.<span class="ident">insert</span>(<span class="ident">i</span>.<span class="ident">id</span>);
             <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">i</span>.<span class="ident">roads</span> {
                 <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>);
-                <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">center_pts</span>.<span class="ident">length</span>() <span class="op">&gt;</span> <span class="ident">threshold</span> {
+                <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">length</span>() <span class="op">&gt;</span> <span class="ident">threshold</span> {
                     <span class="kw">continue</span>;
                 }
                 <span class="kw">let</span> <span class="ident">other</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">src_i</span> <span class="op">=</span><span class="op">=</span> <span class="ident">i</span>.<span class="ident">id</span> { <span class="ident">r</span>.<span class="ident">dst_i</span> } <span class="kw">else</span> { <span class="ident">r</span>.<span class="ident">src_i</span> };

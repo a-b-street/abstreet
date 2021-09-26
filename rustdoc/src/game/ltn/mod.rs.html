@@ -346,7 +346,7 @@
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">viewer</span> <span class="op">=</span> <span class="ident">Viewer</span> {
             <span class="ident">panel</span>,
-            <span class="ident">neighborhood</span>: <span class="ident">neighborhood</span>,
+            <span class="ident">neighborhood</span>,
             <span class="ident">draw_neighborhood</span>,
             <span class="ident">current_rat_run_idx</span>: <span class="number">0</span>,
             <span class="ident">draw_dynamic_stuff</span>: <span class="ident">Drawable::empty</span>(<span class="ident">ctx</span>),
@@ -417,7 +417,7 @@
             <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>);
             <span class="comment">// TODO If these roads touch a border, probably place it closer to the border. If it&#39;s</span>
             <span class="comment">// an inner neighborhood split, maybe in the middle is more reasonable.</span>
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>((<span class="ident">pt</span>, <span class="ident">angle</span>)) <span class="op">=</span> <span class="ident">road</span>.<span class="ident">center_pts</span>.<span class="ident">dist_along</span>(<span class="ident">road</span>.<span class="ident">center_pts</span>.<span class="ident">length</span>() <span class="op">/</span> <span class="number">2.0</span>) {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>((<span class="ident">pt</span>, <span class="ident">angle</span>)) <span class="op">=</span> <span class="ident">road</span>.<span class="ident">center_pts</span>.<span class="ident">dist_along</span>(<span class="ident">road</span>.<span class="ident">length</span>() <span class="op">/</span> <span class="number">2.0</span>) {
                 <span class="kw">let</span> <span class="ident">filter_len</span> <span class="op">=</span> <span class="ident">road</span>.<span class="ident">get_width</span>();
                 <span class="kw">let</span> <span class="ident">barrier</span> <span class="op">=</span> <span class="ident">Line::must_new</span>(
                     <span class="ident">pt</span>.<span class="ident">project_away</span>(<span class="ident">filter_len</span>, <span class="ident">angle</span>.<span class="ident">rotate_degs</span>(<span class="number">90.0</span>)),

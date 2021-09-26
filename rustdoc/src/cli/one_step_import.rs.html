@@ -108,7 +108,7 @@
     <span class="ident">drive_on_left</span>: <span class="ident">bool</span>,
     <span class="ident">use_geofabrik</span>: <span class="ident">bool</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-    <span class="kw">if</span> <span class="ident">name</span>.<span class="ident">contains</span>(<span class="string">&quot; &quot;</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">name</span>.<span class="ident">is_empty</span>() {
+    <span class="kw">if</span> <span class="ident">name</span>.<span class="ident">contains</span>(<span class="string">&#39; &#39;</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">name</span>.<span class="ident">is_empty</span>() {
         <span class="macro">panic!</span>(
             <span class="string">&quot;--map_name must be non-empty and contain no spaces: {}&quot;</span>,
             <span class="ident">name</span>

@@ -670,10 +670,6 @@
 <span id="670">670</span>
 <span id="671">671</span>
 <span id="672">672</span>
-<span id="673">673</span>
-<span id="674">674</span>
-<span id="675">675</span>
-<span id="676">676</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashSet</span>};
 
@@ -1282,11 +1278,7 @@
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">found</span> <span class="op">=</span> <span class="ident">HashSet::new</span>();
     <span class="kw">for</span> <span class="ident">r1</span> <span class="kw">in</span> <span class="ident">oneways</span> {
         <span class="kw">let</span> <span class="ident">r1</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r1</span>);
-        <span class="kw">for</span> <span class="ident">dist</span> <span class="kw">in</span> [
-            <span class="ident">Distance::ZERO</span>,
-            <span class="ident">r1</span>.<span class="ident">center_pts</span>.<span class="ident">length</span>() <span class="op">/</span> <span class="number">2.0</span>,
-            <span class="ident">r1</span>.<span class="ident">center_pts</span>.<span class="ident">length</span>(),
-        ] {
+        <span class="kw">for</span> <span class="ident">dist</span> <span class="kw">in</span> [<span class="ident">Distance::ZERO</span>, <span class="ident">r1</span>.<span class="ident">length</span>() <span class="op">/</span> <span class="number">2.0</span>, <span class="ident">r1</span>.<span class="ident">length</span>()] {
             <span class="kw">let</span> (<span class="ident">pt</span>, <span class="ident">angle</span>) <span class="op">=</span> <span class="ident">r1</span>.<span class="ident">center_pts</span>.<span class="ident">must_dist_along</span>(<span class="ident">dist</span>);
             <span class="kw">for</span> (<span class="ident">r2</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="ident">closest</span>.<span class="ident">all_close_pts</span>(<span class="ident">pt</span>, <span class="ident">Distance::meters</span>(<span class="number">250.0</span>)) {
                 <span class="kw">if</span> <span class="ident">r1</span>.<span class="ident">id</span> <span class="op">!</span><span class="op">=</span> <span class="ident">r2</span>
