@@ -132,6 +132,17 @@ impl State<App> for ShowGaps {
 
 fn make_top_panel(ctx: &mut EventCtx, app: &App) -> Panel {
     let data = app.session.mode_shift.value().unwrap();
+
+    if data.all_candidate_trips.is_empty() {
+        return Tab::PredictImpact.make_left_panel(
+            ctx,
+            app,
+            Widget::col(vec![
+                "This city doesn't have travel demand model data available".text_widget(ctx),
+            ]),
+        );
+    }
+
     let col = vec![
         // TODO Info button with popup explaining all the assumptions... (where scenario data comes
         // from, only driving -> cycling, no off-map starts or ends, etc)
@@ -141,7 +152,7 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App) -> Panel {
                 "{} total driving trips in this area",
                 prettyprint_usize(data.all_candidate_trips.len())
             ))),
-            1.0,
+            0.0,
         ),
         Widget::col(vec![
             "Who might cycle if it was safer?".text_widget(ctx),
