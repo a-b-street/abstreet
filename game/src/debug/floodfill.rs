@@ -1,10 +1,10 @@
 use std::collections::HashSet;
 
-use map_gui::tools::ColorDiscrete;
+use map_gui::tools::{ColorDiscrete, ToggleZoomed};
 use map_model::{connectivity, LaneID, Map, PathConstraints};
 use widgetry::{
-    Choice, Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Line, Outcome, Panel, State,
-    TextExt, VerticalAlignment, Widget,
+    Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Line, Outcome, Panel, State, TextExt,
+    VerticalAlignment, Widget,
 };
 
 use crate::app::App;
@@ -12,8 +12,7 @@ use crate::app::Transition;
 
 pub struct Floodfiller {
     panel: Panel,
-    unzoomed: Drawable,
-    zoomed: Drawable,
+    draw: ToggleZoomed,
     source: Source,
 }
 
@@ -47,7 +46,7 @@ impl Floodfiller {
             colorer.add_l(l, "unreachable");
         }
 
-        let (unzoomed, zoomed, legend) = colorer.build(ctx);
+        let (draw, legend) = colorer.build(ctx);
         Box::new(Floodfiller {
             panel: Panel::new_builder(Widget::col(vec![
                 Widget::row(vec![
@@ -71,8 +70,7 @@ impl Floodfiller {
             ]))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx),
-            unzoomed,
-            zoomed,
+            draw,
             source,
         })
     }
@@ -107,11 +105,7 @@ impl State<App> for Floodfiller {
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
-            g.redraw(&self.unzoomed);
-        } else {
-            g.redraw(&self.zoomed);
-        }
+        self.draw.draw(g, app);
         self.panel.draw(g);
     }
 }

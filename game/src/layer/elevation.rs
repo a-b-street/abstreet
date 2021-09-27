@@ -1,5 +1,5 @@
 use geom::{Angle, Distance, FindClosest, PolyLine, Polygon, Pt2D};
-use map_gui::tools::{ColorDiscrete, ColorScale, Grid};
+use map_gui::tools::{ColorDiscrete, ColorScale, Grid, ToggleZoomed};
 use map_gui::ID;
 use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Panel, Text, TextExt, Widget};
 
@@ -8,8 +8,7 @@ use crate::layer::{header, Layer, LayerOutcome, PANEL_PLACEMENT};
 
 pub struct SteepStreets {
     tooltip: Option<Text>,
-    unzoomed: Drawable,
-    zoomed: Drawable,
+    draw: ToggleZoomed,
     panel: Panel,
 }
 
@@ -32,24 +31,20 @@ impl Layer for SteepStreets {
     }
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.panel.draw(g);
-        if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
-            g.redraw(&self.unzoomed);
-        } else {
-            g.redraw(&self.zoomed);
-        }
+        self.draw.draw(g, app);
         if let Some(ref txt) = self.tooltip {
             g.draw_mouse_tooltip(txt.clone());
         }
     }
     fn draw_minimap(&self, g: &mut GfxCtx) {
-        g.redraw(&self.unzoomed);
+        g.redraw(&self.draw.unzoomed);
     }
 }
 
 impl SteepStreets {
     pub fn new(ctx: &mut EventCtx, app: &App) -> SteepStreets {
         let (colorer, steepest, uphill_legend) = SteepStreets::make_colorer(ctx, app);
-        let (unzoomed, zoomed, legend) = colorer.build(ctx);
+        let (draw, legend) = colorer.build(ctx);
 
         let panel = Panel::new_builder(Widget::col(vec![
             header(ctx, "Steep streets"),
@@ -62,8 +57,7 @@ impl SteepStreets {
 
         SteepStreets {
             tooltip: None,
-            unzoomed,
-            zoomed,
+            draw,
             panel,
         }
     }

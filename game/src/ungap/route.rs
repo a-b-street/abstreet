@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 use abstutil::Timer;
 use geom::{Circle, Distance, Duration, FindClosest, PolyLine};
-use map_gui::tools::{grey_out_map, ChooseSomething, PopupMsg};
+use map_gui::tools::{grey_out_map, ChooseSomething, PopupMsg, ToggleZoomed};
 use map_model::{Path, PathStep, RoutingParams, NORMAL_LANE_THICKNESS};
 use sim::{TripEndpoint, TripMode};
 use widgetry::{
@@ -182,8 +182,7 @@ struct RouteResults {
 
     hover_on_line_plot: Option<(Distance, Drawable)>,
     hover_on_route_tooltip: Option<Text>,
-    draw_route_unzoomed: Drawable,
-    draw_route_zoomed: Drawable,
+    draw_route: ToggleZoomed,
 
     draw_high_stress: Drawable,
     draw_traffic_signals: Drawable,
@@ -212,8 +211,7 @@ impl RouteResults {
         route_color: Color,
         params: &RoutingParams,
     ) -> (RouteResults, Widget) {
-        let mut unzoomed_batch = GeomBatch::new();
-        let mut zoomed_batch = GeomBatch::new();
+        let mut draw_route = ToggleZoomed::builder();
         let mut draw_high_stress = GeomBatch::new();
         let mut draw_traffic_signals = GeomBatch::new();
         let mut draw_unprotected_turns = GeomBatch::new();
@@ -277,15 +275,15 @@ impl RouteResults {
                 let maybe_pl = path.trace(map);
                 if let Some(ref pl) = maybe_pl {
                     let shape = pl.make_polygons(5.0 * NORMAL_LANE_THICKNESS);
-                    unzoomed_batch.push(route_color.alpha(0.8), shape.clone());
-                    zoomed_batch.push(route_color.alpha(0.5), shape);
+                    draw_route
+                        .unzoomed
+                        .push(route_color.alpha(0.8), shape.clone());
+                    draw_route.zoomed.push(route_color.alpha(0.5), shape);
                     closest_path_segment.add(paths.len(), pl.points());
                 }
                 paths.push((path, maybe_pl));
             }
         }
-        let draw_route_unzoomed = ctx.upload(unzoomed_batch);
-        let draw_route_zoomed = ctx.upload(zoomed_batch);
 
         let mut total_up = Distance::ZERO;
         let mut total_down = Distance::ZERO;
@@ -384,8 +382,7 @@ impl RouteResults {
 
         (
             RouteResults {
-                draw_route_unzoomed,
-                draw_route_zoomed,
+                draw_route: draw_route.build(ctx),
                 draw_high_stress: ctx.upload(draw_high_stress),
                 draw_traffic_signals: ctx.upload(draw_traffic_signals),
                 draw_unprotected_turns: ctx.upload(draw_unprotected_turns),
@@ -506,11 +503,7 @@ impl RouteResults {
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App, panel: &Panel) {
-        if g.canvas.cam_zoom >= app.opts.min_zoom_for_detail {
-            g.redraw(&self.draw_route_zoomed);
-        } else {
-            g.redraw(&self.draw_route_unzoomed);
-        }
+        self.draw_route.draw(g, app);
         if let Some((_, ref draw)) = self.hover_on_line_plot {
             g.redraw(draw);
         }
@@ -532,9 +525,7 @@ impl RouteResults {
 struct AltRouteResults {
     closest_path_segment: FindClosest<usize>,
     hovering: bool,
-
-    draw_route_unzoomed: Drawable,
-    draw_route_zoomed: Drawable,
+    draw_route: ToggleZoomed,
 }
 
 impl AltRouteResults {
@@ -552,9 +543,7 @@ impl AltRouteResults {
         AltRouteResults {
             closest_path_segment: results.closest_path_segment,
             hovering: false,
-
-            draw_route_unzoomed: results.draw_route_unzoomed,
-            draw_route_zoomed: results.draw_route_zoomed,
+            draw_route: results.draw_route,
         }
     }
 
@@ -574,11 +563,7 @@ impl AltRouteResults {
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        if g.canvas.cam_zoom >= app.opts.min_zoom_for_detail {
-            g.redraw(&self.draw_route_zoomed);
-        } else {
-            g.redraw(&self.draw_route_unzoomed);
-        }
+        self.draw_route.draw(g, app);
 
         if self.hovering {
             g.draw_mouse_tooltip(Text::from(Line("Click to try this alternate route")));

@@ -1,7 +1,7 @@
 use std::collections::BTreeSet;
 
 use geom::{Distance, Line};
-use map_gui::tools::{CityPicker, ColorDiscrete};
+use map_gui::tools::{CityPicker, ColorDiscrete, ToggleZoomed};
 use map_gui::ID;
 use map_model::{IntersectionID, Map, Road, RoadID};
 use widgetry::{
@@ -19,7 +19,7 @@ mod browse;
 pub struct Viewer {
     panel: Panel,
     neighborhood: Neighborhood,
-    draw_neighborhood: Drawable,
+    draw_neighborhood: ToggleZoomed,
     // Rat runs and modal filters
     draw_dynamic_stuff: Drawable,
 
@@ -209,7 +209,7 @@ impl State<App> for Viewer {
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.panel.draw(g);
-        g.redraw(&self.draw_neighborhood);
+        self.draw_neighborhood.draw(g, app);
         g.redraw(&self.draw_dynamic_stuff);
 
         if let Some(ID::Road(r)) = app.primary.current_selection {
@@ -228,7 +228,7 @@ impl State<App> for Viewer {
 
 impl Neighborhood {
     // Also a legend
-    fn render(&self, ctx: &mut EventCtx, app: &App) -> (Drawable, Widget) {
+    fn render(&self, ctx: &mut EventCtx, app: &App) -> (ToggleZoomed, Widget) {
         let mut colorer = ColorDiscrete::no_fading(
             app,
             vec![
@@ -251,8 +251,7 @@ impl Neighborhood {
         for i in &self.borders {
             colorer.add_i(*i, "border");
         }
-        let (unzoomed, _, legend) = colorer.build(ctx);
-        (unzoomed, legend)
+        colorer.build(ctx)
     }
 }
 

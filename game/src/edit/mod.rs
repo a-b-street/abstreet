@@ -4,12 +4,12 @@ use abstutil::{prettyprint_usize, Timer};
 use geom::Speed;
 use map_gui::options::OptionsPanel;
 use map_gui::render::DrawMap;
-use map_gui::tools::{grey_out_map, ChooseSomething, ColorLegend, PopupMsg};
+use map_gui::tools::{grey_out_map, ChooseSomething, ColorLegend, PopupMsg, ToggleZoomed};
 use map_gui::ID;
 use map_model::{EditCmd, IntersectionID, LaneID, MapEdits};
 use widgetry::{
-    lctrl, Choice, Color, ControlState, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Image,
-    Key, Line, Menu, Outcome, Panel, State, Text, TextBox, TextExt, VerticalAlignment, Widget,
+    lctrl, Choice, Color, ControlState, EventCtx, GfxCtx, HorizontalAlignment, Image, Key, Line,
+    Menu, Outcome, Panel, State, Text, TextBox, TextExt, VerticalAlignment, Widget,
 };
 
 pub use self::roads::RoadEditor;
@@ -43,8 +43,7 @@ pub struct EditMode {
 
     map_edit_key: usize,
 
-    unzoomed: Drawable,
-    zoomed: Drawable,
+    draw: ToggleZoomed,
 }
 
 impl EditMode {
@@ -61,8 +60,7 @@ impl EditMode {
             orig_dirty,
             mode,
             map_edit_key: app.primary.map.get_edits_change_key(),
-            unzoomed: layer.unzoomed,
-            zoomed: layer.zoomed,
+            draw: layer.draw,
         })
     }
 
@@ -152,8 +150,7 @@ impl State<App> for EditMode {
                 self.map_edit_key = key;
                 self.changelist = make_changelist(ctx, app);
                 let layer = crate::layer::map::Static::edits(ctx, app);
-                self.unzoomed = layer.unzoomed;
-                self.zoomed = layer.zoomed;
+                self.draw = layer.draw;
             }
         }
 
@@ -372,11 +369,7 @@ impl State<App> for EditMode {
         self.tool_panel.draw(g);
         self.top_center.draw(g);
         self.changelist.draw(g);
-        if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
-            g.redraw(&self.unzoomed);
-        } else {
-            g.redraw(&self.zoomed);
-        }
+        self.draw.draw(g, app);
         CommonState::draw_osd(g, app);
     }
 }

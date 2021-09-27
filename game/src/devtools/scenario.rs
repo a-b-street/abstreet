@@ -1,8 +1,8 @@
 use abstutil::prettyprint_usize;
-use map_gui::tools::ColorDiscrete;
+use map_gui::tools::{ColorDiscrete, ToggleZoomed};
 use sim::Scenario;
 use widgetry::{
-    Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State, Text,
+    Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State, Text,
     VerticalAlignment, Widget,
 };
 
@@ -13,8 +13,7 @@ use crate::devtools::destinations::PopularDestinations;
 pub struct ScenarioManager {
     panel: Panel,
     scenario: Scenario,
-    unzoomed: Drawable,
-    zoomed: Drawable,
+    draw: ToggleZoomed,
 }
 
 impl ScenarioManager {
@@ -45,7 +44,7 @@ impl ScenarioManager {
         let (filled_spots, free_parking_spots) = app.primary.sim.get_all_parking_spots();
         assert!(filled_spots.is_empty());
 
-        let (unzoomed, zoomed, legend) = colorer.build(ctx);
+        let (draw, legend) = colorer.build(ctx);
         Box::new(ScenarioManager {
             panel: Panel::new_builder(Widget::col(vec![
                 Widget::row(vec![
@@ -80,8 +79,7 @@ impl ScenarioManager {
             ]))
             .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
             .build(ctx),
-            unzoomed,
-            zoomed,
+            draw,
             scenario,
         })
     }
@@ -114,11 +112,7 @@ impl State<App> for ScenarioManager {
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
-            g.redraw(&self.unzoomed);
-        } else {
-            g.redraw(&self.zoomed);
-        }
+        self.draw.draw(g, app);
         self.panel.draw(g);
         CommonState::draw_osd(g, app);
     }

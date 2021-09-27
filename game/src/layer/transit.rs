@@ -1,14 +1,13 @@
-use map_gui::tools::ColorDiscrete;
+use map_gui::tools::{ColorDiscrete, ToggleZoomed};
 use map_model::{PathConstraints, PathStep};
-use widgetry::{Drawable, EventCtx, GfxCtx, Outcome, Panel, Toggle, Widget};
+use widgetry::{EventCtx, GfxCtx, Outcome, Panel, Toggle, Widget};
 
 use crate::app::App;
 use crate::layer::{header, Layer, LayerOutcome, PANEL_PLACEMENT};
 
 pub struct TransitNetwork {
     panel: Panel,
-    unzoomed: Drawable,
-    zoomed: Drawable,
+    draw: ToggleZoomed,
 }
 
 impl Layer for TransitNetwork {
@@ -38,14 +37,10 @@ impl Layer for TransitNetwork {
     }
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.panel.draw(g);
-        if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
-            g.redraw(&self.unzoomed);
-        } else {
-            g.redraw(&self.zoomed);
-        }
+        self.draw.draw(g, app);
     }
     fn draw_minimap(&self, g: &mut GfxCtx) {
-        g.redraw(&self.unzoomed);
+        g.redraw(&self.draw.unzoomed);
     }
 }
 
@@ -102,7 +97,7 @@ impl TransitNetwork {
                 }
             }
         }
-        let (unzoomed, zoomed, legend) = colorer.build(ctx);
+        let (draw, legend) = colorer.build(ctx);
 
         let panel = Panel::new_builder(Widget::col(vec![
             header(ctx, "Transit network"),
@@ -114,10 +109,6 @@ impl TransitNetwork {
         .aligned_pair(PANEL_PLACEMENT)
         .build(ctx);
 
-        TransitNetwork {
-            panel,
-            unzoomed,
-            zoomed,
-        }
+        TransitNetwork { panel, draw }
     }
 }

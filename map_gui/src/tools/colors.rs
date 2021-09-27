@@ -5,6 +5,7 @@ use geom::{Circle, Distance, Line, Polygon, Pt2D};
 use map_model::{BuildingID, BusStopID, IntersectionID, LaneID, Map, ParkingLotID, RoadID};
 use widgetry::{Color, Drawable, EventCtx, Fill, GeomBatch, Line, LinearGradient, Text, Widget};
 
+use crate::tools::ToggleZoomed;
 use crate::AppLike;
 
 pub struct ColorDiscrete<'a> {
@@ -91,15 +92,14 @@ impl<'a> ColorDiscrete<'a> {
             .push(color, Circle::new(pt, Distance::meters(15.0)).to_polygon());
     }
 
-    pub fn build(self, ctx: &mut EventCtx) -> (Drawable, Drawable, Widget) {
+    pub fn build(self, ctx: &mut EventCtx) -> (ToggleZoomed, Widget) {
         let legend = self
             .categories
             .into_iter()
             .map(|(name, color)| ColorLegend::row(ctx, color, name))
             .collect();
         (
-            ctx.upload(self.unzoomed),
-            ctx.upload(self.zoomed),
+            ToggleZoomed::new(ctx, self.unzoomed, self.zoomed),
             Widget::col(legend),
         )
     }

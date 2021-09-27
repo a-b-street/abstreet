@@ -2,11 +2,11 @@ use maplit::btreeset;
 
 use abstutil::{prettyprint_usize, Counter};
 use geom::{Distance, Time};
-use map_gui::tools::{ColorDiscrete, ColorLegend, ColorNetwork};
+use map_gui::tools::{ColorDiscrete, ColorLegend, ColorNetwork, ToggleZoomed};
 use map_gui::ID;
 use map_model::{AmenityType, LaneType};
 use sim::AgentType;
-use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, Panel, Text, Widget};
+use widgetry::{Color, Drawable, EventCtx, GfxCtx, Line, Panel, Text, Widget};
 
 use crate::app::App;
 use crate::layer::{header, Layer, LayerOutcome, PANEL_PLACEMENT};
@@ -170,8 +170,7 @@ impl BikeActivity {
 
 pub struct Static {
     panel: Panel,
-    pub unzoomed: Drawable,
-    pub zoomed: Drawable,
+    pub draw: ToggleZoomed,
     name: &'static str,
 }
 
@@ -184,14 +183,10 @@ impl Layer for Static {
     }
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.panel.draw(g);
-        if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
-            g.redraw(&self.unzoomed);
-        } else {
-            g.redraw(&self.zoomed);
-        }
+        self.draw.draw(g, app);
     }
     fn draw_minimap(&self, g: &mut GfxCtx) {
-        g.redraw(&self.unzoomed);
+        g.redraw(&self.draw.unzoomed);
     }
 }
 
@@ -203,17 +198,12 @@ impl Static {
         title: String,
         extra: Widget,
     ) -> Static {
-        let (unzoomed, zoomed, legend) = colorer.build(ctx);
+        let (draw, legend) = colorer.build(ctx);
         let panel = Panel::new_builder(Widget::col(vec![header(ctx, &title), extra, legend]))
             .aligned_pair(PANEL_PLACEMENT)
             .build(ctx);
 
-        Static {
-            panel,
-            unzoomed,
-            zoomed,
-            name,
-        }
+        Static { panel, draw, name }
     }
 
     pub fn edits(ctx: &mut EventCtx, app: &App) -> Static {
@@ -256,8 +246,7 @@ impl Static {
         let shopping = Color::PURPLE;
         let other = Color::GREEN;
 
-        let mut unzoomed = GeomBatch::new();
-        let mut zoomed = GeomBatch::new();
+        let mut draw = ToggleZoomed::builder();
         for b in app.primary.map.all_buildings() {
             if b.amenities.is_empty() {
                 continue;
@@ -275,8 +264,8 @@ impl Static {
                 }
             }
             let color = color.unwrap_or(other);
-            unzoomed.push(color, b.polygon.clone());
-            zoomed.push(color.alpha(0.4), b.polygon.clone());
+            draw.unzoomed.push(color, b.polygon.clone());
+            draw.zoomed.push(color.alpha(0.4), b.polygon.clone());
         }
 
         let panel = Panel::new_builder(Widget::col(vec![
@@ -291,8 +280,7 @@ impl Static {
 
         Static {
             panel,
-            unzoomed: ctx.upload(unzoomed),
-            zoomed: ctx.upload(zoomed),
+            draw: draw.build(ctx),
             name: "amenities",
         }
     }

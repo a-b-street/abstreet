@@ -3,11 +3,11 @@ use std::collections::BTreeSet;
 use enumset::EnumSet;
 use maplit::btreeset;
 
-use map_gui::tools::ColorDiscrete;
+use map_gui::tools::{ColorDiscrete, ToggleZoomed};
 use map_model::{AccessRestrictions, PathConstraints, RoadID};
 use sim::TripMode;
 use widgetry::{
-    Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State, Text,
+    Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State, Text,
     VerticalAlignment, Widget,
 };
 
@@ -20,8 +20,7 @@ pub struct ZoneEditor {
     panel: Panel,
     selector: RoadSelector,
     allow_through_traffic: BTreeSet<TripMode>,
-    unzoomed: Drawable,
-    zoomed: Drawable,
+    draw: ToggleZoomed,
 
     orig_members: BTreeSet<RoadID>,
 }
@@ -42,7 +41,7 @@ impl ZoneEditor {
             .map(TripMode::from_constraints)
             .collect();
 
-        let (unzoomed, zoomed, legend) = draw_zone(ctx, app, &members);
+        let (draw, legend) = draw_zone(ctx, app, &members);
         let orig_members = members.clone();
         let selector = RoadSelector::new(ctx, app, members);
 
@@ -74,8 +73,7 @@ impl ZoneEditor {
             orig_members,
             selector,
             allow_through_traffic,
-            unzoomed,
-            zoomed,
+            draw,
         })
     }
 }
@@ -130,9 +128,7 @@ impl State<App> for ZoneEditor {
                     if self.selector.event(ctx, app, Some(x)) {
                         let new_controls = self.selector.make_controls(ctx);
                         self.panel.replace(ctx, "selector", new_controls);
-                        let (unzoomed, zoomed, _) = draw_zone(ctx, app, &self.selector.roads);
-                        self.unzoomed = unzoomed;
-                        self.zoomed = zoomed;
+                        self.draw = draw_zone(ctx, app, &self.selector.roads).0;
                     }
                 }
             },
@@ -151,9 +147,7 @@ impl State<App> for ZoneEditor {
                 if self.selector.event(ctx, app, None) {
                     let new_controls = self.selector.make_controls(ctx);
                     self.panel.replace(ctx, "selector", new_controls);
-                    let (unzoomed, zoomed, _) = draw_zone(ctx, app, &self.selector.roads);
-                    self.unzoomed = unzoomed;
-                    self.zoomed = zoomed;
+                    self.draw = draw_zone(ctx, app, &self.selector.roads).0;
                 }
             }
         }
@@ -163,22 +157,14 @@ impl State<App> for ZoneEditor {
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         // TODO The currently selected road is covered up pretty badly
-        if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
-            g.redraw(&self.unzoomed);
-        } else {
-            g.redraw(&self.zoomed);
-        }
+        self.draw.draw(g, app);
         self.panel.draw(g);
         self.selector.draw(g, app, false);
         CommonState::draw_osd(g, app);
     }
 }
 
-fn draw_zone(
-    ctx: &mut EventCtx,
-    app: &App,
-    members: &BTreeSet<RoadID>,
-) -> (Drawable, Drawable, Widget) {
+fn draw_zone(ctx: &mut EventCtx, app: &App, members: &BTreeSet<RoadID>) -> (ToggleZoomed, Widget) {
     let mut colorer = ColorDiscrete::new(
         app,
         vec![
