@@ -101,7 +101,7 @@ impl std::convert::From<f64> for CornerRadii {
     }
 }
 
-impl std::default::Default for CornerRadii {
+impl Default for CornerRadii {
     fn default() -> Self {
         Self::zero()
     }

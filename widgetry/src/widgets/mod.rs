@@ -138,7 +138,7 @@ impl std::convert::From<CornerRadii> for CornerRounding {
     }
 }
 
-impl std::default::Default for CornerRounding {
+impl Default for CornerRounding {
     fn default() -> Self {
         CornerRounding::CornerRadii(CornerRadii::default())
     }

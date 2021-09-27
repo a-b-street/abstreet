@@ -73,7 +73,7 @@ where
         self.map
     }
 }
-impl<K, V> std::default::Default for MultiMap<K, V>
+impl<K, V> Default for MultiMap<K, V>
 where
     K: Ord + PartialEq + Clone,
     V: Ord + PartialEq + Clone,

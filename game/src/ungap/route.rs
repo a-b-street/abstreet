@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 use abstutil::Timer;
 use geom::{Circle, Distance, Duration, FindClosest, PolyLine};
 use map_gui::tools::{grey_out_map, ChooseSomething, PopupMsg};
-use map_model::{Path, PathStep, NORMAL_LANE_THICKNESS};
+use map_model::{Path, PathStep, RoutingParams, NORMAL_LANE_THICKNESS};
 use sim::{TripEndpoint, TripMode};
 use widgetry::{
     Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, LinePlot, Outcome, Panel,
@@ -26,6 +26,8 @@ pub struct RoutePlanner {
     waypoints: InputWaypoints,
     results: RouteResults,
     files: RouteManagement,
+
+    alt_low_stress_route: AltRouteResults,
 }
 
 impl TakeLayers for RoutePlanner {
@@ -42,16 +44,21 @@ impl RoutePlanner {
 
             input_panel: Panel::empty(ctx),
             waypoints: InputWaypoints::new(ctx, app),
-            results: RouteResults::new(ctx, app, Vec::new()).0,
+            results: RouteResults::main_route(ctx, app, Vec::new()).0,
             files: RouteManagement::new(app),
+
+            alt_low_stress_route: AltRouteResults::low_stress(ctx, app, Vec::new()),
         };
         rp.update_input_panel(ctx, app);
         Box::new(rp)
     }
 
     fn update_input_panel(&mut self, ctx: &mut EventCtx, app: &App) {
-        let (results, results_widget) = RouteResults::new(ctx, app, self.waypoints.get_waypoints());
+        let (results, results_widget) =
+            RouteResults::main_route(ctx, app, self.waypoints.get_waypoints());
         self.results = results;
+        self.alt_low_stress_route =
+            AltRouteResults::low_stress(ctx, app, self.waypoints.get_waypoints());
 
         let params = &app.session.routing_params;
         let col = Widget::col(vec![
@@ -152,6 +159,8 @@ impl State<App> for RoutePlanner {
             return t;
         }
 
+        self.alt_low_stress_route.event(ctx);
+
         Transition::Keep
     }
 
@@ -160,6 +169,7 @@ impl State<App> for RoutePlanner {
         self.input_panel.draw(g);
         self.waypoints.draw(g);
         self.results.draw(g, app, &self.input_panel);
+        self.alt_low_stress_route.draw(g, app);
     }
 }
 
@@ -181,7 +191,27 @@ struct RouteResults {
 }
 
 impl RouteResults {
-    fn new(ctx: &mut EventCtx, app: &App, waypoints: Vec<TripEndpoint>) -> (RouteResults, Widget) {
+    fn main_route(
+        ctx: &mut EventCtx,
+        app: &App,
+        waypoints: Vec<TripEndpoint>,
+    ) -> (RouteResults, Widget) {
+        RouteResults::new(
+            ctx,
+            app,
+            waypoints,
+            Color::CYAN,
+            &app.session.routing_params,
+        )
+    }
+
+    fn new(
+        ctx: &mut EventCtx,
+        app: &App,
+        waypoints: Vec<TripEndpoint>,
+        route_color: Color,
+        params: &RoutingParams,
+    ) -> (RouteResults, Widget) {
         let mut unzoomed_batch = GeomBatch::new();
         let mut zoomed_batch = GeomBatch::new();
         let mut draw_high_stress = GeomBatch::new();
@@ -204,10 +234,7 @@ impl RouteResults {
 
         for pair in waypoints.windows(2) {
             if let Some(path) = TripEndpoint::path_req(pair[0], pair[1], TripMode::Bike, map)
-                .and_then(|req| {
-                    map.pathfind_with_params(req, &app.session.routing_params)
-                        .ok()
-                })
+                .and_then(|req| map.pathfind_with_params(req, params).ok())
             {
                 total_distance += path.total_length();
                 total_time += path.estimate_duration(map, Some(map_model::MAX_BIKE_SPEED));
@@ -250,8 +277,8 @@ impl RouteResults {
                 let maybe_pl = path.trace(map);
                 if let Some(ref pl) = maybe_pl {
                     let shape = pl.make_polygons(5.0 * NORMAL_LANE_THICKNESS);
-                    unzoomed_batch.push(Color::CYAN.alpha(0.8), shape.clone());
-                    zoomed_batch.push(Color::CYAN.alpha(0.5), shape);
+                    unzoomed_batch.push(route_color.alpha(0.8), shape.clone());
+                    zoomed_batch.push(route_color.alpha(0.5), shape);
                     closest_path_segment.add(paths.len(), pl.points());
                 }
                 paths.push((path, maybe_pl));
@@ -502,6 +529,63 @@ impl RouteResults {
     }
 }
 
+struct AltRouteResults {
+    closest_path_segment: FindClosest<usize>,
+    hovering: bool,
+
+    draw_route_unzoomed: Drawable,
+    draw_route_zoomed: Drawable,
+}
+
+impl AltRouteResults {
+    fn low_stress(ctx: &mut EventCtx, app: &App, waypoints: Vec<TripEndpoint>) -> AltRouteResults {
+        let (results, _) = RouteResults::new(
+            ctx,
+            app,
+            waypoints,
+            Color::grey(0.3),
+            &RoutingParams {
+                avoid_high_stress: 2.0,
+                ..Default::default()
+            },
+        );
+        AltRouteResults {
+            closest_path_segment: results.closest_path_segment,
+            hovering: false,
+
+            draw_route_unzoomed: results.draw_route_unzoomed,
+            draw_route_zoomed: results.draw_route_zoomed,
+        }
+    }
+
+    fn event(&mut self, ctx: &mut EventCtx) {
+        if ctx.redo_mouseover() {
+            self.hovering = false;
+            if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
+                if self
+                    .closest_path_segment
+                    .closest_pt(pt, 10.0 * NORMAL_LANE_THICKNESS)
+                    .is_some()
+                {
+                    self.hovering = true;
+                }
+            }
+        }
+    }
+
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
+        if g.canvas.cam_zoom >= app.opts.min_zoom_for_detail {
+            g.redraw(&self.draw_route_zoomed);
+        } else {
+            g.redraw(&self.draw_route_unzoomed);
+        }
+
+        if self.hovering {
+            g.draw_mouse_tooltip(Text::from(Line("Click to try this alternate route")));
+        }
+    }
+}
+
 /// Save sequences of waypoints as named routes. Basic file management -- save, load, browse. This
 /// is useful to define "test cases," then edit the bike network and "run the tests" to compare
 /// results.
@@ -674,7 +758,7 @@ impl RouteManagement {
                 self.current = self.all.next(&self.current.name).unwrap().clone();
                 Some(Transition::Keep)
             }
-            "rename route" => Some(Transition::Push(RenameEdits::new_state(
+            "rename route" => Some(Transition::Push(RenameRoute::new_state(
                 ctx,
                 &self.current,
                 &self.all,
@@ -684,12 +768,12 @@ impl RouteManagement {
     }
 }
 
-struct RenameEdits {
+struct RenameRoute {
     current_name: String,
     all_names: HashSet<String>,
 }
 
-impl RenameEdits {
+impl RenameRoute {
     fn new_state(
         ctx: &mut EventCtx,
         current: &NamedRoute,
@@ -714,7 +798,7 @@ impl RenameEdits {
         .build(ctx);
         <dyn SimpleState<_>>::new_state(
             panel,
-            Box::new(RenameEdits {
+            Box::new(RenameRoute {
                 current_name: current.name.clone(),
                 all_names: all.routes.keys().cloned().collect(),
             }),
@@ -722,7 +806,7 @@ impl RenameEdits {
     }
 }
 
-impl SimpleState<App> for RenameEdits {
+impl SimpleState<App> for RenameRoute {
     fn on_click(&mut self, _: &mut EventCtx, _: &mut App, x: &str, panel: &Panel) -> Transition {
         match x {
             "close" => Transition::Pop,

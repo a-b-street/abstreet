@@ -113,7 +113,7 @@ pub struct SimOptions {
     pub skip_analytics: bool,
 }
 
-impl std::default::Default for SimOptions {
+impl Default for SimOptions {
     fn default() -> SimOptions {
         SimOptions::new("tmp")
     }
@@ -161,7 +161,7 @@ pub enum AlertHandler {
     Silence,
 }
 
-impl std::default::Default for AlertHandler {
+impl Default for AlertHandler {
     fn default() -> AlertHandler {
         AlertHandler::Print
     }

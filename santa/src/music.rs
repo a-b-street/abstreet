@@ -15,7 +15,7 @@ pub struct Music {
     inner: Option<Inner>,
 }
 
-impl std::default::Default for Music {
+impl Default for Music {
     fn default() -> Music {
         Music::empty()
     }

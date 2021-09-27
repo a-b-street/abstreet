@@ -177,9 +177,9 @@ pub struct RoutingParams {
     pub avoid_high_stress: f64,
 }
 
-impl RoutingParams {
-    pub const fn default() -> RoutingParams {
-        RoutingParams {
+impl Default for RoutingParams {
+    fn default() -> Self {
+        Self {
             // This is a total guess -- it really depends on the traffic patterns of the particular
             // road at the time we're routing.
             unprotected_turn_penalty: Duration::const_seconds(30.0),

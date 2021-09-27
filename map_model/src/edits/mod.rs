@@ -349,7 +349,7 @@ impl MapEdits {
     }
 }
 
-impl std::default::Default for MapEdits {
+impl Default for MapEdits {
     fn default() -> MapEdits {
         MapEdits::new()
     }
