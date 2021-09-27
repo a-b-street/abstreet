@@ -786,6 +786,90 @@
 <span id="786">786</span>
 <span id="787">787</span>
 <span id="788">788</span>
+<span id="789">789</span>
+<span id="790">790</span>
+<span id="791">791</span>
+<span id="792">792</span>
+<span id="793">793</span>
+<span id="794">794</span>
+<span id="795">795</span>
+<span id="796">796</span>
+<span id="797">797</span>
+<span id="798">798</span>
+<span id="799">799</span>
+<span id="800">800</span>
+<span id="801">801</span>
+<span id="802">802</span>
+<span id="803">803</span>
+<span id="804">804</span>
+<span id="805">805</span>
+<span id="806">806</span>
+<span id="807">807</span>
+<span id="808">808</span>
+<span id="809">809</span>
+<span id="810">810</span>
+<span id="811">811</span>
+<span id="812">812</span>
+<span id="813">813</span>
+<span id="814">814</span>
+<span id="815">815</span>
+<span id="816">816</span>
+<span id="817">817</span>
+<span id="818">818</span>
+<span id="819">819</span>
+<span id="820">820</span>
+<span id="821">821</span>
+<span id="822">822</span>
+<span id="823">823</span>
+<span id="824">824</span>
+<span id="825">825</span>
+<span id="826">826</span>
+<span id="827">827</span>
+<span id="828">828</span>
+<span id="829">829</span>
+<span id="830">830</span>
+<span id="831">831</span>
+<span id="832">832</span>
+<span id="833">833</span>
+<span id="834">834</span>
+<span id="835">835</span>
+<span id="836">836</span>
+<span id="837">837</span>
+<span id="838">838</span>
+<span id="839">839</span>
+<span id="840">840</span>
+<span id="841">841</span>
+<span id="842">842</span>
+<span id="843">843</span>
+<span id="844">844</span>
+<span id="845">845</span>
+<span id="846">846</span>
+<span id="847">847</span>
+<span id="848">848</span>
+<span id="849">849</span>
+<span id="850">850</span>
+<span id="851">851</span>
+<span id="852">852</span>
+<span id="853">853</span>
+<span id="854">854</span>
+<span id="855">855</span>
+<span id="856">856</span>
+<span id="857">857</span>
+<span id="858">858</span>
+<span id="859">859</span>
+<span id="860">860</span>
+<span id="861">861</span>
+<span id="862">862</span>
+<span id="863">863</span>
+<span id="864">864</span>
+<span id="865">865</span>
+<span id="866">866</span>
+<span id="867">867</span>
+<span id="868">868</span>
+<span id="869">869</span>
+<span id="870">870</span>
+<span id="871">871</span>
+<span id="872">872</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashSet</span>};
 
@@ -794,7 +878,7 @@
 <span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">FindClosest</span>, <span class="ident">PolyLine</span>};
 <span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">grey_out_map</span>, <span class="ident">ChooseSomething</span>, <span class="ident">PopupMsg</span>};
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">Path</span>, <span class="ident">PathStep</span>, <span class="ident">NORMAL_LANE_THICKNESS</span>};
+<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">Path</span>, <span class="ident">PathStep</span>, <span class="ident">RoutingParams</span>, <span class="ident">NORMAL_LANE_THICKNESS</span>};
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">TripEndpoint</span>, <span class="ident">TripMode</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">LinePlot</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>,
@@ -815,6 +899,8 @@
     <span class="ident">waypoints</span>: <span class="ident">InputWaypoints</span>,
     <span class="ident">results</span>: <span class="ident">RouteResults</span>,
     <span class="ident">files</span>: <span class="ident">RouteManagement</span>,
+
+    <span class="ident">alt_low_stress_route</span>: <span class="ident">AltRouteResults</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">TakeLayers</span> <span class="kw">for</span> <span class="ident">RoutePlanner</span> {
@@ -831,16 +917,21 @@
 
             <span class="ident">input_panel</span>: <span class="ident">Panel::empty</span>(<span class="ident">ctx</span>),
             <span class="ident">waypoints</span>: <span class="ident">InputWaypoints::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
-            <span class="ident">results</span>: <span class="ident">RouteResults::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">Vec::new</span>()).<span class="number">0</span>,
+            <span class="ident">results</span>: <span class="ident">RouteResults::main_route</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">Vec::new</span>()).<span class="number">0</span>,
             <span class="ident">files</span>: <span class="ident">RouteManagement::new</span>(<span class="ident">app</span>),
+
+            <span class="ident">alt_low_stress_route</span>: <span class="ident">AltRouteResults::low_stress</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">Vec::new</span>()),
         };
         <span class="ident">rp</span>.<span class="ident">update_input_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
         <span class="ident">Box::new</span>(<span class="ident">rp</span>)
     }
 
     <span class="kw">fn</span> <span class="ident">update_input_panel</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
-        <span class="kw">let</span> (<span class="ident">results</span>, <span class="ident">results_widget</span>) <span class="op">=</span> <span class="ident">RouteResults::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">get_waypoints</span>());
+        <span class="kw">let</span> (<span class="ident">results</span>, <span class="ident">results_widget</span>) <span class="op">=</span>
+            <span class="ident">RouteResults::main_route</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">get_waypoints</span>());
         <span class="self">self</span>.<span class="ident">results</span> <span class="op">=</span> <span class="ident">results</span>;
+        <span class="self">self</span>.<span class="ident">alt_low_stress_route</span> <span class="op">=</span>
+            <span class="ident">AltRouteResults::low_stress</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">get_waypoints</span>());
 
         <span class="kw">let</span> <span class="ident">params</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">routing_params</span>;
         <span class="kw">let</span> <span class="ident">col</span> <span class="op">=</span> <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
@@ -941,6 +1032,8 @@
             <span class="kw">return</span> <span class="ident">t</span>;
         }
 
+        <span class="self">self</span>.<span class="ident">alt_low_stress_route</span>.<span class="ident">event</span>(<span class="ident">ctx</span>);
+
         <span class="ident">Transition::Keep</span>
     }
 
@@ -949,6 +1042,7 @@
         <span class="self">self</span>.<span class="ident">input_panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
         <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
         <span class="self">self</span>.<span class="ident">results</span>.<span class="ident">draw</span>(<span class="ident">g</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">input_panel</span>);
+        <span class="self">self</span>.<span class="ident">alt_low_stress_route</span>.<span class="ident">draw</span>(<span class="ident">g</span>, <span class="ident">app</span>);
     }
 }
 
@@ -970,7 +1064,27 @@
 }
 
 <span class="kw">impl</span> <span class="ident">RouteResults</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">waypoints</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TripEndpoint</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">RouteResults</span>, <span class="ident">Widget</span>) {
+    <span class="kw">fn</span> <span class="ident">main_route</span>(
+        <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
+        <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
+        <span class="ident">waypoints</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TripEndpoint</span><span class="op">&gt;</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">RouteResults</span>, <span class="ident">Widget</span>) {
+        <span class="ident">RouteResults::new</span>(
+            <span class="ident">ctx</span>,
+            <span class="ident">app</span>,
+            <span class="ident">waypoints</span>,
+            <span class="ident">Color::CYAN</span>,
+            <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">routing_params</span>,
+        )
+    }
+
+    <span class="kw">fn</span> <span class="ident">new</span>(
+        <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
+        <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
+        <span class="ident">waypoints</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TripEndpoint</span><span class="op">&gt;</span>,
+        <span class="ident">route_color</span>: <span class="ident">Color</span>,
+        <span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="ident">RoutingParams</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">RouteResults</span>, <span class="ident">Widget</span>) {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">unzoomed_batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">zoomed_batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">draw_high_stress</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
@@ -993,10 +1107,7 @@
 
         <span class="kw">for</span> <span class="ident">pair</span> <span class="kw">in</span> <span class="ident">waypoints</span>.<span class="ident">windows</span>(<span class="number">2</span>) {
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">path</span>) <span class="op">=</span> <span class="ident">TripEndpoint::path_req</span>(<span class="ident">pair</span>[<span class="number">0</span>], <span class="ident">pair</span>[<span class="number">1</span>], <span class="ident">TripMode::Bike</span>, <span class="ident">map</span>)
-                .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">req</span><span class="op">|</span> {
-                    <span class="ident">map</span>.<span class="ident">pathfind_with_params</span>(<span class="ident">req</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">routing_params</span>)
-                        .<span class="ident">ok</span>()
-                })
+                .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">req</span><span class="op">|</span> <span class="ident">map</span>.<span class="ident">pathfind_with_params</span>(<span class="ident">req</span>, <span class="ident">params</span>).<span class="ident">ok</span>())
             {
                 <span class="ident">total_distance</span> <span class="op">+</span><span class="op">=</span> <span class="ident">path</span>.<span class="ident">total_length</span>();
                 <span class="ident">total_time</span> <span class="op">+</span><span class="op">=</span> <span class="ident">path</span>.<span class="ident">estimate_duration</span>(<span class="ident">map</span>, <span class="prelude-val">Some</span>(<span class="ident">map_model::MAX_BIKE_SPEED</span>));
@@ -1039,8 +1150,8 @@
                 <span class="kw">let</span> <span class="ident">maybe_pl</span> <span class="op">=</span> <span class="ident">path</span>.<span class="ident">trace</span>(<span class="ident">map</span>);
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">pl</span>) <span class="op">=</span> <span class="ident">maybe_pl</span> {
                     <span class="kw">let</span> <span class="ident">shape</span> <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">make_polygons</span>(<span class="number">5.0</span> <span class="op">*</span> <span class="ident">NORMAL_LANE_THICKNESS</span>);
-                    <span class="ident">unzoomed_batch</span>.<span class="ident">push</span>(<span class="ident">Color::CYAN</span>.<span class="ident">alpha</span>(<span class="number">0.8</span>), <span class="ident">shape</span>.<span class="ident">clone</span>());
-                    <span class="ident">zoomed_batch</span>.<span class="ident">push</span>(<span class="ident">Color::CYAN</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>), <span class="ident">shape</span>);
+                    <span class="ident">unzoomed_batch</span>.<span class="ident">push</span>(<span class="ident">route_color</span>.<span class="ident">alpha</span>(<span class="number">0.8</span>), <span class="ident">shape</span>.<span class="ident">clone</span>());
+                    <span class="ident">zoomed_batch</span>.<span class="ident">push</span>(<span class="ident">route_color</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>), <span class="ident">shape</span>);
                     <span class="ident">closest_path_segment</span>.<span class="ident">add</span>(<span class="ident">paths</span>.<span class="ident">len</span>(), <span class="ident">pl</span>.<span class="ident">points</span>());
                 }
                 <span class="ident">paths</span>.<span class="ident">push</span>((<span class="ident">path</span>, <span class="ident">maybe_pl</span>));
@@ -1291,6 +1402,63 @@
     }
 }
 
+<span class="kw">struct</span> <span class="ident">AltRouteResults</span> {
+    <span class="ident">closest_path_segment</span>: <span class="ident">FindClosest</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>,
+    <span class="ident">hovering</span>: <span class="ident">bool</span>,
+
+    <span class="ident">draw_route_unzoomed</span>: <span class="ident">Drawable</span>,
+    <span class="ident">draw_route_zoomed</span>: <span class="ident">Drawable</span>,
+}
+
+<span class="kw">impl</span> <span class="ident">AltRouteResults</span> {
+    <span class="kw">fn</span> <span class="ident">low_stress</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">waypoints</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TripEndpoint</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">AltRouteResults</span> {
+        <span class="kw">let</span> (<span class="ident">results</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">RouteResults::new</span>(
+            <span class="ident">ctx</span>,
+            <span class="ident">app</span>,
+            <span class="ident">waypoints</span>,
+            <span class="ident">Color::grey</span>(<span class="number">0.3</span>),
+            <span class="kw-2">&amp;</span><span class="ident">RoutingParams</span> {
+                <span class="ident">avoid_high_stress</span>: <span class="number">2.0</span>,
+                ..<span class="ident">Default::default</span>()
+            },
+        );
+        <span class="ident">AltRouteResults</span> {
+            <span class="ident">closest_path_segment</span>: <span class="ident">results</span>.<span class="ident">closest_path_segment</span>,
+            <span class="ident">hovering</span>: <span class="bool-val">false</span>,
+
+            <span class="ident">draw_route_unzoomed</span>: <span class="ident">results</span>.<span class="ident">draw_route_unzoomed</span>,
+            <span class="ident">draw_route_zoomed</span>: <span class="ident">results</span>.<span class="ident">draw_route_zoomed</span>,
+        }
+    }
+
+    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) {
+        <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">redo_mouseover</span>() {
+            <span class="self">self</span>.<span class="ident">hovering</span> <span class="op">=</span> <span class="bool-val">false</span>;
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt</span>) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_map_space</span>() {
+                <span class="kw">if</span> <span class="self">self</span>
+                    .<span class="ident">closest_path_segment</span>
+                    .<span class="ident">closest_pt</span>(<span class="ident">pt</span>, <span class="number">10.0</span> <span class="op">*</span> <span class="ident">NORMAL_LANE_THICKNESS</span>)
+                    .<span class="ident">is_some</span>()
+                {
+                    <span class="self">self</span>.<span class="ident">hovering</span> <span class="op">=</span> <span class="bool-val">true</span>;
+                }
+            }
+        }
+    }
+
+    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
+        <span class="kw">if</span> <span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">min_zoom_for_detail</span> {
+            <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">draw_route_zoomed</span>);
+        } <span class="kw">else</span> {
+            <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">draw_route_unzoomed</span>);
+        }
+
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">hovering</span> {
+            <span class="ident">g</span>.<span class="ident">draw_mouse_tooltip</span>(<span class="ident">Text::from</span>(<span class="ident">Line</span>(<span class="string">&quot;Click to try this alternate route&quot;</span>)));
+        }
+    }
+}
+
 <span class="doccomment">/// Save sequences of waypoints as named routes. Basic file management -- save, load, browse. This</span>
 <span class="doccomment">/// is useful to define &quot;test cases,&quot; then edit the bike network and &quot;run the tests&quot; to compare</span>
 <span class="doccomment">/// results.</span>
@@ -1463,7 +1631,7 @@
                 <span class="self">self</span>.<span class="ident">current</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">all</span>.<span class="ident">next</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">current</span>.<span class="ident">name</span>).<span class="ident">unwrap</span>().<span class="ident">clone</span>();
                 <span class="prelude-val">Some</span>(<span class="ident">Transition::Keep</span>)
             }
-            <span class="string">&quot;rename route&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">Transition::Push</span>(<span class="ident">RenameEdits::new_state</span>(
+            <span class="string">&quot;rename route&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">Transition::Push</span>(<span class="ident">RenameRoute::new_state</span>(
                 <span class="ident">ctx</span>,
                 <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">current</span>,
                 <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">all</span>,
@@ -1473,12 +1641,12 @@
     }
 }
 
-<span class="kw">struct</span> <span class="ident">RenameEdits</span> {
+<span class="kw">struct</span> <span class="ident">RenameRoute</span> {
     <span class="ident">current_name</span>: <span class="ident">String</span>,
     <span class="ident">all_names</span>: <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
 }
 
-<span class="kw">impl</span> <span class="ident">RenameEdits</span> {
+<span class="kw">impl</span> <span class="ident">RenameRoute</span> {
     <span class="kw">fn</span> <span class="ident">new_state</span>(
         <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
         <span class="ident">current</span>: <span class="kw-2">&amp;</span><span class="ident">NamedRoute</span>,
@@ -1503,7 +1671,7 @@
         .<span class="ident">build</span>(<span class="ident">ctx</span>);
         <span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">SimpleState</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::new_state</span>(
             <span class="ident">panel</span>,
-            <span class="ident">Box::new</span>(<span class="ident">RenameEdits</span> {
+            <span class="ident">Box::new</span>(<span class="ident">RenameRoute</span> {
                 <span class="ident">current_name</span>: <span class="ident">current</span>.<span class="ident">name</span>.<span class="ident">clone</span>(),
                 <span class="ident">all_names</span>: <span class="ident">all</span>.<span class="ident">routes</span>.<span class="ident">keys</span>().<span class="ident">cloned</span>().<span class="ident">collect</span>(),
             }),
@@ -1511,7 +1679,7 @@
     }
 }
 
-<span class="kw">impl</span> <span class="ident">SimpleState</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">RenameEdits</span> {
+<span class="kw">impl</span> <span class="ident">SimpleState</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">RenameRoute</span> {
     <span class="kw">fn</span> <span class="ident">on_click</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>, <span class="ident">x</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">panel</span>: <span class="kw-2">&amp;</span><span class="ident">Panel</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span> {
         <span class="kw">match</span> <span class="ident">x</span> {
             <span class="string">&quot;close&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition::Pop</span>,

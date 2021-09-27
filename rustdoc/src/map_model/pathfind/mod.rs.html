@@ -382,9 +382,9 @@
     <span class="kw">pub</span> <span class="ident">avoid_high_stress</span>: <span class="ident">f64</span>,
 }
 
-<span class="kw">impl</span> <span class="ident">RoutingParams</span> {
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">RoutingParams</span> {
-        <span class="ident">RoutingParams</span> {
+<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">RoutingParams</span> {
+    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+        <span class="self">Self</span> {
             <span class="comment">// This is a total guess -- it really depends on the traffic patterns of the particular</span>
             <span class="comment">// road at the time we&#39;re routing.</span>
             <span class="ident">unprotected_turn_penalty</span>: <span class="ident">Duration::const_seconds</span>(<span class="number">30.0</span>),

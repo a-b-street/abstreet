@@ -1145,7 +1145,7 @@
     <span class="kw">pub</span> <span class="ident">skip_analytics</span>: <span class="ident">bool</span>,
 }
 
-<span class="kw">impl</span> <span class="ident">std::default::Default</span> <span class="kw">for</span> <span class="ident">SimOptions</span> {
+<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">SimOptions</span> {
     <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">SimOptions</span> {
         <span class="ident">SimOptions::new</span>(<span class="string">&quot;tmp&quot;</span>)
     }
@@ -1193,7 +1193,7 @@
     <span class="ident">Silence</span>,
 }
 
-<span class="kw">impl</span> <span class="ident">std::default::Default</span> <span class="kw">for</span> <span class="ident">AlertHandler</span> {
+<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">AlertHandler</span> {
     <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">AlertHandler</span> {
         <span class="ident">AlertHandler::Print</span>
     }
