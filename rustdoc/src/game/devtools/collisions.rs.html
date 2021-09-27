@@ -352,21 +352,11 @@
 <span id="352">352</span>
 <span id="353">353</span>
 <span id="354">354</span>
-<span id="355">355</span>
-<span id="356">356</span>
-<span id="357">357</span>
-<span id="358">358</span>
-<span id="359">359</span>
-<span id="360">360</span>
-<span id="361">361</span>
-<span id="362">362</span>
-<span id="363">363</span>
-<span id="364">364</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">Counter</span>};
 <span class="kw">use</span> <span class="ident">collisions</span>::{<span class="ident">CollisionDataset</span>, <span class="ident">Severity</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">FindClosest</span>, <span class="ident">Polygon</span>, <span class="ident">Time</span>};
-<span class="kw">use</span> <span class="ident">map_gui::tools::ColorNetwork</span>;
+<span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">ColorNetwork</span>, <span class="ident">ToggleZoomed</span>};
 <span class="kw">use</span> <span class="ident">map_gui::ID</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>,
@@ -500,13 +490,8 @@
 }
 
 <span class="kw">enum</span> <span class="ident">Dataviz</span> {
-    <span class="ident">Individual</span> {
-        <span class="ident">draw_all_circles</span>: <span class="ident">Drawable</span>,
-    },
-    <span class="ident">Aggregated</span> {
-        <span class="ident">unzoomed</span>: <span class="ident">Drawable</span>,
-        <span class="ident">zoomed</span>: <span class="ident">Drawable</span>,
-    },
+    <span class="ident">Individual</span> { <span class="ident">draw_all_circles</span>: <span class="ident">Drawable</span> },
+    <span class="ident">Aggregated</span> { <span class="ident">draw</span>: <span class="ident">ToggleZoomed</span> },
 }
 
 <span class="kw">impl</span> <span class="ident">Dataviz</span> {
@@ -582,9 +567,13 @@
         <span class="comment">// TODO We should use some scale for both!</span>
         <span class="ident">colorer</span>.<span class="ident">pct_roads</span>(<span class="ident">per_road</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">good_to_bad_red</span>);
         <span class="ident">colorer</span>.<span class="ident">pct_intersections</span>(<span class="ident">per_intersection</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">good_to_bad_red</span>);
-        <span class="kw">let</span> (<span class="ident">unzoomed</span>, <span class="ident">zoomed</span>) <span class="op">=</span> <span class="ident">colorer</span>.<span class="ident">build</span>(<span class="ident">ctx</span>);
 
-        (<span class="ident">Dataviz::Aggregated</span> { <span class="ident">unzoomed</span>, <span class="ident">zoomed</span> }, <span class="ident">tooltips</span>)
+        (
+            <span class="ident">Dataviz::Aggregated</span> {
+                <span class="ident">draw</span>: <span class="ident">colorer</span>.<span class="ident">build</span>(<span class="ident">ctx</span>),
+            },
+            <span class="ident">tooltips</span>,
+        )
     }
 
     <span class="kw">fn</span> <span class="ident">individual</span>(
@@ -664,20 +653,11 @@
 
     <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">dataviz</span> {
-            <span class="ident">Dataviz::Aggregated</span> {
-                <span class="kw-2">ref</span> <span class="ident">unzoomed</span>,
-                <span class="kw-2">ref</span> <span class="ident">zoomed</span>,
-                ..
-            } <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">if</span> <span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span> <span class="op">&lt;</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">min_zoom_for_detail</span> {
-                    <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="ident">unzoomed</span>);
-                } <span class="kw">else</span> {
-                    <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="ident">zoomed</span>);
-                }
+            <span class="ident">Dataviz::Aggregated</span> { <span class="kw-2">ref</span> <span class="ident">draw</span> } <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">draw</span>.<span class="ident">draw</span>(<span class="ident">g</span>, <span class="ident">app</span>);
             }
             <span class="ident">Dataviz::Individual</span> {
                 <span class="kw-2">ref</span> <span class="ident">draw_all_circles</span>,
-                ..
             } <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="ident">draw_all_circles</span>);
             }
