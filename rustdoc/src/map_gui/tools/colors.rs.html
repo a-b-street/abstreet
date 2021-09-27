@@ -433,6 +433,7 @@
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">BuildingID</span>, <span class="ident">BusStopID</span>, <span class="ident">IntersectionID</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">ParkingLotID</span>, <span class="ident">RoadID</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">Fill</span>, <span class="ident">GeomBatch</span>, <span class="ident">Line</span>, <span class="ident">LinearGradient</span>, <span class="ident">Text</span>, <span class="ident">Widget</span>};
 
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::tools::ToggleZoomed</span>;
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::AppLike</span>;
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ColorDiscrete</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
@@ -519,15 +520,14 @@
             .<span class="ident">push</span>(<span class="ident">color</span>, <span class="ident">Circle::new</span>(<span class="ident">pt</span>, <span class="ident">Distance::meters</span>(<span class="number">15.0</span>)).<span class="ident">to_polygon</span>());
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">Drawable</span>, <span class="ident">Drawable</span>, <span class="ident">Widget</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">ToggleZoomed</span>, <span class="ident">Widget</span>) {
         <span class="kw">let</span> <span class="ident">legend</span> <span class="op">=</span> <span class="self">self</span>
             .<span class="ident">categories</span>
             .<span class="ident">into_iter</span>()
             .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">name</span>, <span class="ident">color</span>)<span class="op">|</span> <span class="ident">ColorLegend::row</span>(<span class="ident">ctx</span>, <span class="ident">color</span>, <span class="ident">name</span>))
             .<span class="ident">collect</span>();
         (
-            <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="self">self</span>.<span class="ident">unzoomed</span>),
-            <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="self">self</span>.<span class="ident">zoomed</span>),
+            <span class="ident">ToggleZoomed::new</span>(<span class="ident">ctx</span>, <span class="self">self</span>.<span class="ident">unzoomed</span>, <span class="self">self</span>.<span class="ident">zoomed</span>),
             <span class="ident">Widget::col</span>(<span class="ident">legend</span>),
         )
     }

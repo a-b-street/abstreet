@@ -201,31 +201,17 @@
 <span id="201">201</span>
 <span id="202">202</span>
 <span id="203">203</span>
-<span id="204">204</span>
-<span id="205">205</span>
-<span id="206">206</span>
-<span id="207">207</span>
-<span id="208">208</span>
-<span id="209">209</span>
-<span id="210">210</span>
-<span id="211">211</span>
-<span id="212">212</span>
-<span id="213">213</span>
-<span id="214">214</span>
-<span id="215">215</span>
-<span id="216">216</span>
-<span id="217">217</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
 
 <span class="kw">use</span> <span class="ident">enumset::EnumSet</span>;
 <span class="kw">use</span> <span class="ident">maplit::btreeset</span>;
 
-<span class="kw">use</span> <span class="ident">map_gui::tools::ColorDiscrete</span>;
+<span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">ColorDiscrete</span>, <span class="ident">ToggleZoomed</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">AccessRestrictions</span>, <span class="ident">PathConstraints</span>, <span class="ident">RoadID</span>};
 <span class="kw">use</span> <span class="ident">sim::TripMode</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">Text</span>,
+    <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">Text</span>,
     <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
@@ -238,8 +224,7 @@
     <span class="ident">panel</span>: <span class="ident">Panel</span>,
     <span class="ident">selector</span>: <span class="ident">RoadSelector</span>,
     <span class="ident">allow_through_traffic</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">TripMode</span><span class="op">&gt;</span>,
-    <span class="ident">unzoomed</span>: <span class="ident">Drawable</span>,
-    <span class="ident">zoomed</span>: <span class="ident">Drawable</span>,
+    <span class="ident">draw</span>: <span class="ident">ToggleZoomed</span>,
 
     <span class="ident">orig_members</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span>,
 }
@@ -260,7 +245,7 @@
             .<span class="ident">map</span>(<span class="ident">TripMode::from_constraints</span>)
             .<span class="ident">collect</span>();
 
-        <span class="kw">let</span> (<span class="ident">unzoomed</span>, <span class="ident">zoomed</span>, <span class="ident">legend</span>) <span class="op">=</span> <span class="ident">draw_zone</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="ident">members</span>);
+        <span class="kw">let</span> (<span class="ident">draw</span>, <span class="ident">legend</span>) <span class="op">=</span> <span class="ident">draw_zone</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="ident">members</span>);
         <span class="kw">let</span> <span class="ident">orig_members</span> <span class="op">=</span> <span class="ident">members</span>.<span class="ident">clone</span>();
         <span class="kw">let</span> <span class="ident">selector</span> <span class="op">=</span> <span class="ident">RoadSelector::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">members</span>);
 
@@ -292,8 +277,7 @@
             <span class="ident">orig_members</span>,
             <span class="ident">selector</span>,
             <span class="ident">allow_through_traffic</span>,
-            <span class="ident">unzoomed</span>,
-            <span class="ident">zoomed</span>,
+            <span class="ident">draw</span>,
         })
     }
 }
@@ -348,9 +332,7 @@
                     <span class="kw">if</span> <span class="self">self</span>.<span class="ident">selector</span>.<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="prelude-val">Some</span>(<span class="ident">x</span>)) {
                         <span class="kw">let</span> <span class="ident">new_controls</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">selector</span>.<span class="ident">make_controls</span>(<span class="ident">ctx</span>);
                         <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;selector&quot;</span>, <span class="ident">new_controls</span>);
-                        <span class="kw">let</span> (<span class="ident">unzoomed</span>, <span class="ident">zoomed</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">draw_zone</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">selector</span>.<span class="ident">roads</span>);
-                        <span class="self">self</span>.<span class="ident">unzoomed</span> <span class="op">=</span> <span class="ident">unzoomed</span>;
-                        <span class="self">self</span>.<span class="ident">zoomed</span> <span class="op">=</span> <span class="ident">zoomed</span>;
+                        <span class="self">self</span>.<span class="ident">draw</span> <span class="op">=</span> <span class="ident">draw_zone</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">selector</span>.<span class="ident">roads</span>).<span class="number">0</span>;
                     }
                 }
             },
@@ -369,9 +351,7 @@
                 <span class="kw">if</span> <span class="self">self</span>.<span class="ident">selector</span>.<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="prelude-val">None</span>) {
                     <span class="kw">let</span> <span class="ident">new_controls</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">selector</span>.<span class="ident">make_controls</span>(<span class="ident">ctx</span>);
                     <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;selector&quot;</span>, <span class="ident">new_controls</span>);
-                    <span class="kw">let</span> (<span class="ident">unzoomed</span>, <span class="ident">zoomed</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">draw_zone</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">selector</span>.<span class="ident">roads</span>);
-                    <span class="self">self</span>.<span class="ident">unzoomed</span> <span class="op">=</span> <span class="ident">unzoomed</span>;
-                    <span class="self">self</span>.<span class="ident">zoomed</span> <span class="op">=</span> <span class="ident">zoomed</span>;
+                    <span class="self">self</span>.<span class="ident">draw</span> <span class="op">=</span> <span class="ident">draw_zone</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">selector</span>.<span class="ident">roads</span>).<span class="number">0</span>;
                 }
             }
         }
@@ -381,22 +361,14 @@
 
     <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
         <span class="comment">// TODO The currently selected road is covered up pretty badly</span>
-        <span class="kw">if</span> <span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span> <span class="op">&lt;</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">min_zoom_for_detail</span> {
-            <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">unzoomed</span>);
-        } <span class="kw">else</span> {
-            <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">zoomed</span>);
-        }
+        <span class="self">self</span>.<span class="ident">draw</span>.<span class="ident">draw</span>(<span class="ident">g</span>, <span class="ident">app</span>);
         <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
         <span class="self">self</span>.<span class="ident">selector</span>.<span class="ident">draw</span>(<span class="ident">g</span>, <span class="ident">app</span>, <span class="bool-val">false</span>);
         <span class="ident">CommonState::draw_osd</span>(<span class="ident">g</span>, <span class="ident">app</span>);
     }
 }
 
-<span class="kw">fn</span> <span class="ident">draw_zone</span>(
-    <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
-    <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
-    <span class="ident">members</span>: <span class="kw-2">&amp;</span><span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span>,
-) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">Drawable</span>, <span class="ident">Drawable</span>, <span class="ident">Widget</span>) {
+<span class="kw">fn</span> <span class="ident">draw_zone</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">members</span>: <span class="kw-2">&amp;</span><span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">ToggleZoomed</span>, <span class="ident">Widget</span>) {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">colorer</span> <span class="op">=</span> <span class="ident">ColorDiscrete::new</span>(
         <span class="ident">app</span>,
         <span class="macro">vec!</span>[

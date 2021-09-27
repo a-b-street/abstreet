@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["ToggleZoomed","Draws one of two versions of something, based on whether the app is zoomed in past a threshold."],["ToggleZoomedBuilder",""]]});

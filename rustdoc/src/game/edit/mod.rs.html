@@ -934,13 +934,6 @@
 <span id="934">934</span>
 <span id="935">935</span>
 <span id="936">936</span>
-<span id="937">937</span>
-<span id="938">938</span>
-<span id="939">939</span>
-<span id="940">940</span>
-<span id="941">941</span>
-<span id="942">942</span>
-<span id="943">943</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">maplit::btreeset</span>;
 
@@ -948,12 +941,12 @@
 <span class="kw">use</span> <span class="ident">geom::Speed</span>;
 <span class="kw">use</span> <span class="ident">map_gui::options::OptionsPanel</span>;
 <span class="kw">use</span> <span class="ident">map_gui::render::DrawMap</span>;
-<span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">grey_out_map</span>, <span class="ident">ChooseSomething</span>, <span class="ident">ColorLegend</span>, <span class="ident">PopupMsg</span>};
+<span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">grey_out_map</span>, <span class="ident">ChooseSomething</span>, <span class="ident">ColorLegend</span>, <span class="ident">PopupMsg</span>, <span class="ident">ToggleZoomed</span>};
 <span class="kw">use</span> <span class="ident">map_gui::ID</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">EditCmd</span>, <span class="ident">IntersectionID</span>, <span class="ident">LaneID</span>, <span class="ident">MapEdits</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">lctrl</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Image</span>,
-    <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Menu</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextBox</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">lctrl</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Image</span>, <span class="ident">Key</span>, <span class="ident">Line</span>,
+    <span class="ident">Menu</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextBox</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::roads::RoadEditor</span>;
@@ -987,8 +980,7 @@
 
     <span class="ident">map_edit_key</span>: <span class="ident">usize</span>,
 
-    <span class="ident">unzoomed</span>: <span class="ident">Drawable</span>,
-    <span class="ident">zoomed</span>: <span class="ident">Drawable</span>,
+    <span class="ident">draw</span>: <span class="ident">ToggleZoomed</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">EditMode</span> {
@@ -1005,8 +997,7 @@
             <span class="ident">orig_dirty</span>,
             <span class="ident">mode</span>,
             <span class="ident">map_edit_key</span>: <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits_change_key</span>(),
-            <span class="ident">unzoomed</span>: <span class="ident">layer</span>.<span class="ident">unzoomed</span>,
-            <span class="ident">zoomed</span>: <span class="ident">layer</span>.<span class="ident">zoomed</span>,
+            <span class="ident">draw</span>: <span class="ident">layer</span>.<span class="ident">draw</span>,
         })
     }
 
@@ -1096,8 +1087,7 @@
                 <span class="self">self</span>.<span class="ident">map_edit_key</span> <span class="op">=</span> <span class="ident">key</span>;
                 <span class="self">self</span>.<span class="ident">changelist</span> <span class="op">=</span> <span class="ident">make_changelist</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
                 <span class="kw">let</span> <span class="ident">layer</span> <span class="op">=</span> <span class="kw">crate</span><span class="ident">::layer::map::Static::edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
-                <span class="self">self</span>.<span class="ident">unzoomed</span> <span class="op">=</span> <span class="ident">layer</span>.<span class="ident">unzoomed</span>;
-                <span class="self">self</span>.<span class="ident">zoomed</span> <span class="op">=</span> <span class="ident">layer</span>.<span class="ident">zoomed</span>;
+                <span class="self">self</span>.<span class="ident">draw</span> <span class="op">=</span> <span class="ident">layer</span>.<span class="ident">draw</span>;
             }
         }
 
@@ -1316,11 +1306,7 @@
         <span class="self">self</span>.<span class="ident">tool_panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
         <span class="self">self</span>.<span class="ident">top_center</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
         <span class="self">self</span>.<span class="ident">changelist</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-        <span class="kw">if</span> <span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span> <span class="op">&lt;</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">min_zoom_for_detail</span> {
-            <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">unzoomed</span>);
-        } <span class="kw">else</span> {
-            <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">zoomed</span>);
-        }
+        <span class="self">self</span>.<span class="ident">draw</span>.<span class="ident">draw</span>(<span class="ident">g</span>, <span class="ident">app</span>);
         <span class="ident">CommonState::draw_osd</span>(<span class="ident">g</span>, <span class="ident">app</span>);
     }
 }
