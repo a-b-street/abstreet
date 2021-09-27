@@ -92,9 +92,10 @@ fn info_body(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BuildingI
             )));
 
             details
+                .draw_extra
                 .unzoomed
                 .push(color, pl.make_polygons(Distance::meters(10.0)));
-            details.zoomed.extend(
+            details.draw_extra.zoomed.extend(
                 color,
                 pl.dashed_lines(
                     Distance::meters(0.75),
@@ -289,14 +290,14 @@ pub fn draw_occupants(details: &mut Details, app: &App, id: BuildingID, focus: O
             );
 
             if Some(person) == focus {
-                details.zoomed.push(
+                details.draw_extra.zoomed.push(
                     Color::YELLOW.alpha(0.8),
                     Circle::new(pos, SIDEWALK_THICKNESS).to_polygon(),
                 );
             }
 
             DrawPedestrian::geometry(
-                &mut details.zoomed,
+                &mut details.draw_extra.zoomed,
                 &app.primary.sim,
                 &app.cs,
                 &DrawPedestrianInput {

@@ -3,7 +3,7 @@ use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 pub use trip::OpenTrip;
 
 use geom::{Circle, Distance, Polygon, Time};
-use map_gui::tools::open_browser;
+use map_gui::tools::{open_browser, ToggleZoomed, ToggleZoomedBuilder};
 use map_gui::ID;
 use map_model::{AreaID, BuildingID, BusRouteID, BusStopID, IntersectionID, LaneID, ParkingLotID};
 use sim::{
@@ -11,8 +11,8 @@ use sim::{
     VehicleType,
 };
 use widgetry::{
-    Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, LinePlot, Outcome, Panel, PlotOptions,
-    Series, Text, TextExt, Toggle, Widget,
+    EventCtx, GfxCtx, Key, Line, LinePlot, Outcome, Panel, PlotOptions, Series, Text, TextExt,
+    Toggle, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -37,8 +37,7 @@ pub struct InfoPanel {
     is_paused: bool,
     panel: Panel,
 
-    unzoomed: Drawable,
-    zoomed: Drawable,
+    draw_extra: ToggleZoomed,
     tooltips: Vec<(Polygon, Text)>,
 
     hyperlinks: HashMap<String, Tab>,
@@ -286,10 +285,8 @@ impl Tab {
 
 // TODO Name sucks
 pub struct Details {
-    /// Draw extra things when unzoomed.
-    pub unzoomed: GeomBatch,
-    /// Draw extra things when zoomed.
-    pub zoomed: GeomBatch,
+    /// Draw extra things when unzoomed or zoomed.
+    pub draw_extra: ToggleZoomedBuilder,
     /// Show these tooltips over the map.
     pub tooltips: Vec<(Polygon, Text)>,
     /// When a button with this label is clicked, open this info panel tab instead.
@@ -313,8 +310,7 @@ impl InfoPanel {
         app.session.info_panel_tab.insert(k, v);
 
         let mut details = Details {
-            unzoomed: GeomBatch::new(),
-            zoomed: GeomBatch::new(),
+            draw_extra: ToggleZoomed::builder(),
             tooltips: Vec::new(),
             hyperlinks: HashMap::new(),
             warpers: HashMap::new(),
@@ -419,14 +415,17 @@ impl InfoPanel {
                     // Make a circle to cover the object.
                     let bounds = outline.get_bounds();
                     let radius = multiplier * Distance::meters(bounds.width().max(bounds.height()));
-                    details.unzoomed.push(
+                    details.draw_extra.unzoomed.push(
                         app.cs.current_object.alpha(0.5),
                         Circle::new(bounds.center(), radius).to_polygon(),
                     );
                     match Circle::new(bounds.center(), radius).to_outline(Distance::meters(0.3)) {
                         Ok(poly) => {
-                            details.unzoomed.push(app.cs.current_object, poly.clone());
-                            details.zoomed.push(app.cs.current_object, poly);
+                            details
+                                .draw_extra
+                                .unzoomed
+                                .push(app.cs.current_object, poly.clone());
+                            details.draw_extra.zoomed.push(app.cs.current_object, poly);
                         }
                         Err(err) => {
                             warn!("No outline for {:?}: {}", id, err);
@@ -438,9 +437,13 @@ impl InfoPanel {
                 }
                 _ => {
                     details
+                        .draw_extra
                         .unzoomed
                         .push(app.cs.perma_selected_object, outline.clone());
-                    details.zoomed.push(app.cs.perma_selected_object, outline);
+                    details
+                        .draw_extra
+                        .zoomed
+                        .push(app.cs.perma_selected_object, outline);
                 }
             }
         }
@@ -454,8 +457,7 @@ impl InfoPanel {
                 // TODO Some headings are too wide.. Intersection #xyz (Traffic signals)
                 .exact_size_percent(30, 60)
                 .build_custom(ctx),
-            unzoomed: details.unzoomed.upload(ctx),
-            zoomed: details.zoomed.upload(ctx),
+            draw_extra: details.draw_extra.build(ctx),
             tooltips: details.tooltips,
             hyperlinks: details.hyperlinks,
             warpers: details.warpers,
@@ -631,11 +633,7 @@ impl InfoPanel {
 
     pub fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.panel.draw(g);
-        if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
-            g.redraw(&self.unzoomed);
-        } else {
-            g.redraw(&self.zoomed);
-        }
+        self.draw_extra.draw(g, app);
         if let Some(pt) = g.canvas.get_cursor_in_map_space() {
             for (poly, txt) in &self.tooltips {
                 if poly.contains_pt(pt) {

@@ -2,11 +2,10 @@ use std::collections::BTreeSet;
 
 use abstutil::prettyprint_usize;
 use geom::{Circle, Distance, Pt2D, Time};
-use map_gui::tools::{make_heatmap, HeatmapOptions};
+use map_gui::tools::{make_heatmap, HeatmapOptions, ToggleZoomed};
 use sim::{Problem, TripInfo, TripMode};
 use widgetry::{
-    Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, Outcome, Panel, Slider, Text, TextExt,
-    Toggle, Widget,
+    Color, EventCtx, GfxCtx, Line, Outcome, Panel, Slider, Text, TextExt, Toggle, Widget,
 };
 
 use crate::app::App;
@@ -16,7 +15,7 @@ use crate::layer::{header, Layer, LayerOutcome, PANEL_PLACEMENT};
 pub struct ProblemMap {
     time: Time,
     opts: Options,
-    draw: Drawable,
+    draw: ToggleZoomed,
     panel: Panel,
 }
 
@@ -49,12 +48,10 @@ impl Layer for ProblemMap {
     }
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.panel.draw(g);
-        if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
-            g.redraw(&self.draw);
-        }
+        self.draw.draw(g, app);
     }
     fn draw_minimap(&self, g: &mut GfxCtx) {
-        g.redraw(&self.draw);
+        g.redraw(&self.draw.unzoomed);
     }
 }
 
@@ -79,11 +76,11 @@ impl ProblemMap {
         }
         let num_pts = pts.len();
 
-        let mut batch = GeomBatch::new();
+        let mut draw = ToggleZoomed::builder();
         let legend = if let Some(ref o) = opts.heatmap {
             Some(make_heatmap(
                 ctx,
-                &mut batch,
+                &mut draw.unzoomed,
                 app.primary.map.get_bounds(),
                 pts,
                 o,
@@ -92,7 +89,8 @@ impl ProblemMap {
             let circle = Circle::new(Pt2D::new(0.0, 0.0), Distance::meters(10.0)).to_polygon();
             // TODO Different colors per problem type
             for pt in pts {
-                batch.push(Color::PURPLE.alpha(0.8), circle.translate(pt.x(), pt.y()));
+                draw.unzoomed
+                    .push(Color::PURPLE.alpha(0.8), circle.translate(pt.x(), pt.y()));
             }
             None
         };
@@ -100,7 +98,7 @@ impl ProblemMap {
         ProblemMap {
             time: app.primary.sim.time(),
             opts,
-            draw: ctx.upload(batch),
+            draw: draw.build(ctx),
             panel: controls,
         }
     }

@@ -2,11 +2,10 @@ use std::collections::HashSet;
 
 use abstutil::prettyprint_usize;
 use geom::{Circle, Distance, Pt2D, Time};
-use map_gui::tools::{make_heatmap, HeatmapOptions};
+use map_gui::tools::{make_heatmap, HeatmapOptions, ToggleZoomed};
 use sim::PersonState;
 use widgetry::{
-    Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, Outcome, Panel, Text, TextExt,
-    Toggle, Widget,
+    Choice, Color, EventCtx, GfxCtx, Line, Outcome, Panel, Text, TextExt, Toggle, Widget,
 };
 
 use crate::app::App;
@@ -17,7 +16,7 @@ use crate::layer::{header, Layer, LayerOutcome, PANEL_PLACEMENT};
 pub struct Pandemic {
     time: Time,
     opts: Options,
-    draw: Drawable,
+    draw: ToggleZoomed,
     panel: Panel,
 }
 
@@ -50,12 +49,10 @@ impl Layer for Pandemic {
     }
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.panel.draw(g);
-        if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
-            g.redraw(&self.draw);
-        }
+        self.draw.draw(g, app);
     }
     fn draw_minimap(&self, g: &mut GfxCtx) {
-        g.redraw(&self.draw);
+        g.redraw(&self.draw.unzoomed);
     }
 }
 
@@ -108,12 +105,12 @@ impl Pandemic {
             }
         }
 
-        let mut batch = GeomBatch::new();
+        let mut draw = ToggleZoomed::builder();
         let legend = if let Some(ref o) = opts.heatmap {
             pts.extend(repeat_pts);
             Some(make_heatmap(
                 ctx,
-                &mut batch,
+                &mut draw.unzoomed,
                 app.primary.map.get_bounds(),
                 pts,
                 o,
@@ -122,7 +119,8 @@ impl Pandemic {
             // It's quite silly to produce triangles for the same circle over and over again. ;)
             let circle = Circle::new(Pt2D::new(0.0, 0.0), Distance::meters(10.0)).to_polygon();
             for pt in pts {
-                batch.push(Color::RED.alpha(0.8), circle.translate(pt.x(), pt.y()));
+                draw.unzoomed
+                    .push(Color::RED.alpha(0.8), circle.translate(pt.x(), pt.y()));
             }
             None
         };
@@ -130,7 +128,7 @@ impl Pandemic {
         Pandemic {
             time: app.primary.sim.time(),
             opts,
-            draw: ctx.upload(batch),
+            draw: draw.build(ctx),
             panel: controls,
         }
     }

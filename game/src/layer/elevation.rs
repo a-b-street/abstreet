@@ -1,7 +1,7 @@
 use geom::{Angle, Distance, FindClosest, PolyLine, Polygon, Pt2D};
 use map_gui::tools::{ColorDiscrete, ColorScale, Grid, ToggleZoomed};
 use map_gui::ID;
-use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Panel, Text, TextExt, Widget};
+use widgetry::{Color, EventCtx, GeomBatch, GfxCtx, Panel, Text, TextExt, Widget};
 
 use crate::app::App;
 use crate::layer::{header, Layer, LayerOutcome, PANEL_PLACEMENT};
@@ -157,7 +157,7 @@ const CONTOUR_STEP_SIZE: Distance = Distance::const_meters(15.0);
 pub struct ElevationContours {
     tooltip: Option<Text>,
     closest_elevation: FindClosest<Distance>,
-    unzoomed: Drawable,
+    draw: ToggleZoomed,
     panel: Panel,
 }
 
@@ -187,15 +187,13 @@ impl Layer for ElevationContours {
     }
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.panel.draw(g);
-        if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
-            g.redraw(&self.unzoomed);
-        }
+        self.draw.draw(g, app);
         if let Some(ref txt) = self.tooltip {
             g.draw_mouse_tooltip(txt.clone());
         }
     }
     fn draw_minimap(&self, g: &mut GfxCtx) {
-        g.redraw(&self.unzoomed);
+        g.redraw(&self.draw.unzoomed);
     }
 }
 
@@ -208,7 +206,7 @@ impl ElevationContours {
             high = high.max(i.elevation);
         }
 
-        let (closest_elevation, unzoomed) = ElevationContours::make_contours(ctx, app, low, high);
+        let (closest_elevation, draw) = ElevationContours::make_contours(ctx, app, low, high);
 
         let panel = Panel::new_builder(Widget::col(vec![
             header(ctx, "Elevation"),
@@ -225,7 +223,7 @@ impl ElevationContours {
         ElevationContours {
             tooltip: None,
             closest_elevation,
-            unzoomed,
+            draw,
             panel,
         }
     }
@@ -235,10 +233,10 @@ impl ElevationContours {
         app: &App,
         low: Distance,
         high: Distance,
-    ) -> (FindClosest<Distance>, Drawable) {
+    ) -> (FindClosest<Distance>, ToggleZoomed) {
         let bounds = app.primary.map.get_bounds();
         let mut closest = FindClosest::new(bounds);
-        let mut batch = GeomBatch::new();
+        let mut draw = ToggleZoomed::builder();
 
         ctx.loading_screen("generate contours", |_, timer| {
             timer.start("gather input");
@@ -304,9 +302,9 @@ impl ElevationContours {
                             if let Ok(p) = Polygon::from_geojson(&p) {
                                 let poly = p.scale(resolution_m);
                                 if let Ok(x) = poly.to_outline(Distance::meters(5.0)) {
-                                    batch.push(Color::BLACK.alpha(0.5), x);
+                                    draw.unzoomed.push(Color::BLACK.alpha(0.5), x);
                                 }
-                                batch.push(color.alpha(0.1), poly);
+                                draw.unzoomed.push(color.alpha(0.1), poly);
                             }
                         }
                     }
@@ -315,6 +313,6 @@ impl ElevationContours {
             }
         });
 
-        (closest, batch.upload(ctx))
+        (closest, draw.build(ctx))
     }
 }

@@ -56,7 +56,7 @@ fn trips_body(
     // overlay for better contrast in the unzoomed view. Only add it once, even if multiple trips
     // are open.
     if !open_trips.is_empty() {
-        details.unzoomed.push(
+        details.draw_extra.unzoomed.push(
             app.cs.fade_map_dark,
             app.primary.map.get_boundary_polygon().clone(),
         );

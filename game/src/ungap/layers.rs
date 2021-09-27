@@ -222,7 +222,7 @@ impl Layers {
 
             if self.elevation {
                 if let Some((_, ref draw)) = app.session.elevation_contours.value() {
-                    g.redraw(draw);
+                    draw.draw(g, app);
                 }
             }
             if let Some(ref draw) = self.steep_streets {

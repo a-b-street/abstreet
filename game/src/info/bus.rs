@@ -95,7 +95,7 @@ fn stop_body(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusStopID
     rows.push(txt.into_widget(ctx));
 
     // Draw where the bus/train stops
-    details.zoomed.push(
+    details.draw_extra.zoomed.push(
         app.cs.bus_body.alpha(0.5),
         Circle::new(bs.driving_pos.pt(&app.primary.map), Distance::meters(2.5)).to_polygon(),
     );
@@ -337,15 +337,15 @@ fn route_body(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRoute
                 }
             }
         }
-        details.unzoomed.append(colorer.unzoomed);
-        details.zoomed.append(colorer.zoomed);
+        details.draw_extra.unzoomed.append(colorer.unzoomed);
+        details.draw_extra.zoomed.append(colorer.zoomed);
 
         for pt in bus_locations {
-            details.unzoomed.push(
+            details.draw_extra.unzoomed.push(
                 Color::BLUE,
                 Circle::new(pt, Distance::meters(20.0)).to_polygon(),
             );
-            details.zoomed.push(
+            details.draw_extra.zoomed.push(
                 Color::BLUE.alpha(0.5),
                 Circle::new(pt, Distance::meters(5.0)).to_polygon(),
             );
@@ -353,13 +353,13 @@ fn route_body(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRoute
 
         for (idx, bs) in route.stops.iter().enumerate() {
             let bs = map.get_bs(*bs);
-            details.unzoomed.append(
+            details.draw_extra.unzoomed.append(
                 Text::from(format!("{}) {}", idx + 1, bs.name))
                     .with_bg()
                     .render_autocropped(ctx)
                     .centered_on(bs.sidewalk_pos.pt(map)),
             );
-            details.zoomed.append(
+            details.draw_extra.zoomed.append(
                 Text::from(format!("{}) {}", idx + 1, bs.name))
                     .with_bg()
                     .render_autocropped(ctx)

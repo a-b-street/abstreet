@@ -503,13 +503,13 @@ fn draw_problems(
                 } else {
                     (Color::WHITE, app.cs.slowest_intersection)
                 };
-                details.unzoomed.append(
+                details.draw_extra.unzoomed.append(
                     Text::from(Line(format!("{}", delay)).fg(fg_color))
                         .bg(bg_color)
                         .render(ctx)
                         .centered_on(i.polygon.center()),
                 );
-                details.zoomed.append(
+                details.draw_extra.zoomed.append(
                     Text::from(Line(format!("{}", delay)).fg(fg_color))
                         .bg(bg_color)
                         .render(ctx)
@@ -523,12 +523,12 @@ fn draw_problems(
             }
             Problem::ComplexIntersectionCrossing(i) => {
                 let i = map.get_i(*i);
-                details.unzoomed.append(
+                details.draw_extra.unzoomed.append(
                     GeomBatch::load_svg(ctx, "system/assets/tools/alert.svg")
                         .centered_on(i.polygon.center())
                         .color(RewriteColor::ChangeAlpha(0.8)),
                 );
-                details.zoomed.append(
+                details.draw_extra.zoomed.append(
                     GeomBatch::load_svg(ctx, "system/assets/tools/alert.svg")
                         .scale(0.5)
                         .color(RewriteColor::ChangeAlpha(0.5))
@@ -545,12 +545,12 @@ fn draw_problems(
             }
             Problem::OvertakeDesired(on) => {
                 let pt = on.get_polyline(map).middle();
-                details.unzoomed.append(
+                details.draw_extra.unzoomed.append(
                     GeomBatch::load_svg(ctx, "system/assets/tools/alert.svg")
                         .centered_on(pt)
                         .color(RewriteColor::ChangeAlpha(0.8)),
                 );
-                details.zoomed.append(
+                details.draw_extra.zoomed.append(
                     GeomBatch::load_svg(ctx, "system/assets/tools/alert.svg")
                         .scale(0.5)
                         .color(RewriteColor::ChangeAlpha(0.5))
@@ -568,12 +568,12 @@ fn draw_problems(
                 let t = map.get_t(*t);
 
                 let geom = t.geom.make_polygons(Distance::meters(10.0));
-                details.unzoomed.append(
+                details.draw_extra.unzoomed.append(
                     GeomBatch::load_svg(ctx, "system/assets/tools/alert.svg")
                         .centered_on(geom.center())
                         .color(RewriteColor::ChangeAlpha(0.8)),
                 );
-                details.zoomed.append(
+                details.draw_extra.zoomed.append(
                     GeomBatch::load_svg(ctx, "system/assets/tools/alert.svg")
                         .scale(0.5)
                         .color(RewriteColor::ChangeAlpha(0.5))
@@ -725,9 +725,11 @@ fn make_trip_details(
             .insert(format!("jump to start of {}", trip_id), id);
 
         details
+            .draw_extra
             .unzoomed
             .append(map_gui::tools::start_marker(ctx, center, 2.0));
         details
+            .draw_extra
             .zoomed
             .append(map_gui::tools::start_marker(ctx, center, 0.5));
 
@@ -746,9 +748,11 @@ fn make_trip_details(
             .insert(format!("jump to goal of {}", trip_id), id);
 
         details
+            .draw_extra
             .unzoomed
             .append(map_gui::tools::goal_marker(ctx, center, 2.0));
         details
+            .draw_extra
             .zoomed
             .append(map_gui::tools::goal_marker(ctx, center, 0.5));
 
@@ -797,8 +801,8 @@ fn make_trip_details(
                 }
             }
             if let Some((ref unzoomed, ref zoomed)) = open_trip.cached_routes[idx] {
-                details.unzoomed.push(color, unzoomed.clone());
-                details.zoomed.extend(color, zoomed.clone());
+                details.draw_extra.unzoomed.push(color, unzoomed.clone());
+                details.draw_extra.zoomed.extend(color, zoomed.clone());
             }
         } else if p.has_path_req {
             path_impossible = true;

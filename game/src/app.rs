@@ -11,12 +11,12 @@ use geom::{Bounds, Circle, Distance, Duration, FindClosest, Polygon, Pt2D, Time}
 use map_gui::colors::ColorScheme;
 use map_gui::options::Options;
 use map_gui::render::{unzoomed_agent_radius, AgentCache, DrawMap, DrawOptions, Renderable};
-use map_gui::tools::CameraState;
+use map_gui::tools::{CameraState, ToggleZoomed};
 use map_gui::ID;
 use map_model::AreaType;
 use map_model::{BufferType, IntersectionID, LaneType, Map, RoutingParams, Traversable};
 use sim::{AgentID, Analytics, Scenario, Sim, SimCallback, SimFlags, VehicleType};
-use widgetry::{Cached, Canvas, Drawable, EventCtx, GfxCtx, Prerender, SharedAppState, State};
+use widgetry::{Cached, Canvas, EventCtx, GfxCtx, Prerender, SharedAppState, State};
 
 use crate::challenges::HighScore;
 use crate::common::Warping;
@@ -731,7 +731,7 @@ pub struct SessionState {
     pub buffer_lane_type: LaneType,
 
     // Specific to the ungap tool
-    pub elevation_contours: Cached<MapName, (FindClosest<Distance>, Drawable)>,
+    pub elevation_contours: Cached<MapName, (FindClosest<Distance>, ToggleZoomed)>,
     pub routing_params: RoutingParams,
     // Map and edit change key
     pub mode_shift: Cached<(MapName, usize), crate::ungap::ModeShiftData>,
