@@ -4,9 +4,7 @@ use maplit::btreeset;
 
 use abstutil::prettyprint_usize;
 use geom::{Duration, Time};
-use map_gui::tools::{
-    grey_out_map, nice_map_name, ChooseSomething, CityPicker, PopupMsg, URLManager,
-};
+use map_gui::tools::{grey_out_map, ChooseSomething, CityPicker, PopupMsg, URLManager};
 use sim::{ScenarioModifier, SlidingWindow, TripMode};
 use widgetry::{
     lctrl, Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, LinePlot, Outcome,
@@ -182,14 +180,7 @@ impl GameplayState for PlayScenario {
                     .small_heading()
                     .into_widget(ctx)
                     .margin_right(18),
-                ctx.style()
-                    .btn_popup_icon_text(
-                        "system/assets/tools/map.svg",
-                        nice_map_name(app.primary.map.get_name()),
-                    )
-                    .hotkey(lctrl(Key::L))
-                    .build_widget(ctx, "change map")
-                    .margin_right(8),
+                map_gui::tools::change_map_btn(ctx, app).margin_right(8),
                 ctx.style()
                     .btn_popup_icon_text("system/assets/tools/calendar.svg", &self.scenario_name)
                     .hotkey(Key::S)

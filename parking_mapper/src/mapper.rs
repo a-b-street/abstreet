@@ -4,13 +4,13 @@ use anyhow::Result;
 
 use abstutil::{prettyprint_usize, Timer};
 use geom::{Distance, FindClosest, PolyLine, Polygon};
-use map_gui::tools::{nice_map_name, open_browser, CityPicker, ColorLegend, PopupMsg};
+use map_gui::tools::{open_browser, CityPicker, ColorLegend, PopupMsg};
 use map_gui::{SimpleApp, ID};
 use map_model::{osm, RoadID};
 use osm::WayID;
 use widgetry::{
-    lctrl, Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
-    Menu, Outcome, Panel, State, Text, TextExt, Toggle, Transition, VerticalAlignment, Widget,
+    Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Menu,
+    Outcome, Panel, State, Text, TextExt, Toggle, Transition, VerticalAlignment, Widget,
 };
 
 type App = SimpleApp<()>;
@@ -124,13 +124,7 @@ impl ParkingMapper {
             show,
             panel: Panel::new_builder(Widget::col(vec![
                 Line("Parking mapper").small_heading().into_widget(ctx),
-                ctx.style()
-                    .btn_popup_icon_text(
-                        "system/assets/tools/map.svg",
-                        nice_map_name(app.map.get_name()),
-                    )
-                    .hotkey(lctrl(Key::L))
-                    .build_widget(ctx, "change map"),
+                map_gui::tools::change_map_btn(ctx, app),
                 format!(
                     "{} / {} ways done (you've mapped {})",
                     prettyprint_usize(done.len()),

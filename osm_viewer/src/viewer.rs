@@ -5,8 +5,8 @@ use geom::ArrowCap;
 use map_gui::options::OptionsPanel;
 use map_gui::render::{DrawOptions, BIG_ARROW_THICKNESS};
 use map_gui::tools::{
-    nice_map_name, open_browser, CityPicker, Minimap, MinimapControls, Navigator, PopupMsg,
-    TurnExplorer, URLManager,
+    open_browser, CityPicker, Minimap, MinimapControls, Navigator, PopupMsg, TurnExplorer,
+    URLManager,
 };
 use map_gui::{SimpleApp, ID};
 use map_model::osm;
@@ -57,13 +57,7 @@ impl Viewer {
             Line("OpenStreetMap viewer")
                 .small_heading()
                 .into_widget(ctx),
-            ctx.style()
-                .btn_popup_icon_text(
-                    "system/assets/tools/map.svg",
-                    nice_map_name(app.map.get_name()),
-                )
-                .hotkey(lctrl(Key::L))
-                .build_widget(ctx, "change map"),
+            map_gui::tools::change_map_btn(ctx, app),
             Widget::row(vec![
                 ctx.style()
                     .btn_plain

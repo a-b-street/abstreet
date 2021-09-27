@@ -4,11 +4,11 @@
 use abstutil::Timer;
 use geom::{LonLat, Percent};
 use map_gui::colors::ColorSchemeChoice;
-use map_gui::tools::{nice_map_name, ChooseSomething, CityPicker};
+use map_gui::tools::{ChooseSomething, CityPicker};
 use map_gui::AppLike;
 use widgetry::{
-    lctrl, Choice, DrawBaselayer, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
-    State, TextExt, VerticalAlignment, Widget,
+    Choice, DrawBaselayer, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State,
+    VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -34,14 +34,7 @@ impl DevToolsMode {
                     Line("Internal dev tools").small_heading().into_widget(ctx),
                     ctx.style().btn_close_widget(ctx),
                 ]),
-                Widget::row(vec![
-                    "Change map:".text_widget(ctx),
-                    ctx.style()
-                        .btn_outline
-                        .popup(nice_map_name(app.primary.map.get_name()))
-                        .hotkey(lctrl(Key::L))
-                        .build_widget(ctx, "change map"),
-                ]),
+                map_gui::tools::change_map_btn(ctx, app),
                 Widget::custom_row(vec![
                     ctx.style()
                         .btn_outline

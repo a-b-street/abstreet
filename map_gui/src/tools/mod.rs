@@ -2,7 +2,7 @@
 
 use abstio::MapName;
 use geom::Polygon;
-use widgetry::{GfxCtx, Line, Text};
+use widgetry::{lctrl, EventCtx, GfxCtx, Key, Line, Text, Widget};
 
 pub use self::camera::{CameraState, DefaultMap};
 pub use self::city_picker::CityPicker;
@@ -295,4 +295,15 @@ pub fn find_exe(cmd: &str) -> String {
         }
     }
     panic!("Couldn't find the {} executable", cmd);
+}
+
+/// A button to change maps, with default keybindings
+pub fn change_map_btn(ctx: &EventCtx, app: &dyn AppLike) -> Widget {
+    ctx.style()
+        .btn_popup_icon_text(
+            "system/assets/tools/map.svg",
+            nice_map_name(app.map().get_name()),
+        )
+        .hotkey(lctrl(Key::L))
+        .build_widget(ctx, "change map")
 }

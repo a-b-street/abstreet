@@ -1,10 +1,10 @@
 use std::collections::BTreeSet;
 
-use map_gui::tools::{nice_map_name, CityPicker};
+use map_gui::tools::CityPicker;
 use map_gui::ID;
 use widgetry::{
-    lctrl, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
-    Panel, State, TextExt, VerticalAlignment, Widget,
+    Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line, Outcome, Panel, State,
+    TextExt, VerticalAlignment, Widget,
 };
 
 use super::{Neighborhood, Viewer};
@@ -21,13 +21,7 @@ impl BrowseNeighborhoods {
         let panel = Panel::new_builder(Widget::col(vec![
             Widget::row(vec![
                 Line("LTN tool").small_heading().into_widget(ctx),
-                ctx.style()
-                    .btn_popup_icon_text(
-                        "system/assets/tools/map.svg",
-                        nice_map_name(app.primary.map.get_name()),
-                    )
-                    .hotkey(lctrl(Key::L))
-                    .build_widget(ctx, "change map")
+                map_gui::tools::change_map_btn(ctx, app)
                     .centered_vert()
                     .align_right(),
             ]),

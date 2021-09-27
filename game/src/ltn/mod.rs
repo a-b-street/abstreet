@@ -1,12 +1,12 @@
 use std::collections::BTreeSet;
 
 use geom::{Distance, Line};
-use map_gui::tools::{nice_map_name, CityPicker, ColorDiscrete};
+use map_gui::tools::{CityPicker, ColorDiscrete};
 use map_gui::ID;
 use map_model::{IntersectionID, Map, Road, RoadID};
 use widgetry::{
-    lctrl, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
-    Panel, State, Text, TextExt, VerticalAlignment, Widget,
+    Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
+    State, Text, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -51,13 +51,7 @@ impl Viewer {
         let panel = Panel::new_builder(Widget::col(vec![
             Widget::row(vec![
                 Line("LTN tool").small_heading().into_widget(ctx),
-                ctx.style()
-                    .btn_popup_icon_text(
-                        "system/assets/tools/map.svg",
-                        nice_map_name(app.primary.map.get_name()),
-                    )
-                    .hotkey(lctrl(Key::L))
-                    .build_widget(ctx, "change map")
+                map_gui::tools::change_map_btn(ctx, app)
                     .centered_vert()
                     .align_right(),
             ]),

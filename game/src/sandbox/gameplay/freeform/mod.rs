@@ -7,9 +7,7 @@ use rand::Rng;
 
 use abstutil::Timer;
 use geom::{Distance, Duration};
-use map_gui::tools::{
-    grey_out_map, nice_map_name, open_browser, CityPicker, PopupMsg, PromptInput, URLManager,
-};
+use map_gui::tools::{grey_out_map, open_browser, CityPicker, PopupMsg, PromptInput, URLManager};
 use map_gui::ID;
 use map_model::{IntersectionID, Position};
 use sim::{IndividTrip, PersonSpec, Scenario, TripEndpoint, TripMode, TripPurpose};
@@ -130,14 +128,7 @@ impl GameplayState for Freeform {
                     .small_heading()
                     .into_widget(ctx)
                     .margin_right(18),
-                ctx.style()
-                    .btn_popup_icon_text(
-                        "system/assets/tools/map.svg",
-                        nice_map_name(app.primary.map.get_name()),
-                    )
-                    .hotkey(lctrl(Key::L))
-                    .build_widget(ctx, "change map")
-                    .margin_right(8),
+                map_gui::tools::change_map_btn(ctx, app).margin_right(8),
                 ctx.style()
                     .btn_popup_icon_text("system/assets/tools/calendar.svg", "none")
                     .hotkey(Key::S)

@@ -7,8 +7,7 @@
 use abstutil::prettyprint_usize;
 use geom::{Distance, Duration};
 use map_gui::tools::{
-    draw_isochrone, nice_map_name, open_browser, CityPicker, ColorLegend, Navigator, PopupMsg,
-    URLManager,
+    draw_isochrone, open_browser, CityPicker, ColorLegend, Navigator, PopupMsg, URLManager,
 };
 use map_gui::ID;
 use map_model::connectivity::WalkingOptions;
@@ -288,15 +287,7 @@ fn build_panel(ctx: &mut EventCtx, app: &App, start: &Building, isochrone: &Isoc
         .small_heading()
         .into_widget(ctx)];
 
-    rows.push(
-        ctx.style()
-            .btn_popup_icon_text(
-                "system/assets/tools/map.svg",
-                nice_map_name(app.map.get_name()),
-            )
-            .hotkey(lctrl(Key::L))
-            .build_widget(ctx, "change map"),
-    );
+    rows.push(map_gui::tools::change_map_btn(ctx, app));
 
     rows.push(
         Text::from_all(vec![

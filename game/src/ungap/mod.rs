@@ -8,10 +8,10 @@ mod quick_sketch;
 mod route;
 mod share;
 
-use map_gui::tools::{grey_out_map, nice_map_name, open_browser, CityPicker};
+use map_gui::tools::{grey_out_map, open_browser, CityPicker};
 use widgetry::{
-    lctrl, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Panel, SimpleState, State, Text,
-    TextExt, VerticalAlignment, Widget,
+    EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Panel, SimpleState, State, Text, TextExt,
+    VerticalAlignment, Widget,
 };
 
 pub use self::explore::ExploreMap;
@@ -47,13 +47,7 @@ impl Tab {
                 .image_path("system/assets/pregame/logo.svg")
                 .image_dims(50.0)
                 .build_widget(ctx, "about A/B Street"),
-            ctx.style()
-                .btn_popup_icon_text(
-                    "system/assets/tools/map.svg",
-                    nice_map_name(app.primary.map.get_name()),
-                )
-                .hotkey(lctrl(Key::L))
-                .build_widget(ctx, "change map")
+            map_gui::tools::change_map_btn(ctx, app)
                 .centered_vert()
                 .align_right(),
         ])];
