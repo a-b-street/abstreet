@@ -479,12 +479,6 @@
 <span id="479">479</span>
 <span id="480">480</span>
 <span id="481">481</span>
-<span id="482">482</span>
-<span id="483">483</span>
-<span id="484">484</span>
-<span id="485">485</span>
-<span id="486">486</span>
-<span id="487">487</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
 
@@ -493,8 +487,8 @@
 <span class="kw">use</span> <span class="ident">map_gui::options::OptionsPanel</span>;
 <span class="kw">use</span> <span class="ident">map_gui::render</span>::{<span class="ident">DrawOptions</span>, <span class="ident">BIG_ARROW_THICKNESS</span>};
 <span class="kw">use</span> <span class="ident">map_gui::tools</span>::{
-    <span class="ident">nice_map_name</span>, <span class="ident">open_browser</span>, <span class="ident">CityPicker</span>, <span class="ident">Minimap</span>, <span class="ident">MinimapControls</span>, <span class="ident">Navigator</span>, <span class="ident">PopupMsg</span>,
-    <span class="ident">TurnExplorer</span>, <span class="ident">URLManager</span>,
+    <span class="ident">open_browser</span>, <span class="ident">CityPicker</span>, <span class="ident">Minimap</span>, <span class="ident">MinimapControls</span>, <span class="ident">Navigator</span>, <span class="ident">PopupMsg</span>, <span class="ident">TurnExplorer</span>,
+    <span class="ident">URLManager</span>,
 };
 <span class="kw">use</span> <span class="ident">map_gui</span>::{<span class="ident">SimpleApp</span>, <span class="ident">ID</span>};
 <span class="kw">use</span> <span class="ident">map_model::osm</span>;
@@ -545,13 +539,7 @@
             <span class="ident">Line</span>(<span class="string">&quot;OpenStreetMap viewer&quot;</span>)
                 .<span class="ident">small_heading</span>()
                 .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-            <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_popup_icon_text</span>(
-                    <span class="string">&quot;system/assets/tools/map.svg&quot;</span>,
-                    <span class="ident">nice_map_name</span>(<span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_name</span>()),
-                )
-                .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key::L</span>))
-                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;change map&quot;</span>),
+            <span class="ident">map_gui::tools::change_map_btn</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
             <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
                     .<span class="ident">btn_plain</span>

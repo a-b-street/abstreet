@@ -296,12 +296,23 @@
 <span id="296">296</span>
 <span id="297">297</span>
 <span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
 </pre><pre class="rust">
 <span class="doccomment">//! Assorted tools and UI states that&#39;re useful for applications built to display maps.</span>
 
 <span class="kw">use</span> <span class="ident">abstio::MapName</span>;
 <span class="kw">use</span> <span class="ident">geom::Polygon</span>;
-<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">GfxCtx</span>, <span class="ident">Line</span>, <span class="ident">Text</span>};
+<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">lctrl</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Text</span>, <span class="ident">Widget</span>};
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::camera</span>::{<span class="ident">CameraState</span>, <span class="ident">DefaultMap</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::city_picker::CityPicker</span>;
@@ -594,6 +605,17 @@
         }
     }
     <span class="macro">panic!</span>(<span class="string">&quot;Couldn&#39;t find the {} executable&quot;</span>, <span class="ident">cmd</span>);
+}
+
+<span class="doccomment">/// A button to change maps, with default keybindings</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">change_map_btn</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">AppLike</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+    <span class="ident">ctx</span>.<span class="ident">style</span>()
+        .<span class="ident">btn_popup_icon_text</span>(
+            <span class="string">&quot;system/assets/tools/map.svg&quot;</span>,
+            <span class="ident">nice_map_name</span>(<span class="ident">app</span>.<span class="ident">map</span>().<span class="ident">get_name</span>()),
+        )
+        .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key::L</span>))
+        .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;change map&quot;</span>)
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_gui" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>

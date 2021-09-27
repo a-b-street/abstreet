@@ -578,15 +578,6 @@
 <span id="578">578</span>
 <span id="579">579</span>
 <span id="580">580</span>
-<span id="581">581</span>
-<span id="582">582</span>
-<span id="583">583</span>
-<span id="584">584</span>
-<span id="585">585</span>
-<span id="586">586</span>
-<span id="587">587</span>
-<span id="588">588</span>
-<span id="589">589</span>
 </pre><pre class="rust">
 <span class="doccomment">//! This is a tool to experiment with the concept of 15-minute neighborhoods. Can you access your</span>
 <span class="doccomment">//! daily needs (like groceries, a cafe, a library) within a 15-minute walk, bike ride, or public</span>
@@ -597,8 +588,7 @@
 <span class="kw">use</span> <span class="ident">abstutil::prettyprint_usize</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>};
 <span class="kw">use</span> <span class="ident">map_gui::tools</span>::{
-    <span class="ident">draw_isochrone</span>, <span class="ident">nice_map_name</span>, <span class="ident">open_browser</span>, <span class="ident">CityPicker</span>, <span class="ident">ColorLegend</span>, <span class="ident">Navigator</span>, <span class="ident">PopupMsg</span>,
-    <span class="ident">URLManager</span>,
+    <span class="ident">draw_isochrone</span>, <span class="ident">open_browser</span>, <span class="ident">CityPicker</span>, <span class="ident">ColorLegend</span>, <span class="ident">Navigator</span>, <span class="ident">PopupMsg</span>, <span class="ident">URLManager</span>,
 };
 <span class="kw">use</span> <span class="ident">map_gui::ID</span>;
 <span class="kw">use</span> <span class="ident">map_model::connectivity::WalkingOptions</span>;
@@ -878,15 +868,7 @@
         .<span class="ident">small_heading</span>()
         .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)];
 
-    <span class="ident">rows</span>.<span class="ident">push</span>(
-        <span class="ident">ctx</span>.<span class="ident">style</span>()
-            .<span class="ident">btn_popup_icon_text</span>(
-                <span class="string">&quot;system/assets/tools/map.svg&quot;</span>,
-                <span class="ident">nice_map_name</span>(<span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_name</span>()),
-            )
-            .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key::L</span>))
-            .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;change map&quot;</span>),
-    );
+    <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">map_gui::tools::change_map_btn</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
 
     <span class="ident">rows</span>.<span class="ident">push</span>(
         <span class="ident">Text::from_all</span>(<span class="macro">vec!</span>[
