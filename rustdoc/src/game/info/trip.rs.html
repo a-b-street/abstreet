@@ -957,6 +957,10 @@
 <span id="957">957</span>
 <span id="958">958</span>
 <span id="959">959</span>
+<span id="960">960</span>
+<span id="961">961</span>
+<span id="962">962</span>
+<span id="963">963</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashSet</span>};
 
@@ -1463,13 +1467,13 @@
                 } <span class="kw">else</span> {
                     (<span class="ident">Color::WHITE</span>, <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">slowest_intersection</span>)
                 };
-                <span class="ident">details</span>.<span class="ident">unzoomed</span>.<span class="ident">append</span>(
+                <span class="ident">details</span>.<span class="ident">draw_extra</span>.<span class="ident">unzoomed</span>.<span class="ident">append</span>(
                     <span class="ident">Text::from</span>(<span class="ident">Line</span>(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">delay</span>)).<span class="ident">fg</span>(<span class="ident">fg_color</span>))
                         .<span class="ident">bg</span>(<span class="ident">bg_color</span>)
                         .<span class="ident">render</span>(<span class="ident">ctx</span>)
                         .<span class="ident">centered_on</span>(<span class="ident">i</span>.<span class="ident">polygon</span>.<span class="ident">center</span>()),
                 );
-                <span class="ident">details</span>.<span class="ident">zoomed</span>.<span class="ident">append</span>(
+                <span class="ident">details</span>.<span class="ident">draw_extra</span>.<span class="ident">zoomed</span>.<span class="ident">append</span>(
                     <span class="ident">Text::from</span>(<span class="ident">Line</span>(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">delay</span>)).<span class="ident">fg</span>(<span class="ident">fg_color</span>))
                         .<span class="ident">bg</span>(<span class="ident">bg_color</span>)
                         .<span class="ident">render</span>(<span class="ident">ctx</span>)
@@ -1483,12 +1487,12 @@
             }
             <span class="ident">Problem::ComplexIntersectionCrossing</span>(<span class="ident">i</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="kw-2">*</span><span class="ident">i</span>);
-                <span class="ident">details</span>.<span class="ident">unzoomed</span>.<span class="ident">append</span>(
+                <span class="ident">details</span>.<span class="ident">draw_extra</span>.<span class="ident">unzoomed</span>.<span class="ident">append</span>(
                     <span class="ident">GeomBatch::load_svg</span>(<span class="ident">ctx</span>, <span class="string">&quot;system/assets/tools/alert.svg&quot;</span>)
                         .<span class="ident">centered_on</span>(<span class="ident">i</span>.<span class="ident">polygon</span>.<span class="ident">center</span>())
                         .<span class="ident">color</span>(<span class="ident">RewriteColor::ChangeAlpha</span>(<span class="number">0.8</span>)),
                 );
-                <span class="ident">details</span>.<span class="ident">zoomed</span>.<span class="ident">append</span>(
+                <span class="ident">details</span>.<span class="ident">draw_extra</span>.<span class="ident">zoomed</span>.<span class="ident">append</span>(
                     <span class="ident">GeomBatch::load_svg</span>(<span class="ident">ctx</span>, <span class="string">&quot;system/assets/tools/alert.svg&quot;</span>)
                         .<span class="ident">scale</span>(<span class="number">0.5</span>)
                         .<span class="ident">color</span>(<span class="ident">RewriteColor::ChangeAlpha</span>(<span class="number">0.5</span>))
@@ -1505,12 +1509,12 @@
             }
             <span class="ident">Problem::OvertakeDesired</span>(<span class="ident">on</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">let</span> <span class="ident">pt</span> <span class="op">=</span> <span class="ident">on</span>.<span class="ident">get_polyline</span>(<span class="ident">map</span>).<span class="ident">middle</span>();
-                <span class="ident">details</span>.<span class="ident">unzoomed</span>.<span class="ident">append</span>(
+                <span class="ident">details</span>.<span class="ident">draw_extra</span>.<span class="ident">unzoomed</span>.<span class="ident">append</span>(
                     <span class="ident">GeomBatch::load_svg</span>(<span class="ident">ctx</span>, <span class="string">&quot;system/assets/tools/alert.svg&quot;</span>)
                         .<span class="ident">centered_on</span>(<span class="ident">pt</span>)
                         .<span class="ident">color</span>(<span class="ident">RewriteColor::ChangeAlpha</span>(<span class="number">0.8</span>)),
                 );
-                <span class="ident">details</span>.<span class="ident">zoomed</span>.<span class="ident">append</span>(
+                <span class="ident">details</span>.<span class="ident">draw_extra</span>.<span class="ident">zoomed</span>.<span class="ident">append</span>(
                     <span class="ident">GeomBatch::load_svg</span>(<span class="ident">ctx</span>, <span class="string">&quot;system/assets/tools/alert.svg&quot;</span>)
                         .<span class="ident">scale</span>(<span class="number">0.5</span>)
                         .<span class="ident">color</span>(<span class="ident">RewriteColor::ChangeAlpha</span>(<span class="number">0.5</span>))
@@ -1528,12 +1532,12 @@
                 <span class="kw">let</span> <span class="ident">t</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_t</span>(<span class="kw-2">*</span><span class="ident">t</span>);
 
                 <span class="kw">let</span> <span class="ident">geom</span> <span class="op">=</span> <span class="ident">t</span>.<span class="ident">geom</span>.<span class="ident">make_polygons</span>(<span class="ident">Distance::meters</span>(<span class="number">10.0</span>));
-                <span class="ident">details</span>.<span class="ident">unzoomed</span>.<span class="ident">append</span>(
+                <span class="ident">details</span>.<span class="ident">draw_extra</span>.<span class="ident">unzoomed</span>.<span class="ident">append</span>(
                     <span class="ident">GeomBatch::load_svg</span>(<span class="ident">ctx</span>, <span class="string">&quot;system/assets/tools/alert.svg&quot;</span>)
                         .<span class="ident">centered_on</span>(<span class="ident">geom</span>.<span class="ident">center</span>())
                         .<span class="ident">color</span>(<span class="ident">RewriteColor::ChangeAlpha</span>(<span class="number">0.8</span>)),
                 );
-                <span class="ident">details</span>.<span class="ident">zoomed</span>.<span class="ident">append</span>(
+                <span class="ident">details</span>.<span class="ident">draw_extra</span>.<span class="ident">zoomed</span>.<span class="ident">append</span>(
                     <span class="ident">GeomBatch::load_svg</span>(<span class="ident">ctx</span>, <span class="string">&quot;system/assets/tools/alert.svg&quot;</span>)
                         .<span class="ident">scale</span>(<span class="number">0.5</span>)
                         .<span class="ident">color</span>(<span class="ident">RewriteColor::ChangeAlpha</span>(<span class="number">0.5</span>))
@@ -1685,9 +1689,11 @@
             .<span class="ident">insert</span>(<span class="macro">format!</span>(<span class="string">&quot;jump to start of {}&quot;</span>, <span class="ident">trip_id</span>), <span class="ident">id</span>);
 
         <span class="ident">details</span>
+            .<span class="ident">draw_extra</span>
             .<span class="ident">unzoomed</span>
             .<span class="ident">append</span>(<span class="ident">map_gui::tools::start_marker</span>(<span class="ident">ctx</span>, <span class="ident">center</span>, <span class="number">2.0</span>));
         <span class="ident">details</span>
+            .<span class="ident">draw_extra</span>
             .<span class="ident">zoomed</span>
             .<span class="ident">append</span>(<span class="ident">map_gui::tools::start_marker</span>(<span class="ident">ctx</span>, <span class="ident">center</span>, <span class="number">0.5</span>));
 
@@ -1706,9 +1712,11 @@
             .<span class="ident">insert</span>(<span class="macro">format!</span>(<span class="string">&quot;jump to goal of {}&quot;</span>, <span class="ident">trip_id</span>), <span class="ident">id</span>);
 
         <span class="ident">details</span>
+            .<span class="ident">draw_extra</span>
             .<span class="ident">unzoomed</span>
             .<span class="ident">append</span>(<span class="ident">map_gui::tools::goal_marker</span>(<span class="ident">ctx</span>, <span class="ident">center</span>, <span class="number">2.0</span>));
         <span class="ident">details</span>
+            .<span class="ident">draw_extra</span>
             .<span class="ident">zoomed</span>
             .<span class="ident">append</span>(<span class="ident">map_gui::tools::goal_marker</span>(<span class="ident">ctx</span>, <span class="ident">center</span>, <span class="number">0.5</span>));
 
@@ -1757,8 +1765,8 @@
                 }
             }
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="kw-2">ref</span> <span class="ident">unzoomed</span>, <span class="kw-2">ref</span> <span class="ident">zoomed</span>)) <span class="op">=</span> <span class="ident">open_trip</span>.<span class="ident">cached_routes</span>[<span class="ident">idx</span>] {
-                <span class="ident">details</span>.<span class="ident">unzoomed</span>.<span class="ident">push</span>(<span class="ident">color</span>, <span class="ident">unzoomed</span>.<span class="ident">clone</span>());
-                <span class="ident">details</span>.<span class="ident">zoomed</span>.<span class="ident">extend</span>(<span class="ident">color</span>, <span class="ident">zoomed</span>.<span class="ident">clone</span>());
+                <span class="ident">details</span>.<span class="ident">draw_extra</span>.<span class="ident">unzoomed</span>.<span class="ident">push</span>(<span class="ident">color</span>, <span class="ident">unzoomed</span>.<span class="ident">clone</span>());
+                <span class="ident">details</span>.<span class="ident">draw_extra</span>.<span class="ident">zoomed</span>.<span class="ident">extend</span>(<span class="ident">color</span>, <span class="ident">zoomed</span>.<span class="ident">clone</span>());
             }
         } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">p</span>.<span class="ident">has_path_req</span> {
             <span class="ident">path_impossible</span> <span class="op">=</span> <span class="bool-val">true</span>;

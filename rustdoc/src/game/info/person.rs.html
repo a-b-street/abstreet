@@ -786,7 +786,7 @@
     <span class="comment">// overlay for better contrast in the unzoomed view. Only add it once, even if multiple trips</span>
     <span class="comment">// are open.</span>
     <span class="kw">if</span> <span class="op">!</span><span class="ident">open_trips</span>.<span class="ident">is_empty</span>() {
-        <span class="ident">details</span>.<span class="ident">unzoomed</span>.<span class="ident">push</span>(
+        <span class="ident">details</span>.<span class="ident">draw_extra</span>.<span class="ident">unzoomed</span>.<span class="ident">push</span>(
             <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">fade_map_dark</span>,
             <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_boundary_polygon</span>().<span class="ident">clone</span>(),
         );
