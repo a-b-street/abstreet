@@ -30,9 +30,8 @@ impl TakeLayers for ShowGaps {
 impl ShowGaps {
     pub fn new_state(ctx: &mut EventCtx, app: &mut App, layers: Layers) -> Box<dyn State<App>> {
         let map_name = app.primary.map.get_name().clone();
-        if app.session.mode_shift.key().as_ref() == Some(&map_name) {
-            // TODO If the map's been edited, recalculate_gaps
-
+        let change_key = app.primary.map.get_edits_change_key();
+        if app.session.mode_shift.key().as_ref() == Some(&(map_name.clone(), change_key)) {
             return Box::new(ShowGaps {
                 top_panel: make_top_panel(ctx, app),
                 layers,
@@ -46,19 +45,19 @@ impl ShowGaps {
             // entirely?
             app.session
                 .mode_shift
-                .set(map_name, ModeShiftData::empty(ctx));
+                .set((map_name, change_key), ModeShiftData::empty(ctx));
             ShowGaps::new_state(ctx, app, layers)
         } else {
             FileLoader::<App, Scenario>::new_state(
                 ctx,
                 abstio::path_scenario(&map_name, &scenario_name),
-                Box::new(|ctx, app, _, maybe_scenario| {
+                Box::new(move |ctx, app, _, maybe_scenario| {
                     // TODO Handle corrupt files
                     let scenario = maybe_scenario.unwrap();
                     let data = ctx.loading_screen("predict mode shift", |ctx, timer| {
                         ModeShiftData::from_scenario(ctx, app, scenario, timer)
                     });
-                    app.session.mode_shift.set(map_name, data);
+                    app.session.mode_shift.set((map_name, change_key), data);
                     Transition::Replace(ShowGaps::new_state(ctx, app, layers))
                 }),
             )

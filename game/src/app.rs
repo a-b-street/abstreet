@@ -733,7 +733,8 @@ pub struct SessionState {
     // Specific to the ungap tool
     pub elevation_contours: Cached<MapName, (FindClosest<Distance>, Drawable)>,
     pub routing_params: RoutingParams,
-    pub mode_shift: Cached<MapName, crate::ungap::ModeShiftData>,
+    // Map and edit change key
+    pub mode_shift: Cached<(MapName, usize), crate::ungap::ModeShiftData>,
 }
 
 impl SessionState {
