@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use abstutil::{prettyprint_usize, Counter, Timer};
 use geom::{Duration, Polygon};
 use map_gui::colors::ColorSchemeChoice;
-use map_gui::tools::ColorNetwork;
+use map_gui::tools::{ColorNetwork, ToggleZoomed};
 use map_gui::{AppLike, ID};
 use map_model::{
     DirectedRoadID, Direction, PathRequest, RoadID, RoutingParams, Traversable,
@@ -297,8 +297,7 @@ struct AllRoutesExplorer {
     baseline_counts: Counter<RoadID>,
 
     current_counts: Counter<RoadID>,
-    unzoomed: Drawable,
-    zoomed: Drawable,
+    draw: ToggleZoomed,
     tooltip: Option<Text>,
 }
 
@@ -327,7 +326,6 @@ impl AllRoutesExplorer {
         // Start by showing the original counts, not relative to anything
         let mut colorer = ColorNetwork::new(app);
         colorer.ranked_roads(current_counts.clone(), &app.cs.good_to_bad_red);
-        let (unzoomed, zoomed) = colorer.build(ctx);
 
         Box::new(AllRoutesExplorer {
             panel: Panel::new_builder(Widget::col(vec![
@@ -352,8 +350,7 @@ impl AllRoutesExplorer {
             requests,
             baseline_counts,
             current_counts,
-            unzoomed,
-            zoomed,
+            draw: colorer.build(ctx),
             tooltip: None,
         })
     }
@@ -437,9 +434,7 @@ impl State<App> for AllRoutesExplorer {
                                     std::cmp::Ordering::Equal => {}
                                 }
                             }
-                            let (unzoomed, zoomed) = colorer.build(ctx);
-                            self.unzoomed = unzoomed;
-                            self.zoomed = zoomed;
+                            self.draw = colorer.build(ctx);
                         },
                     );
                 }
@@ -466,11 +461,7 @@ impl State<App> for AllRoutesExplorer {
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.panel.draw(g);
         CommonState::draw_osd(g, app);
-        if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
-            g.redraw(&self.unzoomed);
-        } else {
-            g.redraw(&self.zoomed);
-        }
+        self.draw.draw(g, app);
         if let Some(ref txt) = self.tooltip {
             g.draw_mouse_tooltip(txt.clone());
         }

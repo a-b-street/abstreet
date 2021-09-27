@@ -1,9 +1,9 @@
 use abstutil::Counter;
-use map_gui::tools::{ColorLegend, ColorNetwork};
+use map_gui::tools::{ColorLegend, ColorNetwork, ToggleZoomed};
 use map_gui::ID;
 use map_model::{IntersectionID, PathStep, RoadID, Traversable};
 use widgetry::{
-    Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Line, Outcome, Panel, State, Text,
+    Color, EventCtx, GfxCtx, HorizontalAlignment, Line, Outcome, Panel, State, Text,
     VerticalAlignment, Widget,
 };
 
@@ -14,8 +14,7 @@ use crate::common::CommonState;
 /// A state to count the number of trips that will cross different roads.
 pub struct PathCounter {
     panel: Panel,
-    unzoomed: Drawable,
-    zoomed: Drawable,
+    draw: ToggleZoomed,
     cnt: Counter<RoadID>,
     tooltip: Option<Text>,
 }
@@ -56,11 +55,9 @@ impl PathCounter {
             .push(Color::CYAN.alpha(0.5), map.get_i(i).polygon.clone());
 
         colorer.pct_roads(cnt.clone(), &app.cs.good_to_bad_red);
-        let (unzoomed, zoomed) = colorer.build(ctx);
 
         Box::new(PathCounter {
-            unzoomed,
-            zoomed,
+            draw: colorer.build(ctx),
             tooltip: None,
             cnt,
             panel: Panel::new_builder(Widget::col(vec![
@@ -118,11 +115,7 @@ impl State<App> for PathCounter {
         self.panel.draw(g);
         CommonState::draw_osd(g, app);
 
-        if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
-            g.redraw(&self.unzoomed);
-        } else {
-            g.redraw(&self.zoomed);
-        }
+        self.draw.draw(g, app);
 
         if let Some(ref txt) = self.tooltip {
             g.draw_mouse_tooltip(txt.clone());

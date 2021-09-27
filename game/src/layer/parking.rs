@@ -3,10 +3,10 @@ use std::collections::BTreeSet;
 use abstutil::{prettyprint_usize, Counter};
 use geom::{Circle, Distance, Duration, Pt2D, Time};
 use map_gui::render::unzoomed_agent_radius;
-use map_gui::tools::{ColorLegend, ColorNetwork};
+use map_gui::tools::{ColorLegend, ColorNetwork, ToggleZoomed};
 use map_model::{BuildingID, OffstreetParking, ParkingLotID, PathRequest, RoadID};
 use sim::{ParkingSpot, VehicleType};
-use widgetry::{Drawable, EventCtx, GeomBatch, GfxCtx, Line, Outcome, Panel, Text, Toggle, Widget};
+use widgetry::{EventCtx, GfxCtx, Line, Outcome, Panel, Text, Toggle, Widget};
 
 use crate::app::App;
 use crate::layer::{header, Layer, LayerOutcome, PANEL_PLACEMENT};
@@ -18,8 +18,7 @@ pub struct Occupancy {
     lots: bool,
     private_bldgs: bool,
     looking_for_parking: bool,
-    unzoomed: Drawable,
-    zoomed: Drawable,
+    draw: ToggleZoomed,
     panel: Panel,
 }
 
@@ -64,14 +63,10 @@ impl Layer for Occupancy {
     }
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.panel.draw(g);
-        if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
-            g.redraw(&self.unzoomed);
-        } else {
-            g.redraw(&self.zoomed);
-        }
+        self.draw.draw(g, app);
     }
     fn draw_minimap(&self, g: &mut GfxCtx) {
-        g.redraw(&self.unzoomed);
+        g.redraw(&self.draw.unzoomed);
     }
 }
 
@@ -124,8 +119,7 @@ impl Occupancy {
                 lots: false,
                 private_bldgs: false,
                 looking_for_parking: false,
-                unzoomed: Drawable::empty(ctx),
-                zoomed: Drawable::empty(ctx),
+                draw: ToggleZoomed::empty(ctx),
                 panel,
             };
         }
@@ -266,8 +260,6 @@ impl Occupancy {
             }
         }
 
-        let (unzoomed, zoomed) = colorer.build(ctx);
-
         Occupancy {
             time: app.primary.sim.time(),
             onstreet,
@@ -275,8 +267,7 @@ impl Occupancy {
             lots,
             private_bldgs,
             looking_for_parking,
-            unzoomed,
-            zoomed,
+            draw: colorer.build(ctx),
             panel,
         }
     }
@@ -301,8 +292,7 @@ impl Loc {
 
 pub struct Efficiency {
     time: Time,
-    unzoomed: Drawable,
-    zoomed: Drawable,
+    draw: ToggleZoomed,
     panel: Panel,
 }
 
@@ -327,14 +317,10 @@ impl Layer for Efficiency {
     }
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.panel.draw(g);
-        if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
-            g.redraw(&self.unzoomed);
-        } else {
-            g.redraw(&self.zoomed);
-        }
+        self.draw.draw(g, app);
     }
     fn draw_minimap(&self, g: &mut GfxCtx) {
-        g.redraw(&self.unzoomed);
+        g.redraw(&self.draw.unzoomed);
     }
 }
 
@@ -358,9 +344,8 @@ impl Efficiency {
 
         let map = &app.primary.map;
         // TODO This is going to spam constantly while the sim is running! Probably cache per car.
-        let (unzoomed, zoomed) = ctx.loading_screen("measure parking efficiency", |ctx, timer| {
-            let mut unzoomed = GeomBatch::new();
-            let mut zoomed = GeomBatch::new();
+        let draw = ctx.loading_screen("measure parking efficiency", |ctx, timer| {
+            let mut draw = ToggleZoomed::builder();
 
             timer.start("gather requests");
             let requests: Vec<PathRequest> = app
@@ -395,22 +380,21 @@ impl Efficiency {
                     .good_to_bad_red
                     .eval((time / Duration::minutes(10)).min(1.0));
                 // TODO Actual car shapes? At least cache the circle?
-                unzoomed.push(
+                draw.unzoomed.push(
                     color,
                     Circle::new(car_pt, Distance::meters(5.0)).to_polygon(),
                 );
-                zoomed.push(
+                draw.zoomed.push(
                     color.alpha(0.5),
                     Circle::new(car_pt, Distance::meters(2.0)).to_polygon(),
                 );
             }
-            (ctx.upload(unzoomed), ctx.upload(zoomed))
+            draw.build(ctx)
         });
 
         Efficiency {
             time: app.primary.sim.time(),
-            unzoomed,
-            zoomed,
+            draw,
             panel,
         }
     }

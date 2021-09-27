@@ -17,6 +17,13 @@ impl ToggleZoomed {
         }
     }
 
+    pub fn empty(ctx: &EventCtx) -> ToggleZoomed {
+        ToggleZoomed {
+            unzoomed: Drawable::empty(ctx),
+            zoomed: Drawable::empty(ctx),
+        }
+    }
+
     pub fn builder() -> ToggleZoomedBuilder {
         ToggleZoomedBuilder {
             unzoomed: GeomBatch::new(),

@@ -1,7 +1,7 @@
 use abstutil::{prettyprint_usize, Counter};
 use collisions::{CollisionDataset, Severity};
 use geom::{Circle, Distance, Duration, FindClosest, Polygon, Time};
-use map_gui::tools::ColorNetwork;
+use map_gui::tools::{ColorNetwork, ToggleZoomed};
 use map_gui::ID;
 use widgetry::{
     Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line, Outcome,
@@ -135,13 +135,8 @@ impl Filters {
 }
 
 enum Dataviz {
-    Individual {
-        draw_all_circles: Drawable,
-    },
-    Aggregated {
-        unzoomed: Drawable,
-        zoomed: Drawable,
-    },
+    Individual { draw_all_circles: Drawable },
+    Aggregated { draw: ToggleZoomed },
 }
 
 impl Dataviz {
@@ -217,9 +212,13 @@ impl Dataviz {
         // TODO We should use some scale for both!
         colorer.pct_roads(per_road, &app.cs.good_to_bad_red);
         colorer.pct_intersections(per_intersection, &app.cs.good_to_bad_red);
-        let (unzoomed, zoomed) = colorer.build(ctx);
 
-        (Dataviz::Aggregated { unzoomed, zoomed }, tooltips)
+        (
+            Dataviz::Aggregated {
+                draw: colorer.build(ctx),
+            },
+            tooltips,
+        )
     }
 
     fn individual(
@@ -299,20 +298,11 @@ impl State<App> for CollisionsViewer {
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         match self.dataviz {
-            Dataviz::Aggregated {
-                ref unzoomed,
-                ref zoomed,
-                ..
-            } => {
-                if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
-                    g.redraw(unzoomed);
-                } else {
-                    g.redraw(zoomed);
-                }
+            Dataviz::Aggregated { ref draw } => {
+                draw.draw(g, app);
             }
             Dataviz::Individual {
                 ref draw_all_circles,
-                ..
             } => {
                 g.redraw(draw_all_circles);
             }

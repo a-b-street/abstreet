@@ -327,6 +327,6 @@ fn show_route_gaps(ctx: &mut EventCtx, app: &App, table: &Table<App, Entry, Filt
 
         let mut colorer = ColorNetwork::new(app);
         colorer.ranked_roads(road_counter, &app.cs.good_to_bad_red);
-        colorer.build(ctx).0
+        colorer.build(ctx).unzoomed
     })
 }

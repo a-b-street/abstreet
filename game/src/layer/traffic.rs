@@ -5,22 +5,18 @@ use maplit::btreeset;
 use abstutil::{prettyprint_usize, Counter};
 use geom::{Circle, Distance, Duration, Percent, Polygon, Pt2D, Time};
 use map_gui::render::unzoomed_agent_radius;
-use map_gui::tools::{ColorLegend, ColorNetwork, DivergingScale};
+use map_gui::tools::{ColorLegend, ColorNetwork, DivergingScale, ToggleZoomed};
 use map_gui::ID;
 use map_model::{IntersectionID, Map, Traversable};
 use sim::{AgentType, VehicleType};
-use widgetry::{
-    Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, Outcome, Panel, Text, TextExt, Toggle,
-    Widget,
-};
+use widgetry::{Color, EventCtx, GfxCtx, Line, Outcome, Panel, Text, TextExt, Toggle, Widget};
 
 use crate::app::App;
 use crate::layer::{header, Layer, LayerOutcome, PANEL_PLACEMENT};
 
 pub struct Backpressure {
     time: Time,
-    unzoomed: Drawable,
-    zoomed: Drawable,
+    draw: ToggleZoomed,
     panel: Panel,
 }
 
@@ -37,14 +33,10 @@ impl Layer for Backpressure {
     }
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.panel.draw(g);
-        if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
-            g.redraw(&self.unzoomed);
-        } else {
-            g.redraw(&self.zoomed);
-        }
+        self.draw.draw(g, app);
     }
     fn draw_minimap(&self, g: &mut GfxCtx) {
-        g.redraw(&self.unzoomed);
+        g.redraw(&self.draw.unzoomed);
     }
 }
 
@@ -85,12 +77,10 @@ impl Backpressure {
         let mut colorer = ColorNetwork::new(app);
         colorer.pct_roads(cnt_per_r, &app.cs.good_to_bad_red);
         colorer.pct_intersections(cnt_per_i, &app.cs.good_to_bad_red);
-        let (unzoomed, zoomed) = colorer.build(ctx);
 
         Backpressure {
             time: app.primary.sim.time(),
-            unzoomed,
-            zoomed,
+            draw: colorer.build(ctx),
             panel,
         }
     }
@@ -100,8 +90,7 @@ pub struct Throughput {
     time: Time,
     agent_types: BTreeSet<AgentType>,
     tooltip: Option<Text>,
-    unzoomed: Drawable,
-    zoomed: Drawable,
+    draw: ToggleZoomed,
     panel: Panel,
 }
 
@@ -187,17 +176,13 @@ impl Layer for Throughput {
     }
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.panel.draw(g);
-        if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
-            g.redraw(&self.unzoomed);
-        } else {
-            g.redraw(&self.zoomed);
-        }
+        self.draw.draw(g, app);
         if let Some(ref txt) = self.tooltip {
             g.draw_mouse_tooltip(txt.clone());
         }
     }
     fn draw_minimap(&self, g: &mut GfxCtx) {
-        g.redraw(&self.unzoomed);
+        g.redraw(&self.draw.unzoomed);
     }
 }
 
@@ -238,14 +223,12 @@ impl Throughput {
         let mut colorer = ColorNetwork::new(app);
         colorer.ranked_roads(road_counter, &app.cs.good_to_bad_red);
         colorer.ranked_intersections(intersection_counter, &app.cs.good_to_bad_red);
-        let (unzoomed, zoomed) = colorer.build(ctx);
 
         Throughput {
             time: app.primary.sim.time(),
             agent_types,
             tooltip: None,
-            unzoomed,
-            zoomed,
+            draw: colorer.build(ctx),
             panel,
         }
     }
@@ -254,8 +237,7 @@ impl Throughput {
 pub struct CompareThroughput {
     time: Time,
     tooltip: Option<Text>,
-    unzoomed: Drawable,
-    zoomed: Drawable,
+    draw: ToggleZoomed,
     panel: Panel,
 }
 
@@ -335,17 +317,13 @@ impl Layer for CompareThroughput {
     }
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.panel.draw(g);
-        if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
-            g.redraw(&self.unzoomed);
-        } else {
-            g.redraw(&self.zoomed);
-        }
+        self.draw.draw(g, app);
         if let Some(ref txt) = self.tooltip {
             g.draw_mouse_tooltip(txt.clone());
         }
     }
     fn draw_minimap(&self, g: &mut GfxCtx) {
-        g.redraw(&self.unzoomed);
+        g.redraw(&self.draw.unzoomed);
     }
 }
 
@@ -406,13 +384,11 @@ impl CompareThroughput {
         ]))
         .aligned_pair(PANEL_PLACEMENT)
         .build(ctx);
-        let (unzoomed, zoomed) = colorer.build(ctx);
 
         CompareThroughput {
             time: app.primary.sim.time(),
             tooltip: None,
-            unzoomed,
-            zoomed,
+            draw: colorer.build(ctx),
             panel,
         }
     }
@@ -420,8 +396,7 @@ impl CompareThroughput {
 
 pub struct TrafficJams {
     time: Time,
-    unzoomed: Drawable,
-    zoomed: Drawable,
+    draw: ToggleZoomed,
     panel: Panel,
 }
 
@@ -438,45 +413,40 @@ impl Layer for TrafficJams {
     }
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.panel.draw(g);
-        if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
-            g.redraw(&self.unzoomed);
-        } else {
-            g.redraw(&self.zoomed);
-        }
+        self.draw.draw(g, app);
     }
     fn draw_minimap(&self, g: &mut GfxCtx) {
-        g.redraw(&self.unzoomed);
+        g.redraw(&self.draw.unzoomed);
     }
 }
 
 impl TrafficJams {
     pub fn new(ctx: &mut EventCtx, app: &App) -> TrafficJams {
         // TODO Use cached delayed_intersections?
-        let mut unzoomed = GeomBatch::new();
-        unzoomed.push(
+        let mut draw = ToggleZoomed::builder();
+        draw.unzoomed.push(
             app.cs.fade_map_dark,
             app.primary.map.get_boundary_polygon().clone(),
         );
-        let mut zoomed = GeomBatch::new();
         let mut cnt = 0;
         for (epicenter, boundary) in cluster_jams(
             &app.primary.map,
             app.primary.sim.delayed_intersections(Duration::minutes(5)),
         ) {
             cnt += 1;
-            unzoomed.push(
+            draw.unzoomed.push(
                 Color::RED,
                 boundary.to_outline(Distance::meters(5.0)).unwrap(),
             );
-            unzoomed.push(Color::RED.alpha(0.5), boundary.clone());
-            unzoomed.push(Color::WHITE, epicenter.clone());
+            draw.unzoomed.push(Color::RED.alpha(0.5), boundary.clone());
+            draw.unzoomed.push(Color::WHITE, epicenter.clone());
 
-            zoomed.push(
+            draw.zoomed.push(
                 Color::RED.alpha(0.4),
                 boundary.to_outline(Distance::meters(5.0)).unwrap(),
             );
-            zoomed.push(Color::RED.alpha(0.3), boundary);
-            zoomed.push(Color::WHITE.alpha(0.4), epicenter);
+            draw.zoomed.push(Color::RED.alpha(0.3), boundary);
+            draw.zoomed.push(Color::WHITE.alpha(0.4), epicenter);
         }
 
         let panel = Panel::new_builder(Widget::col(vec![
@@ -493,8 +463,7 @@ impl TrafficJams {
 
         TrafficJams {
             time: app.primary.sim.time(),
-            unzoomed: ctx.upload(unzoomed),
-            zoomed: ctx.upload(zoomed),
+            draw: draw.build(ctx),
             panel,
         }
     }
@@ -554,7 +523,7 @@ impl Jam {
 // Shows how long each agent has been waiting in one spot.
 pub struct Delay {
     time: Time,
-    unzoomed: Drawable,
+    draw: ToggleZoomed,
     panel: Panel,
 }
 
@@ -579,20 +548,19 @@ impl Layer for Delay {
     }
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.panel.draw(g);
-        if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
-            g.redraw(&self.unzoomed);
-        }
+        self.draw.draw(g, app);
     }
     fn draw_minimap(&self, g: &mut GfxCtx) {
-        g.redraw(&self.unzoomed);
+        g.redraw(&self.draw.unzoomed);
     }
 }
 
 impl Delay {
     pub fn new(ctx: &mut EventCtx, app: &App) -> Delay {
         let mut delays = app.primary.sim.all_waiting_people();
-        let mut unzoomed = GeomBatch::new();
-        unzoomed.push(
+        // Don't draw anything when zoomed in
+        let mut draw = ToggleZoomed::builder();
+        draw.unzoomed.push(
             app.cs.fade_map_dark,
             app.primary.map.get_boundary_polygon().clone(),
         );
@@ -610,16 +578,18 @@ impl Delay {
                     .good_to_bad_red
                     .eval((delay / Duration::minutes(15)).min(1.0));
                 if agent.id.to_vehicle_type().is_some() {
-                    unzoomed.push(color, car_circle.translate(agent.pos.x(), agent.pos.y()));
+                    draw.unzoomed
+                        .push(color, car_circle.translate(agent.pos.x(), agent.pos.y()));
                 } else {
-                    unzoomed.push(color, ped_circle.translate(agent.pos.x(), agent.pos.y()));
+                    draw.unzoomed
+                        .push(color, ped_circle.translate(agent.pos.x(), agent.pos.y()));
                 }
             }
         }
 
         Delay {
             time: app.primary.sim.time(),
-            unzoomed: ctx.upload(unzoomed),
+            draw: draw.build(ctx),
             panel: Panel::new_builder(Widget::col(vec![
                 header(ctx, "Delay per agent (minutes)"),
                 ColorLegend::gradient(ctx, &app.cs.good_to_bad_red, vec!["0", "5", "10", "15+"]),

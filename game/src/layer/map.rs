@@ -6,7 +6,7 @@ use map_gui::tools::{ColorDiscrete, ColorLegend, ColorNetwork, ToggleZoomed};
 use map_gui::ID;
 use map_model::{AmenityType, LaneType};
 use sim::AgentType;
-use widgetry::{Color, Drawable, EventCtx, GfxCtx, Line, Panel, Text, Widget};
+use widgetry::{Color, EventCtx, GfxCtx, Line, Panel, Text, Widget};
 
 use crate::app::App;
 use crate::layer::{header, Layer, LayerOutcome, PANEL_PLACEMENT};
@@ -14,8 +14,7 @@ use crate::layer::{header, Layer, LayerOutcome, PANEL_PLACEMENT};
 pub struct BikeActivity {
     panel: Panel,
     time: Time,
-    unzoomed: Drawable,
-    zoomed: Drawable,
+    draw: ToggleZoomed,
     tooltip: Option<Text>,
 }
 
@@ -54,17 +53,13 @@ impl Layer for BikeActivity {
     }
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.panel.draw(g);
-        if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
-            g.redraw(&self.unzoomed);
-        } else {
-            g.redraw(&self.zoomed);
-        }
+        self.draw.draw(g, app);
         if let Some(ref txt) = self.tooltip {
             g.draw_mouse_tooltip(txt.clone());
         }
     }
     fn draw_minimap(&self, g: &mut GfxCtx) {
-        g.redraw(&self.unzoomed);
+        g.redraw(&self.draw.unzoomed);
     }
 }
 
@@ -156,13 +151,11 @@ impl BikeActivity {
         colorer.ranked_roads(off_bike_lanes, &app.cs.good_to_bad_red);
         colorer.ranked_intersections(intersections_on, &app.cs.good_to_bad_green);
         colorer.ranked_intersections(intersections_off, &app.cs.good_to_bad_red);
-        let (unzoomed, zoomed) = colorer.build(ctx);
 
         BikeActivity {
             panel,
             time: app.primary.sim.time(),
-            unzoomed,
-            zoomed,
+            draw: colorer.build(ctx),
             tooltip: None,
         }
     }

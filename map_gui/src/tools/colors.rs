@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use abstutil::Counter;
 use geom::{Circle, Distance, Line, Polygon, Pt2D};
 use map_model::{BuildingID, BusStopID, IntersectionID, LaneID, Map, ParkingLotID, RoadID};
-use widgetry::{Color, Drawable, EventCtx, Fill, GeomBatch, Line, LinearGradient, Text, Widget};
+use widgetry::{Color, EventCtx, Fill, GeomBatch, Line, LinearGradient, Text, Widget};
 
 use crate::tools::ToggleZoomed;
 use crate::AppLike;
@@ -360,8 +360,8 @@ impl<'a> ColorNetwork<'a> {
         }
     }
 
-    pub fn build(self, ctx: &mut EventCtx) -> (Drawable, Drawable) {
-        (ctx.upload(self.unzoomed), ctx.upload(self.zoomed))
+    pub fn build(self, ctx: &mut EventCtx) -> ToggleZoomed {
+        ToggleZoomed::new(ctx, self.unzoomed, self.zoomed)
     }
 }
 

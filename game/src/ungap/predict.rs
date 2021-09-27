@@ -3,13 +3,12 @@ use std::collections::HashSet;
 use abstutil::{prettyprint_usize, Counter, Timer};
 use geom::{Distance, Duration, Polygon};
 use map_gui::load::FileLoader;
-use map_gui::tools::ColorNetwork;
+use map_gui::tools::{ColorNetwork, ToggleZoomed};
 use map_gui::ID;
 use map_model::{PathRequest, PathStepV2, RoadID};
 use sim::{Scenario, TripEndpoint, TripMode};
 use widgetry::{
-    Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, Outcome, Panel, Spinner, State, Text,
-    TextExt, Widget,
+    Color, EventCtx, GeomBatch, GfxCtx, Line, Outcome, Panel, Spinner, State, Text, TextExt, Widget,
 };
 
 use crate::app::{App, Transition};
@@ -118,11 +117,7 @@ impl State<App> for ShowGaps {
         self.layers.draw(g, app);
 
         let data = app.session.mode_shift.value().unwrap();
-        if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
-            g.redraw(&data.gaps.draw_unzoomed);
-        } else {
-            g.redraw(&data.gaps.draw_zoomed);
-        }
+        data.gaps.draw.draw(g, app);
         if let Some(ref txt) = self.tooltip {
             g.draw_mouse_tooltip(txt.clone());
         }
@@ -222,8 +217,7 @@ struct Filters {
 }
 
 struct NetworkGaps {
-    draw_unzoomed: Drawable,
-    draw_zoomed: Drawable,
+    draw: ToggleZoomed,
     count_per_road: Counter<RoadID>,
 }
 
@@ -342,8 +336,7 @@ impl ModeShiftData {
             all_candidate_trips: Vec::new(),
             filters: Filters::default(),
             gaps: NetworkGaps {
-                draw_unzoomed: Drawable::empty(ctx),
-                draw_zoomed: Drawable::empty(ctx),
+                draw: ToggleZoomed::empty(ctx),
                 count_per_road: Counter::new(),
             },
             filtered_trips: Vec::new(),
@@ -476,10 +469,8 @@ impl ModeShiftData {
 
         let mut colorer = ColorNetwork::no_fading(app);
         colorer.ranked_roads(count_per_road.clone(), &app.cs.good_to_bad_red);
-        let (draw_unzoomed, draw_zoomed) = colorer.build(ctx);
         self.gaps = NetworkGaps {
-            draw_unzoomed,
-            draw_zoomed,
+            draw: colorer.build(ctx),
             count_per_road,
         };
     }
