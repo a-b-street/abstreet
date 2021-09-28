@@ -51,6 +51,8 @@ impl RoutePlanner {
         self.results = results;
         self.alt_low_stress_route =
             AltRouteResults::low_stress(ctx, app, self.waypoints.get_waypoints());
+        self.alt_low_stress_route
+            .compare_to_main_route(app, &self.results);
 
         let params = &app.session.routing_params;
         let col = Widget::col(vec![

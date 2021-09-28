@@ -318,6 +318,14 @@ impl ops::Sub for Duration {
     }
 }
 
+impl ops::Neg for Duration {
+    type Output = Duration;
+
+    fn neg(self) -> Duration {
+        Duration::seconds(-self.0)
+    }
+}
+
 impl ops::Mul<f64> for Duration {
     type Output = Duration;
 
