@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["AltRouteResults",""],["RouteResults",""]]});
+initSidebarItems({"fn":[["cmp_dist",""],["cmp_duration",""]],"struct":[["AltRouteResults",""],["RouteResults",""],["RouteStats",""]]});

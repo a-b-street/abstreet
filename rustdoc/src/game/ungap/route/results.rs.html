@@ -412,6 +412,135 @@
 <span id="412">412</span>
 <span id="413">413</span>
 <span id="414">414</span>
+<span id="415">415</span>
+<span id="416">416</span>
+<span id="417">417</span>
+<span id="418">418</span>
+<span id="419">419</span>
+<span id="420">420</span>
+<span id="421">421</span>
+<span id="422">422</span>
+<span id="423">423</span>
+<span id="424">424</span>
+<span id="425">425</span>
+<span id="426">426</span>
+<span id="427">427</span>
+<span id="428">428</span>
+<span id="429">429</span>
+<span id="430">430</span>
+<span id="431">431</span>
+<span id="432">432</span>
+<span id="433">433</span>
+<span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
+<span id="443">443</span>
+<span id="444">444</span>
+<span id="445">445</span>
+<span id="446">446</span>
+<span id="447">447</span>
+<span id="448">448</span>
+<span id="449">449</span>
+<span id="450">450</span>
+<span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
+<span id="459">459</span>
+<span id="460">460</span>
+<span id="461">461</span>
+<span id="462">462</span>
+<span id="463">463</span>
+<span id="464">464</span>
+<span id="465">465</span>
+<span id="466">466</span>
+<span id="467">467</span>
+<span id="468">468</span>
+<span id="469">469</span>
+<span id="470">470</span>
+<span id="471">471</span>
+<span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
+<span id="476">476</span>
+<span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
+<span id="482">482</span>
+<span id="483">483</span>
+<span id="484">484</span>
+<span id="485">485</span>
+<span id="486">486</span>
+<span id="487">487</span>
+<span id="488">488</span>
+<span id="489">489</span>
+<span id="490">490</span>
+<span id="491">491</span>
+<span id="492">492</span>
+<span id="493">493</span>
+<span id="494">494</span>
+<span id="495">495</span>
+<span id="496">496</span>
+<span id="497">497</span>
+<span id="498">498</span>
+<span id="499">499</span>
+<span id="500">500</span>
+<span id="501">501</span>
+<span id="502">502</span>
+<span id="503">503</span>
+<span id="504">504</span>
+<span id="505">505</span>
+<span id="506">506</span>
+<span id="507">507</span>
+<span id="508">508</span>
+<span id="509">509</span>
+<span id="510">510</span>
+<span id="511">511</span>
+<span id="512">512</span>
+<span id="513">513</span>
+<span id="514">514</span>
+<span id="515">515</span>
+<span id="516">516</span>
+<span id="517">517</span>
+<span id="518">518</span>
+<span id="519">519</span>
+<span id="520">520</span>
+<span id="521">521</span>
+<span id="522">522</span>
+<span id="523">523</span>
+<span id="524">524</span>
+<span id="525">525</span>
+<span id="526">526</span>
+<span id="527">527</span>
+<span id="528">528</span>
+<span id="529">529</span>
+<span id="530">530</span>
+<span id="531">531</span>
+<span id="532">532</span>
+<span id="533">533</span>
+<span id="534">534</span>
+<span id="535">535</span>
+<span id="536">536</span>
+<span id="537">537</span>
+<span id="538">538</span>
+<span id="539">539</span>
+<span id="540">540</span>
+<span id="541">541</span>
+<span id="542">542</span>
+<span id="543">543</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 
@@ -432,6 +561,7 @@
     <span class="ident">paths</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Path</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PolyLine</span><span class="op">&gt;</span>)<span class="op">&gt;</span>,
     <span class="comment">// Match each polyline to the index in paths</span>
     <span class="ident">closest_path_segment</span>: <span class="ident">FindClosest</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>,
+    <span class="ident">stats</span>: <span class="ident">RouteStats</span>,
 
     <span class="ident">hover_on_line_plot</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Distance</span>, <span class="ident">Drawable</span>)<span class="op">&gt;</span>,
     <span class="ident">hover_on_route_tooltip</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Text</span><span class="op">&gt;</span>,
@@ -440,6 +570,16 @@
     <span class="ident">draw_high_stress</span>: <span class="ident">Drawable</span>,
     <span class="ident">draw_traffic_signals</span>: <span class="ident">Drawable</span>,
     <span class="ident">draw_unprotected_turns</span>: <span class="ident">Drawable</span>,
+}
+
+<span class="kw">struct</span> <span class="ident">RouteStats</span> {
+    <span class="ident">total_distance</span>: <span class="ident">Distance</span>,
+    <span class="ident">dist_along_high_stress_roads</span>: <span class="ident">Distance</span>,
+    <span class="ident">total_time</span>: <span class="ident">Duration</span>,
+    <span class="ident">num_traffic_signals</span>: <span class="ident">usize</span>,
+    <span class="ident">num_unprotected_turns</span>: <span class="ident">usize</span>,
+    <span class="ident">total_up</span>: <span class="ident">Distance</span>,
+    <span class="ident">total_down</span>: <span class="ident">Distance</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">RouteResults</span> {
@@ -549,89 +689,32 @@
             }
         }
 
-        <span class="kw">let</span> <span class="ident">pct_stressful</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">total_distance</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Distance::ZERO</span> {
-            <span class="number">0.0</span>
-        } <span class="kw">else</span> {
-            ((<span class="ident">dist_along_high_stress_roads</span> <span class="op">/</span> <span class="ident">total_distance</span>) <span class="op">*</span> <span class="number">100.0</span>).<span class="ident">round</span>()
+        <span class="kw">let</span> <span class="ident">stats</span> <span class="op">=</span> <span class="ident">RouteStats</span> {
+            <span class="ident">total_distance</span>,
+            <span class="ident">dist_along_high_stress_roads</span>,
+            <span class="ident">total_time</span>,
+            <span class="ident">num_traffic_signals</span>,
+            <span class="ident">num_unprotected_turns</span>,
+            <span class="ident">total_up</span>,
+            <span class="ident">total_down</span>,
         };
-
-        <span class="kw">let</span> <span class="ident">widget</span> <span class="op">=</span> <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-            <span class="ident">Line</span>(<span class="string">&quot;Route details&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-            <span class="ident">Text::from_all</span>(<span class="macro">vec!</span>[
-                <span class="ident">Line</span>(<span class="string">&quot;Distance: &quot;</span>).<span class="ident">secondary</span>(),
-                <span class="ident">Line</span>(<span class="ident">total_distance</span>.<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">units</span>)),
-            ])
-            .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                <span class="ident">Text::from_all</span>(<span class="macro">vec!</span>[
-                    <span class="ident">Line</span>(<span class="macro">format!</span>(
-                        <span class="string">&quot;  {} or {}%&quot;</span>,
-                        <span class="ident">dist_along_high_stress_roads</span>.<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">units</span>),
-                        <span class="ident">pct_stressful</span>
-                    )),
-                    <span class="ident">Line</span>(<span class="string">&quot; along &quot;</span>).<span class="ident">secondary</span>(),
-                ])
-                .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
-                .<span class="ident">centered_vert</span>(),
-                <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_plain</span>
-                    .<span class="ident">btn</span>()
-                    .<span class="ident">label_underlined_text</span>(<span class="string">&quot;high-stress roads&quot;</span>)
-                    .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-            ]),
-            <span class="ident">Text::from_all</span>(<span class="macro">vec!</span>[
-                <span class="ident">Line</span>(<span class="string">&quot;Estimated time: &quot;</span>).<span class="ident">secondary</span>(),
-                <span class="ident">Line</span>(<span class="ident">total_time</span>.<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">units</span>)),
-            ])
-            .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                <span class="ident">Line</span>(<span class="string">&quot;Traffic signals crossed: &quot;</span>)
-                    .<span class="ident">secondary</span>()
-                    .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
-                    .<span class="ident">centered_vert</span>(),
-                <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_plain</span>
-                    .<span class="ident">btn</span>()
-                    .<span class="ident">label_underlined_text</span>(<span class="ident">num_traffic_signals</span>.<span class="ident">to_string</span>())
-                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;traffic signals&quot;</span>),
-            ]),
-            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                <span class="ident">Line</span>(<span class="string">&quot;Unprotected left turns onto busy roads: &quot;</span>)
-                    .<span class="ident">secondary</span>()
-                    .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
-                    .<span class="ident">centered_vert</span>(),
-                <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_plain</span>
-                    .<span class="ident">btn</span>()
-                    .<span class="ident">label_underlined_text</span>(<span class="ident">num_unprotected_turns</span>.<span class="ident">to_string</span>())
-                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;unprotected turns&quot;</span>),
-            ]),
-            <span class="ident">Text::from_all</span>(<span class="macro">vec!</span>[
-                <span class="ident">Line</span>(<span class="string">&quot;Elevation change: &quot;</span>).<span class="ident">secondary</span>(),
-                <span class="ident">Line</span>(<span class="macro">format!</span>(
-                    <span class="string">&quot;{}↑, {}↓&quot;</span>,
-                    <span class="ident">total_up</span>.<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">units</span>),
-                    <span class="ident">total_down</span>.<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">units</span>)
-                )),
-            ])
-            .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-            <span class="ident">LinePlot::new_widget</span>(
-                <span class="ident">ctx</span>,
-                <span class="string">&quot;elevation&quot;</span>,
-                <span class="macro">vec!</span>[<span class="ident">Series</span> {
-                    <span class="ident">label</span>: <span class="string">&quot;Elevation&quot;</span>.<span class="ident">to_string</span>(),
-                    <span class="ident">color</span>: <span class="ident">Color::RED</span>,
-                    <span class="ident">pts</span>: <span class="ident">elevation_pts</span>,
-                }],
-                <span class="ident">PlotOptions</span> {
-                    <span class="ident">filterable</span>: <span class="bool-val">false</span>,
-                    <span class="ident">max_x</span>: <span class="prelude-val">Some</span>(<span class="ident">current_dist</span>.<span class="ident">round_up_for_axis</span>()),
-                    <span class="ident">max_y</span>: <span class="prelude-val">Some</span>(<span class="ident">map</span>.<span class="ident">max_elevation</span>().<span class="ident">round_up_for_axis</span>()),
-                    <span class="ident">disabled</span>: <span class="ident">HashSet::new</span>(),
-                },
-                <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">units</span>,
-            ),
-        ]);
+        <span class="kw">let</span> <span class="ident">elevation_plot</span> <span class="op">=</span> <span class="ident">LinePlot::new_widget</span>(
+            <span class="ident">ctx</span>,
+            <span class="string">&quot;elevation&quot;</span>,
+            <span class="macro">vec!</span>[<span class="ident">Series</span> {
+                <span class="ident">label</span>: <span class="string">&quot;Elevation&quot;</span>.<span class="ident">to_string</span>(),
+                <span class="ident">color</span>: <span class="ident">Color::RED</span>,
+                <span class="ident">pts</span>: <span class="ident">elevation_pts</span>,
+            }],
+            <span class="ident">PlotOptions</span> {
+                <span class="ident">filterable</span>: <span class="bool-val">false</span>,
+                <span class="ident">max_x</span>: <span class="prelude-val">Some</span>(<span class="ident">current_dist</span>.<span class="ident">round_up_for_axis</span>()),
+                <span class="ident">max_y</span>: <span class="prelude-val">Some</span>(<span class="ident">map</span>.<span class="ident">max_elevation</span>().<span class="ident">round_up_for_axis</span>()),
+                <span class="ident">disabled</span>: <span class="ident">HashSet::new</span>(),
+            },
+            <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">units</span>,
+        );
+        <span class="kw">let</span> <span class="ident">widget</span> <span class="op">=</span> <span class="ident">stats</span>.<span class="ident">to_widget</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">elevation_plot</span>);
 
         (
             <span class="ident">RouteResults</span> {
@@ -643,6 +726,7 @@
                 <span class="ident">closest_path_segment</span>,
                 <span class="ident">hover_on_line_plot</span>: <span class="prelude-val">None</span>,
                 <span class="ident">hover_on_route_tooltip</span>: <span class="prelude-val">None</span>,
+                <span class="ident">stats</span>,
             },
             <span class="ident">widget</span>,
         )
@@ -775,10 +859,85 @@
     }
 }
 
+<span class="kw">impl</span> <span class="ident">RouteStats</span> {
+    <span class="kw">fn</span> <span class="ident">to_widget</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">elevation_plot</span>: <span class="ident">Widget</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
+        <span class="kw">let</span> <span class="ident">pct_stressful</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">total_distance</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Distance::ZERO</span> {
+            <span class="number">0.0</span>
+        } <span class="kw">else</span> {
+            ((<span class="self">self</span>.<span class="ident">dist_along_high_stress_roads</span> <span class="op">/</span> <span class="self">self</span>.<span class="ident">total_distance</span>) <span class="op">*</span> <span class="number">100.0</span>).<span class="ident">round</span>()
+        };
+
+        <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
+            <span class="ident">Line</span>(<span class="string">&quot;Route details&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+            <span class="ident">Text::from_all</span>(<span class="macro">vec!</span>[
+                <span class="ident">Line</span>(<span class="string">&quot;Distance: &quot;</span>).<span class="ident">secondary</span>(),
+                <span class="ident">Line</span>(<span class="self">self</span>.<span class="ident">total_distance</span>.<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">units</span>)),
+            ])
+            .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
+                <span class="ident">Text::from_all</span>(<span class="macro">vec!</span>[
+                    <span class="ident">Line</span>(<span class="macro">format!</span>(
+                        <span class="string">&quot;  {} or {}%&quot;</span>,
+                        <span class="self">self</span>.<span class="ident">dist_along_high_stress_roads</span>.<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">units</span>),
+                        <span class="ident">pct_stressful</span>
+                    )),
+                    <span class="ident">Line</span>(<span class="string">&quot; along &quot;</span>).<span class="ident">secondary</span>(),
+                ])
+                .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
+                .<span class="ident">centered_vert</span>(),
+                <span class="ident">ctx</span>.<span class="ident">style</span>()
+                    .<span class="ident">btn_plain</span>
+                    .<span class="ident">btn</span>()
+                    .<span class="ident">label_underlined_text</span>(<span class="string">&quot;high-stress roads&quot;</span>)
+                    .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+            ]),
+            <span class="ident">Text::from_all</span>(<span class="macro">vec!</span>[
+                <span class="ident">Line</span>(<span class="string">&quot;Estimated time: &quot;</span>).<span class="ident">secondary</span>(),
+                <span class="ident">Line</span>(<span class="self">self</span>.<span class="ident">total_time</span>.<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">units</span>)),
+            ])
+            .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
+                <span class="ident">Line</span>(<span class="string">&quot;Traffic signals crossed: &quot;</span>)
+                    .<span class="ident">secondary</span>()
+                    .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
+                    .<span class="ident">centered_vert</span>(),
+                <span class="ident">ctx</span>.<span class="ident">style</span>()
+                    .<span class="ident">btn_plain</span>
+                    .<span class="ident">btn</span>()
+                    .<span class="ident">label_underlined_text</span>(<span class="self">self</span>.<span class="ident">num_traffic_signals</span>.<span class="ident">to_string</span>())
+                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;traffic signals&quot;</span>),
+            ]),
+            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
+                <span class="ident">Line</span>(<span class="string">&quot;Unprotected left turns onto busy roads: &quot;</span>)
+                    .<span class="ident">secondary</span>()
+                    .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
+                    .<span class="ident">centered_vert</span>(),
+                <span class="ident">ctx</span>.<span class="ident">style</span>()
+                    .<span class="ident">btn_plain</span>
+                    .<span class="ident">btn</span>()
+                    .<span class="ident">label_underlined_text</span>(<span class="self">self</span>.<span class="ident">num_unprotected_turns</span>.<span class="ident">to_string</span>())
+                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;unprotected turns&quot;</span>),
+            ]),
+            <span class="ident">Text::from_all</span>(<span class="macro">vec!</span>[
+                <span class="ident">Line</span>(<span class="string">&quot;Elevation change: &quot;</span>).<span class="ident">secondary</span>(),
+                <span class="ident">Line</span>(<span class="macro">format!</span>(
+                    <span class="string">&quot;{}↑, {}↓&quot;</span>,
+                    <span class="self">self</span>.<span class="ident">total_up</span>.<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">units</span>),
+                    <span class="self">self</span>.<span class="ident">total_down</span>.<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">units</span>)
+                )),
+            ])
+            .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+            <span class="ident">elevation_plot</span>,
+        ])
+    }
+}
+
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">AltRouteResults</span> {
     <span class="ident">closest_path_segment</span>: <span class="ident">FindClosest</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>,
+    <span class="ident">stats</span>: <span class="ident">RouteStats</span>,
     <span class="ident">hovering</span>: <span class="ident">bool</span>,
     <span class="ident">draw_route</span>: <span class="ident">ToggleZoomed</span>,
+    <span class="ident">tooltip</span>: <span class="ident">Text</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">AltRouteResults</span> {
@@ -799,9 +958,69 @@
         );
         <span class="ident">AltRouteResults</span> {
             <span class="ident">closest_path_segment</span>: <span class="ident">results</span>.<span class="ident">closest_path_segment</span>,
+            <span class="ident">stats</span>: <span class="ident">results</span>.<span class="ident">stats</span>,
             <span class="ident">hovering</span>: <span class="bool-val">false</span>,
             <span class="ident">draw_route</span>: <span class="ident">results</span>.<span class="ident">draw_route</span>,
+            <span class="ident">tooltip</span>: <span class="ident">Text::new</span>(),
         }
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">compare_to_main_route</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">main</span>: <span class="kw-2">&amp;</span><span class="ident">RouteResults</span>) {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::new</span>();
+        <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">Line</span>(<span class="string">&quot;Click to use low-stress route&quot;</span>));
+
+        <span class="ident">cmp_dist</span>(
+            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">txt</span>,
+            <span class="ident">app</span>,
+            <span class="self">self</span>.<span class="ident">stats</span>.<span class="ident">total_distance</span> <span class="op">-</span> <span class="ident">main</span>.<span class="ident">stats</span>.<span class="ident">total_distance</span>,
+            <span class="string">&quot;shorter&quot;</span>,
+            <span class="string">&quot;longer&quot;</span>,
+        );
+        <span class="ident">cmp_duration</span>(
+            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">txt</span>,
+            <span class="ident">app</span>,
+            <span class="self">self</span>.<span class="ident">stats</span>.<span class="ident">total_time</span> <span class="op">-</span> <span class="ident">main</span>.<span class="ident">stats</span>.<span class="ident">total_time</span>,
+            <span class="string">&quot;shorter&quot;</span>,
+            <span class="string">&quot;longer&quot;</span>,
+        );
+        <span class="ident">cmp_dist</span>(
+            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">txt</span>,
+            <span class="ident">app</span>,
+            <span class="self">self</span>.<span class="ident">stats</span>.<span class="ident">dist_along_high_stress_roads</span> <span class="op">-</span> <span class="ident">main</span>.<span class="ident">stats</span>.<span class="ident">dist_along_high_stress_roads</span>,
+            <span class="string">&quot;less on high-stress roads&quot;</span>,
+            <span class="string">&quot;more on high-stress roads&quot;</span>,
+        );
+
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">stats</span>.<span class="ident">total_up</span> <span class="op">!</span><span class="op">=</span> <span class="ident">main</span>.<span class="ident">stats</span>.<span class="ident">total_up</span>
+            <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">stats</span>.<span class="ident">total_down</span> <span class="op">!</span><span class="op">=</span> <span class="ident">main</span>.<span class="ident">stats</span>.<span class="ident">total_down</span>
+        {
+            <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">Line</span>(<span class="string">&quot;Elevation change: &quot;</span>));
+            <span class="kw">let</span> <span class="ident">up</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">stats</span>.<span class="ident">total_up</span> <span class="op">-</span> <span class="ident">main</span>.<span class="ident">stats</span>.<span class="ident">total_up</span>;
+            <span class="kw">if</span> <span class="ident">up</span> <span class="op">&lt;</span> <span class="ident">Distance::ZERO</span> {
+                <span class="ident">txt</span>.<span class="ident">append</span>(
+                    <span class="ident">Line</span>(<span class="macro">format!</span>(<span class="string">&quot;{} less ↑&quot;</span>, (<span class="op">-</span><span class="ident">up</span>).<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">units</span>))).<span class="ident">fg</span>(<span class="ident">Color::GREEN</span>),
+                );
+                <span class="ident">txt</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="string">&quot;, &quot;</span>));
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">up</span> <span class="op">&gt;</span> <span class="ident">Distance::ZERO</span> {
+                <span class="ident">txt</span>.<span class="ident">append</span>(
+                    <span class="ident">Line</span>(<span class="macro">format!</span>(<span class="string">&quot;{} more ↑&quot;</span>, <span class="ident">up</span>.<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">units</span>))).<span class="ident">fg</span>(<span class="ident">Color::RED</span>),
+                );
+                <span class="ident">txt</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="string">&quot;, &quot;</span>));
+            }
+
+            <span class="comment">// Unclear if more down should be &quot;good&quot; or &quot;bad&quot;, so we&#39;ll omit color</span>
+            <span class="kw">let</span> <span class="ident">down</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">stats</span>.<span class="ident">total_down</span> <span class="op">-</span> <span class="ident">main</span>.<span class="ident">stats</span>.<span class="ident">total_down</span>;
+            <span class="kw">if</span> <span class="ident">down</span> <span class="op">&lt;</span> <span class="ident">Distance::ZERO</span> {
+                <span class="ident">txt</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="macro">format!</span>(
+                    <span class="string">&quot;{} less ↓&quot;</span>,
+                    (<span class="op">-</span><span class="ident">down</span>).<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">units</span>)
+                )));
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">down</span> <span class="op">&gt;</span> <span class="ident">Distance::ZERO</span> {
+                <span class="ident">txt</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="macro">format!</span>(<span class="string">&quot;{} more ↓&quot;</span>, <span class="ident">down</span>.<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">units</span>))));
+            }
+        }
+
+        <span class="self">self</span>.<span class="ident">tooltip</span> <span class="op">=</span> <span class="ident">txt</span>;
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) {
@@ -823,8 +1042,47 @@
         <span class="self">self</span>.<span class="ident">draw_route</span>.<span class="ident">draw</span>(<span class="ident">g</span>, <span class="ident">app</span>);
 
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">hovering</span> {
-            <span class="ident">g</span>.<span class="ident">draw_mouse_tooltip</span>(<span class="ident">Text::from</span>(<span class="ident">Line</span>(<span class="string">&quot;Click to try this alternate route&quot;</span>)));
+            <span class="ident">g</span>.<span class="ident">draw_mouse_tooltip</span>(<span class="self">self</span>.<span class="ident">tooltip</span>.<span class="ident">clone</span>());
         }
+    }
+}
+
+<span class="kw">fn</span> <span class="ident">cmp_dist</span>(<span class="ident">txt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Text</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">dist</span>: <span class="ident">Distance</span>, <span class="ident">shorter</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">longer</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) {
+    <span class="kw">if</span> <span class="ident">dist</span> <span class="op">&lt;</span> <span class="ident">Distance::ZERO</span> {
+        <span class="ident">txt</span>.<span class="ident">add_line</span>(
+            <span class="ident">Line</span>(<span class="macro">format!</span>(
+                <span class="string">&quot;{} {}&quot;</span>,
+                (<span class="op">-</span><span class="ident">dist</span>).<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">units</span>),
+                <span class="ident">shorter</span>
+            ))
+            .<span class="ident">fg</span>(<span class="ident">Color::GREEN</span>),
+        );
+    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">dist</span> <span class="op">&gt;</span> <span class="ident">Distance::ZERO</span> {
+        <span class="ident">txt</span>.<span class="ident">add_line</span>(
+            <span class="ident">Line</span>(<span class="macro">format!</span>(<span class="string">&quot;{} {}&quot;</span>, <span class="ident">dist</span>.<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">units</span>), <span class="ident">longer</span>)).<span class="ident">fg</span>(<span class="ident">Color::RED</span>),
+        );
+    }
+}
+
+<span class="kw">fn</span> <span class="ident">cmp_duration</span>(<span class="ident">txt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Text</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">duration</span>: <span class="ident">Duration</span>, <span class="ident">shorter</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">longer</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) {
+    <span class="kw">if</span> <span class="ident">duration</span> <span class="op">&lt;</span> <span class="ident">Duration::ZERO</span> {
+        <span class="ident">txt</span>.<span class="ident">add_line</span>(
+            <span class="ident">Line</span>(<span class="macro">format!</span>(
+                <span class="string">&quot;{} {}&quot;</span>,
+                (<span class="op">-</span><span class="ident">duration</span>).<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">units</span>),
+                <span class="ident">shorter</span>
+            ))
+            .<span class="ident">fg</span>(<span class="ident">Color::GREEN</span>),
+        );
+    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">duration</span> <span class="op">&gt;</span> <span class="ident">Duration::ZERO</span> {
+        <span class="ident">txt</span>.<span class="ident">add_line</span>(
+            <span class="ident">Line</span>(<span class="macro">format!</span>(
+                <span class="string">&quot;{} {}&quot;</span>,
+                <span class="ident">duration</span>.<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">units</span>),
+                <span class="ident">longer</span>
+            ))
+            .<span class="ident">fg</span>(<span class="ident">Color::RED</span>),
+        );
     }
 }
 </pre></div>
