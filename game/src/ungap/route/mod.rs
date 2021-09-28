@@ -16,10 +16,10 @@ pub struct RoutePlanner {
 
     input_panel: Panel,
     waypoints: InputWaypoints,
-    results: RouteResults,
+    main_route: RouteResults,
     files: files::RouteManagement,
 
-    alt_low_stress_route: AltRouteResults,
+    alt_routes: Vec<AltRouteResults>,
 }
 
 impl TakeLayers for RoutePlanner {
@@ -36,23 +36,25 @@ impl RoutePlanner {
 
             input_panel: Panel::empty(ctx),
             waypoints: InputWaypoints::new(ctx, app),
-            results: RouteResults::main_route(ctx, app, Vec::new()).0,
+            main_route: RouteResults::main_route(ctx, app, Vec::new()).0,
             files: files::RouteManagement::new(app),
 
-            alt_low_stress_route: AltRouteResults::low_stress(ctx, app, Vec::new()),
+            alt_routes: Vec::new(),
         };
         rp.update_input_panel(ctx, app);
         Box::new(rp)
     }
 
     fn update_input_panel(&mut self, ctx: &mut EventCtx, app: &App) {
-        let (results, results_widget) =
+        let (main_route, results_widget) =
             RouteResults::main_route(ctx, app, self.waypoints.get_waypoints());
-        self.results = results;
-        self.alt_low_stress_route =
-            AltRouteResults::low_stress(ctx, app, self.waypoints.get_waypoints());
-        self.alt_low_stress_route
-            .compare_to_main_route(app, &self.results);
+        self.main_route = main_route;
+        self.alt_routes.clear();
+        let low_stress =
+            AltRouteResults::low_stress(ctx, app, self.waypoints.get_waypoints(), &self.main_route);
+        if low_stress.stats != self.main_route.stats {
+            self.alt_routes.push(low_stress);
+        }
 
         let params = &app.session.routing_params;
         let col = Widget::col(vec![
@@ -137,7 +139,7 @@ impl State<App> for RoutePlanner {
         // Send all other outcomes here
         // TODO This routing of outcomes and the brittle ordering totally breaks encapsulation :(
         if let Some(t) = self
-            .results
+            .main_route
             .event(ctx, app, &outcome, &mut self.input_panel)
         {
             return t;
@@ -153,7 +155,9 @@ impl State<App> for RoutePlanner {
             return t;
         }
 
-        self.alt_low_stress_route.event(ctx);
+        for r in &mut self.alt_routes {
+            r.event(ctx);
+        }
 
         Transition::Keep
     }
@@ -162,7 +166,9 @@ impl State<App> for RoutePlanner {
         self.layers.draw(g, app);
         self.input_panel.draw(g);
         self.waypoints.draw(g);
-        self.results.draw(g, app, &self.input_panel);
-        self.alt_low_stress_route.draw(g, app);
+        self.main_route.draw(g, app, &self.input_panel);
+        for r in &self.alt_routes {
+            r.draw(g, app);
+        }
     }
 }

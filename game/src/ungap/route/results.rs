@@ -17,7 +17,7 @@ pub struct RouteResults {
     paths: Vec<(Path, Option<PolyLine>)>,
     // Match each polyline to the index in paths
     closest_path_segment: FindClosest<usize>,
-    stats: RouteStats,
+    pub stats: RouteStats,
 
     hover_on_line_plot: Option<(Distance, Drawable)>,
     hover_on_route_tooltip: Option<Text>,
@@ -28,7 +28,8 @@ pub struct RouteResults {
     draw_unprotected_turns: Drawable,
 }
 
-struct RouteStats {
+#[derive(PartialEq)]
+pub struct RouteStats {
     total_distance: Distance,
     dist_along_high_stress_roads: Distance,
     total_time: Duration,
@@ -390,7 +391,7 @@ impl RouteStats {
 
 pub struct AltRouteResults {
     closest_path_segment: FindClosest<usize>,
-    stats: RouteStats,
+    pub stats: RouteStats,
     hovering: bool,
     draw_route: ToggleZoomed,
     tooltip: Text,
@@ -401,6 +402,7 @@ impl AltRouteResults {
         ctx: &mut EventCtx,
         app: &App,
         waypoints: Vec<TripEndpoint>,
+        main: &RouteResults,
     ) -> AltRouteResults {
         let (results, _) = RouteResults::new(
             ctx,
@@ -412,71 +414,14 @@ impl AltRouteResults {
                 ..Default::default()
             },
         );
+        let tooltip = compare_routes(app, &main.stats, &results.stats);
         AltRouteResults {
             closest_path_segment: results.closest_path_segment,
             stats: results.stats,
             hovering: false,
             draw_route: results.draw_route,
-            tooltip: Text::new(),
+            tooltip,
         }
-    }
-
-    pub fn compare_to_main_route(&mut self, app: &App, main: &RouteResults) {
-        let mut txt = Text::new();
-        txt.add_line(Line("Click to use low-stress route"));
-
-        cmp_dist(
-            &mut txt,
-            app,
-            self.stats.total_distance - main.stats.total_distance,
-            "shorter",
-            "longer",
-        );
-        cmp_duration(
-            &mut txt,
-            app,
-            self.stats.total_time - main.stats.total_time,
-            "shorter",
-            "longer",
-        );
-        cmp_dist(
-            &mut txt,
-            app,
-            self.stats.dist_along_high_stress_roads - main.stats.dist_along_high_stress_roads,
-            "less on high-stress roads",
-            "more on high-stress roads",
-        );
-
-        if self.stats.total_up != main.stats.total_up
-            || self.stats.total_down != main.stats.total_down
-        {
-            txt.add_line(Line("Elevation change: "));
-            let up = self.stats.total_up - main.stats.total_up;
-            if up < Distance::ZERO {
-                txt.append(
-                    Line(format!("{} less ↑", (-up).to_string(&app.opts.units))).fg(Color::GREEN),
-                );
-                txt.append(Line(", "));
-            } else if up > Distance::ZERO {
-                txt.append(
-                    Line(format!("{} more ↑", up.to_string(&app.opts.units))).fg(Color::RED),
-                );
-                txt.append(Line(", "));
-            }
-
-            // Unclear if more down should be "good" or "bad", so we'll omit color
-            let down = self.stats.total_down - main.stats.total_down;
-            if down < Distance::ZERO {
-                txt.append(Line(format!(
-                    "{} less ↓",
-                    (-down).to_string(&app.opts.units)
-                )));
-            } else if down > Distance::ZERO {
-                txt.append(Line(format!("{} more ↓", down.to_string(&app.opts.units))));
-            }
-        }
-
-        self.tooltip = txt;
     }
 
     pub fn event(&mut self, ctx: &mut EventCtx) {
@@ -501,6 +446,60 @@ impl AltRouteResults {
             g.draw_mouse_tooltip(self.tooltip.clone());
         }
     }
+}
+
+fn compare_routes(app: &App, main: &RouteStats, alt: &RouteStats) -> Text {
+    let mut txt = Text::new();
+    txt.add_line(Line("Click to use low-stress route"));
+
+    cmp_dist(
+        &mut txt,
+        app,
+        alt.total_distance - main.total_distance,
+        "shorter",
+        "longer",
+    );
+    cmp_duration(
+        &mut txt,
+        app,
+        alt.total_time - main.total_time,
+        "shorter",
+        "longer",
+    );
+    cmp_dist(
+        &mut txt,
+        app,
+        alt.dist_along_high_stress_roads - main.dist_along_high_stress_roads,
+        "less on high-stress roads",
+        "more on high-stress roads",
+    );
+
+    if alt.total_up != main.total_up || alt.total_down != main.total_down {
+        txt.add_line(Line("Elevation change: "));
+        let up = alt.total_up - main.total_up;
+        if up < Distance::ZERO {
+            txt.append(
+                Line(format!("{} less ↑", (-up).to_string(&app.opts.units))).fg(Color::GREEN),
+            );
+            txt.append(Line(", "));
+        } else if up > Distance::ZERO {
+            txt.append(Line(format!("{} more ↑", up.to_string(&app.opts.units))).fg(Color::RED));
+            txt.append(Line(", "));
+        }
+
+        // Unclear if more down should be "good" or "bad", so we'll omit color
+        let down = alt.total_down - main.total_down;
+        if down < Distance::ZERO {
+            txt.append(Line(format!(
+                "{} less ↓",
+                (-down).to_string(&app.opts.units)
+            )));
+        } else if down > Distance::ZERO {
+            txt.append(Line(format!("{} more ↓", down.to_string(&app.opts.units))));
+        }
+    }
+
+    txt
 }
 
 fn cmp_dist(txt: &mut Text, app: &App, dist: Distance, shorter: &str, longer: &str) {
