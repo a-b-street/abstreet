@@ -18,6 +18,7 @@ pub use self::explore::ExploreMap;
 pub use self::layers::Layers;
 use crate::app::{App, Transition};
 pub use predict::ModeShiftData;
+pub use route::RoutingPreferences;
 pub use share::PROPOSAL_HOST_URL;
 
 // The 3 modes are very different States, so TabController doesn't seem like the best fit

@@ -2,18 +2,18 @@ use std::collections::HashSet;
 
 use geom::{Circle, Distance, Duration, FindClosest, PolyLine};
 use map_gui::tools::{PopupMsg, ToggleZoomed};
-use map_model::{Path, PathStep, RoutingParams, NORMAL_LANE_THICKNESS};
+use map_model::{Path, PathStep, NORMAL_LANE_THICKNESS};
 use sim::{TripEndpoint, TripMode};
 use widgetry::{
     Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, LinePlot, Outcome, Panel, PlotOptions,
     Series, Text, Widget,
 };
 
+use super::RoutingPreferences;
 use crate::app::{App, Transition};
 
 pub struct RouteResults {
-    name: String,
-    pub params: RoutingParams,
+    pub preferences: RoutingPreferences,
 
     // It's tempting to glue together all of the paths. But since some waypoints might force the
     // path to double back on itself, rendering the path as a single PolyLine would break.
@@ -46,27 +46,25 @@ pub struct RouteStats {
 }
 
 impl RouteResults {
-    /// "main" is determined by `app.session.routing_params`
+    /// "main" is determined by `app.session.routing_preferences`
     pub fn main_route(ctx: &mut EventCtx, app: &App, waypoints: Vec<TripEndpoint>) -> RouteResults {
         RouteResults::new(
             ctx,
             app,
-            // TODO Actually we want to plumb around the name of those too... probably just want an
-            // enum and to ditch the custom params
-            "main",
             waypoints,
             Color::CYAN,
-            app.session.routing_params.clone(),
+            None,
+            app.session.routing_preferences,
         )
     }
 
     fn new(
         ctx: &mut EventCtx,
         app: &App,
-        name: &str,
         waypoints: Vec<TripEndpoint>,
         route_color: Color,
-        params: RoutingParams,
+        outline_color: Option<Color>,
+        preferences: RoutingPreferences,
     ) -> RouteResults {
         let mut draw_route = ToggleZoomed::builder();
         let mut draw_high_stress = GeomBatch::new();
@@ -87,9 +85,11 @@ impl RouteResults {
         let mut paths = Vec::new();
         let mut closest_path_segment = FindClosest::new(map.get_bounds());
 
+        let routing_params = preferences.routing_params();
+
         for pair in waypoints.windows(2) {
             if let Some(path) = TripEndpoint::path_req(pair[0], pair[1], TripMode::Bike, map)
-                .and_then(|req| map.pathfind_with_params(req, &params).ok())
+                .and_then(|req| map.pathfind_with_params(req, &routing_params).ok())
             {
                 total_distance += path.total_length();
                 total_time += path.estimate_duration(map, Some(map_model::MAX_BIKE_SPEED));
@@ -136,6 +136,16 @@ impl RouteResults {
                         .unzoomed
                         .push(route_color.alpha(0.8), shape.clone());
                     draw_route.zoomed.push(route_color.alpha(0.5), shape);
+
+                    if let Some(color) = outline_color {
+                        if let Some(outline) =
+                            pl.to_thick_boundary(5.0 * NORMAL_LANE_THICKNESS, NORMAL_LANE_THICKNESS)
+                        {
+                            draw_route.unzoomed.push(color, outline.clone());
+                            draw_route.zoomed.push(color.alpha(0.5), outline);
+                        }
+                    }
+
                     closest_path_segment.add(paths.len(), pl.points());
                 }
                 paths.push((path, maybe_pl));
@@ -154,9 +164,7 @@ impl RouteResults {
         }
 
         RouteResults {
-            name: name.to_string(),
-            params,
-
+            preferences,
             draw_route: draw_route.build(ctx),
             draw_high_stress: ctx.upload(draw_high_stress),
             draw_traffic_signals: ctx.upload(draw_traffic_signals),
@@ -407,11 +415,17 @@ impl AltRouteResults {
         app: &App,
         waypoints: Vec<TripEndpoint>,
         main: &RouteResults,
-        name: &str,
-        params: RoutingParams,
+        preferences: RoutingPreferences,
     ) -> AltRouteResults {
-        let results = RouteResults::new(ctx, app, name, waypoints, Color::grey(0.3), params);
-        let tooltip = compare_routes(app, &main.stats, &results.stats, &results.name);
+        let results = RouteResults::new(
+            ctx,
+            app,
+            waypoints,
+            Color::grey(0.3),
+            Some(Color::CYAN),
+            preferences,
+        );
+        let tooltip = compare_routes(app, &main.stats, &results.stats, preferences);
         AltRouteResults {
             results,
             hovering: false,
@@ -448,9 +462,14 @@ impl AltRouteResults {
     }
 }
 
-fn compare_routes(app: &App, main: &RouteStats, alt: &RouteStats, alt_name: &str) -> Text {
+fn compare_routes(
+    app: &App,
+    main: &RouteStats,
+    alt: &RouteStats,
+    preferences: RoutingPreferences,
+) -> Text {
     let mut txt = Text::new();
-    txt.add_line(Line(format!("Click to use {} route", alt_name)));
+    txt.add_line(Line(format!("Click to use {} route", preferences.name())));
 
     cmp_dist(
         &mut txt,

@@ -1,5 +1,5 @@
 use map_model::RoutingParams;
-use widgetry::{EventCtx, GfxCtx, Outcome, Panel, Slider, State, TextExt, Widget};
+use widgetry::{Choice, EventCtx, GfxCtx, Outcome, Panel, State, TextExt, Widget};
 
 use self::results::{AltRouteResults, RouteResults};
 use crate::app::{App, Transition};
@@ -8,8 +8,6 @@ use crate::ungap::{Layers, Tab, TakeLayers};
 
 mod files;
 mod results;
-
-const MAX_AVOID_PARAM: f64 = 2.0;
 
 pub struct RoutePlanner {
     layers: Layers,
@@ -51,17 +49,23 @@ impl RoutePlanner {
         self.main_route = RouteResults::main_route(ctx, app, self.waypoints.get_waypoints());
 
         self.alt_routes.clear();
-        for (name, params) in [
-            ("default", RoutingParams::default()),
-            (
-                "low-stress",
-                RoutingParams {
-                    avoid_high_stress: 2.0,
-                    ..Default::default()
-                },
-            ),
+        // Just a few fixed variations... all 9 combos seems overwhelming
+        for preferences in [
+            RoutingPreferences {
+                hills: Preference::Neutral,
+                stressful_roads: Preference::Neutral,
+            },
+            RoutingPreferences {
+                hills: Preference::Avoid,
+                stressful_roads: Preference::Avoid,
+            },
+            // TODO Too many alts cover up the main route awkwardly
+            /*RoutingPreferences {
+                hills: Preference::SeekOut,
+                stressful_roads: Preference::SeekOut,
+            },*/
         ] {
-            if app.session.routing_params == params {
+            if app.session.routing_preferences == preferences {
                 continue;
             }
             let alt = AltRouteResults::new(
@@ -69,10 +73,15 @@ impl RoutePlanner {
                 app,
                 self.waypoints.get_waypoints(),
                 &self.main_route,
-                name,
-                params,
+                preferences,
             );
-            if alt.results.stats != self.main_route.stats {
+            // Dedupe equivalent routes based on their stats, which is usually detailed enough
+            if alt.results.stats != self.main_route.stats
+                && self
+                    .alt_routes
+                    .iter()
+                    .all(|x| alt.results.stats != x.results.stats)
+            {
                 self.alt_routes.push(alt);
             }
         }
@@ -81,26 +90,32 @@ impl RoutePlanner {
     fn update_input_panel(&mut self, ctx: &mut EventCtx, app: &App) {
         let col = Widget::col(vec![
             self.files.get_panel_widget(ctx),
-            Widget::col(vec![
-                Widget::row(vec![
-                    "Avoid steep hills (> 8% incline)".text_widget(ctx),
-                    Slider::area(
-                        ctx,
-                        100.0,
-                        self.main_route.params.avoid_steep_incline_penalty / MAX_AVOID_PARAM,
-                        "avoid_steep_incline_penalty",
-                    ),
-                ]),
-                Widget::row(vec![
-                    "Avoid high-stress roads".text_widget(ctx),
-                    Slider::area(
-                        ctx,
-                        100.0,
-                        self.main_route.params.avoid_high_stress / MAX_AVOID_PARAM,
-                        "avoid_high_stress",
-                    ),
-                ]),
-            ])
+            Widget::col(vec![Widget::row(vec![
+                "Steep hills".text_widget(ctx).centered_vert(),
+                Widget::dropdown(
+                    ctx,
+                    "steep hills",
+                    app.session.routing_preferences.hills,
+                    vec![
+                        Choice::new("avoid", Preference::Avoid),
+                        // TODO Wording for these
+                        Choice::new("neutral", Preference::Neutral),
+                        Choice::new("fitness mode!", Preference::SeekOut),
+                    ],
+                ),
+                "High-stress roads".text_widget(ctx).centered_vert(),
+                Widget::dropdown(
+                    ctx,
+                    "stressful roads",
+                    app.session.routing_preferences.stressful_roads,
+                    vec![
+                        Choice::new("avoid", Preference::Avoid),
+                        // TODO Wording for these
+                        Choice::new("neutral", Preference::Neutral),
+                        Choice::new("danger zone!", Preference::SeekOut),
+                    ],
+                ),
+            ])])
             .section(ctx),
             self.waypoints.get_panel_widget(ctx).section(ctx),
             self.main_route.to_widget(ctx, app).section(ctx),
@@ -139,7 +154,7 @@ impl State<App> for RoutePlanner {
             focused_on_alt_route |= r.has_focus();
             if r.has_focus() && ctx.normal_left_click() {
                 // Switch routes
-                app.session.routing_params = r.results.params.clone();
+                app.session.routing_preferences = r.results.preferences;
                 self.recalculate_routes(ctx, app);
                 self.update_input_panel(ctx, app);
                 return Transition::Keep;
@@ -160,14 +175,11 @@ impl State<App> for RoutePlanner {
             }
         }
         if let Outcome::Changed(ref x) = outcome {
-            if x == "avoid_steep_incline_penalty" || x == "avoid_high_stress" {
-                app.session.routing_params.avoid_steep_incline_penalty = MAX_AVOID_PARAM
-                    * self
-                        .input_panel
-                        .slider("avoid_steep_incline_penalty")
-                        .get_percent();
-                app.session.routing_params.avoid_high_stress =
-                    MAX_AVOID_PARAM * self.input_panel.slider("avoid_high_stress").get_percent();
+            if x == "steep hills" || x == "stressful roads" {
+                app.session.routing_preferences = RoutingPreferences {
+                    hills: self.input_panel.dropdown_value("steep hills"),
+                    stressful_roads: self.input_panel.dropdown_value("stressful roads"),
+                };
                 self.recalculate_routes(ctx, app);
                 self.update_input_panel(ctx, app);
                 return Transition::Keep;
@@ -191,6 +203,12 @@ impl State<App> for RoutePlanner {
             self.recalculate_routes(ctx, app);
             self.update_input_panel(ctx, app);
         }
+        if focused_on_alt_route {
+            // Still allow zooming
+            if let Some((_, dy)) = ctx.input.get_mouse_scroll() {
+                ctx.canvas.zoom(dy, ctx.canvas.get_cursor());
+            }
+        }
 
         if let Some(t) = self.layers.event(ctx, app) {
             return t;
@@ -206,6 +224,70 @@ impl State<App> for RoutePlanner {
         self.main_route.draw(g, app, &self.input_panel);
         for r in &self.alt_routes {
             r.draw(g, app);
+        }
+    }
+}
+
+#[derive(Clone, Copy, PartialEq)]
+pub struct RoutingPreferences {
+    hills: Preference,
+    stressful_roads: Preference,
+}
+
+#[derive(Clone, Copy, PartialEq, Debug)]
+enum Preference {
+    Avoid,
+    Neutral,
+    SeekOut,
+}
+
+impl RoutingPreferences {
+    // TODO Consider changing this now, and also for the mode shift calculation
+    pub fn default() -> Self {
+        Self {
+            hills: Preference::Neutral,
+            stressful_roads: Preference::Neutral,
+        }
+    }
+
+    fn name(self) -> String {
+        let words = vec![
+            match self.hills {
+                Preference::Avoid => Some("flat"),
+                Preference::Neutral => None,
+                Preference::SeekOut => Some("steep"),
+            },
+            match self.stressful_roads {
+                Preference::Avoid => Some("low-stress"),
+                Preference::Neutral => None,
+                Preference::SeekOut => Some("high-stress"),
+            },
+        ]
+        .into_iter()
+        .flatten()
+        .collect::<Vec<_>>();
+        if words.is_empty() {
+            "default".to_string()
+        } else if words.len() == 1 {
+            words[0].to_string()
+        } else {
+            format!("{}, {}", words[0], words[1])
+        }
+    }
+
+    fn routing_params(self) -> RoutingParams {
+        RoutingParams {
+            avoid_steep_incline_penalty: match self.hills {
+                Preference::Avoid => 2.0,
+                Preference::Neutral => 1.0,
+                Preference::SeekOut => 0.1,
+            },
+            avoid_high_stress: match self.stressful_roads {
+                Preference::Avoid => 2.0,
+                Preference::Neutral => 1.0,
+                Preference::SeekOut => 0.1,
+            },
+            ..Default::default()
         }
     }
 }

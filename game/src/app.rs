@@ -14,7 +14,7 @@ use map_gui::render::{unzoomed_agent_radius, AgentCache, DrawMap, DrawOptions, R
 use map_gui::tools::{CameraState, ToggleZoomed};
 use map_gui::ID;
 use map_model::AreaType;
-use map_model::{BufferType, IntersectionID, LaneType, Map, RoutingParams, Traversable};
+use map_model::{BufferType, IntersectionID, LaneType, Map, Traversable};
 use sim::{AgentID, Analytics, Scenario, Sim, SimCallback, SimFlags, VehicleType};
 use widgetry::{Cached, Canvas, EventCtx, GfxCtx, Prerender, SharedAppState, State};
 
@@ -732,7 +732,7 @@ pub struct SessionState {
 
     // Specific to the ungap tool
     pub elevation_contours: Cached<MapName, (FindClosest<Distance>, ToggleZoomed)>,
-    pub routing_params: RoutingParams,
+    pub routing_preferences: crate::ungap::RoutingPreferences,
     // Map and edit change key
     pub mode_shift: Cached<(MapName, usize), crate::ungap::ModeShiftData>,
 }
@@ -754,7 +754,7 @@ impl SessionState {
             buffer_lane_type: LaneType::Buffer(BufferType::Stripes),
 
             elevation_contours: Cached::new(),
-            routing_params: RoutingParams::default(),
+            routing_preferences: crate::ungap::RoutingPreferences::default(),
             mode_shift: Cached::new(),
         }
     }
