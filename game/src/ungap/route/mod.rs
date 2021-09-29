@@ -1,3 +1,4 @@
+use map_model::RoutingParams;
 use widgetry::{EventCtx, GfxCtx, Outcome, Panel, Slider, State, TextExt, Widget};
 
 use self::results::{AltRouteResults, RouteResults};
@@ -45,15 +46,39 @@ impl RoutePlanner {
         Box::new(rp)
     }
 
-    fn update_input_panel(&mut self, ctx: &mut EventCtx, app: &App) {
+    fn recalculate_routes(&mut self, ctx: &mut EventCtx, app: &App) {
+        // Use the current session settings to determine "main" and alts
         self.main_route = RouteResults::main_route(ctx, app, self.waypoints.get_waypoints());
-        self.alt_routes.clear();
-        let low_stress =
-            AltRouteResults::low_stress(ctx, app, self.waypoints.get_waypoints(), &self.main_route);
-        if low_stress.results.stats != self.main_route.stats {
-            self.alt_routes.push(low_stress);
-        }
 
+        self.alt_routes.clear();
+        for (name, params) in [
+            ("default", RoutingParams::default()),
+            (
+                "low-stress",
+                RoutingParams {
+                    avoid_high_stress: 2.0,
+                    ..Default::default()
+                },
+            ),
+        ] {
+            if app.session.routing_params == params {
+                continue;
+            }
+            let alt = AltRouteResults::new(
+                ctx,
+                app,
+                self.waypoints.get_waypoints(),
+                &self.main_route,
+                name,
+                params,
+            );
+            if alt.results.stats != self.main_route.stats {
+                self.alt_routes.push(alt);
+            }
+        }
+    }
+
+    fn update_input_panel(&mut self, ctx: &mut EventCtx, app: &App) {
         let col = Widget::col(vec![
             self.files.get_panel_widget(ctx),
             Widget::col(vec![
@@ -92,6 +117,7 @@ impl RoutePlanner {
     fn sync_from_file_management(&mut self, ctx: &mut EventCtx, app: &App) {
         self.waypoints
             .overwrite(ctx, app, self.files.current.waypoints.clone());
+        self.recalculate_routes(ctx, app);
         self.update_input_panel(ctx, app);
     }
 }
@@ -112,7 +138,10 @@ impl State<App> for RoutePlanner {
             r.event(ctx);
             focused_on_alt_route |= r.has_focus();
             if r.has_focus() && ctx.normal_left_click() {
-                println!("SWITCH");
+                // Switch routes
+                app.session.routing_params = r.results.params.clone();
+                self.recalculate_routes(ctx, app);
+                self.update_input_panel(ctx, app);
                 return Transition::Keep;
             }
         }
@@ -139,6 +168,7 @@ impl State<App> for RoutePlanner {
                         .get_percent();
                 app.session.routing_params.avoid_high_stress =
                     MAX_AVOID_PARAM * self.input_panel.slider("avoid_high_stress").get_percent();
+                self.recalculate_routes(ctx, app);
                 self.update_input_panel(ctx, app);
                 return Transition::Keep;
             }
@@ -158,6 +188,7 @@ impl State<App> for RoutePlanner {
             // Sync from waypoints to file management
             // TODO Maaaybe this directly live in the InputWaypoints system?
             self.files.current.waypoints = self.waypoints.get_waypoints();
+            self.recalculate_routes(ctx, app);
             self.update_input_panel(ctx, app);
         }
 

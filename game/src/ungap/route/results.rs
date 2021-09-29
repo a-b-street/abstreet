@@ -46,10 +46,13 @@ pub struct RouteStats {
 }
 
 impl RouteResults {
+    /// "main" is determined by `app.session.routing_params`
     pub fn main_route(ctx: &mut EventCtx, app: &App, waypoints: Vec<TripEndpoint>) -> RouteResults {
         RouteResults::new(
             ctx,
             app,
+            // TODO Actually we want to plumb around the name of those too... probably just want an
+            // enum and to ditch the custom params
             "main",
             waypoints,
             Color::CYAN,
@@ -399,23 +402,15 @@ pub struct AltRouteResults {
 }
 
 impl AltRouteResults {
-    pub fn low_stress(
+    pub fn new(
         ctx: &mut EventCtx,
         app: &App,
         waypoints: Vec<TripEndpoint>,
         main: &RouteResults,
+        name: &str,
+        params: RoutingParams,
     ) -> AltRouteResults {
-        let results = RouteResults::new(
-            ctx,
-            app,
-            "low-stress",
-            waypoints,
-            Color::grey(0.3),
-            RoutingParams {
-                avoid_high_stress: 2.0,
-                ..Default::default()
-            },
-        );
+        let results = RouteResults::new(ctx, app, name, waypoints, Color::grey(0.3), params);
         let tooltip = compare_routes(app, &main.stats, &results.stats, &results.name);
         AltRouteResults {
             results,
