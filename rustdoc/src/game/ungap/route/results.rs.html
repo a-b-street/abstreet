@@ -540,11 +540,6 @@
 <span id="540">540</span>
 <span id="541">541</span>
 <span id="542">542</span>
-<span id="543">543</span>
-<span id="544">544</span>
-<span id="545">545</span>
-<span id="546">546</span>
-<span id="547">547</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 
@@ -594,10 +589,13 @@
 }
 
 <span class="kw">impl</span> <span class="ident">RouteResults</span> {
+    <span class="doccomment">/// &quot;main&quot; is determined by `app.session.routing_params`</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">main_route</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">waypoints</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TripEndpoint</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">RouteResults</span> {
         <span class="ident">RouteResults::new</span>(
             <span class="ident">ctx</span>,
             <span class="ident">app</span>,
+            <span class="comment">// TODO Actually we want to plumb around the name of those too... probably just want an</span>
+            <span class="comment">// enum and to ditch the custom params</span>
             <span class="string">&quot;main&quot;</span>,
             <span class="ident">waypoints</span>,
             <span class="ident">Color::CYAN</span>,
@@ -947,23 +945,15 @@
 }
 
 <span class="kw">impl</span> <span class="ident">AltRouteResults</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">low_stress</span>(
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(
         <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
         <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
         <span class="ident">waypoints</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TripEndpoint</span><span class="op">&gt;</span>,
         <span class="ident">main</span>: <span class="kw-2">&amp;</span><span class="ident">RouteResults</span>,
+        <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
+        <span class="ident">params</span>: <span class="ident">RoutingParams</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">AltRouteResults</span> {
-        <span class="kw">let</span> <span class="ident">results</span> <span class="op">=</span> <span class="ident">RouteResults::new</span>(
-            <span class="ident">ctx</span>,
-            <span class="ident">app</span>,
-            <span class="string">&quot;low-stress&quot;</span>,
-            <span class="ident">waypoints</span>,
-            <span class="ident">Color::grey</span>(<span class="number">0.3</span>),
-            <span class="ident">RoutingParams</span> {
-                <span class="ident">avoid_high_stress</span>: <span class="number">2.0</span>,
-                ..<span class="ident">Default::default</span>()
-            },
-        );
+        <span class="kw">let</span> <span class="ident">results</span> <span class="op">=</span> <span class="ident">RouteResults::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">name</span>, <span class="ident">waypoints</span>, <span class="ident">Color::grey</span>(<span class="number">0.3</span>), <span class="ident">params</span>);
         <span class="kw">let</span> <span class="ident">tooltip</span> <span class="op">=</span> <span class="ident">compare_routes</span>(<span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="ident">main</span>.<span class="ident">stats</span>, <span class="kw-2">&amp;</span><span class="ident">results</span>.<span class="ident">stats</span>, <span class="kw-2">&amp;</span><span class="ident">results</span>.<span class="ident">name</span>);
         <span class="ident">AltRouteResults</span> {
             <span class="ident">results</span>,

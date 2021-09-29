@@ -178,7 +178,39 @@
 <span id="178">178</span>
 <span id="179">179</span>
 <span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
 </pre><pre class="rust">
+<span class="kw">use</span> <span class="ident">map_model::RoutingParams</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">Slider</span>, <span class="ident">State</span>, <span class="ident">TextExt</span>, <span class="ident">Widget</span>};
 
 <span class="kw">use</span> <span class="self">self</span><span class="ident">::results</span>::{<span class="ident">AltRouteResults</span>, <span class="ident">RouteResults</span>};
@@ -226,15 +258,39 @@
         <span class="ident">Box::new</span>(<span class="ident">rp</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">update_input_panel</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
+    <span class="kw">fn</span> <span class="ident">recalculate_routes</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
+        <span class="comment">// Use the current session settings to determine &quot;main&quot; and alts</span>
         <span class="self">self</span>.<span class="ident">main_route</span> <span class="op">=</span> <span class="ident">RouteResults::main_route</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">get_waypoints</span>());
-        <span class="self">self</span>.<span class="ident">alt_routes</span>.<span class="ident">clear</span>();
-        <span class="kw">let</span> <span class="ident">low_stress</span> <span class="op">=</span>
-            <span class="ident">AltRouteResults::low_stress</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">get_waypoints</span>(), <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">main_route</span>);
-        <span class="kw">if</span> <span class="ident">low_stress</span>.<span class="ident">results</span>.<span class="ident">stats</span> <span class="op">!</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">main_route</span>.<span class="ident">stats</span> {
-            <span class="self">self</span>.<span class="ident">alt_routes</span>.<span class="ident">push</span>(<span class="ident">low_stress</span>);
-        }
 
+        <span class="self">self</span>.<span class="ident">alt_routes</span>.<span class="ident">clear</span>();
+        <span class="kw">for</span> (<span class="ident">name</span>, <span class="ident">params</span>) <span class="kw">in</span> [
+            (<span class="string">&quot;default&quot;</span>, <span class="ident">RoutingParams::default</span>()),
+            (
+                <span class="string">&quot;low-stress&quot;</span>,
+                <span class="ident">RoutingParams</span> {
+                    <span class="ident">avoid_high_stress</span>: <span class="number">2.0</span>,
+                    ..<span class="ident">Default::default</span>()
+                },
+            ),
+        ] {
+            <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">routing_params</span> <span class="op">=</span><span class="op">=</span> <span class="ident">params</span> {
+                <span class="kw">continue</span>;
+            }
+            <span class="kw">let</span> <span class="ident">alt</span> <span class="op">=</span> <span class="ident">AltRouteResults::new</span>(
+                <span class="ident">ctx</span>,
+                <span class="ident">app</span>,
+                <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">get_waypoints</span>(),
+                <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">main_route</span>,
+                <span class="ident">name</span>,
+                <span class="ident">params</span>,
+            );
+            <span class="kw">if</span> <span class="ident">alt</span>.<span class="ident">results</span>.<span class="ident">stats</span> <span class="op">!</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">main_route</span>.<span class="ident">stats</span> {
+                <span class="self">self</span>.<span class="ident">alt_routes</span>.<span class="ident">push</span>(<span class="ident">alt</span>);
+            }
+        }
+    }
+
+    <span class="kw">fn</span> <span class="ident">update_input_panel</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
         <span class="kw">let</span> <span class="ident">col</span> <span class="op">=</span> <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
             <span class="self">self</span>.<span class="ident">files</span>.<span class="ident">get_panel_widget</span>(<span class="ident">ctx</span>),
             <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
@@ -273,6 +329,7 @@
     <span class="kw">fn</span> <span class="ident">sync_from_file_management</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
         <span class="self">self</span>.<span class="ident">waypoints</span>
             .<span class="ident">overwrite</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">files</span>.<span class="ident">current</span>.<span class="ident">waypoints</span>.<span class="ident">clone</span>());
+        <span class="self">self</span>.<span class="ident">recalculate_routes</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
         <span class="self">self</span>.<span class="ident">update_input_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
     }
 }
@@ -293,7 +350,10 @@
             <span class="ident">r</span>.<span class="ident">event</span>(<span class="ident">ctx</span>);
             <span class="ident">focused_on_alt_route</span> <span class="op">|</span><span class="op">=</span> <span class="ident">r</span>.<span class="ident">has_focus</span>();
             <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">has_focus</span>() <span class="op">&amp;&amp;</span> <span class="ident">ctx</span>.<span class="ident">normal_left_click</span>() {
-                <span class="macro">println!</span>(<span class="string">&quot;SWITCH&quot;</span>);
+                <span class="comment">// Switch routes</span>
+                <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">routing_params</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">results</span>.<span class="ident">params</span>.<span class="ident">clone</span>();
+                <span class="self">self</span>.<span class="ident">recalculate_routes</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+                <span class="self">self</span>.<span class="ident">update_input_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
                 <span class="kw">return</span> <span class="ident">Transition::Keep</span>;
             }
         }
@@ -320,6 +380,7 @@
                         .<span class="ident">get_percent</span>();
                 <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">routing_params</span>.<span class="ident">avoid_high_stress</span> <span class="op">=</span>
                     <span class="ident">MAX_AVOID_PARAM</span> <span class="op">*</span> <span class="self">self</span>.<span class="ident">input_panel</span>.<span class="ident">slider</span>(<span class="string">&quot;avoid_high_stress&quot;</span>).<span class="ident">get_percent</span>();
+                <span class="self">self</span>.<span class="ident">recalculate_routes</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
                 <span class="self">self</span>.<span class="ident">update_input_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
                 <span class="kw">return</span> <span class="ident">Transition::Keep</span>;
             }
@@ -339,6 +400,7 @@
             <span class="comment">// Sync from waypoints to file management</span>
             <span class="comment">// TODO Maaaybe this directly live in the InputWaypoints system?</span>
             <span class="self">self</span>.<span class="ident">files</span>.<span class="ident">current</span>.<span class="ident">waypoints</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">get_waypoints</span>();
+            <span class="self">self</span>.<span class="ident">recalculate_routes</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
             <span class="self">self</span>.<span class="ident">update_input_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
         }
 
