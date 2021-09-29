@@ -978,7 +978,7 @@
             <span class="ident">batch</span>.<span class="ident">append</span>(<span class="ident">map_gui::tools::goal_marker</span>(<span class="ident">ctx</span>, <span class="ident">pts</span>[<span class="number">0</span>], <span class="number">2.0</span>));
             <span class="ident">batch</span>.<span class="ident">append</span>(
                 <span class="ident">Text::from</span>(<span class="kw-2">&amp;</span><span class="ident">event</span>)
-                    .<span class="ident">with_bg</span>()
+                    .<span class="ident">bg</span>(<span class="ident">Color::CYAN</span>)
                     .<span class="ident">render_autocropped</span>(<span class="ident">ctx</span>)
                     .<span class="ident">scale</span>(<span class="number">0.5</span>)
                     .<span class="ident">centered_on</span>(<span class="ident">pts</span>[<span class="number">0</span>]),
@@ -993,7 +993,7 @@
             <span class="comment">// TODO Refactor</span>
             <span class="ident">batch</span>.<span class="ident">append</span>(
                 <span class="ident">Text::from</span>(<span class="kw-2">&amp;</span><span class="ident">event</span>)
-                    .<span class="ident">with_bg</span>()
+                    .<span class="ident">bg</span>(<span class="ident">Color::CYAN</span>)
                     .<span class="ident">render_autocropped</span>(<span class="ident">ctx</span>)
                     .<span class="ident">scale</span>(<span class="number">0.5</span>)
                     .<span class="ident">centered_on</span>(<span class="ident">poly</span>.<span class="ident">polylabel</span>()),
@@ -1017,7 +1017,7 @@
             );
             <span class="ident">batch</span>.<span class="ident">append</span>(
                 <span class="ident">Text::from</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">event</span>)
-                    .<span class="ident">with_bg</span>()
+                    .<span class="ident">bg</span>(<span class="ident">Color::CYAN</span>)
                     .<span class="ident">render_autocropped</span>(<span class="ident">g</span>)
                     .<span class="ident">scale</span>(<span class="number">0.75</span>)
                     .<span class="ident">centered_on</span>(<span class="self">self</span>.<span class="ident">pts</span>[<span class="number">0</span>]),
@@ -1027,7 +1027,7 @@
             <span class="comment">// TODO Refactor plz</span>
             <span class="ident">batch</span>.<span class="ident">append</span>(
                 <span class="ident">Text::from</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">event</span>)
-                    .<span class="ident">with_bg</span>()
+                    .<span class="ident">bg</span>(<span class="ident">Color::CYAN</span>)
                     .<span class="ident">render_autocropped</span>(<span class="ident">g</span>)
                     .<span class="ident">scale</span>(<span class="number">0.75</span>)
                     .<span class="ident">centered_on</span>(<span class="self">self</span>.<span class="ident">hitbox</span>.<span class="ident">polylabel</span>()),
