@@ -36,7 +36,7 @@ impl RoutePlanner {
 
             input_panel: Panel::empty(ctx),
             waypoints: InputWaypoints::new(ctx, app),
-            main_route: RouteResults::main_route(ctx, app, Vec::new()).0,
+            main_route: RouteResults::main_route(ctx, app, Vec::new()),
             files: files::RouteManagement::new(app),
 
             alt_routes: Vec::new(),
@@ -46,17 +46,14 @@ impl RoutePlanner {
     }
 
     fn update_input_panel(&mut self, ctx: &mut EventCtx, app: &App) {
-        let (main_route, results_widget) =
-            RouteResults::main_route(ctx, app, self.waypoints.get_waypoints());
-        self.main_route = main_route;
+        self.main_route = RouteResults::main_route(ctx, app, self.waypoints.get_waypoints());
         self.alt_routes.clear();
         let low_stress =
             AltRouteResults::low_stress(ctx, app, self.waypoints.get_waypoints(), &self.main_route);
-        if low_stress.stats != self.main_route.stats {
+        if low_stress.results.stats != self.main_route.stats {
             self.alt_routes.push(low_stress);
         }
 
-        let params = &app.session.routing_params;
         let col = Widget::col(vec![
             self.files.get_panel_widget(ctx),
             Widget::col(vec![
@@ -65,7 +62,7 @@ impl RoutePlanner {
                     Slider::area(
                         ctx,
                         100.0,
-                        params.avoid_steep_incline_penalty / MAX_AVOID_PARAM,
+                        self.main_route.params.avoid_steep_incline_penalty / MAX_AVOID_PARAM,
                         "avoid_steep_incline_penalty",
                     ),
                 ]),
@@ -74,14 +71,14 @@ impl RoutePlanner {
                     Slider::area(
                         ctx,
                         100.0,
-                        params.avoid_high_stress / MAX_AVOID_PARAM,
+                        self.main_route.params.avoid_high_stress / MAX_AVOID_PARAM,
                         "avoid_high_stress",
                     ),
                 ]),
             ])
             .section(ctx),
             self.waypoints.get_panel_widget(ctx).section(ctx),
-            results_widget.section(ctx),
+            self.main_route.to_widget(ctx, app).section(ctx),
         ]);
 
         let mut new_panel = Tab::Route.make_left_panel(ctx, app, col);
@@ -108,6 +105,16 @@ impl State<App> for RoutePlanner {
                     .map
                     .recalculate_pathfinding_after_edits(&mut timer);
             });
+        }
+
+        let mut focused_on_alt_route = false;
+        for r in &mut self.alt_routes {
+            r.event(ctx);
+            focused_on_alt_route |= r.has_focus();
+            if r.has_focus() && ctx.normal_left_click() {
+                println!("SWITCH");
+                return Transition::Keep;
+            }
         }
 
         let outcome = self.input_panel.event(ctx);
@@ -144,7 +151,10 @@ impl State<App> for RoutePlanner {
         {
             return t;
         }
-        if self.waypoints.event(ctx, app, outcome) {
+        // Dragging behavior inside here only works if we're not hovering on an alternate route
+        // TODO But then that prevents dragging some waypoints! Can we give waypoints precedence
+        // instead?
+        if !focused_on_alt_route && self.waypoints.event(ctx, app, outcome) {
             // Sync from waypoints to file management
             // TODO Maaaybe this directly live in the InputWaypoints system?
             self.files.current.waypoints = self.waypoints.get_waypoints();
@@ -153,10 +163,6 @@ impl State<App> for RoutePlanner {
 
         if let Some(t) = self.layers.event(ctx, app) {
             return t;
-        }
-
-        for r in &mut self.alt_routes {
-            r.event(ctx);
         }
 
         Transition::Keep
