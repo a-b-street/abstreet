@@ -89,7 +89,7 @@ impl RouteResults {
 
         for pair in waypoints.windows(2) {
             if let Some(path) = TripEndpoint::path_req(pair[0], pair[1], TripMode::Bike, map)
-                .and_then(|req| map.pathfind_with_params(req, &routing_params).ok())
+                .and_then(|req| map.pathfind_with_params(req, &routing_params, true).ok())
             {
                 total_distance += path.total_length();
                 total_time += path.estimate_duration(map, Some(map_model::MAX_BIKE_SPEED));

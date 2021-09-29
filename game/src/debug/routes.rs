@@ -55,7 +55,12 @@ impl RouteExplorer {
         if let Some((ref goal, _, ref mut preview)) = self.goal {
             *preview = Drawable::empty(ctx);
             if let Some(polygon) = TripEndpoint::path_req(self.start, *goal, mode, &app.primary.map)
-                .and_then(|req| app.primary.map.pathfind_with_params(req, &params).ok())
+                .and_then(|req| {
+                    app.primary
+                        .map
+                        .pathfind_with_params(req, &params, false)
+                        .ok()
+                })
                 .and_then(|path| path.trace(&app.primary.map))
                 .map(|pl| pl.make_polygons(NORMAL_LANE_THICKNESS))
             {

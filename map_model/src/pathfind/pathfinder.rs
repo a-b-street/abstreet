@@ -1,8 +1,10 @@
+use std::cell::RefCell;
 use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize};
+use thread_local::ThreadLocal;
 
-use abstutil::Timer;
+use abstutil::{Timer, VecMap};
 use geom::Duration;
 
 use crate::pathfind::engine::CreateEngine;
@@ -13,7 +15,7 @@ use crate::{
     RoutingParams,
 };
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Serialize, Deserialize)]
 pub struct Pathfinder {
     car_graph: VehiclePathfinder,
     bike_graph: VehiclePathfinder,
@@ -22,7 +24,29 @@ pub struct Pathfinder {
     walking_graph: SidewalkPathfinder,
     walking_with_transit_graph: SidewalkPathfinder,
 
+    // These params cover the main graphs
     params: RoutingParams,
+
+    // Callers can opt into caching with pathfind_with_params
+    // TODO VecMap is probably fast enough. RoutingParams is annoying to implement Hash.
+    #[serde(skip_serializing, skip_deserializing)]
+    cached_alternatives: ThreadLocal<RefCell<VecMap<(PathConstraints, RoutingParams), Pathfinder>>>,
+}
+
+// Implemented manually to deal with the ThreadLocal
+impl Clone for Pathfinder {
+    fn clone(&self) -> Self {
+        Self {
+            car_graph: self.car_graph.clone(),
+            bike_graph: self.bike_graph.clone(),
+            bus_graph: self.bus_graph.clone(),
+            train_graph: self.train_graph.clone(),
+            walking_graph: self.walking_graph.clone(),
+            walking_with_transit_graph: self.walking_with_transit_graph.clone(),
+            params: self.params.clone(),
+            cached_alternatives: ThreadLocal::new(),
+        }
+    }
 }
 
 impl Pathfinder {
@@ -37,6 +61,7 @@ impl Pathfinder {
             walking_graph: SidewalkPathfinder::empty(),
             walking_with_transit_graph: SidewalkPathfinder::empty(),
             params: RoutingParams::default(),
+            cached_alternatives: ThreadLocal::new(),
         }
     }
 
@@ -94,6 +119,7 @@ impl Pathfinder {
             walking_with_transit_graph,
 
             params,
+            cached_alternatives: ThreadLocal::new(),
         }
     }
 
@@ -131,40 +157,58 @@ impl Pathfinder {
 
     /// Finds a path from a start to an end for a certain type of agent.
     pub fn pathfind(&self, req: PathRequest, map: &Map) -> Option<PathV2> {
-        self.pathfind_with_params(req, map.routing_params(), map)
+        self.pathfind_with_params(req, map.routing_params(), false, map)
     }
 
     /// Finds a path from a start to an end for a certain type of agent. May use custom routing
-    /// parameters.
+    /// parameters. If caching is requested and custom routing parameters are used, then the
+    /// intermediate graph is saved to speed up future calls with the same routing parameters.
     pub fn pathfind_with_params(
         &self,
         req: PathRequest,
         params: &RoutingParams,
+        cache_custom: bool,
         map: &Map,
     ) -> Option<PathV2> {
-        if params != &self.params {
-            // If the params differ from the ones baked into the map, the CHs won't match. This
-            // should only be happening from the debug UI; be very obnoxious if we start calling it
-            // from the simulation or something else.
-            let mut timer =
-                Timer::new(format!("Pathfinding slowly for {} with custom params", req));
-            let tmp_pathfinder = Pathfinder::new_for_one_mode(
-                map,
-                params.clone(),
-                CreateEngine::Dijkstra,
-                req.constraints,
-                &mut timer,
-            );
-            return tmp_pathfinder.pathfind_with_params(req, params, map);
+        let constraints = req.constraints;
+        if params == &self.params {
+            return match constraints {
+                PathConstraints::Pedestrian => self.walking_graph.pathfind(req, map),
+                PathConstraints::Car => self.car_graph.pathfind(req, map),
+                PathConstraints::Bike => self.bike_graph.pathfind(req, map),
+                PathConstraints::Bus => self.bus_graph.pathfind(req, map),
+                PathConstraints::Train => self.train_graph.pathfind(req, map),
+            };
         }
 
-        match req.constraints {
-            PathConstraints::Pedestrian => self.walking_graph.pathfind(req, map),
-            PathConstraints::Car => self.car_graph.pathfind(req, map),
-            PathConstraints::Bike => self.bike_graph.pathfind(req, map),
-            PathConstraints::Bus => self.bus_graph.pathfind(req, map),
-            PathConstraints::Train => self.train_graph.pathfind(req, map),
+        // If the params differ from the ones baked into the map, the CHs won't match. Do we have a
+        // cached alternative?
+        if let Some(alt) = self
+            .cached_alternatives
+            .get_or(|| RefCell::new(VecMap::new()))
+            .borrow()
+            .get(&(constraints, params.clone()))
+        {
+            return alt.pathfind_with_params(req, params, false, map);
         }
+
+        // If somebody's repeatedly calling this without caching, log very obnoxiously.
+        let mut timer = Timer::new(format!("Pathfinding slowly for {} with custom params", req));
+        let tmp_pathfinder = Pathfinder::new_for_one_mode(
+            map,
+            params.clone(),
+            CreateEngine::Dijkstra,
+            constraints,
+            &mut timer,
+        );
+        let result = tmp_pathfinder.pathfind_with_params(req, params, false, map);
+        if cache_custom {
+            self.cached_alternatives
+                .get_or(|| RefCell::new(VecMap::new()))
+                .borrow_mut()
+                .push((constraints, params.clone()), tmp_pathfinder);
+        }
+        result
     }
 
     pub fn all_costs_from(

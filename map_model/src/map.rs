@@ -570,8 +570,14 @@ impl Map {
     pub fn pathfind(&self, req: PathRequest) -> Result<Path> {
         self.pathfind_v2(req)?.into_v1(self)
     }
-    pub fn pathfind_with_params(&self, req: PathRequest, params: &RoutingParams) -> Result<Path> {
-        self.pathfind_v2_with_params(req, params)?.into_v1(self)
+    pub fn pathfind_with_params(
+        &self,
+        req: PathRequest,
+        params: &RoutingParams,
+        cache_custom: bool,
+    ) -> Result<Path> {
+        self.pathfind_v2_with_params(req, params, cache_custom)?
+            .into_v1(self)
     }
     pub fn pathfind_v2(&self, req: PathRequest) -> Result<PathV2> {
         assert!(!self.pathfinder_dirty);
@@ -583,10 +589,11 @@ impl Map {
         &self,
         req: PathRequest,
         params: &RoutingParams,
+        cache_custom: bool,
     ) -> Result<PathV2> {
         assert!(!self.pathfinder_dirty);
         self.pathfinder
-            .pathfind_with_params(req.clone(), params, self)
+            .pathfind_with_params(req.clone(), params, cache_custom, self)
             .ok_or_else(|| anyhow!("can't fulfill {}", req))
     }
     pub fn should_use_transit(
