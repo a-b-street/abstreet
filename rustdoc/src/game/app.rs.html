@@ -889,7 +889,7 @@
 <span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">CameraState</span>, <span class="ident">ToggleZoomed</span>};
 <span class="kw">use</span> <span class="ident">map_gui::ID</span>;
 <span class="kw">use</span> <span class="ident">map_model::AreaType</span>;
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">BufferType</span>, <span class="ident">IntersectionID</span>, <span class="ident">LaneType</span>, <span class="ident">Map</span>, <span class="ident">RoutingParams</span>, <span class="ident">Traversable</span>};
+<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">BufferType</span>, <span class="ident">IntersectionID</span>, <span class="ident">LaneType</span>, <span class="ident">Map</span>, <span class="ident">Traversable</span>};
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">AgentID</span>, <span class="ident">Analytics</span>, <span class="ident">Scenario</span>, <span class="ident">Sim</span>, <span class="ident">SimCallback</span>, <span class="ident">SimFlags</span>, <span class="ident">VehicleType</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Cached</span>, <span class="ident">Canvas</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">Prerender</span>, <span class="ident">SharedAppState</span>, <span class="ident">State</span>};
 
@@ -1607,7 +1607,7 @@
 
     <span class="comment">// Specific to the ungap tool</span>
     <span class="kw">pub</span> <span class="ident">elevation_contours</span>: <span class="ident">Cached</span><span class="op">&lt;</span><span class="ident">MapName</span>, (<span class="ident">FindClosest</span><span class="op">&lt;</span><span class="ident">Distance</span><span class="op">&gt;</span>, <span class="ident">ToggleZoomed</span>)<span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">routing_params</span>: <span class="ident">RoutingParams</span>,
+    <span class="kw">pub</span> <span class="ident">routing_preferences</span>: <span class="kw">crate</span><span class="ident">::ungap::RoutingPreferences</span>,
     <span class="comment">// Map and edit change key</span>
     <span class="kw">pub</span> <span class="ident">mode_shift</span>: <span class="ident">Cached</span><span class="op">&lt;</span>(<span class="ident">MapName</span>, <span class="ident">usize</span>), <span class="kw">crate</span><span class="ident">::ungap::ModeShiftData</span><span class="op">&gt;</span>,
 }
@@ -1629,7 +1629,7 @@
             <span class="ident">buffer_lane_type</span>: <span class="ident">LaneType::Buffer</span>(<span class="ident">BufferType::Stripes</span>),
 
             <span class="ident">elevation_contours</span>: <span class="ident">Cached::new</span>(),
-            <span class="ident">routing_params</span>: <span class="ident">RoutingParams::default</span>(),
+            <span class="ident">routing_preferences</span>: <span class="kw">crate</span><span class="ident">::ungap::RoutingPreferences::default</span>(),
             <span class="ident">mode_shift</span>: <span class="ident">Cached::new</span>(),
         }
     }

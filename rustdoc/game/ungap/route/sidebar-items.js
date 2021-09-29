@@ -1,1 +1,1 @@
-initSidebarItems({"constant":[["MAX_AVOID_PARAM",""]],"mod":[["files",""],["results",""]],"struct":[["RoutePlanner",""]]});
+initSidebarItems({"enum":[["Preference",""]],"mod":[["files",""],["results",""]],"struct":[["RoutePlanner",""],["RoutingPreferences",""]]});
