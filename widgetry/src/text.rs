@@ -13,7 +13,6 @@ use crate::{
 pub const DEFAULT_FONT: Font = Font::OverpassRegular;
 pub const DEFAULT_FONT_SIZE: usize = 21;
 
-pub const BG_COLOR: Color = Color::grey(0.3);
 pub const SCALE_LINE_HEIGHT: f64 = 1.2;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -216,13 +215,6 @@ impl Text {
             txt.add_line(l.into());
         }
         txt
-    }
-
-    // TODO Remove this
-    pub fn with_bg(mut self) -> Text {
-        assert!(self.bg_color.is_none());
-        self.bg_color = Some(BG_COLOR);
-        self
     }
 
     pub fn bg(mut self, bg: Color) -> Text {

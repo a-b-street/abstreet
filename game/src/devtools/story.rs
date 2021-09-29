@@ -417,7 +417,7 @@ impl Marker {
             batch.append(map_gui::tools::goal_marker(ctx, pts[0], 2.0));
             batch.append(
                 Text::from(&event)
-                    .with_bg()
+                    .bg(Color::CYAN)
                     .render_autocropped(ctx)
                     .scale(0.5)
                     .centered_on(pts[0]),
@@ -432,7 +432,7 @@ impl Marker {
             // TODO Refactor
             batch.append(
                 Text::from(&event)
-                    .with_bg()
+                    .bg(Color::CYAN)
                     .render_autocropped(ctx)
                     .scale(0.5)
                     .centered_on(poly.polylabel()),
@@ -456,7 +456,7 @@ impl Marker {
             );
             batch.append(
                 Text::from(&self.event)
-                    .with_bg()
+                    .bg(Color::CYAN)
                     .render_autocropped(g)
                     .scale(0.75)
                     .centered_on(self.pts[0]),
@@ -466,7 +466,7 @@ impl Marker {
             // TODO Refactor plz
             batch.append(
                 Text::from(&self.event)
-                    .with_bg()
+                    .bg(Color::CYAN)
                     .render_autocropped(g)
                     .scale(0.75)
                     .centered_on(self.hitbox.polylabel()),

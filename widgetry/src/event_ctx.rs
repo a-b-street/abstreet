@@ -6,9 +6,8 @@ use abstutil::{elapsed_seconds, Timer, TimerSink};
 use geom::{Percent, Polygon};
 
 use crate::{
-    svg, text, Canvas, CanvasSettings, Color, Drawable, Event, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Panel, Prerender, ScreenDims, Style, Text, UserInput,
-    VerticalAlignment, Widget,
+    svg, Canvas, CanvasSettings, Color, Drawable, Event, GeomBatch, GfxCtx, HorizontalAlignment,
+    Key, Line, Panel, Prerender, ScreenDims, Style, Text, UserInput, VerticalAlignment, Widget,
 };
 
 #[derive(Clone, PartialEq, Debug)]
@@ -201,7 +200,7 @@ impl<'a> EventCtx<'a> {
                 .container()
                 .fill_width()
                 .padding(16)
-                .bg(text::BG_COLOR),
+                .bg(Color::grey(0.3)),
         ]))
         .exact_size_percent(80, 80)
         .aligned(HorizontalAlignment::Center, VerticalAlignment::Center)

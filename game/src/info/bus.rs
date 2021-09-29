@@ -355,13 +355,13 @@ fn route_body(ctx: &mut EventCtx, app: &App, details: &mut Details, id: BusRoute
             let bs = map.get_bs(*bs);
             details.draw_extra.unzoomed.append(
                 Text::from(format!("{}) {}", idx + 1, bs.name))
-                    .with_bg()
+                    .bg(app.cs.bus_layer)
                     .render_autocropped(ctx)
                     .centered_on(bs.sidewalk_pos.pt(map)),
             );
             details.draw_extra.zoomed.append(
                 Text::from(format!("{}) {}", idx + 1, bs.name))
-                    .with_bg()
+                    .bg(app.cs.bus_layer)
                     .render_autocropped(ctx)
                     .scale(0.1)
                     .centered_on(bs.sidewalk_pos.pt(map)),
