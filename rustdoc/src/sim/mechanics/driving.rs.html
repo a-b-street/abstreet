@@ -1658,6 +1658,9 @@
 <span id="1658">1658</span>
 <span id="1659">1659</span>
 <span id="1660">1660</span>
+<span id="1661">1661</span>
+<span id="1662">1662</span>
+<span id="1663">1663</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>, <span class="ident">VecDeque</span>};
 
@@ -1798,7 +1801,10 @@
                     <span class="comment">// TODO Loss of some simulation realism. We could also ban this upfront in</span>
                     <span class="comment">// leave_from_driveway by requiring a minimum lane length on all intermediate</span>
                     <span class="comment">// lanes...</span>
-                    <span class="macro">warn!</span>(<span class="string">&quot;Not inserting a static blockage on {} at {} for {} to spawn, because the lane is too short&quot;</span>, <span class="ident">lane</span>, <span class="ident">now</span>, <span class="ident">params</span>.<span class="ident">vehicle</span>.<span class="ident">id</span>);
+                    <span class="comment">// Also this is super spammy</span>
+                    <span class="kw">if</span> <span class="bool-val">false</span> {
+                        <span class="macro">warn!</span>(<span class="string">&quot;Not inserting a static blockage on {} at {} for {} to spawn, because the lane is too short&quot;</span>, <span class="ident">lane</span>, <span class="ident">now</span>, <span class="ident">params</span>.<span class="ident">vehicle</span>.<span class="ident">id</span>);
+                    }
                     <span class="kw">continue</span>;
                 }
             };

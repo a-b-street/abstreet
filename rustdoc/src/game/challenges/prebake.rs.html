@@ -135,6 +135,19 @@
 <span id="135">135</span>
 <span id="136">136</span>
 <span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">serde::Serialize</span>;
 
@@ -142,7 +155,7 @@
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">Timer</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">map_model::Map</span>;
-<span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">AlertHandler</span>, <span class="ident">Scenario</span>, <span class="ident">Sim</span>, <span class="ident">SimFlags</span>, <span class="ident">SimOptions</span>};
+<span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">AlertHandler</span>, <span class="ident">Scenario</span>, <span class="ident">ScenarioGenerator</span>, <span class="ident">Sim</span>, <span class="ident">SimFlags</span>, <span class="ident">SimOptions</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::sandbox::TutorialState</span>;
 
@@ -192,6 +205,19 @@
             <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>,
         );
         <span class="ident">summaries</span>.<span class="ident">push</span>(<span class="ident">prebake</span>(<span class="kw-2">&amp;</span><span class="ident">pbury_map</span>, <span class="ident">scenario</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>));
+    }
+
+    {
+        <span class="kw">let</span> <span class="ident">tehran_map</span> <span class="op">=</span> <span class="ident">map_model::Map::load_synchronously</span>(
+            <span class="ident">MapName::new</span>(<span class="string">&quot;ir&quot;</span>, <span class="string">&quot;tehran&quot;</span>, <span class="string">&quot;parliament&quot;</span>).<span class="ident">path</span>(),
+            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>,
+        );
+        <span class="kw">let</span> <span class="ident">scenario</span> <span class="op">=</span> <span class="ident">ScenarioGenerator::proletariat_robot</span>(
+            <span class="kw-2">&amp;</span><span class="ident">tehran_map</span>,
+            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">SimFlags::for_test</span>(<span class="string">&quot;prebaked&quot;</span>).<span class="ident">make_rng</span>(),
+            <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>,
+        );
+        <span class="ident">summaries</span>.<span class="ident">push</span>(<span class="ident">prebake</span>(<span class="kw-2">&amp;</span><span class="ident">tehran_map</span>, <span class="ident">scenario</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>));
     }
 
     <span class="comment">// Assume this is being run from the &#39;game&#39; directory. This other tests directory is the most</span>
