@@ -934,6 +934,15 @@
 <span id="934">934</span>
 <span id="935">935</span>
 <span id="936">936</span>
+<span id="937">937</span>
+<span id="938">938</span>
+<span id="939">939</span>
+<span id="940">940</span>
+<span id="941">941</span>
+<span id="942">942</span>
+<span id="943">943</span>
+<span id="944">944</span>
+<span id="945">945</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">maplit::btreeset</span>;
 
@@ -1678,7 +1687,16 @@
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">can_edit_lane</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">l</span>: <span class="ident">LaneID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
     <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>;
-    <span class="op">!</span><span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">is_light_rail</span>() <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">map</span>.<span class="ident">get_parent</span>(<span class="ident">l</span>).<span class="ident">is_service</span>()
+    <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">is_light_rail</span>() {
+        <span class="kw">return</span> <span class="bool-val">false</span>;
+    }
+    <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_parent</span>(<span class="ident">l</span>);
+    <span class="comment">// Some bus-only roads are marked as service roads; allow editing those.</span>
+    <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">is_service</span>() <span class="op">&amp;&amp;</span> <span class="ident">r</span>.<span class="ident">lanes</span>.<span class="ident">iter</span>().<span class="ident">all</span>(<span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="op">!</span><span class="ident">l</span>.<span class="ident">is_bus</span>()) {
+        <span class="kw">return</span> <span class="bool-val">false</span>;
+    }
+
+    <span class="bool-val">true</span>
 }
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">speed_limit_choices</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">preset</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Speed</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Choice</span><span class="op">&lt;</span><span class="ident">Speed</span><span class="op">&gt;</span><span class="op">&gt;</span> {
