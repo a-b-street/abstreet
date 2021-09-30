@@ -741,7 +741,16 @@ pub fn apply_map_edits(ctx: &mut EventCtx, app: &mut App, edits: MapEdits) {
 
 pub fn can_edit_lane(app: &App, l: LaneID) -> bool {
     let map = &app.primary.map;
-    !map.get_l(l).is_light_rail() && !map.get_parent(l).is_service()
+    if map.get_l(l).is_light_rail() {
+        return false;
+    }
+    let r = map.get_parent(l);
+    // Some bus-only roads are marked as service roads; allow editing those.
+    if r.is_service() && r.lanes.iter().all(|l| !l.is_bus()) {
+        return false;
+    }
+
+    true
 }
 
 pub fn speed_limit_choices(app: &App, preset: Option<Speed>) -> Vec<Choice<Speed>> {
