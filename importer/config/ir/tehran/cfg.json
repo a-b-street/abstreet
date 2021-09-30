@@ -12,5 +12,5 @@
     "FixedPerBldg": 10
   },
   "include_railroads": true,
-  "extra_buildings": null
+  "extra_buildings": "data/input/ir/tehran/procgen_houses.json"
 }

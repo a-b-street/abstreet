@@ -4,7 +4,7 @@ use abstio::MapName;
 use abstutil::{prettyprint_usize, Timer};
 use geom::{Duration, Time};
 use map_model::Map;
-use sim::{AlertHandler, Scenario, Sim, SimFlags, SimOptions};
+use sim::{AlertHandler, Scenario, ScenarioGenerator, Sim, SimFlags, SimOptions};
 
 use crate::sandbox::TutorialState;
 
@@ -54,6 +54,19 @@ pub fn prebake_all() {
             &mut timer,
         );
         summaries.push(prebake(&pbury_map, scenario, &mut timer));
+    }
+
+    {
+        let tehran_map = map_model::Map::load_synchronously(
+            MapName::new("ir", "tehran", "parliament").path(),
+            &mut timer,
+        );
+        let scenario = ScenarioGenerator::proletariat_robot(
+            &tehran_map,
+            &mut SimFlags::for_test("prebaked").make_rng(),
+            &mut timer,
+        );
+        summaries.push(prebake(&tehran_map, scenario, &mut timer));
     }
 
     // Assume this is being run from the 'game' directory. This other tests directory is the most

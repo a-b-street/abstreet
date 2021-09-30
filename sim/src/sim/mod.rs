@@ -9,7 +9,7 @@ use rand::SeedableRng;
 use rand_xorshift::XorShiftRng;
 use serde::{Deserialize, Serialize};
 
-use abstio::MapName;
+use abstio::{CityName, MapName};
 use abstutil::{prettyprint_usize, serialized_size_bytes, CmdArgs, Timer};
 use geom::{Distance, Duration, Speed, Time};
 use map_model::{
@@ -198,10 +198,16 @@ impl Sim {
             || map.get_name() == &MapName::seattle("aurora_central")
             || map.get_name() == &MapName::seattle("aurora_north")
             || map.get_name() == &MapName::seattle("aurora_south")
+            || map.get_name().city == CityName::new("ir", "tehran")
             || map.get_name() == &MapName::new("gb", "poundbury", "center")
             || map.get_name() == &MapName::new("us", "phoenix", "tempe")
         {
             opts.infinite_parking = true;
+        }
+
+        // Hack around simulation bugs to get a Tehran map running.
+        if map.get_name() == &MapName::new("ir", "tehran", "parliament") {
+            opts.dont_block_the_box = false;
         }
 
         Sim {

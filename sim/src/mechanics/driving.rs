@@ -137,7 +137,10 @@ impl DrivingSimState {
                     // TODO Loss of some simulation realism. We could also ban this upfront in
                     // leave_from_driveway by requiring a minimum lane length on all intermediate
                     // lanes...
-                    warn!("Not inserting a static blockage on {} at {} for {} to spawn, because the lane is too short", lane, now, params.vehicle.id);
+                    // Also this is super spammy
+                    if false {
+                        warn!("Not inserting a static blockage on {} at {} for {} to spawn, because the lane is too short", lane, now, params.vehicle.id);
+                    }
                     continue;
                 }
             };

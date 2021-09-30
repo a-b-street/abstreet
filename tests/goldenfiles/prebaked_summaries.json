@@ -4,62 +4,62 @@
     "scenario": "weekday",
     "finished_trips": 76618,
     "cancelled_trips": 0,
-    "total_trip_duration_seconds": 52717120.57450038
-  },
-  {
-    "map": "greenlake (in seattle (us))",
-    "scenario": "weekday",
-    "finished_trips": 136862,
-    "cancelled_trips": 16,
-    "total_trip_duration_seconds": 78628473.33629867
+    "total_trip_duration_seconds": 51747112.72399941
   },
   {
     "map": "montlake (in seattle (us))",
     "scenario": "weekday",
-    "finished_trips": 36709,
-    "cancelled_trips": 87,
-    "total_trip_duration_seconds": 22634994.656100187
+    "finished_trips": 36706,
+    "cancelled_trips": 90,
+    "total_trip_duration_seconds": 22717800.186400127
   },
   {
     "map": "lakeslice (in seattle (us))",
     "scenario": "weekday",
-    "finished_trips": 260913,
-    "cancelled_trips": 4903,
-    "total_trip_duration_seconds": 202932284.02739626
+    "finished_trips": 260914,
+    "cancelled_trips": 4902,
+    "total_trip_duration_seconds": 201405693.34539455
   },
   {
     "map": "wallingford (in seattle (us))",
     "scenario": "weekday",
     "finished_trips": 133431,
     "cancelled_trips": 0,
-    "total_trip_duration_seconds": 69379895.05850038
+    "total_trip_duration_seconds": 69231506.80130064
   },
   {
     "map": "center (in poundbury (gb))",
     "scenario": "base",
     "finished_trips": 8544,
     "cancelled_trips": 4,
-    "total_trip_duration_seconds": 7855378.835599992
+    "total_trip_duration_seconds": 7875686.524899973
   },
   {
     "map": "center (in poundbury (gb))",
     "scenario": "go_active",
     "finished_trips": 8550,
     "cancelled_trips": 8,
-    "total_trip_duration_seconds": 9588682.029699976
+    "total_trip_duration_seconds": 9621742.610499995
   },
   {
     "map": "center (in poundbury (gb))",
     "scenario": "base_with_bg",
     "finished_trips": 23734,
     "cancelled_trips": 260,
-    "total_trip_duration_seconds": 22644126.649200022
+    "total_trip_duration_seconds": 22688766.85819996
   },
   {
     "map": "center (in poundbury (gb))",
     "scenario": "go_active_with_bg",
     "finished_trips": 23740,
     "cancelled_trips": 264,
-    "total_trip_duration_seconds": 24476199.420600023
+    "total_trip_duration_seconds": 24443832.929799832
+  },
+  {
+    "map": "parliament (in tehran (ir))",
+    "scenario": "random people going to and from work",
+    "finished_trips": 29049,
+    "cancelled_trips": 16755,
+    "total_trip_duration_seconds": 41895811.17699998
   }
 ]

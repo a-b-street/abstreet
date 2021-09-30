@@ -1405,6 +1405,16 @@
       "uncompressed_size_bytes": 168661077,
       "compressed_size_bytes": 168485097
     },
+    "data/input/ir/tehran/osm/parliament.osm": {
+      "checksum": "0e76414e8776e135a3eeb06a0c12d42f",
+      "uncompressed_size_bytes": 1975569,
+      "compressed_size_bytes": 248366
+    },
+    "data/input/ir/tehran/procgen_houses.json": {
+      "checksum": "6832a39ca80a928a1190fafc691d416f",
+      "uncompressed_size_bytes": 2216401,
+      "compressed_size_bytes": 242372
+    },
     "data/input/ir/tehran/raw_maps/boundary0.bin": {
       "checksum": "93a5ef4042f2c4c54ddb087d90584b79",
       "uncompressed_size_bytes": 2531004,
@@ -1426,9 +1436,9 @@
       "compressed_size_bytes": 667864
     },
     "data/input/ir/tehran/raw_maps/boundary4.bin": {
-      "checksum": "74d1ef25ea79673825375086714a8c51",
-      "uncompressed_size_bytes": 13122765,
-      "compressed_size_bytes": 1579629
+      "checksum": "6e41ed801b71a10369d0b0b8bd3c887e",
+      "uncompressed_size_bytes": 13328405,
+      "compressed_size_bytes": 1649145
     },
     "data/input/ir/tehran/raw_maps/boundary5.bin": {
       "checksum": "0a91b91bacab737027ec1ddb82d02c2f",
@@ -1436,19 +1446,24 @@
       "compressed_size_bytes": 656407
     },
     "data/input/ir/tehran/raw_maps/boundary6.bin": {
-      "checksum": "3a6e3ab1bd89d7904b8df51dd68a53d8",
-      "uncompressed_size_bytes": 7031476,
-      "compressed_size_bytes": 1041347
+      "checksum": "e93ce0b0f1fee4dc470179b48c8712bc",
+      "uncompressed_size_bytes": 7041016,
+      "compressed_size_bytes": 1044757
     },
     "data/input/ir/tehran/raw_maps/boundary7.bin": {
-      "checksum": "3b886c427a3e3f4ccd2767a02a253b90",
-      "uncompressed_size_bytes": 12053858,
-      "compressed_size_bytes": 1464893
+      "checksum": "7e1f0c290b95a0c1c2d1c2eb2ad561b1",
+      "uncompressed_size_bytes": 12343980,
+      "compressed_size_bytes": 1562481
     },
     "data/input/ir/tehran/raw_maps/boundary8.bin": {
       "checksum": "e45074675fac68549950cf28543bc758",
       "uncompressed_size_bytes": 4670781,
       "compressed_size_bytes": 594330
+    },
+    "data/input/ir/tehran/raw_maps/parliament.bin": {
+      "checksum": "34f2e9c0478d623006c6bc6be65d35b0",
+      "uncompressed_size_bytes": 1688881,
+      "compressed_size_bytes": 304855
     },
     "data/input/jp/hiroshima/osm/chugoku-latest.osm.pbf": {
       "checksum": "90f8c145f6be9bcc5f953a74963026e9",
@@ -3816,9 +3831,9 @@
       "compressed_size_bytes": 14789895
     },
     "data/system/ir/tehran/city.bin": {
-      "checksum": "05d74e3ec18162d7bc4e089645f60c11",
-      "uncompressed_size_bytes": 605490,
-      "compressed_size_bytes": 366362
+      "checksum": "58ed8c751092a59a28685ab73bca10c5",
+      "uncompressed_size_bytes": 613751,
+      "compressed_size_bytes": 371230
     },
     "data/system/ir/tehran/maps/boundary0.bin": {
       "checksum": "c7a6afa1074279b89ef82c49ab5ee854",
@@ -3841,9 +3856,9 @@
       "compressed_size_bytes": 8413759
     },
     "data/system/ir/tehran/maps/boundary4.bin": {
-      "checksum": "56b3d1da2c66d9cc1ebebeec53c522ce",
-      "uncompressed_size_bytes": 70714162,
-      "compressed_size_bytes": 23491317
+      "checksum": "15bb73c2287c940a18c632ada407cbc0",
+      "uncompressed_size_bytes": 71132659,
+      "compressed_size_bytes": 23629780
     },
     "data/system/ir/tehran/maps/boundary5.bin": {
       "checksum": "9d2df742584e7a57f4c01f81c779073a",
@@ -3851,19 +3866,29 @@
       "compressed_size_bytes": 10179913
     },
     "data/system/ir/tehran/maps/boundary6.bin": {
-      "checksum": "efb4f86821b513adc9742e55f33c74e4",
-      "uncompressed_size_bytes": 31940749,
-      "compressed_size_bytes": 10422561
+      "checksum": "134c50ac95141047a580363c337912e2",
+      "uncompressed_size_bytes": 31959970,
+      "compressed_size_bytes": 10430504
     },
     "data/system/ir/tehran/maps/boundary7.bin": {
-      "checksum": "978c37b2028d36768bcf06fe3bd544a1",
-      "uncompressed_size_bytes": 56008586,
-      "compressed_size_bytes": 18368060
+      "checksum": "5a9f579862803457edc6023dc2b443da",
+      "uncompressed_size_bytes": 56594545,
+      "compressed_size_bytes": 18571175
     },
     "data/system/ir/tehran/maps/boundary8.bin": {
       "checksum": "cad70349fb90ad225bff4010f54f6c79",
       "uncompressed_size_bytes": 24829560,
       "compressed_size_bytes": 8297457
+    },
+    "data/system/ir/tehran/maps/parliament.bin": {
+      "checksum": "5771375ae82bd5cecd7085545d3f0c6c",
+      "uncompressed_size_bytes": 6084989,
+      "compressed_size_bytes": 1969204
+    },
+    "data/system/ir/tehran/prebaked_results/parliament/random people going to and from work.bin": {
+      "checksum": "f34ef59a2eedbf745255db758d7a55ed",
+      "uncompressed_size_bytes": 7068775,
+      "compressed_size_bytes": 2486509
     },
     "data/system/jp/hiroshima/maps/uni.bin": {
       "checksum": "886d4ce022cd8e3480378029176edefe",
