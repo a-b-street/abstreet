@@ -6,7 +6,7 @@ use aabb_quadtree::{ItemId, QuadTree};
 
 use geom::{Bounds, Circle, Distance, Polygon, Pt2D};
 
-use crate::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, MultiKey, RewriteColor};
+use crate::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, MultiKey, RewriteColor, Text};
 
 // TODO Tests...
 // - start drag in screenspace, release in map
@@ -19,6 +19,8 @@ pub struct World<ID: ObjectID> {
     // TODO Hashing may be too slow in some cases
     objects: HashMap<ID, Object<ID>>,
     quadtree: QuadTree<ID>,
+
+    draw_master_batches: Vec<Drawable>,
 
     hovering: Option<ID>,
     // If we're currently dragging, where was the cursor during the last movement, and has the
@@ -52,6 +54,7 @@ pub struct ObjectBuilder<'a, ID: ObjectID> {
     zorder: usize,
     draw_normal: Option<GeomBatch>,
     draw_hover: Option<GeomBatch>,
+    tooltip: Option<Text>,
     clickable: bool,
     draggable: bool,
     keybindings: Vec<(MultiKey, &'static str)>,
@@ -88,6 +91,15 @@ impl<'a, ID: ObjectID> ObjectBuilder<'a, ID> {
         self.draw(GeomBatch::from(vec![(color, hitbox)]))
     }
 
+    /// Indicate that an object doesn't need to be drawn individually. A call to `draw_master_batch` covers it.
+    pub fn drawn_in_master_batch(self) -> Self {
+        assert!(
+            self.draw_normal.is_none(),
+            "object is already drawn normally"
+        );
+        self.draw(GeomBatch::new())
+    }
+
     /// Specifies how to draw the object while the cursor is hovering on it. Note that an object
     /// isn't considered hoverable unless this is specified!
     pub fn draw_hovered(mut self, batch: GeomBatch) -> Self {
@@ -107,6 +119,19 @@ impl<'a, ID: ObjectID> ObjectBuilder<'a, ID> {
             .expect("first specify how to draw normally")
             .color(RewriteColor::ChangeAlpha(alpha));
         self.draw_hovered(batch)
+    }
+
+    /// Draw a tooltip while hovering over this object.
+    pub fn tooltip(mut self, txt: Text) -> Self {
+        assert!(self.tooltip.is_none(), "already specified tooltip");
+        // TODO Or should this implicitly mark the object as hoverable? Is it weird to base this
+        // off drawing?
+        assert!(
+            self.draw_hover.is_some(),
+            "first specify how to draw hovered"
+        );
+        self.tooltip = Some(txt);
+        self
     }
 
     /// Mark the object as clickable. `WorldOutcome::ClickedObject` will be fired.
@@ -156,6 +181,7 @@ impl<'a, ID: ObjectID> ObjectBuilder<'a, ID> {
                         .expect("didn't specify how to draw normally"),
                 ),
                 draw_hover: self.draw_hover.take().map(|batch| ctx.upload(batch)),
+                tooltip: self.tooltip,
                 clickable: self.clickable,
                 draggable: self.draggable,
                 keybindings: self.keybindings,
@@ -171,6 +197,7 @@ struct Object<ID: ObjectID> {
     zorder: usize,
     draw_normal: Drawable,
     draw_hover: Option<Drawable>,
+    tooltip: Option<Text>,
     clickable: bool,
     draggable: bool,
     // TODO How should we communicate these keypresses are possible? Something standard, like
@@ -188,6 +215,8 @@ impl<ID: ObjectID> World<ID> {
                     .as_bbox(),
             ),
 
+            draw_master_batches: Vec::new(),
+
             hovering: None,
             dragging_from: None,
         }
@@ -198,6 +227,8 @@ impl<ID: ObjectID> World<ID> {
         World {
             objects: HashMap::new(),
             quadtree: QuadTree::default(bounds.as_bbox()),
+
+            draw_master_batches: Vec::new(),
 
             hovering: None,
             dragging_from: None,
@@ -216,6 +247,7 @@ impl<ID: ObjectID> World<ID> {
             zorder: 0,
             draw_normal: None,
             draw_hover: None,
+            tooltip: None,
             clickable: false,
             draggable: false,
             keybindings: Vec::new(),
@@ -235,6 +267,12 @@ impl<ID: ObjectID> World<ID> {
     /// to preserve the ongoing drag.
     pub fn rebuilt_during_drag(&mut self, prev_world: &World<ID>) {
         self.dragging_from = prev_world.dragging_from;
+    }
+
+    /// Draw something underneath all objects. This is useful for performance, when a large number
+    /// of objects never change appearance.
+    pub fn draw_master_batch(&mut self, draw: Drawable) {
+        self.draw_master_batches.push(draw);
     }
 
     /// Let objects in the world respond to something happening.
@@ -353,6 +391,11 @@ impl<ID: ObjectID> World<ID> {
 
     /// Draw objects in the world that're currently visible.
     pub fn draw(&self, g: &mut GfxCtx) {
+        // Always draw master batches first
+        for draw in &self.draw_master_batches {
+            g.redraw(draw);
+        }
+
         let mut objects = Vec::new();
         for &(id, _, _) in &self.quadtree.query(g.get_screen_bounds().as_bbox()) {
             objects.push(*id);
@@ -360,13 +403,35 @@ impl<ID: ObjectID> World<ID> {
         objects.sort_by_key(|id| self.objects[id].zorder);
 
         for id in objects {
+            let mut drawn = false;
+            let obj = &self.objects[&id];
             if Some(id) == self.hovering {
-                if let Some(ref draw) = self.objects[&id].draw_hover {
+                if let Some(ref draw) = obj.draw_hover {
                     g.redraw(draw);
-                    continue;
+                    drawn = true;
+                }
+                if let Some(ref txt) = obj.tooltip {
+                    g.draw_mouse_tooltip(txt.clone());
                 }
             }
-            g.redraw(&self.objects[&id].draw_normal);
+            if !drawn {
+                g.redraw(&obj.draw_normal);
+            }
         }
+    }
+}
+
+/// If you don't ever need to refer to objects in a `World`, you can auto-assign dummy IDs.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+pub struct DummyID(usize);
+impl ObjectID for DummyID {}
+
+impl World<DummyID> {
+    /// Begin adding an unnamed object to the `World`.
+    ///
+    /// Note: You must call `build` on this object before calling `add_unnamed` again. Otherwise,
+    /// the object IDs will collide.
+    pub fn add_unnamed<'a>(&'a mut self) -> ObjectBuilder<'a, DummyID> {
+        self.add(DummyID(self.objects.len()))
     }
 }

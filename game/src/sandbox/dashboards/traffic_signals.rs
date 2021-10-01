@@ -1,26 +1,24 @@
 use std::collections::HashMap;
 
 use abstutil::{prettyprint_usize, Counter, Timer};
-use geom::{ArrowCap, Distance, Duration, Polygon, Time};
+use geom::{ArrowCap, Distance, Duration, Time};
 use map_gui::render::DrawOptions;
-use map_gui::ID;
-use map_model::{Intersection, IntersectionID, MovementID, PathStep, TurnType};
+use map_model::{IntersectionID, MovementID, PathStep, TurnType};
 use sim::TripEndpoint;
+use widgetry::mapspace::{DummyID, World};
 use widgetry::{
-    Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
-    Outcome, Panel, Spinner, State, Text, TextExt, VerticalAlignment, Widget,
+    Color, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
+    Panel, Spinner, State, Text, TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, ShowEverything, Transition};
-use crate::common::CommonState;
 use crate::sandbox::dashboards::DashTab;
 
 pub struct TrafficSignalDemand {
     panel: Panel,
     all_demand: HashMap<IntersectionID, Demand>,
     hour: Time,
-    draw_all: Drawable,
-    selected: Option<(Drawable, Text)>,
+    world: World<DummyID>,
 }
 
 impl TrafficSignalDemand {
@@ -34,12 +32,10 @@ impl TrafficSignalDemand {
         app.primary.suspended_sim = Some(app.primary.clear_sim());
 
         let hour = Time::START_OF_DAY;
-        let draw_all = Demand::draw_demand(ctx, app, &all_demand, hour);
-        Box::new(TrafficSignalDemand {
+        let mut state = TrafficSignalDemand {
             all_demand,
             hour,
-            draw_all,
-            selected: None,
+            world: World::unbounded(),
             panel: Panel::new_builder(Widget::col(vec![
                 DashTab::TrafficSignals.picker(ctx, app),
                 Text::from_all(vec![
@@ -63,41 +59,58 @@ impl TrafficSignalDemand {
             ]))
             .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
             .build(ctx),
-        })
+        };
+        state.rebuild_world(ctx, app);
+        Box::new(state)
+    }
+
+    fn rebuild_world(&mut self, ctx: &mut EventCtx, app: &App) {
+        let mut world = World::bounded(app.primary.map.get_bounds());
+
+        let mut draw_all = GeomBatch::new();
+        for (i, demand) in &self.all_demand {
+            let cnt_per_movement = demand.count(self.hour);
+            let total_demand = cnt_per_movement.sum();
+
+            let mut outlines = Vec::new();
+            for (movement, cnt) in cnt_per_movement.consume() {
+                let percent = (cnt as f64) / (total_demand as f64);
+                let arrow = app.primary.map.get_i(*i).movements[&movement]
+                    .geom
+                    .make_arrow(percent * Distance::meters(3.0), ArrowCap::Triangle);
+
+                let mut draw_hovered = GeomBatch::new();
+                if let Ok(p) = arrow.to_outline(Distance::meters(0.1)) {
+                    outlines.push(p.clone());
+                    draw_hovered.push(Color::WHITE, p);
+                }
+                draw_all.push(Color::hex("#A3A3A3"), arrow.clone());
+                draw_hovered.push(Color::hex("#EE702E"), arrow.clone());
+
+                world
+                    .add_unnamed()
+                    .hitbox(arrow)
+                    .drawn_in_master_batch()
+                    .draw_hovered(draw_hovered)
+                    .tooltip(Text::from(format!(
+                        "{} / {}",
+                        prettyprint_usize(cnt),
+                        prettyprint_usize(total_demand)
+                    )))
+                    .build(ctx);
+            }
+            draw_all.extend(Color::WHITE, outlines);
+        }
+        world.draw_master_batch(ctx.upload(draw_all));
+
+        world.initialize_hover(ctx);
+        self.world = world;
     }
 }
 
 impl State<App> for TrafficSignalDemand {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        ctx.canvas_movement();
-        // TODO Use MapspaceTooltips here?
-        if ctx.redo_mouseover() {
-            self.selected = None;
-            app.recalculate_current_selection(ctx);
-            if let Some(ID::Intersection(i)) = app.primary.current_selection.take() {
-                let i = app.primary.map.get_i(i);
-                if i.is_traffic_signal() {
-                    // If we're mousing over something, the cursor is on the map.
-                    let pt = ctx.canvas.get_cursor_in_map_space().unwrap();
-                    for (arrow, count) in self.all_demand[&i.id].make_arrows(i, self.hour) {
-                        if arrow.contains_pt(pt) {
-                            let mut batch = GeomBatch::new();
-                            batch.push(Color::hex("#EE702E"), arrow.clone());
-                            if let Ok(p) = arrow.to_outline(Distance::meters(0.1)) {
-                                batch.push(Color::WHITE, p);
-                            }
-                            let txt = Text::from(format!(
-                                "{} / {}",
-                                prettyprint_usize(count),
-                                self.all_demand[&i.id].count(self.hour).sum()
-                            ));
-                            self.selected = Some((ctx.upload(batch), txt));
-                            break;
-                        }
-                    }
-                }
-            }
-        }
+        self.world.event(ctx);
 
         let mut changed = false;
         match self.panel.event(ctx) {
@@ -128,7 +141,7 @@ impl State<App> for TrafficSignalDemand {
         }
         if changed {
             self.hour = Time::START_OF_DAY + self.panel.spinner("hour");
-            self.draw_all = Demand::draw_demand(ctx, app, &self.all_demand, self.hour);
+            self.rebuild_world(ctx, app);
         }
 
         Transition::Keep
@@ -144,14 +157,8 @@ impl State<App> for TrafficSignalDemand {
             .extend(self.all_demand.keys().cloned());
         app.draw(g, opts, &ShowEverything::new());
 
-        g.redraw(&self.draw_all);
-        if let Some((ref draw, ref count)) = self.selected {
-            g.redraw(draw);
-            g.draw_mouse_tooltip(count.clone());
-        }
-
         self.panel.draw(g);
-        CommonState::draw_osd(g, app);
+        self.world.draw(g);
     }
 }
 
@@ -218,40 +225,5 @@ impl Demand {
             }
         }
         cnt
-    }
-
-    fn make_arrows(&self, i: &Intersection, hour: Time) -> Vec<(Polygon, usize)> {
-        let cnt = self.count(hour);
-        let total_demand = cnt.sum() as f64;
-
-        let mut arrows = Vec::new();
-        for (m, demand) in cnt.consume() {
-            let percent = (demand as f64) / total_demand;
-            let arrow = i.movements[&m]
-                .geom
-                .make_arrow(percent * Distance::meters(3.0), ArrowCap::Triangle);
-            arrows.push((arrow, demand));
-        }
-        arrows
-    }
-
-    fn draw_demand(
-        ctx: &mut EventCtx,
-        app: &App,
-        all_demand: &HashMap<IntersectionID, Demand>,
-        hour: Time,
-    ) -> Drawable {
-        let mut batch = GeomBatch::new();
-        for (i, demand) in all_demand {
-            let mut outlines = Vec::new();
-            for (arrow, _) in demand.make_arrows(app.primary.map.get_i(*i), hour) {
-                if let Ok(p) = arrow.to_outline(Distance::meters(0.1)) {
-                    outlines.push(p);
-                }
-                batch.push(Color::hex("#A3A3A3"), arrow);
-            }
-            batch.extend(Color::WHITE, outlines);
-        }
-        ctx.upload(batch)
     }
 }
