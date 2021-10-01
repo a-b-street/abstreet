@@ -148,7 +148,7 @@ impl State<App> for DevToolsMode {
                     return Transition::Push(kml::ViewKML::new_state(ctx, app, None));
                 }
                 "story maps" => {
-                    return Transition::Push(story::StoryMapEditor::new_state(ctx));
+                    return Transition::Push(story::StoryMapEditor::new_state(ctx, app));
                 }
                 "collisions" => {
                     return Transition::Push(collisions::CollisionsViewer::new_state(ctx, app));
