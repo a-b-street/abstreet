@@ -93,6 +93,7 @@ mod event;
 mod event_ctx;
 mod geom;
 mod input;
+pub mod mapspace;
 mod runner;
 mod screen_geom;
 mod style;

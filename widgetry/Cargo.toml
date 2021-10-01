@@ -9,6 +9,7 @@ native-backend = ["glutin", "usvg/system-fonts", "usvg/text"]
 wasm-backend = ["instant/wasm-bindgen", "usvg/text", "wasm-bindgen", "web-sys", "winit/web-sys"]
 
 [dependencies]
+aabb-quadtree = "0.1.0"
 abstutil = { path = "../abstutil" }
 anyhow = "1.0.38"
 # backtrace = "0.3.40"

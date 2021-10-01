@@ -104,9 +104,10 @@ impl State<App> for DevToolsMode {
                         .filter(|path| path.ends_with(".poly"))
                         .map(|path| Choice::new(abstutil::basename(&path), path))
                         .collect(),
-                        Box::new(|path, ctx, _| match LonLat::read_osmosis_polygon(&path) {
+                        Box::new(|path, ctx, app| match LonLat::read_osmosis_polygon(&path) {
                             Ok(pts) => Transition::Replace(polygon::PolygonEditor::new_state(
                                 ctx,
+                                app,
                                 abstutil::basename(path),
                                 pts,
                             )),
@@ -120,6 +121,7 @@ impl State<App> for DevToolsMode {
                 "draw a polygon" => {
                     return Transition::Push(polygon::PolygonEditor::new_state(
                         ctx,
+                        app,
                         "name goes here".to_string(),
                         Vec::new(),
                     ));
