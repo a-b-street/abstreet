@@ -21,8 +21,9 @@ pub struct World<ID: ObjectID> {
     quadtree: QuadTree<ID>,
 
     hovering: Option<ID>,
-    // If we're currently dragging, where was the cursor during the last movement?
-    dragging_from: Option<Pt2D>,
+    // If we're currently dragging, where was the cursor during the last movement, and has the
+    // cursor moved since starting the drag?
+    dragging_from: Option<(Pt2D, bool)>,
 }
 
 /// The result of a `World` handling an event
@@ -33,6 +34,8 @@ pub enum WorldOutcome<ID: ObjectID> {
     Dragging { obj: ID, dx: f64, dy: f64 },
     /// While hovering on an object with a defined hotkey, that key was pressed.
     Keypress(&'static str, ID),
+    /// A hoverable object was clicked
+    ClickedObject(ID),
     /// Nothing interesting happened
     Nothing,
 }
@@ -49,6 +52,7 @@ pub struct ObjectBuilder<'a, ID: ObjectID> {
     zorder: usize,
     draw_normal: Option<GeomBatch>,
     draw_hover: Option<GeomBatch>,
+    clickable: bool,
     draggable: bool,
     keybindings: Vec<(MultiKey, &'static str)>,
 }
@@ -105,6 +109,13 @@ impl<'a, ID: ObjectID> ObjectBuilder<'a, ID> {
         self.draw_hovered(batch)
     }
 
+    /// Mark the object as clickable. `WorldOutcome::ClickedObject` will be fired.
+    pub fn clickable(mut self) -> Self {
+        assert!(!self.clickable, "called clickable twice");
+        self.clickable = true;
+        self
+    }
+
     /// Mark the object as draggable. The user can hover on this object, then click and drag it.
     /// `WorldOutcome::Dragging` events will be fired.
     ///
@@ -145,6 +156,7 @@ impl<'a, ID: ObjectID> ObjectBuilder<'a, ID> {
                         .expect("didn't specify how to draw normally"),
                 ),
                 draw_hover: self.draw_hover.take().map(|batch| ctx.upload(batch)),
+                clickable: self.clickable,
                 draggable: self.draggable,
                 keybindings: self.keybindings,
             },
@@ -159,6 +171,7 @@ struct Object<ID: ObjectID> {
     zorder: usize,
     draw_normal: Drawable,
     draw_hover: Option<Drawable>,
+    clickable: bool,
     draggable: bool,
     // TODO How should we communicate these keypresses are possible? Something standard, like
     // button tooltips?
@@ -203,6 +216,7 @@ impl<ID: ObjectID> World<ID> {
             zorder: 0,
             draw_normal: None,
             draw_hover: None,
+            clickable: false,
             draggable: false,
             keybindings: Vec::new(),
         }
@@ -225,9 +239,15 @@ impl<ID: ObjectID> World<ID> {
 
     /// Let objects in the world respond to something happening.
     pub fn event(&mut self, ctx: &mut EventCtx) -> WorldOutcome<ID> {
-        if let Some(drag_from) = self.dragging_from {
+        if let Some((drag_from, moved)) = self.dragging_from {
             if ctx.input.left_mouse_button_released() {
                 self.dragging_from = None;
+                // For objects that're both clickable and draggable, we don't know what the user is
+                // doing until they release the mouse!
+                if !moved && self.objects[&self.hovering.unwrap()].clickable {
+                    return WorldOutcome::ClickedObject(self.hovering.unwrap());
+                }
+
                 self.hovering = ctx
                     .canvas
                     .get_cursor_in_map_space()
@@ -243,7 +263,7 @@ impl<ID: ObjectID> World<ID> {
                 if let Some(cursor) = ctx.canvas.get_cursor_in_map_space() {
                     let dx = cursor.x() - drag_from.x();
                     let dy = cursor.y() - drag_from.y();
-                    self.dragging_from = Some(cursor);
+                    self.dragging_from = Some((cursor, true));
                     return WorldOutcome::Dragging {
                         obj: self.hovering.unwrap(),
                         dx,
@@ -272,10 +292,16 @@ impl<ID: ObjectID> World<ID> {
         if let Some(id) = self.hovering {
             let obj = &self.objects[&id];
 
+            // For objects both clickable and draggable, the branch below will win, and we'll
+            // detect a normal click elsewhere.
+            if obj.clickable && ctx.normal_left_click() {
+                return WorldOutcome::ClickedObject(id);
+            }
+
             if obj.draggable {
                 allow_panning = false;
                 if ctx.input.left_mouse_button_pressed() {
-                    self.dragging_from = Some(cursor);
+                    self.dragging_from = Some((cursor, false));
                     return WorldOutcome::Nothing;
                 }
             }

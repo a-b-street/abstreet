@@ -1,177 +1,177 @@
 use serde::{Deserialize, Serialize};
 
-use geom::{Distance, LonLat, PolyLine, Polygon, Pt2D, Ring};
+use geom::{Distance, LonLat, PolyLine, Pt2D, Ring};
 use map_gui::render::DrawOptions;
 use map_gui::tools::{ChooseSomething, PromptInput};
+use widgetry::mapspace::{ObjectID, World, WorldOutcome};
 use widgetry::{
-    lctrl, Choice, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx,
-    HorizontalAlignment, Key, Line, Outcome, Panel, RewriteColor, State, Text, TextBox,
-    VerticalAlignment, Widget,
+    lctrl, Choice, Color, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
+    Line, Outcome, Panel, SimpleState, State, Text, TextBox, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, ShowEverything, Transition};
-use crate::common::CommonState;
-
-// TODO This is a really great example of things that widgetry ought to make easier. Maybe a radio
-// button-ish thing to start?
 
 // Good inspiration: http://sfo-assess.dha.io/, https://github.com/mapbox/storytelling,
 // https://storymap.knightlab.com/
 
+/// A simple tool to place markers and free-hand shapes over a map, then label them.
 pub struct StoryMapEditor {
     panel: Panel,
     story: StoryMap,
-    mode: Mode,
+    world: World<MarkerID>,
+
     dirty: bool,
-
-    // Index into story.markers
-    // TODO Stick in Mode::View?
-    hovering: Option<usize>,
 }
 
-#[allow(clippy::large_enum_variant)]
-enum Mode {
-    View,
-    PlacingMarker,
-    Dragging(Pt2D, usize),
-    Editing(usize, Panel),
-    Freehand(Option<Lasso>),
-}
+// TODO We'll constantly rebuild the world, so these are indices into a list of markers. Maybe we
+// should just assign opaque IDs and hash into them. (Deleting a marker in the middle of the list
+// would mean changing IDs of everything after it.)
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+struct MarkerID(usize);
+impl ObjectID for MarkerID {}
 
 impl StoryMapEditor {
-    pub fn new_state(ctx: &mut EventCtx) -> Box<dyn State<App>> {
-        let story = StoryMap::new();
-        let mode = Mode::View;
-        let dirty = false;
-        Box::new(StoryMapEditor {
-            panel: make_panel(ctx, &story, &mode, dirty),
-            story,
-            mode,
-            dirty,
-            hovering: None,
-        })
+    pub fn new_state(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
+        Self::from_story(ctx, app, StoryMap::new())
     }
 
-    fn redo_panel(&mut self, ctx: &mut EventCtx) {
-        self.panel = make_panel(ctx, &self.story, &self.mode, self.dirty);
+    fn from_story(ctx: &mut EventCtx, app: &App, story: StoryMap) -> Box<dyn State<App>> {
+        let mut state = StoryMapEditor {
+            panel: Panel::empty(ctx),
+            story,
+            world: World::unbounded(),
+
+            dirty: false,
+        };
+        state.rebuild_panel(ctx);
+        state.rebuild_world(ctx, app);
+        Box::new(state)
+    }
+
+    fn rebuild_panel(&mut self, ctx: &mut EventCtx) {
+        self.panel = Panel::new_builder(Widget::col(vec![
+            Widget::row(vec![
+                Line("Story map editor").small_heading().into_widget(ctx),
+                Widget::vert_separator(ctx, 30.0),
+                ctx.style()
+                    .btn_outline
+                    .popup(&self.story.name)
+                    .hotkey(lctrl(Key::L))
+                    .build_widget(ctx, "load"),
+                ctx.style()
+                    .btn_plain
+                    .icon("system/assets/tools/save.svg")
+                    .hotkey(lctrl(Key::S))
+                    .disabled(!self.dirty)
+                    .build_widget(ctx, "save"),
+                ctx.style().btn_close_widget(ctx),
+            ]),
+            ctx.style()
+                .btn_plain
+                .icon_text("system/assets/tools/select.svg", "Draw freehand")
+                .hotkey(Key::F)
+                .build_def(ctx),
+        ]))
+        .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
+        .build(ctx);
+    }
+
+    fn rebuild_world(&mut self, ctx: &mut EventCtx, app: &App) {
+        let mut world = World::bounded(app.primary.map.get_bounds());
+
+        for (idx, marker) in self.story.markers.iter().enumerate() {
+            let mut draw_normal = GeomBatch::new();
+            let label_center = if marker.pts.len() == 1 {
+                // TODO Erase the "B" from it though...
+                draw_normal = map_gui::tools::goal_marker(ctx, marker.pts[0], 2.0);
+                marker.pts[0]
+            } else {
+                let poly = Ring::must_new(marker.pts.clone()).into_polygon();
+                draw_normal.push(Color::RED.alpha(0.8), poly.clone());
+                if let Ok(o) = poly.to_outline(Distance::meters(1.0)) {
+                    draw_normal.push(Color::RED, o);
+                }
+                poly.polylabel()
+            };
+
+            let mut draw_hovered = draw_normal.clone();
+
+            draw_normal.append(
+                Text::from(&marker.label)
+                    .bg(Color::CYAN)
+                    .render_autocropped(ctx)
+                    .scale(0.5)
+                    .centered_on(label_center),
+            );
+            let hitbox = draw_normal.unioned_polygon();
+            draw_hovered.append(
+                Text::from(&marker.label)
+                    .bg(Color::CYAN)
+                    .render_autocropped(ctx)
+                    .scale(0.75)
+                    .centered_on(label_center),
+            );
+
+            world
+                .add(MarkerID(idx))
+                .hitbox(hitbox)
+                .draw(draw_normal)
+                .draw_hovered(draw_hovered)
+                .hotkey(Key::Backspace, "delete")
+                .clickable()
+                .draggable()
+                .build(ctx);
+        }
+
+        world.initialize_hover(ctx);
+        world.rebuilt_during_drag(&self.world);
+        self.world = world;
     }
 }
 
 impl State<App> for StoryMapEditor {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        match self.mode {
-            Mode::View => {
-                ctx.canvas_movement();
-
-                if ctx.redo_mouseover() {
-                    self.hovering = None;
-                    if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
-                        self.hovering = self
-                            .story
-                            .markers
-                            .iter()
-                            .position(|m| m.hitbox.contains_pt(pt));
-                    }
-                }
-                if let Some(idx) = self.hovering {
-                    if ctx.input.pressed(Key::LeftControl) {
-                        self.mode =
-                            Mode::Dragging(ctx.canvas.get_cursor_in_map_space().unwrap(), idx);
-                    } else if app.per_obj.left_click(ctx, "edit marker") {
-                        self.mode = Mode::Editing(idx, self.story.markers[idx].make_editor(ctx));
-                    }
-                }
+        match self.world.event(ctx) {
+            WorldOutcome::ClickedFreeSpace(pt) => {
+                self.story.markers.push(Marker {
+                    pts: vec![pt],
+                    label: String::new(),
+                });
+                self.dirty = true;
+                self.rebuild_panel(ctx);
+                self.rebuild_world(ctx, app);
+                return Transition::Push(EditingMarker::new_state(
+                    ctx,
+                    self.story.markers.len() - 1,
+                    "new marker",
+                ));
             }
-            Mode::PlacingMarker => {
-                ctx.canvas_movement();
-
-                if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
-                    if app.primary.map.get_boundary_polygon().contains_pt(pt)
-                        && app.per_obj.left_click(ctx, "place a marker here")
-                    {
-                        let idx = self.story.markers.len();
-                        self.story
-                            .markers
-                            .push(Marker::new(ctx, vec![pt], String::new()));
-                        self.dirty = true;
-                        self.redo_panel(ctx);
-                        self.mode = Mode::Editing(idx, self.story.markers[idx].make_editor(ctx));
-                    }
+            WorldOutcome::Dragging {
+                obj: MarkerID(idx),
+                dx,
+                dy,
+            } => {
+                for pt in &mut self.story.markers[idx].pts {
+                    *pt = pt.offset(dx, dy);
                 }
+                self.dirty = true;
+                self.rebuild_panel(ctx);
+                self.rebuild_world(ctx, app);
             }
-            Mode::Dragging(ref mut last_pt, idx) => {
-                if ctx.redo_mouseover() {
-                    if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
-                        if app.primary.map.get_boundary_polygon().contains_pt(pt) {
-                            let dx = pt.x() - last_pt.x();
-                            let dy = pt.y() - last_pt.y();
-                            *last_pt = pt;
-                            self.story.markers[idx] = Marker::new(
-                                ctx,
-                                self.story.markers[idx]
-                                    .pts
-                                    .iter()
-                                    .map(|pt| pt.offset(dx, dy))
-                                    .collect(),
-                                self.story.markers[idx].event.clone(),
-                            );
-                            self.dirty = true;
-                            self.redo_panel(ctx);
-                        }
-                    }
-                }
-
-                if ctx.input.key_released(Key::LeftControl) {
-                    self.mode = Mode::View;
-                }
+            WorldOutcome::Keypress("delete", MarkerID(idx)) => {
+                self.story.markers.remove(idx);
+                self.dirty = true;
+                self.rebuild_panel(ctx);
+                self.rebuild_world(ctx, app);
             }
-            Mode::Editing(idx, ref mut panel) => {
-                ctx.canvas_movement();
-                if let Outcome::Clicked(x) = panel.event(ctx) {
-                    match x.as_ref() {
-                        "close" => {
-                            self.mode = Mode::View;
-                            self.redo_panel(ctx);
-                        }
-                        "confirm" => {
-                            self.story.markers[idx] = Marker::new(
-                                ctx,
-                                self.story.markers[idx].pts.clone(),
-                                panel.text_box("event"),
-                            );
-                            self.dirty = true;
-                            self.mode = Mode::View;
-                            self.redo_panel(ctx);
-                        }
-                        "delete" => {
-                            self.mode = Mode::View;
-                            self.hovering = None;
-                            self.story.markers.remove(idx);
-                            self.dirty = true;
-                            self.redo_panel(ctx);
-                        }
-                        _ => unreachable!(),
-                    }
-                }
+            WorldOutcome::ClickedObject(MarkerID(idx)) => {
+                return Transition::Push(EditingMarker::new_state(
+                    ctx,
+                    idx,
+                    &self.story.markers[idx].label,
+                ));
             }
-            Mode::Freehand(None) => {
-                if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
-                    if ctx.input.left_mouse_button_pressed() {
-                        self.mode = Mode::Freehand(Some(Lasso::new(pt)));
-                    }
-                }
-            }
-            Mode::Freehand(Some(ref mut lasso)) => {
-                if let Some(result) = lasso.event(ctx) {
-                    let idx = self.story.markers.len();
-                    self.story
-                        .markers
-                        .push(Marker::new(ctx, result.into_points(), String::new()));
-                    self.dirty = true;
-                    self.redo_panel(ctx);
-                    self.mode = Mode::Editing(idx, self.story.markers[idx].make_editor(ctx));
-                }
-            }
+            _ => {}
         }
 
         if let Outcome::Clicked(x) = self.panel.event(ctx) {
@@ -195,7 +195,7 @@ impl State<App> for StoryMapEditor {
                                         editor.story.name = name;
                                         editor.story.save(app);
                                         editor.dirty = false;
-                                        editor.redo_panel(ctx);
+                                        editor.rebuild_panel(ctx);
                                     })),
                                 ])
                             }),
@@ -203,7 +203,7 @@ impl State<App> for StoryMapEditor {
                     } else {
                         self.story.save(app);
                         self.dirty = false;
-                        self.redo_panel(ctx);
+                        self.rebuild_panel(ctx);
                     }
                 }
                 "load" => {
@@ -215,7 +215,7 @@ impl State<App> for StoryMapEditor {
                         if story.name == self.story.name {
                             continue;
                         }
-                        if let Some(s) = StoryMap::load(ctx, app, story) {
+                        if let Some(s) = StoryMap::load(app, story) {
                             choices.push(Choice::new(name, s));
                         }
                     }
@@ -231,32 +231,19 @@ impl State<App> for StoryMapEditor {
                         ctx,
                         "Load story",
                         choices,
-                        Box::new(|story, _, _| {
+                        Box::new(|story, ctx, app| {
                             Transition::Multi(vec![
                                 Transition::Pop,
-                                Transition::ModifyState(Box::new(move |state, ctx, _| {
-                                    let editor = state.downcast_mut::<StoryMapEditor>().unwrap();
-                                    editor.story = story;
-                                    editor.dirty = false;
-                                    editor.redo_panel(ctx);
-                                })),
+                                Transition::Replace(StoryMapEditor::from_story(ctx, app, story)),
                             ])
                         }),
                     ));
                 }
-                "new marker" => {
-                    self.hovering = None;
-                    self.mode = Mode::PlacingMarker;
-                    self.redo_panel(ctx);
-                }
-                "draw freehand" => {
-                    self.hovering = None;
-                    self.mode = Mode::Freehand(None);
-                    self.redo_panel(ctx);
-                }
-                "pan" => {
-                    self.mode = Mode::View;
-                    self.redo_panel(ctx);
+                "Draw freehand" => {
+                    return Transition::Push(Box::new(DrawFreehand {
+                        lasso: Lasso::new(),
+                        new_idx: self.story.markers.len(),
+                    }));
                 }
                 _ => unreachable!(),
             }
@@ -274,80 +261,9 @@ impl State<App> for StoryMapEditor {
         opts.label_buildings = true;
         app.draw(g, opts, &ShowEverything::new());
 
-        match self.mode {
-            Mode::PlacingMarker => {
-                if g.canvas.get_cursor_in_map_space().is_some() {
-                    g.fork_screenspace();
-                    map_gui::tools::goal_marker(g, g.canvas.get_cursor().to_pt(), 1.0)
-                        .color(RewriteColor::Change(Color::hex("#CC4121"), Color::GREEN))
-                        .draw(g);
-                    g.unfork();
-                }
-            }
-            Mode::Editing(_, ref panel) => {
-                panel.draw(g);
-            }
-            Mode::Freehand(Some(ref lasso)) => {
-                lasso.draw(g);
-            }
-            _ => {}
-        }
-
-        for (idx, m) in self.story.markers.iter().enumerate() {
-            if self.hovering == Some(idx) {
-                m.draw_hovered(g);
-            } else {
-                g.redraw(&m.draw);
-            }
-        }
-
         self.panel.draw(g);
-        CommonState::draw_osd(g, app);
+        self.world.draw(g);
     }
-}
-
-fn make_panel(ctx: &mut EventCtx, story: &StoryMap, mode: &Mode, dirty: bool) -> Panel {
-    Panel::new_builder(Widget::col(vec![
-        Widget::row(vec![
-            Line("Story map editor").small_heading().into_widget(ctx),
-            Widget::vert_separator(ctx, 30.0),
-            ctx.style()
-                .btn_outline
-                .popup(&story.name)
-                .hotkey(lctrl(Key::L))
-                .build_widget(ctx, "load"),
-            ctx.style()
-                .btn_plain
-                .icon("system/assets/tools/save.svg")
-                .hotkey(lctrl(Key::S))
-                .disabled(!dirty)
-                .build_widget(ctx, "save"),
-            ctx.style().btn_close_widget(ctx),
-        ]),
-        Widget::row(vec![
-            ctx.style()
-                .btn_plain
-                .icon("system/assets/tools/pin.svg")
-                .disabled(matches!(mode, Mode::PlacingMarker))
-                .hotkey(Key::M)
-                .build_widget(ctx, "new marker"),
-            ctx.style()
-                .btn_plain
-                .icon("system/assets/tools/pan.svg")
-                .disabled(matches!(mode, Mode::View))
-                .hotkey(Key::Escape)
-                .build_widget(ctx, "pan"),
-            ctx.style()
-                .btn_plain
-                .icon("system/assets/tools/select.svg")
-                .disabled(matches!(mode, Mode::Freehand(_)))
-                .hotkey(Key::P)
-                .build_widget(ctx, "draw freehand"),
-        ])
-        .evenly_spaced(),
-    ]))
-    .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
-    .build(ctx)
 }
 
 #[derive(Clone, Serialize, Deserialize)]
@@ -363,9 +279,7 @@ struct StoryMap {
 
 struct Marker {
     pts: Vec<Pt2D>,
-    event: String,
-    hitbox: Polygon,
-    draw: Drawable,
+    label: String,
 }
 
 impl StoryMap {
@@ -376,11 +290,13 @@ impl StoryMap {
         }
     }
 
-    fn load(ctx: &mut EventCtx, app: &App, story: RecordedStoryMap) -> Option<StoryMap> {
+    fn load(app: &App, story: RecordedStoryMap) -> Option<StoryMap> {
         let mut markers = Vec::new();
-        for (gps_pts, event) in story.markers {
-            let pts = app.primary.map.get_gps_bounds().try_convert(&gps_pts)?;
-            markers.push(Marker::new(ctx, pts, event));
+        for (gps_pts, label) in story.markers {
+            markers.push(Marker {
+                pts: app.primary.map.get_gps_bounds().try_convert(&gps_pts)?,
+                label,
+            });
         }
         Some(StoryMap {
             name: story.name,
@@ -397,7 +313,7 @@ impl StoryMap {
                 .map(|m| {
                     (
                         app.primary.map.get_gps_bounds().convert_back(&m.pts),
-                        m.event.clone(),
+                        m.label.clone(),
                     )
                 })
                 .collect(),
@@ -409,121 +325,151 @@ impl StoryMap {
     }
 }
 
-impl Marker {
-    fn new(ctx: &mut EventCtx, pts: Vec<Pt2D>, event: String) -> Marker {
-        let mut batch = GeomBatch::new();
+struct EditingMarker {
+    idx: usize,
+}
 
-        let hitbox = if pts.len() == 1 {
-            batch.append(map_gui::tools::goal_marker(ctx, pts[0], 2.0));
-            batch.append(
-                Text::from(&event)
-                    .bg(Color::CYAN)
-                    .render_autocropped(ctx)
-                    .scale(0.5)
-                    .centered_on(pts[0]),
-            );
-            batch.unioned_polygon()
-        } else {
-            let poly = Ring::must_new(pts.clone()).into_polygon();
-            batch.push(Color::RED.alpha(0.8), poly.clone());
-            if let Ok(o) = poly.to_outline(Distance::meters(1.0)) {
-                batch.push(Color::RED, o);
-            }
-            // TODO Refactor
-            batch.append(
-                Text::from(&event)
-                    .bg(Color::CYAN)
-                    .render_autocropped(ctx)
-                    .scale(0.5)
-                    .centered_on(poly.polylabel()),
-            );
-            poly
-        };
-        Marker {
-            pts,
-            event,
-            hitbox,
-            draw: ctx.upload(batch),
-        }
-    }
-
-    fn draw_hovered(&self, g: &mut GfxCtx) {
-        let mut batch = GeomBatch::new();
-        if self.pts.len() == 1 {
-            batch.append(
-                map_gui::tools::goal_marker(g, self.pts[0], 2.0)
-                    .color(RewriteColor::Change(Color::hex("#CC4121"), Color::RED)),
-            );
-            batch.append(
-                Text::from(&self.event)
-                    .bg(Color::CYAN)
-                    .render_autocropped(g)
-                    .scale(0.75)
-                    .centered_on(self.pts[0]),
-            );
-        } else {
-            batch.push(Color::RED, Ring::must_new(self.pts.clone()).into_polygon());
-            // TODO Refactor plz
-            batch.append(
-                Text::from(&self.event)
-                    .bg(Color::CYAN)
-                    .render_autocropped(g)
-                    .scale(0.75)
-                    .centered_on(self.hitbox.polylabel()),
-            );
-        }
-        batch.draw(g);
-    }
-
-    fn make_editor(&self, ctx: &mut EventCtx) -> Panel {
-        Panel::new_builder(Widget::col(vec![
+impl EditingMarker {
+    fn new_state(ctx: &mut EventCtx, idx: usize, label: &str) -> Box<dyn State<App>> {
+        let panel = Panel::new_builder(Widget::col(vec![
             Widget::row(vec![
                 Line("Editing marker").small_heading().into_widget(ctx),
                 ctx.style().btn_close_widget(ctx),
             ]),
             ctx.style().btn_outline.text("delete").build_def(ctx),
-            TextBox::default_widget(ctx, "event", self.event.clone()),
+            TextBox::default_widget(ctx, "label", label.to_string()),
             ctx.style()
                 .btn_outline
                 .text("confirm")
                 .hotkey(Key::Enter)
                 .build_def(ctx),
         ]))
-        .build(ctx)
+        .build(ctx);
+        <dyn SimpleState<_>>::new_state(panel, Box::new(EditingMarker { idx }))
+    }
+}
+
+impl SimpleState<App> for EditingMarker {
+    fn on_click(&mut self, _: &mut EventCtx, _: &mut App, x: &str, panel: &Panel) -> Transition {
+        match x {
+            "close" => {
+                return Transition::Pop;
+            }
+            "confirm" => {
+                let idx = self.idx;
+                let label = panel.text_box("label");
+                return Transition::Multi(vec![
+                    Transition::Pop,
+                    Transition::ModifyState(Box::new(move |state, ctx, app| {
+                        let editor = state.downcast_mut::<StoryMapEditor>().unwrap();
+                        editor.story.markers[idx].label = label;
+
+                        editor.dirty = true;
+                        editor.rebuild_panel(ctx);
+                        editor.rebuild_world(ctx, app);
+                    })),
+                ]);
+            }
+            "delete" => {
+                let idx = self.idx;
+                return Transition::Multi(vec![
+                    Transition::Pop,
+                    Transition::ModifyState(Box::new(move |state, ctx, app| {
+                        let editor = state.downcast_mut::<StoryMapEditor>().unwrap();
+                        editor.story.markers.remove(idx);
+
+                        editor.dirty = true;
+                        editor.rebuild_panel(ctx);
+                        editor.rebuild_world(ctx, app);
+                    })),
+                ]);
+            }
+            _ => unreachable!(),
+        }
+    }
+
+    fn draw_baselayer(&self) -> DrawBaselayer {
+        DrawBaselayer::PreviousState
+    }
+}
+
+struct DrawFreehand {
+    lasso: Lasso,
+    new_idx: usize,
+}
+
+impl State<App> for DrawFreehand {
+    fn event(&mut self, ctx: &mut EventCtx, _: &mut App) -> Transition {
+        if let Some(result) = self.lasso.event(ctx) {
+            let idx = self.new_idx;
+            return Transition::Multi(vec![
+                Transition::Pop,
+                Transition::ModifyState(Box::new(move |state, ctx, app| {
+                    let editor = state.downcast_mut::<StoryMapEditor>().unwrap();
+                    editor.story.markers.push(Marker {
+                        pts: result.into_points(),
+                        label: String::new(),
+                    });
+
+                    editor.dirty = true;
+                    editor.rebuild_panel(ctx);
+                    editor.rebuild_world(ctx, app);
+                })),
+                Transition::Push(EditingMarker::new_state(ctx, idx, "new marker")),
+            ]);
+        }
+
+        Transition::Keep
+    }
+
+    fn draw_baselayer(&self) -> DrawBaselayer {
+        DrawBaselayer::PreviousState
+    }
+
+    fn draw(&self, g: &mut GfxCtx, _: &App) {
+        self.lasso.draw(g);
     }
 }
 
 // TODO This should totally be an widgetry tool
-// TODO Simplify points
 struct Lasso {
-    pl: PolyLine,
+    pl: Option<PolyLine>,
 }
 
 impl Lasso {
-    fn new(pt: Pt2D) -> Lasso {
-        Lasso {
-            pl: PolyLine::must_new(vec![pt, pt.offset(0.1, 0.0)]),
-        }
+    fn new() -> Lasso {
+        Lasso { pl: None }
     }
 
     fn event(&mut self, ctx: &mut EventCtx) -> Option<Ring> {
-        if ctx.input.left_mouse_button_released() {
-            return Some(simplify(self.pl.points().clone()));
+        if self.pl.is_none() {
+            if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
+                if ctx.input.left_mouse_button_pressed() {
+                    self.pl = Some(PolyLine::must_new(vec![pt, pt.offset(0.1, 0.0)]));
+                }
+            }
+            return None;
         }
+
+        if ctx.input.left_mouse_button_released() {
+            return Some(simplify(self.pl.take().unwrap().into_points()));
+        }
+
+        let current_pl = self.pl.as_ref().unwrap();
         if ctx.redo_mouseover() {
             if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
-                if let Ok(pl) = PolyLine::new(vec![self.pl.last_pt(), pt]) {
+                if let Ok(pl) = PolyLine::new(vec![current_pl.last_pt(), pt]) {
                     // Did we make a crossing?
-                    if let Some((hit, _)) = self.pl.intersection(&pl) {
-                        if let Some(slice) = self.pl.get_slice_starting_at(hit) {
+                    if let Some((hit, _)) = current_pl.intersection(&pl) {
+                        if let Some(slice) = current_pl.get_slice_starting_at(hit) {
                             return Some(simplify(slice.into_points()));
                         }
                     }
 
-                    let mut pts = self.pl.points().clone();
+                    let mut pts = current_pl.points().clone();
                     pts.push(pt);
                     if let Ok(new) = PolyLine::new(pts) {
-                        self.pl = new;
+                        self.pl = Some(new);
                     }
                 }
             }
@@ -532,11 +478,12 @@ impl Lasso {
     }
 
     fn draw(&self, g: &mut GfxCtx) {
-        g.draw_polygon(
-            Color::RED.alpha(0.8),
-            self.pl
-                .make_polygons(Distance::meters(5.0) / g.canvas.cam_zoom),
-        );
+        if let Some(ref pl) = self.pl {
+            g.draw_polygon(
+                Color::RED.alpha(0.8),
+                pl.make_polygons(Distance::meters(5.0) / g.canvas.cam_zoom),
+            );
+        }
     }
 }
 
