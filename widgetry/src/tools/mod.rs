@@ -21,6 +21,11 @@ impl<K: PartialEq + Clone, V> Cached<K, V> {
         self.contents.as_ref().map(|(_, v)| v)
     }
 
+    /// Get the current value, mutably.
+    pub fn value_mut(&mut self) -> Option<&mut V> {
+        self.contents.as_mut().map(|(_, v)| v)
+    }
+
     /// Update the value if the key has changed.
     pub fn update<F: FnMut(K) -> V>(&mut self, key: Option<K>, mut produce_value: F) {
         if let Some(new_key) = key {
