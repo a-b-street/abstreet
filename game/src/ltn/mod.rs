@@ -135,9 +135,16 @@ impl Viewer {
         );
         for r in &self.neighborhood.modal_filters {
             let road = map.get_r(*r);
-            // TODO If these roads touch a border, probably place it closer to the border. If it's
-            // an inner neighborhood split, maybe in the middle is more reasonable.
-            if let Ok((pt, angle)) = road.center_pts.dist_along(road.length() / 2.0) {
+            // If this road touches a border, place it closer to that intersection. If it's an
+            // inner neighborhood split, then stick to the middle of that road.
+            let pct_along = if self.neighborhood.borders.contains(&road.src_i) {
+                0.1
+            } else if self.neighborhood.borders.contains(&road.dst_i) {
+                0.9
+            } else {
+                0.5
+            };
+            if let Ok((pt, angle)) = road.center_pts.dist_along(pct_along * road.length()) {
                 let filter_len = road.get_width();
                 let barrier = Line::must_new(
                     pt.project_away(filter_len, angle.rotate_degs(90.0)),
