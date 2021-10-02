@@ -1155,6 +1155,21 @@
       "uncompressed_size_bytes": 6027195,
       "compressed_size_bytes": 1424937
     },
+    "data/input/gb/st_albans/osm/center.osm": {
+      "checksum": "4683b6aaec407013310ae8c7cc7726ea",
+      "uncompressed_size_bytes": 25638204,
+      "compressed_size_bytes": 2532069
+    },
+    "data/input/gb/st_albans/osm/hertfordshire-latest.osm.pbf": {
+      "checksum": "19a43f538dc990c374a9188d8e4cfd4b",
+      "uncompressed_size_bytes": 19060336,
+      "compressed_size_bytes": 19043530
+    },
+    "data/input/gb/st_albans/raw_maps/center.bin": {
+      "checksum": "f0060be4a117132e3263bc147b79c6c4",
+      "uncompressed_size_bytes": 5787345,
+      "compressed_size_bytes": 1510287
+    },
     "data/input/gb/taunton_firepool/osm/center.osm": {
       "checksum": "6deb55c6a06fe7f33d5cff84e51de0ed",
       "uncompressed_size_bytes": 82661136,
@@ -3574,6 +3589,16 @@
       "checksum": "c855d10158e77a50f9eae32201460e68",
       "uncompressed_size_bytes": 1689770,
       "compressed_size_bytes": 457124
+    },
+    "data/system/gb/st_albans/maps/center.bin": {
+      "checksum": "5d9b283a6637bb3afcf925caaab24bd3",
+      "uncompressed_size_bytes": 15055008,
+      "compressed_size_bytes": 5498830
+    },
+    "data/system/gb/st_albans/scenarios/center/background.bin": {
+      "checksum": "4a82e44c265c3cbd1b1bcb3df743d2da",
+      "uncompressed_size_bytes": 673715,
+      "compressed_size_bytes": 181770
     },
     "data/system/gb/taunton_firepool/maps/center.bin": {
       "checksum": "3ce445967506afb86ad5aa409b7bb379",
