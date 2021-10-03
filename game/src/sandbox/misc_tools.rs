@@ -33,7 +33,7 @@ impl RoutePreview {
             .and_then(|id| id.agent_id())
         {
             let now = app.primary.sim.time();
-            let zoomed = ctx.canvas.cam_zoom >= app.opts.min_zoom_for_detail;
+            let zoomed = ctx.canvas.is_zoomed();
             if self
                 .preview
                 .as_ref()

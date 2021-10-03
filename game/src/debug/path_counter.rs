@@ -1,7 +1,8 @@
 use abstutil::Counter;
-use map_gui::tools::{ColorLegend, ColorNetwork, ToggleZoomed};
+use map_gui::tools::{ColorLegend, ColorNetwork};
 use map_gui::ID;
 use map_model::{IntersectionID, PathStep, RoadID, Traversable};
+use widgetry::mapspace::ToggleZoomed;
 use widgetry::{
     Color, EventCtx, GfxCtx, HorizontalAlignment, Line, Outcome, Panel, State, Text,
     VerticalAlignment, Widget,
@@ -115,7 +116,7 @@ impl State<App> for PathCounter {
         self.panel.draw(g);
         CommonState::draw_osd(g, app);
 
-        self.draw.draw(g, app);
+        self.draw.draw(g);
 
         if let Some(ref txt) = self.tooltip {
             g.draw_mouse_tooltip(txt.clone());

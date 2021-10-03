@@ -3,9 +3,10 @@ use std::collections::BTreeSet;
 use enumset::EnumSet;
 use maplit::btreeset;
 
-use map_gui::tools::{ColorDiscrete, ToggleZoomed};
+use map_gui::tools::ColorDiscrete;
 use map_model::{AccessRestrictions, PathConstraints, RoadID};
 use sim::TripMode;
+use widgetry::mapspace::ToggleZoomed;
 use widgetry::{
     Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State, Text,
     VerticalAlignment, Widget,
@@ -157,7 +158,7 @@ impl State<App> for ZoneEditor {
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         // TODO The currently selected road is covered up pretty badly
-        self.draw.draw(g, app);
+        self.draw.draw(g);
         self.panel.draw(g);
         self.selector.draw(g, app, false);
         CommonState::draw_osd(g, app);

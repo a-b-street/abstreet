@@ -3,9 +3,9 @@ use std::collections::HashMap;
 use abstutil::Counter;
 use geom::{Circle, Distance, Line, Polygon, Pt2D};
 use map_model::{BuildingID, BusStopID, IntersectionID, LaneID, Map, ParkingLotID, RoadID};
+use widgetry::mapspace::ToggleZoomed;
 use widgetry::{Color, EventCtx, Fill, GeomBatch, Line, LinearGradient, Text, Widget};
 
-use crate::tools::ToggleZoomed;
 use crate::AppLike;
 
 pub struct ColorDiscrete<'a> {

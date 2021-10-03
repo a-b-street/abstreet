@@ -4,9 +4,10 @@ use abstutil::{prettyprint_usize, Timer};
 use geom::Speed;
 use map_gui::options::OptionsPanel;
 use map_gui::render::DrawMap;
-use map_gui::tools::{grey_out_map, ChooseSomething, ColorLegend, PopupMsg, ToggleZoomed};
+use map_gui::tools::{grey_out_map, ChooseSomething, ColorLegend, PopupMsg};
 use map_gui::ID;
 use map_model::{EditCmd, IntersectionID, LaneID, MapEdits};
+use widgetry::mapspace::ToggleZoomed;
 use widgetry::{
     lctrl, Choice, Color, ControlState, EventCtx, GfxCtx, HorizontalAlignment, Image, Key, Line,
     Menu, Outcome, Panel, State, Text, TextBox, TextExt, VerticalAlignment, Widget,
@@ -330,7 +331,7 @@ impl State<App> for EditMode {
             }
         }
 
-        if ctx.canvas.cam_zoom < app.opts.min_zoom_for_detail {
+        if ctx.canvas.is_unzoomed() {
             if let Some(id) = app.primary.current_selection.clone() {
                 if app.per_obj.left_click(ctx, "edit this") {
                     return Transition::Push(Warping::new_state(
@@ -369,7 +370,7 @@ impl State<App> for EditMode {
         self.tool_panel.draw(g);
         self.top_center.draw(g);
         self.changelist.draw(g);
-        self.draw.draw(g, app);
+        self.draw.draw(g);
         CommonState::draw_osd(g, app);
     }
 }

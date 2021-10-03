@@ -1,5 +1,6 @@
-use map_gui::tools::{ColorDiscrete, ToggleZoomed};
+use map_gui::tools::ColorDiscrete;
 use map_model::{PathConstraints, PathStep};
+use widgetry::mapspace::ToggleZoomed;
 use widgetry::{EventCtx, GfxCtx, Outcome, Panel, Toggle, Widget};
 
 use crate::app::App;
@@ -35,9 +36,9 @@ impl Layer for TransitNetwork {
         }
         None
     }
-    fn draw(&self, g: &mut GfxCtx, app: &App) {
+    fn draw(&self, g: &mut GfxCtx, _: &App) {
         self.panel.draw(g);
-        self.draw.draw(g, app);
+        self.draw.draw(g);
     }
     fn draw_minimap(&self, g: &mut GfxCtx) {
         g.redraw(&self.draw.unzoomed);

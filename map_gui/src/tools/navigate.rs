@@ -148,7 +148,7 @@ impl<A: AppLike + 'static> State<A> for CrossStreet {
                     return Transition::Replace(app.make_warper(
                         ctx,
                         pt,
-                        Some(app.opts().min_zoom_for_detail),
+                        Some(ctx.canvas.settings.min_zoom_for_detail),
                         None,
                     ));
                 }
@@ -172,7 +172,7 @@ impl<A: AppLike + 'static> State<A> for CrossStreet {
                 return Transition::Replace(app.make_warper(
                     ctx,
                     pt,
-                    Some(app.opts().min_zoom_for_detail),
+                    Some(ctx.canvas.settings.min_zoom_for_detail),
                     Some(ID::Intersection(i)),
                 ));
             } else {
@@ -273,7 +273,7 @@ impl<A: AppLike + 'static> State<A> for SearchBuildings {
             return Transition::Replace(app.make_warper(
                 ctx,
                 pt,
-                Some(app.opts().min_zoom_for_detail),
+                Some(ctx.canvas.settings.min_zoom_for_detail),
                 Some(ID::Building(bldgs[0])),
             ));
         }

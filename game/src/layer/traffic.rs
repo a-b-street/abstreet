@@ -5,10 +5,11 @@ use maplit::btreeset;
 use abstutil::{prettyprint_usize, Counter};
 use geom::{Circle, Distance, Duration, Percent, Polygon, Pt2D, Time};
 use map_gui::render::unzoomed_agent_radius;
-use map_gui::tools::{ColorLegend, ColorNetwork, DivergingScale, ToggleZoomed};
+use map_gui::tools::{ColorLegend, ColorNetwork, DivergingScale};
 use map_gui::ID;
 use map_model::{IntersectionID, Map, Traversable};
 use sim::{AgentType, VehicleType};
+use widgetry::mapspace::ToggleZoomed;
 use widgetry::{Color, EventCtx, GfxCtx, Line, Outcome, Panel, Text, TextExt, Toggle, Widget};
 
 use crate::app::App;
@@ -31,9 +32,9 @@ impl Layer for Backpressure {
 
         <dyn Layer>::simple_event(ctx, &mut self.panel)
     }
-    fn draw(&self, g: &mut GfxCtx, app: &App) {
+    fn draw(&self, g: &mut GfxCtx, _: &App) {
         self.panel.draw(g);
-        self.draw.draw(g, app);
+        self.draw.draw(g);
     }
     fn draw_minimap(&self, g: &mut GfxCtx) {
         g.redraw(&self.draw.unzoomed);
@@ -106,7 +107,7 @@ impl Layer for Throughput {
         }
 
         // Show a tooltip with count, only when unzoomed
-        if ctx.canvas.cam_zoom < app.opts.min_zoom_for_detail {
+        if ctx.canvas.is_unzoomed() {
             if ctx.redo_mouseover() || recalc_tooltip {
                 self.tooltip = None;
                 match app.mouseover_unzoomed_roads_and_intersections(ctx) {
@@ -174,9 +175,9 @@ impl Layer for Throughput {
         }
         None
     }
-    fn draw(&self, g: &mut GfxCtx, app: &App) {
+    fn draw(&self, g: &mut GfxCtx, _: &App) {
         self.panel.draw(g);
-        self.draw.draw(g, app);
+        self.draw.draw(g);
         if let Some(ref txt) = self.tooltip {
             g.draw_mouse_tooltip(txt.clone());
         }
@@ -253,7 +254,7 @@ impl Layer for CompareThroughput {
         }
 
         // Show a tooltip with count, only when unzoomed
-        if ctx.canvas.cam_zoom < app.opts.min_zoom_for_detail {
+        if ctx.canvas.is_unzoomed() {
             if ctx.redo_mouseover() || recalc_tooltip {
                 self.tooltip = None;
                 match app.mouseover_unzoomed_roads_and_intersections(ctx) {
@@ -315,9 +316,9 @@ impl Layer for CompareThroughput {
         }
         None
     }
-    fn draw(&self, g: &mut GfxCtx, app: &App) {
+    fn draw(&self, g: &mut GfxCtx, _: &App) {
         self.panel.draw(g);
-        self.draw.draw(g, app);
+        self.draw.draw(g);
         if let Some(ref txt) = self.tooltip {
             g.draw_mouse_tooltip(txt.clone());
         }
@@ -411,9 +412,9 @@ impl Layer for TrafficJams {
 
         <dyn Layer>::simple_event(ctx, &mut self.panel)
     }
-    fn draw(&self, g: &mut GfxCtx, app: &App) {
+    fn draw(&self, g: &mut GfxCtx, _: &App) {
         self.panel.draw(g);
-        self.draw.draw(g, app);
+        self.draw.draw(g);
     }
     fn draw_minimap(&self, g: &mut GfxCtx) {
         g.redraw(&self.draw.unzoomed);
@@ -546,9 +547,9 @@ impl Layer for Delay {
         }
         None
     }
-    fn draw(&self, g: &mut GfxCtx, app: &App) {
+    fn draw(&self, g: &mut GfxCtx, _: &App) {
         self.panel.draw(g);
-        self.draw.draw(g, app);
+        self.draw.draw(g);
     }
     fn draw_minimap(&self, g: &mut GfxCtx) {
         g.redraw(&self.draw.unzoomed);

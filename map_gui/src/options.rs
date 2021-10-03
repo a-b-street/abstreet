@@ -30,9 +30,6 @@ pub struct Options {
     pub color_scheme: ColorSchemeChoice,
     /// Automatically change color_scheme based on simulation time to reflect day/night
     pub toggle_day_night_colors: bool,
-    /// Map elements are drawn differently when unzoomed and zoomed. This specifies the canvas zoom
-    /// level where they switch.
-    pub min_zoom_for_detail: f64,
     /// Draw buildings in different perspectives
     pub camera_angle: CameraAngle,
     /// Draw building driveways.
@@ -80,7 +77,6 @@ impl Options {
             traffic_signal_style: TrafficSignalStyle::Brian,
             color_scheme: ColorSchemeChoice::DayMode,
             toggle_day_night_colors: false,
-            min_zoom_for_detail: 4.0,
             camera_angle: CameraAngle::TopDown,
             show_building_driveways: true,
 
@@ -103,7 +99,7 @@ impl Options {
     pub fn update_from_args(&mut self, args: &mut CmdArgs) {
         self.dev = args.enabled("--dev");
         if args.enabled("--lowzoom") {
-            self.min_zoom_for_detail = 1.0;
+            self.canvas_settings.min_zoom_for_detail = 1.0;
         }
         if let Some(x) = args.optional("--color_scheme") {
             let mut ok = false;
@@ -257,7 +253,7 @@ impl OptionsPanel {
                         Widget::dropdown(
                             ctx,
                             "min zoom",
-                            app.opts().min_zoom_for_detail,
+                            ctx.canvas.settings.min_zoom_for_detail,
                             vec![
                                 Choice::new("1.0", 1.0),
                                 Choice::new("2.0", 2.0),
@@ -347,6 +343,7 @@ impl<A: AppLike> State<A> for OptionsPanel {
                     ctx.canvas.settings.gui_scroll_speed = self.panel.spinner("gui_scroll_speed");
                     ctx.canvas.settings.canvas_scroll_speed =
                         self.panel.spinner("canvas_scroll_speed");
+                    ctx.canvas.settings.min_zoom_for_detail = self.panel.dropdown_value("min zoom");
                     // Copy the settings into the Options struct, so they're saved.
                     opts.canvas_settings = ctx.canvas.settings.clone();
 
@@ -398,7 +395,6 @@ impl<A: AppLike> State<A> for OptionsPanel {
                         opts.toggle_day_night_colors = false;
                     }
 
-                    opts.min_zoom_for_detail = self.panel.dropdown_value("min zoom");
                     opts.units.metric = self.panel.is_checked("metric / imperial units");
 
                     let language = self.panel.dropdown_value("language");

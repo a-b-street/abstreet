@@ -7,7 +7,6 @@ use widgetry::{lctrl, EventCtx, GfxCtx, Key, Line, Text, Widget};
 pub use self::camera::{CameraState, DefaultMap};
 pub use self::city_picker::CityPicker;
 pub use self::colors::{ColorDiscrete, ColorLegend, ColorNetwork, ColorScale, DivergingScale};
-pub use self::draw::{ToggleZoomed, ToggleZoomedBuilder};
 pub use self::heatmap::{draw_isochrone, make_heatmap, Grid, HeatmapOptions};
 pub use self::icons::{goal_marker, start_marker};
 pub use self::minimap::{Minimap, MinimapControls};
@@ -27,7 +26,6 @@ mod city_picker;
 mod colors;
 #[cfg(not(target_arch = "wasm32"))]
 mod command;
-mod draw;
 mod heatmap;
 mod icons;
 #[cfg(not(target_arch = "wasm32"))]

@@ -67,7 +67,7 @@ impl Layers {
         if ctx.redo_mouseover() && self.elevation && !self.minimized {
             let mut label = Text::new().into_widget(ctx);
 
-            if ctx.canvas.cam_zoom < app.opts.min_zoom_for_detail {
+            if ctx.canvas.is_unzoomed() {
                 if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
                     if let Some((elevation, _)) = app
                         .session
@@ -193,7 +193,7 @@ impl Layers {
 
     pub fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.panel.draw(g);
-        if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
+        if g.canvas.is_unzoomed() {
             g.redraw(&self.fade_map);
 
             let mut draw_bike_layer = true;
@@ -222,7 +222,7 @@ impl Layers {
 
             if self.elevation {
                 if let Some((_, ref draw)) = app.session.elevation_contours.value() {
-                    draw.draw(g, app);
+                    draw.draw(g);
                 }
             }
             if let Some(ref draw) = self.steep_streets {

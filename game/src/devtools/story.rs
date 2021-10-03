@@ -150,6 +150,7 @@ impl State<App> for StoryMapEditor {
                 obj: MarkerID(idx),
                 dx,
                 dy,
+                ..
             } => {
                 for pt in &mut self.story.markers[idx].pts {
                     *pt = pt.offset(dx, dy);

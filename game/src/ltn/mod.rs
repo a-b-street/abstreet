@@ -1,9 +1,10 @@
 use std::collections::BTreeSet;
 
 use geom::{Distance, Line};
-use map_gui::tools::{CityPicker, ColorDiscrete, ToggleZoomed};
+use map_gui::tools::{CityPicker, ColorDiscrete};
 use map_gui::ID;
 use map_model::{IntersectionID, Map, Road, RoadID};
+use widgetry::mapspace::ToggleZoomed;
 use widgetry::{
     Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
     State, Text, TextExt, VerticalAlignment, Widget,
@@ -216,7 +217,7 @@ impl State<App> for Viewer {
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.panel.draw(g);
-        self.draw_neighborhood.draw(g, app);
+        self.draw_neighborhood.draw(g);
         g.redraw(&self.draw_dynamic_stuff);
 
         if let Some(ID::Road(r)) = app.primary.current_selection {

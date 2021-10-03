@@ -2,8 +2,9 @@ use std::collections::BTreeSet;
 
 use abstutil::prettyprint_usize;
 use geom::{Circle, Distance, Pt2D, Time};
-use map_gui::tools::{make_heatmap, HeatmapOptions, ToggleZoomed};
+use map_gui::tools::{make_heatmap, HeatmapOptions};
 use sim::{Problem, TripInfo, TripMode};
+use widgetry::mapspace::ToggleZoomed;
 use widgetry::{
     Color, EventCtx, GfxCtx, Line, Outcome, Panel, Slider, Text, TextExt, Toggle, Widget,
 };
@@ -46,9 +47,9 @@ impl Layer for ProblemMap {
         }
         None
     }
-    fn draw(&self, g: &mut GfxCtx, app: &App) {
+    fn draw(&self, g: &mut GfxCtx, _: &App) {
         self.panel.draw(g);
-        self.draw.draw(g, app);
+        self.draw.draw(g);
     }
     fn draw_minimap(&self, g: &mut GfxCtx) {
         g.redraw(&self.draw.unzoomed);

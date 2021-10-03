@@ -944,7 +944,7 @@ impl ScreenshotTest {
         // Taking screenshots messes with options and doesn't restore them after. It's expected
         // whoever's taking screenshots (just Dustin so far) will just quit after taking them.
         app.change_color_scheme(ctx, ColorSchemeChoice::DayMode);
-        app.opts.min_zoom_for_detail = 0.0;
+        ctx.canvas.settings.min_zoom_for_detail = 0.0;
         MapLoader::new_state(
             ctx,
             app,

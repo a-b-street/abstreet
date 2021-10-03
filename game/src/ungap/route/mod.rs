@@ -1,7 +1,8 @@
 use map_model::RoutingParams;
+use widgetry::mapspace::{ObjectID, World, WorldOutcome};
 use widgetry::{Choice, EventCtx, GfxCtx, Outcome, Panel, State, TextExt, Widget};
 
-use self::results::{AltRouteResults, RouteResults};
+use self::results::RouteDetails;
 use crate::app::{App, Transition};
 use crate::common::InputWaypoints;
 use crate::ungap::{Layers, Tab, TakeLayers};
@@ -15,10 +16,11 @@ pub struct RoutePlanner {
 
     input_panel: Panel,
     waypoints: InputWaypoints,
-    main_route: RouteResults,
+    main_route: RouteDetails,
     files: files::RouteManagement,
-
-    alt_routes: Vec<AltRouteResults>,
+    // TODO We really only need to store preferences and stats, but...
+    alt_routes: Vec<RouteDetails>,
+    world: World<RouteID>,
 }
 
 impl TakeLayers for RoutePlanner {
@@ -27,6 +29,13 @@ impl TakeLayers for RoutePlanner {
     }
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+enum RouteID {
+    Main,
+    Alt(usize),
+}
+impl ObjectID for RouteID {}
+
 impl RoutePlanner {
     pub fn new_state(ctx: &mut EventCtx, app: &App, layers: Layers) -> Box<dyn State<App>> {
         let mut rp = RoutePlanner {
@@ -34,19 +43,29 @@ impl RoutePlanner {
             once: true,
 
             input_panel: Panel::empty(ctx),
-            waypoints: InputWaypoints::new(ctx, app),
-            main_route: RouteResults::main_route(ctx, app, Vec::new()),
+            waypoints: InputWaypoints::new(app),
+            main_route: RouteDetails::main_route(ctx, app, Vec::new()).details,
             files: files::RouteManagement::new(app),
-
             alt_routes: Vec::new(),
+            world: World::bounded(app.primary.map.get_bounds()),
         };
-        rp.update_input_panel(ctx, app);
+        rp.recalculate_routes(ctx, app);
         Box::new(rp)
     }
 
+    // Use the current session settings to determine "main" and alts
     fn recalculate_routes(&mut self, ctx: &mut EventCtx, app: &App) {
-        // Use the current session settings to determine "main" and alts
-        self.main_route = RouteResults::main_route(ctx, app, self.waypoints.get_waypoints());
+        let mut world = World::bounded(app.primary.map.get_bounds());
+
+        let main_route = RouteDetails::main_route(ctx, app, self.waypoints.get_waypoints());
+        self.main_route = main_route.details;
+        world
+            .add(RouteID::Main)
+            .hitbox(main_route.hitbox)
+            .draw(main_route.draw)
+            .build(ctx);
+        // This doesn't depend on the alt routes, so just do it here
+        self.update_input_panel(ctx, app, main_route.details_widget);
 
         self.alt_routes.clear();
         // Just a few fixed variations... all 9 combos seems overwhelming
@@ -68,7 +87,7 @@ impl RoutePlanner {
             if app.session.routing_preferences == preferences {
                 continue;
             }
-            let alt = AltRouteResults::new(
+            let mut alt = RouteDetails::alt_route(
                 ctx,
                 app,
                 self.waypoints.get_waypoints(),
@@ -76,18 +95,26 @@ impl RoutePlanner {
                 preferences,
             );
             // Dedupe equivalent routes based on their stats, which is usually detailed enough
-            if alt.results.stats != self.main_route.stats
-                && self
-                    .alt_routes
-                    .iter()
-                    .all(|x| alt.results.stats != x.results.stats)
+            if alt.details.stats != self.main_route.stats
+                && self.alt_routes.iter().all(|x| alt.details.stats != x.stats)
             {
-                self.alt_routes.push(alt);
+                self.alt_routes.push(alt.details);
+                world
+                    .add(RouteID::Alt(self.alt_routes.len() - 1))
+                    .hitbox(alt.hitbox)
+                    .draw(alt.draw)
+                    .hover_alpha(0.8)
+                    .tooltip(alt.tooltip_for_alt.take().unwrap())
+                    .clickable()
+                    .build(ctx);
             }
         }
+
+        world.initialize_hover(ctx);
+        self.world = world;
     }
 
-    fn update_input_panel(&mut self, ctx: &mut EventCtx, app: &App) {
+    fn update_input_panel(&mut self, ctx: &mut EventCtx, app: &App, main_route: Widget) {
         let col = Widget::col(vec![
             self.files.get_panel_widget(ctx),
             Widget::col(vec![Widget::row(vec![
@@ -118,7 +145,7 @@ impl RoutePlanner {
             ])])
             .section(ctx),
             self.waypoints.get_panel_widget(ctx).section(ctx),
-            self.main_route.to_widget(ctx, app).section(ctx),
+            main_route.section(ctx),
         ]);
 
         let mut new_panel = Tab::Route.make_left_panel(ctx, app, col);
@@ -133,7 +160,6 @@ impl RoutePlanner {
         self.waypoints
             .overwrite(ctx, app, self.files.current.waypoints.clone());
         self.recalculate_routes(ctx, app);
-        self.update_input_panel(ctx, app);
     }
 }
 
@@ -148,17 +174,14 @@ impl State<App> for RoutePlanner {
             });
         }
 
-        let mut focused_on_alt_route = false;
-        for r in &mut self.alt_routes {
-            r.event(ctx);
-            focused_on_alt_route |= r.has_focus();
-            if r.has_focus() && ctx.normal_left_click() {
+        match self.world.event(ctx) {
+            WorldOutcome::ClickedObject(RouteID::Alt(idx)) => {
                 // Switch routes
-                app.session.routing_preferences = r.results.preferences;
+                app.session.routing_preferences = self.alt_routes[idx].preferences;
                 self.recalculate_routes(ctx, app);
-                self.update_input_panel(ctx, app);
                 return Transition::Keep;
             }
+            _ => {}
         }
 
         let outcome = self.input_panel.event(ctx);
@@ -181,7 +204,6 @@ impl State<App> for RoutePlanner {
                     stressful_roads: self.input_panel.dropdown_value("stressful roads"),
                 };
                 self.recalculate_routes(ctx, app);
-                self.update_input_panel(ctx, app);
                 return Transition::Keep;
             }
         }
@@ -193,21 +215,12 @@ impl State<App> for RoutePlanner {
         {
             return t;
         }
-        // Dragging behavior inside here only works if we're not hovering on an alternate route
-        // TODO But then that prevents dragging some waypoints! Can we give waypoints precedence
-        // instead?
-        if !focused_on_alt_route && self.waypoints.event(ctx, app, outcome) {
+
+        if self.waypoints.event(ctx, app, outcome) {
             // Sync from waypoints to file management
             // TODO Maaaybe this directly live in the InputWaypoints system?
             self.files.current.waypoints = self.waypoints.get_waypoints();
             self.recalculate_routes(ctx, app);
-            self.update_input_panel(ctx, app);
-        }
-        if focused_on_alt_route {
-            // Still allow zooming
-            if let Some((_, dy)) = ctx.input.get_mouse_scroll() {
-                ctx.canvas.zoom(dy, ctx.canvas.get_cursor());
-            }
         }
 
         if let Some(t) = self.layers.event(ctx, app) {
@@ -221,10 +234,8 @@ impl State<App> for RoutePlanner {
         self.layers.draw(g, app);
         self.input_panel.draw(g);
         self.waypoints.draw(g);
-        self.main_route.draw(g, app, &self.input_panel);
-        for r in &self.alt_routes {
-            r.draw(g, app);
-        }
+        self.main_route.draw(g, &self.input_panel);
+        self.world.draw(g);
     }
 }
 

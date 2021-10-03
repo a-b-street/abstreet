@@ -118,6 +118,7 @@ impl State<App> for PolygonEditor {
                 obj: Obj::Point(idx),
                 dx,
                 dy,
+                ..
             } => {
                 self.points[idx] = self.points[idx].offset(dx, dy);
                 self.rebuild_world(ctx, app);
@@ -126,6 +127,7 @@ impl State<App> for PolygonEditor {
                 obj: Obj::Polygon,
                 dx,
                 dy,
+                ..
             } => {
                 for pt in &mut self.points {
                     *pt = pt.offset(dx, dy);

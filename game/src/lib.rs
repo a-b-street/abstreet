@@ -85,9 +85,9 @@ fn run(mut settings: Settings) {
         ltn: args.enabled("--ltn"),
     };
 
-    settings = settings.canvas_settings(setup.opts.canvas_settings.clone());
     setup.opts.toggle_day_night_colors = true;
     setup.opts.update_from_args(&mut args);
+    settings = settings.canvas_settings(setup.opts.canvas_settings.clone());
 
     if args.enabled("--dump_raw_events") {
         settings = settings.dump_raw_events();

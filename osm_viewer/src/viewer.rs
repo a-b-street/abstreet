@@ -353,7 +353,7 @@ impl State<App> for Viewer {
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
+        if g.canvas.is_unzoomed() {
             app.draw_unzoomed(g);
         } else {
             app.draw_zoomed(g, DrawOptions::new());

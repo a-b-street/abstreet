@@ -1,6 +1,7 @@
 use abstutil::prettyprint_usize;
-use map_gui::tools::{ColorDiscrete, ToggleZoomed};
+use map_gui::tools::ColorDiscrete;
 use sim::Scenario;
+use widgetry::mapspace::ToggleZoomed;
 use widgetry::{
     Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State, Text,
     VerticalAlignment, Widget,
@@ -112,7 +113,7 @@ impl State<App> for ScenarioManager {
     }
 
     fn draw(&self, g: &mut GfxCtx, app: &App) {
-        self.draw.draw(g, app);
+        self.draw.draw(g);
         self.panel.draw(g);
         CommonState::draw_osd(g, app);
     }

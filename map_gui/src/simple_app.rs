@@ -37,6 +37,7 @@ impl<T: 'static> SimpleApp<T> {
     ) -> (SimpleApp<T>, Vec<Box<dyn State<SimpleApp<T>>>>) {
         let mut args = CmdArgs::new();
         opts.update_from_args(&mut args);
+        ctx.canvas.settings = opts.canvas_settings.clone();
         let map_name = args
             .optional_free()
             .map(|path| {
@@ -169,9 +170,7 @@ impl<T: 'static> SimpleApp<T> {
         unzoomed_buildings: bool,
     ) -> Option<ID> {
         // Unzoomed mode. Ignore when debugging areas.
-        if ctx.canvas.cam_zoom < self.opts.min_zoom_for_detail
-            && !(unzoomed_roads_and_intersections || unzoomed_buildings)
-        {
+        if ctx.canvas.is_unzoomed() && !(unzoomed_roads_and_intersections || unzoomed_buildings) {
             return None;
         }
 
@@ -186,26 +185,22 @@ impl<T: 'static> SimpleApp<T> {
         for obj in objects {
             match obj.get_id() {
                 ID::Road(_) => {
-                    if !unzoomed_roads_and_intersections
-                        || ctx.canvas.cam_zoom >= self.opts.min_zoom_for_detail
-                    {
+                    if !unzoomed_roads_and_intersections || ctx.canvas.is_zoomed() {
                         continue;
                     }
                 }
                 ID::Intersection(_) => {
-                    if ctx.canvas.cam_zoom < self.opts.min_zoom_for_detail
-                        && !unzoomed_roads_and_intersections
-                    {
+                    if ctx.canvas.is_unzoomed() && !unzoomed_roads_and_intersections {
                         continue;
                     }
                 }
                 ID::Building(_) => {
-                    if ctx.canvas.cam_zoom < self.opts.min_zoom_for_detail && !unzoomed_buildings {
+                    if ctx.canvas.is_unzoomed() && !unzoomed_buildings {
                         continue;
                     }
                 }
                 _ => {
-                    if ctx.canvas.cam_zoom < self.opts.min_zoom_for_detail {
+                    if ctx.canvas.is_unzoomed() {
                         continue;
                     }
                 }
@@ -260,7 +255,7 @@ impl<T: 'static> AppLike for SimpleApp<T> {
     }
 
     fn draw_with_opts(&self, g: &mut GfxCtx, opts: DrawOptions) {
-        if g.canvas.cam_zoom < self.opts.min_zoom_for_detail {
+        if g.canvas.is_unzoomed() {
             self.draw_unzoomed(g);
         } else {
             self.draw_zoomed(g, opts);

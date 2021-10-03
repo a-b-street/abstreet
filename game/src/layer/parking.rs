@@ -3,9 +3,10 @@ use std::collections::BTreeSet;
 use abstutil::{prettyprint_usize, Counter};
 use geom::{Circle, Distance, Duration, Pt2D, Time};
 use map_gui::render::unzoomed_agent_radius;
-use map_gui::tools::{ColorLegend, ColorNetwork, ToggleZoomed};
+use map_gui::tools::{ColorLegend, ColorNetwork};
 use map_model::{BuildingID, OffstreetParking, ParkingLotID, PathRequest, RoadID};
 use sim::{ParkingSpot, VehicleType};
+use widgetry::mapspace::ToggleZoomed;
 use widgetry::{EventCtx, GfxCtx, Line, Outcome, Panel, Text, Toggle, Widget};
 
 use crate::app::App;
@@ -61,9 +62,9 @@ impl Layer for Occupancy {
         }
         None
     }
-    fn draw(&self, g: &mut GfxCtx, app: &App) {
+    fn draw(&self, g: &mut GfxCtx, _: &App) {
         self.panel.draw(g);
-        self.draw.draw(g, app);
+        self.draw.draw(g);
     }
     fn draw_minimap(&self, g: &mut GfxCtx) {
         g.redraw(&self.draw.unzoomed);
@@ -315,9 +316,9 @@ impl Layer for Efficiency {
         }
         None
     }
-    fn draw(&self, g: &mut GfxCtx, app: &App) {
+    fn draw(&self, g: &mut GfxCtx, _: &App) {
         self.panel.draw(g);
-        self.draw.draw(g, app);
+        self.draw.draw(g);
     }
     fn draw_minimap(&self, g: &mut GfxCtx) {
         g.redraw(&self.draw.unzoomed);

@@ -11,11 +11,12 @@ use geom::{Bounds, Circle, Distance, Duration, FindClosest, Polygon, Pt2D, Time}
 use map_gui::colors::ColorScheme;
 use map_gui::options::Options;
 use map_gui::render::{unzoomed_agent_radius, AgentCache, DrawMap, DrawOptions, Renderable};
-use map_gui::tools::{CameraState, ToggleZoomed};
+use map_gui::tools::CameraState;
 use map_gui::ID;
 use map_model::AreaType;
 use map_model::{BufferType, IntersectionID, LaneType, Map, Traversable};
 use sim::{AgentID, Analytics, Scenario, Sim, SimCallback, SimFlags, VehicleType};
+use widgetry::mapspace::ToggleZoomed;
 use widgetry::{Cached, Canvas, EventCtx, GfxCtx, Prerender, SharedAppState, State};
 
 use crate::challenges::HighScore;
@@ -122,8 +123,7 @@ impl App {
         g.clear(self.cs.void_background);
         g.redraw(&draw_map.boundary_polygon);
 
-        if g.canvas.cam_zoom < self.opts.min_zoom_for_detail {
-            // Unzoomed mode
+        if g.canvas.is_unzoomed() {
             let layers = show_objs.layers();
             if layers.show_areas {
                 g.redraw(&draw_map.draw_all_areas);
@@ -255,7 +255,7 @@ impl App {
         unzoomed_roads_and_intersections: bool,
         unzoomed_buildings: bool,
     ) -> Option<ID> {
-        let unzoomed = ctx.canvas.cam_zoom < self.opts.min_zoom_for_detail;
+        let unzoomed = ctx.canvas.is_unzoomed();
 
         // Unzoomed mode. Ignore when debugging areas.
         if unzoomed && !(debug_mode || unzoomed_roads_and_intersections || unzoomed_buildings) {

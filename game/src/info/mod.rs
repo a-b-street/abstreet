@@ -3,13 +3,14 @@ use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 pub use trip::OpenTrip;
 
 use geom::{Circle, Distance, Polygon, Time};
-use map_gui::tools::{open_browser, ToggleZoomed, ToggleZoomedBuilder};
+use map_gui::tools::open_browser;
 use map_gui::ID;
 use map_model::{AreaID, BuildingID, BusRouteID, BusStopID, IntersectionID, LaneID, ParkingLotID};
 use sim::{
     AgentID, AgentType, Analytics, CarID, ParkingSpot, PedestrianID, PersonID, PersonState, TripID,
     VehicleType,
 };
+use widgetry::mapspace::{ToggleZoomed, ToggleZoomedBuilder};
 use widgetry::{
     EventCtx, GfxCtx, Key, Line, LinePlot, Outcome, Panel, PlotOptions, Series, Text, TextExt,
     Toggle, Widget,
@@ -631,9 +632,9 @@ impl InfoPanel {
         }
     }
 
-    pub fn draw(&self, g: &mut GfxCtx, app: &App) {
+    pub fn draw(&self, g: &mut GfxCtx, _: &App) {
         self.panel.draw(g);
-        self.draw_extra.draw(g, app);
+        self.draw_extra.draw(g);
         if let Some(pt) = g.canvas.get_cursor_in_map_space() {
             for (poly, txt) in &self.tooltips {
                 if poly.contains_pt(pt) {
