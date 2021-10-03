@@ -547,9 +547,9 @@
         <span class="ident">ltn</span>: <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--ltn&quot;</span>),
     };
 
-    <span class="ident">settings</span> <span class="op">=</span> <span class="ident">settings</span>.<span class="ident">canvas_settings</span>(<span class="ident">setup</span>.<span class="ident">opts</span>.<span class="ident">canvas_settings</span>.<span class="ident">clone</span>());
     <span class="ident">setup</span>.<span class="ident">opts</span>.<span class="ident">toggle_day_night_colors</span> <span class="op">=</span> <span class="bool-val">true</span>;
     <span class="ident">setup</span>.<span class="ident">opts</span>.<span class="ident">update_from_args</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">args</span>);
+    <span class="ident">settings</span> <span class="op">=</span> <span class="ident">settings</span>.<span class="ident">canvas_settings</span>(<span class="ident">setup</span>.<span class="ident">opts</span>.<span class="ident">canvas_settings</span>.<span class="ident">clone</span>());
 
     <span class="kw">if</span> <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--dump_raw_events&quot;</span>) {
         <span class="ident">settings</span> <span class="op">=</span> <span class="ident">settings</span>.<span class="ident">dump_raw_events</span>();

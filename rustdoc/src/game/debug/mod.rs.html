@@ -2043,7 +2043,7 @@
         <span class="comment">// Taking screenshots messes with options and doesn&#39;t restore them after. It&#39;s expected</span>
         <span class="comment">// whoever&#39;s taking screenshots (just Dustin so far) will just quit after taking them.</span>
         <span class="ident">app</span>.<span class="ident">change_color_scheme</span>(<span class="ident">ctx</span>, <span class="ident">ColorSchemeChoice::DayMode</span>);
-        <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">min_zoom_for_detail</span> <span class="op">=</span> <span class="number">0.0</span>;
+        <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">settings</span>.<span class="ident">min_zoom_for_detail</span> <span class="op">=</span> <span class="number">0.0</span>;
         <span class="ident">MapLoader::new_state</span>(
             <span class="ident">ctx</span>,
             <span class="ident">app</span>,

@@ -882,7 +882,7 @@
         <span class="comment">// We need to recalculate unzoomed agent mouseover when the mouse is still and time passes</span>
         <span class="comment">// (since something could move beneath the cursor), or when the mouse moves.</span>
         <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span>.<span class="ident">is_none</span>()
-            <span class="op">&amp;&amp;</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span> <span class="op">&lt;</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">min_zoom_for_detail</span>
+            <span class="op">&amp;&amp;</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">is_unzoomed</span>()
             <span class="op">&amp;&amp;</span> (<span class="ident">ctx</span>.<span class="ident">redo_mouseover</span>()
                 <span class="op">|</span><span class="op">|</span> <span class="self">self</span>
                     .<span class="ident">recalc_unzoomed_agent</span>

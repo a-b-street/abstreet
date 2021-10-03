@@ -441,7 +441,7 @@
                     <span class="kw">return</span> <span class="ident">Transition::Replace</span>(<span class="ident">app</span>.<span class="ident">make_warper</span>(
                         <span class="ident">ctx</span>,
                         <span class="ident">pt</span>,
-                        <span class="prelude-val">Some</span>(<span class="ident">app</span>.<span class="ident">opts</span>().<span class="ident">min_zoom_for_detail</span>),
+                        <span class="prelude-val">Some</span>(<span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">settings</span>.<span class="ident">min_zoom_for_detail</span>),
                         <span class="prelude-val">None</span>,
                     ));
                 }
@@ -465,7 +465,7 @@
                 <span class="kw">return</span> <span class="ident">Transition::Replace</span>(<span class="ident">app</span>.<span class="ident">make_warper</span>(
                     <span class="ident">ctx</span>,
                     <span class="ident">pt</span>,
-                    <span class="prelude-val">Some</span>(<span class="ident">app</span>.<span class="ident">opts</span>().<span class="ident">min_zoom_for_detail</span>),
+                    <span class="prelude-val">Some</span>(<span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">settings</span>.<span class="ident">min_zoom_for_detail</span>),
                     <span class="prelude-val">Some</span>(<span class="ident">ID::Intersection</span>(<span class="ident">i</span>)),
                 ));
             } <span class="kw">else</span> {
@@ -566,7 +566,7 @@
             <span class="kw">return</span> <span class="ident">Transition::Replace</span>(<span class="ident">app</span>.<span class="ident">make_warper</span>(
                 <span class="ident">ctx</span>,
                 <span class="ident">pt</span>,
-                <span class="prelude-val">Some</span>(<span class="ident">app</span>.<span class="ident">opts</span>().<span class="ident">min_zoom_for_detail</span>),
+                <span class="prelude-val">Some</span>(<span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">settings</span>.<span class="ident">min_zoom_for_detail</span>),
                 <span class="prelude-val">Some</span>(<span class="ident">ID::Building</span>(<span class="ident">bldgs</span>[<span class="number">0</span>])),
             ));
         }

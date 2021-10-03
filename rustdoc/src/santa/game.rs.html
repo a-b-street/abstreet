@@ -1179,7 +1179,7 @@
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="ident">dy</span>)) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">get_mouse_scroll</span>() {
             <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span> <span class="op">=</span> <span class="number">1.1_f64</span>
                 .<span class="ident">powf</span>(<span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span>.<span class="ident">log</span>(<span class="number">1.1</span>) <span class="op">+</span> <span class="ident">dy</span>)
-                .<span class="ident">max</span>(<span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">min_zoom_for_detail</span>)
+                .<span class="ident">max</span>(<span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">settings</span>.<span class="ident">min_zoom_for_detail</span>)
                 .<span class="ident">min</span>(<span class="number">50.0</span>);
             <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">center_on_map_pt</span>(<span class="self">self</span>.<span class="ident">player</span>.<span class="ident">get_pos</span>());
         }

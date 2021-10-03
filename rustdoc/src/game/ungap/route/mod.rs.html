@@ -291,13 +291,37 @@
 <span id="291">291</span>
 <span id="292">292</span>
 <span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">map_model::RoutingParams</span>;
+<span class="kw">use</span> <span class="ident">widgetry::mapspace</span>::{<span class="ident">ObjectID</span>, <span class="ident">World</span>, <span class="ident">WorldOutcome</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Choice</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">TextExt</span>, <span class="ident">Widget</span>};
 
-<span class="kw">use</span> <span class="self">self</span><span class="ident">::results</span>::{<span class="ident">AltRouteResults</span>, <span class="ident">RouteResults</span>};
+<span class="kw">use</span> <span class="self">self</span><span class="ident">::results::RouteDetails</span>;
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::common::InputWaypoints</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::common</span>::{<span class="ident">InputWaypoints</span>, <span class="ident">WaypointID</span>};
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::ungap</span>::{<span class="ident">Layers</span>, <span class="ident">Tab</span>, <span class="ident">TakeLayers</span>};
 
 <span class="kw">mod</span> <span class="ident">files</span>;
@@ -309,10 +333,11 @@
 
     <span class="ident">input_panel</span>: <span class="ident">Panel</span>,
     <span class="ident">waypoints</span>: <span class="ident">InputWaypoints</span>,
-    <span class="ident">main_route</span>: <span class="ident">RouteResults</span>,
+    <span class="ident">main_route</span>: <span class="ident">RouteDetails</span>,
     <span class="ident">files</span>: <span class="ident">files::RouteManagement</span>,
-
-    <span class="ident">alt_routes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">AltRouteResults</span><span class="op">&gt;</span>,
+    <span class="comment">// TODO We really only need to store preferences and stats, but...</span>
+    <span class="ident">alt_routes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">RouteDetails</span><span class="op">&gt;</span>,
+    <span class="ident">world</span>: <span class="ident">World</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">TakeLayers</span> <span class="kw">for</span> <span class="ident">RoutePlanner</span> {
@@ -321,6 +346,14 @@
     }
 }
 
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Hash</span>)]</span>
+<span class="kw">enum</span> <span class="ident">ID</span> {
+    <span class="ident">MainRoute</span>,
+    <span class="ident">AltRoute</span>(<span class="ident">usize</span>),
+    <span class="ident">Waypoint</span>(<span class="ident">WaypointID</span>),
+}
+<span class="kw">impl</span> <span class="ident">ObjectID</span> <span class="kw">for</span> <span class="ident">ID</span> {}
+
 <span class="kw">impl</span> <span class="ident">RoutePlanner</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">layers</span>: <span class="ident">Layers</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rp</span> <span class="op">=</span> <span class="ident">RoutePlanner</span> {
@@ -328,19 +361,30 @@
             <span class="ident">once</span>: <span class="bool-val">true</span>,
 
             <span class="ident">input_panel</span>: <span class="ident">Panel::empty</span>(<span class="ident">ctx</span>),
-            <span class="ident">waypoints</span>: <span class="ident">InputWaypoints::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
-            <span class="ident">main_route</span>: <span class="ident">RouteResults::main_route</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">Vec::new</span>()),
+            <span class="ident">waypoints</span>: <span class="ident">InputWaypoints::new</span>(<span class="ident">app</span>),
+            <span class="ident">main_route</span>: <span class="ident">RouteDetails::main_route</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">Vec::new</span>()).<span class="ident">details</span>,
             <span class="ident">files</span>: <span class="ident">files::RouteManagement::new</span>(<span class="ident">app</span>),
-
             <span class="ident">alt_routes</span>: <span class="ident">Vec::new</span>(),
+            <span class="ident">world</span>: <span class="ident">World::bounded</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_bounds</span>()),
         };
-        <span class="ident">rp</span>.<span class="ident">update_input_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+        <span class="ident">rp</span>.<span class="ident">recalculate_routes</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
         <span class="ident">Box::new</span>(<span class="ident">rp</span>)
     }
 
+    <span class="comment">// Use the current session settings to determine &quot;main&quot; and alts</span>
     <span class="kw">fn</span> <span class="ident">recalculate_routes</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
-        <span class="comment">// Use the current session settings to determine &quot;main&quot; and alts</span>
-        <span class="self">self</span>.<span class="ident">main_route</span> <span class="op">=</span> <span class="ident">RouteResults::main_route</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">get_waypoints</span>());
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">world</span> <span class="op">=</span> <span class="ident">World::bounded</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_bounds</span>());
+
+        <span class="kw">let</span> <span class="ident">main_route</span> <span class="op">=</span> <span class="ident">RouteDetails::main_route</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">get_waypoints</span>());
+        <span class="self">self</span>.<span class="ident">main_route</span> <span class="op">=</span> <span class="ident">main_route</span>.<span class="ident">details</span>;
+        <span class="ident">world</span>
+            .<span class="ident">add</span>(<span class="ident">ID::MainRoute</span>)
+            .<span class="ident">hitbox</span>(<span class="ident">main_route</span>.<span class="ident">hitbox</span>)
+            .<span class="ident">zorder</span>(<span class="number">1</span>)
+            .<span class="ident">draw</span>(<span class="ident">main_route</span>.<span class="ident">draw</span>)
+            .<span class="ident">build</span>(<span class="ident">ctx</span>);
+        <span class="comment">// This doesn&#39;t depend on the alt routes, so just do it here</span>
+        <span class="self">self</span>.<span class="ident">update_input_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">main_route</span>.<span class="ident">details_widget</span>);
 
         <span class="self">self</span>.<span class="ident">alt_routes</span>.<span class="ident">clear</span>();
         <span class="comment">// Just a few fixed variations... all 9 combos seems overwhelming</span>
@@ -362,7 +406,7 @@
             <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">routing_preferences</span> <span class="op">=</span><span class="op">=</span> <span class="ident">preferences</span> {
                 <span class="kw">continue</span>;
             }
-            <span class="kw">let</span> <span class="ident">alt</span> <span class="op">=</span> <span class="ident">AltRouteResults::new</span>(
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">alt</span> <span class="op">=</span> <span class="ident">RouteDetails::alt_route</span>(
                 <span class="ident">ctx</span>,
                 <span class="ident">app</span>,
                 <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">get_waypoints</span>(),
@@ -370,18 +414,31 @@
                 <span class="ident">preferences</span>,
             );
             <span class="comment">// Dedupe equivalent routes based on their stats, which is usually detailed enough</span>
-            <span class="kw">if</span> <span class="ident">alt</span>.<span class="ident">results</span>.<span class="ident">stats</span> <span class="op">!</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">main_route</span>.<span class="ident">stats</span>
-                <span class="op">&amp;&amp;</span> <span class="self">self</span>
-                    .<span class="ident">alt_routes</span>
-                    .<span class="ident">iter</span>()
-                    .<span class="ident">all</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">alt</span>.<span class="ident">results</span>.<span class="ident">stats</span> <span class="op">!</span><span class="op">=</span> <span class="ident">x</span>.<span class="ident">results</span>.<span class="ident">stats</span>)
+            <span class="kw">if</span> <span class="ident">alt</span>.<span class="ident">details</span>.<span class="ident">stats</span> <span class="op">!</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">main_route</span>.<span class="ident">stats</span>
+                <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">alt_routes</span>.<span class="ident">iter</span>().<span class="ident">all</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">alt</span>.<span class="ident">details</span>.<span class="ident">stats</span> <span class="op">!</span><span class="op">=</span> <span class="ident">x</span>.<span class="ident">stats</span>)
             {
-                <span class="self">self</span>.<span class="ident">alt_routes</span>.<span class="ident">push</span>(<span class="ident">alt</span>);
+                <span class="self">self</span>.<span class="ident">alt_routes</span>.<span class="ident">push</span>(<span class="ident">alt</span>.<span class="ident">details</span>);
+                <span class="ident">world</span>
+                    .<span class="ident">add</span>(<span class="ident">ID::AltRoute</span>(<span class="self">self</span>.<span class="ident">alt_routes</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>))
+                    .<span class="ident">hitbox</span>(<span class="ident">alt</span>.<span class="ident">hitbox</span>)
+                    .<span class="ident">zorder</span>(<span class="number">0</span>)
+                    .<span class="ident">draw</span>(<span class="ident">alt</span>.<span class="ident">draw</span>)
+                    .<span class="ident">hover_alpha</span>(<span class="number">0.8</span>)
+                    .<span class="ident">tooltip</span>(<span class="ident">alt</span>.<span class="ident">tooltip_for_alt</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>())
+                    .<span class="ident">clickable</span>()
+                    .<span class="ident">build</span>(<span class="ident">ctx</span>);
             }
         }
+
+        <span class="self">self</span>.<span class="ident">waypoints</span>
+            .<span class="ident">rebuild_world</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">world</span>, <span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="ident">ID::Waypoint</span>(<span class="ident">id</span>), <span class="number">2</span>);
+
+        <span class="ident">world</span>.<span class="ident">initialize_hover</span>(<span class="ident">ctx</span>);
+        <span class="ident">world</span>.<span class="ident">rebuilt_during_drag</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">world</span>);
+        <span class="self">self</span>.<span class="ident">world</span> <span class="op">=</span> <span class="ident">world</span>;
     }
 
-    <span class="kw">fn</span> <span class="ident">update_input_panel</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
+    <span class="kw">fn</span> <span class="ident">update_input_panel</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">main_route</span>: <span class="ident">Widget</span>) {
         <span class="kw">let</span> <span class="ident">col</span> <span class="op">=</span> <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
             <span class="self">self</span>.<span class="ident">files</span>.<span class="ident">get_panel_widget</span>(<span class="ident">ctx</span>),
             <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[<span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
@@ -412,7 +469,7 @@
             ])])
             .<span class="ident">section</span>(<span class="ident">ctx</span>),
             <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">get_panel_widget</span>(<span class="ident">ctx</span>).<span class="ident">section</span>(<span class="ident">ctx</span>),
-            <span class="self">self</span>.<span class="ident">main_route</span>.<span class="ident">to_widget</span>(<span class="ident">ctx</span>, <span class="ident">app</span>).<span class="ident">section</span>(<span class="ident">ctx</span>),
+            <span class="ident">main_route</span>.<span class="ident">section</span>(<span class="ident">ctx</span>),
         ]);
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">new_panel</span> <span class="op">=</span> <span class="ident">Tab::Route</span>.<span class="ident">make_left_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">col</span>);
@@ -425,9 +482,8 @@
 
     <span class="kw">fn</span> <span class="ident">sync_from_file_management</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
         <span class="self">self</span>.<span class="ident">waypoints</span>
-            .<span class="ident">overwrite</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">files</span>.<span class="ident">current</span>.<span class="ident">waypoints</span>.<span class="ident">clone</span>());
+            .<span class="ident">overwrite</span>(<span class="ident">app</span>, <span class="self">self</span>.<span class="ident">files</span>.<span class="ident">current</span>.<span class="ident">waypoints</span>.<span class="ident">clone</span>());
         <span class="self">self</span>.<span class="ident">recalculate_routes</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
-        <span class="self">self</span>.<span class="ident">update_input_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
     }
 }
 
@@ -442,21 +498,21 @@
             });
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">focused_on_alt_route</span> <span class="op">=</span> <span class="bool-val">false</span>;
-        <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">alt_routes</span> {
-            <span class="ident">r</span>.<span class="ident">event</span>(<span class="ident">ctx</span>);
-            <span class="ident">focused_on_alt_route</span> <span class="op">|</span><span class="op">=</span> <span class="ident">r</span>.<span class="ident">has_focus</span>();
-            <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">has_focus</span>() <span class="op">&amp;&amp;</span> <span class="ident">ctx</span>.<span class="ident">normal_left_click</span>() {
+        <span class="kw">let</span> <span class="ident">world_outcome_for_waypoints</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">world</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
+            <span class="ident">WorldOutcome::ClickedObject</span>(<span class="ident">ID::AltRoute</span>(<span class="ident">idx</span>)) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="comment">// Switch routes</span>
-                <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">routing_preferences</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">results</span>.<span class="ident">preferences</span>;
+                <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">routing_preferences</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">alt_routes</span>[<span class="ident">idx</span>].<span class="ident">preferences</span>;
                 <span class="self">self</span>.<span class="ident">recalculate_routes</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
-                <span class="self">self</span>.<span class="ident">update_input_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
                 <span class="kw">return</span> <span class="ident">Transition::Keep</span>;
             }
-        }
+            <span class="ident">x</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">x</span>.<span class="ident">map_id</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">id</span> {
+                <span class="ident">ID::Waypoint</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">id</span>,
+                <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
+            }),
+        };
 
-        <span class="kw">let</span> <span class="ident">outcome</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">input_panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>);
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome::Clicked</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) <span class="op">=</span> <span class="ident">outcome</span> {
+        <span class="kw">let</span> <span class="ident">panel_outcome</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">input_panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>);
+        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome::Clicked</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) <span class="op">=</span> <span class="ident">panel_outcome</span> {
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident">Tab::Route</span>.<span class="ident">handle_action</span>::<span class="op">&lt;</span><span class="ident">RoutePlanner</span><span class="op">&gt;</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">x</span>) {
                 <span class="kw">return</span> <span class="ident">t</span>;
             }
@@ -468,14 +524,13 @@
                 <span class="kw">return</span> <span class="ident">t</span>;
             }
         }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome::Changed</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) <span class="op">=</span> <span class="ident">outcome</span> {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome::Changed</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) <span class="op">=</span> <span class="ident">panel_outcome</span> {
             <span class="kw">if</span> <span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;steep hills&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;stressful roads&quot;</span> {
                 <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">routing_preferences</span> <span class="op">=</span> <span class="ident">RoutingPreferences</span> {
                     <span class="ident">hills</span>: <span class="self">self</span>.<span class="ident">input_panel</span>.<span class="ident">dropdown_value</span>(<span class="string">&quot;steep hills&quot;</span>),
                     <span class="ident">stressful_roads</span>: <span class="self">self</span>.<span class="ident">input_panel</span>.<span class="ident">dropdown_value</span>(<span class="string">&quot;stressful roads&quot;</span>),
                 };
                 <span class="self">self</span>.<span class="ident">recalculate_routes</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
-                <span class="self">self</span>.<span class="ident">update_input_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
                 <span class="kw">return</span> <span class="ident">Transition::Keep</span>;
             }
         }
@@ -483,25 +538,19 @@
         <span class="comment">// TODO This routing of outcomes and the brittle ordering totally breaks encapsulation :(</span>
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="self">self</span>
             .<span class="ident">main_route</span>
-            .<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="ident">outcome</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">input_panel</span>)
+            .<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="ident">panel_outcome</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">input_panel</span>)
         {
             <span class="kw">return</span> <span class="ident">t</span>;
         }
-        <span class="comment">// Dragging behavior inside here only works if we&#39;re not hovering on an alternate route</span>
-        <span class="comment">// TODO But then that prevents dragging some waypoints! Can we give waypoints precedence</span>
-        <span class="comment">// instead?</span>
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">focused_on_alt_route</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">outcome</span>) {
+
+        <span class="kw">if</span> <span class="self">self</span>
+            .<span class="ident">waypoints</span>
+            .<span class="ident">event</span>(<span class="ident">app</span>, <span class="ident">panel_outcome</span>, <span class="ident">world_outcome_for_waypoints</span>)
+        {
             <span class="comment">// Sync from waypoints to file management</span>
             <span class="comment">// TODO Maaaybe this directly live in the InputWaypoints system?</span>
             <span class="self">self</span>.<span class="ident">files</span>.<span class="ident">current</span>.<span class="ident">waypoints</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">get_waypoints</span>();
             <span class="self">self</span>.<span class="ident">recalculate_routes</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
-            <span class="self">self</span>.<span class="ident">update_input_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
-        }
-        <span class="kw">if</span> <span class="ident">focused_on_alt_route</span> {
-            <span class="comment">// Still allow zooming</span>
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="ident">dy</span>)) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">get_mouse_scroll</span>() {
-                <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">zoom</span>(<span class="ident">dy</span>, <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor</span>());
-            }
         }
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">layers</span>.<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="ident">app</span>) {
@@ -514,11 +563,8 @@
     <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
         <span class="self">self</span>.<span class="ident">layers</span>.<span class="ident">draw</span>(<span class="ident">g</span>, <span class="ident">app</span>);
         <span class="self">self</span>.<span class="ident">input_panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-        <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-        <span class="self">self</span>.<span class="ident">main_route</span>.<span class="ident">draw</span>(<span class="ident">g</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">input_panel</span>);
-        <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">alt_routes</span> {
-            <span class="ident">r</span>.<span class="ident">draw</span>(<span class="ident">g</span>, <span class="ident">app</span>);
-        }
+        <span class="self">self</span>.<span class="ident">world</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
+        <span class="self">self</span>.<span class="ident">main_route</span>.<span class="ident">draw</span>(<span class="ident">g</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">input_panel</span>);
     }
 }
 

@@ -324,11 +324,6 @@
 <span id="324">324</span>
 <span id="325">325</span>
 <span id="326">326</span>
-<span id="327">327</span>
-<span id="328">328</span>
-<span id="329">329</span>
-<span id="330">330</span>
-<span id="331">331</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">abstio::MapName</span>;
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">CmdArgs</span>, <span class="ident">Timer</span>};
@@ -369,6 +364,7 @@
     ) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">SimpleApp</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">SimpleApp</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>) {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">args</span> <span class="op">=</span> <span class="ident">CmdArgs::new</span>();
         <span class="ident">opts</span>.<span class="ident">update_from_args</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">args</span>);
+        <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">settings</span> <span class="op">=</span> <span class="ident">opts</span>.<span class="ident">canvas_settings</span>.<span class="ident">clone</span>();
         <span class="kw">let</span> <span class="ident">map_name</span> <span class="op">=</span> <span class="ident">args</span>
             .<span class="ident">optional_free</span>()
             .<span class="ident">map</span>(<span class="op">|</span><span class="ident">path</span><span class="op">|</span> {
@@ -501,9 +497,7 @@
         <span class="ident">unzoomed_buildings</span>: <span class="ident">bool</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span> {
         <span class="comment">// Unzoomed mode. Ignore when debugging areas.</span>
-        <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span> <span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">opts</span>.<span class="ident">min_zoom_for_detail</span>
-            <span class="op">&amp;&amp;</span> <span class="op">!</span>(<span class="ident">unzoomed_roads_and_intersections</span> <span class="op">|</span><span class="op">|</span> <span class="ident">unzoomed_buildings</span>)
-        {
+        <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">is_unzoomed</span>() <span class="op">&amp;&amp;</span> <span class="op">!</span>(<span class="ident">unzoomed_roads_and_intersections</span> <span class="op">|</span><span class="op">|</span> <span class="ident">unzoomed_buildings</span>) {
             <span class="kw">return</span> <span class="prelude-val">None</span>;
         }
 
@@ -518,26 +512,22 @@
         <span class="kw">for</span> <span class="ident">obj</span> <span class="kw">in</span> <span class="ident">objects</span> {
             <span class="kw">match</span> <span class="ident">obj</span>.<span class="ident">get_id</span>() {
                 <span class="ident">ID::Road</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">if</span> <span class="op">!</span><span class="ident">unzoomed_roads_and_intersections</span>
-                        <span class="op">|</span><span class="op">|</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span> <span class="op">&gt;</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">opts</span>.<span class="ident">min_zoom_for_detail</span>
-                    {
+                    <span class="kw">if</span> <span class="op">!</span><span class="ident">unzoomed_roads_and_intersections</span> <span class="op">|</span><span class="op">|</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">is_zoomed</span>() {
                         <span class="kw">continue</span>;
                     }
                 }
                 <span class="ident">ID::Intersection</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span> <span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">opts</span>.<span class="ident">min_zoom_for_detail</span>
-                        <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">unzoomed_roads_and_intersections</span>
-                    {
+                    <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">is_unzoomed</span>() <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">unzoomed_roads_and_intersections</span> {
                         <span class="kw">continue</span>;
                     }
                 }
                 <span class="ident">ID::Building</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span> <span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">opts</span>.<span class="ident">min_zoom_for_detail</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">unzoomed_buildings</span> {
+                    <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">is_unzoomed</span>() <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">unzoomed_buildings</span> {
                         <span class="kw">continue</span>;
                     }
                 }
                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span> <span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">opts</span>.<span class="ident">min_zoom_for_detail</span> {
+                    <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">is_unzoomed</span>() {
                         <span class="kw">continue</span>;
                     }
                 }
@@ -592,7 +582,7 @@
     }
 
     <span class="kw">fn</span> <span class="ident">draw_with_opts</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>, <span class="ident">opts</span>: <span class="ident">DrawOptions</span>) {
-        <span class="kw">if</span> <span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span> <span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">opts</span>.<span class="ident">min_zoom_for_detail</span> {
+        <span class="kw">if</span> <span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">is_unzoomed</span>() {
             <span class="self">self</span>.<span class="ident">draw_unzoomed</span>(<span class="ident">g</span>);
         } <span class="kw">else</span> {
             <span class="self">self</span>.<span class="ident">draw_zoomed</span>(<span class="ident">g</span>, <span class="ident">opts</span>);

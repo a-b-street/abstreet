@@ -255,89 +255,36 @@
 <span id="255">255</span>
 <span id="256">256</span>
 <span id="257">257</span>
-<span id="258">258</span>
-<span id="259">259</span>
-<span id="260">260</span>
-<span id="261">261</span>
-<span id="262">262</span>
-<span id="263">263</span>
-<span id="264">264</span>
-<span id="265">265</span>
-<span id="266">266</span>
-<span id="267">267</span>
-<span id="268">268</span>
-<span id="269">269</span>
-<span id="270">270</span>
-<span id="271">271</span>
-<span id="272">272</span>
-<span id="273">273</span>
-<span id="274">274</span>
-<span id="275">275</span>
-<span id="276">276</span>
-<span id="277">277</span>
-<span id="278">278</span>
-<span id="279">279</span>
-<span id="280">280</span>
-<span id="281">281</span>
-<span id="282">282</span>
-<span id="283">283</span>
-<span id="284">284</span>
-<span id="285">285</span>
-<span id="286">286</span>
-<span id="287">287</span>
-<span id="288">288</span>
-<span id="289">289</span>
-<span id="290">290</span>
-<span id="291">291</span>
-<span id="292">292</span>
-<span id="293">293</span>
-<span id="294">294</span>
-<span id="295">295</span>
-<span id="296">296</span>
-<span id="297">297</span>
-<span id="298">298</span>
-<span id="299">299</span>
-<span id="300">300</span>
-<span id="301">301</span>
-<span id="302">302</span>
-<span id="303">303</span>
 </pre><pre class="rust">
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">FindClosest</span>, <span class="ident">Polygon</span>};
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">FindClosest</span>, <span class="ident">Pt2D</span>};
 <span class="kw">use</span> <span class="ident">sim::TripEndpoint</span>;
+<span class="kw">use</span> <span class="ident">widgetry::mapspace</span>::{<span class="ident">ObjectID</span>, <span class="ident">World</span>, <span class="ident">WorldOutcome</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">CornerRounding</span>, <span class="ident">DragDrop</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Image</span>,
-    <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">StackAxis</span>, <span class="ident">Text</span>, <span class="ident">Widget</span>,
+    <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">CornerRounding</span>, <span class="ident">DragDrop</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">Image</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>,
+    <span class="ident">RewriteColor</span>, <span class="ident">StackAxis</span>, <span class="ident">Text</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::app::App</span>;
 
 <span class="doccomment">/// Click to add waypoints, drag them, see the list on a panel and delete them. The caller owns the</span>
-<span class="doccomment">/// Panel, since there&#39;s probably more stuff there too.</span>
+<span class="doccomment">/// Panel and the World, since there&#39;s probably more stuff there too.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">InputWaypoints</span> {
     <span class="ident">waypoints</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Waypoint</span><span class="op">&gt;</span>,
-    <span class="ident">draw_waypoints</span>: <span class="ident">Drawable</span>,
-    <span class="ident">hovering_on_waypt</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>,
-    <span class="ident">draw_hover</span>: <span class="ident">Drawable</span>,
-    <span class="comment">// TODO Invariant not captured by these separate fields: when dragging is true,</span>
-    <span class="comment">// hovering_on_waypt is fixed.</span>
-    <span class="ident">dragging</span>: <span class="ident">bool</span>,
     <span class="ident">snap_to_endpts</span>: <span class="ident">FindClosest</span><span class="op">&lt;</span><span class="ident">TripEndpoint</span><span class="op">&gt;</span>,
 }
 
-<span class="comment">// TODO Maybe it&#39;s been a while and I&#39;ve forgotten some UI patterns, but this is painfully manual.</span>
-<span class="comment">// I think we need a draggable map-space thing.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Hash</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">WaypointID</span>(<span class="ident">usize</span>);
+<span class="kw">impl</span> <span class="ident">ObjectID</span> <span class="kw">for</span> <span class="ident">WaypointID</span> {}
+
 <span class="kw">struct</span> <span class="ident">Waypoint</span> {
     <span class="ident">at</span>: <span class="ident">TripEndpoint</span>,
     <span class="ident">label</span>: <span class="ident">String</span>,
-    <span class="ident">hitbox</span>: <span class="ident">Polygon</span>,
-}
-
-<span class="kw">fn</span> <span class="ident">get_waypoint_text</span>(<span class="ident">idx</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">char</span> {
-    <span class="ident">char::from_u32</span>(<span class="string">&#39;A&#39;</span> <span class="kw">as</span> <span class="ident">u32</span> <span class="op">+</span> <span class="ident">idx</span> <span class="kw">as</span> <span class="ident">u32</span>).<span class="ident">unwrap</span>()
+    <span class="ident">center</span>: <span class="ident">Pt2D</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">InputWaypoints</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">InputWaypoints</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">InputWaypoints</span> {
         <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">snap_to_endpts</span> <span class="op">=</span> <span class="ident">FindClosest::new</span>(<span class="ident">map</span>.<span class="ident">get_bounds</span>());
         <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_intersections</span>() {
@@ -351,21 +298,16 @@
 
         <span class="ident">InputWaypoints</span> {
             <span class="ident">waypoints</span>: <span class="ident">Vec::new</span>(),
-            <span class="ident">draw_waypoints</span>: <span class="ident">Drawable::empty</span>(<span class="ident">ctx</span>),
-            <span class="ident">hovering_on_waypt</span>: <span class="prelude-val">None</span>,
-            <span class="ident">draw_hover</span>: <span class="ident">Drawable::empty</span>(<span class="ident">ctx</span>),
-            <span class="ident">dragging</span>: <span class="bool-val">false</span>,
             <span class="ident">snap_to_endpts</span>,
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">overwrite</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">waypoints</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TripEndpoint</span><span class="op">&gt;</span>) {
+    <span class="doccomment">/// The caller should call `rebuild_world` after this</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">overwrite</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">waypoints</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TripEndpoint</span><span class="op">&gt;</span>) {
         <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">clear</span>();
         <span class="kw">for</span> <span class="ident">at</span> <span class="kw">in</span> <span class="ident">waypoints</span> {
             <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">push</span>(<span class="ident">Waypoint::new</span>(<span class="ident">app</span>, <span class="ident">at</span>));
         }
-        <span class="self">self</span>.<span class="ident">update_waypoints_drawable</span>(<span class="ident">ctx</span>);
-        <span class="self">self</span>.<span class="ident">update_hover</span>(<span class="ident">ctx</span>);
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_panel_widget</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
@@ -446,55 +388,50 @@
         <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">w</span><span class="op">|</span> <span class="ident">w</span>.<span class="ident">at</span>).<span class="ident">collect</span>()
     }
 
-    <span class="doccomment">/// If the outcome from the panel isn&#39;t used by the caller, pass it along here. This handles</span>
-    <span class="doccomment">/// calling `ctx.canvas_movement` when appropriate. When this returns true, something has</span>
-    <span class="doccomment">/// changed, so the caller may want to update their view of the route and call</span>
-    <span class="doccomment">/// `get_panel_widget` again.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>, <span class="ident">outcome</span>: <span class="ident">Outcome</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">dragging</span> {
-            <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">redo_mouseover</span>() <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">update_dragging</span>(<span class="ident">ctx</span>, <span class="ident">app</span>) <span class="op">=</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="bool-val">true</span>) {
-                <span class="kw">return</span> <span class="bool-val">true</span>;
+    <span class="doccomment">/// If the outcome from the panel or world isn&#39;t used by the caller, pass it along here. When this</span>
+    <span class="doccomment">/// returns true, something has changed, so the caller may want to update their view of the</span>
+    <span class="doccomment">/// route and call `get_panel_widget` and `rebuild_world` again.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">event</span>(
+        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>,
+        <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>,
+        <span class="ident">panel_outcome</span>: <span class="ident">Outcome</span>,
+        <span class="ident">world_outcome</span>: <span class="ident">WorldOutcome</span><span class="op">&lt;</span><span class="ident">WaypointID</span><span class="op">&gt;</span>,
+    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+        <span class="kw">match</span> <span class="ident">world_outcome</span> {
+            <span class="ident">WorldOutcome::ClickedFreeSpace</span>(<span class="ident">pt</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">at</span>, <span class="kw">_</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">snap_to_endpts</span>.<span class="ident">closest_pt</span>(<span class="ident">pt</span>, <span class="ident">Distance::meters</span>(<span class="number">30.0</span>)) {
+                    <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">push</span>(<span class="ident">Waypoint::new</span>(<span class="ident">app</span>, <span class="ident">at</span>));
+                    <span class="kw">return</span> <span class="bool-val">true</span>;
+                }
+                <span class="kw">return</span> <span class="bool-val">false</span>;
             }
-            <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">left_mouse_button_released</span>() {
-                <span class="self">self</span>.<span class="ident">dragging</span> <span class="op">=</span> <span class="bool-val">false</span>;
-                <span class="self">self</span>.<span class="ident">update_hover</span>(<span class="ident">ctx</span>);
-            }
-        } <span class="kw">else</span> {
-            <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">redo_mouseover</span>() {
-                <span class="self">self</span>.<span class="ident">update_hover</span>(<span class="ident">ctx</span>);
-            }
-
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">hovering_on_waypt</span>.<span class="ident">is_none</span>() {
-                <span class="ident">ctx</span>.<span class="ident">canvas_movement</span>();
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="ident">dy</span>)) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">get_mouse_scroll</span>() {
-                <span class="comment">// Zooming is OK, but can&#39;t start click and drag</span>
-                <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">zoom</span>(<span class="ident">dy</span>, <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor</span>());
-            }
-
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">hovering_on_waypt</span>.<span class="ident">is_some</span>() <span class="op">&amp;&amp;</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">left_mouse_button_pressed</span>() {
-                <span class="self">self</span>.<span class="ident">dragging</span> <span class="op">=</span> <span class="bool-val">true</span>;
-            }
-
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt</span>) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_map_space</span>() {
-                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">hovering_on_waypt</span>.<span class="ident">is_none</span>() <span class="op">&amp;&amp;</span> <span class="ident">ctx</span>.<span class="ident">normal_left_click</span>() {
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">at</span>, <span class="kw">_</span>)) <span class="op">=</span>
-                        <span class="self">self</span>.<span class="ident">snap_to_endpts</span>.<span class="ident">closest_pt</span>(<span class="ident">pt</span>, <span class="ident">Distance::meters</span>(<span class="number">30.0</span>))
-                    {
-                        <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">push</span>(<span class="ident">Waypoint::new</span>(<span class="ident">app</span>, <span class="ident">at</span>));
-                        <span class="self">self</span>.<span class="ident">update_waypoints_drawable</span>(<span class="ident">ctx</span>);
-                        <span class="self">self</span>.<span class="ident">update_hover</span>(<span class="ident">ctx</span>);
+            <span class="ident">WorldOutcome::Dragging</span> {
+                <span class="ident">obj</span>: <span class="ident">WaypointID</span>(<span class="ident">idx</span>),
+                <span class="ident">cursor</span>,
+                ..
+            } <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">at</span>, <span class="kw">_</span>)) <span class="op">=</span> <span class="self">self</span>
+                    .<span class="ident">snap_to_endpts</span>
+                    .<span class="ident">closest_pt</span>(<span class="ident">cursor</span>, <span class="ident">Distance::meters</span>(<span class="number">30.0</span>))
+                {
+                    <span class="kw">if</span> <span class="self">self</span>.<span class="ident">waypoints</span>[<span class="ident">idx</span>].<span class="ident">at</span> <span class="op">!</span><span class="op">=</span> <span class="ident">at</span> {
+                        <span class="self">self</span>.<span class="ident">waypoints</span>[<span class="ident">idx</span>] <span class="op">=</span> <span class="ident">Waypoint::new</span>(<span class="ident">app</span>, <span class="ident">at</span>);
                         <span class="kw">return</span> <span class="bool-val">true</span>;
                     }
                 }
             }
+            <span class="ident">WorldOutcome::Keypress</span>(<span class="string">&quot;delete&quot;</span>, <span class="ident">WaypointID</span>(<span class="ident">idx</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">remove</span>(<span class="ident">idx</span>);
+                <span class="kw">return</span> <span class="bool-val">true</span>;
+            }
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
         }
 
-        <span class="kw">match</span> <span class="ident">outcome</span> {
+        <span class="kw">match</span> <span class="ident">panel_outcome</span> {
             <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="ident">x</span>.<span class="ident">strip_prefix</span>(<span class="string">&quot;delete waypoint &quot;</span>) {
                     <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="ident">x</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
                     <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">remove</span>(<span class="ident">idx</span>);
-                    <span class="self">self</span>.<span class="ident">update_waypoints_drawable</span>(<span class="ident">ctx</span>);
                     <span class="kw">return</span> <span class="bool-val">true</span>;
                 } <span class="kw">else</span> {
                     <span class="macro">panic!</span>(<span class="string">&quot;Unknown InputWaypoints click {}&quot;</span>, <span class="ident">x</span>);
@@ -504,7 +441,7 @@
                 <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">swap</span>(<span class="ident">old_idx</span>, <span class="ident">new_idx</span>);
                 <span class="comment">// The order field is baked in, so calculate everything again from scratch</span>
                 <span class="kw">let</span> <span class="ident">waypoints</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_waypoints</span>();
-                <span class="self">self</span>.<span class="ident">overwrite</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">waypoints</span>);
+                <span class="self">self</span>.<span class="ident">overwrite</span>(<span class="ident">app</span>, <span class="ident">waypoints</span>);
                 <span class="kw">return</span> <span class="bool-val">true</span>;
             }
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
@@ -513,76 +450,45 @@
         <span class="bool-val">false</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>) {
-        <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">draw_waypoints</span>);
-        <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">draw_hover</span>);
-    }
-
     <span class="kw">fn</span> <span class="ident">get_waypoint_color</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">idx</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Color</span> {
         <span class="kw">let</span> <span class="ident">total_waypoints</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">len</span>();
         <span class="kw">match</span> <span class="ident">idx</span> {
             <span class="number">0</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Color::GREEN</span>,
             <span class="ident">idx</span> <span class="kw">if</span> <span class="ident">idx</span> <span class="op">=</span><span class="op">=</span> <span class="ident">total_waypoints</span> <span class="op">-</span> <span class="number">1</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Color::RED</span>,
-            <span class="comment">// technically this includes the case where idx &gt;= total_waypoints which should hopefully never happen</span>
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> [<span class="ident">Color::BLUE</span>, <span class="ident">Color::ORANGE</span>, <span class="ident">Color::PURPLE</span>][<span class="ident">idx</span> <span class="op">%</span> <span class="number">3</span>],
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">update_waypoints_drawable</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
-        <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">waypt</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
+    <span class="doccomment">/// The caller is responsible for calling `initialize_hover` and `rebuilt_during_drag`.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rebuild_world</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">ObjectID</span>, <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="ident">WaypointID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T</span><span class="op">&gt;</span>(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
+        <span class="ident">world</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">World</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
+        <span class="ident">wrap_id</span>: <span class="ident">F</span>,
+        <span class="ident">zorder</span>: <span class="ident">usize</span>,
+    ) {
+        <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">waypoint</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
+            <span class="kw">let</span> <span class="ident">hitbox</span> <span class="op">=</span> <span class="ident">Circle::new</span>(<span class="ident">waypoint</span>.<span class="ident">center</span>, <span class="ident">Distance::meters</span>(<span class="number">30.0</span>)).<span class="ident">to_polygon</span>();
             <span class="kw">let</span> <span class="ident">color</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_waypoint_color</span>(<span class="ident">idx</span>);
-            <span class="kw">let</span> <span class="ident">text</span> <span class="op">=</span> <span class="ident">get_waypoint_text</span>(<span class="ident">idx</span>);
 
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">geom</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
-            <span class="ident">geom</span>.<span class="ident">push</span>(<span class="ident">color</span>, <span class="ident">waypt</span>.<span class="ident">hitbox</span>.<span class="ident">clone</span>());
-            <span class="ident">geom</span>.<span class="ident">append</span>(
-                <span class="ident">Text::from</span>(<span class="ident">Line</span>(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">text</span>)).<span class="ident">fg</span>(<span class="ident">Color::WHITE</span>))
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">draw_normal</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
+            <span class="ident">draw_normal</span>.<span class="ident">push</span>(<span class="ident">color</span>, <span class="ident">hitbox</span>.<span class="ident">clone</span>());
+            <span class="ident">draw_normal</span>.<span class="ident">append</span>(
+                <span class="ident">Text::from</span>(<span class="ident">Line</span>(<span class="ident">get_waypoint_text</span>(<span class="ident">idx</span>).<span class="ident">to_string</span>()).<span class="ident">fg</span>(<span class="ident">Color::WHITE</span>))
                     .<span class="ident">render</span>(<span class="ident">ctx</span>)
-                    .<span class="ident">centered_on</span>(<span class="ident">waypt</span>.<span class="ident">hitbox</span>.<span class="ident">center</span>()),
+                    .<span class="ident">centered_on</span>(<span class="ident">waypoint</span>.<span class="ident">center</span>),
             );
 
-            <span class="ident">batch</span>.<span class="ident">append</span>(<span class="ident">geom</span>);
+            <span class="ident">world</span>
+                .<span class="ident">add</span>(<span class="ident">wrap_id</span>(<span class="ident">WaypointID</span>(<span class="ident">idx</span>)))
+                .<span class="ident">hitbox</span>(<span class="ident">hitbox</span>)
+                .<span class="ident">zorder</span>(<span class="ident">zorder</span>)
+                .<span class="ident">draw</span>(<span class="ident">draw_normal</span>)
+                .<span class="ident">draw_hover_rewrite</span>(<span class="ident">RewriteColor::Change</span>(<span class="ident">color</span>, <span class="ident">Color::BLUE</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>)))
+                .<span class="ident">hotkey</span>(<span class="ident">Key::Backspace</span>, <span class="string">&quot;delete&quot;</span>)
+                .<span class="ident">draggable</span>()
+                .<span class="ident">build</span>(<span class="ident">ctx</span>);
         }
-        <span class="self">self</span>.<span class="ident">draw_waypoints</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">batch</span>);
-    }
-
-    <span class="kw">fn</span> <span class="ident">update_hover</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) {
-        <span class="self">self</span>.<span class="ident">hovering_on_waypt</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt</span>) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_map_space</span>() {
-            <span class="self">self</span>.<span class="ident">hovering_on_waypt</span> <span class="op">=</span> <span class="self">self</span>
-                .<span class="ident">waypoints</span>
-                .<span class="ident">iter</span>()
-                .<span class="ident">position</span>(<span class="op">|</span><span class="ident">waypt</span><span class="op">|</span> <span class="ident">waypt</span>.<span class="ident">hitbox</span>.<span class="ident">contains_pt</span>(<span class="ident">pt</span>));
-        }
-
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">idx</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">hovering_on_waypt</span> {
-            <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color::BLUE</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>), <span class="self">self</span>.<span class="ident">waypoints</span>[<span class="ident">idx</span>].<span class="ident">hitbox</span>.<span class="ident">clone</span>());
-        }
-        <span class="self">self</span>.<span class="ident">draw_hover</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">batch</span>);
-    }
-
-    <span class="comment">// `Some(true)` means to update.</span>
-    <span class="kw">fn</span> <span class="ident">update_dragging</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">pt</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_map_space</span>()<span class="question-mark">?</span>;
-        <span class="kw">let</span> (<span class="ident">at</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">snap_to_endpts</span>.<span class="ident">closest_pt</span>(<span class="ident">pt</span>, <span class="ident">Distance::meters</span>(<span class="number">30.0</span>))<span class="question-mark">?</span>;
-
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">changed</span> <span class="op">=</span> <span class="bool-val">false</span>;
-        <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">hovering_on_waypt</span>.<span class="ident">unwrap</span>();
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">waypoints</span>[<span class="ident">idx</span>].<span class="ident">at</span> <span class="op">!</span><span class="op">=</span> <span class="ident">at</span> {
-            <span class="self">self</span>.<span class="ident">waypoints</span>[<span class="ident">idx</span>] <span class="op">=</span> <span class="ident">Waypoint::new</span>(<span class="ident">app</span>, <span class="ident">at</span>);
-            <span class="self">self</span>.<span class="ident">update_waypoints_drawable</span>(<span class="ident">ctx</span>);
-            <span class="ident">changed</span> <span class="op">=</span> <span class="bool-val">true</span>;
-        }
-
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
-        <span class="comment">// Show where we&#39;re currently snapped</span>
-        <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color::BLUE</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>), <span class="self">self</span>.<span class="ident">waypoints</span>[<span class="ident">idx</span>].<span class="ident">hitbox</span>.<span class="ident">clone</span>());
-        <span class="self">self</span>.<span class="ident">draw_hover</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">batch</span>);
-
-        <span class="prelude-val">Some</span>(<span class="ident">changed</span>)
     }
 }
 
@@ -600,10 +506,12 @@
             }
             <span class="ident">TripEndpoint::SuddenlyAppear</span>(<span class="ident">pos</span>) <span class="op">=</span><span class="op">&gt;</span> (<span class="ident">pos</span>.<span class="ident">pt</span>(<span class="ident">map</span>), <span class="ident">pos</span>.<span class="ident">to_string</span>()),
         };
-
-        <span class="kw">let</span> <span class="ident">hitbox</span> <span class="op">=</span> <span class="ident">Circle::new</span>(<span class="ident">center</span>, <span class="ident">Distance::meters</span>(<span class="number">30.0</span>)).<span class="ident">to_polygon</span>();
-        <span class="ident">Waypoint</span> { <span class="ident">at</span>, <span class="ident">label</span>, <span class="ident">hitbox</span> }
+        <span class="ident">Waypoint</span> { <span class="ident">at</span>, <span class="ident">label</span>, <span class="ident">center</span> }
     }
+}
+
+<span class="kw">fn</span> <span class="ident">get_waypoint_text</span>(<span class="ident">idx</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">char</span> {
+    <span class="ident">char::from_u32</span>(<span class="string">&#39;A&#39;</span> <span class="kw">as</span> <span class="ident">u32</span> <span class="op">+</span> <span class="ident">idx</span> <span class="kw">as</span> <span class="ident">u32</span>).<span class="ident">unwrap</span>()
 }
 </pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="game" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>

@@ -506,233 +506,182 @@
 <span id="506">506</span>
 <span id="507">507</span>
 <span id="508">508</span>
-<span id="509">509</span>
-<span id="510">510</span>
-<span id="511">511</span>
-<span id="512">512</span>
-<span id="513">513</span>
-<span id="514">514</span>
-<span id="515">515</span>
-<span id="516">516</span>
-<span id="517">517</span>
-<span id="518">518</span>
-<span id="519">519</span>
-<span id="520">520</span>
-<span id="521">521</span>
-<span id="522">522</span>
-<span id="523">523</span>
-<span id="524">524</span>
-<span id="525">525</span>
-<span id="526">526</span>
-<span id="527">527</span>
-<span id="528">528</span>
-<span id="529">529</span>
-<span id="530">530</span>
-<span id="531">531</span>
-<span id="532">532</span>
-<span id="533">533</span>
-<span id="534">534</span>
-<span id="535">535</span>
-<span id="536">536</span>
-<span id="537">537</span>
-<span id="538">538</span>
-<span id="539">539</span>
-<span id="540">540</span>
-<span id="541">541</span>
-<span id="542">542</span>
-<span id="543">543</span>
-<span id="544">544</span>
-<span id="545">545</span>
-<span id="546">546</span>
-<span id="547">547</span>
-<span id="548">548</span>
-<span id="549">549</span>
-<span id="550">550</span>
-<span id="551">551</span>
-<span id="552">552</span>
-<span id="553">553</span>
-<span id="554">554</span>
-<span id="555">555</span>
-<span id="556">556</span>
-<span id="557">557</span>
-<span id="558">558</span>
-<span id="559">559</span>
-<span id="560">560</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">LonLat</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>};
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">LonLat</span>, <span class="ident">PolyLine</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>};
 <span class="kw">use</span> <span class="ident">map_gui::render::DrawOptions</span>;
 <span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">ChooseSomething</span>, <span class="ident">PromptInput</span>};
+<span class="kw">use</span> <span class="ident">widgetry::mapspace</span>::{<span class="ident">ObjectID</span>, <span class="ident">World</span>, <span class="ident">WorldOutcome</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">lctrl</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">DrawBaselayer</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>,
-    <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">RewriteColor</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextBox</span>,
-    <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">lctrl</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">DrawBaselayer</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>,
+    <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">SimpleState</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextBox</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::app</span>::{<span class="ident">App</span>, <span class="ident">ShowEverything</span>, <span class="ident">Transition</span>};
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::common::CommonState</span>;
-
-<span class="comment">// TODO This is a really great example of things that widgetry ought to make easier. Maybe a radio</span>
-<span class="comment">// button-ish thing to start?</span>
 
 <span class="comment">// Good inspiration: http://sfo-assess.dha.io/, https://github.com/mapbox/storytelling,</span>
 <span class="comment">// https://storymap.knightlab.com/</span>
 
+<span class="doccomment">/// A simple tool to place markers and free-hand shapes over a map, then label them.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">StoryMapEditor</span> {
     <span class="ident">panel</span>: <span class="ident">Panel</span>,
     <span class="ident">story</span>: <span class="ident">StoryMap</span>,
-    <span class="ident">mode</span>: <span class="ident">Mode</span>,
+    <span class="ident">world</span>: <span class="ident">World</span><span class="op">&lt;</span><span class="ident">MarkerID</span><span class="op">&gt;</span>,
+
     <span class="ident">dirty</span>: <span class="ident">bool</span>,
-
-    <span class="comment">// Index into story.markers</span>
-    <span class="comment">// TODO Stick in Mode::View?</span>
-    <span class="ident">hovering</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>,
 }
 
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::large_enum_variant</span>)]</span>
-<span class="kw">enum</span> <span class="ident">Mode</span> {
-    <span class="ident">View</span>,
-    <span class="ident">PlacingMarker</span>,
-    <span class="ident">Dragging</span>(<span class="ident">Pt2D</span>, <span class="ident">usize</span>),
-    <span class="ident">Editing</span>(<span class="ident">usize</span>, <span class="ident">Panel</span>),
-    <span class="ident">Freehand</span>(<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Lasso</span><span class="op">&gt;</span>),
-}
+<span class="comment">// TODO We&#39;ll constantly rebuild the world, so these are indices into a list of markers. Maybe we</span>
+<span class="comment">// should just assign opaque IDs and hash into them. (Deleting a marker in the middle of the list</span>
+<span class="comment">// would mean changing IDs of everything after it.)</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Hash</span>)]</span>
+<span class="kw">struct</span> <span class="ident">MarkerID</span>(<span class="ident">usize</span>);
+<span class="kw">impl</span> <span class="ident">ObjectID</span> <span class="kw">for</span> <span class="ident">MarkerID</span> {}
 
 <span class="kw">impl</span> <span class="ident">StoryMapEditor</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">story</span> <span class="op">=</span> <span class="ident">StoryMap::new</span>();
-        <span class="kw">let</span> <span class="ident">mode</span> <span class="op">=</span> <span class="ident">Mode::View</span>;
-        <span class="kw">let</span> <span class="ident">dirty</span> <span class="op">=</span> <span class="bool-val">false</span>;
-        <span class="ident">Box::new</span>(<span class="ident">StoryMapEditor</span> {
-            <span class="ident">panel</span>: <span class="ident">make_panel</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">story</span>, <span class="kw-2">&amp;</span><span class="ident">mode</span>, <span class="ident">dirty</span>),
-            <span class="ident">story</span>,
-            <span class="ident">mode</span>,
-            <span class="ident">dirty</span>,
-            <span class="ident">hovering</span>: <span class="prelude-val">None</span>,
-        })
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="self">Self</span><span class="ident">::from_story</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">StoryMap::new</span>())
     }
 
-    <span class="kw">fn</span> <span class="ident">redo_panel</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) {
-        <span class="self">self</span>.<span class="ident">panel</span> <span class="op">=</span> <span class="ident">make_panel</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">story</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">mode</span>, <span class="self">self</span>.<span class="ident">dirty</span>);
+    <span class="kw">fn</span> <span class="ident">from_story</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">story</span>: <span class="ident">StoryMap</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">StoryMapEditor</span> {
+            <span class="ident">panel</span>: <span class="ident">Panel::empty</span>(<span class="ident">ctx</span>),
+            <span class="ident">story</span>,
+            <span class="ident">world</span>: <span class="ident">World::unbounded</span>(),
+
+            <span class="ident">dirty</span>: <span class="bool-val">false</span>,
+        };
+        <span class="ident">state</span>.<span class="ident">rebuild_panel</span>(<span class="ident">ctx</span>);
+        <span class="ident">state</span>.<span class="ident">rebuild_world</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+        <span class="ident">Box::new</span>(<span class="ident">state</span>)
+    }
+
+    <span class="kw">fn</span> <span class="ident">rebuild_panel</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) {
+        <span class="self">self</span>.<span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
+            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
+                <span class="ident">Line</span>(<span class="string">&quot;Story map editor&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+                <span class="ident">Widget::vert_separator</span>(<span class="ident">ctx</span>, <span class="number">30.0</span>),
+                <span class="ident">ctx</span>.<span class="ident">style</span>()
+                    .<span class="ident">btn_outline</span>
+                    .<span class="ident">popup</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">story</span>.<span class="ident">name</span>)
+                    .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key::L</span>))
+                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;load&quot;</span>),
+                <span class="ident">ctx</span>.<span class="ident">style</span>()
+                    .<span class="ident">btn_plain</span>
+                    .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/save.svg&quot;</span>)
+                    .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key::S</span>))
+                    .<span class="ident">disabled</span>(<span class="op">!</span><span class="self">self</span>.<span class="ident">dirty</span>)
+                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;save&quot;</span>),
+                <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
+            ]),
+            <span class="ident">ctx</span>.<span class="ident">style</span>()
+                .<span class="ident">btn_plain</span>
+                .<span class="ident">icon_text</span>(<span class="string">&quot;system/assets/tools/select.svg&quot;</span>, <span class="string">&quot;Draw freehand&quot;</span>)
+                .<span class="ident">hotkey</span>(<span class="ident">Key::F</span>)
+                .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+        ]))
+        .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::Center</span>, <span class="ident">VerticalAlignment::Top</span>)
+        .<span class="ident">build</span>(<span class="ident">ctx</span>);
+    }
+
+    <span class="kw">fn</span> <span class="ident">rebuild_world</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">world</span> <span class="op">=</span> <span class="ident">World::bounded</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_bounds</span>());
+
+        <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">marker</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">story</span>.<span class="ident">markers</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">draw_normal</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
+            <span class="kw">let</span> <span class="ident">label_center</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">marker</span>.<span class="ident">pts</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="number">1</span> {
+                <span class="comment">// TODO Erase the &quot;B&quot; from it though...</span>
+                <span class="ident">draw_normal</span> <span class="op">=</span> <span class="ident">map_gui::tools::goal_marker</span>(<span class="ident">ctx</span>, <span class="ident">marker</span>.<span class="ident">pts</span>[<span class="number">0</span>], <span class="number">2.0</span>);
+                <span class="ident">marker</span>.<span class="ident">pts</span>[<span class="number">0</span>]
+            } <span class="kw">else</span> {
+                <span class="kw">let</span> <span class="ident">poly</span> <span class="op">=</span> <span class="ident">Ring::must_new</span>(<span class="ident">marker</span>.<span class="ident">pts</span>.<span class="ident">clone</span>()).<span class="ident">into_polygon</span>();
+                <span class="ident">draw_normal</span>.<span class="ident">push</span>(<span class="ident">Color::RED</span>.<span class="ident">alpha</span>(<span class="number">0.8</span>), <span class="ident">poly</span>.<span class="ident">clone</span>());
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">o</span>) <span class="op">=</span> <span class="ident">poly</span>.<span class="ident">to_outline</span>(<span class="ident">Distance::meters</span>(<span class="number">1.0</span>)) {
+                    <span class="ident">draw_normal</span>.<span class="ident">push</span>(<span class="ident">Color::RED</span>, <span class="ident">o</span>);
+                }
+                <span class="ident">poly</span>.<span class="ident">polylabel</span>()
+            };
+
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">draw_hovered</span> <span class="op">=</span> <span class="ident">draw_normal</span>.<span class="ident">clone</span>();
+
+            <span class="ident">draw_normal</span>.<span class="ident">append</span>(
+                <span class="ident">Text::from</span>(<span class="kw-2">&amp;</span><span class="ident">marker</span>.<span class="ident">label</span>)
+                    .<span class="ident">bg</span>(<span class="ident">Color::CYAN</span>)
+                    .<span class="ident">render_autocropped</span>(<span class="ident">ctx</span>)
+                    .<span class="ident">scale</span>(<span class="number">0.5</span>)
+                    .<span class="ident">centered_on</span>(<span class="ident">label_center</span>),
+            );
+            <span class="kw">let</span> <span class="ident">hitbox</span> <span class="op">=</span> <span class="ident">draw_normal</span>.<span class="ident">unioned_polygon</span>();
+            <span class="ident">draw_hovered</span>.<span class="ident">append</span>(
+                <span class="ident">Text::from</span>(<span class="kw-2">&amp;</span><span class="ident">marker</span>.<span class="ident">label</span>)
+                    .<span class="ident">bg</span>(<span class="ident">Color::CYAN</span>)
+                    .<span class="ident">render_autocropped</span>(<span class="ident">ctx</span>)
+                    .<span class="ident">scale</span>(<span class="number">0.75</span>)
+                    .<span class="ident">centered_on</span>(<span class="ident">label_center</span>),
+            );
+
+            <span class="ident">world</span>
+                .<span class="ident">add</span>(<span class="ident">MarkerID</span>(<span class="ident">idx</span>))
+                .<span class="ident">hitbox</span>(<span class="ident">hitbox</span>)
+                .<span class="ident">draw</span>(<span class="ident">draw_normal</span>)
+                .<span class="ident">draw_hovered</span>(<span class="ident">draw_hovered</span>)
+                .<span class="ident">hotkey</span>(<span class="ident">Key::Backspace</span>, <span class="string">&quot;delete&quot;</span>)
+                .<span class="ident">clickable</span>()
+                .<span class="ident">draggable</span>()
+                .<span class="ident">build</span>(<span class="ident">ctx</span>);
+        }
+
+        <span class="ident">world</span>.<span class="ident">initialize_hover</span>(<span class="ident">ctx</span>);
+        <span class="ident">world</span>.<span class="ident">rebuilt_during_drag</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">world</span>);
+        <span class="self">self</span>.<span class="ident">world</span> <span class="op">=</span> <span class="ident">world</span>;
     }
 }
 
 <span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">StoryMapEditor</span> {
     <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">mode</span> {
-            <span class="ident">Mode::View</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="ident">ctx</span>.<span class="ident">canvas_movement</span>();
-
-                <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">redo_mouseover</span>() {
-                    <span class="self">self</span>.<span class="ident">hovering</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt</span>) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_map_space</span>() {
-                        <span class="self">self</span>.<span class="ident">hovering</span> <span class="op">=</span> <span class="self">self</span>
-                            .<span class="ident">story</span>
-                            .<span class="ident">markers</span>
-                            .<span class="ident">iter</span>()
-                            .<span class="ident">position</span>(<span class="op">|</span><span class="ident">m</span><span class="op">|</span> <span class="ident">m</span>.<span class="ident">hitbox</span>.<span class="ident">contains_pt</span>(<span class="ident">pt</span>));
-                    }
-                }
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">idx</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">hovering</span> {
-                    <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key::LeftControl</span>) {
-                        <span class="self">self</span>.<span class="ident">mode</span> <span class="op">=</span>
-                            <span class="ident">Mode::Dragging</span>(<span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_map_space</span>().<span class="ident">unwrap</span>(), <span class="ident">idx</span>);
-                    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">per_obj</span>.<span class="ident">left_click</span>(<span class="ident">ctx</span>, <span class="string">&quot;edit marker&quot;</span>) {
-                        <span class="self">self</span>.<span class="ident">mode</span> <span class="op">=</span> <span class="ident">Mode::Editing</span>(<span class="ident">idx</span>, <span class="self">self</span>.<span class="ident">story</span>.<span class="ident">markers</span>[<span class="ident">idx</span>].<span class="ident">make_editor</span>(<span class="ident">ctx</span>));
-                    }
-                }
+        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">world</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
+            <span class="ident">WorldOutcome::ClickedFreeSpace</span>(<span class="ident">pt</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="self">self</span>.<span class="ident">story</span>.<span class="ident">markers</span>.<span class="ident">push</span>(<span class="ident">Marker</span> {
+                    <span class="ident">pts</span>: <span class="macro">vec!</span>[<span class="ident">pt</span>],
+                    <span class="ident">label</span>: <span class="ident">String::new</span>(),
+                });
+                <span class="self">self</span>.<span class="ident">dirty</span> <span class="op">=</span> <span class="bool-val">true</span>;
+                <span class="self">self</span>.<span class="ident">rebuild_panel</span>(<span class="ident">ctx</span>);
+                <span class="self">self</span>.<span class="ident">rebuild_world</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+                <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">EditingMarker::new_state</span>(
+                    <span class="ident">ctx</span>,
+                    <span class="self">self</span>.<span class="ident">story</span>.<span class="ident">markers</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>,
+                    <span class="string">&quot;new marker&quot;</span>,
+                ));
             }
-            <span class="ident">Mode::PlacingMarker</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="ident">ctx</span>.<span class="ident">canvas_movement</span>();
-
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt</span>) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_map_space</span>() {
-                    <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_boundary_polygon</span>().<span class="ident">contains_pt</span>(<span class="ident">pt</span>)
-                        <span class="op">&amp;&amp;</span> <span class="ident">app</span>.<span class="ident">per_obj</span>.<span class="ident">left_click</span>(<span class="ident">ctx</span>, <span class="string">&quot;place a marker here&quot;</span>)
-                    {
-                        <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">story</span>.<span class="ident">markers</span>.<span class="ident">len</span>();
-                        <span class="self">self</span>.<span class="ident">story</span>
-                            .<span class="ident">markers</span>
-                            .<span class="ident">push</span>(<span class="ident">Marker::new</span>(<span class="ident">ctx</span>, <span class="macro">vec!</span>[<span class="ident">pt</span>], <span class="ident">String::new</span>()));
-                        <span class="self">self</span>.<span class="ident">dirty</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                        <span class="self">self</span>.<span class="ident">redo_panel</span>(<span class="ident">ctx</span>);
-                        <span class="self">self</span>.<span class="ident">mode</span> <span class="op">=</span> <span class="ident">Mode::Editing</span>(<span class="ident">idx</span>, <span class="self">self</span>.<span class="ident">story</span>.<span class="ident">markers</span>[<span class="ident">idx</span>].<span class="ident">make_editor</span>(<span class="ident">ctx</span>));
-                    }
+            <span class="ident">WorldOutcome::Dragging</span> {
+                <span class="ident">obj</span>: <span class="ident">MarkerID</span>(<span class="ident">idx</span>),
+                <span class="ident">dx</span>,
+                <span class="ident">dy</span>,
+                ..
+            } <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">for</span> <span class="ident">pt</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">story</span>.<span class="ident">markers</span>[<span class="ident">idx</span>].<span class="ident">pts</span> {
+                    <span class="kw-2">*</span><span class="ident">pt</span> <span class="op">=</span> <span class="ident">pt</span>.<span class="ident">offset</span>(<span class="ident">dx</span>, <span class="ident">dy</span>);
                 }
+                <span class="self">self</span>.<span class="ident">dirty</span> <span class="op">=</span> <span class="bool-val">true</span>;
+                <span class="self">self</span>.<span class="ident">rebuild_panel</span>(<span class="ident">ctx</span>);
+                <span class="self">self</span>.<span class="ident">rebuild_world</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
             }
-            <span class="ident">Mode::Dragging</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">last_pt</span>, <span class="ident">idx</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">redo_mouseover</span>() {
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt</span>) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_map_space</span>() {
-                        <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_boundary_polygon</span>().<span class="ident">contains_pt</span>(<span class="ident">pt</span>) {
-                            <span class="kw">let</span> <span class="ident">dx</span> <span class="op">=</span> <span class="ident">pt</span>.<span class="ident">x</span>() <span class="op">-</span> <span class="ident">last_pt</span>.<span class="ident">x</span>();
-                            <span class="kw">let</span> <span class="ident">dy</span> <span class="op">=</span> <span class="ident">pt</span>.<span class="ident">y</span>() <span class="op">-</span> <span class="ident">last_pt</span>.<span class="ident">y</span>();
-                            <span class="kw-2">*</span><span class="ident">last_pt</span> <span class="op">=</span> <span class="ident">pt</span>;
-                            <span class="self">self</span>.<span class="ident">story</span>.<span class="ident">markers</span>[<span class="ident">idx</span>] <span class="op">=</span> <span class="ident">Marker::new</span>(
-                                <span class="ident">ctx</span>,
-                                <span class="self">self</span>.<span class="ident">story</span>.<span class="ident">markers</span>[<span class="ident">idx</span>]
-                                    .<span class="ident">pts</span>
-                                    .<span class="ident">iter</span>()
-                                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">pt</span><span class="op">|</span> <span class="ident">pt</span>.<span class="ident">offset</span>(<span class="ident">dx</span>, <span class="ident">dy</span>))
-                                    .<span class="ident">collect</span>(),
-                                <span class="self">self</span>.<span class="ident">story</span>.<span class="ident">markers</span>[<span class="ident">idx</span>].<span class="ident">event</span>.<span class="ident">clone</span>(),
-                            );
-                            <span class="self">self</span>.<span class="ident">dirty</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                            <span class="self">self</span>.<span class="ident">redo_panel</span>(<span class="ident">ctx</span>);
-                        }
-                    }
-                }
-
-                <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">key_released</span>(<span class="ident">Key::LeftControl</span>) {
-                    <span class="self">self</span>.<span class="ident">mode</span> <span class="op">=</span> <span class="ident">Mode::View</span>;
-                }
+            <span class="ident">WorldOutcome::Keypress</span>(<span class="string">&quot;delete&quot;</span>, <span class="ident">MarkerID</span>(<span class="ident">idx</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="self">self</span>.<span class="ident">story</span>.<span class="ident">markers</span>.<span class="ident">remove</span>(<span class="ident">idx</span>);
+                <span class="self">self</span>.<span class="ident">dirty</span> <span class="op">=</span> <span class="bool-val">true</span>;
+                <span class="self">self</span>.<span class="ident">rebuild_panel</span>(<span class="ident">ctx</span>);
+                <span class="self">self</span>.<span class="ident">rebuild_world</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
             }
-            <span class="ident">Mode::Editing</span>(<span class="ident">idx</span>, <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">panel</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="ident">ctx</span>.<span class="ident">canvas_movement</span>();
-                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-                    <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
-                        <span class="string">&quot;close&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                            <span class="self">self</span>.<span class="ident">mode</span> <span class="op">=</span> <span class="ident">Mode::View</span>;
-                            <span class="self">self</span>.<span class="ident">redo_panel</span>(<span class="ident">ctx</span>);
-                        }
-                        <span class="string">&quot;confirm&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                            <span class="self">self</span>.<span class="ident">story</span>.<span class="ident">markers</span>[<span class="ident">idx</span>] <span class="op">=</span> <span class="ident">Marker::new</span>(
-                                <span class="ident">ctx</span>,
-                                <span class="self">self</span>.<span class="ident">story</span>.<span class="ident">markers</span>[<span class="ident">idx</span>].<span class="ident">pts</span>.<span class="ident">clone</span>(),
-                                <span class="ident">panel</span>.<span class="ident">text_box</span>(<span class="string">&quot;event&quot;</span>),
-                            );
-                            <span class="self">self</span>.<span class="ident">dirty</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                            <span class="self">self</span>.<span class="ident">mode</span> <span class="op">=</span> <span class="ident">Mode::View</span>;
-                            <span class="self">self</span>.<span class="ident">redo_panel</span>(<span class="ident">ctx</span>);
-                        }
-                        <span class="string">&quot;delete&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                            <span class="self">self</span>.<span class="ident">mode</span> <span class="op">=</span> <span class="ident">Mode::View</span>;
-                            <span class="self">self</span>.<span class="ident">hovering</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-                            <span class="self">self</span>.<span class="ident">story</span>.<span class="ident">markers</span>.<span class="ident">remove</span>(<span class="ident">idx</span>);
-                            <span class="self">self</span>.<span class="ident">dirty</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                            <span class="self">self</span>.<span class="ident">redo_panel</span>(<span class="ident">ctx</span>);
-                        }
-                        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
-                    }
-                }
+            <span class="ident">WorldOutcome::ClickedObject</span>(<span class="ident">MarkerID</span>(<span class="ident">idx</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">EditingMarker::new_state</span>(
+                    <span class="ident">ctx</span>,
+                    <span class="ident">idx</span>,
+                    <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">story</span>.<span class="ident">markers</span>[<span class="ident">idx</span>].<span class="ident">label</span>,
+                ));
             }
-            <span class="ident">Mode::Freehand</span>(<span class="prelude-val">None</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt</span>) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_map_space</span>() {
-                    <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">left_mouse_button_pressed</span>() {
-                        <span class="self">self</span>.<span class="ident">mode</span> <span class="op">=</span> <span class="ident">Mode::Freehand</span>(<span class="prelude-val">Some</span>(<span class="ident">Lasso::new</span>(<span class="ident">pt</span>)));
-                    }
-                }
-            }
-            <span class="ident">Mode::Freehand</span>(<span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">lasso</span>)) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">result</span>) <span class="op">=</span> <span class="ident">lasso</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-                    <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">story</span>.<span class="ident">markers</span>.<span class="ident">len</span>();
-                    <span class="self">self</span>.<span class="ident">story</span>
-                        .<span class="ident">markers</span>
-                        .<span class="ident">push</span>(<span class="ident">Marker::new</span>(<span class="ident">ctx</span>, <span class="ident">result</span>.<span class="ident">into_points</span>(), <span class="ident">String::new</span>()));
-                    <span class="self">self</span>.<span class="ident">dirty</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                    <span class="self">self</span>.<span class="ident">redo_panel</span>(<span class="ident">ctx</span>);
-                    <span class="self">self</span>.<span class="ident">mode</span> <span class="op">=</span> <span class="ident">Mode::Editing</span>(<span class="ident">idx</span>, <span class="self">self</span>.<span class="ident">story</span>.<span class="ident">markers</span>[<span class="ident">idx</span>].<span class="ident">make_editor</span>(<span class="ident">ctx</span>));
-                }
-            }
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
         }
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
@@ -756,7 +705,7 @@
                                         <span class="ident">editor</span>.<span class="ident">story</span>.<span class="ident">name</span> <span class="op">=</span> <span class="ident">name</span>;
                                         <span class="ident">editor</span>.<span class="ident">story</span>.<span class="ident">save</span>(<span class="ident">app</span>);
                                         <span class="ident">editor</span>.<span class="ident">dirty</span> <span class="op">=</span> <span class="bool-val">false</span>;
-                                        <span class="ident">editor</span>.<span class="ident">redo_panel</span>(<span class="ident">ctx</span>);
+                                        <span class="ident">editor</span>.<span class="ident">rebuild_panel</span>(<span class="ident">ctx</span>);
                                     })),
                                 ])
                             }),
@@ -764,7 +713,7 @@
                     } <span class="kw">else</span> {
                         <span class="self">self</span>.<span class="ident">story</span>.<span class="ident">save</span>(<span class="ident">app</span>);
                         <span class="self">self</span>.<span class="ident">dirty</span> <span class="op">=</span> <span class="bool-val">false</span>;
-                        <span class="self">self</span>.<span class="ident">redo_panel</span>(<span class="ident">ctx</span>);
+                        <span class="self">self</span>.<span class="ident">rebuild_panel</span>(<span class="ident">ctx</span>);
                     }
                 }
                 <span class="string">&quot;load&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
@@ -776,7 +725,7 @@
                         <span class="kw">if</span> <span class="ident">story</span>.<span class="ident">name</span> <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">story</span>.<span class="ident">name</span> {
                             <span class="kw">continue</span>;
                         }
-                        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">s</span>) <span class="op">=</span> <span class="ident">StoryMap::load</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">story</span>) {
+                        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">s</span>) <span class="op">=</span> <span class="ident">StoryMap::load</span>(<span class="ident">app</span>, <span class="ident">story</span>) {
                             <span class="ident">choices</span>.<span class="ident">push</span>(<span class="ident">Choice::new</span>(<span class="ident">name</span>, <span class="ident">s</span>));
                         }
                     }
@@ -792,32 +741,19 @@
                         <span class="ident">ctx</span>,
                         <span class="string">&quot;Load story&quot;</span>,
                         <span class="ident">choices</span>,
-                        <span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">story</span>, <span class="kw">_</span>, <span class="kw">_</span><span class="op">|</span> {
+                        <span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">story</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
                             <span class="ident">Transition::Multi</span>(<span class="macro">vec!</span>[
                                 <span class="ident">Transition::Pop</span>,
-                                <span class="ident">Transition::ModifyState</span>(<span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="kw">_</span><span class="op">|</span> {
-                                    <span class="kw">let</span> <span class="ident">editor</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">downcast_mut</span>::<span class="op">&lt;</span><span class="ident">StoryMapEditor</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
-                                    <span class="ident">editor</span>.<span class="ident">story</span> <span class="op">=</span> <span class="ident">story</span>;
-                                    <span class="ident">editor</span>.<span class="ident">dirty</span> <span class="op">=</span> <span class="bool-val">false</span>;
-                                    <span class="ident">editor</span>.<span class="ident">redo_panel</span>(<span class="ident">ctx</span>);
-                                })),
+                                <span class="ident">Transition::Replace</span>(<span class="ident">StoryMapEditor::from_story</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">story</span>)),
                             ])
                         }),
                     ));
                 }
-                <span class="string">&quot;new marker&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="self">self</span>.<span class="ident">hovering</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-                    <span class="self">self</span>.<span class="ident">mode</span> <span class="op">=</span> <span class="ident">Mode::PlacingMarker</span>;
-                    <span class="self">self</span>.<span class="ident">redo_panel</span>(<span class="ident">ctx</span>);
-                }
-                <span class="string">&quot;draw freehand&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="self">self</span>.<span class="ident">hovering</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-                    <span class="self">self</span>.<span class="ident">mode</span> <span class="op">=</span> <span class="ident">Mode::Freehand</span>(<span class="prelude-val">None</span>);
-                    <span class="self">self</span>.<span class="ident">redo_panel</span>(<span class="ident">ctx</span>);
-                }
-                <span class="string">&quot;pan&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="self">self</span>.<span class="ident">mode</span> <span class="op">=</span> <span class="ident">Mode::View</span>;
-                    <span class="self">self</span>.<span class="ident">redo_panel</span>(<span class="ident">ctx</span>);
+                <span class="string">&quot;Draw freehand&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">Box::new</span>(<span class="ident">DrawFreehand</span> {
+                        <span class="ident">lasso</span>: <span class="ident">Lasso::new</span>(),
+                        <span class="ident">new_idx</span>: <span class="self">self</span>.<span class="ident">story</span>.<span class="ident">markers</span>.<span class="ident">len</span>(),
+                    }));
                 }
                 <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
             }
@@ -835,80 +771,9 @@
         <span class="ident">opts</span>.<span class="ident">label_buildings</span> <span class="op">=</span> <span class="bool-val">true</span>;
         <span class="ident">app</span>.<span class="ident">draw</span>(<span class="ident">g</span>, <span class="ident">opts</span>, <span class="kw-2">&amp;</span><span class="ident">ShowEverything::new</span>());
 
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">mode</span> {
-            <span class="ident">Mode::PlacingMarker</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">if</span> <span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_map_space</span>().<span class="ident">is_some</span>() {
-                    <span class="ident">g</span>.<span class="ident">fork_screenspace</span>();
-                    <span class="ident">map_gui::tools::goal_marker</span>(<span class="ident">g</span>, <span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor</span>().<span class="ident">to_pt</span>(), <span class="number">1.0</span>)
-                        .<span class="ident">color</span>(<span class="ident">RewriteColor::Change</span>(<span class="ident">Color::hex</span>(<span class="string">&quot;#CC4121&quot;</span>), <span class="ident">Color::GREEN</span>))
-                        .<span class="ident">draw</span>(<span class="ident">g</span>);
-                    <span class="ident">g</span>.<span class="ident">unfork</span>();
-                }
-            }
-            <span class="ident">Mode::Editing</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">panel</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="ident">panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-            }
-            <span class="ident">Mode::Freehand</span>(<span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">lasso</span>)) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="ident">lasso</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-            }
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {}
-        }
-
-        <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">m</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">story</span>.<span class="ident">markers</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">hovering</span> <span class="op">=</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">idx</span>) {
-                <span class="ident">m</span>.<span class="ident">draw_hovered</span>(<span class="ident">g</span>);
-            } <span class="kw">else</span> {
-                <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="ident">m</span>.<span class="ident">draw</span>);
-            }
-        }
-
         <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-        <span class="ident">CommonState::draw_osd</span>(<span class="ident">g</span>, <span class="ident">app</span>);
+        <span class="self">self</span>.<span class="ident">world</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
     }
-}
-
-<span class="kw">fn</span> <span class="ident">make_panel</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">story</span>: <span class="kw-2">&amp;</span><span class="ident">StoryMap</span>, <span class="ident">mode</span>: <span class="kw-2">&amp;</span><span class="ident">Mode</span>, <span class="ident">dirty</span>: <span class="ident">bool</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Panel</span> {
-    <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-        <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-            <span class="ident">Line</span>(<span class="string">&quot;Story map editor&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-            <span class="ident">Widget::vert_separator</span>(<span class="ident">ctx</span>, <span class="number">30.0</span>),
-            <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_outline</span>
-                .<span class="ident">popup</span>(<span class="kw-2">&amp;</span><span class="ident">story</span>.<span class="ident">name</span>)
-                .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key::L</span>))
-                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;load&quot;</span>),
-            <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_plain</span>
-                .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/save.svg&quot;</span>)
-                .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key::S</span>))
-                .<span class="ident">disabled</span>(<span class="op">!</span><span class="ident">dirty</span>)
-                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;save&quot;</span>),
-            <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
-        ]),
-        <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-            <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_plain</span>
-                .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/pin.svg&quot;</span>)
-                .<span class="ident">disabled</span>(<span class="macro">matches!</span>(<span class="ident">mode</span>, <span class="ident">Mode::PlacingMarker</span>))
-                .<span class="ident">hotkey</span>(<span class="ident">Key::M</span>)
-                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;new marker&quot;</span>),
-            <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_plain</span>
-                .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/pan.svg&quot;</span>)
-                .<span class="ident">disabled</span>(<span class="macro">matches!</span>(<span class="ident">mode</span>, <span class="ident">Mode::View</span>))
-                .<span class="ident">hotkey</span>(<span class="ident">Key::Escape</span>)
-                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;pan&quot;</span>),
-            <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_plain</span>
-                .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/select.svg&quot;</span>)
-                .<span class="ident">disabled</span>(<span class="macro">matches!</span>(<span class="ident">mode</span>, <span class="ident">Mode::Freehand</span>(<span class="kw">_</span>)))
-                .<span class="ident">hotkey</span>(<span class="ident">Key::P</span>)
-                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;draw freehand&quot;</span>),
-        ])
-        .<span class="ident">evenly_spaced</span>(),
-    ]))
-    .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::Center</span>, <span class="ident">VerticalAlignment::Top</span>)
-    .<span class="ident">build</span>(<span class="ident">ctx</span>)
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
@@ -924,9 +789,7 @@
 
 <span class="kw">struct</span> <span class="ident">Marker</span> {
     <span class="ident">pts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>,
-    <span class="ident">event</span>: <span class="ident">String</span>,
-    <span class="ident">hitbox</span>: <span class="ident">Polygon</span>,
-    <span class="ident">draw</span>: <span class="ident">Drawable</span>,
+    <span class="ident">label</span>: <span class="ident">String</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">StoryMap</span> {
@@ -937,11 +800,13 @@
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">load</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">story</span>: <span class="ident">RecordedStoryMap</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">StoryMap</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">load</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">story</span>: <span class="ident">RecordedStoryMap</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">StoryMap</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">markers</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">for</span> (<span class="ident">gps_pts</span>, <span class="ident">event</span>) <span class="kw">in</span> <span class="ident">story</span>.<span class="ident">markers</span> {
-            <span class="kw">let</span> <span class="ident">pts</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_gps_bounds</span>().<span class="ident">try_convert</span>(<span class="kw-2">&amp;</span><span class="ident">gps_pts</span>)<span class="question-mark">?</span>;
-            <span class="ident">markers</span>.<span class="ident">push</span>(<span class="ident">Marker::new</span>(<span class="ident">ctx</span>, <span class="ident">pts</span>, <span class="ident">event</span>));
+        <span class="kw">for</span> (<span class="ident">gps_pts</span>, <span class="ident">label</span>) <span class="kw">in</span> <span class="ident">story</span>.<span class="ident">markers</span> {
+            <span class="ident">markers</span>.<span class="ident">push</span>(<span class="ident">Marker</span> {
+                <span class="ident">pts</span>: <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_gps_bounds</span>().<span class="ident">try_convert</span>(<span class="kw-2">&amp;</span><span class="ident">gps_pts</span>)<span class="question-mark">?</span>,
+                <span class="ident">label</span>,
+            });
         }
         <span class="prelude-val">Some</span>(<span class="ident">StoryMap</span> {
             <span class="ident">name</span>: <span class="ident">story</span>.<span class="ident">name</span>,
@@ -958,7 +823,7 @@
                 .<span class="ident">map</span>(<span class="op">|</span><span class="ident">m</span><span class="op">|</span> {
                     (
                         <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_gps_bounds</span>().<span class="ident">convert_back</span>(<span class="kw-2">&amp;</span><span class="ident">m</span>.<span class="ident">pts</span>),
-                        <span class="ident">m</span>.<span class="ident">event</span>.<span class="ident">clone</span>(),
+                        <span class="ident">m</span>.<span class="ident">label</span>.<span class="ident">clone</span>(),
                     )
                 })
                 .<span class="ident">collect</span>(),
@@ -970,121 +835,151 @@
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Marker</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">pts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>, <span class="ident">event</span>: <span class="ident">String</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Marker</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
+<span class="kw">struct</span> <span class="ident">EditingMarker</span> {
+    <span class="ident">idx</span>: <span class="ident">usize</span>,
+}
 
-        <span class="kw">let</span> <span class="ident">hitbox</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">pts</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="number">1</span> {
-            <span class="ident">batch</span>.<span class="ident">append</span>(<span class="ident">map_gui::tools::goal_marker</span>(<span class="ident">ctx</span>, <span class="ident">pts</span>[<span class="number">0</span>], <span class="number">2.0</span>));
-            <span class="ident">batch</span>.<span class="ident">append</span>(
-                <span class="ident">Text::from</span>(<span class="kw-2">&amp;</span><span class="ident">event</span>)
-                    .<span class="ident">bg</span>(<span class="ident">Color::CYAN</span>)
-                    .<span class="ident">render_autocropped</span>(<span class="ident">ctx</span>)
-                    .<span class="ident">scale</span>(<span class="number">0.5</span>)
-                    .<span class="ident">centered_on</span>(<span class="ident">pts</span>[<span class="number">0</span>]),
-            );
-            <span class="ident">batch</span>.<span class="ident">unioned_polygon</span>()
-        } <span class="kw">else</span> {
-            <span class="kw">let</span> <span class="ident">poly</span> <span class="op">=</span> <span class="ident">Ring::must_new</span>(<span class="ident">pts</span>.<span class="ident">clone</span>()).<span class="ident">into_polygon</span>();
-            <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color::RED</span>.<span class="ident">alpha</span>(<span class="number">0.8</span>), <span class="ident">poly</span>.<span class="ident">clone</span>());
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">o</span>) <span class="op">=</span> <span class="ident">poly</span>.<span class="ident">to_outline</span>(<span class="ident">Distance::meters</span>(<span class="number">1.0</span>)) {
-                <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color::RED</span>, <span class="ident">o</span>);
-            }
-            <span class="comment">// TODO Refactor</span>
-            <span class="ident">batch</span>.<span class="ident">append</span>(
-                <span class="ident">Text::from</span>(<span class="kw-2">&amp;</span><span class="ident">event</span>)
-                    .<span class="ident">bg</span>(<span class="ident">Color::CYAN</span>)
-                    .<span class="ident">render_autocropped</span>(<span class="ident">ctx</span>)
-                    .<span class="ident">scale</span>(<span class="number">0.5</span>)
-                    .<span class="ident">centered_on</span>(<span class="ident">poly</span>.<span class="ident">polylabel</span>()),
-            );
-            <span class="ident">poly</span>
-        };
-        <span class="ident">Marker</span> {
-            <span class="ident">pts</span>,
-            <span class="ident">event</span>,
-            <span class="ident">hitbox</span>,
-            <span class="ident">draw</span>: <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">batch</span>),
-        }
-    }
-
-    <span class="kw">fn</span> <span class="ident">draw_hovered</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>) {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">pts</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="number">1</span> {
-            <span class="ident">batch</span>.<span class="ident">append</span>(
-                <span class="ident">map_gui::tools::goal_marker</span>(<span class="ident">g</span>, <span class="self">self</span>.<span class="ident">pts</span>[<span class="number">0</span>], <span class="number">2.0</span>)
-                    .<span class="ident">color</span>(<span class="ident">RewriteColor::Change</span>(<span class="ident">Color::hex</span>(<span class="string">&quot;#CC4121&quot;</span>), <span class="ident">Color::RED</span>)),
-            );
-            <span class="ident">batch</span>.<span class="ident">append</span>(
-                <span class="ident">Text::from</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">event</span>)
-                    .<span class="ident">bg</span>(<span class="ident">Color::CYAN</span>)
-                    .<span class="ident">render_autocropped</span>(<span class="ident">g</span>)
-                    .<span class="ident">scale</span>(<span class="number">0.75</span>)
-                    .<span class="ident">centered_on</span>(<span class="self">self</span>.<span class="ident">pts</span>[<span class="number">0</span>]),
-            );
-        } <span class="kw">else</span> {
-            <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color::RED</span>, <span class="ident">Ring::must_new</span>(<span class="self">self</span>.<span class="ident">pts</span>.<span class="ident">clone</span>()).<span class="ident">into_polygon</span>());
-            <span class="comment">// TODO Refactor plz</span>
-            <span class="ident">batch</span>.<span class="ident">append</span>(
-                <span class="ident">Text::from</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">event</span>)
-                    .<span class="ident">bg</span>(<span class="ident">Color::CYAN</span>)
-                    .<span class="ident">render_autocropped</span>(<span class="ident">g</span>)
-                    .<span class="ident">scale</span>(<span class="number">0.75</span>)
-                    .<span class="ident">centered_on</span>(<span class="self">self</span>.<span class="ident">hitbox</span>.<span class="ident">polylabel</span>()),
-            );
-        }
-        <span class="ident">batch</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-    }
-
-    <span class="kw">fn</span> <span class="ident">make_editor</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Panel</span> {
-        <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
+<span class="kw">impl</span> <span class="ident">EditingMarker</span> {
+    <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">idx</span>: <span class="ident">usize</span>, <span class="ident">label</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
             <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
                 <span class="ident">Line</span>(<span class="string">&quot;Editing marker&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                 <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
             ]),
             <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline</span>.<span class="ident">text</span>(<span class="string">&quot;delete&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-            <span class="ident">TextBox::default_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;event&quot;</span>, <span class="self">self</span>.<span class="ident">event</span>.<span class="ident">clone</span>()),
+            <span class="ident">TextBox::default_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;label&quot;</span>, <span class="ident">label</span>.<span class="ident">to_string</span>()),
             <span class="ident">ctx</span>.<span class="ident">style</span>()
                 .<span class="ident">btn_outline</span>
                 .<span class="ident">text</span>(<span class="string">&quot;confirm&quot;</span>)
                 .<span class="ident">hotkey</span>(<span class="ident">Key::Enter</span>)
                 .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
         ]))
-        .<span class="ident">build</span>(<span class="ident">ctx</span>)
+        .<span class="ident">build</span>(<span class="ident">ctx</span>);
+        <span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">SimpleState</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::new_state</span>(<span class="ident">panel</span>, <span class="ident">Box::new</span>(<span class="ident">EditingMarker</span> { <span class="ident">idx</span> }))
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">SimpleState</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">EditingMarker</span> {
+    <span class="kw">fn</span> <span class="ident">on_click</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>, <span class="ident">x</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">panel</span>: <span class="kw-2">&amp;</span><span class="ident">Panel</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span> {
+        <span class="kw">match</span> <span class="ident">x</span> {
+            <span class="string">&quot;close&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">return</span> <span class="ident">Transition::Pop</span>;
+            }
+            <span class="string">&quot;confirm&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">idx</span>;
+                <span class="kw">let</span> <span class="ident">label</span> <span class="op">=</span> <span class="ident">panel</span>.<span class="ident">text_box</span>(<span class="string">&quot;label&quot;</span>);
+                <span class="kw">return</span> <span class="ident">Transition::Multi</span>(<span class="macro">vec!</span>[
+                    <span class="ident">Transition::Pop</span>,
+                    <span class="ident">Transition::ModifyState</span>(<span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
+                        <span class="kw">let</span> <span class="ident">editor</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">downcast_mut</span>::<span class="op">&lt;</span><span class="ident">StoryMapEditor</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
+                        <span class="ident">editor</span>.<span class="ident">story</span>.<span class="ident">markers</span>[<span class="ident">idx</span>].<span class="ident">label</span> <span class="op">=</span> <span class="ident">label</span>;
+
+                        <span class="ident">editor</span>.<span class="ident">dirty</span> <span class="op">=</span> <span class="bool-val">true</span>;
+                        <span class="ident">editor</span>.<span class="ident">rebuild_panel</span>(<span class="ident">ctx</span>);
+                        <span class="ident">editor</span>.<span class="ident">rebuild_world</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+                    })),
+                ]);
+            }
+            <span class="string">&quot;delete&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">idx</span>;
+                <span class="kw">return</span> <span class="ident">Transition::Multi</span>(<span class="macro">vec!</span>[
+                    <span class="ident">Transition::Pop</span>,
+                    <span class="ident">Transition::ModifyState</span>(<span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
+                        <span class="kw">let</span> <span class="ident">editor</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">downcast_mut</span>::<span class="op">&lt;</span><span class="ident">StoryMapEditor</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
+                        <span class="ident">editor</span>.<span class="ident">story</span>.<span class="ident">markers</span>.<span class="ident">remove</span>(<span class="ident">idx</span>);
+
+                        <span class="ident">editor</span>.<span class="ident">dirty</span> <span class="op">=</span> <span class="bool-val">true</span>;
+                        <span class="ident">editor</span>.<span class="ident">rebuild_panel</span>(<span class="ident">ctx</span>);
+                        <span class="ident">editor</span>.<span class="ident">rebuild_world</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+                    })),
+                ]);
+            }
+            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">unreachable!</span>(),
+        }
+    }
+
+    <span class="kw">fn</span> <span class="ident">draw_baselayer</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DrawBaselayer</span> {
+        <span class="ident">DrawBaselayer::PreviousState</span>
+    }
+}
+
+<span class="kw">struct</span> <span class="ident">DrawFreehand</span> {
+    <span class="ident">lasso</span>: <span class="ident">Lasso</span>,
+    <span class="ident">new_idx</span>: <span class="ident">usize</span>,
+}
+
+<span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">DrawFreehand</span> {
+    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span> {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">result</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">lasso</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
+            <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">new_idx</span>;
+            <span class="kw">return</span> <span class="ident">Transition::Multi</span>(<span class="macro">vec!</span>[
+                <span class="ident">Transition::Pop</span>,
+                <span class="ident">Transition::ModifyState</span>(<span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
+                    <span class="kw">let</span> <span class="ident">editor</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">downcast_mut</span>::<span class="op">&lt;</span><span class="ident">StoryMapEditor</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
+                    <span class="ident">editor</span>.<span class="ident">story</span>.<span class="ident">markers</span>.<span class="ident">push</span>(<span class="ident">Marker</span> {
+                        <span class="ident">pts</span>: <span class="ident">result</span>.<span class="ident">into_points</span>(),
+                        <span class="ident">label</span>: <span class="ident">String::new</span>(),
+                    });
+
+                    <span class="ident">editor</span>.<span class="ident">dirty</span> <span class="op">=</span> <span class="bool-val">true</span>;
+                    <span class="ident">editor</span>.<span class="ident">rebuild_panel</span>(<span class="ident">ctx</span>);
+                    <span class="ident">editor</span>.<span class="ident">rebuild_world</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+                })),
+                <span class="ident">Transition::Push</span>(<span class="ident">EditingMarker::new_state</span>(<span class="ident">ctx</span>, <span class="ident">idx</span>, <span class="string">&quot;new marker&quot;</span>)),
+            ]);
+        }
+
+        <span class="ident">Transition::Keep</span>
+    }
+
+    <span class="kw">fn</span> <span class="ident">draw_baselayer</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">DrawBaselayer</span> {
+        <span class="ident">DrawBaselayer::PreviousState</span>
+    }
+
+    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
+        <span class="self">self</span>.<span class="ident">lasso</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
     }
 }
 
 <span class="comment">// TODO This should totally be an widgetry tool</span>
-<span class="comment">// TODO Simplify points</span>
 <span class="kw">struct</span> <span class="ident">Lasso</span> {
-    <span class="ident">pl</span>: <span class="ident">PolyLine</span>,
+    <span class="ident">pl</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PolyLine</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Lasso</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">pt</span>: <span class="ident">Pt2D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Lasso</span> {
-        <span class="ident">Lasso</span> {
-            <span class="ident">pl</span>: <span class="ident">PolyLine::must_new</span>(<span class="macro">vec!</span>[<span class="ident">pt</span>, <span class="ident">pt</span>.<span class="ident">offset</span>(<span class="number">0.1</span>, <span class="number">0.0</span>)]),
-        }
+    <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Lasso</span> {
+        <span class="ident">Lasso</span> { <span class="ident">pl</span>: <span class="prelude-val">None</span> }
     }
 
     <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Ring</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">left_mouse_button_released</span>() {
-            <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">simplify</span>(<span class="self">self</span>.<span class="ident">pl</span>.<span class="ident">points</span>().<span class="ident">clone</span>()));
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">pl</span>.<span class="ident">is_none</span>() {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt</span>) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_map_space</span>() {
+                <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">left_mouse_button_pressed</span>() {
+                    <span class="self">self</span>.<span class="ident">pl</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">PolyLine::must_new</span>(<span class="macro">vec!</span>[<span class="ident">pt</span>, <span class="ident">pt</span>.<span class="ident">offset</span>(<span class="number">0.1</span>, <span class="number">0.0</span>)]));
+                }
+            }
+            <span class="kw">return</span> <span class="prelude-val">None</span>;
         }
+
+        <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">left_mouse_button_released</span>() {
+            <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">simplify</span>(<span class="self">self</span>.<span class="ident">pl</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>().<span class="ident">into_points</span>()));
+        }
+
+        <span class="kw">let</span> <span class="ident">current_pl</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">pl</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>();
         <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">redo_mouseover</span>() {
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt</span>) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_map_space</span>() {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">pl</span>) <span class="op">=</span> <span class="ident">PolyLine::new</span>(<span class="macro">vec!</span>[<span class="self">self</span>.<span class="ident">pl</span>.<span class="ident">last_pt</span>(), <span class="ident">pt</span>]) {
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">pl</span>) <span class="op">=</span> <span class="ident">PolyLine::new</span>(<span class="macro">vec!</span>[<span class="ident">current_pl</span>.<span class="ident">last_pt</span>(), <span class="ident">pt</span>]) {
                     <span class="comment">// Did we make a crossing?</span>
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">hit</span>, <span class="kw">_</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">pl</span>.<span class="ident">intersection</span>(<span class="kw-2">&amp;</span><span class="ident">pl</span>) {
-                        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">slice</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">pl</span>.<span class="ident">get_slice_starting_at</span>(<span class="ident">hit</span>) {
+                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">hit</span>, <span class="kw">_</span>)) <span class="op">=</span> <span class="ident">current_pl</span>.<span class="ident">intersection</span>(<span class="kw-2">&amp;</span><span class="ident">pl</span>) {
+                        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">slice</span>) <span class="op">=</span> <span class="ident">current_pl</span>.<span class="ident">get_slice_starting_at</span>(<span class="ident">hit</span>) {
                             <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">simplify</span>(<span class="ident">slice</span>.<span class="ident">into_points</span>()));
                         }
                     }
 
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">pl</span>.<span class="ident">points</span>().<span class="ident">clone</span>();
+                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span> <span class="op">=</span> <span class="ident">current_pl</span>.<span class="ident">points</span>().<span class="ident">clone</span>();
                     <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">pt</span>);
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">new</span>) <span class="op">=</span> <span class="ident">PolyLine::new</span>(<span class="ident">pts</span>) {
-                        <span class="self">self</span>.<span class="ident">pl</span> <span class="op">=</span> <span class="ident">new</span>;
+                        <span class="self">self</span>.<span class="ident">pl</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">new</span>);
                     }
                 }
             }
@@ -1093,11 +988,12 @@
     }
 
     <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>) {
-        <span class="ident">g</span>.<span class="ident">draw_polygon</span>(
-            <span class="ident">Color::RED</span>.<span class="ident">alpha</span>(<span class="number">0.8</span>),
-            <span class="self">self</span>.<span class="ident">pl</span>
-                .<span class="ident">make_polygons</span>(<span class="ident">Distance::meters</span>(<span class="number">5.0</span>) <span class="op">/</span> <span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span>),
-        );
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">pl</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">pl</span> {
+            <span class="ident">g</span>.<span class="ident">draw_polygon</span>(
+                <span class="ident">Color::RED</span>.<span class="ident">alpha</span>(<span class="number">0.8</span>),
+                <span class="ident">pl</span>.<span class="ident">make_polygons</span>(<span class="ident">Distance::meters</span>(<span class="number">5.0</span>) <span class="op">/</span> <span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span>),
+            );
+        }
     }
 }
 

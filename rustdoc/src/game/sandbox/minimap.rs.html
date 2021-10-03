@@ -646,7 +646,7 @@
         .<span class="ident">padding</span>(<span class="number">8</span>);
 
     <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-        (<span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">min_zoom_for_detail</span> {
+        (<span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">is_zoomed</span>() {
             <span class="ident">buttons</span>
                 .<span class="ident">clone</span>()
                 .<span class="ident">image_path</span>(<span class="string">&quot;system/assets/minimap/zoom_out_fully.svg&quot;</span>)

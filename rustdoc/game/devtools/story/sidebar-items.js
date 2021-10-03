@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["Mode",""]],"fn":[["make_panel",""],["simplify",""]],"struct":[["Lasso",""],["Marker",""],["RecordedStoryMap",""],["StoryMap",""],["StoryMapEditor",""]]});
+initSidebarItems({"fn":[["simplify",""]],"struct":[["DrawFreehand",""],["EditingMarker",""],["Lasso",""],["Marker",""],["MarkerID",""],["RecordedStoryMap",""],["StoryMap",""],["StoryMapEditor","A simple tool to place markers and free-hand shapes over a map, then label them."]]});

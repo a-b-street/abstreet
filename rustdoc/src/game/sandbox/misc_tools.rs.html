@@ -197,7 +197,7 @@
             .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="ident">id</span>.<span class="ident">agent_id</span>())
         {
             <span class="kw">let</span> <span class="ident">now</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>();
-            <span class="kw">let</span> <span class="ident">zoomed</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">min_zoom_for_detail</span>;
+            <span class="kw">let</span> <span class="ident">zoomed</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">is_zoomed</span>();
             <span class="kw">if</span> <span class="self">self</span>
                 .<span class="ident">preview</span>
                 .<span class="ident">as_ref</span>()

@@ -426,10 +426,6 @@
 <span id="426">426</span>
 <span id="427">427</span>
 <span id="428">428</span>
-<span id="429">429</span>
-<span id="430">430</span>
-<span id="431">431</span>
-<span id="432">432</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
 
@@ -463,9 +459,6 @@
     <span class="kw">pub</span> <span class="ident">color_scheme</span>: <span class="ident">ColorSchemeChoice</span>,
     <span class="doccomment">/// Automatically change color_scheme based on simulation time to reflect day/night</span>
     <span class="kw">pub</span> <span class="ident">toggle_day_night_colors</span>: <span class="ident">bool</span>,
-    <span class="doccomment">/// Map elements are drawn differently when unzoomed and zoomed. This specifies the canvas zoom</span>
-    <span class="doccomment">/// level where they switch.</span>
-    <span class="kw">pub</span> <span class="ident">min_zoom_for_detail</span>: <span class="ident">f64</span>,
     <span class="doccomment">/// Draw buildings in different perspectives</span>
     <span class="kw">pub</span> <span class="ident">camera_angle</span>: <span class="ident">CameraAngle</span>,
     <span class="doccomment">/// Draw building driveways.</span>
@@ -513,7 +506,6 @@
             <span class="ident">traffic_signal_style</span>: <span class="ident">TrafficSignalStyle::Brian</span>,
             <span class="ident">color_scheme</span>: <span class="ident">ColorSchemeChoice::DayMode</span>,
             <span class="ident">toggle_day_night_colors</span>: <span class="bool-val">false</span>,
-            <span class="ident">min_zoom_for_detail</span>: <span class="number">4.0</span>,
             <span class="ident">camera_angle</span>: <span class="ident">CameraAngle::TopDown</span>,
             <span class="ident">show_building_driveways</span>: <span class="bool-val">true</span>,
 
@@ -536,7 +528,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">update_from_args</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">args</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">CmdArgs</span>) {
         <span class="self">self</span>.<span class="ident">dev</span> <span class="op">=</span> <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--dev&quot;</span>);
         <span class="kw">if</span> <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--lowzoom&quot;</span>) {
-            <span class="self">self</span>.<span class="ident">min_zoom_for_detail</span> <span class="op">=</span> <span class="number">1.0</span>;
+            <span class="self">self</span>.<span class="ident">canvas_settings</span>.<span class="ident">min_zoom_for_detail</span> <span class="op">=</span> <span class="number">1.0</span>;
         }
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="ident">args</span>.<span class="ident">optional</span>(<span class="string">&quot;--color_scheme&quot;</span>) {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ok</span> <span class="op">=</span> <span class="bool-val">false</span>;
@@ -690,7 +682,7 @@
                         <span class="ident">Widget::dropdown</span>(
                             <span class="ident">ctx</span>,
                             <span class="string">&quot;min zoom&quot;</span>,
-                            <span class="ident">app</span>.<span class="ident">opts</span>().<span class="ident">min_zoom_for_detail</span>,
+                            <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">settings</span>.<span class="ident">min_zoom_for_detail</span>,
                             <span class="macro">vec!</span>[
                                 <span class="ident">Choice::new</span>(<span class="string">&quot;1.0&quot;</span>, <span class="number">1.0</span>),
                                 <span class="ident">Choice::new</span>(<span class="string">&quot;2.0&quot;</span>, <span class="number">2.0</span>),
@@ -780,6 +772,7 @@
                     <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">settings</span>.<span class="ident">gui_scroll_speed</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">spinner</span>(<span class="string">&quot;gui_scroll_speed&quot;</span>);
                     <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">settings</span>.<span class="ident">canvas_scroll_speed</span> <span class="op">=</span>
                         <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">spinner</span>(<span class="string">&quot;canvas_scroll_speed&quot;</span>);
+                    <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">settings</span>.<span class="ident">min_zoom_for_detail</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">dropdown_value</span>(<span class="string">&quot;min zoom&quot;</span>);
                     <span class="comment">// Copy the settings into the Options struct, so they&#39;re saved.</span>
                     <span class="ident">opts</span>.<span class="ident">canvas_settings</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">settings</span>.<span class="ident">clone</span>();
 
@@ -831,7 +824,6 @@
                         <span class="ident">opts</span>.<span class="ident">toggle_day_night_colors</span> <span class="op">=</span> <span class="bool-val">false</span>;
                     }
 
-                    <span class="ident">opts</span>.<span class="ident">min_zoom_for_detail</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">dropdown_value</span>(<span class="string">&quot;min zoom&quot;</span>);
                     <span class="ident">opts</span>.<span class="ident">units</span>.<span class="ident">metric</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;metric / imperial units&quot;</span>);
 
                     <span class="kw">let</span> <span class="ident">language</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">dropdown_value</span>(<span class="string">&quot;language&quot;</span>);

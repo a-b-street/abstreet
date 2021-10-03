@@ -299,10 +299,6 @@
 <span id="299">299</span>
 <span id="300">300</span>
 <span id="301">301</span>
-<span id="302">302</span>
-<span id="303">303</span>
-<span id="304">304</span>
-<span id="305">305</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections::VecDeque</span>;
 
@@ -399,7 +395,7 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">redo_mouseover</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">fake_mouseover</span>
             <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">window_lost_cursor</span>()
-            <span class="op">|</span><span class="op">|</span> (<span class="op">!</span><span class="self">self</span>.<span class="ident">is_dragging</span>() <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">get_moved_mouse</span>().<span class="ident">is_some</span>())
+            <span class="op">|</span><span class="op">|</span> (<span class="op">!</span><span class="self">self</span>.<span class="ident">canvas</span>.<span class="ident">is_dragging</span>() <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">get_moved_mouse</span>().<span class="ident">is_some</span>())
             <span class="op">|</span><span class="op">|</span> <span class="self">self</span>
                 .<span class="ident">input</span>
                 .<span class="ident">get_mouse_scroll</span>()
@@ -411,15 +407,11 @@
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">has_been_consumed</span>() {
             <span class="kw">return</span> <span class="bool-val">false</span>;
         }
-        <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">is_dragging</span>() <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">left_mouse_button_released</span>() {
+        <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">canvas</span>.<span class="ident">is_dragging</span>() <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">left_mouse_button_released</span>() {
             <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">consume_event</span>();
             <span class="kw">return</span> <span class="bool-val">true</span>;
         }
         <span class="bool-val">false</span>
-    }
-
-    <span class="kw">fn</span> <span class="ident">is_dragging</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">canvas</span>.<span class="ident">drag_canvas_from</span>.<span class="ident">is_some</span>() <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">canvas</span>.<span class="ident">drag_just_ended</span>
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_key_down</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="ident">Key</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
