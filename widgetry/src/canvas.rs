@@ -28,7 +28,7 @@ pub struct Canvas {
 
     // Only for drags starting on the map. Only used to pan the map. (Last event, original)
     pub(crate) drag_canvas_from: Option<(ScreenPt, ScreenPt)>,
-    pub(crate) drag_just_ended: bool,
+    drag_just_ended: bool,
 
     pub window_width: f64,
     pub window_height: f64,
@@ -365,6 +365,22 @@ impl Canvas {
 
     pub fn is_zoomed(&self) -> bool {
         self.cam_zoom >= self.settings.min_zoom_for_detail
+    }
+
+    pub(crate) fn is_dragging(&self) -> bool {
+        // This could be called before or after handle_event. So we need to repeat the threshold
+        // check here! Alternatively, we could this upfront in runner.
+        if self.drag_just_ended {
+            return true;
+        }
+        if let Some((_, orig)) = self.drag_canvas_from {
+            let pt = self.get_cursor();
+            let dist = ((pt.x - orig.x).powi(2) + (pt.y - orig.y).powi(2)).sqrt();
+            if dist > DRAG_THRESHOLD {
+                return true;
+            }
+        }
+        false
     }
 }
 

@@ -93,7 +93,7 @@ impl<'a> EventCtx<'a> {
     pub fn redo_mouseover(&self) -> bool {
         self.fake_mouseover
             || self.input.window_lost_cursor()
-            || (!self.is_dragging() && self.input.get_moved_mouse().is_some())
+            || (!self.canvas.is_dragging() && self.input.get_moved_mouse().is_some())
             || self
                 .input
                 .get_mouse_scroll()
@@ -105,15 +105,11 @@ impl<'a> EventCtx<'a> {
         if self.input.has_been_consumed() {
             return false;
         }
-        if !self.is_dragging() && self.input.left_mouse_button_released() {
+        if !self.canvas.is_dragging() && self.input.left_mouse_button_released() {
             self.input.consume_event();
             return true;
         }
         false
-    }
-
-    fn is_dragging(&self) -> bool {
-        self.canvas.drag_canvas_from.is_some() || self.canvas.drag_just_ended
     }
 
     pub fn is_key_down(&self, key: Key) -> bool {

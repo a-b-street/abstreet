@@ -4,7 +4,7 @@ use widgetry::{Choice, EventCtx, GfxCtx, Outcome, Panel, State, TextExt, Widget}
 
 use self::results::RouteDetails;
 use crate::app::{App, Transition};
-use crate::common::InputWaypoints;
+use crate::common::{InputWaypoints, WaypointID};
 use crate::ungap::{Layers, Tab, TakeLayers};
 
 mod files;
@@ -20,7 +20,7 @@ pub struct RoutePlanner {
     files: files::RouteManagement,
     // TODO We really only need to store preferences and stats, but...
     alt_routes: Vec<RouteDetails>,
-    world: World<RouteID>,
+    world: World<ID>,
 }
 
 impl TakeLayers for RoutePlanner {
@@ -30,11 +30,12 @@ impl TakeLayers for RoutePlanner {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
-enum RouteID {
-    Main,
-    Alt(usize),
+enum ID {
+    MainRoute,
+    AltRoute(usize),
+    Waypoint(WaypointID),
 }
-impl ObjectID for RouteID {}
+impl ObjectID for ID {}
 
 impl RoutePlanner {
     pub fn new_state(ctx: &mut EventCtx, app: &App, layers: Layers) -> Box<dyn State<App>> {
@@ -60,8 +61,9 @@ impl RoutePlanner {
         let main_route = RouteDetails::main_route(ctx, app, self.waypoints.get_waypoints());
         self.main_route = main_route.details;
         world
-            .add(RouteID::Main)
+            .add(ID::MainRoute)
             .hitbox(main_route.hitbox)
+            .zorder(1)
             .draw(main_route.draw)
             .build(ctx);
         // This doesn't depend on the alt routes, so just do it here
@@ -100,8 +102,9 @@ impl RoutePlanner {
             {
                 self.alt_routes.push(alt.details);
                 world
-                    .add(RouteID::Alt(self.alt_routes.len() - 1))
+                    .add(ID::AltRoute(self.alt_routes.len() - 1))
                     .hitbox(alt.hitbox)
+                    .zorder(0)
                     .draw(alt.draw)
                     .hover_alpha(0.8)
                     .tooltip(alt.tooltip_for_alt.take().unwrap())
@@ -110,7 +113,11 @@ impl RoutePlanner {
             }
         }
 
+        self.waypoints
+            .rebuild_world(ctx, &mut world, |id| ID::Waypoint(id), 2);
+
         world.initialize_hover(ctx);
+        world.rebuilt_during_drag(&self.world);
         self.world = world;
     }
 
@@ -158,7 +165,7 @@ impl RoutePlanner {
 
     fn sync_from_file_management(&mut self, ctx: &mut EventCtx, app: &App) {
         self.waypoints
-            .overwrite(ctx, app, self.files.current.waypoints.clone());
+            .overwrite(app, self.files.current.waypoints.clone());
         self.recalculate_routes(ctx, app);
     }
 }
@@ -174,18 +181,21 @@ impl State<App> for RoutePlanner {
             });
         }
 
-        match self.world.event(ctx) {
-            WorldOutcome::ClickedObject(RouteID::Alt(idx)) => {
+        let world_outcome_for_waypoints = match self.world.event(ctx) {
+            WorldOutcome::ClickedObject(ID::AltRoute(idx)) => {
                 // Switch routes
                 app.session.routing_preferences = self.alt_routes[idx].preferences;
                 self.recalculate_routes(ctx, app);
                 return Transition::Keep;
             }
-            _ => {}
-        }
+            x => x.map_id(|id| match id {
+                ID::Waypoint(id) => id,
+                _ => unreachable!(),
+            }),
+        };
 
-        let outcome = self.input_panel.event(ctx);
-        if let Outcome::Clicked(ref x) = outcome {
+        let panel_outcome = self.input_panel.event(ctx);
+        if let Outcome::Clicked(ref x) = panel_outcome {
             if let Some(t) = Tab::Route.handle_action::<RoutePlanner>(ctx, app, x) {
                 return t;
             }
@@ -197,7 +207,7 @@ impl State<App> for RoutePlanner {
                 return t;
             }
         }
-        if let Outcome::Changed(ref x) = outcome {
+        if let Outcome::Changed(ref x) = panel_outcome {
             if x == "steep hills" || x == "stressful roads" {
                 app.session.routing_preferences = RoutingPreferences {
                     hills: self.input_panel.dropdown_value("steep hills"),
@@ -211,12 +221,15 @@ impl State<App> for RoutePlanner {
         // TODO This routing of outcomes and the brittle ordering totally breaks encapsulation :(
         if let Some(t) = self
             .main_route
-            .event(ctx, app, &outcome, &mut self.input_panel)
+            .event(ctx, app, &panel_outcome, &mut self.input_panel)
         {
             return t;
         }
 
-        if self.waypoints.event(ctx, app, outcome) {
+        if self
+            .waypoints
+            .event(app, panel_outcome, world_outcome_for_waypoints)
+        {
             // Sync from waypoints to file management
             // TODO Maaaybe this directly live in the InputWaypoints system?
             self.files.current.waypoints = self.waypoints.get_waypoints();
@@ -233,9 +246,8 @@ impl State<App> for RoutePlanner {
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.layers.draw(g, app);
         self.input_panel.draw(g);
-        self.waypoints.draw(g);
-        self.main_route.draw(g, &self.input_panel);
         self.world.draw(g);
+        self.main_route.draw(g, &self.input_panel);
     }
 }
 
