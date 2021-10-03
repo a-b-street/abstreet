@@ -477,7 +477,7 @@ impl State<App> for Game {
         if let Some((_, dy)) = ctx.input.get_mouse_scroll() {
             ctx.canvas.cam_zoom = 1.1_f64
                 .powf(ctx.canvas.cam_zoom.log(1.1) + dy)
-                .max(app.opts.min_zoom_for_detail)
+                .max(ctx.canvas.settings.min_zoom_for_detail)
                 .min(50.0);
             ctx.canvas.center_on_map_pt(self.player.get_pos());
         }

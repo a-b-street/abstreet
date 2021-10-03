@@ -6,12 +6,14 @@ use aabb_quadtree::{ItemId, QuadTree};
 
 use geom::{Bounds, Circle, Distance, Polygon, Pt2D};
 
-use crate::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, MultiKey, RewriteColor, Text};
+use crate::mapspace::{ToggleZoomed, ToggleZoomedBuilder};
+use crate::{Color, EventCtx, GeomBatch, GfxCtx, MultiKey, RewriteColor, Text};
 
 // TODO Tests...
 // - start drag in screenspace, release in map
 // - start drag in mapspace, release in screen
 // - reset hovering when we go out of screenspace
+// - start dragging one object, and while dragging, hover on top of other objects
 
 /// A `World` manages objects that exist in "map-space", the zoomable and pannable canvas. These
 /// objects can be drawn, hovered on, clicked, dragged, etc.
@@ -20,7 +22,7 @@ pub struct World<ID: ObjectID> {
     objects: HashMap<ID, Object<ID>>,
     quadtree: QuadTree<ID>,
 
-    draw_master_batches: Vec<Drawable>,
+    draw_master_batches: Vec<ToggleZoomed>,
 
     hovering: Option<ID>,
     // If we're currently dragging, where was the cursor during the last movement, and has the
@@ -33,7 +35,13 @@ pub enum WorldOutcome<ID: ObjectID> {
     /// A left click occurred while not hovering on any object
     ClickedFreeSpace(Pt2D),
     /// An object is being dragged. The given offsets are relative to the previous dragging event.
-    Dragging { obj: ID, dx: f64, dy: f64 },
+    /// The current position of the cursor is included.
+    Dragging {
+        obj: ID,
+        dx: f64,
+        dy: f64,
+        cursor: Pt2D,
+    },
     /// While hovering on an object with a defined hotkey, that key was pressed.
     Keypress(&'static str, ID),
     /// A hoverable object was clicked
@@ -52,8 +60,8 @@ pub struct ObjectBuilder<'a, ID: ObjectID> {
     id: ID,
     hitbox: Option<Polygon>,
     zorder: usize,
-    draw_normal: Option<GeomBatch>,
-    draw_hover: Option<GeomBatch>,
+    draw_normal: Option<ToggleZoomedBuilder>,
+    draw_hover: Option<ToggleZoomedBuilder>,
     tooltip: Option<Text>,
     clickable: bool,
     draggable: bool,
@@ -76,12 +84,12 @@ impl<'a, ID: ObjectID> ObjectBuilder<'a, ID> {
     }
 
     /// Specifies how to draw this object normally (while not hovering on it)
-    pub fn draw(mut self, batch: GeomBatch) -> Self {
+    pub fn draw<I: Into<ToggleZoomedBuilder>>(mut self, normal: I) -> Self {
         assert!(
             self.draw_normal.is_none(),
             "already specified how to draw normally"
         );
-        self.draw_normal = Some(batch);
+        self.draw_normal = Some(normal.into());
         self
     }
 
@@ -102,23 +110,28 @@ impl<'a, ID: ObjectID> ObjectBuilder<'a, ID> {
 
     /// Specifies how to draw the object while the cursor is hovering on it. Note that an object
     /// isn't considered hoverable unless this is specified!
-    pub fn draw_hovered(mut self, batch: GeomBatch) -> Self {
+    pub fn draw_hovered<I: Into<ToggleZoomedBuilder>>(mut self, hovered: I) -> Self {
         assert!(
             self.draw_hover.is_none(),
             "already specified how to draw hovered"
         );
-        self.draw_hover = Some(batch);
+        self.draw_hover = Some(hovered.into());
         self
+    }
+
+    /// Draw the object in a hovered state by transforming the normal drawing.
+    pub fn draw_hover_rewrite(self, rewrite: RewriteColor) -> Self {
+        let hovered = self
+            .draw_normal
+            .clone()
+            .expect("first specify how to draw normally")
+            .color(rewrite);
+        self.draw_hovered(hovered)
     }
 
     /// Draw the object in a hovered state by changing the alpha value of the normal drawing.
     pub fn hover_alpha(self, alpha: f32) -> Self {
-        let batch = self
-            .draw_normal
-            .clone()
-            .expect("first specify how to draw normally")
-            .color(RewriteColor::ChangeAlpha(alpha));
-        self.draw_hovered(batch)
+        self.draw_hover_rewrite(RewriteColor::ChangeAlpha(alpha))
     }
 
     /// Draw a tooltip while hovering over this object.
@@ -176,11 +189,11 @@ impl<'a, ID: ObjectID> ObjectBuilder<'a, ID> {
                 _quadtree_id: quadtree_id,
                 hitbox,
                 zorder: self.zorder,
-                draw_normal: ctx.upload(
-                    self.draw_normal
-                        .expect("didn't specify how to draw normally"),
-                ),
-                draw_hover: self.draw_hover.take().map(|batch| ctx.upload(batch)),
+                draw_normal: self
+                    .draw_normal
+                    .expect("didn't specify how to draw normally")
+                    .build(ctx),
+                draw_hover: self.draw_hover.take().map(|draw| draw.build(ctx)),
                 tooltip: self.tooltip,
                 clickable: self.clickable,
                 draggable: self.draggable,
@@ -195,8 +208,8 @@ struct Object<ID: ObjectID> {
     _quadtree_id: ItemId,
     hitbox: Polygon,
     zorder: usize,
-    draw_normal: Drawable,
-    draw_hover: Option<Drawable>,
+    draw_normal: ToggleZoomed,
+    draw_hover: Option<ToggleZoomed>,
     tooltip: Option<Text>,
     clickable: bool,
     draggable: bool,
@@ -265,14 +278,23 @@ impl<ID: ObjectID> World<ID> {
 
     /// If a drag event causes the world to be totally rebuilt, call this with the previous world
     /// to preserve the ongoing drag.
+    ///
+    /// This should be called after `initialize_hover`.
+    ///
+    /// Important: the rebuilt world must include the same object ID that's currently being dragged
+    /// from the previous world.
     pub fn rebuilt_during_drag(&mut self, prev_world: &World<ID>) {
-        self.dragging_from = prev_world.dragging_from;
+        if prev_world.dragging_from.is_some() {
+            self.dragging_from = prev_world.dragging_from;
+            self.hovering = prev_world.hovering;
+            assert!(self.objects.contains_key(self.hovering.as_ref().unwrap()));
+        }
     }
 
     /// Draw something underneath all objects. This is useful for performance, when a large number
     /// of objects never change appearance.
-    pub fn draw_master_batch(&mut self, draw: Drawable) {
-        self.draw_master_batches.push(draw);
+    pub fn draw_master_batch<I: Into<ToggleZoomedBuilder>>(&mut self, ctx: &EventCtx, draw: I) {
+        self.draw_master_batches.push(draw.into().build(ctx));
     }
 
     /// Let objects in the world respond to something happening.
@@ -306,6 +328,7 @@ impl<ID: ObjectID> World<ID> {
                         obj: self.hovering.unwrap(),
                         dx,
                         dy,
+                        cursor,
                     };
                 }
             }
@@ -393,7 +416,7 @@ impl<ID: ObjectID> World<ID> {
     pub fn draw(&self, g: &mut GfxCtx) {
         // Always draw master batches first
         for draw in &self.draw_master_batches {
-            g.redraw(draw);
+            draw.draw(g);
         }
 
         let mut objects = Vec::new();
@@ -407,7 +430,7 @@ impl<ID: ObjectID> World<ID> {
             let obj = &self.objects[&id];
             if Some(id) == self.hovering {
                 if let Some(ref draw) = obj.draw_hover {
-                    g.redraw(draw);
+                    draw.draw(g);
                     drawn = true;
                 }
                 if let Some(ref txt) = obj.tooltip {
@@ -415,7 +438,7 @@ impl<ID: ObjectID> World<ID> {
                 }
             }
             if !drawn {
-                g.redraw(&obj.draw_normal);
+                obj.draw_normal.draw(g);
             }
         }
     }

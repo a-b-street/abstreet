@@ -308,7 +308,7 @@ fn make_tool_panel(ctx: &mut EventCtx, app: &App) -> Widget {
         .padding(8);
 
     Widget::col(vec![
-        (if ctx.canvas.cam_zoom >= app.opts.min_zoom_for_detail {
+        (if ctx.canvas.is_zoomed() {
             buttons
                 .clone()
                 .image_path("system/assets/minimap/zoom_out_fully.svg")

@@ -411,11 +411,7 @@ impl GameplayState for Tutorial {
         // Special things
         if tut.interaction() == Task::Camera {
             let fire = GeomBatch::load_svg(g, "system/assets/tools/fire.svg")
-                .scale(if g.canvas.cam_zoom < app.opts.min_zoom_for_detail {
-                    0.2
-                } else {
-                    0.1
-                })
+                .scale(if g.canvas.is_unzoomed() { 0.2 } else { 0.1 })
                 .autocrop()
                 .centered_on(app.primary.map.get_b(tut.fire_station).polygon.polylabel());
             let offset = -fire.get_dims().height / 2.0;

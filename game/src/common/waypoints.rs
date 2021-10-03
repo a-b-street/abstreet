@@ -1,8 +1,9 @@
-use geom::{Circle, Distance, FindClosest, Polygon};
+use geom::{Circle, Distance, FindClosest, Pt2D};
 use sim::TripEndpoint;
+use widgetry::mapspace::{ObjectID, World, WorldOutcome};
 use widgetry::{
-    Color, ControlState, CornerRounding, DragDrop, Drawable, EventCtx, GeomBatch, GfxCtx, Image,
-    Line, Outcome, StackAxis, Text, Widget,
+    Color, ControlState, CornerRounding, DragDrop, EventCtx, GeomBatch, GfxCtx, Image, Key, Line,
+    Outcome, RewriteColor, StackAxis, Text, Widget,
 };
 
 use crate::app::App;
@@ -11,29 +12,22 @@ use crate::app::App;
 /// Panel, since there's probably more stuff there too.
 pub struct InputWaypoints {
     waypoints: Vec<Waypoint>,
-    draw_waypoints: Drawable,
-    hovering_on_waypt: Option<usize>,
-    draw_hover: Drawable,
-    // TODO Invariant not captured by these separate fields: when dragging is true,
-    // hovering_on_waypt is fixed.
-    dragging: bool,
+    world: World<WaypointID>,
     snap_to_endpts: FindClosest<TripEndpoint>,
 }
 
-// TODO Maybe it's been a while and I've forgotten some UI patterns, but this is painfully manual.
-// I think we need a draggable map-space thing.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+struct WaypointID(usize);
+impl ObjectID for WaypointID {}
+
 struct Waypoint {
     at: TripEndpoint,
     label: String,
-    hitbox: Polygon,
-}
-
-fn get_waypoint_text(idx: usize) -> char {
-    char::from_u32('A' as u32 + idx as u32).unwrap()
+    center: Pt2D,
 }
 
 impl InputWaypoints {
-    pub fn new(ctx: &mut EventCtx, app: &App) -> InputWaypoints {
+    pub fn new(app: &App) -> InputWaypoints {
         let map = &app.primary.map;
         let mut snap_to_endpts = FindClosest::new(map.get_bounds());
         for i in map.all_intersections() {
@@ -47,10 +41,7 @@ impl InputWaypoints {
 
         InputWaypoints {
             waypoints: Vec::new(),
-            draw_waypoints: Drawable::empty(ctx),
-            hovering_on_waypt: None,
-            draw_hover: Drawable::empty(ctx),
-            dragging: false,
+            world: World::bounded(map.get_bounds()),
             snap_to_endpts,
         }
     }
@@ -60,8 +51,7 @@ impl InputWaypoints {
         for at in waypoints {
             self.waypoints.push(Waypoint::new(app, at));
         }
-        self.update_waypoints_drawable(ctx);
-        self.update_hover(ctx);
+        self.rebuild_world(ctx, app);
     }
 
     pub fn get_panel_widget(&self, ctx: &mut EventCtx) -> Widget {
@@ -142,47 +132,41 @@ impl InputWaypoints {
         self.waypoints.iter().map(|w| w.at).collect()
     }
 
-    /// If the outcome from the panel isn't used by the caller, pass it along here. This handles
-    /// calling `ctx.canvas_movement` when appropriate. When this returns true, something has
-    /// changed, so the caller may want to update their view of the route and call
-    /// `get_panel_widget` again.
+    /// If the outcome from the panel isn't used by the caller, pass it along here. When this
+    /// returns true, something has changed, so the caller may want to update their view of the
+    /// route and call `get_panel_widget` again.
     pub fn event(&mut self, ctx: &mut EventCtx, app: &mut App, outcome: Outcome) -> bool {
-        if self.dragging {
-            if ctx.redo_mouseover() && self.update_dragging(ctx, app) == Some(true) {
-                return true;
+        match self.world.event(ctx) {
+            WorldOutcome::ClickedFreeSpace(pt) => {
+                if let Some((at, _)) = self.snap_to_endpts.closest_pt(pt, Distance::meters(30.0)) {
+                    self.waypoints.push(Waypoint::new(app, at));
+                    self.rebuild_world(ctx, app);
+                    return true;
+                }
+                return false;
             }
-            if ctx.input.left_mouse_button_released() {
-                self.dragging = false;
-                self.update_hover(ctx);
-            }
-        } else {
-            if ctx.redo_mouseover() {
-                self.update_hover(ctx);
-            }
-
-            if self.hovering_on_waypt.is_none() {
-                ctx.canvas_movement();
-            } else if let Some((_, dy)) = ctx.input.get_mouse_scroll() {
-                // Zooming is OK, but can't start click and drag
-                ctx.canvas.zoom(dy, ctx.canvas.get_cursor());
-            }
-
-            if self.hovering_on_waypt.is_some() && ctx.input.left_mouse_button_pressed() {
-                self.dragging = true;
-            }
-
-            if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
-                if self.hovering_on_waypt.is_none() && ctx.normal_left_click() {
-                    if let Some((at, _)) =
-                        self.snap_to_endpts.closest_pt(pt, Distance::meters(30.0))
-                    {
-                        self.waypoints.push(Waypoint::new(app, at));
-                        self.update_waypoints_drawable(ctx);
-                        self.update_hover(ctx);
+            WorldOutcome::Dragging {
+                obj: WaypointID(idx),
+                cursor,
+                ..
+            } => {
+                if let Some((at, _)) = self
+                    .snap_to_endpts
+                    .closest_pt(cursor, Distance::meters(30.0))
+                {
+                    if self.waypoints[idx].at != at {
+                        self.waypoints[idx] = Waypoint::new(app, at);
+                        self.rebuild_world(ctx, app);
                         return true;
                     }
                 }
             }
+            WorldOutcome::Keypress("delete", WaypointID(idx)) => {
+                self.waypoints.remove(idx);
+                self.rebuild_world(ctx, app);
+                return true;
+            }
+            _ => {}
         }
 
         match outcome {
@@ -190,7 +174,7 @@ impl InputWaypoints {
                 if let Some(x) = x.strip_prefix("delete waypoint ") {
                     let idx = x.parse::<usize>().unwrap();
                     self.waypoints.remove(idx);
-                    self.update_waypoints_drawable(ctx);
+                    self.rebuild_world(ctx, app);
                     return true;
                 } else {
                     panic!("Unknown InputWaypoints click {}", x);
@@ -210,8 +194,7 @@ impl InputWaypoints {
     }
 
     pub fn draw(&self, g: &mut GfxCtx) {
-        g.redraw(&self.draw_waypoints);
-        g.redraw(&self.draw_hover);
+        self.world.draw(g);
     }
 
     fn get_waypoint_color(&self, idx: usize) -> Color {
@@ -219,66 +202,38 @@ impl InputWaypoints {
         match idx {
             0 => Color::GREEN,
             idx if idx == total_waypoints - 1 => Color::RED,
-            // technically this includes the case where idx >= total_waypoints which should hopefully never happen
             _ => [Color::BLUE, Color::ORANGE, Color::PURPLE][idx % 3],
         }
     }
 
-    fn update_waypoints_drawable(&mut self, ctx: &mut EventCtx) {
-        let mut batch = GeomBatch::new();
-        for (idx, waypt) in self.waypoints.iter().enumerate() {
-            let color = self.get_waypoint_color(idx);
-            let text = get_waypoint_text(idx);
+    fn rebuild_world(&mut self, ctx: &mut EventCtx, app: &App) {
+        let mut world = World::bounded(app.primary.map.get_bounds());
 
-            let mut geom = GeomBatch::new();
-            geom.push(color, waypt.hitbox.clone());
-            geom.append(
-                Text::from(Line(format!("{}", text)).fg(Color::WHITE))
+        for (idx, waypoint) in self.waypoints.iter().enumerate() {
+            let hitbox = Circle::new(waypoint.center, Distance::meters(30.0)).to_polygon();
+            let color = self.get_waypoint_color(idx);
+
+            let mut draw_normal = GeomBatch::new();
+            draw_normal.push(color, hitbox.clone());
+            draw_normal.append(
+                Text::from(Line(get_waypoint_text(idx).to_string()).fg(Color::WHITE))
                     .render(ctx)
-                    .centered_on(waypt.hitbox.center()),
+                    .centered_on(waypoint.center),
             );
 
-            batch.append(geom);
-        }
-        self.draw_waypoints = ctx.upload(batch);
-    }
-
-    fn update_hover(&mut self, ctx: &EventCtx) {
-        self.hovering_on_waypt = None;
-
-        if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
-            self.hovering_on_waypt = self
-                .waypoints
-                .iter()
-                .position(|waypt| waypt.hitbox.contains_pt(pt));
+            world
+                .add(WaypointID(idx))
+                .hitbox(hitbox.clone())
+                .draw(draw_normal)
+                .draw_hover_rewrite(RewriteColor::Change(color, Color::BLUE.alpha(0.5)))
+                .hotkey(Key::Backspace, "delete")
+                .draggable()
+                .build(ctx);
         }
 
-        let mut batch = GeomBatch::new();
-        if let Some(idx) = self.hovering_on_waypt {
-            batch.push(Color::BLUE.alpha(0.5), self.waypoints[idx].hitbox.clone());
-        }
-        self.draw_hover = ctx.upload(batch);
-    }
-
-    // `Some(true)` means to update.
-    fn update_dragging(&mut self, ctx: &mut EventCtx, app: &App) -> Option<bool> {
-        let pt = ctx.canvas.get_cursor_in_map_space()?;
-        let (at, _) = self.snap_to_endpts.closest_pt(pt, Distance::meters(30.0))?;
-
-        let mut changed = false;
-        let idx = self.hovering_on_waypt.unwrap();
-        if self.waypoints[idx].at != at {
-            self.waypoints[idx] = Waypoint::new(app, at);
-            self.update_waypoints_drawable(ctx);
-            changed = true;
-        }
-
-        let mut batch = GeomBatch::new();
-        // Show where we're currently snapped
-        batch.push(Color::BLUE.alpha(0.5), self.waypoints[idx].hitbox.clone());
-        self.draw_hover = ctx.upload(batch);
-
-        Some(changed)
+        world.initialize_hover(ctx);
+        world.rebuilt_during_drag(&self.world);
+        self.world = world;
     }
 }
 
@@ -296,8 +251,10 @@ impl Waypoint {
             }
             TripEndpoint::SuddenlyAppear(pos) => (pos.pt(map), pos.to_string()),
         };
-
-        let hitbox = Circle::new(center, Distance::meters(30.0)).to_polygon();
-        Waypoint { at, label, hitbox }
+        Waypoint { at, label, center }
     }
+}
+
+fn get_waypoint_text(idx: usize) -> char {
+    char::from_u32('A' as u32 + idx as u32).unwrap()
 }

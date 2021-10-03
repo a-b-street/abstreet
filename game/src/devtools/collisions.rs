@@ -1,8 +1,9 @@
 use abstutil::{prettyprint_usize, Counter};
 use collisions::{CollisionDataset, Severity};
 use geom::{Circle, Distance, Duration, FindClosest, Polygon, Time};
-use map_gui::tools::{ColorNetwork, ToggleZoomed};
+use map_gui::tools::ColorNetwork;
 use map_gui::ID;
+use widgetry::mapspace::ToggleZoomed;
 use widgetry::{
     Choice, Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line, Outcome,
     Panel, Slider, State, Text, TextExt, Toggle, VerticalAlignment, Widget,
@@ -296,10 +297,10 @@ impl State<App> for CollisionsViewer {
         Transition::Keep
     }
 
-    fn draw(&self, g: &mut GfxCtx, app: &App) {
+    fn draw(&self, g: &mut GfxCtx, _: &App) {
         match self.dataviz {
             Dataviz::Aggregated { ref draw } => {
-                draw.draw(g, app);
+                draw.draw(g);
             }
             Dataviz::Individual {
                 ref draw_all_circles,

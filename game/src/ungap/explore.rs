@@ -66,7 +66,7 @@ impl State<App> for ExploreMap {
         }
 
         // Only when zoomed in, click to edit a road in detail
-        if ctx.canvas.cam_zoom >= app.opts.min_zoom_for_detail {
+        if ctx.canvas.is_zoomed() {
             if ctx.redo_mouseover() {
                 app.primary.current_selection =
                     match app.mouseover_unzoomed_roads_and_intersections(ctx) {

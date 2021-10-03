@@ -81,7 +81,7 @@ impl<A: AppLike + 'static, T: MinimapControls<A>> Minimap<A, T> {
 
             dragging: false,
             panel: Panel::empty(ctx),
-            zoomed: ctx.canvas.cam_zoom >= app.opts().min_zoom_for_detail,
+            zoomed: ctx.canvas.is_zoomed(),
             layer,
 
             zoom_lvl: 0,
@@ -98,7 +98,7 @@ impl<A: AppLike + 'static, T: MinimapControls<A>> Minimap<A, T> {
     }
 
     pub fn recreate_panel(&mut self, ctx: &mut EventCtx, app: &A) {
-        if ctx.canvas.cam_zoom < app.opts().min_zoom_for_detail {
+        if ctx.canvas.is_unzoomed() {
             self.panel = self.controls.make_unzoomed_panel(ctx, app);
             return;
         }
@@ -271,7 +271,7 @@ impl<A: AppLike + 'static, T: MinimapControls<A>> Minimap<A, T> {
             self.recreate_panel(ctx, app);
         }
 
-        let zoomed = ctx.canvas.cam_zoom >= app.opts().min_zoom_for_detail;
+        let zoomed = ctx.canvas.is_zoomed();
         let layer = self.controls.has_layer(app);
         if zoomed != self.zoomed || layer != self.layer {
             let just_zoomed_in = zoomed && !self.zoomed;

@@ -2,10 +2,11 @@ use maplit::btreeset;
 
 use abstutil::{prettyprint_usize, Counter};
 use geom::{Distance, Time};
-use map_gui::tools::{ColorDiscrete, ColorLegend, ColorNetwork, ToggleZoomed};
+use map_gui::tools::{ColorDiscrete, ColorLegend, ColorNetwork};
 use map_gui::ID;
 use map_model::{AmenityType, LaneType};
 use sim::AgentType;
+use widgetry::mapspace::ToggleZoomed;
 use widgetry::{Color, EventCtx, GfxCtx, Line, Panel, Text, Widget};
 
 use crate::app::App;
@@ -30,7 +31,7 @@ impl Layer for BikeActivity {
         }
 
         // Show a tooltip with count, only when unzoomed
-        if ctx.canvas.cam_zoom < app.opts.min_zoom_for_detail {
+        if ctx.canvas.is_unzoomed() {
             if ctx.redo_mouseover() || recalc_tooltip {
                 self.tooltip = None;
                 if let Some(ID::Road(r)) = app.mouseover_unzoomed_roads_and_intersections(ctx) {
@@ -51,9 +52,9 @@ impl Layer for BikeActivity {
 
         <dyn Layer>::simple_event(ctx, &mut self.panel)
     }
-    fn draw(&self, g: &mut GfxCtx, app: &App) {
+    fn draw(&self, g: &mut GfxCtx, _: &App) {
         self.panel.draw(g);
-        self.draw.draw(g, app);
+        self.draw.draw(g);
         if let Some(ref txt) = self.tooltip {
             g.draw_mouse_tooltip(txt.clone());
         }
@@ -174,9 +175,9 @@ impl Layer for Static {
     fn event(&mut self, ctx: &mut EventCtx, _: &mut App) -> Option<LayerOutcome> {
         <dyn Layer>::simple_event(ctx, &mut self.panel)
     }
-    fn draw(&self, g: &mut GfxCtx, app: &App) {
+    fn draw(&self, g: &mut GfxCtx, _: &App) {
         self.panel.draw(g);
-        self.draw.draw(g, app);
+        self.draw.draw(g);
     }
     fn draw_minimap(&self, g: &mut GfxCtx) {
         g.redraw(&self.draw.unzoomed);

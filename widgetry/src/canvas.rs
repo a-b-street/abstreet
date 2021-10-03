@@ -54,6 +54,10 @@ pub struct CanvasSettings {
     // TODO Ideally this would be an f64, but elsewhere we use it in a Spinner. Until we override
     // the Display trait to do some rounding, floating point increments render pretty horribly.
     pub canvas_scroll_speed: usize,
+    /// Some map-space elements are drawn differently when unzoomed and zoomed. This specifies the canvas
+    /// zoom level where they switch. The concept of "unzoomed" and "zoomed" is used by
+    /// `ToggleZoomed`.
+    pub min_zoom_for_detail: f64,
 }
 
 impl CanvasSettings {
@@ -65,6 +69,7 @@ impl CanvasSettings {
             keys_to_pan: false,
             gui_scroll_speed: 5,
             canvas_scroll_speed: 10,
+            min_zoom_for_detail: 4.0,
         }
     }
 }
@@ -352,6 +357,14 @@ impl Canvas {
             VerticalAlignment::Below(y) => y,
         };
         ScreenPt::new(x1, y1)
+    }
+
+    pub fn is_unzoomed(&self) -> bool {
+        self.cam_zoom < self.settings.min_zoom_for_detail
+    }
+
+    pub fn is_zoomed(&self) -> bool {
+        self.cam_zoom >= self.settings.min_zoom_for_detail
     }
 }
 

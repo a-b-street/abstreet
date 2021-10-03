@@ -101,7 +101,7 @@ impl TrafficSignalDemand {
             }
             draw_all.extend(Color::WHITE, outlines);
         }
-        world.draw_master_batch(ctx.upload(draw_all));
+        world.draw_master_batch(ctx, draw_all);
 
         world.initialize_hover(ctx);
         self.world = world;

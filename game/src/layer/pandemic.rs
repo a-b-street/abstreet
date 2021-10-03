@@ -2,8 +2,9 @@ use std::collections::HashSet;
 
 use abstutil::prettyprint_usize;
 use geom::{Circle, Distance, Pt2D, Time};
-use map_gui::tools::{make_heatmap, HeatmapOptions, ToggleZoomed};
+use map_gui::tools::{make_heatmap, HeatmapOptions};
 use sim::PersonState;
+use widgetry::mapspace::ToggleZoomed;
 use widgetry::{
     Choice, Color, EventCtx, GfxCtx, Line, Outcome, Panel, Text, TextExt, Toggle, Widget,
 };
@@ -47,9 +48,9 @@ impl Layer for Pandemic {
         }
         None
     }
-    fn draw(&self, g: &mut GfxCtx, app: &App) {
+    fn draw(&self, g: &mut GfxCtx, _: &App) {
         self.panel.draw(g);
-        self.draw.draw(g, app);
+        self.draw.draw(g);
     }
     fn draw_minimap(&self, g: &mut GfxCtx) {
         g.redraw(&self.draw.unzoomed);

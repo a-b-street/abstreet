@@ -1,6 +1,7 @@
 use geom::{Angle, Distance, FindClosest, PolyLine, Polygon, Pt2D};
-use map_gui::tools::{ColorDiscrete, ColorScale, Grid, ToggleZoomed};
+use map_gui::tools::{ColorDiscrete, ColorScale, Grid};
 use map_gui::ID;
+use widgetry::mapspace::ToggleZoomed;
 use widgetry::{Color, EventCtx, GeomBatch, GfxCtx, Panel, Text, TextExt, Widget};
 
 use crate::app::App;
@@ -29,9 +30,9 @@ impl Layer for SteepStreets {
 
         <dyn Layer>::simple_event(ctx, &mut self.panel)
     }
-    fn draw(&self, g: &mut GfxCtx, app: &App) {
+    fn draw(&self, g: &mut GfxCtx, _: &App) {
         self.panel.draw(g);
-        self.draw.draw(g, app);
+        self.draw.draw(g);
         if let Some(ref txt) = self.tooltip {
             g.draw_mouse_tooltip(txt.clone());
         }
@@ -168,7 +169,7 @@ impl Layer for ElevationContours {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Option<LayerOutcome> {
         if ctx.redo_mouseover() {
             self.tooltip = None;
-            if ctx.canvas.cam_zoom < app.opts.min_zoom_for_detail {
+            if ctx.canvas.is_unzoomed() {
                 if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
                     if let Some((elevation, _)) = self
                         .closest_elevation
@@ -185,9 +186,9 @@ impl Layer for ElevationContours {
 
         <dyn Layer>::simple_event(ctx, &mut self.panel)
     }
-    fn draw(&self, g: &mut GfxCtx, app: &App) {
+    fn draw(&self, g: &mut GfxCtx, _: &App) {
         self.panel.draw(g);
-        self.draw.draw(g, app);
+        self.draw.draw(g);
         if let Some(ref txt) = self.tooltip {
             g.draw_mouse_tooltip(txt.clone());
         }

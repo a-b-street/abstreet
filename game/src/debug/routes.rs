@@ -3,13 +3,14 @@ use std::collections::HashMap;
 use abstutil::{prettyprint_usize, Counter, Timer};
 use geom::{Duration, Polygon};
 use map_gui::colors::ColorSchemeChoice;
-use map_gui::tools::{ColorNetwork, ToggleZoomed};
+use map_gui::tools::ColorNetwork;
 use map_gui::{AppLike, ID};
 use map_model::{
     DirectedRoadID, Direction, PathRequest, RoadID, RoutingParams, Traversable,
     NORMAL_LANE_THICKNESS,
 };
 use sim::{TripEndpoint, TripMode};
+use widgetry::mapspace::ToggleZoomed;
 use widgetry::{
     Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
     RoundedF64, Spinner, State, Text, TextExt, TextSpan, VerticalAlignment, Widget,
@@ -466,7 +467,7 @@ impl State<App> for AllRoutesExplorer {
     fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.panel.draw(g);
         CommonState::draw_osd(g, app);
-        self.draw.draw(g, app);
+        self.draw.draw(g);
         if let Some(ref txt) = self.tooltip {
             g.draw_mouse_tooltip(txt.clone());
         }

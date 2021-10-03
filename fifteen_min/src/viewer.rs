@@ -372,11 +372,7 @@ impl HoverOnBuilding {
     pub fn key(ctx: &EventCtx, app: &App) -> Option<HoverKey> {
         match app.mouseover_unzoomed_buildings(ctx) {
             Some(ID::Building(b)) => {
-                let scale_factor = if ctx.canvas.cam_zoom >= app.opts.min_zoom_for_detail {
-                    1.0
-                } else {
-                    10.0
-                };
+                let scale_factor = if ctx.canvas.is_zoomed() { 1.0 } else { 10.0 };
                 Some((b, scale_factor))
             }
             _ => None,

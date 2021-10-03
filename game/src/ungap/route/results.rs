@@ -1,9 +1,10 @@
 use std::collections::HashSet;
 
-use geom::{Circle, Distance, Duration, FindClosest, PolyLine};
-use map_gui::tools::{PopupMsg, ToggleZoomed};
+use geom::{Circle, Distance, Duration, FindClosest, PolyLine, Polygon};
+use map_gui::tools::PopupMsg;
 use map_model::{Path, PathStep, NORMAL_LANE_THICKNESS};
 use sim::{TripEndpoint, TripMode};
+use widgetry::mapspace::{ToggleZoomed, ToggleZoomedBuilder};
 use widgetry::{
     Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, LinePlot, Outcome, Panel, PlotOptions,
     Series, Text, Widget,
@@ -12,26 +13,31 @@ use widgetry::{
 use super::RoutingPreferences;
 use crate::app::{App, Transition};
 
-pub struct RouteResults {
+/// A temporary structure that the caller should unpack and use as needed.
+pub struct BuiltRoute {
+    pub details: RouteDetails,
+    pub details_widget: Widget,
+    pub draw: ToggleZoomedBuilder,
+    pub hitbox: Polygon,
+    pub tooltip_for_alt: Option<Text>,
+}
+
+pub struct RouteDetails {
     pub preferences: RoutingPreferences,
+    pub stats: RouteStats,
 
     // It's tempting to glue together all of the paths. But since some waypoints might force the
     // path to double back on itself, rendering the path as a single PolyLine would break.
     paths: Vec<(Path, Option<PolyLine>)>,
     // Match each polyline to the index in paths
     closest_path_segment: FindClosest<usize>,
-    pub stats: RouteStats,
 
     hover_on_line_plot: Option<(Distance, Drawable)>,
     hover_on_route_tooltip: Option<Text>,
-    draw_route: ToggleZoomed,
 
     draw_high_stress: Drawable,
     draw_traffic_signals: Drawable,
     draw_unprotected_turns: Drawable,
-
-    // Possibly a bit large to stash
-    elevation_pts: Vec<(Distance, Distance)>,
 }
 
 #[derive(PartialEq)]
@@ -45,10 +51,10 @@ pub struct RouteStats {
     total_down: Distance,
 }
 
-impl RouteResults {
+impl RouteDetails {
     /// "main" is determined by `app.session.routing_preferences`
-    pub fn main_route(ctx: &mut EventCtx, app: &App, waypoints: Vec<TripEndpoint>) -> RouteResults {
-        RouteResults::new(
+    pub fn main_route(ctx: &mut EventCtx, app: &App, waypoints: Vec<TripEndpoint>) -> BuiltRoute {
+        RouteDetails::new(
             ctx,
             app,
             waypoints,
@@ -58,15 +64,41 @@ impl RouteResults {
         )
     }
 
+    pub fn alt_route(
+        ctx: &mut EventCtx,
+        app: &App,
+        waypoints: Vec<TripEndpoint>,
+        main: &RouteDetails,
+        preferences: RoutingPreferences,
+    ) -> BuiltRoute {
+        let mut built = RouteDetails::new(
+            ctx,
+            app,
+            waypoints,
+            Color::grey(0.3),
+            Some(Color::CYAN),
+            preferences,
+        );
+        built.tooltip_for_alt = Some(compare_routes(
+            app,
+            &main.stats,
+            &built.details.stats,
+            preferences,
+        ));
+        built
+    }
+
     fn new(
         ctx: &mut EventCtx,
         app: &App,
         waypoints: Vec<TripEndpoint>,
         route_color: Color,
+        // Only used for alts
         outline_color: Option<Color>,
         preferences: RoutingPreferences,
-    ) -> RouteResults {
+    ) -> BuiltRoute {
         let mut draw_route = ToggleZoomed::builder();
+        let mut hitbox_pieces = Vec::new();
         let mut draw_high_stress = GeomBatch::new();
         let mut draw_traffic_signals = GeomBatch::new();
         let mut draw_unprotected_turns = GeomBatch::new();
@@ -135,7 +167,11 @@ impl RouteResults {
                     draw_route
                         .unzoomed
                         .push(route_color.alpha(0.8), shape.clone());
-                    draw_route.zoomed.push(route_color.alpha(0.5), shape);
+                    draw_route
+                        .zoomed
+                        .push(route_color.alpha(0.5), shape.clone());
+
+                    hitbox_pieces.push(shape);
 
                     if let Some(color) = outline_color {
                         if let Some(outline) =
@@ -162,27 +198,39 @@ impl RouteResults {
                 total_up += dy;
             }
         }
+        let stats = RouteStats {
+            total_distance,
+            dist_along_high_stress_roads,
+            total_time,
+            num_traffic_signals,
+            num_unprotected_turns,
+            total_up,
+            total_down,
+        };
 
-        RouteResults {
-            preferences,
-            draw_route: draw_route.build(ctx),
-            draw_high_stress: ctx.upload(draw_high_stress),
-            draw_traffic_signals: ctx.upload(draw_traffic_signals),
-            draw_unprotected_turns: ctx.upload(draw_unprotected_turns),
-            paths,
-            closest_path_segment,
-            hover_on_line_plot: None,
-            hover_on_route_tooltip: None,
-            elevation_pts,
-            stats: RouteStats {
-                total_distance,
-                dist_along_high_stress_roads,
-                total_time,
-                num_traffic_signals,
-                num_unprotected_turns,
-                total_up,
-                total_down,
+        let details_widget = make_detail_widget(ctx, app, &stats, elevation_pts);
+
+        BuiltRoute {
+            details: RouteDetails {
+                preferences,
+                draw_high_stress: ctx.upload(draw_high_stress),
+                draw_traffic_signals: ctx.upload(draw_traffic_signals),
+                draw_unprotected_turns: ctx.upload(draw_unprotected_turns),
+                paths,
+                closest_path_segment,
+                hover_on_line_plot: None,
+                hover_on_route_tooltip: None,
+                stats,
             },
+            details_widget,
+            draw: draw_route,
+            hitbox: if hitbox_pieces.is_empty() {
+                // Dummy tiny hitbox
+                Polygon::rectangle(0.0001, 0.0001)
+            } else {
+                Polygon::union_all(hitbox_pieces)
+            },
+            tooltip_for_alt: None,
         }
     }
 
@@ -293,8 +341,7 @@ impl RouteResults {
         None
     }
 
-    pub fn draw(&self, g: &mut GfxCtx, app: &App, panel: &Panel) {
-        self.draw_route.draw(g, app);
+    pub fn draw(&self, g: &mut GfxCtx, panel: &Panel) {
         if let Some((_, ref draw)) = self.hover_on_line_plot {
             g.redraw(draw);
         }
@@ -311,155 +358,99 @@ impl RouteResults {
             g.redraw(&self.draw_unprotected_turns);
         }
     }
+}
 
-    pub fn to_widget(&self, ctx: &mut EventCtx, app: &App) -> Widget {
-        let pct_stressful = if self.stats.total_distance == Distance::ZERO {
-            0.0
-        } else {
-            ((self.stats.dist_along_high_stress_roads / self.stats.total_distance) * 100.0).round()
-        };
+fn make_detail_widget(
+    ctx: &mut EventCtx,
+    app: &App,
+    stats: &RouteStats,
+    elevation_pts: Vec<(Distance, Distance)>,
+) -> Widget {
+    let pct_stressful = if stats.total_distance == Distance::ZERO {
+        0.0
+    } else {
+        ((stats.dist_along_high_stress_roads / stats.total_distance) * 100.0).round()
+    };
 
-        let elevation_plot = LinePlot::new_widget(
+    Widget::col(vec![
+        Line("Route details").small_heading().into_widget(ctx),
+        Text::from_all(vec![
+            Line("Distance: ").secondary(),
+            Line(stats.total_distance.to_string(&app.opts.units)),
+        ])
+        .into_widget(ctx),
+        Widget::row(vec![
+            Text::from_all(vec![
+                Line(format!(
+                    "  {} or {}%",
+                    stats
+                        .dist_along_high_stress_roads
+                        .to_string(&app.opts.units),
+                    pct_stressful
+                )),
+                Line(" along ").secondary(),
+            ])
+            .into_widget(ctx)
+            .centered_vert(),
+            ctx.style()
+                .btn_plain
+                .btn()
+                .label_underlined_text("high-stress roads")
+                .build_def(ctx),
+        ]),
+        Text::from_all(vec![
+            Line("Estimated time: ").secondary(),
+            Line(stats.total_time.to_string(&app.opts.units)),
+        ])
+        .into_widget(ctx),
+        Widget::row(vec![
+            Line("Traffic signals crossed: ")
+                .secondary()
+                .into_widget(ctx)
+                .centered_vert(),
+            ctx.style()
+                .btn_plain
+                .btn()
+                .label_underlined_text(stats.num_traffic_signals.to_string())
+                .build_widget(ctx, "traffic signals"),
+        ]),
+        Widget::row(vec![
+            Line("Unprotected left turns onto busy roads: ")
+                .secondary()
+                .into_widget(ctx)
+                .centered_vert(),
+            ctx.style()
+                .btn_plain
+                .btn()
+                .label_underlined_text(stats.num_unprotected_turns.to_string())
+                .build_widget(ctx, "unprotected turns"),
+        ]),
+        Text::from_all(vec![
+            Line("Elevation change: ").secondary(),
+            Line(format!(
+                "{}↑, {}↓",
+                stats.total_up.to_string(&app.opts.units),
+                stats.total_down.to_string(&app.opts.units)
+            )),
+        ])
+        .into_widget(ctx),
+        LinePlot::new_widget(
             ctx,
             "elevation",
             vec![Series {
                 label: "Elevation".to_string(),
                 color: Color::RED,
-                pts: self.elevation_pts.clone(),
+                pts: elevation_pts,
             }],
             PlotOptions {
                 filterable: false,
-                max_x: Some(self.stats.total_distance.round_up_for_axis()),
+                max_x: Some(stats.total_distance.round_up_for_axis()),
                 max_y: Some(app.primary.map.max_elevation().round_up_for_axis()),
                 disabled: HashSet::new(),
             },
             app.opts.units,
-        );
-
-        Widget::col(vec![
-            Line("Route details").small_heading().into_widget(ctx),
-            Text::from_all(vec![
-                Line("Distance: ").secondary(),
-                Line(self.stats.total_distance.to_string(&app.opts.units)),
-            ])
-            .into_widget(ctx),
-            Widget::row(vec![
-                Text::from_all(vec![
-                    Line(format!(
-                        "  {} or {}%",
-                        self.stats
-                            .dist_along_high_stress_roads
-                            .to_string(&app.opts.units),
-                        pct_stressful
-                    )),
-                    Line(" along ").secondary(),
-                ])
-                .into_widget(ctx)
-                .centered_vert(),
-                ctx.style()
-                    .btn_plain
-                    .btn()
-                    .label_underlined_text("high-stress roads")
-                    .build_def(ctx),
-            ]),
-            Text::from_all(vec![
-                Line("Estimated time: ").secondary(),
-                Line(self.stats.total_time.to_string(&app.opts.units)),
-            ])
-            .into_widget(ctx),
-            Widget::row(vec![
-                Line("Traffic signals crossed: ")
-                    .secondary()
-                    .into_widget(ctx)
-                    .centered_vert(),
-                ctx.style()
-                    .btn_plain
-                    .btn()
-                    .label_underlined_text(self.stats.num_traffic_signals.to_string())
-                    .build_widget(ctx, "traffic signals"),
-            ]),
-            Widget::row(vec![
-                Line("Unprotected left turns onto busy roads: ")
-                    .secondary()
-                    .into_widget(ctx)
-                    .centered_vert(),
-                ctx.style()
-                    .btn_plain
-                    .btn()
-                    .label_underlined_text(self.stats.num_unprotected_turns.to_string())
-                    .build_widget(ctx, "unprotected turns"),
-            ]),
-            Text::from_all(vec![
-                Line("Elevation change: ").secondary(),
-                Line(format!(
-                    "{}↑, {}↓",
-                    self.stats.total_up.to_string(&app.opts.units),
-                    self.stats.total_down.to_string(&app.opts.units)
-                )),
-            ])
-            .into_widget(ctx),
-            elevation_plot,
-        ])
-    }
-}
-
-pub struct AltRouteResults {
-    pub results: RouteResults,
-    hovering: bool,
-    tooltip: Text,
-}
-
-impl AltRouteResults {
-    pub fn new(
-        ctx: &mut EventCtx,
-        app: &App,
-        waypoints: Vec<TripEndpoint>,
-        main: &RouteResults,
-        preferences: RoutingPreferences,
-    ) -> AltRouteResults {
-        let results = RouteResults::new(
-            ctx,
-            app,
-            waypoints,
-            Color::grey(0.3),
-            Some(Color::CYAN),
-            preferences,
-        );
-        let tooltip = compare_routes(app, &main.stats, &results.stats, preferences);
-        AltRouteResults {
-            results,
-            hovering: false,
-            tooltip,
-        }
-    }
-
-    pub fn has_focus(&self) -> bool {
-        self.hovering
-    }
-
-    pub fn event(&mut self, ctx: &mut EventCtx) {
-        if ctx.redo_mouseover() {
-            self.hovering = false;
-            if let Some(pt) = ctx.canvas.get_cursor_in_map_space() {
-                if self
-                    .results
-                    .closest_path_segment
-                    .closest_pt(pt, 10.0 * NORMAL_LANE_THICKNESS)
-                    .is_some()
-                {
-                    self.hovering = true;
-                }
-            }
-        }
-    }
-
-    pub fn draw(&self, g: &mut GfxCtx, app: &App) {
-        self.results.draw_route.draw(g, app);
-
-        if self.hovering {
-            g.draw_mouse_tooltip(self.tooltip.clone());
-        }
-    }
+        ),
+    ])
 }
 
 fn compare_routes(

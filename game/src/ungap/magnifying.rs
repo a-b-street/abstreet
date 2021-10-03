@@ -50,7 +50,7 @@ impl MagnifyingGlass {
     }
 
     pub fn draw(&self, g: &mut GfxCtx, app: &App) {
-        if g.canvas.cam_zoom >= app.opts.min_zoom_for_detail {
+        if g.canvas.is_zoomed() {
             return;
         }
 

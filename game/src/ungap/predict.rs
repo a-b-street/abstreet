@@ -3,10 +3,11 @@ use std::collections::HashSet;
 use abstutil::{prettyprint_usize, Counter, Timer};
 use geom::{Distance, Duration, Polygon};
 use map_gui::load::FileLoader;
-use map_gui::tools::{ColorNetwork, ToggleZoomed};
+use map_gui::tools::ColorNetwork;
 use map_gui::ID;
 use map_model::{PathRequest, PathStepV2, RoadID};
 use sim::{Scenario, TripEndpoint, TripMode};
+use widgetry::mapspace::ToggleZoomed;
 use widgetry::{
     Color, EventCtx, GeomBatch, GfxCtx, Line, Outcome, Panel, Spinner, State, Text, TextExt, Widget,
 };
@@ -117,7 +118,7 @@ impl State<App> for ShowGaps {
         self.layers.draw(g, app);
 
         let data = app.session.mode_shift.value().unwrap();
-        data.gaps.draw.draw(g, app);
+        data.gaps.draw.draw(g);
         if let Some(ref txt) = self.tooltip {
             g.draw_mouse_tooltip(txt.clone());
         }

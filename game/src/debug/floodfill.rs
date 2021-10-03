@@ -1,7 +1,8 @@
 use std::collections::HashSet;
 
-use map_gui::tools::{ColorDiscrete, ToggleZoomed};
+use map_gui::tools::ColorDiscrete;
 use map_model::{connectivity, LaneID, Map, PathConstraints};
+use widgetry::mapspace::ToggleZoomed;
 use widgetry::{
     Choice, Color, EventCtx, GfxCtx, HorizontalAlignment, Line, Outcome, Panel, State, TextExt,
     VerticalAlignment, Widget,
@@ -104,8 +105,8 @@ impl State<App> for Floodfiller {
         Transition::Keep
     }
 
-    fn draw(&self, g: &mut GfxCtx, app: &App) {
-        self.draw.draw(g, app);
+    fn draw(&self, g: &mut GfxCtx, _: &App) {
+        self.draw.draw(g);
         self.panel.draw(g);
     }
 }
