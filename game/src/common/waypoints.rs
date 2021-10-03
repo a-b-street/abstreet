@@ -2,22 +2,21 @@ use geom::{Circle, Distance, FindClosest, Pt2D};
 use sim::TripEndpoint;
 use widgetry::mapspace::{ObjectID, World, WorldOutcome};
 use widgetry::{
-    Color, ControlState, CornerRounding, DragDrop, EventCtx, GeomBatch, GfxCtx, Image, Key, Line,
-    Outcome, RewriteColor, StackAxis, Text, Widget,
+    Color, ControlState, CornerRounding, DragDrop, EventCtx, GeomBatch, Image, Key, Line, Outcome,
+    RewriteColor, StackAxis, Text, Widget,
 };
 
 use crate::app::App;
 
 /// Click to add waypoints, drag them, see the list on a panel and delete them. The caller owns the
-/// Panel, since there's probably more stuff there too.
+/// Panel and the World, since there's probably more stuff there too.
 pub struct InputWaypoints {
     waypoints: Vec<Waypoint>,
-    world: World<WaypointID>,
     snap_to_endpts: FindClosest<TripEndpoint>,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
-struct WaypointID(usize);
+pub struct WaypointID(usize);
 impl ObjectID for WaypointID {}
 
 struct Waypoint {
@@ -41,17 +40,16 @@ impl InputWaypoints {
 
         InputWaypoints {
             waypoints: Vec::new(),
-            world: World::bounded(map.get_bounds()),
             snap_to_endpts,
         }
     }
 
-    pub fn overwrite(&mut self, ctx: &mut EventCtx, app: &App, waypoints: Vec<TripEndpoint>) {
+    /// The caller should call `rebuild_world` after this
+    pub fn overwrite(&mut self, app: &App, waypoints: Vec<TripEndpoint>) {
         self.waypoints.clear();
         for at in waypoints {
             self.waypoints.push(Waypoint::new(app, at));
         }
-        self.rebuild_world(ctx, app);
     }
 
     pub fn get_panel_widget(&self, ctx: &mut EventCtx) -> Widget {
@@ -132,15 +130,19 @@ impl InputWaypoints {
         self.waypoints.iter().map(|w| w.at).collect()
     }
 
-    /// If the outcome from the panel isn't used by the caller, pass it along here. When this
+    /// If the outcome from the panel or world isn't used by the caller, pass it along here. When this
     /// returns true, something has changed, so the caller may want to update their view of the
-    /// route and call `get_panel_widget` again.
-    pub fn event(&mut self, ctx: &mut EventCtx, app: &mut App, outcome: Outcome) -> bool {
-        match self.world.event(ctx) {
+    /// route and call `get_panel_widget` and `rebuild_world` again.
+    pub fn event(
+        &mut self,
+        app: &mut App,
+        panel_outcome: Outcome,
+        world_outcome: WorldOutcome<WaypointID>,
+    ) -> bool {
+        match world_outcome {
             WorldOutcome::ClickedFreeSpace(pt) => {
                 if let Some((at, _)) = self.snap_to_endpts.closest_pt(pt, Distance::meters(30.0)) {
                     self.waypoints.push(Waypoint::new(app, at));
-                    self.rebuild_world(ctx, app);
                     return true;
                 }
                 return false;
@@ -156,25 +158,22 @@ impl InputWaypoints {
                 {
                     if self.waypoints[idx].at != at {
                         self.waypoints[idx] = Waypoint::new(app, at);
-                        self.rebuild_world(ctx, app);
                         return true;
                     }
                 }
             }
             WorldOutcome::Keypress("delete", WaypointID(idx)) => {
                 self.waypoints.remove(idx);
-                self.rebuild_world(ctx, app);
                 return true;
             }
             _ => {}
         }
 
-        match outcome {
+        match panel_outcome {
             Outcome::Clicked(x) => {
                 if let Some(x) = x.strip_prefix("delete waypoint ") {
                     let idx = x.parse::<usize>().unwrap();
                     self.waypoints.remove(idx);
-                    self.rebuild_world(ctx, app);
                     return true;
                 } else {
                     panic!("Unknown InputWaypoints click {}", x);
@@ -184,17 +183,13 @@ impl InputWaypoints {
                 self.waypoints.swap(old_idx, new_idx);
                 // The order field is baked in, so calculate everything again from scratch
                 let waypoints = self.get_waypoints();
-                self.overwrite(ctx, app, waypoints);
+                self.overwrite(app, waypoints);
                 return true;
             }
             _ => {}
         }
 
         false
-    }
-
-    pub fn draw(&self, g: &mut GfxCtx) {
-        self.world.draw(g);
     }
 
     fn get_waypoint_color(&self, idx: usize) -> Color {
@@ -206,9 +201,14 @@ impl InputWaypoints {
         }
     }
 
-    fn rebuild_world(&mut self, ctx: &mut EventCtx, app: &App) {
-        let mut world = World::bounded(app.primary.map.get_bounds());
-
+    /// The caller is responsible for calling `initialize_hover` and `rebuilt_during_drag`.
+    pub fn rebuild_world<T: ObjectID, F: Fn(WaypointID) -> T>(
+        &self,
+        ctx: &mut EventCtx,
+        world: &mut World<T>,
+        wrap_id: F,
+        zorder: usize,
+    ) {
         for (idx, waypoint) in self.waypoints.iter().enumerate() {
             let hitbox = Circle::new(waypoint.center, Distance::meters(30.0)).to_polygon();
             let color = self.get_waypoint_color(idx);
@@ -222,18 +222,15 @@ impl InputWaypoints {
             );
 
             world
-                .add(WaypointID(idx))
-                .hitbox(hitbox.clone())
+                .add(wrap_id(WaypointID(idx)))
+                .hitbox(hitbox)
+                .zorder(zorder)
                 .draw(draw_normal)
                 .draw_hover_rewrite(RewriteColor::Change(color, Color::BLUE.alpha(0.5)))
                 .hotkey(Key::Backspace, "delete")
                 .draggable()
                 .build(ctx);
         }
-
-        world.initialize_hover(ctx);
-        world.rebuilt_during_drag(&self.world);
-        self.world = world;
     }
 }
 

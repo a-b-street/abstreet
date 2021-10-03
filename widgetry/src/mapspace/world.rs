@@ -50,6 +50,31 @@ pub enum WorldOutcome<ID: ObjectID> {
     Nothing,
 }
 
+impl<I: ObjectID> WorldOutcome<I> {
+    /// If the outcome references some ID, transform it to another type. This is useful when some
+    /// component owns a World that contains a few different types of objects, some of which are
+    /// managed by another component that only cares about its IDs.
+    pub fn map_id<O: ObjectID, F: Fn(I) -> O>(self, f: F) -> WorldOutcome<O> {
+        match self {
+            WorldOutcome::ClickedFreeSpace(pt) => WorldOutcome::ClickedFreeSpace(pt),
+            WorldOutcome::Dragging {
+                obj,
+                dx,
+                dy,
+                cursor,
+            } => WorldOutcome::Dragging {
+                obj: f(obj),
+                dx,
+                dy,
+                cursor,
+            },
+            WorldOutcome::Keypress(action, id) => WorldOutcome::Keypress(action, f(id)),
+            WorldOutcome::ClickedObject(id) => WorldOutcome::ClickedObject(f(id)),
+            WorldOutcome::Nothing => WorldOutcome::Nothing,
+        }
+    }
+}
+
 /// Objects in a `World` are uniquely identified by this caller-specified type
 pub trait ObjectID: Clone + Copy + Debug + Eq + Hash {}
 
