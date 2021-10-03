@@ -7,11 +7,11 @@ pedestrians. It works anywhere in the world, thanks to
 [OpenStreetMap](https://www.openstreetmap.org/about).
 
 - Play on
-  [Windows](https://github.com/a-b-street/abstreet/releases/download/v0.2.60/abstreet_windows_v0_2_60.zip),
-  [Mac](https://github.com/a-b-street/abstreet/releases/download/v0.2.60/abstreet_mac_v0_2_60.zip),
-  [Linux](https://github.com/a-b-street/abstreet/releases/download/v0.2.60/abstreet_linux_v0_2_60.zip),
+  [Windows](https://github.com/a-b-street/abstreet/releases/download/v0.2.61/abstreet_windows_v0_2_61.zip),
+  [Mac](https://github.com/a-b-street/abstreet/releases/download/v0.2.61/abstreet_mac_v0_2_61.zip),
+  [Linux](https://github.com/a-b-street/abstreet/releases/download/v0.2.61/abstreet_linux_v0_2_61.zip),
   [FreeBSD](https://www.freshports.org/games/abstreet/),
-  [your web browser](http://play.abstreet.org/0.2.60/abstreet.html),
+  [your web browser](http://play.abstreet.org/0.2.61/abstreet.html),
   or [read all instructions](https://a-b-street.github.io/docs/user/index.html)
   (new releases every Sunday)
 - [build from source](https://a-b-street.github.io/docs/tech/dev/index.html)
@@ -52,9 +52,8 @@ Measure the effects:
 See the [roadmap](https://a-b-street.github.io/docs/project/roadmap.html) for
 current work, and all of the ways to
 [contribute](https://a-b-street.github.io/docs//project/contributing.html).
-Follow [r/abstreet](https://www.reddit.com/r/abstreet/) for weekly updates or
-[@CarlinoDustin](https://twitter.com/CarlinoDustin) for occasional videos of
-recent progress.
+Follow [@CarlinoDustin](https://twitter.com/CarlinoDustin) for occasional
+videos of recent progress.
 
 ## Project mission
 
