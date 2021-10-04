@@ -77,8 +77,6 @@
 <span id="77">77</span>
 <span id="78">78</span>
 <span id="79">79</span>
-<span id="80">80</span>
-<span id="81">81</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
 
@@ -115,9 +113,7 @@
                 <span class="prelude-val">Ok</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="macro">info!</span>(<span class="string">&quot;Proposal uploaded! {}/get?id={}&quot;</span>, <span class="ident">PROPOSAL_HOST_URL</span>, <span class="ident">id</span>);
                     <span class="ident">UploadedProposals::proposal_uploaded</span>(<span class="ident">id</span>);
-                    <span class="comment">// TODO Change URL</span>
-                    <span class="comment">// TODO Ahh this doesn&#39;t actually remake the top panel and change the share</span>
-                    <span class="comment">// button. Grrrr.</span>
+                    <span class="comment">// TODO On web, this is fine. On native, copy the URL into the clipboard?</span>
                     <span class="ident">PopupMsg::new_state</span>(<span class="ident">ctx</span>, <span class="string">&quot;Success&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;You can now share the URL...&quot;</span>])
                 }
                 <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">PopupMsg::new_state</span>(
