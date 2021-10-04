@@ -55,10 +55,16 @@ impl State<App> for ExploreMap {
             self.map_edit_key = key;
             self.top_panel = make_top_panel(ctx, app);
 
-            URLManager::update_url_param(
-                "--edits".to_string(),
-                app.primary.map.get_edits().edits_name.clone(),
-            );
+            let map = &app.primary.map;
+            let checksum = map.get_edits().get_checksum(map);
+            if share::UploadedProposals::load().md5sums.contains(&checksum) {
+                URLManager::update_url_param("--edits".to_string(), format!("remote/{}", checksum));
+            } else {
+                URLManager::update_url_param(
+                    "--edits".to_string(),
+                    map.get_edits().edits_name.clone(),
+                );
+            }
         }
 
         if ctx.canvas_movement() {
@@ -113,6 +119,8 @@ impl State<App> for ExploreMap {
                     ));
                 }
                 "Share proposal" => {
+                    // After we return from the new state, force recalculation
+                    self.map_edit_key = usize::MAX;
                     return Transition::Push(share::upload_proposal(ctx, app));
                 }
                 "Show more layers" => {
@@ -207,16 +215,13 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App) -> Panel {
             .disabled(edits.commands.is_empty())
             .build_def(ctx),
     ]));
-    if false {
-        // TODO Rethink UI of this, probably fold into save dialog
-        col.push(
-            ctx.style()
-                .btn_outline
-                .text("Share proposal")
-                .disabled(!share::UploadedProposals::should_upload_proposal(app))
-                .build_def(ctx),
-        );
-    }
+    col.push(
+        ctx.style()
+            .btn_outline
+            .text("Share proposal")
+            .disabled(!share::UploadedProposals::should_upload_proposal(app))
+            .build_def(ctx),
+    );
     // TODO Should undo/redo, save, share functionality also live here?
 
     col.push(

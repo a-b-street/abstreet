@@ -33,9 +33,7 @@ pub fn upload_proposal(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
                 Ok(id) => {
                     info!("Proposal uploaded! {}/get?id={}", PROPOSAL_HOST_URL, id);
                     UploadedProposals::proposal_uploaded(id);
-                    // TODO Change URL
-                    // TODO Ahh this doesn't actually remake the top panel and change the share
-                    // button. Grrrr.
+                    // TODO On web, this is fine. On native, copy the URL into the clipboard?
                     PopupMsg::new_state(ctx, "Success", vec!["You can now share the URL..."])
                 }
                 Err(err) => PopupMsg::new_state(

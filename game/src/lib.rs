@@ -311,6 +311,47 @@ fn continue_app_setup(
     // Just apply this here, don't plumb to SimFlags or anything else. We recreate things using
     // these flags later, but we don't want to keep applying the same edits.
     if let Some(ref edits_name) = setup.start_with_edits {
+        if let Some(id) = edits_name.strip_prefix("remote/") {
+            let (_, outer_progress_rx) = futures_channel::mpsc::channel(1);
+            let (_, inner_progress_rx) = futures_channel::mpsc::channel(1);
+            let url = format!("{}/get?id={}", ungap::PROPOSAL_HOST_URL, id);
+            return vec![FutureLoader::<App, Vec<u8>>::new_state(
+                ctx,
+                Box::pin(async move {
+                    let bytes = abstio::http_get(url).await?;
+                    let wrapper: Box<dyn Send + FnOnce(&App) -> Vec<u8>> = Box::new(move |_| bytes);
+                    Ok(wrapper)
+                }),
+                outer_progress_rx,
+                inner_progress_rx,
+                "Downloading proposal",
+                Box::new(move |ctx, app, result| {
+                    match result
+                        .and_then(|bytes| MapEdits::load_from_bytes(&app.primary.map, bytes))
+                    {
+                        Ok(edits) => Transition::Clear(finish_app_setup(
+                            ctx,
+                            app,
+                            title,
+                            savestate,
+                            Some(edits),
+                            setup,
+                        )),
+                        Err(err) => {
+                            // TODO Fail more gracefully -- add a popup with the error, but continue
+                            // app setup?
+                            error!("Couldn't load remote proposal: {}", err);
+                            Transition::Replace(PopupMsg::new_state(
+                                ctx,
+                                "Couldn't load remote proposal",
+                                vec![err.to_string()],
+                            ))
+                        }
+                    }
+                }),
+            )];
+        }
+
         for path in [
             abstio::path_edits(app.primary.map.get_name(), edits_name),
             abstio::path(format!("system/proposals/{}.json", edits_name)),
@@ -326,43 +367,8 @@ fn continue_app_setup(
             }
         }
 
-        // Try loading from remote
-        let (_, outer_progress_rx) = futures_channel::mpsc::channel(1);
-        let (_, inner_progress_rx) = futures_channel::mpsc::channel(1);
-        let url = format!("{}/get?id={}", ungap::PROPOSAL_HOST_URL, edits_name);
-        return vec![FutureLoader::<App, Vec<u8>>::new_state(
-            ctx,
-            Box::pin(async move {
-                let bytes = abstio::http_get(url).await?;
-                let wrapper: Box<dyn Send + FnOnce(&App) -> Vec<u8>> = Box::new(move |_| bytes);
-                Ok(wrapper)
-            }),
-            outer_progress_rx,
-            inner_progress_rx,
-            "Downloading proposal",
-            Box::new(move |ctx, app, result| {
-                match result.and_then(|bytes| MapEdits::load_from_bytes(&app.primary.map, bytes)) {
-                    Ok(edits) => Transition::Clear(finish_app_setup(
-                        ctx,
-                        app,
-                        title,
-                        savestate,
-                        Some(edits),
-                        setup,
-                    )),
-                    Err(err) => {
-                        // TODO Fail more gracefully -- add a popup with the error, but continue
-                        // app setup?
-                        error!("Couldn't load remote proposal: {}", err);
-                        Transition::Replace(PopupMsg::new_state(
-                            ctx,
-                            "Couldn't load remote proposal",
-                            vec![err.to_string()],
-                        ))
-                    }
-                }
-            }),
-        )];
+        // TODO Fail more gracefully -- add a popup with the error, but continue app setup?
+        panic!("Can't start with nonexistent edits {}", edits_name);
     }
 
     finish_app_setup(ctx, app, title, savestate, None, setup)
