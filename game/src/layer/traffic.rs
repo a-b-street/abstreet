@@ -1,18 +1,19 @@
 use std::collections::BTreeSet;
 
+use anyhow::Result;
 use maplit::btreeset;
 
 use abstutil::{prettyprint_usize, Counter};
 use geom::{Circle, Distance, Duration, Percent, Polygon, Pt2D, Time};
 use map_gui::render::unzoomed_agent_radius;
-use map_gui::tools::{ColorLegend, ColorNetwork, DivergingScale};
+use map_gui::tools::{ColorLegend, ColorNetwork, DivergingScale, PopupMsg};
 use map_gui::ID;
 use map_model::{IntersectionID, Map, Traversable};
 use sim::{AgentType, VehicleType};
 use widgetry::mapspace::ToggleZoomed;
 use widgetry::{Color, EventCtx, GfxCtx, Line, Outcome, Panel, Text, TextExt, Toggle, Widget};
 
-use crate::app::App;
+use crate::app::{App, Transition};
 use crate::layer::{header, Layer, LayerOutcome, PANEL_PLACEMENT};
 
 pub struct Backpressure {
@@ -145,6 +146,20 @@ impl Layer for Throughput {
                 "close" => {
                     return Some(LayerOutcome::Close);
                 }
+                "Export to CSV" => {
+                    return Some(LayerOutcome::Transition(Transition::Push(
+                        match export_throughput(app) {
+                            Ok((path1, path2)) => PopupMsg::new_state(
+                                ctx,
+                                "Data exported",
+                                vec![format!("Data exported to {} and {}", path1, path2)],
+                            ),
+                            Err(err) => {
+                                PopupMsg::new_state(ctx, "Export failed", vec![err.to_string()])
+                            }
+                        },
+                    )));
+                }
                 _ => unreachable!(),
             },
             Outcome::Changed(_) => {
@@ -217,6 +232,11 @@ impl Throughput {
             )
             .flex_wrap(ctx, Percent::int(20)),
             ColorLegend::gradient(ctx, &app.cs.good_to_bad_red, vec!["0", "highest"]),
+            if cfg!(not(target_arch = "wasm32")) {
+                ctx.style().btn_plain.text("Export to CSV").build_def(ctx)
+            } else {
+                Widget::nothing()
+            },
         ]))
         .aligned_pair(PANEL_PLACEMENT)
         .build(ctx);
@@ -599,4 +619,30 @@ impl Delay {
             .build(ctx),
         }
     }
+}
+
+fn export_throughput(app: &App) -> Result<(String, String)> {
+    let path1 = format!(
+        "road_throughput_{}_{}.csv",
+        app.primary.map.get_name().as_filename(),
+        app.primary.sim.time().as_filename()
+    );
+    app.primary
+        .sim
+        .get_analytics()
+        .road_thruput
+        .export_csv(&path1, |id| id.0)?;
+
+    let path2 = format!(
+        "intersection_throughput_{}_{}.csv",
+        app.primary.map.get_name().as_filename(),
+        app.primary.sim.time().as_filename()
+    );
+    app.primary
+        .sim
+        .get_analytics()
+        .intersection_thruput
+        .export_csv(&path2, |id| id.0)?;
+
+    Ok((path1, path2))
 }

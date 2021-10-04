@@ -46,6 +46,7 @@ impl dyn Layer {
 pub enum LayerOutcome {
     Close,
     Replace(Box<dyn Layer>),
+    Transition(Transition),
 }
 
 // TODO Maybe overkill, but could embed a minimap and preview the layer on hover
@@ -67,6 +68,9 @@ impl PickLayer {
             Some(LayerOutcome::Replace(l)) => {
                 app.primary.layer = Some(l);
                 return None;
+            }
+            Some(LayerOutcome::Transition(t)) => {
+                return Some(t);
             }
             None => {}
         }

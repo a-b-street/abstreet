@@ -41,13 +41,16 @@ impl TravelTimes {
             ));
         }
 
-        filters.push(
-            ctx.style()
-                .btn_plain
-                .text("Export to CSV")
-                .build_def(ctx)
-                .align_bottom(),
-        );
+        // TODO We can make file downloads of dynamically generated data work on the browser too...
+        if cfg!(not(target_arch = "wasm32")) {
+            filters.push(
+                ctx.style()
+                    .btn_plain
+                    .text("Export to CSV")
+                    .build_def(ctx)
+                    .align_bottom(),
+            );
+        }
 
         Panel::new_builder(Widget::col(vec![
             DashTab::TravelTimes.picker(ctx, app),
