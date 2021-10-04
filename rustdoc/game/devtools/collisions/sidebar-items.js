@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["Dataviz",""]],"struct":[["CollisionsViewer",""],["Filters",""],["MapspaceTooltips",""]]});
+initSidebarItems({"fn":[["aggregated",""],["individual",""],["pct",""]],"struct":[["CollisionsViewer",""],["Filters",""]]});
