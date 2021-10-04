@@ -662,6 +662,9 @@
 <span id="662">662</span>
 <span id="663">663</span>
 <span id="664">664</span>
+<span id="665">665</span>
+<span id="666">666</span>
+<span id="667">667</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
 <span class="kw">use</span> <span class="ident">std::fs::File</span>;
@@ -706,13 +709,16 @@
             ));
         }
 
-        <span class="ident">filters</span>.<span class="ident">push</span>(
-            <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_plain</span>
-                .<span class="ident">text</span>(<span class="string">&quot;Export to CSV&quot;</span>)
-                .<span class="ident">build_def</span>(<span class="ident">ctx</span>)
-                .<span class="ident">align_bottom</span>(),
-        );
+        <span class="comment">// TODO We can make file downloads of dynamically generated data work on the browser too...</span>
+        <span class="kw">if</span> <span class="macro">cfg!</span>(<span class="ident">not</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>)) {
+            <span class="ident">filters</span>.<span class="ident">push</span>(
+                <span class="ident">ctx</span>.<span class="ident">style</span>()
+                    .<span class="ident">btn_plain</span>
+                    .<span class="ident">text</span>(<span class="string">&quot;Export to CSV&quot;</span>)
+                    .<span class="ident">build_def</span>(<span class="ident">ctx</span>)
+                    .<span class="ident">align_bottom</span>(),
+            );
+        }
 
         <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
             <span class="ident">DashTab::TravelTimes</span>.<span class="ident">picker</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),

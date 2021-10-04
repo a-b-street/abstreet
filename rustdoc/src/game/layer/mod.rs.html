@@ -288,6 +288,10 @@
 <span id="288">288</span>
 <span id="289">289</span>
 <span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">grey_out_map</span>, <span class="ident">HeatmapOptions</span>};
 <span class="kw">use</span> <span class="ident">sim::AgentType</span>;
@@ -337,6 +341,7 @@
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">LayerOutcome</span> {
     <span class="ident">Close</span>,
     <span class="ident">Replace</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Layer</span><span class="op">&gt;</span>),
+    <span class="ident">Transition</span>(<span class="ident">Transition</span>),
 }
 
 <span class="comment">// TODO Maybe overkill, but could embed a minimap and preview the layer on hover</span>
@@ -358,6 +363,9 @@
             <span class="prelude-val">Some</span>(<span class="ident">LayerOutcome::Replace</span>(<span class="ident">l</span>)) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">l</span>);
                 <span class="kw">return</span> <span class="prelude-val">None</span>;
+            }
+            <span class="prelude-val">Some</span>(<span class="ident">LayerOutcome::Transition</span>(<span class="ident">t</span>)) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>);
             }
             <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {}
         }
