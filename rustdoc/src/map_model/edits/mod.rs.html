@@ -974,6 +974,7 @@
 <span id="974">974</span>
 <span id="975">975</span>
 <span id="976">976</span>
+<span id="977">977</span>
 </pre><pre class="rust">
 <span class="doccomment">//! Once a Map exists, the player can edit it in the UI (producing `MapEdits` in-memory), then save</span>
 <span class="doccomment">//! the changes to a file (as `PermanentMapEdits`). See</span>
@@ -1176,6 +1177,7 @@
     <span class="kw">pub</span> <span class="ident">added_turns</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">TurnID</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">deleted_turns</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">TurnID</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">changed_parking_lots</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">ParkingLotID</span><span class="op">&gt;</span>,
+    <span class="ident">modified_lanes</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">LaneID</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">MapEdits</span> {
@@ -1531,40 +1533,16 @@
     }
 
     <span class="comment">// We might&#39;ve affected the geometry of other nearby roads.</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">modified_lanes</span> <span class="op">=</span> <span class="ident">BTreeSet::new</span>();
     <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">road_geom_changed</span> {
         <span class="ident">effects</span>.<span class="ident">changed_roads</span>.<span class="ident">insert</span>(<span class="ident">r</span>);
         <span class="kw">let</span> <span class="ident">lane_specs</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>).<span class="ident">lane_specs</span>();
         <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">map</span>.<span class="ident">roads</span>[<span class="ident">r</span>.<span class="number">0</span>];
         <span class="ident">road</span>.<span class="ident">recreate_lanes</span>(<span class="ident">lane_specs</span>);
         <span class="kw">for</span> <span class="ident">lane</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">road</span>.<span class="ident">lanes</span> {
-            <span class="ident">modified_lanes</span>.<span class="ident">insert</span>(<span class="ident">lane</span>.<span class="ident">id</span>);
+            <span class="ident">effects</span>.<span class="ident">modified_lanes</span>.<span class="ident">insert</span>(<span class="ident">lane</span>.<span class="ident">id</span>);
         }
     }
-    <span class="ident">modified_lanes</span>.<span class="ident">extend</span>(<span class="ident">effects</span>.<span class="ident">deleted_lanes</span>.<span class="ident">clone</span>());
-
-    <span class="comment">// Find all buildings connected to modified/deleted sidewalks</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">recalc_buildings</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-    <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_buildings</span>() {
-        <span class="kw">if</span> <span class="ident">modified_lanes</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">b</span>.<span class="ident">sidewalk</span>()) {
-            <span class="ident">recalc_buildings</span>.<span class="ident">push</span>(<span class="ident">b</span>.<span class="ident">id</span>);
-        }
-    }
-    <span class="ident">fix_building_driveways</span>(<span class="ident">map</span>, <span class="ident">recalc_buildings</span>, <span class="ident">effects</span>);
-
-    <span class="comment">// Same for parking lots</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">recalc_parking_lots</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-    <span class="kw">for</span> <span class="ident">pl</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_parking_lots</span>() {
-        <span class="kw">if</span> <span class="ident">modified_lanes</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">pl</span>.<span class="ident">driving_pos</span>.<span class="ident">lane</span>())
-            <span class="op">|</span><span class="op">|</span> <span class="ident">modified_lanes</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">pl</span>.<span class="ident">sidewalk_pos</span>.<span class="ident">lane</span>())
-        {
-            <span class="ident">recalc_parking_lots</span>.<span class="ident">push</span>(<span class="ident">pl</span>.<span class="ident">id</span>);
-            <span class="ident">effects</span>.<span class="ident">changed_parking_lots</span>.<span class="ident">insert</span>(<span class="ident">pl</span>.<span class="ident">id</span>);
-        }
-    }
-    <span class="ident">fix_parking_lot_driveways</span>(<span class="ident">map</span>, <span class="ident">recalc_parking_lots</span>);
-
-    <span class="comment">// TODO We need to update bus stops -- they may refer to an old ID.</span>
+    <span class="ident">effects</span>.<span class="ident">modified_lanes</span>.<span class="ident">extend</span>(<span class="ident">effects</span>.<span class="ident">deleted_lanes</span>.<span class="ident">clone</span>());
 }
 
 <span class="comment">// Returns the other roads affected by this change, not counting changed_road.</span>
@@ -1817,6 +1795,7 @@
             <span class="ident">added_turns</span>: <span class="ident">BTreeSet::new</span>(),
             <span class="ident">deleted_turns</span>: <span class="ident">BTreeSet::new</span>(),
             <span class="ident">changed_parking_lots</span>: <span class="ident">BTreeSet::new</span>(),
+            <span class="ident">modified_lanes</span>: <span class="ident">BTreeSet::new</span>(),
         };
 
         <span class="comment">// Short-circuit to avoid marking pathfinder_dirty</span>
@@ -1853,6 +1832,29 @@
             <span class="ident">timer</span>.<span class="ident">next</span>();
             <span class="ident">cmd</span>.<span class="ident">apply</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">effects</span>, <span class="self">self</span>);
         }
+
+        <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;re-snap buildings&quot;</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">recalc_buildings</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+        <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">all_buildings</span>() {
+            <span class="kw">if</span> <span class="ident">effects</span>.<span class="ident">modified_lanes</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">b</span>.<span class="ident">sidewalk</span>()) {
+                <span class="ident">recalc_buildings</span>.<span class="ident">push</span>(<span class="ident">b</span>.<span class="ident">id</span>);
+            }
+        }
+        <span class="ident">fix_building_driveways</span>(<span class="self">self</span>, <span class="ident">recalc_buildings</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">effects</span>);
+        <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;re-snap buildings&quot;</span>);
+
+        <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;re-snap parking lots&quot;</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">recalc_parking_lots</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+        <span class="kw">for</span> <span class="ident">pl</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">all_parking_lots</span>() {
+            <span class="kw">if</span> <span class="ident">effects</span>.<span class="ident">modified_lanes</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">pl</span>.<span class="ident">driving_pos</span>.<span class="ident">lane</span>())
+                <span class="op">|</span><span class="op">|</span> <span class="ident">effects</span>.<span class="ident">modified_lanes</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">pl</span>.<span class="ident">sidewalk_pos</span>.<span class="ident">lane</span>())
+            {
+                <span class="ident">recalc_parking_lots</span>.<span class="ident">push</span>(<span class="ident">pl</span>.<span class="ident">id</span>);
+                <span class="ident">effects</span>.<span class="ident">changed_parking_lots</span>.<span class="ident">insert</span>(<span class="ident">pl</span>.<span class="ident">id</span>);
+            }
+        }
+        <span class="ident">fix_parking_lot_driveways</span>(<span class="self">self</span>, <span class="ident">recalc_parking_lots</span>);
+        <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;re-snap parking lots&quot;</span>);
 
         <span class="comment">// Might need to update bus stops.</span>
         <span class="kw">if</span> <span class="ident">enforce_valid</span> {
