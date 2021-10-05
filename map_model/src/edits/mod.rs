@@ -199,6 +199,7 @@ pub struct EditEffects {
     pub added_turns: BTreeSet<TurnID>,
     pub deleted_turns: BTreeSet<TurnID>,
     pub changed_parking_lots: BTreeSet<ParkingLotID>,
+    modified_lanes: BTreeSet<LaneID>,
 }
 
 impl MapEdits {
@@ -554,40 +555,16 @@ fn modify_lanes(map: &mut Map, r: RoadID, lanes_ltr: Vec<LaneSpec>, effects: &mu
     }
 
     // We might've affected the geometry of other nearby roads.
-    let mut modified_lanes = BTreeSet::new();
     for r in road_geom_changed {
         effects.changed_roads.insert(r);
         let lane_specs = map.get_r(r).lane_specs();
         let road = &mut map.roads[r.0];
         road.recreate_lanes(lane_specs);
         for lane in &road.lanes {
-            modified_lanes.insert(lane.id);
+            effects.modified_lanes.insert(lane.id);
         }
     }
-    modified_lanes.extend(effects.deleted_lanes.clone());
-
-    // Find all buildings connected to modified/deleted sidewalks
-    let mut recalc_buildings = Vec::new();
-    for b in map.all_buildings() {
-        if modified_lanes.contains(&b.sidewalk()) {
-            recalc_buildings.push(b.id);
-        }
-    }
-    fix_building_driveways(map, recalc_buildings, effects);
-
-    // Same for parking lots
-    let mut recalc_parking_lots = Vec::new();
-    for pl in map.all_parking_lots() {
-        if modified_lanes.contains(&pl.driving_pos.lane())
-            || modified_lanes.contains(&pl.sidewalk_pos.lane())
-        {
-            recalc_parking_lots.push(pl.id);
-            effects.changed_parking_lots.insert(pl.id);
-        }
-    }
-    fix_parking_lot_driveways(map, recalc_parking_lots);
-
-    // TODO We need to update bus stops -- they may refer to an old ID.
+    effects.modified_lanes.extend(effects.deleted_lanes.clone());
 }
 
 // Returns the other roads affected by this change, not counting changed_road.
@@ -840,6 +817,7 @@ impl Map {
             added_turns: BTreeSet::new(),
             deleted_turns: BTreeSet::new(),
             changed_parking_lots: BTreeSet::new(),
+            modified_lanes: BTreeSet::new(),
         };
 
         // Short-circuit to avoid marking pathfinder_dirty
@@ -876,6 +854,29 @@ impl Map {
             timer.next();
             cmd.apply(&mut effects, self);
         }
+
+        timer.start("re-snap buildings");
+        let mut recalc_buildings = Vec::new();
+        for b in self.all_buildings() {
+            if effects.modified_lanes.contains(&b.sidewalk()) {
+                recalc_buildings.push(b.id);
+            }
+        }
+        fix_building_driveways(self, recalc_buildings, &mut effects);
+        timer.stop("re-snap buildings");
+
+        timer.start("re-snap parking lots");
+        let mut recalc_parking_lots = Vec::new();
+        for pl in self.all_parking_lots() {
+            if effects.modified_lanes.contains(&pl.driving_pos.lane())
+                || effects.modified_lanes.contains(&pl.sidewalk_pos.lane())
+            {
+                recalc_parking_lots.push(pl.id);
+                effects.changed_parking_lots.insert(pl.id);
+            }
+        }
+        fix_parking_lot_driveways(self, recalc_parking_lots);
+        timer.stop("re-snap parking lots");
 
         // Might need to update bus stops.
         if enforce_valid {
