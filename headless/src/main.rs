@@ -202,7 +202,7 @@ fn handle_command(
                 old: map.get_i_edit(id),
                 new: EditIntersection::TrafficSignal(ts.export(map)),
             });
-            map.must_apply_edits(edits);
+            map.must_apply_edits(edits, &mut Timer::throwaway());
             map.recalculate_pathfinding_after_edits(&mut Timer::throwaway());
 
             Ok(format!("{} has been updated", id))
@@ -476,7 +476,7 @@ impl LoadSim {
         let mut map = Map::load_synchronously(scenario.map_name.path(), timer);
         if let Some(perma) = self.edits.clone() {
             let edits = perma.into_edits(&map).unwrap();
-            map.must_apply_edits(edits);
+            map.must_apply_edits(edits, timer);
             map.recalculate_pathfinding_after_edits(timer);
         }
 

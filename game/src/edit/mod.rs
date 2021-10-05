@@ -499,7 +499,9 @@ impl State<App> for SaveEdits {
                 "Save" => {
                     let mut edits = app.primary.map.get_edits().clone();
                     edits.edits_name = self.current_name.clone();
-                    app.primary.map.must_apply_edits(edits);
+                    app.primary
+                        .map
+                        .must_apply_edits(edits, &mut Timer::throwaway());
                     app.primary.map.save_edits();
                     if self.reset {
                         apply_map_edits(ctx, app, app.primary.map.new_edits());
@@ -687,57 +689,57 @@ fn make_topcenter(ctx: &mut EventCtx, app: &App) -> Panel {
 }
 
 pub fn apply_map_edits(ctx: &mut EventCtx, app: &mut App, edits: MapEdits) {
-    let mut timer = Timer::new("apply map edits");
-
-    if app.primary.unedited_map.is_none() {
-        timer.start("save unedited map");
-        assert!(app.primary.map.get_edits().commands.is_empty());
-        app.primary.unedited_map = Some(app.primary.map.clone());
-        timer.stop("save unedited map");
-    }
-
-    timer.start("edit map");
-    let effects = app.primary.map.must_apply_edits(edits);
-    timer.stop("edit map");
-
-    if !effects.changed_roads.is_empty() || !effects.changed_intersections.is_empty() {
-        app.primary
-            .draw_map
-            .draw_all_unzoomed_roads_and_intersections =
-            DrawMap::regenerate_unzoomed_layer(&app.primary.map, &app.cs, ctx, &mut timer);
-    }
-
-    for l in effects.deleted_lanes {
-        app.primary.draw_map.delete_lane(l);
-    }
-
-    for r in effects.changed_roads {
-        let road = app.primary.map.get_r(r);
-        app.primary.draw_map.recreate_road(road, &app.primary.map);
-
-        // An edit to one lane potentially affects markings in all lanes in the same road, because
-        // of one-way markings, driving lines, etc.
-        for l in &road.lanes {
-            app.primary.draw_map.create_lane(l.id, &app.primary.map);
+    ctx.loading_screen("apply map edits", |ctx, timer| {
+        if app.primary.unedited_map.is_none() {
+            timer.start("save unedited map");
+            assert!(app.primary.map.get_edits().commands.is_empty());
+            app.primary.unedited_map = Some(app.primary.map.clone());
+            timer.stop("save unedited map");
         }
-    }
 
-    for i in effects.changed_intersections {
-        app.primary
-            .draw_map
-            .recreate_intersection(i, &app.primary.map);
-    }
+        timer.start("edit map");
+        let effects = app.primary.map.must_apply_edits(edits, timer);
+        timer.stop("edit map");
 
-    for pl in effects.changed_parking_lots {
-        app.primary.draw_map.get_pl(pl).clear_rendering();
-    }
+        if !effects.changed_roads.is_empty() || !effects.changed_intersections.is_empty() {
+            app.primary
+                .draw_map
+                .draw_all_unzoomed_roads_and_intersections =
+                DrawMap::regenerate_unzoomed_layer(&app.primary.map, &app.cs, ctx, timer);
+        }
 
-    if app.primary.layer.as_ref().and_then(|l| l.name()) == Some("map edits") {
-        app.primary.layer = Some(Box::new(crate::layer::map::Static::edits(ctx, app)));
-    }
+        for l in effects.deleted_lanes {
+            app.primary.draw_map.delete_lane(l);
+        }
 
-    // Autosave
-    app.primary.map.save_edits();
+        for r in effects.changed_roads {
+            let road = app.primary.map.get_r(r);
+            app.primary.draw_map.recreate_road(road, &app.primary.map);
+
+            // An edit to one lane potentially affects markings in all lanes in the same road, because
+            // of one-way markings, driving lines, etc.
+            for l in &road.lanes {
+                app.primary.draw_map.create_lane(l.id, &app.primary.map);
+            }
+        }
+
+        for i in effects.changed_intersections {
+            app.primary
+                .draw_map
+                .recreate_intersection(i, &app.primary.map);
+        }
+
+        for pl in effects.changed_parking_lots {
+            app.primary.draw_map.get_pl(pl).clear_rendering();
+        }
+
+        if app.primary.layer.as_ref().and_then(|l| l.name()) == Some("map edits") {
+            app.primary.layer = Some(Box::new(crate::layer::map::Static::edits(ctx, app)));
+        }
+
+        // Autosave
+        app.primary.map.save_edits();
+    });
 }
 
 pub fn can_edit_lane(app: &App, l: LaneID) -> bool {

@@ -815,17 +815,22 @@ impl Map {
     }
 
     /// Returns (changed_roads, deleted_lanes, deleted_turns, added_turns, changed_intersections)
-    pub fn must_apply_edits(&mut self, new_edits: MapEdits) -> EditEffects {
-        self.apply_edits(new_edits, true)
+    pub fn must_apply_edits(&mut self, new_edits: MapEdits, timer: &mut Timer) -> EditEffects {
+        self.apply_edits(new_edits, true, timer)
     }
 
-    pub fn try_apply_edits(&mut self, new_edits: MapEdits) {
-        self.apply_edits(new_edits, false);
+    pub fn try_apply_edits(&mut self, new_edits: MapEdits, timer: &mut Timer) {
+        self.apply_edits(new_edits, false, timer);
     }
 
     // new_edits don't necessarily have to be valid; this could be used for speculatively testing
     // edits. Doesn't update pathfinding yet.
-    fn apply_edits(&mut self, mut new_edits: MapEdits, enforce_valid: bool) -> EditEffects {
+    fn apply_edits(
+        &mut self,
+        mut new_edits: MapEdits,
+        enforce_valid: bool,
+        timer: &mut Timer,
+    ) -> EditEffects {
         self.edits_generation += 1;
 
         let mut effects = EditEffects {
@@ -855,8 +860,9 @@ impl Map {
             }
         }
 
-        // Undo existing edits
+        timer.start_iter("undo old edits", self.edits.commands.len() - start_at_idx);
         for _ in start_at_idx..self.edits.commands.len() {
+            timer.next();
             self.edits
                 .commands
                 .pop()
@@ -865,8 +871,9 @@ impl Map {
                 .apply(&mut effects, self);
         }
 
-        // Apply new edits.
+        timer.start_iter("apply new edits", new_edits.commands.len() - start_at_idx);
         for cmd in &new_edits.commands[start_at_idx..] {
+            timer.next();
             cmd.apply(&mut effects, self);
         }
 

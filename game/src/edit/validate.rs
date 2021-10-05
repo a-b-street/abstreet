@@ -1,5 +1,6 @@
 use std::collections::BTreeSet;
 
+use abstutil::Timer;
 use map_gui::tools::PopupMsg;
 use map_model::{connectivity, EditCmd, PathConstraints};
 use widgetry::{EventCtx, State};
@@ -21,11 +22,15 @@ pub fn check_sidewalk_connectivity(
 
     let mut edits = orig_edits.clone();
     edits.commands.push(cmd);
-    app.primary.map.try_apply_edits(edits);
+    app.primary
+        .map
+        .try_apply_edits(edits, &mut Timer::throwaway());
 
     let (_, disconnected_after) =
         connectivity::find_scc(&app.primary.map, PathConstraints::Pedestrian);
-    app.primary.map.must_apply_edits(orig_edits);
+    app.primary
+        .map
+        .must_apply_edits(orig_edits, &mut Timer::throwaway());
 
     let newly_disconnected = disconnected_after
         .difference(&disconnected_before)
@@ -68,7 +73,9 @@ pub fn check_blackholes(
 
     let mut edits = orig_edits.clone();
     edits.commands.push(cmd);
-    app.primary.map.try_apply_edits(edits);
+    app.primary
+        .map
+        .try_apply_edits(edits, &mut Timer::throwaway());
 
     let mut newly_disconnected = BTreeSet::new();
     for l in connectivity::find_scc(&app.primary.map, PathConstraints::Car).1 {
@@ -81,7 +88,9 @@ pub fn check_blackholes(
             newly_disconnected.insert(l);
         }
     }
-    app.primary.map.must_apply_edits(orig_edits);
+    app.primary
+        .map
+        .must_apply_edits(orig_edits, &mut Timer::throwaway());
 
     if newly_disconnected.is_empty() {
         return None;

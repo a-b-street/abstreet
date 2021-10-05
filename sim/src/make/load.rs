@@ -74,7 +74,7 @@ impl SimFlags {
                 timer,
             ) {
                 Ok(edits) => {
-                    map.must_apply_edits(edits);
+                    map.must_apply_edits(edits, timer);
                     map.recalculate_pathfinding_after_edits(timer);
                 }
                 Err(err) => {
