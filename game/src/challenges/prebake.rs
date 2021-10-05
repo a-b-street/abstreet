@@ -32,11 +32,11 @@ pub fn prebake_all() {
         MapName::seattle("arboretum"),
         //MapName::seattle("greenlake"),
         MapName::seattle("montlake"),
-        MapName::seattle("lakeslice"),
+        //MapName::seattle("lakeslice"),
         //MapName::seattle("phinney"),
         //MapName::seattle("qa"),
         //MapName::seattle("rainier_valley"),
-        MapName::seattle("wallingford"),
+        //MapName::seattle("wallingford"),
     ] {
         let map = map_model::Map::load_synchronously(name.path(), &mut timer);
         let scenario: Scenario =
