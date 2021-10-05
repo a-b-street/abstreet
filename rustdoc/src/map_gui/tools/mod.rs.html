@@ -325,6 +325,7 @@
 <span id="325">325</span>
 <span id="326">326</span>
 <span id="327">327</span>
+<span id="328">328</span>
 </pre><pre class="rust">
 <span class="doccomment">//! Assorted tools and UI states that&#39;re useful for applications built to display maps.</span>
 
@@ -422,6 +423,7 @@
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">name</span>.<span class="ident">map</span>,
         },
         <span class="string">&quot;ch&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> (<span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">city</span>.<span class="ident">as_ref</span>(), <span class="ident">name</span>.<span class="ident">map</span>.<span class="ident">as_ref</span>()) {
+            (<span class="string">&quot;geneva&quot;</span>, <span class="string">&quot;center&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Geneva&quot;</span>,
             (<span class="string">&quot;zurich&quot;</span>, <span class="string">&quot;center&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Zürich (city center)&quot;</span>,
             (<span class="string">&quot;zurich&quot;</span>, <span class="string">&quot;north&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Zürich (north)&quot;</span>,
             (<span class="string">&quot;zurich&quot;</span>, <span class="string">&quot;south&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Zürich (south)&quot;</span>,
