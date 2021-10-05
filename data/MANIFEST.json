@@ -90,6 +90,21 @@
       "uncompressed_size_bytes": 4124980,
       "compressed_size_bytes": 958159
     },
+    "data/input/ch/geneva/osm/center.osm": {
+      "checksum": "df4faee0b720d9eb9c010180713f0103",
+      "uncompressed_size_bytes": 52564377,
+      "compressed_size_bytes": 5532282
+    },
+    "data/input/ch/geneva/osm/switzerland-latest.osm.pbf": {
+      "checksum": "d4fd90165b7954c1d8d6952c1e727c62",
+      "uncompressed_size_bytes": 375771192,
+      "compressed_size_bytes": 375492248
+    },
+    "data/input/ch/geneva/raw_maps/center.bin": {
+      "checksum": "19d599fa954fe0b9385a54e5c39d6cca",
+      "uncompressed_size_bytes": 12425314,
+      "compressed_size_bytes": 2800090
+    },
     "data/input/ch/zurich/osm/center.osm": {
       "checksum": "c2851c4c0904eb0514299840f567c27d",
       "uncompressed_size_bytes": 50794449,
@@ -1865,6 +1880,11 @@
       "uncompressed_size_bytes": 6229654,
       "compressed_size_bytes": 6225638
     },
+    "data/input/shared/elevation/srtm/srtm.6.46.tif": {
+      "checksum": "ebf22e1986f196a07210d876f8dc77ef",
+      "uncompressed_size_bytes": 5846361,
+      "compressed_size_bytes": 5832630
+    },
     "data/input/shared/elevation/srtm/srtm.7.50.tif": {
       "checksum": "e613c55fa99f22f5b88f7c35a178b1cc",
       "uncompressed_size_bytes": 4571786,
@@ -2539,6 +2559,11 @@
       "checksum": "f61027e76edb5c890ac033cadfb14b15",
       "uncompressed_size_bytes": 10748105,
       "compressed_size_bytes": 3682860
+    },
+    "data/system/ch/geneva/maps/center.bin": {
+      "checksum": "be7cfc40d8396022f51fa9646c5defa3",
+      "uncompressed_size_bytes": 33776329,
+      "compressed_size_bytes": 11641511
     },
     "data/system/ch/zurich/city.bin": {
       "checksum": "a6b42ad0e987ecce87468abf72469437",

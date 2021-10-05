@@ -94,6 +94,7 @@ pub fn nice_map_name(name: &MapName) -> &str {
             _ => &name.map,
         },
         "ch" => match (name.city.city.as_ref(), name.map.as_ref()) {
+            ("geneva", "center") => "Geneva",
             ("zurich", "center") => "Zürich (city center)",
             ("zurich", "north") => "Zürich (north)",
             ("zurich", "south") => "Zürich (south)",
