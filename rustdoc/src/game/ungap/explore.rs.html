@@ -231,8 +231,6 @@
 <span id="231">231</span>
 <span id="232">232</span>
 <span id="233">233</span>
-<span id="234">234</span>
-<span id="235">235</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">ArrowCap</span>, <span class="ident">Distance</span>, <span class="ident">PolyLine</span>};
 <span class="kw">use</span> <span class="ident">map_gui::tools::URLManager</span>;
@@ -355,9 +353,7 @@
                     ));
                 }
                 <span class="string">&quot;Share proposal&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="comment">// After we return from the new state, force recalculation</span>
-                    <span class="self">self</span>.<span class="ident">map_edit_key</span> <span class="op">=</span> <span class="ident">usize::MAX</span>;
-                    <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">share::upload_proposal</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
+                    <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">share::ShareProposal::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
                 }
                 <span class="string">&quot;Show more layers&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="self">self</span>.<span class="ident">layers</span>.<span class="ident">show_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
@@ -455,7 +451,7 @@
         <span class="ident">ctx</span>.<span class="ident">style</span>()
             .<span class="ident">btn_outline</span>
             .<span class="ident">text</span>(<span class="string">&quot;Share proposal&quot;</span>)
-            .<span class="ident">disabled</span>(<span class="op">!</span><span class="ident">share::UploadedProposals::should_upload_proposal</span>(<span class="ident">app</span>))
+            .<span class="ident">disabled</span>(<span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">is_empty</span>())
             .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
     );
     <span class="comment">// TODO Should undo/redo, save, share functionality also live here?</span>

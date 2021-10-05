@@ -1,1 +1,1 @@
-initSidebarItems({"constant":[["PROPOSAL_HOST_URL",""]],"fn":[["upload_proposal",""]],"struct":[["UploadedProposals",""]]});
+initSidebarItems({"constant":[["PROPOSAL_HOST_URL",""]],"fn":[["set_clipboard",""]],"struct":[["ShareProposal",""],["UploadedProposals",""]]});
