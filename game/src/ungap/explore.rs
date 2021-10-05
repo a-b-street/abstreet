@@ -119,9 +119,7 @@ impl State<App> for ExploreMap {
                     ));
                 }
                 "Share proposal" => {
-                    // After we return from the new state, force recalculation
-                    self.map_edit_key = usize::MAX;
-                    return Transition::Push(share::upload_proposal(ctx, app));
+                    return Transition::Push(share::ShareProposal::new_state(ctx, app));
                 }
                 "Show more layers" => {
                     self.layers.show_panel(ctx, app);
@@ -219,7 +217,7 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App) -> Panel {
         ctx.style()
             .btn_outline
             .text("Share proposal")
-            .disabled(!share::UploadedProposals::should_upload_proposal(app))
+            .disabled(edits.commands.is_empty())
             .build_def(ctx),
     );
     // TODO Should undo/redo, save, share functionality also live here?

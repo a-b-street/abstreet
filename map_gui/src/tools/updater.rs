@@ -10,9 +10,6 @@ use crate::load::FutureLoader;
 use crate::tools::{ChooseSomething, PopupMsg};
 use crate::AppLike;
 
-// Update this ___before___ pushing the commit with "[rebuild] [release]".
-const NEXT_RELEASE: &str = "0.2.62";
-
 // For each city, how many total bytes do the runtime files cost to download?
 
 /// How many bytes to download for a city?
@@ -122,12 +119,6 @@ async fn download_cities(
         .entries
         .retain(|path, _| !abstio::file_exists(&abstio::path(path.strip_prefix("data/").unwrap())));
 
-    let version = if cfg!(feature = "release_s3") {
-        NEXT_RELEASE
-    } else {
-        "dev"
-    };
-
     let num_files = manifest.entries.len();
     let mut messages = Vec::new();
     let mut files_so_far = 0;
@@ -135,7 +126,11 @@ async fn download_cities(
     for (path, entry) in manifest.entries {
         files_so_far += 1;
         let local_path = abstio::path(path.strip_prefix("data/").unwrap());
-        let url = format!("http://play.abstreet.org/{}/{}.gz", version, path);
+        let url = format!(
+            "http://play.abstreet.org/{}/{}.gz",
+            crate::tools::version(),
+            path
+        );
         if let Err(err) = outer_progress.try_send(format!(
             "Downloading file {}/{}: {} ({})",
             files_so_far,

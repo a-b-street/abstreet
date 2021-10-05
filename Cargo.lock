@@ -1241,6 +1241,7 @@ dependencies = [
  "anyhow",
  "built",
  "chrono",
+ "clipboard",
  "collisions",
  "colorous",
  "contour",

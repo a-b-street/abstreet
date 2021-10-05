@@ -38,6 +38,19 @@ mod ui;
 mod updater;
 mod url;
 
+// Update this ___before___ pushing the commit with "[rebuild] [release]".
+const NEXT_RELEASE: &str = "0.2.62";
+
+/// Returns the version of A/B Street to link to. When building for a release, this points to that
+/// new release. Otherwise it points to the current dev version.
+pub fn version() -> &'static str {
+    if cfg!(feature = "release_s3") {
+        NEXT_RELEASE
+    } else {
+        "dev"
+    }
+}
+
 // TODO This is A/B Street specific
 pub fn loading_tips() -> Text {
     Text::from_multiline(vec![

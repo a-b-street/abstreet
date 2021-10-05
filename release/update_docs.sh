@@ -19,5 +19,5 @@ perl -pi -e "s/${MAJOR}\.${MINOR}\.${OLD_PATCH}/${MAJOR}\.${MINOR}\.${NEW_PATCH}
 echo "Don't forget to:"
 echo "1) ./release/deploy_web.sh"
 echo "2) aws s3 cp --recursive --exclude 'data/input/*' s3://abstreet/dev/ s3://abstreet/${MAJOR}.${MINOR}.${NEW_PATCH}"
-echo "3) Update map_gui/src/tools/updater.rs"
+echo "3) Update map_gui/src/tools/mod.rs"
 echo "4) Push the docs repo too"
