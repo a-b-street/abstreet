@@ -9,8 +9,8 @@ use widgetry::{EventCtx, GfxCtx, Key, Line, Panel, SimpleState, State, Text, Tex
 
 use crate::app::{App, Transition};
 
-pub const PROPOSAL_HOST_URL: &str = "http://localhost:8080/v1";
-//pub const PROPOSAL_HOST_URL: &str = "https://aorta-routes.appspot.com/v1";
+//pub const PROPOSAL_HOST_URL: &str = "http://localhost:8080/v1";
+pub const PROPOSAL_HOST_URL: &str = "https://aorta-routes.appspot.com/v1";
 
 pub struct ShareProposal {
     url: Option<String>,
