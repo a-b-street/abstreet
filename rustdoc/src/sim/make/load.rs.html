@@ -193,7 +193,7 @@
                 <span class="ident">timer</span>,
             ) {
                 <span class="prelude-val">Ok</span>(<span class="ident">edits</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="ident">map</span>.<span class="ident">must_apply_edits</span>(<span class="ident">edits</span>);
+                    <span class="ident">map</span>.<span class="ident">must_apply_edits</span>(<span class="ident">edits</span>, <span class="ident">timer</span>);
                     <span class="ident">map</span>.<span class="ident">recalculate_pathfinding_after_edits</span>(<span class="ident">timer</span>);
                 }
                 <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span><span class="op">&gt;</span> {
