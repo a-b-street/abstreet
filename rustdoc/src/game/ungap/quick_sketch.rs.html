@@ -391,6 +391,12 @@
 <span id="391">391</span>
 <span id="392">392</span>
 <span id="393">393</span>
+<span id="394">394</span>
+<span id="395">395</span>
+<span id="396">396</span>
+<span id="397">397</span>
+<span id="398">398</span>
+<span id="399">399</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">abstutil::Tags</span>;
 <span class="kw">use</span> <span class="ident">map_gui::tools::PopupMsg</span>;
@@ -491,6 +497,12 @@
                     }));
                 }
                 <span class="ident">x</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="comment">// TODO More brittle routing of outcomes.</span>
+                    <span class="kw">if</span> <span class="self">self</span>.<span class="ident">route_sketcher</span>.<span class="ident">on_click</span>(<span class="ident">ctx</span>, <span class="ident">x</span>) {
+                        <span class="self">self</span>.<span class="ident">update_top_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+                        <span class="kw">return</span> <span class="ident">Transition::Keep</span>;
+                    }
+
                     <span class="kw">return</span> <span class="ident">Tab::Create</span>
                         .<span class="ident">handle_action</span>::<span class="op">&lt;</span><span class="ident">QuickSketch</span><span class="op">&gt;</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">x</span>)
                         .<span class="ident">unwrap</span>();
