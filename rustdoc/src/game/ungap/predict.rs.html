@@ -471,11 +471,19 @@
 <span id="471">471</span>
 <span id="472">472</span>
 <span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
+<span id="476">476</span>
+<span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">Counter</span>, <span class="ident">Timer</span>};
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Polygon</span>};
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Polygon</span>, <span class="ident">UnitFmt</span>};
 <span class="kw">use</span> <span class="ident">map_gui::load::FileLoader</span>;
 <span class="kw">use</span> <span class="ident">map_gui::tools::ColorNetwork</span>;
 <span class="kw">use</span> <span class="ident">map_gui::ID</span>;
@@ -728,12 +736,20 @@
             ]),
             <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
                 <span class="string">&quot;Max elevation gain&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
-                <span class="ident">Spinner::widget</span>(
+                <span class="ident">Spinner::widget_with_custom_rendering</span>(
                     <span class="ident">ctx</span>,
                     <span class="string">&quot;max_elevation_gain&quot;</span>,
                     (<span class="ident">Distance::ZERO</span>, <span class="ident">Distance::feet</span>(<span class="number">500.0</span>)),
                     <span class="self">self</span>.<span class="ident">max_elevation_gain</span>,
                     <span class="ident">Distance::feet</span>(<span class="number">10.0</span>),
+                    <span class="comment">// Even if the user&#39;s settings are set to meters, our step size is in feet, so</span>
+                    <span class="comment">// just render in feet.</span>
+                    <span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> {
+                        <span class="ident">x</span>.<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">UnitFmt</span> {
+                            <span class="ident">round_durations</span>: <span class="bool-val">false</span>,
+                            <span class="ident">metric</span>: <span class="bool-val">false</span>,
+                        })
+                    }),
                 ),
             ]),
         ])
