@@ -54,20 +54,18 @@ impl RouteSketcher {
                 }
             }
             Mode::Hovering(i) => {
-                if let Some((_, dy)) = ctx.input.get_mouse_scroll() {
-                    ctx.canvas.zoom(dy, ctx.canvas.get_cursor());
-                }
-
-                if ctx.normal_left_click() {
-                    self.route.add_waypoint(app, i);
-                    return;
-                }
-
                 if ctx.input.left_mouse_button_pressed() {
                     if let Some(idx) = self.route.idx(i) {
                         self.mode = Mode::Dragging { idx, at: i };
                         return;
                     }
+                }
+
+                ctx.canvas_movement();
+
+                if ctx.normal_left_click() {
+                    self.route.add_waypoint(app, i);
+                    return;
                 }
 
                 if ctx.redo_mouseover() {
