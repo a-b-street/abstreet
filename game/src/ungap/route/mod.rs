@@ -1,6 +1,6 @@
 use map_model::RoutingParams;
 use widgetry::mapspace::{ObjectID, World, WorldOutcome};
-use widgetry::{Choice, EventCtx, GfxCtx, Outcome, Panel, State, TextExt, Widget};
+use widgetry::{EventCtx, GfxCtx, Outcome, Panel, State, Toggle, Widget};
 
 use self::results::RouteDetails;
 use crate::app::{App, Transition};
@@ -70,21 +70,17 @@ impl RoutePlanner {
         self.update_input_panel(ctx, app, main_route.details_widget);
 
         self.alt_routes.clear();
-        // Just a few fixed variations... all 9 combos seems overwhelming
+        // Just show one alternate route by default, unless the user enables one checkbox but not
+        // the other. We could show more variations, but it makes the view too messy.
         for preferences in [
             RoutingPreferences {
-                hills: Preference::Neutral,
-                stressful_roads: Preference::Neutral,
+                avoid_hills: false,
+                avoid_stressful_roads: false,
             },
             RoutingPreferences {
-                hills: Preference::Avoid,
-                stressful_roads: Preference::Avoid,
+                avoid_hills: true,
+                avoid_stressful_roads: true,
             },
-            // TODO Too many alts cover up the main route awkwardly
-            /*RoutingPreferences {
-                hills: Preference::SeekOut,
-                stressful_roads: Preference::SeekOut,
-            },*/
         ] {
             if app.session.routing_preferences == preferences {
                 continue;
@@ -124,32 +120,20 @@ impl RoutePlanner {
     fn update_input_panel(&mut self, ctx: &mut EventCtx, app: &App, main_route: Widget) {
         let col = Widget::col(vec![
             self.files.get_panel_widget(ctx),
-            Widget::col(vec![Widget::row(vec![
-                "Steep hills".text_widget(ctx).centered_vert(),
-                Widget::dropdown(
+            Widget::row(vec![
+                Toggle::checkbox(
                     ctx,
-                    "steep hills",
-                    app.session.routing_preferences.hills,
-                    vec![
-                        Choice::new("avoid", Preference::Avoid),
-                        // TODO Wording for these
-                        Choice::new("neutral", Preference::Neutral),
-                        Choice::new("fitness mode!", Preference::SeekOut),
-                    ],
+                    "Avoid steep hills",
+                    None,
+                    app.session.routing_preferences.avoid_hills,
                 ),
-                "High-stress roads".text_widget(ctx).centered_vert(),
-                Widget::dropdown(
+                Toggle::checkbox(
                     ctx,
-                    "stressful roads",
-                    app.session.routing_preferences.stressful_roads,
-                    vec![
-                        Choice::new("avoid", Preference::Avoid),
-                        // TODO Wording for these
-                        Choice::new("neutral", Preference::Neutral),
-                        Choice::new("danger zone!", Preference::SeekOut),
-                    ],
+                    "Avoid stressful roads",
+                    None,
+                    app.session.routing_preferences.avoid_stressful_roads,
                 ),
-            ])])
+            ])
             .section(ctx),
             self.waypoints.get_panel_widget(ctx).section(ctx),
             main_route.section(ctx),
@@ -208,10 +192,10 @@ impl State<App> for RoutePlanner {
             }
         }
         if let Outcome::Changed(ref x) = panel_outcome {
-            if x == "steep hills" || x == "stressful roads" {
+            if x == "Avoid steep hills" || x == "Avoid stressful roads" {
                 app.session.routing_preferences = RoutingPreferences {
-                    hills: self.input_panel.dropdown_value("steep hills"),
-                    stressful_roads: self.input_panel.dropdown_value("stressful roads"),
+                    avoid_hills: self.input_panel.is_checked("Avoid steep hills"),
+                    avoid_stressful_roads: self.input_panel.is_checked("Avoid stressful roads"),
                 };
                 self.recalculate_routes(ctx, app);
                 return Transition::Keep;
@@ -253,63 +237,32 @@ impl State<App> for RoutePlanner {
 
 #[derive(Clone, Copy, PartialEq)]
 pub struct RoutingPreferences {
-    hills: Preference,
-    stressful_roads: Preference,
-}
-
-#[derive(Clone, Copy, PartialEq, Debug)]
-enum Preference {
-    Avoid,
-    Neutral,
-    SeekOut,
+    avoid_hills: bool,
+    avoid_stressful_roads: bool,
 }
 
 impl RoutingPreferences {
     // TODO Consider changing this now, and also for the mode shift calculation
     pub fn default() -> Self {
         Self {
-            hills: Preference::Neutral,
-            stressful_roads: Preference::Neutral,
+            avoid_hills: false,
+            avoid_stressful_roads: false,
         }
     }
 
-    fn name(self) -> String {
-        let words = vec![
-            match self.hills {
-                Preference::Avoid => Some("flat"),
-                Preference::Neutral => None,
-                Preference::SeekOut => Some("steep"),
-            },
-            match self.stressful_roads {
-                Preference::Avoid => Some("low-stress"),
-                Preference::Neutral => None,
-                Preference::SeekOut => Some("high-stress"),
-            },
-        ]
-        .into_iter()
-        .flatten()
-        .collect::<Vec<_>>();
-        if words.is_empty() {
-            "default".to_string()
-        } else if words.len() == 1 {
-            words[0].to_string()
-        } else {
-            format!("{}, {}", words[0], words[1])
+    fn name(self) -> &'static str {
+        match (self.avoid_hills, self.avoid_stressful_roads) {
+            (false, false) => "fastest",
+            (true, false) => "flat",
+            (false, true) => "low-stress",
+            (true, true) => "flat & low-stress",
         }
     }
 
     fn routing_params(self) -> RoutingParams {
         RoutingParams {
-            avoid_steep_incline_penalty: match self.hills {
-                Preference::Avoid => 2.0,
-                Preference::Neutral => 1.0,
-                Preference::SeekOut => 0.1,
-            },
-            avoid_high_stress: match self.stressful_roads {
-                Preference::Avoid => 2.0,
-                Preference::Neutral => 1.0,
-                Preference::SeekOut => 0.1,
-            },
+            avoid_steep_incline_penalty: if self.avoid_hills { 2.0 } else { 1.0 },
+            avoid_high_stress: if self.avoid_stressful_roads { 2.0 } else { 1.0 },
             ..Default::default()
         }
     }
