@@ -267,57 +267,10 @@
 <span id="267">267</span>
 <span id="268">268</span>
 <span id="269">269</span>
-<span id="270">270</span>
-<span id="271">271</span>
-<span id="272">272</span>
-<span id="273">273</span>
-<span id="274">274</span>
-<span id="275">275</span>
-<span id="276">276</span>
-<span id="277">277</span>
-<span id="278">278</span>
-<span id="279">279</span>
-<span id="280">280</span>
-<span id="281">281</span>
-<span id="282">282</span>
-<span id="283">283</span>
-<span id="284">284</span>
-<span id="285">285</span>
-<span id="286">286</span>
-<span id="287">287</span>
-<span id="288">288</span>
-<span id="289">289</span>
-<span id="290">290</span>
-<span id="291">291</span>
-<span id="292">292</span>
-<span id="293">293</span>
-<span id="294">294</span>
-<span id="295">295</span>
-<span id="296">296</span>
-<span id="297">297</span>
-<span id="298">298</span>
-<span id="299">299</span>
-<span id="300">300</span>
-<span id="301">301</span>
-<span id="302">302</span>
-<span id="303">303</span>
-<span id="304">304</span>
-<span id="305">305</span>
-<span id="306">306</span>
-<span id="307">307</span>
-<span id="308">308</span>
-<span id="309">309</span>
-<span id="310">310</span>
-<span id="311">311</span>
-<span id="312">312</span>
-<span id="313">313</span>
-<span id="314">314</span>
-<span id="315">315</span>
-<span id="316">316</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">map_model::RoutingParams</span>;
 <span class="kw">use</span> <span class="ident">widgetry::mapspace</span>::{<span class="ident">ObjectID</span>, <span class="ident">World</span>, <span class="ident">WorldOutcome</span>};
-<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Choice</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">TextExt</span>, <span class="ident">Widget</span>};
+<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">Toggle</span>, <span class="ident">Widget</span>};
 
 <span class="kw">use</span> <span class="self">self</span><span class="ident">::results::RouteDetails</span>;
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
@@ -387,21 +340,17 @@
         <span class="self">self</span>.<span class="ident">update_input_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">main_route</span>.<span class="ident">details_widget</span>);
 
         <span class="self">self</span>.<span class="ident">alt_routes</span>.<span class="ident">clear</span>();
-        <span class="comment">// Just a few fixed variations... all 9 combos seems overwhelming</span>
+        <span class="comment">// Just show one alternate route by default, unless the user enables one checkbox but not</span>
+        <span class="comment">// the other. We could show more variations, but it makes the view too messy.</span>
         <span class="kw">for</span> <span class="ident">preferences</span> <span class="kw">in</span> [
             <span class="ident">RoutingPreferences</span> {
-                <span class="ident">hills</span>: <span class="ident">Preference::Neutral</span>,
-                <span class="ident">stressful_roads</span>: <span class="ident">Preference::Neutral</span>,
+                <span class="ident">avoid_hills</span>: <span class="bool-val">false</span>,
+                <span class="ident">avoid_stressful_roads</span>: <span class="bool-val">false</span>,
             },
             <span class="ident">RoutingPreferences</span> {
-                <span class="ident">hills</span>: <span class="ident">Preference::Avoid</span>,
-                <span class="ident">stressful_roads</span>: <span class="ident">Preference::Avoid</span>,
+                <span class="ident">avoid_hills</span>: <span class="bool-val">true</span>,
+                <span class="ident">avoid_stressful_roads</span>: <span class="bool-val">true</span>,
             },
-            <span class="comment">// TODO Too many alts cover up the main route awkwardly</span>
-            <span class="comment">/*RoutingPreferences {
-                hills: Preference::SeekOut,
-                stressful_roads: Preference::SeekOut,
-            },*/</span>
         ] {
             <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">routing_preferences</span> <span class="op">=</span><span class="op">=</span> <span class="ident">preferences</span> {
                 <span class="kw">continue</span>;
@@ -441,32 +390,20 @@
     <span class="kw">fn</span> <span class="ident">update_input_panel</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">main_route</span>: <span class="ident">Widget</span>) {
         <span class="kw">let</span> <span class="ident">col</span> <span class="op">=</span> <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
             <span class="self">self</span>.<span class="ident">files</span>.<span class="ident">get_panel_widget</span>(<span class="ident">ctx</span>),
-            <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[<span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                <span class="string">&quot;Steep hills&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
-                <span class="ident">Widget::dropdown</span>(
+            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
+                <span class="ident">Toggle::checkbox</span>(
                     <span class="ident">ctx</span>,
-                    <span class="string">&quot;steep hills&quot;</span>,
-                    <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">routing_preferences</span>.<span class="ident">hills</span>,
-                    <span class="macro">vec!</span>[
-                        <span class="ident">Choice::new</span>(<span class="string">&quot;avoid&quot;</span>, <span class="ident">Preference::Avoid</span>),
-                        <span class="comment">// TODO Wording for these</span>
-                        <span class="ident">Choice::new</span>(<span class="string">&quot;neutral&quot;</span>, <span class="ident">Preference::Neutral</span>),
-                        <span class="ident">Choice::new</span>(<span class="string">&quot;fitness mode!&quot;</span>, <span class="ident">Preference::SeekOut</span>),
-                    ],
+                    <span class="string">&quot;Avoid steep hills&quot;</span>,
+                    <span class="prelude-val">None</span>,
+                    <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">routing_preferences</span>.<span class="ident">avoid_hills</span>,
                 ),
-                <span class="string">&quot;High-stress roads&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
-                <span class="ident">Widget::dropdown</span>(
+                <span class="ident">Toggle::checkbox</span>(
                     <span class="ident">ctx</span>,
-                    <span class="string">&quot;stressful roads&quot;</span>,
-                    <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">routing_preferences</span>.<span class="ident">stressful_roads</span>,
-                    <span class="macro">vec!</span>[
-                        <span class="ident">Choice::new</span>(<span class="string">&quot;avoid&quot;</span>, <span class="ident">Preference::Avoid</span>),
-                        <span class="comment">// TODO Wording for these</span>
-                        <span class="ident">Choice::new</span>(<span class="string">&quot;neutral&quot;</span>, <span class="ident">Preference::Neutral</span>),
-                        <span class="ident">Choice::new</span>(<span class="string">&quot;danger zone!&quot;</span>, <span class="ident">Preference::SeekOut</span>),
-                    ],
+                    <span class="string">&quot;Avoid stressful roads&quot;</span>,
+                    <span class="prelude-val">None</span>,
+                    <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">routing_preferences</span>.<span class="ident">avoid_stressful_roads</span>,
                 ),
-            ])])
+            ])
             .<span class="ident">section</span>(<span class="ident">ctx</span>),
             <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">get_panel_widget</span>(<span class="ident">ctx</span>).<span class="ident">section</span>(<span class="ident">ctx</span>),
             <span class="ident">main_route</span>.<span class="ident">section</span>(<span class="ident">ctx</span>),
@@ -525,10 +462,10 @@
             }
         }
         <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome::Changed</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) <span class="op">=</span> <span class="ident">panel_outcome</span> {
-            <span class="kw">if</span> <span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;steep hills&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;stressful roads&quot;</span> {
+            <span class="kw">if</span> <span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;Avoid steep hills&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;Avoid stressful roads&quot;</span> {
                 <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">routing_preferences</span> <span class="op">=</span> <span class="ident">RoutingPreferences</span> {
-                    <span class="ident">hills</span>: <span class="self">self</span>.<span class="ident">input_panel</span>.<span class="ident">dropdown_value</span>(<span class="string">&quot;steep hills&quot;</span>),
-                    <span class="ident">stressful_roads</span>: <span class="self">self</span>.<span class="ident">input_panel</span>.<span class="ident">dropdown_value</span>(<span class="string">&quot;stressful roads&quot;</span>),
+                    <span class="ident">avoid_hills</span>: <span class="self">self</span>.<span class="ident">input_panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;Avoid steep hills&quot;</span>),
+                    <span class="ident">avoid_stressful_roads</span>: <span class="self">self</span>.<span class="ident">input_panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;Avoid stressful roads&quot;</span>),
                 };
                 <span class="self">self</span>.<span class="ident">recalculate_routes</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
                 <span class="kw">return</span> <span class="ident">Transition::Keep</span>;
@@ -570,63 +507,32 @@
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RoutingPreferences</span> {
-    <span class="ident">hills</span>: <span class="ident">Preference</span>,
-    <span class="ident">stressful_roads</span>: <span class="ident">Preference</span>,
-}
-
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>, <span class="ident">Debug</span>)]</span>
-<span class="kw">enum</span> <span class="ident">Preference</span> {
-    <span class="ident">Avoid</span>,
-    <span class="ident">Neutral</span>,
-    <span class="ident">SeekOut</span>,
+    <span class="ident">avoid_hills</span>: <span class="ident">bool</span>,
+    <span class="ident">avoid_stressful_roads</span>: <span class="ident">bool</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">RoutingPreferences</span> {
     <span class="comment">// TODO Consider changing this now, and also for the mode shift calculation</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> {
-            <span class="ident">hills</span>: <span class="ident">Preference::Neutral</span>,
-            <span class="ident">stressful_roads</span>: <span class="ident">Preference::Neutral</span>,
+            <span class="ident">avoid_hills</span>: <span class="bool-val">false</span>,
+            <span class="ident">avoid_stressful_roads</span>: <span class="bool-val">false</span>,
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">name</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
-        <span class="kw">let</span> <span class="ident">words</span> <span class="op">=</span> <span class="macro">vec!</span>[
-            <span class="kw">match</span> <span class="self">self</span>.<span class="ident">hills</span> {
-                <span class="ident">Preference::Avoid</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="string">&quot;flat&quot;</span>),
-                <span class="ident">Preference::Neutral</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
-                <span class="ident">Preference::SeekOut</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="string">&quot;steep&quot;</span>),
-            },
-            <span class="kw">match</span> <span class="self">self</span>.<span class="ident">stressful_roads</span> {
-                <span class="ident">Preference::Avoid</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="string">&quot;low-stress&quot;</span>),
-                <span class="ident">Preference::Neutral</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
-                <span class="ident">Preference::SeekOut</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="string">&quot;high-stress&quot;</span>),
-            },
-        ]
-        .<span class="ident">into_iter</span>()
-        .<span class="ident">flatten</span>()
-        .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
-        <span class="kw">if</span> <span class="ident">words</span>.<span class="ident">is_empty</span>() {
-            <span class="string">&quot;default&quot;</span>.<span class="ident">to_string</span>()
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">words</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="number">1</span> {
-            <span class="ident">words</span>[<span class="number">0</span>].<span class="ident">to_string</span>()
-        } <span class="kw">else</span> {
-            <span class="macro">format!</span>(<span class="string">&quot;{}, {}&quot;</span>, <span class="ident">words</span>[<span class="number">0</span>], <span class="ident">words</span>[<span class="number">1</span>])
+    <span class="kw">fn</span> <span class="ident">name</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> {
+        <span class="kw">match</span> (<span class="self">self</span>.<span class="ident">avoid_hills</span>, <span class="self">self</span>.<span class="ident">avoid_stressful_roads</span>) {
+            (<span class="bool-val">false</span>, <span class="bool-val">false</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;fastest&quot;</span>,
+            (<span class="bool-val">true</span>, <span class="bool-val">false</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;flat&quot;</span>,
+            (<span class="bool-val">false</span>, <span class="bool-val">true</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;low-stress&quot;</span>,
+            (<span class="bool-val">true</span>, <span class="bool-val">true</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;flat &amp; low-stress&quot;</span>,
         }
     }
 
     <span class="kw">fn</span> <span class="ident">routing_params</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">RoutingParams</span> {
         <span class="ident">RoutingParams</span> {
-            <span class="ident">avoid_steep_incline_penalty</span>: <span class="kw">match</span> <span class="self">self</span>.<span class="ident">hills</span> {
-                <span class="ident">Preference::Avoid</span> <span class="op">=</span><span class="op">&gt;</span> <span class="number">2.0</span>,
-                <span class="ident">Preference::Neutral</span> <span class="op">=</span><span class="op">&gt;</span> <span class="number">1.0</span>,
-                <span class="ident">Preference::SeekOut</span> <span class="op">=</span><span class="op">&gt;</span> <span class="number">0.1</span>,
-            },
-            <span class="ident">avoid_high_stress</span>: <span class="kw">match</span> <span class="self">self</span>.<span class="ident">stressful_roads</span> {
-                <span class="ident">Preference::Avoid</span> <span class="op">=</span><span class="op">&gt;</span> <span class="number">2.0</span>,
-                <span class="ident">Preference::Neutral</span> <span class="op">=</span><span class="op">&gt;</span> <span class="number">1.0</span>,
-                <span class="ident">Preference::SeekOut</span> <span class="op">=</span><span class="op">&gt;</span> <span class="number">0.1</span>,
-            },
+            <span class="ident">avoid_steep_incline_penalty</span>: <span class="kw">if</span> <span class="self">self</span>.<span class="ident">avoid_hills</span> { <span class="number">2.0</span> } <span class="kw">else</span> { <span class="number">1.0</span> },
+            <span class="ident">avoid_high_stress</span>: <span class="kw">if</span> <span class="self">self</span>.<span class="ident">avoid_stressful_roads</span> { <span class="number">2.0</span> } <span class="kw">else</span> { <span class="number">1.0</span> },
             ..<span class="ident">Default::default</span>()
         }
     }
