@@ -3,7 +3,7 @@
 use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet, VecDeque};
 
 use anyhow::Result;
-use petgraph::graphmap::UnGraphMap;
+use petgraph::graphmap::{DiGraphMap, UnGraphMap};
 use serde::{Deserialize, Serialize};
 
 use abstio::{CityName, MapName};
@@ -14,9 +14,9 @@ use crate::raw::{OriginalRoad, RawMap};
 use crate::{
     osm, Area, AreaID, AreaType, Building, BuildingID, BuildingType, BusRoute, BusRouteID, BusStop,
     BusStopID, CompressedMovementID, ControlStopSign, ControlTrafficSignal, DirectedRoadID,
-    Intersection, IntersectionID, Lane, LaneID, LaneType, Map, MapEdits, Movement, MovementID,
-    OffstreetParking, ParkingLot, ParkingLotID, Path, PathConstraints, PathRequest, PathV2,
-    Pathfinder, Position, Road, RoadID, RoutingParams, Turn, TurnID, TurnType, Zone,
+    Direction, Intersection, IntersectionID, Lane, LaneID, LaneType, Map, MapEdits, Movement,
+    MovementID, OffstreetParking, ParkingLot, ParkingLotID, Path, PathConstraints, PathRequest,
+    PathV2, Pathfinder, Position, Road, RoadID, RoutingParams, Turn, TurnID, TurnType, Zone,
 };
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -742,6 +742,52 @@ impl Map {
         for r in self.all_roads() {
             if !r.is_light_rail() {
                 graph.add_edge(r.src_i, r.dst_i, r.id);
+            }
+        }
+        let (_, path) = petgraph::algo::astar(
+            &graph,
+            i1,
+            |i| i == i2,
+            |(_, _, r)| self.get_r(*r).length(),
+            |_| Distance::ZERO,
+        )?;
+        let roads: Vec<RoadID> = path
+            .windows(2)
+            .map(|pair| *graph.edge_weight(pair[0], pair[1]).unwrap())
+            .collect();
+        Some((roads, path))
+    }
+
+    /// Simple search along directed roads, weighted by distance. Expresses the result as a
+    /// sequence of roads and a sequence of intersections.
+    ///
+    /// Unlike the main pathfinding methods, this starts and ends at intersections. The first and
+    /// last step can be on any road connected to the intersection.
+    // TODO Remove simple_path_btwn in favor of this one?
+    pub fn simple_path_btwn_v2(
+        &self,
+        i1: IntersectionID,
+        i2: IntersectionID,
+        constraints: PathConstraints,
+    ) -> Option<(Vec<RoadID>, Vec<IntersectionID>)> {
+        let mut graph: DiGraphMap<IntersectionID, RoadID> = DiGraphMap::new();
+        for r in self.all_roads() {
+            let mut fwd = false;
+            let mut back = false;
+            for lane in &r.lanes {
+                if constraints.can_use(lane, self) {
+                    if lane.dir == Direction::Fwd {
+                        fwd = true;
+                    } else {
+                        back = true;
+                    }
+                }
+            }
+            if fwd {
+                graph.add_edge(r.src_i, r.dst_i, r.id);
+            }
+            if back {
+                graph.add_edge(r.dst_i, r.src_i, r.id);
             }
         }
         let (_, path) = petgraph::algo::astar(

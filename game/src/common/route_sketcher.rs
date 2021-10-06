@@ -1,5 +1,5 @@
 use geom::{Circle, Distance, FindClosest};
-use map_model::{IntersectionID, Map, RoadID};
+use map_model::{IntersectionID, Map, PathConstraints, RoadID};
 use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, TextExt, Widget};
 
 use crate::app::App;
@@ -140,7 +140,7 @@ impl RouteSketcher {
             );
             if self.route.waypoints.len() == 1 {
                 if let Some((roads, intersections)) =
-                    map.simple_path_btwn(self.route.waypoints[0], i)
+                    map.simple_path_btwn_v2(self.route.waypoints[0], i, PathConstraints::Car)
                 {
                     for r in roads {
                         batch.push(Color::BLUE.alpha(0.5), map.get_r(r).get_thick_polygon());
@@ -261,7 +261,13 @@ impl Route {
             assert!(self.full_path.is_empty());
             self.full_path.push(i);
         } else if self.waypoints.len() == 1 && i != self.waypoints[0] {
-            if let Some((_, intersections)) = app.primary.map.simple_path_btwn(self.waypoints[0], i)
+            // Route for cars, because we're doing this to transform roads meant for cars. We could
+            // equivalently use Bike in most cases, except for highways where biking is currently
+            // banned. This tool could be used to carve out space and allow that.
+            if let Some((_, intersections)) =
+                app.primary
+                    .map
+                    .simple_path_btwn_v2(self.waypoints[0], i, PathConstraints::Car)
             {
                 self.waypoints.push(i);
                 assert_eq!(self.full_path.len(), 1);
@@ -298,7 +304,9 @@ impl Route {
         self.full_path.clear();
         for pair in self.waypoints.windows(2) {
             // TODO If the new change doesn't work, we could revert.
-            let (_, intersections) = map.simple_path_btwn(pair[0], pair[1]).unwrap();
+            let (_, intersections) = map
+                .simple_path_btwn_v2(pair[0], pair[1], PathConstraints::Car)
+                .unwrap();
             self.full_path.pop();
             self.full_path.extend(intersections);
         }

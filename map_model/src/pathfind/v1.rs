@@ -527,6 +527,8 @@ pub struct PathRequest {
     pub constraints: PathConstraints,
     // If present, also consider this start position, adding an extra cost to use it. When a Path
     // is returned, 'start' might be switched to use this one instead, reflecting the choice made.
+    // TODO It's assumed this lane is on the same directed road as `start`, but this isn't
+    // enforced!
     pub(crate) alt_start: Option<(Position, Duration)>,
 }
 
