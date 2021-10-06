@@ -293,8 +293,6 @@
 <span id="293">293</span>
 <span id="294">294</span>
 <span id="295">295</span>
-<span id="296">296</span>
-<span id="297">297</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">FindClosest</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">IntersectionID</span>, <span class="ident">Map</span>, <span class="ident">RoadID</span>};
@@ -352,20 +350,18 @@
                 }
             }
             <span class="ident">Mode::Hovering</span>(<span class="ident">i</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="ident">dy</span>)) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">get_mouse_scroll</span>() {
-                    <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">zoom</span>(<span class="ident">dy</span>, <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor</span>());
-                }
-
-                <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">normal_left_click</span>() {
-                    <span class="self">self</span>.<span class="ident">route</span>.<span class="ident">add_waypoint</span>(<span class="ident">app</span>, <span class="ident">i</span>);
-                    <span class="kw">return</span>;
-                }
-
                 <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">left_mouse_button_pressed</span>() {
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">idx</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">route</span>.<span class="ident">idx</span>(<span class="ident">i</span>) {
                         <span class="self">self</span>.<span class="ident">mode</span> <span class="op">=</span> <span class="ident">Mode::Dragging</span> { <span class="ident">idx</span>, <span class="ident">at</span>: <span class="ident">i</span> };
                         <span class="kw">return</span>;
                     }
+                }
+
+                <span class="ident">ctx</span>.<span class="ident">canvas_movement</span>();
+
+                <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">normal_left_click</span>() {
+                    <span class="self">self</span>.<span class="ident">route</span>.<span class="ident">add_waypoint</span>(<span class="ident">app</span>, <span class="ident">i</span>);
+                    <span class="kw">return</span>;
                 }
 
                 <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">redo_mouseover</span>() {
