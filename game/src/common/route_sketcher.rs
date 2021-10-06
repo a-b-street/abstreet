@@ -180,6 +180,14 @@ impl RouteSketcher {
             } else {
                 Widget::nothing()
             },
+            if self.route.waypoints.is_empty() {
+                Widget::nothing()
+            } else {
+                ctx.style()
+                    .btn_plain_destructive
+                    .text("Start over")
+                    .build_def(ctx)
+            },
         ])
     }
 
@@ -194,6 +202,17 @@ impl RouteSketcher {
         } else {
             false
         }
+    }
+
+    /// True if something changed. False if this component doesn't even handle that kind of click.
+    pub fn on_click(&mut self, ctx: &EventCtx, x: &str) -> bool {
+        if x == "Start over" {
+            self.route = Route::new();
+            self.mode = Mode::Neutral;
+            self.preview = Drawable::empty(ctx);
+            return true;
+        }
+        false
     }
 
     pub fn draw(&self, g: &mut GfxCtx) {

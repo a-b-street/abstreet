@@ -97,6 +97,12 @@ impl State<App> for QuickSketch {
                     }));
                 }
                 x => {
+                    // TODO More brittle routing of outcomes.
+                    if self.route_sketcher.on_click(ctx, x) {
+                        self.update_top_panel(ctx, app);
+                        return Transition::Keep;
+                    }
+
                     return Tab::Create
                         .handle_action::<QuickSketch>(ctx, app, x)
                         .unwrap();
