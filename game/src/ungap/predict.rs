@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 
 use abstutil::{prettyprint_usize, Counter, Timer};
-use geom::{Distance, Duration, Polygon};
+use geom::{Distance, Duration, Polygon, UnitFmt};
 use map_gui::load::FileLoader;
 use map_gui::tools::ColorNetwork;
 use map_gui::ID;
@@ -254,12 +254,20 @@ impl Filters {
             ]),
             Widget::row(vec![
                 "Max elevation gain".text_widget(ctx).centered_vert(),
-                Spinner::widget(
+                Spinner::widget_with_custom_rendering(
                     ctx,
                     "max_elevation_gain",
                     (Distance::ZERO, Distance::feet(500.0)),
                     self.max_elevation_gain,
                     Distance::feet(10.0),
+                    // Even if the user's settings are set to meters, our step size is in feet, so
+                    // just render in feet.
+                    Box::new(|x| {
+                        x.to_string(&UnitFmt {
+                            round_durations: false,
+                            metric: false,
+                        })
+                    }),
                 ),
             ]),
         ])
