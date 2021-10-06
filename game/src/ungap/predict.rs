@@ -203,17 +203,13 @@ pub struct ModeShiftData {
 
 struct CandidateTrip {
     bike_req: PathRequest,
-    estimated_driving_time: Duration,
     estimated_biking_time: Duration,
-    biking_distance: Distance,
     driving_distance: Distance,
     total_elevation_gain: Distance,
 }
 
 struct Filters {
-    max_driving_time: Duration,
     max_biking_time: Duration,
-    max_biking_distance: Distance,
     max_elevation_gain: Distance,
 }
 
@@ -234,76 +230,44 @@ struct Results {
 impl Filters {
     fn default() -> Self {
         Self {
-            max_driving_time: Duration::minutes(30),
             max_biking_time: Duration::minutes(30),
-            max_biking_distance: Distance::miles(10.0),
-            max_elevation_gain: Distance::feet(30.0),
+            max_elevation_gain: Distance::feet(100.0),
         }
     }
 
     fn apply(&self, x: &CandidateTrip) -> bool {
-        x.estimated_driving_time <= self.max_driving_time
-            && x.estimated_biking_time <= self.max_biking_time
-            && x.biking_distance <= self.max_biking_distance
+        x.estimated_biking_time <= self.max_biking_time
             && x.total_elevation_gain <= self.max_elevation_gain
     }
 
     fn to_controls(&self, ctx: &mut EventCtx) -> Widget {
         Widget::col(vec![
-            Widget::custom_row(vec![
-                Widget::row(vec![
-                    "Max driving time".text_widget(ctx).centered_vert(),
-                    Spinner::widget(
-                        ctx,
-                        "max_driving_time",
-                        (Duration::ZERO, Duration::hours(12)),
-                        self.max_driving_time,
-                        Duration::minutes(1),
-                    ),
-                ]),
-                Widget::row(vec![
-                    "Max biking time".text_widget(ctx).centered_vert(),
-                    Spinner::widget(
-                        ctx,
-                        "max_biking_time",
-                        (Duration::ZERO, Duration::hours(12)),
-                        self.max_biking_time,
-                        Duration::minutes(1),
-                    ),
-                ]),
-            ])
-            .evenly_spaced(),
-            Widget::custom_row(vec![
-                Widget::row(vec![
-                    "Max biking distance".text_widget(ctx).centered_vert(),
-                    Spinner::widget(
-                        ctx,
-                        "max_biking_distance",
-                        (Distance::ZERO, Distance::miles(20.0)),
-                        self.max_biking_distance,
-                        Distance::miles(0.1),
-                    ),
-                ]),
-                Widget::row(vec![
-                    "Max elevation gain".text_widget(ctx).centered_vert(),
-                    Spinner::widget(
-                        ctx,
-                        "max_elevation_gain",
-                        (Distance::ZERO, Distance::feet(500.0)),
-                        self.max_elevation_gain,
-                        Distance::feet(10.0),
-                    ),
-                ]),
-            ])
-            .evenly_spaced(),
+            Widget::row(vec![
+                "Max biking time".text_widget(ctx).centered_vert(),
+                Spinner::widget(
+                    ctx,
+                    "max_biking_time",
+                    (Duration::ZERO, Duration::hours(12)),
+                    self.max_biking_time,
+                    Duration::minutes(1),
+                ),
+            ]),
+            Widget::row(vec![
+                "Max elevation gain".text_widget(ctx).centered_vert(),
+                Spinner::widget(
+                    ctx,
+                    "max_elevation_gain",
+                    (Distance::ZERO, Distance::feet(500.0)),
+                    self.max_elevation_gain,
+                    Distance::feet(10.0),
+                ),
+            ]),
         ])
     }
 
     fn from_controls(panel: &Panel) -> Filters {
         Filters {
-            max_driving_time: panel.spinner("max_driving_time"),
             max_biking_time: panel.spinner("max_biking_time"),
-            max_biking_distance: panel.spinner("max_biking_distance"),
             max_elevation_gain: panel.spinner("max_elevation_gain"),
         }
     }
@@ -378,10 +342,8 @@ impl ModeShiftData {
                         let (total_elevation_gain, _) = biking_path.get_total_elevation_change(map);
                         Some(CandidateTrip {
                             bike_req: biking_path.get_req().clone(),
-                            estimated_driving_time: driving_path.estimate_duration(map, None),
                             estimated_biking_time: biking_path
                                 .estimate_duration(map, Some(map_model::MAX_BIKE_SPEED)),
-                            biking_distance: biking_path.total_length(),
                             driving_distance: driving_path.total_length(),
                             total_elevation_gain,
                         })
