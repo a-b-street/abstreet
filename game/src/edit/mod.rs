@@ -200,6 +200,8 @@ impl State<App> for EditMode {
                             Choice::string("open a saved proposal").multikey(lctrl(Key::L)),
                             Choice::string("create a blank proposal"),
                             Choice::string("save this proposal as..."),
+                            // TODO Disable if empty edits
+                            Choice::string("share proposal"),
                             Choice::string("delete this proposal and remove all edits")
                                 .fg(ctx.style().text_destructive_color),
                         ],
@@ -268,6 +270,14 @@ impl State<App> for EditMode {
                                     false,
                                     Some(Transition::Pop),
                                     Box::new(|_, _| {}),
+                                ))
+                            }
+                            "share proposal" => {
+                                // TODO This'll always set or share a URL with the map, losing any
+                                // info about the current scenario.
+                                // https://github.com/a-b-street/abstreet/issues/766
+                                Transition::Replace(crate::common::share::ShareProposal::new_state(
+                                    ctx, app, "--dev",
                                 ))
                             }
                             "delete this proposal and remove all edits" => {

@@ -314,7 +314,7 @@ fn continue_app_setup(
         if let Some(id) = edits_name.strip_prefix("remote/") {
             let (_, outer_progress_rx) = futures_channel::mpsc::channel(1);
             let (_, inner_progress_rx) = futures_channel::mpsc::channel(1);
-            let url = format!("{}/get?id={}", ungap::PROPOSAL_HOST_URL, id);
+            let url = format!("{}/get?id={}", crate::common::share::PROPOSAL_HOST_URL, id);
             return vec![FutureLoader::<App, Vec<u8>>::new_state(
                 ctx,
                 Box::pin(async move {

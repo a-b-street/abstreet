@@ -14,10 +14,13 @@ pub const PROPOSAL_HOST_URL: &str = "https://aorta-routes.appspot.com/v1";
 
 pub struct ShareProposal {
     url: Option<String>,
+    url_flag: &'static str,
 }
 
 impl ShareProposal {
-    pub fn new_state(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
+    /// This will point to a URL with the new edits and the current map, but the caller needs to
+    /// indicate a flag to reach the proper mode of A/B Street.
+    pub fn new_state(ctx: &mut EventCtx, app: &App, url_flag: &'static str) -> Box<dyn State<App>> {
         let checksum = app.primary.map.get_edits().get_checksum(&app.primary.map);
         let mut url = None;
         let mut col = vec![Widget::row(vec![
@@ -34,8 +37,9 @@ impl ShareProposal {
                 .unwrap()
                 .to_string();
             url = Some(format!(
-                "http://play.abstreet.org/{}/abstreet.html?--ungap&{}&--edits=remote/{}",
+                "http://play.abstreet.org/{}/abstreet.html?{}&{}&--edits=remote/{}",
                 map_gui::tools::version(),
+                url_flag,
                 map_path,
                 checksum
             ));
@@ -60,9 +64,7 @@ impl ShareProposal {
             }
         } else {
             let mut txt = Text::new();
-            txt.add_line(Line(
-                "You'll upload this proposal for bike network extensions anonymously",
-            ));
+            txt.add_line(Line("You'll upload this proposal anonymously"));
             txt.add_line(Line("You can't delete or edit it after uploading"));
             txt.add_line(Line(
                 "(But you can upload and share new versions of the proposal)",
@@ -79,7 +81,7 @@ impl ShareProposal {
         }
 
         let panel = Panel::new_builder(Widget::col(col)).build(ctx);
-        <dyn SimpleState<_>>::new_state(panel, Box::new(ShareProposal { url }))
+        <dyn SimpleState<_>>::new_state(panel, Box::new(ShareProposal { url, url_flag }))
     }
 }
 
@@ -92,6 +94,7 @@ impl SimpleState<App> for ShareProposal {
                 let (_, inner_progress_rx) = futures_channel::mpsc::channel(1);
                 let edits_json =
                     abstutil::to_json(&app.primary.map.get_edits().to_permanent(&app.primary.map));
+                let url_flag = self.url_flag;
                 return Transition::Replace(FutureLoader::<App, String>::new_state(
                     ctx,
                     Box::pin(async move {
@@ -106,7 +109,7 @@ impl SimpleState<App> for ShareProposal {
                     outer_progress_rx,
                     inner_progress_rx,
                     "Uploading proposal",
-                    Box::new(|ctx, app, result| match result {
+                    Box::new(move |ctx, app, result| match result {
                         Ok(id) => {
                             URLManager::update_url_param(
                                 "--edits".to_string(),
@@ -114,11 +117,11 @@ impl SimpleState<App> for ShareProposal {
                             );
                             info!("Proposal uploaded! {}/get?id={}", PROPOSAL_HOST_URL, id);
                             UploadedProposals::proposal_uploaded(id);
-                            Transition::Replace(ShareProposal::new_state(ctx, app))
+                            Transition::Replace(ShareProposal::new_state(ctx, app, url_flag))
                         }
                         Err(err) => Transition::Multi(vec![
                             Transition::Pop,
-                            Transition::Push(ShareProposal::new_state(ctx, app)),
+                            Transition::Push(ShareProposal::new_state(ctx, app, url_flag)),
                             Transition::Push(PopupMsg::new_state(
                                 ctx,
                                 "Failure",

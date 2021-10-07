@@ -5,9 +5,10 @@ use map_model::{EditCmd, LaneType};
 use widgetry::{lctrl, Color, EventCtx, GfxCtx, Key, Line, Outcome, Panel, State, TextExt, Widget};
 
 use crate::app::{App, Transition};
+use crate::common::share;
 use crate::edit::{LoadEdits, RoadEditor, SaveEdits};
 use crate::sandbox::gameplay::GameplayMode;
-use crate::ungap::{share, Layers, Tab, TakeLayers};
+use crate::ungap::{Layers, Tab, TakeLayers};
 
 pub struct ExploreMap {
     top_panel: Panel,
@@ -119,7 +120,7 @@ impl State<App> for ExploreMap {
                     ));
                 }
                 "Share proposal" => {
-                    return Transition::Push(share::ShareProposal::new_state(ctx, app));
+                    return Transition::Push(share::ShareProposal::new_state(ctx, app, "--ungap"));
                 }
                 "Show more layers" => {
                     self.layers.show_panel(ctx, app);

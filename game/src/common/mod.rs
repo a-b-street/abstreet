@@ -20,6 +20,7 @@ use crate::sandbox::TimeWarpScreen;
 
 mod route_sketcher;
 mod select;
+pub mod share;
 mod warp;
 mod waypoints;
 

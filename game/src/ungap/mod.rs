@@ -6,7 +6,6 @@ mod layers;
 mod predict;
 mod quick_sketch;
 mod route;
-mod share;
 
 use map_gui::tools::{grey_out_map, open_browser, CityPicker};
 use widgetry::{
@@ -19,7 +18,6 @@ pub use self::layers::Layers;
 use crate::app::{App, Transition};
 pub use predict::ModeShiftData;
 pub use route::RoutingPreferences;
-pub use share::PROPOSAL_HOST_URL;
 
 // The 3 modes are very different States, so TabController doesn't seem like the best fit
 #[derive(PartialEq)]
