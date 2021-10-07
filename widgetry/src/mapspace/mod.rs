@@ -9,7 +9,7 @@ pub struct ToggleZoomed {
     pub unzoomed: Drawable,
     pub zoomed: Drawable,
     // Draw the same thing whether zoomed or unzoomed
-    just_unzoomed: bool,
+    always_draw_unzoomed: bool,
 }
 
 impl ToggleZoomed {
@@ -17,7 +17,7 @@ impl ToggleZoomed {
         ToggleZoomed {
             unzoomed: ctx.upload(unzoomed),
             zoomed: ctx.upload(zoomed),
-            just_unzoomed: false,
+            always_draw_unzoomed: false,
         }
     }
 
@@ -25,7 +25,7 @@ impl ToggleZoomed {
         ToggleZoomed {
             unzoomed: Drawable::empty(ctx),
             zoomed: Drawable::empty(ctx),
-            just_unzoomed: false,
+            always_draw_unzoomed: false,
         }
     }
 
@@ -33,12 +33,12 @@ impl ToggleZoomed {
         ToggleZoomedBuilder {
             unzoomed: GeomBatch::new(),
             zoomed: GeomBatch::new(),
-            just_unzoomed: false,
+            always_draw_unzoomed: false,
         }
     }
 
     pub fn draw(&self, g: &mut GfxCtx) {
-        if self.just_unzoomed || g.canvas.cam_zoom < g.canvas.settings.min_zoom_for_detail {
+        if self.always_draw_unzoomed || g.canvas.cam_zoom < g.canvas.settings.min_zoom_for_detail {
             g.redraw(&self.unzoomed);
         } else {
             g.redraw(&self.zoomed);
@@ -50,7 +50,7 @@ impl ToggleZoomed {
 pub struct ToggleZoomedBuilder {
     pub unzoomed: GeomBatch,
     pub zoomed: GeomBatch,
-    just_unzoomed: bool,
+    always_draw_unzoomed: bool,
 }
 
 impl ToggleZoomedBuilder {
@@ -62,13 +62,13 @@ impl ToggleZoomedBuilder {
     }
 
     pub fn build(self, ctx: &EventCtx) -> ToggleZoomed {
-        if self.just_unzoomed {
+        if self.always_draw_unzoomed {
             assert!(self.zoomed.is_empty());
         }
         ToggleZoomed {
             unzoomed: ctx.upload(self.unzoomed),
             zoomed: ctx.upload(self.zoomed),
-            just_unzoomed: self.just_unzoomed,
+            always_draw_unzoomed: self.always_draw_unzoomed,
         }
     }
 }
@@ -79,7 +79,7 @@ impl std::convert::From<GeomBatch> for ToggleZoomedBuilder {
         Self {
             unzoomed,
             zoomed: GeomBatch::new(),
-            just_unzoomed: true,
+            always_draw_unzoomed: true,
         }
     }
 }
