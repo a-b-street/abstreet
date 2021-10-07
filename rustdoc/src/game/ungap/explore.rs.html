@@ -231,6 +231,7 @@
 <span id="231">231</span>
 <span id="232">232</span>
 <span id="233">233</span>
+<span id="234">234</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">ArrowCap</span>, <span class="ident">Distance</span>, <span class="ident">PolyLine</span>};
 <span class="kw">use</span> <span class="ident">map_gui::tools::URLManager</span>;
@@ -239,9 +240,10 @@
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">lctrl</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">TextExt</span>, <span class="ident">Widget</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::common::share</span>;
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::edit</span>::{<span class="ident">LoadEdits</span>, <span class="ident">RoadEditor</span>, <span class="ident">SaveEdits</span>};
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::sandbox::gameplay::GameplayMode</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::ungap</span>::{<span class="ident">share</span>, <span class="ident">Layers</span>, <span class="ident">Tab</span>, <span class="ident">TakeLayers</span>};
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::ungap</span>::{<span class="ident">Layers</span>, <span class="ident">Tab</span>, <span class="ident">TakeLayers</span>};
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ExploreMap</span> {
     <span class="ident">top_panel</span>: <span class="ident">Panel</span>,
@@ -353,7 +355,7 @@
                     ));
                 }
                 <span class="string">&quot;Share proposal&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">share::ShareProposal::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
+                    <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">share::ShareProposal::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="string">&quot;--ungap&quot;</span>));
                 }
                 <span class="string">&quot;Show more layers&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="self">self</span>.<span class="ident">layers</span>.<span class="ident">show_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);

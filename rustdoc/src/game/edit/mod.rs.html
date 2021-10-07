@@ -946,6 +946,16 @@
 <span id="946">946</span>
 <span id="947">947</span>
 <span id="948">948</span>
+<span id="949">949</span>
+<span id="950">950</span>
+<span id="951">951</span>
+<span id="952">952</span>
+<span id="953">953</span>
+<span id="954">954</span>
+<span id="955">955</span>
+<span id="956">956</span>
+<span id="957">957</span>
+<span id="958">958</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">maplit::btreeset</span>;
 
@@ -1149,6 +1159,8 @@
                             <span class="ident">Choice::string</span>(<span class="string">&quot;open a saved proposal&quot;</span>).<span class="ident">multikey</span>(<span class="ident">lctrl</span>(<span class="ident">Key::L</span>)),
                             <span class="ident">Choice::string</span>(<span class="string">&quot;create a blank proposal&quot;</span>),
                             <span class="ident">Choice::string</span>(<span class="string">&quot;save this proposal as...&quot;</span>),
+                            <span class="comment">// TODO Disable if empty edits</span>
+                            <span class="ident">Choice::string</span>(<span class="string">&quot;share proposal&quot;</span>),
                             <span class="ident">Choice::string</span>(<span class="string">&quot;delete this proposal and remove all edits&quot;</span>)
                                 .<span class="ident">fg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_destructive_color</span>),
                         ],
@@ -1217,6 +1229,14 @@
                                     <span class="bool-val">false</span>,
                                     <span class="prelude-val">Some</span>(<span class="ident">Transition::Pop</span>),
                                     <span class="ident">Box::new</span>(<span class="op">|</span><span class="kw">_</span>, <span class="kw">_</span><span class="op">|</span> {}),
+                                ))
+                            }
+                            <span class="string">&quot;share proposal&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                                <span class="comment">// TODO This&#39;ll always set or share a URL with the map, losing any</span>
+                                <span class="comment">// info about the current scenario.</span>
+                                <span class="comment">// https://github.com/a-b-street/abstreet/issues/766</span>
+                                <span class="ident">Transition::Replace</span>(<span class="kw">crate</span><span class="ident">::common::share::ShareProposal::new_state</span>(
+                                    <span class="ident">ctx</span>, <span class="ident">app</span>, <span class="string">&quot;--dev&quot;</span>,
                                 ))
                             }
                             <span class="string">&quot;delete this proposal and remove all edits&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
