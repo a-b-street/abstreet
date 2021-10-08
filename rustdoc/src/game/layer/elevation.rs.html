@@ -317,6 +317,9 @@
 <span id="317">317</span>
 <span id="318">318</span>
 <span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">Distance</span>, <span class="ident">FindClosest</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
 <span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">ColorDiscrete</span>, <span class="ident">ColorScale</span>, <span class="ident">Grid</span>};
@@ -393,6 +396,9 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">steepest</span> <span class="op">=</span> <span class="number">0.0_f64</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">arrows</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
         <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">all_roads</span>() {
+            <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">is_light_rail</span>() {
+                <span class="kw">continue</span>;
+            }
             <span class="kw">let</span> <span class="ident">pct</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">percent_incline</span>.<span class="ident">abs</span>();
             <span class="ident">steepest</span> <span class="op">=</span> <span class="ident">steepest</span>.<span class="ident">max</span>(<span class="ident">pct</span>);
 
