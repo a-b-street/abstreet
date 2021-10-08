@@ -73,6 +73,9 @@ impl SteepStreets {
         let mut steepest = 0.0_f64;
         let mut arrows = GeomBatch::new();
         for r in app.primary.map.all_roads() {
+            if r.is_light_rail() {
+                continue;
+            }
             let pct = r.percent_incline.abs();
             steepest = steepest.max(pct);
 
