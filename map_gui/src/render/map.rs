@@ -22,7 +22,6 @@ use crate::{AppLike, ID};
 
 pub struct DrawMap {
     pub roads: Vec<DrawRoad>,
-    pub lanes: HashMap<LaneID, DrawLane>,
     pub intersections: Vec<DrawIntersection>,
     pub buildings: Vec<DrawBuilding>,
     pub parking_lots: Vec<DrawParkingLot>,
@@ -61,13 +60,6 @@ impl DrawMap {
             roads.push(DrawRoad::new(r));
             low_z = low_z.min(r.zorder);
             high_z = high_z.max(r.zorder);
-        }
-
-        let mut lanes: HashMap<LaneID, DrawLane> = HashMap::new();
-        timer.start_iter("make DrawLanes", map.all_lanes().count());
-        for l in map.all_lanes() {
-            timer.next();
-            lanes.insert(l.id, DrawLane::new(l, map));
         }
 
         let mut intersections: Vec<DrawIntersection> = Vec::new();
@@ -147,15 +139,6 @@ impl DrawMap {
                 quadtree.insert_with_box(obj.get_id(), obj.get_outline(map).get_bounds().as_bbox());
             quadtree_ids.insert(obj.get_id(), item_id);
         }
-        // Since lanes is a HashMap, iteration order is nondeterministic. When lanes happen to
-        // cover each other up, this leads to nondeterministic drawing order! This manifests quite
-        // prominently in screenshot diff tests.
-        for l in map.all_lanes() {
-            let obj = &lanes[&l.id];
-            let item_id =
-                quadtree.insert_with_box(obj.get_id(), obj.get_outline(map).get_bounds().as_bbox());
-            quadtree_ids.insert(obj.get_id(), item_id);
-        }
         for obj in &intersections {
             let item_id =
                 quadtree.insert_with_box(obj.get_id(), obj.get_outline(map).get_bounds().as_bbox());
@@ -183,7 +166,6 @@ impl DrawMap {
 
         DrawMap {
             roads,
-            lanes,
             intersections,
             buildings,
             parking_lots,
@@ -301,7 +283,7 @@ impl DrawMap {
     }
 
     pub fn get_l(&self, id: LaneID) -> &DrawLane {
-        &self.lanes[&id]
+        &self.get_r(id.road).lanes[id.offset]
     }
 
     pub fn get_i(&self, id: IntersectionID) -> &DrawIntersection {
@@ -393,14 +375,15 @@ impl DrawMap {
         for id in self.get_matching_objects(bounds) {
             match id {
                 ID::Area(id) => areas.push(self.get_a(id)),
-                ID::Lane(id) => {
-                    lanes.push(self.get_l(id));
-                    for bs in &map.get_l(id).bus_stops {
-                        bus_stops.push(self.get_bs(*bs));
-                    }
-                }
                 ID::Road(id) => {
-                    roads.push(self.get_r(id));
+                    let road = self.get_r(id);
+                    for lane in &road.lanes {
+                        for bs in &map.get_l(lane.id).bus_stops {
+                            bus_stops.push(self.get_bs(*bs));
+                        }
+                        lanes.push(lane);
+                    }
+                    roads.push(road);
                 }
                 ID::Intersection(id) => {
                     intersections.push(self.get_i(id));
@@ -410,7 +393,7 @@ impl DrawMap {
                     parking_lots.push(self.get_pl(id));
                 }
 
-                ID::BusStop(_) | ID::Car(_) | ID::Pedestrian(_) | ID::PedCrowd(_) => {
+                ID::Lane(_) | ID::BusStop(_) | ID::Car(_) | ID::Pedestrian(_) | ID::PedCrowd(_) => {
                     panic!("{:?} shouldn't be in the quadtree", id)
                 }
             }
@@ -456,8 +439,10 @@ impl DrawMap {
             batch.append(DrawParkingLot::new(ctx, pl, cs, &mut GeomBatch::new()).render(app));
         }
 
-        for l in map.all_lanes() {
-            batch.append(DrawLane::new(l, map).render(ctx, app));
+        for r in map.all_roads() {
+            for l in &r.lanes {
+                batch.append(DrawLane::new(l, r).render(ctx, app));
+            }
         }
 
         for r in map.all_roads() {
@@ -485,31 +470,6 @@ impl DrawMap {
         batch.append(outlines_batch);
 
         batch
-    }
-
-    pub fn create_lane(&mut self, l: LaneID, map: &Map) {
-        // If we're recreating an existing lane, don't create a duplicate quadtree entry for it!
-        // quadtree.insert_with_box isn't idempotent.
-        if let Some(item_id) = self.quadtree_ids.remove(&ID::Lane(l)) {
-            self.quadtree.remove(item_id).unwrap();
-        }
-
-        let draw = DrawLane::new(map.get_l(l), map);
-        let item_id = self
-            .quadtree
-            .insert_with_box(draw.get_id(), draw.get_outline(map).get_bounds().as_bbox());
-        self.quadtree_ids.insert(draw.get_id(), item_id);
-        self.lanes.insert(l, draw);
-    }
-
-    pub fn delete_lane(&mut self, l: LaneID) {
-        // If we're undoing some lane creations along with creating even more, the IDs can get
-        // shuffled a few times in a single application of edits. In that case, there might not be
-        // anything to even delete.
-        if self.lanes.remove(&l).is_some() {
-            let item_id = self.quadtree_ids.remove(&ID::Lane(l)).unwrap();
-            self.quadtree.remove(item_id).unwrap();
-        }
     }
 
     pub fn recreate_intersection(&mut self, i: IntersectionID, map: &Map) {
@@ -540,9 +500,6 @@ impl DrawMap {
         // Clear the lazily evaluated zoomed-in details
         for r in &mut self.roads {
             r.clear_rendering();
-        }
-        for l in self.lanes.values_mut() {
-            l.clear_rendering();
         }
         for i in &mut self.intersections {
             i.clear_rendering();

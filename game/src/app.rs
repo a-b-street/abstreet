@@ -371,17 +371,18 @@ impl App {
             }
             match id {
                 ID::Area(id) => areas.push(draw_map.get_a(id)),
-                ID::Lane(id) => {
-                    lanes.push(draw_map.get_l(id));
-                    agents_on.push(Traversable::Lane(id));
-                    for bs in &map.get_l(id).bus_stops {
-                        if show_objs.show(&ID::BusStop(*bs)) {
-                            bus_stops.push(draw_map.get_bs(*bs));
-                        }
-                    }
-                }
                 ID::Road(id) => {
-                    roads.push(draw_map.get_r(id));
+                    let road = draw_map.get_r(id);
+                    for lane in &road.lanes {
+                        agents_on.push(Traversable::Lane(lane.id));
+                        for bs in &map.get_l(lane.id).bus_stops {
+                            if show_objs.show(&ID::BusStop(*bs)) {
+                                bus_stops.push(draw_map.get_bs(*bs));
+                            }
+                        }
+                        lanes.push(lane);
+                    }
+                    roads.push(road);
                 }
                 ID::Intersection(id) => {
                     intersections.push(draw_map.get_i(id));
@@ -396,7 +397,7 @@ impl App {
                     agents_on.push(Traversable::Lane(map.get_pl(id).driving_pos.lane()));
                 }
 
-                ID::BusStop(_) | ID::Car(_) | ID::Pedestrian(_) | ID::PedCrowd(_) => {
+                ID::Lane(_) | ID::BusStop(_) | ID::Car(_) | ID::Pedestrian(_) | ID::PedCrowd(_) => {
                     panic!("{:?} shouldn't be in the quadtree", id)
                 }
             }

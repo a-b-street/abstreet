@@ -6,6 +6,7 @@ use widgetry::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, Text};
 
 use crate::colors::ColorSchemeChoice;
 use crate::options::CameraAngle;
+use crate::render::lane::DrawLane;
 use crate::render::{DrawOptions, Renderable};
 use crate::{AppLike, ID};
 
@@ -14,6 +15,7 @@ pub struct DrawRoad {
     zorder: isize,
 
     draw: RefCell<Option<Drawable>>,
+    pub lanes: Vec<DrawLane>,
 }
 
 impl DrawRoad {
@@ -22,6 +24,7 @@ impl DrawRoad {
             id: r.id,
             zorder: r.zorder,
             draw: RefCell::new(None),
+            lanes: r.lanes.iter().map(|l| DrawLane::new(l, r)).collect(),
         }
     }
 
@@ -116,6 +119,9 @@ impl DrawRoad {
 
     pub fn clear_rendering(&mut self) {
         *self.draw.borrow_mut() = None;
+        for l in &mut self.lanes {
+            l.clear_rendering();
+        }
     }
 }
 

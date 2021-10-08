@@ -19,11 +19,11 @@ pub struct DrawLane {
 }
 
 impl DrawLane {
-    pub fn new(lane: &Lane, map: &Map) -> DrawLane {
+    pub fn new(lane: &Lane, road: &Road) -> DrawLane {
         DrawLane {
             id: lane.id,
             polygon: lane.lane_center_pts.make_polygons(lane.width),
-            zorder: map.get_r(lane.id.road).zorder,
+            zorder: road.zorder,
             draw_default: RefCell::new(None),
         }
     }

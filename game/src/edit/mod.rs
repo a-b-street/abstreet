@@ -718,19 +718,9 @@ pub fn apply_map_edits(ctx: &mut EventCtx, app: &mut App, edits: MapEdits) {
                 DrawMap::regenerate_unzoomed_layer(&app.primary.map, &app.cs, ctx, timer);
         }
 
-        for l in effects.deleted_lanes {
-            app.primary.draw_map.delete_lane(l);
-        }
-
         for r in effects.changed_roads {
             let road = app.primary.map.get_r(r);
             app.primary.draw_map.recreate_road(road, &app.primary.map);
-
-            // An edit to one lane potentially affects markings in all lanes in the same road, because
-            // of one-way markings, driving lines, etc.
-            for l in &road.lanes {
-                app.primary.draw_map.create_lane(l.id, &app.primary.map);
-            }
         }
 
         for i in effects.changed_intersections {
