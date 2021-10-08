@@ -512,49 +512,6 @@
 <span id="512">512</span>
 <span id="513">513</span>
 <span id="514">514</span>
-<span id="515">515</span>
-<span id="516">516</span>
-<span id="517">517</span>
-<span id="518">518</span>
-<span id="519">519</span>
-<span id="520">520</span>
-<span id="521">521</span>
-<span id="522">522</span>
-<span id="523">523</span>
-<span id="524">524</span>
-<span id="525">525</span>
-<span id="526">526</span>
-<span id="527">527</span>
-<span id="528">528</span>
-<span id="529">529</span>
-<span id="530">530</span>
-<span id="531">531</span>
-<span id="532">532</span>
-<span id="533">533</span>
-<span id="534">534</span>
-<span id="535">535</span>
-<span id="536">536</span>
-<span id="537">537</span>
-<span id="538">538</span>
-<span id="539">539</span>
-<span id="540">540</span>
-<span id="541">541</span>
-<span id="542">542</span>
-<span id="543">543</span>
-<span id="544">544</span>
-<span id="545">545</span>
-<span id="546">546</span>
-<span id="547">547</span>
-<span id="548">548</span>
-<span id="549">549</span>
-<span id="550">550</span>
-<span id="551">551</span>
-<span id="552">552</span>
-<span id="553">553</span>
-<span id="554">554</span>
-<span id="555">555</span>
-<span id="556">556</span>
-<span id="557">557</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
@@ -580,7 +537,6 @@
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DrawMap</span> {
     <span class="kw">pub</span> <span class="ident">roads</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DrawRoad</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">lanes</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">LaneID</span>, <span class="ident">DrawLane</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">intersections</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DrawIntersection</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">buildings</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DrawBuilding</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">parking_lots</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DrawParkingLot</span><span class="op">&gt;</span>,
@@ -619,13 +575,6 @@
             <span class="ident">roads</span>.<span class="ident">push</span>(<span class="ident">DrawRoad::new</span>(<span class="ident">r</span>));
             <span class="ident">low_z</span> <span class="op">=</span> <span class="ident">low_z</span>.<span class="ident">min</span>(<span class="ident">r</span>.<span class="ident">zorder</span>);
             <span class="ident">high_z</span> <span class="op">=</span> <span class="ident">high_z</span>.<span class="ident">max</span>(<span class="ident">r</span>.<span class="ident">zorder</span>);
-        }
-
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lanes</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">LaneID</span>, <span class="ident">DrawLane</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
-        <span class="ident">timer</span>.<span class="ident">start_iter</span>(<span class="string">&quot;make DrawLanes&quot;</span>, <span class="ident">map</span>.<span class="ident">all_lanes</span>().<span class="ident">count</span>());
-        <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_lanes</span>() {
-            <span class="ident">timer</span>.<span class="ident">next</span>();
-            <span class="ident">lanes</span>.<span class="ident">insert</span>(<span class="ident">l</span>.<span class="ident">id</span>, <span class="ident">DrawLane::new</span>(<span class="ident">l</span>, <span class="ident">map</span>));
         }
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">intersections</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DrawIntersection</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
@@ -705,15 +654,6 @@
                 <span class="ident">quadtree</span>.<span class="ident">insert_with_box</span>(<span class="ident">obj</span>.<span class="ident">get_id</span>(), <span class="ident">obj</span>.<span class="ident">get_outline</span>(<span class="ident">map</span>).<span class="ident">get_bounds</span>().<span class="ident">as_bbox</span>());
             <span class="ident">quadtree_ids</span>.<span class="ident">insert</span>(<span class="ident">obj</span>.<span class="ident">get_id</span>(), <span class="ident">item_id</span>);
         }
-        <span class="comment">// Since lanes is a HashMap, iteration order is nondeterministic. When lanes happen to</span>
-        <span class="comment">// cover each other up, this leads to nondeterministic drawing order! This manifests quite</span>
-        <span class="comment">// prominently in screenshot diff tests.</span>
-        <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_lanes</span>() {
-            <span class="kw">let</span> <span class="ident">obj</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">lanes</span>[<span class="kw-2">&amp;</span><span class="ident">l</span>.<span class="ident">id</span>];
-            <span class="kw">let</span> <span class="ident">item_id</span> <span class="op">=</span>
-                <span class="ident">quadtree</span>.<span class="ident">insert_with_box</span>(<span class="ident">obj</span>.<span class="ident">get_id</span>(), <span class="ident">obj</span>.<span class="ident">get_outline</span>(<span class="ident">map</span>).<span class="ident">get_bounds</span>().<span class="ident">as_bbox</span>());
-            <span class="ident">quadtree_ids</span>.<span class="ident">insert</span>(<span class="ident">obj</span>.<span class="ident">get_id</span>(), <span class="ident">item_id</span>);
-        }
         <span class="kw">for</span> <span class="ident">obj</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">intersections</span> {
             <span class="kw">let</span> <span class="ident">item_id</span> <span class="op">=</span>
                 <span class="ident">quadtree</span>.<span class="ident">insert_with_box</span>(<span class="ident">obj</span>.<span class="ident">get_id</span>(), <span class="ident">obj</span>.<span class="ident">get_outline</span>(<span class="ident">map</span>).<span class="ident">get_bounds</span>().<span class="ident">as_bbox</span>());
@@ -741,7 +681,6 @@
 
         <span class="ident">DrawMap</span> {
             <span class="ident">roads</span>,
-            <span class="ident">lanes</span>,
             <span class="ident">intersections</span>,
             <span class="ident">buildings</span>,
             <span class="ident">parking_lots</span>,
@@ -859,7 +798,7 @@
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_l</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">LaneID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">DrawLane</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">lanes</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>]
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">get_r</span>(<span class="ident">id</span>.<span class="ident">road</span>).<span class="ident">lanes</span>[<span class="ident">id</span>.<span class="ident">offset</span>]
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_i</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">IntersectionID</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">DrawIntersection</span> {
@@ -951,14 +890,15 @@
         <span class="kw">for</span> <span class="ident">id</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">get_matching_objects</span>(<span class="ident">bounds</span>) {
             <span class="kw">match</span> <span class="ident">id</span> {
                 <span class="ident">ID::Area</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">areas</span>.<span class="ident">push</span>(<span class="self">self</span>.<span class="ident">get_a</span>(<span class="ident">id</span>)),
-                <span class="ident">ID::Lane</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="ident">lanes</span>.<span class="ident">push</span>(<span class="self">self</span>.<span class="ident">get_l</span>(<span class="ident">id</span>));
-                    <span class="kw">for</span> <span class="ident">bs</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">id</span>).<span class="ident">bus_stops</span> {
-                        <span class="ident">bus_stops</span>.<span class="ident">push</span>(<span class="self">self</span>.<span class="ident">get_bs</span>(<span class="kw-2">*</span><span class="ident">bs</span>));
-                    }
-                }
                 <span class="ident">ID::Road</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                    <span class="ident">roads</span>.<span class="ident">push</span>(<span class="self">self</span>.<span class="ident">get_r</span>(<span class="ident">id</span>));
+                    <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_r</span>(<span class="ident">id</span>);
+                    <span class="kw">for</span> <span class="ident">lane</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">road</span>.<span class="ident">lanes</span> {
+                        <span class="kw">for</span> <span class="ident">bs</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">lane</span>.<span class="ident">id</span>).<span class="ident">bus_stops</span> {
+                            <span class="ident">bus_stops</span>.<span class="ident">push</span>(<span class="self">self</span>.<span class="ident">get_bs</span>(<span class="kw-2">*</span><span class="ident">bs</span>));
+                        }
+                        <span class="ident">lanes</span>.<span class="ident">push</span>(<span class="ident">lane</span>);
+                    }
+                    <span class="ident">roads</span>.<span class="ident">push</span>(<span class="ident">road</span>);
                 }
                 <span class="ident">ID::Intersection</span>(<span class="ident">id</span>) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="ident">intersections</span>.<span class="ident">push</span>(<span class="self">self</span>.<span class="ident">get_i</span>(<span class="ident">id</span>));
@@ -968,7 +908,7 @@
                     <span class="ident">parking_lots</span>.<span class="ident">push</span>(<span class="self">self</span>.<span class="ident">get_pl</span>(<span class="ident">id</span>));
                 }
 
-                <span class="ident">ID::BusStop</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">ID::Car</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">ID::Pedestrian</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">ID::PedCrowd</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="ident">ID::Lane</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">ID::BusStop</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">ID::Car</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">ID::Pedestrian</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">ID::PedCrowd</span>(<span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="macro">panic!</span>(<span class="string">&quot;{:?} shouldn&#39;t be in the quadtree&quot;</span>, <span class="ident">id</span>)
                 }
             }
@@ -1014,8 +954,10 @@
             <span class="ident">batch</span>.<span class="ident">append</span>(<span class="ident">DrawParkingLot::new</span>(<span class="ident">ctx</span>, <span class="ident">pl</span>, <span class="ident">cs</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GeomBatch::new</span>()).<span class="ident">render</span>(<span class="ident">app</span>));
         }
 
-        <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_lanes</span>() {
-            <span class="ident">batch</span>.<span class="ident">append</span>(<span class="ident">DrawLane::new</span>(<span class="ident">l</span>, <span class="ident">map</span>).<span class="ident">render</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
+        <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_roads</span>() {
+            <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">r</span>.<span class="ident">lanes</span> {
+                <span class="ident">batch</span>.<span class="ident">append</span>(<span class="ident">DrawLane::new</span>(<span class="ident">l</span>, <span class="ident">r</span>).<span class="ident">render</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
+            }
         }
 
         <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_roads</span>() {
@@ -1043,31 +985,6 @@
         <span class="ident">batch</span>.<span class="ident">append</span>(<span class="ident">outlines_batch</span>);
 
         <span class="ident">batch</span>
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">create_lane</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">l</span>: <span class="ident">LaneID</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) {
-        <span class="comment">// If we&#39;re recreating an existing lane, don&#39;t create a duplicate quadtree entry for it!</span>
-        <span class="comment">// quadtree.insert_with_box isn&#39;t idempotent.</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">item_id</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">quadtree_ids</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">ID::Lane</span>(<span class="ident">l</span>)) {
-            <span class="self">self</span>.<span class="ident">quadtree</span>.<span class="ident">remove</span>(<span class="ident">item_id</span>).<span class="ident">unwrap</span>();
-        }
-
-        <span class="kw">let</span> <span class="ident">draw</span> <span class="op">=</span> <span class="ident">DrawLane::new</span>(<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>), <span class="ident">map</span>);
-        <span class="kw">let</span> <span class="ident">item_id</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">quadtree</span>
-            .<span class="ident">insert_with_box</span>(<span class="ident">draw</span>.<span class="ident">get_id</span>(), <span class="ident">draw</span>.<span class="ident">get_outline</span>(<span class="ident">map</span>).<span class="ident">get_bounds</span>().<span class="ident">as_bbox</span>());
-        <span class="self">self</span>.<span class="ident">quadtree_ids</span>.<span class="ident">insert</span>(<span class="ident">draw</span>.<span class="ident">get_id</span>(), <span class="ident">item_id</span>);
-        <span class="self">self</span>.<span class="ident">lanes</span>.<span class="ident">insert</span>(<span class="ident">l</span>, <span class="ident">draw</span>);
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">delete_lane</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">l</span>: <span class="ident">LaneID</span>) {
-        <span class="comment">// If we&#39;re undoing some lane creations along with creating even more, the IDs can get</span>
-        <span class="comment">// shuffled a few times in a single application of edits. In that case, there might not be</span>
-        <span class="comment">// anything to even delete.</span>
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">lanes</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">l</span>).<span class="ident">is_some</span>() {
-            <span class="kw">let</span> <span class="ident">item_id</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">quadtree_ids</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">ID::Lane</span>(<span class="ident">l</span>)).<span class="ident">unwrap</span>();
-            <span class="self">self</span>.<span class="ident">quadtree</span>.<span class="ident">remove</span>(<span class="ident">item_id</span>).<span class="ident">unwrap</span>();
-        }
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">recreate_intersection</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">i</span>: <span class="ident">IntersectionID</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) {
@@ -1098,9 +1015,6 @@
         <span class="comment">// Clear the lazily evaluated zoomed-in details</span>
         <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">roads</span> {
             <span class="ident">r</span>.<span class="ident">clear_rendering</span>();
-        }
-        <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">lanes</span>.<span class="ident">values_mut</span>() {
-            <span class="ident">l</span>.<span class="ident">clear_rendering</span>();
         }
         <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">intersections</span> {
             <span class="ident">i</span>.<span class="ident">clear_rendering</span>();
