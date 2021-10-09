@@ -58,7 +58,7 @@ impl RouteDetails {
             ctx,
             app,
             waypoints,
-            Color::CYAN,
+            Color::RED,
             None,
             app.session.routing_preferences,
         )
@@ -76,7 +76,7 @@ impl RouteDetails {
             app,
             waypoints,
             Color::grey(0.3),
-            Some(Color::CYAN),
+            Some(Color::RED),
             preferences,
         );
         built.tooltip_for_alt = Some(compare_routes(
@@ -136,7 +136,7 @@ impl RouteDetails {
                                 // TODO It'd be nicer to build up contiguous subsets of the path
                                 // that're stressful, and use trace
                                 draw_high_stress.push(
-                                    Color::RED,
+                                    Color::YELLOW,
                                     this_pl.make_polygons(5.0 * NORMAL_LANE_THICKNESS),
                                 );
                             }
@@ -146,7 +146,7 @@ impl RouteDetails {
                             elevation_pts.push((current_dist, i.elevation));
                             if i.is_traffic_signal() {
                                 num_traffic_signals += 1;
-                                draw_traffic_signals.push(Color::RED, i.polygon.clone());
+                                draw_traffic_signals.push(Color::YELLOW, i.polygon.clone());
                             }
                             if map.is_unprotected_turn(
                                 t.src.road,
@@ -154,7 +154,7 @@ impl RouteDetails {
                                 map.get_t(*t).turn_type,
                             ) {
                                 num_unprotected_turns += 1;
-                                draw_unprotected_turns.push(Color::RED, i.polygon.clone());
+                                draw_unprotected_turns.push(Color::YELLOW, i.polygon.clone());
                             }
                         }
                     }
@@ -282,7 +282,7 @@ impl RouteDetails {
                     if let Some(ref pl) = maybe_pl {
                         if let Ok((pt, _)) = pl.dist_along(dist) {
                             batch.push(
-                                Color::CYAN,
+                                Color::YELLOW,
                                 Circle::new(pt, Distance::meters(30.0)).to_polygon(),
                             );
                         }
