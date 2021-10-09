@@ -611,7 +611,7 @@
             <span class="ident">ctx</span>,
             <span class="ident">app</span>,
             <span class="ident">waypoints</span>,
-            <span class="ident">Color::CYAN</span>,
+            <span class="ident">Color::RED</span>,
             <span class="prelude-val">None</span>,
             <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">routing_preferences</span>,
         )
@@ -629,7 +629,7 @@
             <span class="ident">app</span>,
             <span class="ident">waypoints</span>,
             <span class="ident">Color::grey</span>(<span class="number">0.3</span>),
-            <span class="prelude-val">Some</span>(<span class="ident">Color::CYAN</span>),
+            <span class="prelude-val">Some</span>(<span class="ident">Color::RED</span>),
             <span class="ident">preferences</span>,
         );
         <span class="ident">built</span>.<span class="ident">tooltip_for_alt</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">compare_routes</span>(
@@ -689,7 +689,7 @@
                                 <span class="comment">// TODO It&#39;d be nicer to build up contiguous subsets of the path</span>
                                 <span class="comment">// that&#39;re stressful, and use trace</span>
                                 <span class="ident">draw_high_stress</span>.<span class="ident">push</span>(
-                                    <span class="ident">Color::RED</span>,
+                                    <span class="ident">Color::YELLOW</span>,
                                     <span class="ident">this_pl</span>.<span class="ident">make_polygons</span>(<span class="number">5.0</span> <span class="op">*</span> <span class="ident">NORMAL_LANE_THICKNESS</span>),
                                 );
                             }
@@ -699,7 +699,7 @@
                             <span class="ident">elevation_pts</span>.<span class="ident">push</span>((<span class="ident">current_dist</span>, <span class="ident">i</span>.<span class="ident">elevation</span>));
                             <span class="kw">if</span> <span class="ident">i</span>.<span class="ident">is_traffic_signal</span>() {
                                 <span class="ident">num_traffic_signals</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-                                <span class="ident">draw_traffic_signals</span>.<span class="ident">push</span>(<span class="ident">Color::RED</span>, <span class="ident">i</span>.<span class="ident">polygon</span>.<span class="ident">clone</span>());
+                                <span class="ident">draw_traffic_signals</span>.<span class="ident">push</span>(<span class="ident">Color::YELLOW</span>, <span class="ident">i</span>.<span class="ident">polygon</span>.<span class="ident">clone</span>());
                             }
                             <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">is_unprotected_turn</span>(
                                 <span class="ident">t</span>.<span class="ident">src</span>.<span class="ident">road</span>,
@@ -707,7 +707,7 @@
                                 <span class="ident">map</span>.<span class="ident">get_t</span>(<span class="kw-2">*</span><span class="ident">t</span>).<span class="ident">turn_type</span>,
                             ) {
                                 <span class="ident">num_unprotected_turns</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-                                <span class="ident">draw_unprotected_turns</span>.<span class="ident">push</span>(<span class="ident">Color::RED</span>, <span class="ident">i</span>.<span class="ident">polygon</span>.<span class="ident">clone</span>());
+                                <span class="ident">draw_unprotected_turns</span>.<span class="ident">push</span>(<span class="ident">Color::YELLOW</span>, <span class="ident">i</span>.<span class="ident">polygon</span>.<span class="ident">clone</span>());
                             }
                         }
                     }
@@ -835,7 +835,7 @@
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">pl</span>) <span class="op">=</span> <span class="ident">maybe_pl</span> {
                         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>((<span class="ident">pt</span>, <span class="kw">_</span>)) <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">dist_along</span>(<span class="ident">dist</span>) {
                             <span class="ident">batch</span>.<span class="ident">push</span>(
-                                <span class="ident">Color::CYAN</span>,
+                                <span class="ident">Color::YELLOW</span>,
                                 <span class="ident">Circle::new</span>(<span class="ident">pt</span>, <span class="ident">Distance::meters</span>(<span class="number">30.0</span>)).<span class="ident">to_polygon</span>(),
                             );
                         }
