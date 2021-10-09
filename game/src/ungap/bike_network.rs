@@ -2,7 +2,7 @@ use std::cell::RefCell;
 use std::collections::HashMap;
 
 use map_model::{LaneType, PathConstraints, Road};
-use widgetry::{Color, Drawable, Fill, GeomBatch, GfxCtx, Texture};
+use widgetry::{Color, Drawable, GeomBatch, GfxCtx};
 
 use crate::app::App;
 
@@ -69,7 +69,9 @@ impl DrawNetworkLayer {
                 }
             }
 
-            let color = if r.is_cycleway() {
+            let color = if map.get_edits().changed_roads.contains(&r.id) {
+                Color::CYAN
+            } else if r.is_cycleway() {
                 *DEDICATED_TRAIL
             } else if bike_lane && buffer {
                 *PROTECTED_BIKE_LANE
@@ -81,15 +83,7 @@ impl DrawNetworkLayer {
                 continue;
             };
 
-            batch.push(
-                // Also show edited roads in this layer
-                if map.get_edits().changed_roads.contains(&r.id) {
-                    Fill::ColoredTexture(color, Texture::CROSS_HATCH)
-                } else {
-                    Fill::Color(color)
-                },
-                r.center_pts.make_polygons(thickness * r.get_width()),
-            );
+            batch.push(color, r.center_pts.make_polygons(thickness * r.get_width()));
 
             // Arbitrarily pick a color when two different types of roads meet
             intersections.insert(r.src_i, color);

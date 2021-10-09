@@ -195,8 +195,8 @@ impl InputWaypoints {
     fn get_waypoint_color(&self, idx: usize) -> Color {
         let total_waypoints = self.waypoints.len();
         match idx {
-            0 => Color::GREEN,
-            idx if idx == total_waypoints - 1 => Color::RED,
+            0 => Color::BLACK,
+            idx if idx == total_waypoints - 1 => Color::PINK,
             _ => [Color::BLUE, Color::ORANGE, Color::PURPLE][idx % 3],
         }
     }
