@@ -66,24 +66,24 @@ impl Tab {
         col.push(
             ctx.style()
                 .btn_tab
-                .icon_text("system/assets/tools/pencil.svg", "Create new bike lanes")
-                .hotkey(Key::Num2)
-                .disabled(self == Tab::Create)
-                .build_def(ctx),
-        );
-        if self == Tab::Create {
-            col.push(contents.take().unwrap());
-        }
-
-        col.push(
-            ctx.style()
-                .btn_tab
                 .icon_text("system/assets/tools/pin.svg", "Plan a route")
                 .hotkey(Key::Num3)
                 .disabled(self == Tab::Route)
                 .build_def(ctx),
         );
         if self == Tab::Route {
+            col.push(contents.take().unwrap());
+        }
+
+        col.push(
+            ctx.style()
+                .btn_tab
+                .icon_text("system/assets/tools/pencil.svg", "Create new bike lanes")
+                .hotkey(Key::Num2)
+                .disabled(self == Tab::Create)
+                .build_def(ctx),
+        );
+        if self == Tab::Create {
             col.push(contents.take().unwrap());
         }
 
@@ -144,6 +144,14 @@ impl Tab {
                 let state = state.downcast::<T>().ok().unwrap();
                 vec![ExploreMap::new_state(ctx, app, state.take_layers())]
             }))),
+            "Plan a route" => Some(Transition::ConsumeState(Box::new(|state, ctx, app| {
+                let state = state.downcast::<T>().ok().unwrap();
+                vec![route::RoutePlanner::new_state(
+                    ctx,
+                    app,
+                    state.take_layers(),
+                )]
+            }))),
             "Create new bike lanes" => {
                 // This is only necessary to do coming from ExploreMap, but eh
                 app.primary.current_selection = None;
@@ -156,14 +164,6 @@ impl Tab {
                     )]
                 })))
             }
-            "Plan a route" => Some(Transition::ConsumeState(Box::new(|state, ctx, app| {
-                let state = state.downcast::<T>().ok().unwrap();
-                vec![route::RoutePlanner::new_state(
-                    ctx,
-                    app,
-                    state.take_layers(),
-                )]
-            }))),
             "Predict impact" => Some(Transition::ConsumeState(Box::new(|state, ctx, app| {
                 let state = state.downcast::<T>().ok().unwrap();
                 vec![predict::ShowGaps::new_state(ctx, app, state.take_layers())]
