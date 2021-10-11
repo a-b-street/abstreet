@@ -1,1 +1,0 @@
-initSidebarItems({"enum":[["ID",""]],"mod":[["files",""],["results",""]],"struct":[["RoutePlanner",""],["RoutingPreferences",""]]});

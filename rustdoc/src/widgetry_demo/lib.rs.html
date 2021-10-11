@@ -650,13 +650,7 @@
 <span id="650">650</span>
 <span id="651">651</span>
 <span id="652">652</span>
-<span id="653">653</span>
-<span id="654">654</span>
-<span id="655">655</span>
-<span id="656">656</span>
 </pre><pre class="rust">
-<span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
-
 <span class="kw">use</span> <span class="ident">rand::SeedableRng</span>;
 <span class="kw">use</span> <span class="ident">rand_xorshift::XorShiftRng</span>;
 
@@ -771,12 +765,10 @@
                     },
                 ],
                 <span class="ident">PlotOptions</span> {
-                    <span class="ident">filterable</span>: <span class="bool-val">false</span>,
                     <span class="comment">// Without this, the plot doesn&#39;t stretch to cover times in between whole</span>
                     <span class="comment">// seconds.</span>
                     <span class="ident">max_x</span>: <span class="prelude-val">Some</span>(<span class="ident">Time::START_OF_DAY</span> <span class="op">+</span> <span class="self">self</span>.<span class="ident">elapsed</span>),
-                    <span class="ident">max_y</span>: <span class="prelude-val">None</span>,
-                    <span class="ident">disabled</span>: <span class="ident">HashSet::new</span>(),
+                    ..<span class="ident">Default::default</span>()
                 },
                 <span class="ident">UnitFmt</span> {
                     <span class="ident">round_durations</span>: <span class="bool-val">true</span>,

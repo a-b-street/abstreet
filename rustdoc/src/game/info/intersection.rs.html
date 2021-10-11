@@ -476,6 +476,7 @@
 <span id="476">476</span>
 <span id="477">477</span>
 <span id="478">478</span>
+<span id="479">479</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 
@@ -893,6 +894,7 @@
         <span class="ident">max_x</span>: <span class="prelude-val">Some</span>(<span class="ident">limit</span>),
         <span class="ident">max_y</span>: <span class="prelude-val">None</span>,
         <span class="ident">disabled</span>: <span class="ident">opts</span>.<span class="ident">disabled_series</span>(),
+        <span class="ident">dims</span>: <span class="prelude-val">None</span>,
     };
     <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
         <span class="ident">Line</span>(<span class="string">&quot;Delay through intersection&quot;</span>)

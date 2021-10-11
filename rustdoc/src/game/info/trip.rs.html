@@ -960,9 +960,8 @@
 <span id="960">960</span>
 <span id="961">961</span>
 <span id="962">962</span>
-<span id="963">963</span>
 </pre><pre class="rust">
-<span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashSet</span>};
+<span class="kw">use</span> <span class="ident">std::collections::BTreeMap</span>;
 
 <span class="kw">use</span> <span class="ident">maplit::btreemap</span>;
 
@@ -1884,14 +1883,13 @@
             <span class="ident">pts</span>,
         }],
         <span class="ident">PlotOptions</span> {
-            <span class="ident">filterable</span>: <span class="bool-val">false</span>,
             <span class="ident">max_x</span>: <span class="prelude-val">Some</span>(<span class="ident">dist</span>.<span class="ident">round_up_for_axis</span>()),
             <span class="comment">// We want to use the same Y scale for this plot when comparing before/after map edits.</span>
             <span class="comment">// If we use the max elevation encountered along the route, then no matter how we</span>
             <span class="comment">// round, there are always edge cases where the scale will jump. So just use the</span>
             <span class="comment">// maximum elevation from the entire map.</span>
             <span class="ident">max_y</span>: <span class="prelude-val">Some</span>(<span class="ident">map</span>.<span class="ident">max_elevation</span>().<span class="ident">round_up_for_axis</span>()),
-            <span class="ident">disabled</span>: <span class="ident">HashSet::new</span>(),
+            ..<span class="ident">Default::default</span>()
         },
         <span class="ident">unit_fmt</span>,
     )

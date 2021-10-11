@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `game&#x2F;src&#x2F;ungap&#x2F;route&#x2F;files.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>files.rs - source</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../../game/index.html'><div class='logo-container rust-logo'><img src='../../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `game&#x2F;src&#x2F;ungap&#x2F;trip&#x2F;files.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>files.rs - source</title><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../../storage.js"></script><script src="../../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../../game/index.html'><div class='logo-container rust-logo'><img src='../../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -293,10 +293,6 @@
 <span id="293">293</span>
 <span id="294">294</span>
 <span id="295">295</span>
-<span id="296">296</span>
-<span id="297">297</span>
-<span id="298">298</span>
-<span id="299">299</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashSet</span>};
 
@@ -311,58 +307,58 @@
 };
 
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::ungap::route::RoutePlanner</span>;
+<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::ungap::trip::TripPlanner</span>;
 
-<span class="doccomment">/// Save sequences of waypoints as named routes. Basic file management -- save, load, browse. This</span>
+<span class="doccomment">/// Save sequences of waypoints as named trips. Basic file management -- save, load, browse. This</span>
 <span class="doccomment">/// is useful to define &quot;test cases,&quot; then edit the bike network and &quot;run the tests&quot; to compare</span>
 <span class="doccomment">/// results.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RouteManagement</span> {
-    <span class="kw">pub</span> <span class="ident">current</span>: <span class="ident">NamedRoute</span>,
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TripManagement</span> {
+    <span class="kw">pub</span> <span class="ident">current</span>: <span class="ident">NamedTrip</span>,
     <span class="comment">// We assume the file won&#39;t change out from beneath us</span>
-    <span class="ident">all</span>: <span class="ident">SavedRoutes</span>,
+    <span class="ident">all</span>: <span class="ident">SavedTrips</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">NamedRoute</span> {
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">NamedTrip</span> {
     <span class="ident">name</span>: <span class="ident">String</span>,
     <span class="kw">pub</span> <span class="ident">waypoints</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TripEndpoint</span><span class="op">&gt;</span>,
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">struct</span> <span class="ident">SavedRoutes</span> {
-    <span class="ident">routes</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">NamedRoute</span><span class="op">&gt;</span>,
+<span class="kw">struct</span> <span class="ident">SavedTrips</span> {
+    <span class="ident">trips</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">NamedTrip</span><span class="op">&gt;</span>,
 }
 
-<span class="kw">impl</span> <span class="ident">SavedRoutes</span> {
-    <span class="kw">fn</span> <span class="ident">load</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">SavedRoutes</span> {
-        <span class="ident">abstio::maybe_read_json</span>::<span class="op">&lt;</span><span class="ident">SavedRoutes</span><span class="op">&gt;</span>(
-            <span class="ident">abstio::path_routes</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>()),
+<span class="kw">impl</span> <span class="ident">SavedTrips</span> {
+    <span class="kw">fn</span> <span class="ident">load</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">SavedTrips</span> {
+        <span class="ident">abstio::maybe_read_json</span>::<span class="op">&lt;</span><span class="ident">SavedTrips</span><span class="op">&gt;</span>(
+            <span class="ident">abstio::path_trips</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>()),
             <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer::throwaway</span>(),
         )
-        .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">SavedRoutes</span> {
-            <span class="ident">routes</span>: <span class="ident">BTreeMap::new</span>(),
+        .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">SavedTrips</span> {
+            <span class="ident">trips</span>: <span class="ident">BTreeMap::new</span>(),
         })
     }
 
     <span class="kw">fn</span> <span class="ident">save</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
-        <span class="ident">abstio::write_json</span>(<span class="ident">abstio::path_routes</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>()), <span class="self">self</span>);
+        <span class="ident">abstio::write_json</span>(<span class="ident">abstio::path_trips</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>()), <span class="self">self</span>);
     }
 
-    <span class="kw">fn</span> <span class="ident">prev</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">current</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">NamedRoute</span><span class="op">&gt;</span> {
-        <span class="comment">// Pretend unsaved routes are at the end of the list</span>
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">routes</span>.<span class="ident">contains_key</span>(<span class="ident">current</span>) {
-            <span class="self">self</span>.<span class="ident">routes</span>
+    <span class="kw">fn</span> <span class="ident">prev</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">current</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">NamedTrip</span><span class="op">&gt;</span> {
+        <span class="comment">// Pretend unsaved trips are at the end of the list</span>
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">trips</span>.<span class="ident">contains_key</span>(<span class="ident">current</span>) {
+            <span class="self">self</span>.<span class="ident">trips</span>
                 .<span class="ident">range</span>(..<span class="ident">current</span>.<span class="ident">to_string</span>())
                 .<span class="ident">next_back</span>()
                 .<span class="ident">map</span>(<span class="op">|</span><span class="ident">pair</span><span class="op">|</span> <span class="ident">pair</span>.<span class="number">1</span>)
         } <span class="kw">else</span> {
-            <span class="self">self</span>.<span class="ident">routes</span>.<span class="ident">values</span>().<span class="ident">last</span>()
+            <span class="self">self</span>.<span class="ident">trips</span>.<span class="ident">values</span>().<span class="ident">last</span>()
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">current</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">NamedRoute</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">routes</span>.<span class="ident">contains_key</span>(<span class="ident">current</span>) {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">iter</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">routes</span>.<span class="ident">range</span>(<span class="ident">current</span>.<span class="ident">to_string</span>()..);
+    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">current</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">NamedTrip</span><span class="op">&gt;</span> {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">trips</span>.<span class="ident">contains_key</span>(<span class="ident">current</span>) {
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">iter</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">trips</span>.<span class="ident">range</span>(<span class="ident">current</span>.<span class="ident">to_string</span>()..);
             <span class="ident">iter</span>.<span class="ident">next</span>();
             <span class="ident">iter</span>.<span class="ident">next</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">pair</span><span class="op">|</span> <span class="ident">pair</span>.<span class="number">1</span>)
         } <span class="kw">else</span> {
@@ -371,10 +367,10 @@
     }
 
     <span class="kw">fn</span> <span class="ident">new_name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">i</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">routes</span>.<span class="ident">len</span>() <span class="op">+</span> <span class="number">1</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">i</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">trips</span>.<span class="ident">len</span>() <span class="op">+</span> <span class="number">1</span>;
         <span class="kw">loop</span> {
-            <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;Route {}&quot;</span>, <span class="ident">i</span>);
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">routes</span>.<span class="ident">contains_key</span>(<span class="kw-2">&amp;</span><span class="ident">name</span>) {
+            <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;Trip {}&quot;</span>, <span class="ident">i</span>);
+            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">trips</span>.<span class="ident">contains_key</span>(<span class="kw-2">&amp;</span><span class="ident">name</span>) {
                 <span class="ident">i</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
             } <span class="kw">else</span> {
                 <span class="kw">return</span> <span class="ident">name</span>;
@@ -383,27 +379,27 @@
     }
 }
 
-<span class="kw">impl</span> <span class="ident">RouteManagement</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">RouteManagement</span> {
-        <span class="kw">let</span> <span class="ident">all</span> <span class="op">=</span> <span class="ident">SavedRoutes::load</span>(<span class="ident">app</span>);
-        <span class="kw">let</span> <span class="ident">current</span> <span class="op">=</span> <span class="ident">NamedRoute</span> {
+<span class="kw">impl</span> <span class="ident">TripManagement</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TripManagement</span> {
+        <span class="kw">let</span> <span class="ident">all</span> <span class="op">=</span> <span class="ident">SavedTrips::load</span>(<span class="ident">app</span>);
+        <span class="kw">let</span> <span class="ident">current</span> <span class="op">=</span> <span class="ident">NamedTrip</span> {
             <span class="ident">name</span>: <span class="ident">all</span>.<span class="ident">new_name</span>(),
             <span class="ident">waypoints</span>: <span class="ident">Vec::new</span>(),
         };
-        <span class="ident">RouteManagement</span> { <span class="ident">all</span>, <span class="ident">current</span> }
+        <span class="ident">TripManagement</span> { <span class="ident">all</span>, <span class="ident">current</span> }
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_panel_widget</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
         <span class="kw">let</span> <span class="ident">current_name</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">current</span>.<span class="ident">name</span>;
         <span class="kw">let</span> <span class="ident">can_save</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">current</span>.<span class="ident">waypoints</span>.<span class="ident">len</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="number">2</span>
-            <span class="op">&amp;&amp;</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">current</span>) <span class="op">!</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">all</span>.<span class="ident">routes</span>.<span class="ident">get</span>(<span class="ident">current_name</span>);
+            <span class="op">&amp;&amp;</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">current</span>) <span class="op">!</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">all</span>.<span class="ident">trips</span>.<span class="ident">get</span>(<span class="ident">current_name</span>);
         <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
             <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
                     .<span class="ident">btn_plain</span>
                     .<span class="ident">btn</span>()
                     .<span class="ident">label_underlined_text</span>(<span class="ident">current_name</span>)
-                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;rename route&quot;</span>),
+                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;rename trip&quot;</span>),
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
                     .<span class="ident">btn_plain</span>
                     .<span class="ident">icon_text</span>(<span class="string">&quot;system/assets/tools/save.svg&quot;</span>, <span class="string">&quot;Save&quot;</span>)
@@ -415,22 +411,22 @@
                     .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
             ]),
             <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_plain</span>.<span class="ident">text</span>(<span class="string">&quot;Start new route&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+                <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_plain</span>.<span class="ident">text</span>(<span class="string">&quot;Start new trip&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
                     .<span class="ident">btn_prev</span>()
                     .<span class="ident">hotkey</span>(<span class="ident">Key::LeftArrow</span>)
                     .<span class="ident">disabled</span>(<span class="self">self</span>.<span class="ident">all</span>.<span class="ident">prev</span>(<span class="ident">current_name</span>).<span class="ident">is_none</span>())
-                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;previous route&quot;</span>),
+                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;previous trip&quot;</span>),
                 <span class="comment">// TODO Autosave first?</span>
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
                     .<span class="ident">btn_plain</span>
-                    .<span class="ident">text</span>(<span class="string">&quot;Load another route&quot;</span>)
+                    .<span class="ident">text</span>(<span class="string">&quot;Load another trip&quot;</span>)
                     .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
                     .<span class="ident">btn_next</span>()
                     .<span class="ident">hotkey</span>(<span class="ident">Key::RightArrow</span>)
                     .<span class="ident">disabled</span>(<span class="self">self</span>.<span class="ident">all</span>.<span class="ident">next</span>(<span class="ident">current_name</span>).<span class="ident">is_none</span>())
-                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;next route&quot;</span>),
+                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;next trip&quot;</span>),
             ]),
         ])
         .<span class="ident">section</span>(<span class="ident">ctx</span>)
@@ -440,52 +436,52 @@
         <span class="kw">match</span> <span class="ident">action</span> {
             <span class="string">&quot;Save&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="self">self</span>.<span class="ident">all</span>
-                    .<span class="ident">routes</span>
+                    .<span class="ident">trips</span>
                     .<span class="ident">insert</span>(<span class="self">self</span>.<span class="ident">current</span>.<span class="ident">name</span>.<span class="ident">clone</span>(), <span class="self">self</span>.<span class="ident">current</span>.<span class="ident">clone</span>());
                 <span class="self">self</span>.<span class="ident">all</span>.<span class="ident">save</span>(<span class="ident">app</span>);
                 <span class="prelude-val">Some</span>(<span class="ident">Transition::Keep</span>)
             }
             <span class="string">&quot;Delete&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">all</span>.<span class="ident">routes</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">current</span>.<span class="ident">name</span>).<span class="ident">is_some</span>() {
+                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">all</span>.<span class="ident">trips</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">current</span>.<span class="ident">name</span>).<span class="ident">is_some</span>() {
                     <span class="self">self</span>.<span class="ident">all</span>.<span class="ident">save</span>(<span class="ident">app</span>);
                 }
-                <span class="self">self</span>.<span class="ident">current</span> <span class="op">=</span> <span class="ident">NamedRoute</span> {
+                <span class="self">self</span>.<span class="ident">current</span> <span class="op">=</span> <span class="ident">NamedTrip</span> {
                     <span class="ident">name</span>: <span class="self">self</span>.<span class="ident">all</span>.<span class="ident">new_name</span>(),
                     <span class="ident">waypoints</span>: <span class="ident">Vec::new</span>(),
                 };
                 <span class="prelude-val">Some</span>(<span class="ident">Transition::Keep</span>)
             }
-            <span class="string">&quot;Start new route&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="self">self</span>.<span class="ident">current</span> <span class="op">=</span> <span class="ident">NamedRoute</span> {
+            <span class="string">&quot;Start new trip&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="self">self</span>.<span class="ident">current</span> <span class="op">=</span> <span class="ident">NamedTrip</span> {
                     <span class="ident">name</span>: <span class="self">self</span>.<span class="ident">all</span>.<span class="ident">new_name</span>(),
                     <span class="ident">waypoints</span>: <span class="ident">Vec::new</span>(),
                 };
                 <span class="prelude-val">Some</span>(<span class="ident">Transition::Keep</span>)
             }
-            <span class="string">&quot;Load another route&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">Transition::Push</span>(<span class="ident">ChooseSomething::new_state</span>(
+            <span class="string">&quot;Load another trip&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">Transition::Push</span>(<span class="ident">ChooseSomething::new_state</span>(
                 <span class="ident">ctx</span>,
-                <span class="string">&quot;Load another route&quot;</span>,
-                <span class="self">self</span>.<span class="ident">all</span>.<span class="ident">routes</span>.<span class="ident">keys</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">Choice::string</span>(<span class="ident">x</span>)).<span class="ident">collect</span>(),
+                <span class="string">&quot;Load another trip&quot;</span>,
+                <span class="self">self</span>.<span class="ident">all</span>.<span class="ident">trips</span>.<span class="ident">keys</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">Choice::string</span>(<span class="ident">x</span>)).<span class="ident">collect</span>(),
                 <span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">choice</span>, <span class="kw">_</span>, <span class="kw">_</span><span class="op">|</span> {
                     <span class="ident">Transition::Multi</span>(<span class="macro">vec!</span>[
                         <span class="ident">Transition::Pop</span>,
                         <span class="ident">Transition::ModifyState</span>(<span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
-                            <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">downcast_mut</span>::<span class="op">&lt;</span><span class="ident">RoutePlanner</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
-                            <span class="ident">state</span>.<span class="ident">files</span>.<span class="ident">current</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">files</span>.<span class="ident">all</span>.<span class="ident">routes</span>[<span class="kw-2">&amp;</span><span class="ident">choice</span>].<span class="ident">clone</span>();
+                            <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">downcast_mut</span>::<span class="op">&lt;</span><span class="ident">TripPlanner</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
+                            <span class="ident">state</span>.<span class="ident">files</span>.<span class="ident">current</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">files</span>.<span class="ident">all</span>.<span class="ident">trips</span>[<span class="kw-2">&amp;</span><span class="ident">choice</span>].<span class="ident">clone</span>();
                             <span class="ident">state</span>.<span class="ident">sync_from_file_management</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
                         })),
                     ])
                 }),
             ))),
-            <span class="string">&quot;previous route&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="string">&quot;previous trip&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="self">self</span>.<span class="ident">current</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">all</span>.<span class="ident">prev</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">current</span>.<span class="ident">name</span>).<span class="ident">unwrap</span>().<span class="ident">clone</span>();
                 <span class="prelude-val">Some</span>(<span class="ident">Transition::Keep</span>)
             }
-            <span class="string">&quot;next route&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="string">&quot;next trip&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="self">self</span>.<span class="ident">current</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">all</span>.<span class="ident">next</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">current</span>.<span class="ident">name</span>).<span class="ident">unwrap</span>().<span class="ident">clone</span>();
                 <span class="prelude-val">Some</span>(<span class="ident">Transition::Keep</span>)
             }
-            <span class="string">&quot;rename route&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">Transition::Push</span>(<span class="ident">RenameRoute::new_state</span>(
+            <span class="string">&quot;rename trip&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">Transition::Push</span>(<span class="ident">RenameTrip::new_state</span>(
                 <span class="ident">ctx</span>,
                 <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">current</span>,
                 <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">all</span>,
@@ -495,20 +491,16 @@
     }
 }
 
-<span class="kw">struct</span> <span class="ident">RenameRoute</span> {
+<span class="kw">struct</span> <span class="ident">RenameTrip</span> {
     <span class="ident">current_name</span>: <span class="ident">String</span>,
     <span class="ident">all_names</span>: <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
 }
 
-<span class="kw">impl</span> <span class="ident">RenameRoute</span> {
-    <span class="kw">fn</span> <span class="ident">new_state</span>(
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>,
-        <span class="ident">current</span>: <span class="kw-2">&amp;</span><span class="ident">NamedRoute</span>,
-        <span class="ident">all</span>: <span class="kw-2">&amp;</span><span class="ident">SavedRoutes</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+<span class="kw">impl</span> <span class="ident">RenameTrip</span> {
+    <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">current</span>: <span class="kw-2">&amp;</span><span class="ident">NamedTrip</span>, <span class="ident">all</span>: <span class="kw-2">&amp;</span><span class="ident">SavedTrips</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
             <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                <span class="ident">Line</span>(<span class="string">&quot;Name this route&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+                <span class="ident">Line</span>(<span class="string">&quot;Name this trip&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                 <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
             ]),
             <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
@@ -525,15 +517,15 @@
         .<span class="ident">build</span>(<span class="ident">ctx</span>);
         <span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">SimpleState</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::new_state</span>(
             <span class="ident">panel</span>,
-            <span class="ident">Box::new</span>(<span class="ident">RenameRoute</span> {
+            <span class="ident">Box::new</span>(<span class="ident">RenameTrip</span> {
                 <span class="ident">current_name</span>: <span class="ident">current</span>.<span class="ident">name</span>.<span class="ident">clone</span>(),
-                <span class="ident">all_names</span>: <span class="ident">all</span>.<span class="ident">routes</span>.<span class="ident">keys</span>().<span class="ident">cloned</span>().<span class="ident">collect</span>(),
+                <span class="ident">all_names</span>: <span class="ident">all</span>.<span class="ident">trips</span>.<span class="ident">keys</span>().<span class="ident">cloned</span>().<span class="ident">collect</span>(),
             }),
         )
     }
 }
 
-<span class="kw">impl</span> <span class="ident">SimpleState</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">RenameRoute</span> {
+<span class="kw">impl</span> <span class="ident">SimpleState</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">RenameTrip</span> {
     <span class="kw">fn</span> <span class="ident">on_click</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>, <span class="ident">x</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">panel</span>: <span class="kw-2">&amp;</span><span class="ident">Panel</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span> {
         <span class="kw">match</span> <span class="ident">x</span> {
             <span class="string">&quot;close&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Transition::Pop</span>,
@@ -543,13 +535,13 @@
                 <span class="ident">Transition::Multi</span>(<span class="macro">vec!</span>[
                     <span class="ident">Transition::Pop</span>,
                     <span class="ident">Transition::ModifyState</span>(<span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
-                        <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">downcast_mut</span>::<span class="op">&lt;</span><span class="ident">RoutePlanner</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
-                        <span class="ident">state</span>.<span class="ident">files</span>.<span class="ident">all</span>.<span class="ident">routes</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">old_name</span>);
+                        <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">downcast_mut</span>::<span class="op">&lt;</span><span class="ident">TripPlanner</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
+                        <span class="ident">state</span>.<span class="ident">files</span>.<span class="ident">all</span>.<span class="ident">trips</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">old_name</span>);
                         <span class="ident">state</span>.<span class="ident">files</span>.<span class="ident">current</span>.<span class="ident">name</span> <span class="op">=</span> <span class="ident">new_name</span>.<span class="ident">clone</span>();
                         <span class="ident">state</span>
                             .<span class="ident">files</span>
                             .<span class="ident">all</span>
-                            .<span class="ident">routes</span>
+                            .<span class="ident">trips</span>
                             .<span class="ident">insert</span>(<span class="ident">new_name</span>, <span class="ident">state</span>.<span class="ident">files</span>.<span class="ident">current</span>.<span class="ident">clone</span>());
                         <span class="ident">state</span>.<span class="ident">files</span>.<span class="ident">all</span>.<span class="ident">save</span>(<span class="ident">app</span>);
                         <span class="ident">state</span>.<span class="ident">sync_from_file_management</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
@@ -571,7 +563,7 @@
             <span class="ident">panel</span>.<span class="ident">replace</span>(
                 <span class="ident">ctx</span>,
                 <span class="string">&quot;warning&quot;</span>,
-                <span class="ident">Line</span>(<span class="string">&quot;A route with this name already exists&quot;</span>)
+                <span class="ident">Line</span>(<span class="string">&quot;A trip with this name already exists&quot;</span>)
                     .<span class="ident">fg</span>(<span class="ident">Color::hex</span>(<span class="string">&quot;#FF5E5E&quot;</span>))
                     .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
             );

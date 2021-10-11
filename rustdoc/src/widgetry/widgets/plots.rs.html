@@ -222,42 +222,41 @@
 <span id="222">222</span>
 <span id="223">223</span>
 <span id="224">224</span>
+<span id="225">225</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 
 <span class="kw">use</span> <span class="ident">abstutil::prettyprint_usize</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Percent</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Time</span>, <span class="ident">UnitFmt</span>};
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">TextExt</span>, <span class="ident">Toggle</span>, <span class="ident">Widget</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">ScreenDims</span>, <span class="ident">TextExt</span>, <span class="ident">Toggle</span>, <span class="ident">Widget</span>};
 
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Default</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PlotOptions</span><span class="op">&lt;</span><span class="ident">X</span>: <span class="ident">Axis</span><span class="op">&lt;</span><span class="ident">X</span><span class="op">&gt;</span>, <span class="ident">Y</span>: <span class="ident">Axis</span><span class="op">&lt;</span><span class="ident">Y</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">pub</span> <span class="ident">filterable</span>: <span class="ident">bool</span>,
     <span class="kw">pub</span> <span class="ident">max_x</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">X</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">max_y</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Y</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">disabled</span>: <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">dims</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ScreenDims</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">X</span>: <span class="ident">Axis</span><span class="op">&lt;</span><span class="ident">X</span><span class="op">&gt;</span>, <span class="ident">Y</span>: <span class="ident">Axis</span><span class="op">&lt;</span><span class="ident">Y</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">PlotOptions</span><span class="op">&lt;</span><span class="ident">X</span>, <span class="ident">Y</span><span class="op">&gt;</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">filterable</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PlotOptions</span><span class="op">&lt;</span><span class="ident">X</span>, <span class="ident">Y</span><span class="op">&gt;</span> {
         <span class="ident">PlotOptions</span> {
             <span class="ident">filterable</span>: <span class="bool-val">true</span>,
-            <span class="ident">max_x</span>: <span class="prelude-val">None</span>,
-            <span class="ident">max_y</span>: <span class="prelude-val">None</span>,
-            <span class="ident">disabled</span>: <span class="ident">HashSet::new</span>(),
+            ..<span class="ident">Default::default</span>()
         }
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fixed</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">PlotOptions</span><span class="op">&lt;</span><span class="ident">X</span>, <span class="ident">Y</span><span class="op">&gt;</span> {
         <span class="ident">PlotOptions</span> {
             <span class="ident">filterable</span>: <span class="bool-val">false</span>,
-            <span class="ident">max_x</span>: <span class="prelude-val">None</span>,
-            <span class="ident">max_y</span>: <span class="prelude-val">None</span>,
-            <span class="ident">disabled</span>: <span class="ident">HashSet::new</span>(),
+            ..<span class="ident">Default::default</span>()
         }
     }
 }
 
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Axis</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>: <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">std::cmp::Ord</span> {
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Axis</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>: <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">std::cmp::Ord</span> <span class="op">+</span> <span class="ident">Default</span> {
     <span class="comment">// percent is [0.0, 1.0]</span>
     <span class="kw">fn</span> <span class="ident">from_percent</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">percent</span>: <span class="ident">f64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">T</span>;
     <span class="kw">fn</span> <span class="ident">to_percent</span>(<span class="self">self</span>, <span class="ident">max</span>: <span class="ident">T</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">f64</span>;
@@ -409,7 +408,10 @@
             ]));
         }
     }
-    <span class="ident">Widget::custom_row</span>(<span class="ident">row</span>).<span class="ident">flex_wrap</span>(<span class="ident">ctx</span>, <span class="ident">Percent::int</span>(<span class="number">24</span>))
+    <span class="kw">match</span> <span class="ident">opts</span>.<span class="ident">dims</span> {
+        <span class="prelude-val">Some</span>(<span class="ident">ScreenDims</span> { <span class="ident">width</span>, .. }) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Widget::custom_row</span>(<span class="ident">row</span>).<span class="ident">force_width</span>(<span class="ident">width</span>),
+        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Widget::custom_row</span>(<span class="ident">row</span>).<span class="ident">flex_wrap</span>(<span class="ident">ctx</span>, <span class="ident">Percent::int</span>(<span class="number">24</span>)),
+    }
 }
 
 <span class="comment">// TODO If this proves useful, lift to geom</span>

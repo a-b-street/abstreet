@@ -475,10 +475,6 @@
 <span id="475">475</span>
 <span id="476">476</span>
 <span id="477">477</span>
-<span id="478">478</span>
-<span id="479">479</span>
-<span id="480">480</span>
-<span id="481">481</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 
@@ -646,11 +642,7 @@
         ])
         .<span class="ident">section</span>(<span class="ident">ctx</span>),
         <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-            <span class="macro">format!</span>(
-                <span class="string">&quot;So does proposal \&quot;{}\&quot; make these trips safer?&quot;</span>,
-                <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">edits_name</span>
-            )
-            .<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
+            <span class="string">&quot;How many would switch based on your proposal?&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
             <span class="ident">percentage_bar</span>(
                 <span class="ident">ctx</span>,
                 <span class="ident">Text::from</span>(<span class="ident">Line</span>(<span class="macro">format!</span>(

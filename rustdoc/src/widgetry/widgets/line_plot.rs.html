@@ -281,13 +281,26 @@
 <span id="281">281</span>
 <span id="282">282</span>
 <span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">Bounds</span>, <span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">FindClosest</span>, <span class="ident">PolyLine</span>, <span class="ident">Pt2D</span>, <span class="ident">UnitFmt</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::widgets::plots</span>::{<span class="ident">make_legend</span>, <span class="ident">thick_lineseries</span>, <span class="ident">Axis</span>, <span class="ident">PlotOptions</span>, <span class="ident">Series</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>, <span class="ident">ScreenRectangle</span>, <span class="ident">Text</span>,
-    <span class="ident">TextExt</span>, <span class="ident">Widget</span>, <span class="ident">WidgetImpl</span>, <span class="ident">WidgetOutput</span>,
+    <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EdgeInsets</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>,
+    <span class="ident">ScreenRectangle</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Widget</span>, <span class="ident">WidgetImpl</span>, <span class="ident">WidgetOutput</span>,
 };
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">LinePlot</span><span class="op">&lt;</span><span class="ident">X</span>: <span class="ident">Axis</span><span class="op">&lt;</span><span class="ident">X</span><span class="op">&gt;</span>, <span class="ident">Y</span>: <span class="ident">Axis</span><span class="op">&lt;</span><span class="ident">Y</span><span class="op">&gt;</span><span class="op">&gt;</span> {
@@ -340,10 +353,16 @@
                 .<span class="ident">unwrap_or_else</span>(<span class="ident">Y::zero</span>)
         });
 
-        <span class="comment">// TODO Tuned to fit the info panel. Instead these should somehow stretch to fill their</span>
-        <span class="comment">// container.</span>
-        <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span> <span class="number">0.23</span> <span class="op">*</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_width</span>;
-        <span class="kw">let</span> <span class="ident">height</span> <span class="op">=</span> <span class="number">0.2</span> <span class="op">*</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_height</span>;
+        <span class="comment">// TODO: somehow stretch to fill their container.</span>
+        <span class="kw">let</span> <span class="ident">default_dims</span> <span class="op">=</span> {
+            <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span> <span class="number">0.23</span> <span class="op">*</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_width</span>;
+            <span class="kw">let</span> <span class="ident">height</span> <span class="op">=</span> <span class="number">0.2</span> <span class="op">*</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_height</span>;
+            <span class="ident">ScreenDims</span> { <span class="ident">width</span>, <span class="ident">height</span> }
+        };
+
+        <span class="kw">let</span> <span class="ident">dims</span> <span class="op">=</span> <span class="ident">opts</span>.<span class="ident">dims</span>.<span class="ident">unwrap_or</span>(<span class="ident">default_dims</span>);
+        <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span> <span class="ident">dims</span>.<span class="ident">width</span>;
+        <span class="kw">let</span> <span class="ident">height</span> <span class="op">=</span> <span class="ident">dims</span>.<span class="ident">height</span>;
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
         <span class="comment">// Grid lines for the Y scale. Draw up to 10 lines max to cover the order of magnitude of</span>
@@ -428,7 +447,14 @@
                 .<span class="ident">autocrop</span>();
             <span class="ident">row</span>.<span class="ident">push</span>(<span class="ident">batch</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>));
         }
-        <span class="kw">let</span> <span class="ident">x_axis</span> <span class="op">=</span> <span class="ident">Widget::custom_row</span>(<span class="ident">row</span>).<span class="ident">padding</span>(<span class="number">10</span>).<span class="ident">evenly_spaced</span>();
+        <span class="kw">let</span> <span class="ident">x_axis</span> <span class="op">=</span> <span class="ident">Widget::custom_row</span>(<span class="ident">row</span>)
+            .<span class="ident">padding</span>(<span class="ident">EdgeInsets</span> {
+                <span class="ident">top</span>: <span class="number">10.0</span>,
+                <span class="ident">left</span>: <span class="number">60.0</span>,
+                <span class="ident">right</span>: <span class="number">10.0</span>,
+                <span class="ident">bottom</span>: <span class="number">10.0</span>,
+            })
+            .<span class="ident">evenly_spaced</span>();
 
         <span class="kw">let</span> <span class="ident">num_y_labels</span> <span class="op">=</span> <span class="number">3</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">col</span> <span class="op">=</span> <span class="ident">Vec::new</span>();

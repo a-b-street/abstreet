@@ -209,6 +209,7 @@
 <span id="209">209</span>
 <span id="210">210</span>
 <span id="211">211</span>
+<span id="212">212</span>
 </pre><pre class="rust">
 <span class="kw">mod</span> <span class="ident">bike_network</span>;
 <span class="kw">mod</span> <span class="ident">explore</span>;
@@ -217,26 +218,26 @@
 <span class="comment">//mod magnifying;</span>
 <span class="kw">mod</span> <span class="ident">predict</span>;
 <span class="kw">mod</span> <span class="ident">quick_sketch</span>;
-<span class="kw">mod</span> <span class="ident">route</span>;
+<span class="kw">mod</span> <span class="ident">trip</span>;
 
 <span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">grey_out_map</span>, <span class="ident">open_browser</span>, <span class="ident">CityPicker</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Panel</span>, <span class="ident">SimpleState</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>,
-    <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Panel</span>, <span class="ident">ScreenDims</span>, <span class="ident">SimpleState</span>, <span class="ident">State</span>, <span class="ident">Text</span>,
+    <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::explore::ExploreMap</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::layers::Layers</span>;
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">predict::ModeShiftData</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">route::RoutingPreferences</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">trip::RoutingPreferences</span>;
 
 <span class="comment">// The 3 modes are very different States, so TabController doesn&#39;t seem like the best fit</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Tab</span> {
     <span class="ident">Explore</span>,
-    <span class="ident">Create</span>,
-    <span class="ident">Route</span>,
+    <span class="ident">Trip</span>,
+    <span class="ident">AddLanes</span>,
     <span class="ident">PredictImpact</span>,
 }
 
@@ -278,24 +279,24 @@
         <span class="ident">col</span>.<span class="ident">push</span>(
             <span class="ident">ctx</span>.<span class="ident">style</span>()
                 .<span class="ident">btn_tab</span>
-                .<span class="ident">icon_text</span>(<span class="string">&quot;system/assets/tools/pencil.svg&quot;</span>, <span class="string">&quot;Create new bike lanes&quot;</span>)
+                .<span class="ident">icon_text</span>(<span class="string">&quot;system/assets/tools/pin.svg&quot;</span>, <span class="string">&quot;Your Trip&quot;</span>)
                 .<span class="ident">hotkey</span>(<span class="ident">Key::Num2</span>)
-                .<span class="ident">disabled</span>(<span class="self">self</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Tab::Create</span>)
+                .<span class="ident">disabled</span>(<span class="self">self</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Tab::Trip</span>)
                 .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
         );
-        <span class="kw">if</span> <span class="self">self</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Tab::Create</span> {
+        <span class="kw">if</span> <span class="self">self</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Tab::Trip</span> {
             <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">contents</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>());
         }
 
         <span class="ident">col</span>.<span class="ident">push</span>(
             <span class="ident">ctx</span>.<span class="ident">style</span>()
                 .<span class="ident">btn_tab</span>
-                .<span class="ident">icon_text</span>(<span class="string">&quot;system/assets/tools/pin.svg&quot;</span>, <span class="string">&quot;Plan a route&quot;</span>)
+                .<span class="ident">icon_text</span>(<span class="string">&quot;system/assets/tools/pencil.svg&quot;</span>, <span class="string">&quot;Add bike lanes&quot;</span>)
                 .<span class="ident">hotkey</span>(<span class="ident">Key::Num3</span>)
-                .<span class="ident">disabled</span>(<span class="self">self</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Tab::Route</span>)
+                .<span class="ident">disabled</span>(<span class="self">self</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Tab::AddLanes</span>)
                 .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
         );
-        <span class="kw">if</span> <span class="self">self</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Tab::Route</span> {
+        <span class="kw">if</span> <span class="self">self</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Tab::AddLanes</span> {
             <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">contents</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>());
         }
 
@@ -312,9 +313,14 @@
         }
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="ident">col</span>))
-            .<span class="ident">exact_height</span>(<span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_height</span>)
+            <span class="comment">// The different tabs have different widths. To avoid the UI bouncing around as the user</span>
+            <span class="comment">// navigates, this is hardcoded to be a bit wider than the widest tab.</span>
+            .<span class="ident">exact_size</span>(<span class="ident">ScreenDims</span> {
+                <span class="ident">width</span>: <span class="number">620.0</span>,
+                <span class="ident">height</span>: <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_height</span>,
+            })
             .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::Left</span>, <span class="ident">VerticalAlignment::Top</span>);
-        <span class="kw">if</span> <span class="self">self</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Tab::Route</span> {
+        <span class="kw">if</span> <span class="self">self</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Tab::Trip</span> {
             <span class="comment">// Hovering on a card</span>
             <span class="ident">panel</span> <span class="op">=</span> <span class="ident">panel</span>.<span class="ident">ignore_initial_events</span>();
         }
@@ -340,10 +346,10 @@
                             <span class="ident">Transition::Pop</span>,
                             <span class="ident">Transition::Replace</span>(<span class="kw">match</span> <span class="self">self</span> {
                                 <span class="ident">Tab::Explore</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ExploreMap::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">layers</span>),
-                                <span class="ident">Tab::Create</span> <span class="op">=</span><span class="op">&gt;</span> {
+                                <span class="ident">Tab::AddLanes</span> <span class="op">=</span><span class="op">&gt;</span> {
                                     <span class="ident">quick_sketch::QuickSketch::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">layers</span>)
                                 }
-                                <span class="ident">Tab::Route</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">route::RoutePlanner::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">layers</span>),
+                                <span class="ident">Tab::Trip</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">trip::TripPlanner::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">layers</span>),
                                 <span class="ident">Tab::PredictImpact</span> <span class="op">=</span><span class="op">&gt;</span> {
                                     <span class="ident">predict::ShowGaps::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">layers</span>)
                                 }
@@ -356,7 +362,11 @@
                 <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">downcast</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>().<span class="ident">ok</span>().<span class="ident">unwrap</span>();
                 <span class="macro">vec!</span>[<span class="ident">ExploreMap::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">state</span>.<span class="ident">take_layers</span>())]
             }))),
-            <span class="string">&quot;Create new bike lanes&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="string">&quot;Your Trip&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">Transition::ConsumeState</span>(<span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
+                <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">downcast</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>().<span class="ident">ok</span>().<span class="ident">unwrap</span>();
+                <span class="macro">vec!</span>[<span class="ident">trip::TripPlanner::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">state</span>.<span class="ident">take_layers</span>())]
+            }))),
+            <span class="string">&quot;Add bike lanes&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="comment">// This is only necessary to do coming from ExploreMap, but eh</span>
                 <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> <span class="op">=</span> <span class="prelude-val">None</span>;
                 <span class="prelude-val">Some</span>(<span class="ident">Transition::ConsumeState</span>(<span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
@@ -368,14 +378,6 @@
                     )]
                 })))
             }
-            <span class="string">&quot;Plan a route&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">Transition::ConsumeState</span>(<span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
-                <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">downcast</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>().<span class="ident">ok</span>().<span class="ident">unwrap</span>();
-                <span class="macro">vec!</span>[<span class="ident">route::RoutePlanner::new_state</span>(
-                    <span class="ident">ctx</span>,
-                    <span class="ident">app</span>,
-                    <span class="ident">state</span>.<span class="ident">take_layers</span>(),
-                )]
-            }))),
             <span class="string">&quot;Predict impact&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">Transition::ConsumeState</span>(<span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
                 <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">downcast</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>().<span class="ident">ok</span>().<span class="ident">unwrap</span>();
                 <span class="macro">vec!</span>[<span class="ident">predict::ShowGaps::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">state</span>.<span class="ident">take_layers</span>())]
