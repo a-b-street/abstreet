@@ -389,19 +389,6 @@
 <span id="389">389</span>
 <span id="390">390</span>
 <span id="391">391</span>
-<span id="392">392</span>
-<span id="393">393</span>
-<span id="394">394</span>
-<span id="395">395</span>
-<span id="396">396</span>
-<span id="397">397</span>
-<span id="398">398</span>
-<span id="399">399</span>
-<span id="400">400</span>
-<span id="401">401</span>
-<span id="402">402</span>
-<span id="403">403</span>
-<span id="404">404</span>
 </pre><pre class="rust">
 <span class="doccomment">//! It&#39;s assumed that the importer is run with the current directory as the project repository; aka</span>
 <span class="doccomment">//! `./data/` and `./importer/config` must exist.</span>
@@ -692,19 +679,6 @@
                     );
                     <span class="ident">scenario</span>.<span class="ident">save</span>();
                     <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="macro">format!</span>(<span class="string">&quot;scenario for {}&quot;</span>, <span class="ident">name</span>.<span class="ident">describe</span>()));
-
-                    <span class="kw">if</span> <span class="ident">name</span>.<span class="ident">map</span>.<span class="ident">starts_with</span>(<span class="string">&quot;aurora_&quot;</span>) {
-                        <span class="ident">timer</span>.<span class="ident">start</span>(<span class="macro">format!</span>(<span class="string">&quot;pass-through scenario for {}&quot;</span>, <span class="ident">name</span>.<span class="ident">describe</span>()));
-                        <span class="kw">let</span> <span class="ident">secondary_scenario</span> <span class="op">=</span> <span class="ident">soundcast::make_scenario</span>(
-                            <span class="string">&quot;passthrough&quot;</span>,
-                            <span class="ident">maybe_map</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>(),
-                            <span class="ident">maybe_popdat</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>(),
-                            <span class="ident">maybe_huge_map</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>(),
-                            <span class="ident">timer</span>,
-                        );
-                        <span class="ident">secondary_scenario</span>.<span class="ident">save</span>();
-                        <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="macro">format!</span>(<span class="string">&quot;pass-through scenario for {}&quot;</span>, <span class="ident">name</span>.<span class="ident">describe</span>()));
-                    }
 
                     <span class="comment">// This is a strange ordering.</span>
                     <span class="kw">if</span> <span class="ident">name</span>.<span class="ident">map</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;downtown&quot;</span>
