@@ -66,7 +66,7 @@ impl Tab {
         col.push(
             ctx.style()
                 .btn_tab
-                .icon_text("system/assets/tools/pin.svg", "Plan a route")
+                .icon_text("system/assets/tools/pin.svg", "Your Trip")
                 .hotkey(Key::Num3)
                 .disabled(self == Tab::Route)
                 .build_def(ctx),
@@ -78,7 +78,7 @@ impl Tab {
         col.push(
             ctx.style()
                 .btn_tab
-                .icon_text("system/assets/tools/pencil.svg", "Create new bike lanes")
+                .icon_text("system/assets/tools/pencil.svg", "Add bike lanes")
                 .hotkey(Key::Num2)
                 .disabled(self == Tab::Create)
                 .build_def(ctx),
@@ -144,7 +144,7 @@ impl Tab {
                 let state = state.downcast::<T>().ok().unwrap();
                 vec![ExploreMap::new_state(ctx, app, state.take_layers())]
             }))),
-            "Plan a route" => Some(Transition::ConsumeState(Box::new(|state, ctx, app| {
+            "Your Trip" => Some(Transition::ConsumeState(Box::new(|state, ctx, app| {
                 let state = state.downcast::<T>().ok().unwrap();
                 vec![route::RoutePlanner::new_state(
                     ctx,
@@ -152,7 +152,7 @@ impl Tab {
                     state.take_layers(),
                 )]
             }))),
-            "Create new bike lanes" => {
+            "Add bike lanes" => {
                 // This is only necessary to do coming from ExploreMap, but eh
                 app.primary.current_selection = None;
                 Some(Transition::ConsumeState(Box::new(|state, ctx, app| {
