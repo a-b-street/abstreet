@@ -123,34 +123,36 @@ impl Pathfinder {
         }
     }
 
-    /// Create a new Pathfinder with custom routing params that can only serve one mode.
-    pub fn new_for_one_mode(
+    /// Create a new Pathfinder with custom routing params that can only serve some modes.
+    pub fn new_limited(
         map: &Map,
         params: RoutingParams,
         engine: CreateEngine,
-        constraints: PathConstraints,
+        modes: Vec<PathConstraints>,
         timer: &mut Timer,
     ) -> Pathfinder {
         let mut p = Pathfinder::empty();
-        timer.start("prepare pathfinding for just one mode");
-        match constraints {
-            PathConstraints::Pedestrian => {
-                p.walking_graph = SidewalkPathfinder::new(map, None, &engine);
+        for constraints in modes {
+            timer.start(format!("prepare pathfinding for just {:?}", constraints));
+            match constraints {
+                PathConstraints::Pedestrian => {
+                    p.walking_graph = SidewalkPathfinder::new(map, None, &engine);
+                }
+                PathConstraints::Car => {
+                    p.car_graph = VehiclePathfinder::new(map, constraints, &params, &engine);
+                }
+                PathConstraints::Bike => {
+                    p.bike_graph = VehiclePathfinder::new(map, constraints, &params, &engine);
+                }
+                PathConstraints::Bus => {
+                    p.bus_graph = VehiclePathfinder::new(map, constraints, &params, &engine);
+                }
+                PathConstraints::Train => {
+                    p.train_graph = VehiclePathfinder::new(map, constraints, &params, &engine);
+                }
             }
-            PathConstraints::Car => {
-                p.car_graph = VehiclePathfinder::new(map, constraints, &params, &engine);
-            }
-            PathConstraints::Bike => {
-                p.bike_graph = VehiclePathfinder::new(map, constraints, &params, &engine);
-            }
-            PathConstraints::Bus => {
-                p.bus_graph = VehiclePathfinder::new(map, constraints, &params, &engine);
-            }
-            PathConstraints::Train => {
-                p.train_graph = VehiclePathfinder::new(map, constraints, &params, &engine);
-            }
+            timer.stop(format!("prepare pathfinding for just {:?}", constraints));
         }
-        timer.stop("prepare pathfinding for just one mode");
         p.params = params;
         p
     }
@@ -194,11 +196,11 @@ impl Pathfinder {
 
         // If somebody's repeatedly calling this without caching, log very obnoxiously.
         let mut timer = Timer::new(format!("Pathfinding slowly for {} with custom params", req));
-        let tmp_pathfinder = Pathfinder::new_for_one_mode(
+        let tmp_pathfinder = Pathfinder::new_limited(
             map,
             params.clone(),
             CreateEngine::Dijkstra,
-            constraints,
+            vec![constraints],
             &mut timer,
         );
         let result = tmp_pathfinder.pathfind_with_params(req, params, false, map);

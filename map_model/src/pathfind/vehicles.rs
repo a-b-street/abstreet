@@ -88,6 +88,10 @@ impl VehiclePathfinder {
     }
 
     pub fn pathfind(&self, req: PathRequest, map: &Map) -> Option<PathV2> {
+        if matches!(self.engine, PathfindEngine::Empty) {
+            return None;
+        }
+
         assert!(!map.get_l(req.start.lane()).is_walkable());
         let mut starts = vec![(
             self.nodes.get(Node::Road(
@@ -154,6 +158,10 @@ impl VehiclePathfinder {
     }
 
     pub fn all_costs_from(&self, start: Position, map: &Map) -> HashMap<DirectedRoadID, Duration> {
+        if matches!(self.engine, PathfindEngine::Empty) {
+            return HashMap::new();
+        }
+
         let start = self
             .nodes
             .get(Node::Road(map.get_l(start.lane()).get_directed_parent()));

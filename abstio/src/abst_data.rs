@@ -97,9 +97,9 @@ impl Manifest {
         self
     }
 
-    /// Because there are so many Seattle maps and they're included in the weekly release, managing
-    /// the total file size is important. The "us/seattle" data pack only contains small maps; the
-    /// "us/huge_seattle" pack has the rest. This returns true for files belonging to
+    /// Because there are so many Seattle maps and they get downloaded in one data pack on native,
+    /// managing the total file size is important. The "us/seattle" data pack only contains small
+    /// maps; the "us/huge_seattle" pack has the rest. This returns true for files belonging to
     /// "us/huge_seattle".
     pub fn is_file_part_of_huge_seattle(path: &str) -> bool {
         let path = path

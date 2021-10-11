@@ -240,6 +240,7 @@ pub fn nice_map_name(name: &MapName) -> &str {
             ("seattle", "aurora_north") => "Aurora Ave (north)",
             ("seattle", "aurora_south") => "Aurora Ave (south)",
             ("seattle", "ballard") => "Ballard",
+            ("seattle", "central_seattle") => "Central Seattle",
             ("seattle", "downtown") => "Downtown Seattle",
             ("seattle", "greenlake") => "Green Lake",
             ("seattle", "huge_seattle") => "Seattle (entire area)",

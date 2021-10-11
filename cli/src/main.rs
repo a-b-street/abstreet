@@ -113,7 +113,7 @@ enum Command {
     },
     /// Removes nonessential parts of a Map, for the bike network tool.
     MinifyMap {
-        /// The path to a map to shrink
+        /// The path to a map to shrink. The map is modified in-place.
         #[structopt()]
         map: String,
     },

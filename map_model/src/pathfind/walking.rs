@@ -114,6 +114,10 @@ impl SidewalkPathfinder {
     }
 
     pub fn pathfind(&self, req: PathRequest, map: &Map) -> Option<PathV2> {
+        if matches!(self.engine, PathfindEngine::Empty) {
+            return None;
+        }
+
         if req.start.lane() == req.end.lane() {
             return Some(one_step_walking_path(req, map));
         }
@@ -138,6 +142,10 @@ impl SidewalkPathfinder {
         start: Position,
         end: Position,
     ) -> Option<(BusStopID, Option<BusStopID>, BusRouteID)> {
+        if matches!(self.engine, PathfindEngine::Empty) {
+            return None;
+        }
+
         assert!(self.use_transit);
 
         let (_, raw_nodes) = self.engine.calculate_path(
@@ -224,6 +232,10 @@ impl SidewalkPathfinder {
     }
 
     pub fn all_costs_from(&self, start: Position, map: &Map) -> HashMap<DirectedRoadID, Duration> {
+        if matches!(self.engine, PathfindEngine::Empty) {
+            return HashMap::new();
+        }
+
         let start = self.nodes.get(WalkingNode::closest(start, map));
         let raw_costs = if self.engine.is_dijkstra() {
             self.engine.all_costs_from(start)

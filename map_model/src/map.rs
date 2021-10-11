@@ -871,18 +871,24 @@ impl Map {
             && self.get_i(from.common_endpt(to)).is_stop_sign()
     }
 
-    /// Modifies the map in-place, removing parts not essential for the bike network tool. Also
-    /// modifies the name.
+    /// Modifies the map in-place, removing parts not essential for the bike network tool.
     pub fn minify(&mut self, timer: &mut Timer) {
-        self.name.map = format!("minified_{}", self.name.map);
-
-        // Don't need CHs or even the graph for anything except bikes.
-        self.pathfinder = Pathfinder::new_for_one_mode(
+        // We only need the CHs for driving and biking, to support mode shift.
+        self.pathfinder = Pathfinder::new_limited(
             self,
             self.routing_params().clone(),
-            crate::pathfind::CreateEngine::Dijkstra,
-            PathConstraints::Bike,
+            crate::pathfind::CreateEngine::CH,
+            vec![PathConstraints::Car, PathConstraints::Bike],
             timer,
         );
+
+        // Remove all bus routes, since we remove that pathfinder
+        self.bus_stops.clear();
+        self.bus_routes.clear();
+        for r in &mut self.roads {
+            for l in &mut r.lanes {
+                l.bus_stops.clear();
+            }
+        }
     }
 }

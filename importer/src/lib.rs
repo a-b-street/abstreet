@@ -139,8 +139,8 @@ async fn regenerate_everything(config: ImporterConfiguration, shard_num: usize, 
 }
 
 fn regenerate_all_maps(opts: RawToMapOptions) {
-    // Omit Seattle and Berlin, because they have special follow-up actions (GTFS and
-    // distributing residents)
+    // Omit Seattle and Berlin, because they have special follow-up actions (GTFS, minifying some
+    // maps, and distributing residents)
     let all_maps: Vec<MapName> = CityName::list_all_cities_from_importer_config()
         .into_iter()
         .flat_map(|city| city.list_all_maps_in_city_from_importer_config())
@@ -319,6 +319,18 @@ impl Job {
                         timer,
                     );
                     timer.stop("match parcels to buildings");
+
+                    // Even stranger hacks! AFTER generating the scenarios, which requires full
+                    // pathfinding, for a few maps, "minify" them to cut down file size for the
+                    // bike network tool.
+                    if name.map == "central_seattle"
+                        || name.map == "north_seattle"
+                        || name.map == "south_seattle"
+                    {
+                        let map = maybe_map.as_mut().unwrap();
+                        map.minify(timer);
+                        map.save();
+                    }
                 }
 
                 if self.city.country == "gb" {
