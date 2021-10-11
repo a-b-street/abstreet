@@ -153,17 +153,6 @@
 <span id="153">153</span>
 <span id="154">154</span>
 <span id="155">155</span>
-<span id="156">156</span>
-<span id="157">157</span>
-<span id="158">158</span>
-<span id="159">159</span>
-<span id="160">160</span>
-<span id="161">161</span>
-<span id="162">162</span>
-<span id="163">163</span>
-<span id="164">164</span>
-<span id="165">165</span>
-<span id="166">166</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
 <span class="kw">use</span> <span class="ident">std::fs::File</span>;
@@ -171,6 +160,7 @@
 <span class="kw">use</span> <span class="ident">futures_channel::mpsc</span>;
 
 <span class="kw">use</span> <span class="ident">abstio</span>::{<span class="ident">DataPacks</span>, <span class="ident">Manifest</span>, <span class="ident">MapName</span>};
+<span class="kw">use</span> <span class="ident">abstutil::prettyprint_bytes</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">EventCtx</span>, <span class="ident">Key</span>, <span class="ident">Transition</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::load::FutureLoader</span>;
@@ -196,18 +186,6 @@
         <span class="ident">bytes</span> <span class="op">+</span><span class="op">=</span> <span class="ident">entry</span>.<span class="ident">compressed_size_bytes</span>;
     }
     <span class="ident">bytes</span>
-}
-
-<span class="kw">fn</span> <span class="ident">prettyprint_bytes</span>(<span class="ident">bytes</span>: <span class="ident">u64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
-    <span class="kw">if</span> <span class="ident">bytes</span> <span class="op">&lt;</span> <span class="number">1024</span> {
-        <span class="kw">return</span> <span class="macro">format!</span>(<span class="string">&quot;{} bytes&quot;</span>, <span class="ident">bytes</span>);
-    }
-    <span class="kw">let</span> <span class="ident">kb</span> <span class="op">=</span> (<span class="ident">bytes</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> <span class="number">1024.0</span>;
-    <span class="kw">if</span> <span class="ident">kb</span> <span class="op">&lt;</span> <span class="number">1024.0</span> {
-        <span class="kw">return</span> <span class="macro">format!</span>(<span class="string">&quot;{} KB&quot;</span>, <span class="ident">kb</span> <span class="kw">as</span> <span class="ident">usize</span>);
-    }
-    <span class="kw">let</span> <span class="ident">mb</span> <span class="op">=</span> <span class="ident">kb</span> <span class="op">/</span> <span class="number">1024.0</span>;
-    <span class="macro">format!</span>(<span class="string">&quot;{} MB&quot;</span>, <span class="ident">mb</span> <span class="kw">as</span> <span class="ident">usize</span>)
 }
 
 <span class="doccomment">/// Prompt to download a missing city. On either success or failure (maybe the player choosing to</span>
