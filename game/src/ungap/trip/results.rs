@@ -325,7 +325,7 @@ impl RouteDetails {
                             };
                             panel
                                 .find_mut::<LinePlot<Distance, Distance>>("elevation")
-                                .set_hovering(ctx, dist + dist_here, elevation);
+                                .set_hovering(ctx, "Elevation", dist + dist_here, elevation);
                             self.hover_on_route_tooltip = Some(Text::from(Line(format!(
                                 "Elevation: {}",
                                 elevation.to_string(&app.opts.units)
