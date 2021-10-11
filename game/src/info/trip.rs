@@ -1,4 +1,4 @@
-use std::collections::{BTreeMap, HashSet};
+use std::collections::BTreeMap;
 
 use maplit::btreemap;
 
@@ -920,14 +920,13 @@ fn make_elevation(
             pts,
         }],
         PlotOptions {
-            filterable: false,
             max_x: Some(dist.round_up_for_axis()),
             // We want to use the same Y scale for this plot when comparing before/after map edits.
             // If we use the max elevation encountered along the route, then no matter how we
             // round, there are always edge cases where the scale will jump. So just use the
             // maximum elevation from the entire map.
             max_y: Some(map.max_elevation().round_up_for_axis()),
-            disabled: HashSet::new(),
+            ..Default::default()
         },
         unit_fmt,
     )

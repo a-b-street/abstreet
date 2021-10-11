@@ -414,6 +414,7 @@ fn delay_plot(
         max_x: Some(limit),
         max_y: None,
         disabled: opts.disabled_series(),
+        dims: None,
     };
     Widget::col(vec![
         Line("Delay through intersection")

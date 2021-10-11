@@ -2,8 +2,8 @@ use geom::{Angle, Bounds, Circle, Distance, FindClosest, PolyLine, Pt2D, UnitFmt
 
 use crate::widgets::plots::{make_legend, thick_lineseries, Axis, PlotOptions, Series};
 use crate::{
-    Color, Drawable, EventCtx, GeomBatch, GfxCtx, ScreenDims, ScreenPt, ScreenRectangle, Text,
-    TextExt, Widget, WidgetImpl, WidgetOutput,
+    Color, Drawable, EdgeInsets, EventCtx, GeomBatch, GfxCtx, ScreenDims, ScreenPt,
+    ScreenRectangle, Text, TextExt, Widget, WidgetImpl, WidgetOutput,
 };
 
 pub struct LinePlot<X: Axis<X>, Y: Axis<Y>> {
@@ -56,10 +56,16 @@ impl<X: Axis<X>, Y: Axis<Y>> LinePlot<X, Y> {
                 .unwrap_or_else(Y::zero)
         });
 
-        // TODO Tuned to fit the info panel. Instead these should somehow stretch to fill their
-        // container.
-        let width = 0.23 * ctx.canvas.window_width;
-        let height = 0.2 * ctx.canvas.window_height;
+        // TODO: somehow stretch to fill their container.
+        let default_dims = {
+            let width = 0.23 * ctx.canvas.window_width;
+            let height = 0.2 * ctx.canvas.window_height;
+            ScreenDims { width, height }
+        };
+
+        let dims = opts.dims.unwrap_or(default_dims);
+        let width = dims.width;
+        let height = dims.height;
 
         let mut batch = GeomBatch::new();
         // Grid lines for the Y scale. Draw up to 10 lines max to cover the order of magnitude of
@@ -144,7 +150,14 @@ impl<X: Axis<X>, Y: Axis<Y>> LinePlot<X, Y> {
                 .autocrop();
             row.push(batch.into_widget(ctx));
         }
-        let x_axis = Widget::custom_row(row).padding(10).evenly_spaced();
+        let x_axis = Widget::custom_row(row)
+            .padding(EdgeInsets {
+                top: 10.0,
+                left: 60.0,
+                right: 10.0,
+                bottom: 10.0,
+            })
+            .evenly_spaced();
 
         let num_y_labels = 3;
         let mut col = Vec::new();

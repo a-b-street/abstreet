@@ -164,11 +164,7 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App) -> Panel {
         ])
         .section(ctx),
         Widget::col(vec![
-            format!(
-                "So does proposal \"{}\" make these trips safer?",
-                app.primary.map.get_edits().edits_name
-            )
-            .text_widget(ctx),
+            "How many would switch based on your proposal?".text_widget(ctx),
             percentage_bar(
                 ctx,
                 Text::from(Line(format!(

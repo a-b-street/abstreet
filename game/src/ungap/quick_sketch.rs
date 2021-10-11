@@ -73,7 +73,7 @@ impl QuickSketch {
             );
         }
 
-        self.top_panel = Tab::Create.make_left_panel(ctx, app, Widget::col(col));
+        self.top_panel = Tab::AddLanes.make_left_panel(ctx, app, Widget::col(col));
     }
 }
 
@@ -103,7 +103,7 @@ impl State<App> for QuickSketch {
                         return Transition::Keep;
                     }
 
-                    return Tab::Create
+                    return Tab::AddLanes
                         .handle_action::<QuickSketch>(ctx, app, x)
                         .unwrap();
                 }

@@ -3,36 +3,34 @@ use std::collections::HashSet;
 use abstutil::prettyprint_usize;
 use geom::{Circle, Distance, Duration, Percent, Polygon, Pt2D, Time, UnitFmt};
 
-use crate::{Color, EventCtx, GeomBatch, TextExt, Toggle, Widget};
+use crate::{Color, EventCtx, GeomBatch, ScreenDims, TextExt, Toggle, Widget};
 
+#[derive(Default)]
 pub struct PlotOptions<X: Axis<X>, Y: Axis<Y>> {
     pub filterable: bool,
     pub max_x: Option<X>,
     pub max_y: Option<Y>,
     pub disabled: HashSet<String>,
+    pub dims: Option<ScreenDims>,
 }
 
 impl<X: Axis<X>, Y: Axis<Y>> PlotOptions<X, Y> {
     pub fn filterable() -> PlotOptions<X, Y> {
         PlotOptions {
             filterable: true,
-            max_x: None,
-            max_y: None,
-            disabled: HashSet::new(),
+            ..Default::default()
         }
     }
 
     pub fn fixed() -> PlotOptions<X, Y> {
         PlotOptions {
             filterable: false,
-            max_x: None,
-            max_y: None,
-            disabled: HashSet::new(),
+            ..Default::default()
         }
     }
 }
 
-pub trait Axis<T>: 'static + Copy + std::cmp::Ord {
+pub trait Axis<T>: 'static + Copy + std::cmp::Ord + Default {
     // percent is [0.0, 1.0]
     fn from_percent(&self, percent: f64) -> T;
     fn to_percent(self, max: T) -> f64;
@@ -184,7 +182,10 @@ pub fn make_legend<X: Axis<X>, Y: Axis<Y>>(
             ]));
         }
     }
-    Widget::custom_row(row).flex_wrap(ctx, Percent::int(24))
+    match opts.dims {
+        Some(ScreenDims { width, .. }) => Widget::custom_row(row).force_width(width),
+        _ => Widget::custom_row(row).flex_wrap(ctx, Percent::int(24)),
+    }
 }
 
 // TODO If this proves useful, lift to geom

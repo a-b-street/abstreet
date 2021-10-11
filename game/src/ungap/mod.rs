@@ -5,26 +5,26 @@ mod layers;
 //mod magnifying;
 mod predict;
 mod quick_sketch;
-mod route;
+mod trip;
 
 use map_gui::tools::{grey_out_map, open_browser, CityPicker};
 use widgetry::{
-    EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Panel, SimpleState, State, Text, TextExt,
-    VerticalAlignment, Widget,
+    EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Panel, ScreenDims, SimpleState, State, Text,
+    TextExt, VerticalAlignment, Widget,
 };
 
 pub use self::explore::ExploreMap;
 pub use self::layers::Layers;
 use crate::app::{App, Transition};
 pub use predict::ModeShiftData;
-pub use route::RoutingPreferences;
+pub use trip::RoutingPreferences;
 
 // The 3 modes are very different States, so TabController doesn't seem like the best fit
 #[derive(PartialEq)]
 pub enum Tab {
     Explore,
-    Create,
-    Route,
+    Trip,
+    AddLanes,
     PredictImpact,
 }
 
@@ -66,24 +66,24 @@ impl Tab {
         col.push(
             ctx.style()
                 .btn_tab
-                .icon_text("system/assets/tools/pencil.svg", "Create new bike lanes")
+                .icon_text("system/assets/tools/pin.svg", "Your Trip")
                 .hotkey(Key::Num2)
-                .disabled(self == Tab::Create)
+                .disabled(self == Tab::Trip)
                 .build_def(ctx),
         );
-        if self == Tab::Create {
+        if self == Tab::Trip {
             col.push(contents.take().unwrap());
         }
 
         col.push(
             ctx.style()
                 .btn_tab
-                .icon_text("system/assets/tools/pin.svg", "Plan a route")
+                .icon_text("system/assets/tools/pencil.svg", "Add bike lanes")
                 .hotkey(Key::Num3)
-                .disabled(self == Tab::Route)
+                .disabled(self == Tab::AddLanes)
                 .build_def(ctx),
         );
-        if self == Tab::Route {
+        if self == Tab::AddLanes {
             col.push(contents.take().unwrap());
         }
 
@@ -100,9 +100,14 @@ impl Tab {
         }
 
         let mut panel = Panel::new_builder(Widget::col(col))
-            .exact_height(ctx.canvas.window_height)
+            // The different tabs have different widths. To avoid the UI bouncing around as the user
+            // navigates, this is hardcoded to be a bit wider than the widest tab.
+            .exact_size(ScreenDims {
+                width: 620.0,
+                height: ctx.canvas.window_height,
+            })
             .aligned(HorizontalAlignment::Left, VerticalAlignment::Top);
-        if self == Tab::Route {
+        if self == Tab::Trip {
             // Hovering on a card
             panel = panel.ignore_initial_events();
         }
@@ -128,10 +133,10 @@ impl Tab {
                             Transition::Pop,
                             Transition::Replace(match self {
                                 Tab::Explore => ExploreMap::new_state(ctx, app, layers),
-                                Tab::Create => {
+                                Tab::AddLanes => {
                                     quick_sketch::QuickSketch::new_state(ctx, app, layers)
                                 }
-                                Tab::Route => route::RoutePlanner::new_state(ctx, app, layers),
+                                Tab::Trip => trip::TripPlanner::new_state(ctx, app, layers),
                                 Tab::PredictImpact => {
                                     predict::ShowGaps::new_state(ctx, app, layers)
                                 }
@@ -144,7 +149,11 @@ impl Tab {
                 let state = state.downcast::<T>().ok().unwrap();
                 vec![ExploreMap::new_state(ctx, app, state.take_layers())]
             }))),
-            "Create new bike lanes" => {
+            "Your Trip" => Some(Transition::ConsumeState(Box::new(|state, ctx, app| {
+                let state = state.downcast::<T>().ok().unwrap();
+                vec![trip::TripPlanner::new_state(ctx, app, state.take_layers())]
+            }))),
+            "Add bike lanes" => {
                 // This is only necessary to do coming from ExploreMap, but eh
                 app.primary.current_selection = None;
                 Some(Transition::ConsumeState(Box::new(|state, ctx, app| {
@@ -156,14 +165,6 @@ impl Tab {
                     )]
                 })))
             }
-            "Plan a route" => Some(Transition::ConsumeState(Box::new(|state, ctx, app| {
-                let state = state.downcast::<T>().ok().unwrap();
-                vec![route::RoutePlanner::new_state(
-                    ctx,
-                    app,
-                    state.take_layers(),
-                )]
-            }))),
             "Predict impact" => Some(Transition::ConsumeState(Box::new(|state, ctx, app| {
                 let state = state.downcast::<T>().ok().unwrap();
                 vec![predict::ShowGaps::new_state(ctx, app, state.take_layers())]

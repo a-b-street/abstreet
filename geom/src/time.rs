@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 use crate::{deserialize_f64, serialize_f64, trim_f64, Duration};
 
 /// In seconds since midnight. Can't be negative.
-#[derive(Clone, Copy, Debug, PartialEq, PartialOrd, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, PartialOrd, Serialize, Deserialize)]
 pub struct Time(
     #[serde(serialize_with = "serialize_f64", deserialize_with = "deserialize_f64")] f64,
 );
