@@ -9,8 +9,8 @@ mod route;
 
 use map_gui::tools::{grey_out_map, open_browser, CityPicker};
 use widgetry::{
-    EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Panel, SimpleState, State, Text, TextExt,
-    VerticalAlignment, Widget,
+    EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Panel, ScreenDims, SimpleState, State, Text,
+    TextExt, VerticalAlignment, Widget,
 };
 
 pub use self::explore::ExploreMap;
@@ -100,7 +100,12 @@ impl Tab {
         }
 
         let mut panel = Panel::new_builder(Widget::col(col))
-            .exact_height(ctx.canvas.window_height)
+            // The different tabs have different widths. To avoid the UI bouncing around as the user
+            // navigates, this is hardcoded to be a bit wider than the widest tab.
+            .exact_size(ScreenDims {
+                width: 620.0,
+                height: ctx.canvas.window_height,
+            })
             .aligned(HorizontalAlignment::Left, VerticalAlignment::Top);
         if self == Tab::Route {
             // Hovering on a card
