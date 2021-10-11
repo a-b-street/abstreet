@@ -186,6 +186,10 @@
 <span id="186">186</span>
 <span id="187">187</span>
 <span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
 
@@ -253,7 +257,11 @@
             }
         } <span class="kw">else</span> {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::new</span>();
-            <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">Line</span>(<span class="string">&quot;You&#39;ll upload this proposal anonymously&quot;</span>));
+            <span class="comment">// The Creative Commons licenses all require attribution, but we have no user accounts</span>
+            <span class="comment">// or ways of proving identity yet!</span>
+            <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">Line</span>(
+                <span class="string">&quot;You&#39;ll upload this proposal anonymously, in the public domain&quot;</span>,
+            ));
             <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">Line</span>(<span class="string">&quot;You can&#39;t delete or edit it after uploading&quot;</span>));
             <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">Line</span>(
                 <span class="string">&quot;(But you can upload and share new versions of the proposal)&quot;</span>,

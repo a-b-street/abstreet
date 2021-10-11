@@ -475,13 +475,26 @@
 <span id="475">475</span>
 <span id="476">476</span>
 <span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
+<span id="482">482</span>
+<span id="483">483</span>
+<span id="484">484</span>
+<span id="485">485</span>
+<span id="486">486</span>
+<span id="487">487</span>
+<span id="488">488</span>
+<span id="489">489</span>
+<span id="490">490</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">Counter</span>, <span class="ident">Timer</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Polygon</span>, <span class="ident">UnitFmt</span>};
 <span class="kw">use</span> <span class="ident">map_gui::load::FileLoader</span>;
-<span class="kw">use</span> <span class="ident">map_gui::tools::ColorNetwork</span>;
+<span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">open_browser</span>, <span class="ident">ColorNetwork</span>};
 <span class="kw">use</span> <span class="ident">map_gui::ID</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">PathRequest</span>, <span class="ident">PathStepV2</span>, <span class="ident">RoadID</span>};
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">Scenario</span>, <span class="ident">TripEndpoint</span>, <span class="ident">TripMode</span>};
@@ -567,6 +580,11 @@
 
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">top_panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
             <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="kw">if</span> <span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;read about how this prediction works&quot;</span> {
+                    <span class="ident">open_browser</span>(<span class="string">&quot;https://a-b-street.github.io/docs/software/bike_network/tech_details.html#predict-impact&quot;</span>);
+                    <span class="kw">return</span> <span class="ident">Transition::Keep</span>;
+                }
+
                 <span class="kw">return</span> <span class="ident">Tab::PredictImpact</span>
                     .<span class="ident">handle_action</span>::<span class="op">&lt;</span><span class="ident">ShowGaps</span><span class="op">&gt;</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="ident">x</span>)
                     .<span class="ident">unwrap</span>();
@@ -617,8 +635,13 @@
     }
 
     <span class="kw">let</span> <span class="ident">col</span> <span class="op">=</span> <span class="macro">vec!</span>[
-        <span class="comment">// TODO Info button with popup explaining all the assumptions... (where scenario data comes</span>
-        <span class="comment">// from, only driving -&gt; cycling, no off-map starts or ends, etc)</span>
+        <span class="ident">ctx</span>.<span class="ident">style</span>()
+            .<span class="ident">btn_plain</span>
+            .<span class="ident">icon_text</span>(
+                <span class="string">&quot;system/assets/tools/info.svg&quot;</span>,
+                <span class="string">&quot;How many drivers might switch to biking?&quot;</span>,
+            )
+            .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;read about how this prediction works&quot;</span>),
         <span class="ident">percentage_bar</span>(
             <span class="ident">ctx</span>,
             <span class="ident">Text::from</span>(<span class="ident">Line</span>(<span class="macro">format!</span>(
@@ -646,7 +669,7 @@
             <span class="ident">percentage_bar</span>(
                 <span class="ident">ctx</span>,
                 <span class="ident">Text::from</span>(<span class="ident">Line</span>(<span class="macro">format!</span>(
-                    <span class="string">&quot;{} / {} trips would switch!&quot;</span>,
+                    <span class="string">&quot;{} / {} trips would switch&quot;</span>,
                     <span class="ident">data</span>.<span class="ident">results</span>.<span class="ident">num_trips</span>,
                     <span class="ident">data</span>.<span class="ident">all_candidate_trips</span>.<span class="ident">len</span>()
                 ))),
@@ -767,12 +790,15 @@
     <span class="kw">fn</span> <span class="ident">describe</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Text</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::new</span>();
         <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">Line</span>(<span class="macro">format!</span>(
-            <span class="string">&quot;{} total vehicle miles traveled daily&quot;</span>,
+            <span class="string">&quot;{} total vehicle miles traveled daily, now eliminated&quot;</span>,
             <span class="ident">prettyprint_usize</span>(<span class="self">self</span>.<span class="ident">total_driving_distance</span>.<span class="ident">to_miles</span>() <span class="kw">as</span> <span class="ident">usize</span>)
         )));
         <span class="comment">// Round to 1 decimal place</span>
         <span class="kw">let</span> <span class="ident">tons</span> <span class="op">=</span> (<span class="self">self</span>.<span class="ident">annual_co2_emissions_tons</span> <span class="op">*</span> <span class="number">10.0</span>).<span class="ident">round</span>() <span class="op">/</span> <span class="number">10.0</span>;
-        <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">Line</span>(<span class="macro">format!</span>(<span class="string">&quot;{} tons of CO2 emissions annually&quot;</span>, <span class="ident">tons</span>)));
+        <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">Line</span>(<span class="macro">format!</span>(
+            <span class="string">&quot;{} tons of CO2 emissions saved annually&quot;</span>,
+            <span class="ident">tons</span>
+        )));
         <span class="ident">txt</span>
     }
 }
