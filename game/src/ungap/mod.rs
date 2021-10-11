@@ -67,7 +67,7 @@ impl Tab {
             ctx.style()
                 .btn_tab
                 .icon_text("system/assets/tools/pin.svg", "Your Trip")
-                .hotkey(Key::Num3)
+                .hotkey(Key::Num2)
                 .disabled(self == Tab::Route)
                 .build_def(ctx),
         );
@@ -79,7 +79,7 @@ impl Tab {
             ctx.style()
                 .btn_tab
                 .icon_text("system/assets/tools/pencil.svg", "Add bike lanes")
-                .hotkey(Key::Num2)
+                .hotkey(Key::Num3)
                 .disabled(self == Tab::Create)
                 .build_def(ctx),
         );
