@@ -202,15 +202,20 @@ impl<X: Axis<X>, Y: Axis<Y>> LinePlot<X, Y> {
         }
     }
 
-    // TODO Explain purpose
-    pub fn set_hovering(&mut self, ctx: &mut EventCtx, x: X, y: Y) {
-        // TODO What series?
-        let mut txt = Text::new().bg(Color::RED);
-        txt.add_line(format!(
-            "at {}, {}",
+    /// Programmatically show a tooltip at the given x/y.
+    ///
+    /// Useful (e.g.) when points on the line plot corresponds to a point on the map - as the user
+    /// hovers on the map you can highlight the corresponding details on the plot.
+    pub fn set_hovering(&mut self, ctx: &mut EventCtx, label: &str, x: X, y: Y) {
+        // mimic the tooltip style
+        let txt = Text::from(crate::Line(format!(
+            "{}: at {}, {}",
+            label,
             x.prettyprint(&self.unit_fmt),
             y.prettyprint(&self.unit_fmt)
-        ));
+        )))
+        .bg(Color::BLACK)
+        .change_fg(ctx.style().text_tooltip_color);
 
         // Find this point in screen-space
         let pt = Pt2D::new(
