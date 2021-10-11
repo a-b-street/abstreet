@@ -886,6 +886,12 @@
 <span id="886">886</span>
 <span id="887">887</span>
 <span id="888">888</span>
+<span id="889">889</span>
+<span id="890">890</span>
+<span id="891">891</span>
+<span id="892">892</span>
+<span id="893">893</span>
+<span id="894">894</span>
 </pre><pre class="rust">
 <span class="doccomment">//! A bunch of (mostly read-only) queries on a Map.</span>
 
@@ -1760,19 +1766,25 @@
             <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">get_i</span>(<span class="ident">from</span>.<span class="ident">common_endpt</span>(<span class="ident">to</span>)).<span class="ident">is_stop_sign</span>()
     }
 
-    <span class="doccomment">/// Modifies the map in-place, removing parts not essential for the bike network tool. Also</span>
-    <span class="doccomment">/// modifies the name.</span>
+    <span class="doccomment">/// Modifies the map in-place, removing parts not essential for the bike network tool.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">minify</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>) {
-        <span class="self">self</span>.<span class="ident">name</span>.<span class="ident">map</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;minified_{}&quot;</span>, <span class="self">self</span>.<span class="ident">name</span>.<span class="ident">map</span>);
-
-        <span class="comment">// Don&#39;t need CHs or even the graph for anything except bikes.</span>
-        <span class="self">self</span>.<span class="ident">pathfinder</span> <span class="op">=</span> <span class="ident">Pathfinder::new_for_one_mode</span>(
+        <span class="comment">// We only need the CHs for driving and biking, to support mode shift.</span>
+        <span class="self">self</span>.<span class="ident">pathfinder</span> <span class="op">=</span> <span class="ident">Pathfinder::new_limited</span>(
             <span class="self">self</span>,
             <span class="self">self</span>.<span class="ident">routing_params</span>().<span class="ident">clone</span>(),
-            <span class="kw">crate</span><span class="ident">::pathfind::CreateEngine::Dijkstra</span>,
-            <span class="ident">PathConstraints::Bike</span>,
+            <span class="kw">crate</span><span class="ident">::pathfind::CreateEngine::CH</span>,
+            <span class="macro">vec!</span>[<span class="ident">PathConstraints::Car</span>, <span class="ident">PathConstraints::Bike</span>],
             <span class="ident">timer</span>,
         );
+
+        <span class="comment">// Remove all bus routes, since we remove that pathfinder</span>
+        <span class="self">self</span>.<span class="ident">bus_stops</span>.<span class="ident">clear</span>();
+        <span class="self">self</span>.<span class="ident">bus_routes</span>.<span class="ident">clear</span>();
+        <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">roads</span> {
+            <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">r</span>.<span class="ident">lanes</span> {
+                <span class="ident">l</span>.<span class="ident">bus_stops</span>.<span class="ident">clear</span>();
+            }
+        }
     }
 }
 </pre></div>

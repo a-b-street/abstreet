@@ -390,6 +390,18 @@
 <span id="390">390</span>
 <span id="391">391</span>
 <span id="392">392</span>
+<span id="393">393</span>
+<span id="394">394</span>
+<span id="395">395</span>
+<span id="396">396</span>
+<span id="397">397</span>
+<span id="398">398</span>
+<span id="399">399</span>
+<span id="400">400</span>
+<span id="401">401</span>
+<span id="402">402</span>
+<span id="403">403</span>
+<span id="404">404</span>
 </pre><pre class="rust">
 <span class="doccomment">//! It&#39;s assumed that the importer is run with the current directory as the project repository; aka</span>
 <span class="doccomment">//! `./data/` and `./importer/config` must exist.</span>
@@ -532,8 +544,8 @@
 }
 
 <span class="kw">fn</span> <span class="ident">regenerate_all_maps</span>(<span class="ident">opts</span>: <span class="ident">RawToMapOptions</span>) {
-    <span class="comment">// Omit Seattle and Berlin, because they have special follow-up actions (GTFS and</span>
-    <span class="comment">// distributing residents)</span>
+    <span class="comment">// Omit Seattle and Berlin, because they have special follow-up actions (GTFS, minifying some</span>
+    <span class="comment">// maps, and distributing residents)</span>
     <span class="kw">let</span> <span class="ident">all_maps</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">MapName</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">CityName::list_all_cities_from_importer_config</span>()
         .<span class="ident">into_iter</span>()
         .<span class="ident">flat_map</span>(<span class="op">|</span><span class="ident">city</span><span class="op">|</span> <span class="ident">city</span>.<span class="ident">list_all_maps_in_city_from_importer_config</span>())
@@ -712,6 +724,18 @@
                         <span class="ident">timer</span>,
                     );
                     <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;match parcels to buildings&quot;</span>);
+
+                    <span class="comment">// Even stranger hacks! AFTER generating the scenarios, which requires full</span>
+                    <span class="comment">// pathfinding, for a few maps, &quot;minify&quot; them to cut down file size for the</span>
+                    <span class="comment">// bike network tool.</span>
+                    <span class="kw">if</span> <span class="ident">name</span>.<span class="ident">map</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;central_seattle&quot;</span>
+                        <span class="op">|</span><span class="op">|</span> <span class="ident">name</span>.<span class="ident">map</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;north_seattle&quot;</span>
+                        <span class="op">|</span><span class="op">|</span> <span class="ident">name</span>.<span class="ident">map</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;south_seattle&quot;</span>
+                    {
+                        <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">maybe_map</span>.<span class="ident">as_mut</span>().<span class="ident">unwrap</span>();
+                        <span class="ident">map</span>.<span class="ident">minify</span>(<span class="ident">timer</span>);
+                        <span class="ident">map</span>.<span class="ident">save</span>();
+                    }
                 }
 
                 <span class="kw">if</span> <span class="self">self</span>.<span class="ident">city</span>.<span class="ident">country</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;gb&quot;</span> {
