@@ -73,7 +73,7 @@ impl SavedRoutes {
     fn new_name(&self) -> String {
         let mut i = self.routes.len() + 1;
         loop {
-            let name = format!("Route {}", i);
+            let name = format!("Trip {}", i);
             if self.routes.contains_key(&name) {
                 i += 1;
             } else {
@@ -103,7 +103,7 @@ impl RouteManagement {
                     .btn_plain
                     .btn()
                     .label_underlined_text(current_name)
-                    .build_widget(ctx, "rename route"),
+                    .build_widget(ctx, "rename trip"),
                 ctx.style()
                     .btn_plain
                     .icon_text("system/assets/tools/save.svg", "Save")
@@ -115,22 +115,22 @@ impl RouteManagement {
                     .build_def(ctx),
             ]),
             Widget::row(vec![
-                ctx.style().btn_plain.text("Start new route").build_def(ctx),
+                ctx.style().btn_plain.text("Start new trip").build_def(ctx),
                 ctx.style()
                     .btn_prev()
                     .hotkey(Key::LeftArrow)
                     .disabled(self.all.prev(current_name).is_none())
-                    .build_widget(ctx, "previous route"),
+                    .build_widget(ctx, "previous trip"),
                 // TODO Autosave first?
                 ctx.style()
                     .btn_plain
-                    .text("Load another route")
+                    .text("Load another trip")
                     .build_def(ctx),
                 ctx.style()
                     .btn_next()
                     .hotkey(Key::RightArrow)
                     .disabled(self.all.next(current_name).is_none())
-                    .build_widget(ctx, "next route"),
+                    .build_widget(ctx, "next trip"),
             ]),
         ])
         .section(ctx)
@@ -155,16 +155,16 @@ impl RouteManagement {
                 };
                 Some(Transition::Keep)
             }
-            "Start new route" => {
+            "Start new trip" => {
                 self.current = NamedRoute {
                     name: self.all.new_name(),
                     waypoints: Vec::new(),
                 };
                 Some(Transition::Keep)
             }
-            "Load another route" => Some(Transition::Push(ChooseSomething::new_state(
+            "Load another trip" => Some(Transition::Push(ChooseSomething::new_state(
                 ctx,
-                "Load another route",
+                "Load another trip",
                 self.all.routes.keys().map(|x| Choice::string(x)).collect(),
                 Box::new(move |choice, _, _| {
                     Transition::Multi(vec![
@@ -177,15 +177,15 @@ impl RouteManagement {
                     ])
                 }),
             ))),
-            "previous route" => {
+            "previous trip" => {
                 self.current = self.all.prev(&self.current.name).unwrap().clone();
                 Some(Transition::Keep)
             }
-            "next route" => {
+            "next trip" => {
                 self.current = self.all.next(&self.current.name).unwrap().clone();
                 Some(Transition::Keep)
             }
-            "rename route" => Some(Transition::Push(RenameRoute::new_state(
+            "rename trip" => Some(Transition::Push(RenameRoute::new_state(
                 ctx,
                 &self.current,
                 &self.all,
@@ -208,7 +208,7 @@ impl RenameRoute {
     ) -> Box<dyn State<App>> {
         let panel = Panel::new_builder(Widget::col(vec![
             Widget::row(vec![
-                Line("Name this route").small_heading().into_widget(ctx),
+                Line("Name this trip").small_heading().into_widget(ctx),
                 ctx.style().btn_close_widget(ctx),
             ]),
             Widget::row(vec![
@@ -271,7 +271,7 @@ impl SimpleState<App> for RenameRoute {
             panel.replace(
                 ctx,
                 "warning",
-                Line("A route with this name already exists")
+                Line("A trip with this name already exists")
                     .fg(Color::hex("#FF5E5E"))
                     .into_widget(ctx),
             );
