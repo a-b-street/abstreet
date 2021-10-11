@@ -1,5 +1,3 @@
-use std::collections::HashSet;
-
 use geom::{Circle, Distance, Duration, FindClosest, PolyLine, Polygon};
 use map_gui::tools::PopupMsg;
 use map_model::{Path, PathStep, NORMAL_LANE_THICKNESS};
@@ -7,7 +5,7 @@ use sim::{TripEndpoint, TripMode};
 use widgetry::mapspace::{ToggleZoomed, ToggleZoomedBuilder};
 use widgetry::{
     Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, LinePlot, Outcome, Panel, PlotOptions,
-    Series, Text, Widget,
+    ScreenDims, Series, Text, Widget,
 };
 
 use super::RoutingPreferences;
@@ -443,10 +441,13 @@ fn make_detail_widget(
                 pts: elevation_pts,
             }],
             PlotOptions {
-                filterable: false,
                 max_x: Some(stats.total_distance.round_up_for_axis()),
                 max_y: Some(app.primary.map.max_elevation().round_up_for_axis()),
-                disabled: HashSet::new(),
+                dims: Some(ScreenDims {
+                    width: 400.0,
+                    height: 200.0,
+                }),
+                ..Default::default()
             },
             app.opts.units,
         ),

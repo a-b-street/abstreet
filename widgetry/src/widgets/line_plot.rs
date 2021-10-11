@@ -56,10 +56,17 @@ impl<X: Axis<X>, Y: Axis<Y>> LinePlot<X, Y> {
                 .unwrap_or_else(Y::zero)
         });
 
-        // TODO Tuned to fit the info panel. Instead these should somehow stretch to fill their
-        // container.
-        let width = 0.23 * ctx.canvas.window_width;
-        let height = 0.2 * ctx.canvas.window_height;
+        // TODO: somehow stretch to fill their container.
+        let default_dims = {
+            let width = 0.23 * ctx.canvas.window_width;
+            let height = 0.2 * ctx.canvas.window_height;
+            ScreenDims { width, height }
+        };
+
+        let dims = opts.dims.unwrap_or(default_dims);
+        let width = dims.width;
+        let height = dims.height;
+        info!("line_plot dims: {:?}", dims);
 
         let mut batch = GeomBatch::new();
         // Grid lines for the Y scale. Draw up to 10 lines max to cover the order of magnitude of

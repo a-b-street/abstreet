@@ -1,5 +1,3 @@
-use std::collections::HashSet;
-
 use rand::SeedableRng;
 use rand_xorshift::XorShiftRng;
 
@@ -114,12 +112,10 @@ impl Demo {
                     },
                 ],
                 PlotOptions {
-                    filterable: false,
                     // Without this, the plot doesn't stretch to cover times in between whole
                     // seconds.
                     max_x: Some(Time::START_OF_DAY + self.elapsed),
-                    max_y: None,
-                    disabled: HashSet::new(),
+                    ..Default::default()
                 },
                 UnitFmt {
                     round_durations: true,

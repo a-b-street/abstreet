@@ -1,5 +1,3 @@
-use std::collections::HashSet;
-
 use abstutil::prettyprint_usize;
 use map_model::ParkingLotID;
 use widgetry::{EventCtx, Line, LinePlot, PlotOptions, Series, TextExt, Widget};
@@ -58,10 +56,8 @@ fn info_body(ctx: &mut EventCtx, app: &App, id: ParkingLotID) -> Widget {
             "parking availability",
             series,
             PlotOptions {
-                filterable: false,
-                max_x: None,
                 max_y: Some(capacity),
-                disabled: HashSet::new(),
+                ..Default::default()
             },
             app.opts.units,
         ),
