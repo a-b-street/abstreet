@@ -2,8 +2,8 @@ use geom::{Angle, Bounds, Circle, Distance, FindClosest, PolyLine, Pt2D, UnitFmt
 
 use crate::widgets::plots::{make_legend, thick_lineseries, Axis, PlotOptions, Series};
 use crate::{
-    Color, Drawable, EventCtx, GeomBatch, GfxCtx, ScreenDims, ScreenPt, ScreenRectangle, Text,
-    TextExt, Widget, WidgetImpl, WidgetOutput,
+    Color, Drawable, EdgeInsets, EventCtx, GeomBatch, GfxCtx, ScreenDims, ScreenPt,
+    ScreenRectangle, Text, TextExt, Widget, WidgetImpl, WidgetOutput,
 };
 
 pub struct LinePlot<X: Axis<X>, Y: Axis<Y>> {
@@ -151,7 +151,14 @@ impl<X: Axis<X>, Y: Axis<Y>> LinePlot<X, Y> {
                 .autocrop();
             row.push(batch.into_widget(ctx));
         }
-        let x_axis = Widget::custom_row(row).padding(10).evenly_spaced();
+        let x_axis = Widget::custom_row(row)
+            .padding(EdgeInsets {
+                top: 10.0,
+                left: 60.0,
+                right: 10.0,
+                bottom: 10.0,
+            })
+            .evenly_spaced();
 
         let num_y_labels = 3;
         let mut col = Vec::new();
