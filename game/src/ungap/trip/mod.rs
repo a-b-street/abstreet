@@ -119,7 +119,12 @@ impl TripPlanner {
 
     fn update_input_panel(&mut self, ctx: &mut EventCtx, app: &App, main_route: Widget) {
         let col = Widget::col(vec![
-            self.files.get_panel_widget(ctx),
+            Widget::col(vec![
+                self.files.get_panel_widget(ctx),
+                Widget::horiz_separator(ctx, 1.0),
+                self.waypoints.get_panel_widget(ctx),
+            ])
+            .section(ctx),
             Widget::row(vec![
                 Toggle::checkbox(
                     ctx,
@@ -135,7 +140,6 @@ impl TripPlanner {
                 ),
             ])
             .section(ctx),
-            self.waypoints.get_panel_widget(ctx).section(ctx),
             main_route.section(ctx),
         ]);
 
