@@ -30,12 +30,10 @@ pub fn prebake_all() {
     let mut summaries = Vec::new();
     for name in vec![
         MapName::seattle("arboretum"),
-        //MapName::seattle("greenlake"),
         MapName::seattle("montlake"),
         //MapName::seattle("lakeslice"),
         //MapName::seattle("phinney"),
         //MapName::seattle("qa"),
-        //MapName::seattle("rainier_valley"),
         //MapName::seattle("wallingford"),
     ] {
         let map = map_model::Map::load_synchronously(name.path(), &mut timer);

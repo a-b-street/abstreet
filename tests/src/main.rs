@@ -102,7 +102,7 @@ fn smoke_test() -> Result<()> {
 
         #[allow(clippy::collapsible_if)]
         if (name.city == CityName::seattle()
-            && vec!["downtown", "lakeslice", "montlake", "udistrict"].contains(&name.map.as_str()))
+            && vec!["downtown", "lakeslice", "montlake"].contains(&name.map.as_str()))
             || name == MapName::new("pl", "krakow", "center")
         {
             if false {

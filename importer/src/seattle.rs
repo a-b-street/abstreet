@@ -145,12 +145,9 @@ pub async fn osm_to_raw(name: &str, timer: &mut Timer<'_>, config: &ImporterConf
                 // TODO Utter guesses or in response to gridlock
                 match name {
                     "downtown" => 5,
-                    "greenlake" => 10,
                     "lakeslice" => 5,
                     "qa" => 5,
-                    "rainier_valley" => 3,
                     "south_seattle" => 5,
-                    "udistrict" => 5,
                     "wallingford" => 5,
                     _ => 1,
                 },

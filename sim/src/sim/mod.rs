@@ -195,9 +195,6 @@ impl Sim {
         // https://github.com/a-b-street/abstreet/issues/688 for discussion of how to set this
         // properly.
         if map.get_name() == &MapName::seattle("arboretum")
-            || map.get_name() == &MapName::seattle("aurora_central")
-            || map.get_name() == &MapName::seattle("aurora_north")
-            || map.get_name() == &MapName::seattle("aurora_south")
             || map.get_name().city == CityName::new("ir", "tehran")
             || map.get_name() == &MapName::new("gb", "poundbury", "center")
             || map.get_name() == &MapName::new("us", "phoenix", "tempe")

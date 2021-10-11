@@ -119,7 +119,6 @@ impl Manifest {
             || name == "north_seattle"
             || name == "south_seattle"
             || name == "west_seattle"
-            || name == "udistrict"
     }
 
     /// If an entry's path is system data, return the city.

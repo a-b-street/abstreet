@@ -117,7 +117,7 @@ impl Level {
                 description: "Struggle past the intense hills and restrictive zoning to tackle \
                               one of the lowest-density parts of Seattle!"
                     .to_string(),
-                map: MapName::seattle("ballard"),
+                map: MapName::seattle("central_seattle"),
                 music: "god_rest_ye_merry_gentlemen".to_string(),
                 start: osm::NodeID(53130883),
                 minimap_zoom: 2,
