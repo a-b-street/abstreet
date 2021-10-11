@@ -35,6 +35,18 @@ pub fn prettyprint_usize(x: usize) -> String {
     result
 }
 
+pub fn prettyprint_bytes(bytes: u64) -> String {
+    if bytes < 1024 {
+        return format!("{} bytes", bytes);
+    }
+    let kb = (bytes as f64) / 1024.0;
+    if kb < 1024.0 {
+        return format!("{} KB", kb as usize);
+    }
+    let mb = kb / 1024.0;
+    format!("{} MB", mb as usize)
+}
+
 pub fn abbreviated_format(x: usize) -> String {
     if x >= 1000 {
         let ks = x as f32 / 1000.0;
