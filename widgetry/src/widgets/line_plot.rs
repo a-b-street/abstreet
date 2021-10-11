@@ -66,7 +66,6 @@ impl<X: Axis<X>, Y: Axis<Y>> LinePlot<X, Y> {
         let dims = opts.dims.unwrap_or(default_dims);
         let width = dims.width;
         let height = dims.height;
-        info!("line_plot dims: {:?}", dims);
 
         let mut batch = GeomBatch::new();
         // Grid lines for the Y scale. Draw up to 10 lines max to cover the order of magnitude of
