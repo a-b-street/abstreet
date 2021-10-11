@@ -88,13 +88,9 @@ impl State<App> for QuickSketch {
                         self.route_sketcher.all_roads(app),
                         self.top_panel.dropdown_value("buffer type"),
                     );
-                    return Transition::ConsumeState(Box::new(|state, ctx, app| {
-                        let state = state.downcast::<QuickSketch>().ok().unwrap();
-                        vec![
-                            crate::ungap::ExploreMap::new_state(ctx, app, state.layers),
-                            PopupMsg::new_state(ctx, "Changes made", messages),
-                        ]
-                    }));
+                    self.route_sketcher = RouteSketcher::new(ctx, app);
+                    self.update_top_panel(ctx, app);
+                    return Transition::Push(PopupMsg::new_state(ctx, "Changes made", messages));
                 }
                 x => {
                     // TODO More brittle routing of outcomes.

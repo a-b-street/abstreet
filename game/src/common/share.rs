@@ -64,7 +64,11 @@ impl ShareProposal {
             }
         } else {
             let mut txt = Text::new();
-            txt.add_line(Line("You'll upload this proposal anonymously"));
+            // The Creative Commons licenses all require attribution, but we have no user accounts
+            // or ways of proving identity yet!
+            txt.add_line(Line(
+                "You'll upload this proposal anonymously, in the public domain",
+            ));
             txt.add_line(Line("You can't delete or edit it after uploading"));
             txt.add_line(Line(
                 "(But you can upload and share new versions of the proposal)",

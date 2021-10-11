@@ -3,7 +3,7 @@ use std::collections::HashSet;
 use abstutil::{prettyprint_usize, Counter, Timer};
 use geom::{Distance, Duration, Polygon, UnitFmt};
 use map_gui::load::FileLoader;
-use map_gui::tools::ColorNetwork;
+use map_gui::tools::{open_browser, ColorNetwork};
 use map_gui::ID;
 use map_model::{PathRequest, PathStepV2, RoadID};
 use sim::{Scenario, TripEndpoint, TripMode};
@@ -89,6 +89,11 @@ impl State<App> for ShowGaps {
 
         match self.top_panel.event(ctx) {
             Outcome::Clicked(x) => {
+                if x == "read about how this prediction works" {
+                    open_browser("https://a-b-street.github.io/docs/software/bike_network/tech_details.html#predict-impact");
+                    return Transition::Keep;
+                }
+
                 return Tab::PredictImpact
                     .handle_action::<ShowGaps>(ctx, app, &x)
                     .unwrap();
@@ -139,8 +144,13 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App) -> Panel {
     }
 
     let col = vec![
-        // TODO Info button with popup explaining all the assumptions... (where scenario data comes
-        // from, only driving -> cycling, no off-map starts or ends, etc)
+        ctx.style()
+            .btn_plain
+            .icon_text(
+                "system/assets/tools/info.svg",
+                "How many drivers might switch to biking?",
+            )
+            .build_widget(ctx, "read about how this prediction works"),
         percentage_bar(
             ctx,
             Text::from(Line(format!(
@@ -168,7 +178,7 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App) -> Panel {
             percentage_bar(
                 ctx,
                 Text::from(Line(format!(
-                    "{} / {} trips would switch!",
+                    "{} / {} trips would switch",
                     data.results.num_trips,
                     data.all_candidate_trips.len()
                 ))),
@@ -289,12 +299,15 @@ impl Results {
     fn describe(&self) -> Text {
         let mut txt = Text::new();
         txt.add_line(Line(format!(
-            "{} total vehicle miles traveled daily",
+            "{} total vehicle miles traveled daily, now eliminated",
             prettyprint_usize(self.total_driving_distance.to_miles() as usize)
         )));
         // Round to 1 decimal place
         let tons = (self.annual_co2_emissions_tons * 10.0).round() / 10.0;
-        txt.add_line(Line(format!("{} tons of CO2 emissions annually", tons)));
+        txt.add_line(Line(format!(
+            "{} tons of CO2 emissions saved annually",
+            tons
+        )));
         txt
     }
 }
