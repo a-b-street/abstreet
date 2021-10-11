@@ -1,6 +1,7 @@
 use std::collections::HashSet;
 
-use abstutil::{prettyprint_usize, Counter, Timer};
+use abstio::Manifest;
+use abstutil::{prettyprint_bytes, prettyprint_usize, Counter, Timer};
 use geom::{Distance, Duration, Polygon, UnitFmt};
 use map_gui::load::FileLoader;
 use map_gui::tools::{open_browser, ColorNetwork};
@@ -29,39 +30,11 @@ impl TakeLayers for ShowGaps {
 
 impl ShowGaps {
     pub fn new_state(ctx: &mut EventCtx, app: &mut App, layers: Layers) -> Box<dyn State<App>> {
-        let map_name = app.primary.map.get_name().clone();
-        let change_key = app.primary.map.get_edits_change_key();
-        if app.session.mode_shift.key().as_ref() == Some(&(map_name.clone(), change_key)) {
-            return Box::new(ShowGaps {
-                top_panel: make_top_panel(ctx, app),
-                layers,
-                tooltip: None,
-            });
-        }
-
-        let scenario_name = crate::pregame::default_scenario_for_map(&map_name);
-        if scenario_name == "home_to_work" {
-            // TODO Should we generate and use this scenario? Or maybe just disable this mode
-            // entirely?
-            app.session
-                .mode_shift
-                .set((map_name, change_key), ModeShiftData::empty(ctx));
-            ShowGaps::new_state(ctx, app, layers)
-        } else {
-            FileLoader::<App, Scenario>::new_state(
-                ctx,
-                abstio::path_scenario(&map_name, &scenario_name),
-                Box::new(move |ctx, app, _, maybe_scenario| {
-                    // TODO Handle corrupt files
-                    let scenario = maybe_scenario.unwrap();
-                    let data = ctx.loading_screen("predict mode shift", |ctx, timer| {
-                        ModeShiftData::from_scenario(ctx, app, scenario, timer)
-                    });
-                    app.session.mode_shift.set((map_name, change_key), data);
-                    Transition::Replace(ShowGaps::new_state(ctx, app, layers))
-                }),
-            )
-        }
+        Box::new(ShowGaps {
+            top_panel: make_top_panel(ctx, app),
+            layers,
+            tooltip: None,
+        })
     }
 }
 
@@ -70,19 +43,20 @@ impl State<App> for ShowGaps {
         ctx.canvas_movement();
         if ctx.redo_mouseover() {
             self.tooltip = None;
-            if let Some(r) = match app.mouseover_unzoomed_roads_and_intersections(ctx) {
-                Some(ID::Road(r)) => Some(r),
-                Some(ID::Lane(l)) => Some(l.road),
-                _ => None,
-            } {
-                let data = app.session.mode_shift.value().unwrap();
-                let count = data.gaps.count_per_road.get(r);
-                if count > 0 {
-                    // TODO Word more precisely... or less verbosely.
-                    self.tooltip = Some(Text::from(Line(format!(
-                        "{} trips might cross this high-stress road",
-                        prettyprint_usize(count)
-                    ))));
+            if let Some(data) = app.session.mode_shift.value() {
+                if let Some(r) = match app.mouseover_unzoomed_roads_and_intersections(ctx) {
+                    Some(ID::Road(r)) => Some(r),
+                    Some(ID::Lane(l)) => Some(l.road),
+                    _ => None,
+                } {
+                    let count = data.gaps.count_per_road.get(r);
+                    if count > 0 {
+                        // TODO Word more precisely... or less verbosely.
+                        self.tooltip = Some(Text::from(Line(format!(
+                            "{} trips might cross this high-stress road",
+                            prettyprint_usize(count)
+                        ))));
+                    }
                 }
             }
         }
@@ -92,6 +66,28 @@ impl State<App> for ShowGaps {
                 if x == "read about how this prediction works" {
                     open_browser("https://a-b-street.github.io/docs/software/bike_network/tech_details.html#predict-impact");
                     return Transition::Keep;
+                } else if x == "Calculate" {
+                    let change_key = app.primary.map.get_edits_change_key();
+                    let map_name = app.primary.map.get_name().clone();
+                    let scenario_name = crate::pregame::default_scenario_for_map(&map_name);
+                    return Transition::Push(FileLoader::<App, Scenario>::new_state(
+                        ctx,
+                        abstio::path_scenario(&map_name, &scenario_name),
+                        Box::new(move |ctx, app, timer, maybe_scenario| {
+                            // TODO Handle corrupt files
+                            let scenario = maybe_scenario.unwrap();
+                            let data = ModeShiftData::from_scenario(ctx, app, scenario, timer);
+                            app.session.mode_shift.set((map_name, change_key), data);
+
+                            Transition::Multi(vec![
+                                Transition::Pop,
+                                Transition::ConsumeState(Box::new(|state, ctx, app| {
+                                    let state = state.downcast::<ShowGaps>().ok().unwrap();
+                                    vec![ShowGaps::new_state(ctx, app, state.take_layers())]
+                                })),
+                            ])
+                        }),
+                    ));
                 }
 
                 return Tab::PredictImpact
@@ -122,8 +118,9 @@ impl State<App> for ShowGaps {
         self.top_panel.draw(g);
         self.layers.draw(g, app);
 
-        let data = app.session.mode_shift.value().unwrap();
-        data.gaps.draw.draw(g);
+        if let Some(data) = app.session.mode_shift.value() {
+            data.gaps.draw.draw(g);
+        }
         if let Some(ref txt) = self.tooltip {
             g.draw_mouse_tooltip(txt.clone());
         }
@@ -131,63 +128,82 @@ impl State<App> for ShowGaps {
 }
 
 fn make_top_panel(ctx: &mut EventCtx, app: &App) -> Panel {
-    let data = app.session.mode_shift.value().unwrap();
+    let map_name = app.primary.map.get_name().clone();
+    let change_key = app.primary.map.get_edits_change_key();
+    let col;
 
-    if data.all_candidate_trips.is_empty() {
-        return Tab::PredictImpact.make_left_panel(
-            ctx,
-            app,
+    if app.session.mode_shift.key().as_ref() == Some(&(map_name.clone(), change_key)) {
+        let data = app.session.mode_shift.value().unwrap();
+
+        col = vec![
+            ctx.style()
+                .btn_plain
+                .icon_text(
+                    "system/assets/tools/info.svg",
+                    "How many drivers might switch to biking?",
+                )
+                .build_widget(ctx, "read about how this prediction works"),
+            percentage_bar(
+                ctx,
+                Text::from(Line(format!(
+                    "{} total driving trips in this area",
+                    prettyprint_usize(data.all_candidate_trips.len())
+                ))),
+                0.0,
+            ),
             Widget::col(vec![
-                "This city doesn't have travel demand model data available".text_widget(ctx),
-            ]),
-        );
+                "Who might cycle if it was safer?".text_widget(ctx),
+                data.filters.to_controls(ctx),
+                percentage_bar(
+                    ctx,
+                    Text::from(Line(format!(
+                        "{} / {} trips, based on these thresholds",
+                        data.filtered_trips.len(),
+                        data.all_candidate_trips.len()
+                    ))),
+                    pct(data.filtered_trips.len(), data.all_candidate_trips.len()),
+                ),
+            ])
+            .section(ctx),
+            Widget::col(vec![
+                "How many would switch based on your proposal?".text_widget(ctx),
+                percentage_bar(
+                    ctx,
+                    Text::from(Line(format!(
+                        "{} / {} trips would switch",
+                        data.results.num_trips,
+                        data.all_candidate_trips.len()
+                    ))),
+                    pct(data.results.num_trips, data.all_candidate_trips.len()),
+                ),
+                data.results.describe().into_widget(ctx),
+            ])
+            .section(ctx),
+        ];
+    } else {
+        let scenario_name = crate::pregame::default_scenario_for_map(&map_name);
+        if scenario_name == "home_to_work" {
+            col =
+                vec!["This city doesn't have travel demand model data available".text_widget(ctx)];
+        } else {
+            let size = Manifest::load()
+                .get_entry(&abstio::path_scenario(&map_name, &scenario_name))
+                .map(|entry| prettyprint_bytes(entry.compressed_size_bytes))
+                .unwrap_or("???".to_string());
+            col = vec![
+                Text::from_multiline(vec![
+                    Line("Predicting impact of your proposal may take a moment."),
+                    Line("The application may freeze up during that time."),
+                    Line(format!("We need to load a {} file", size)),
+                ])
+                .into_widget(ctx),
+                ctx.style()
+                    .btn_solid_primary
+                    .text("Calculate")
+                    .build_def(ctx),
+            ];
+        }
     }
-
-    let col = vec![
-        ctx.style()
-            .btn_plain
-            .icon_text(
-                "system/assets/tools/info.svg",
-                "How many drivers might switch to biking?",
-            )
-            .build_widget(ctx, "read about how this prediction works"),
-        percentage_bar(
-            ctx,
-            Text::from(Line(format!(
-                "{} total driving trips in this area",
-                prettyprint_usize(data.all_candidate_trips.len())
-            ))),
-            0.0,
-        ),
-        Widget::col(vec![
-            "Who might cycle if it was safer?".text_widget(ctx),
-            data.filters.to_controls(ctx),
-            percentage_bar(
-                ctx,
-                Text::from(Line(format!(
-                    "{} / {} trips, based on these thresholds",
-                    data.filtered_trips.len(),
-                    data.all_candidate_trips.len()
-                ))),
-                pct(data.filtered_trips.len(), data.all_candidate_trips.len()),
-            ),
-        ])
-        .section(ctx),
-        Widget::col(vec![
-            "How many would switch based on your proposal?".text_widget(ctx),
-            percentage_bar(
-                ctx,
-                Text::from(Line(format!(
-                    "{} / {} trips would switch",
-                    data.results.num_trips,
-                    data.all_candidate_trips.len()
-                ))),
-                pct(data.results.num_trips, data.all_candidate_trips.len()),
-            ),
-            data.results.describe().into_widget(ctx),
-        ])
-        .section(ctx),
-    ];
 
     Tab::PredictImpact.make_left_panel(ctx, app, Widget::col(col))
 }

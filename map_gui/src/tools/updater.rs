@@ -4,6 +4,7 @@ use std::fs::File;
 use futures_channel::mpsc;
 
 use abstio::{DataPacks, Manifest, MapName};
+use abstutil::prettyprint_bytes;
 use widgetry::{EventCtx, Key, Transition};
 
 use crate::load::FutureLoader;
@@ -29,18 +30,6 @@ fn size_of_city(map: &MapName) -> u64 {
         bytes += entry.compressed_size_bytes;
     }
     bytes
-}
-
-fn prettyprint_bytes(bytes: u64) -> String {
-    if bytes < 1024 {
-        return format!("{} bytes", bytes);
-    }
-    let kb = (bytes as f64) / 1024.0;
-    if kb < 1024.0 {
-        return format!("{} KB", kb as usize);
-    }
-    let mb = kb / 1024.0;
-    format!("{} MB", mb as usize)
 }
 
 /// Prompt to download a missing city. On either success or failure (maybe the player choosing to

@@ -136,6 +136,12 @@ impl Manifest {
         }
         None
     }
+
+    /// Look up an entry.
+    pub fn get_entry(&self, path: &str) -> Option<&Entry> {
+        let path = path.strip_prefix(&crate::path("")).unwrap_or(path);
+        self.entries.get(&format!("data/{}", path))
+    }
 }
 
 /// Player-chosen groups of files to opt into downloading
