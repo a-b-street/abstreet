@@ -285,6 +285,14 @@ impl Route {
     fn move_waypoint(&mut self, map: &Map, full_idx: usize, new_i: IntersectionID) -> usize {
         let old_i = self.full_path[full_idx];
 
+        // Edge case when we've placed just one point, then try to drag it
+        if self.waypoints.len() == 1 {
+            assert_eq!(self.waypoints[0], old_i);
+            self.waypoints = vec![new_i];
+            self.full_path = vec![new_i];
+            return 0;
+        }
+
         // Move an existing waypoint?
         if let Some(way_idx) = self.waypoints.iter().position(|x| *x == old_i) {
             self.waypoints[way_idx] = new_i;
