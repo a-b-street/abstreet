@@ -133,7 +133,6 @@ impl TripManagement {
                     .build_widget(ctx, "next trip"),
             ]),
         ])
-        .section(ctx)
     }
 
     pub fn on_click(&mut self, ctx: &mut EventCtx, app: &App, action: &str) -> Option<Transition> {
