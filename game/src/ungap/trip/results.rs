@@ -492,21 +492,8 @@ fn compare_routes(
             txt.append(
                 Line(format!("{} less ↑", (-up).to_string(&app.opts.units))).fg(Color::GREEN),
             );
-            txt.append(Line(", "));
         } else if up > Distance::ZERO {
             txt.append(Line(format!("{} more ↑", up.to_string(&app.opts.units))).fg(Color::RED));
-            txt.append(Line(", "));
-        }
-
-        // Unclear if more down should be "good" or "bad", so we'll omit color
-        let down = alt.total_down - main.total_down;
-        if down < Distance::ZERO {
-            txt.append(Line(format!(
-                "{} less ↓",
-                (-down).to_string(&app.opts.units)
-            )));
-        } else if down > Distance::ZERO {
-            txt.append(Line(format!("{} more ↓", down.to_string(&app.opts.units))));
         }
     }
 
