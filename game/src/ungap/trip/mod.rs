@@ -10,20 +10,20 @@ use crate::ungap::{Layers, Tab, TakeLayers};
 mod files;
 mod results;
 
-pub struct RoutePlanner {
+pub struct TripPlanner {
     layers: Layers,
     once: bool,
 
     input_panel: Panel,
     waypoints: InputWaypoints,
     main_route: RouteDetails,
-    files: files::RouteManagement,
+    files: files::TripManagement,
     // TODO We really only need to store preferences and stats, but...
     alt_routes: Vec<RouteDetails>,
     world: World<ID>,
 }
 
-impl TakeLayers for RoutePlanner {
+impl TakeLayers for TripPlanner {
     fn take_layers(self) -> Layers {
         self.layers
     }
@@ -37,16 +37,16 @@ enum ID {
 }
 impl ObjectID for ID {}
 
-impl RoutePlanner {
+impl TripPlanner {
     pub fn new_state(ctx: &mut EventCtx, app: &App, layers: Layers) -> Box<dyn State<App>> {
-        let mut rp = RoutePlanner {
+        let mut rp = TripPlanner {
             layers,
             once: true,
 
             input_panel: Panel::empty(ctx),
             waypoints: InputWaypoints::new(app),
             main_route: RouteDetails::main_route(ctx, app, Vec::new()).details,
-            files: files::RouteManagement::new(app),
+            files: files::TripManagement::new(app),
             alt_routes: Vec::new(),
             world: World::bounded(app.primary.map.get_bounds()),
         };
@@ -70,7 +70,7 @@ impl RoutePlanner {
         self.update_input_panel(ctx, app, main_route.details_widget);
 
         self.alt_routes.clear();
-        // Just show one alternate route by default, unless the user enables one checkbox but not
+        // Just show one alternate trip by default, unless the user enables one checkbox but not
         // the other. We could show more variations, but it makes the view too messy.
         for preferences in [
             RoutingPreferences {
@@ -139,7 +139,7 @@ impl RoutePlanner {
             main_route.section(ctx),
         ]);
 
-        let mut new_panel = Tab::Route.make_left_panel(ctx, app, col);
+        let mut new_panel = Tab::Trip.make_left_panel(ctx, app, col);
 
         // TODO After scrolling down and dragging a slider, sometimes releasing the slider
         // registers as clicking "X" on the waypoints! Maybe just replace() in that case?
@@ -154,7 +154,7 @@ impl RoutePlanner {
     }
 }
 
-impl State<App> for RoutePlanner {
+impl State<App> for TripPlanner {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         if self.once {
             self.once = false;
@@ -180,7 +180,7 @@ impl State<App> for RoutePlanner {
 
         let panel_outcome = self.input_panel.event(ctx);
         if let Outcome::Clicked(ref x) = panel_outcome {
-            if let Some(t) = Tab::Route.handle_action::<RoutePlanner>(ctx, app, x) {
+            if let Some(t) = Tab::Trip.handle_action::<TripPlanner>(ctx, app, x) {
                 return t;
             }
             if let Some(t) = self.files.on_click(ctx, app, x) {

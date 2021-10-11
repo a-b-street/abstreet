@@ -401,7 +401,7 @@ pub fn path_all_saves(name: &MapName, edits_name: &str, run_name: &str) -> Strin
     ))
 }
 
-pub fn path_routes(name: &MapName) -> String {
+pub fn path_trips(name: &MapName) -> String {
     path(format!(
         "player/routes/{}/{}/{}.json",
         name.city.country, name.city.city, name.map

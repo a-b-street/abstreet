@@ -271,7 +271,7 @@ impl RouteDetails {
         if self.hover_on_line_plot.as_ref().map(|pair| pair.0) != current_dist_along {
             self.hover_on_line_plot = current_dist_along.map(|mut dist| {
                 let mut batch = GeomBatch::new();
-                // Find this position on the route
+                // Find this position on the trip
                 for (path, maybe_pl) in &self.paths {
                     if dist > path.total_length() {
                         dist -= path.total_length();
@@ -299,7 +299,7 @@ impl RouteDetails {
                     .closest_path_segment
                     .closest_pt(pt, 10.0 * NORMAL_LANE_THICKNESS)
                 {
-                    // Find the total distance along the route
+                    // Find the total distance along the trip
                     let mut dist = Distance::ZERO;
                     for (path, _) in &self.paths[0..idx] {
                         dist += path.total_length();
@@ -461,7 +461,7 @@ fn compare_routes(
     preferences: RoutingPreferences,
 ) -> Text {
     let mut txt = Text::new();
-    txt.add_line(Line(format!("Click to use {} route", preferences.name())));
+    txt.add_line(Line(format!("Click to use {} trip", preferences.name())));
 
     cmp_dist(
         &mut txt,
