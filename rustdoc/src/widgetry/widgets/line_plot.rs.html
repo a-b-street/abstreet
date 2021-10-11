@@ -294,6 +294,11 @@
 <span id="294">294</span>
 <span id="295">295</span>
 <span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">Bounds</span>, <span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">FindClosest</span>, <span class="ident">PolyLine</span>, <span class="ident">Pt2D</span>, <span class="ident">UnitFmt</span>};
 
@@ -499,15 +504,20 @@
         }
     }
 
-    <span class="comment">// TODO Explain purpose</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_hovering</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">x</span>: <span class="ident">X</span>, <span class="ident">y</span>: <span class="ident">Y</span>) {
-        <span class="comment">// TODO What series?</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::new</span>().<span class="ident">bg</span>(<span class="ident">Color::RED</span>);
-        <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="macro">format!</span>(
-            <span class="string">&quot;at {}, {}&quot;</span>,
+    <span class="doccomment">/// Programmatically show a tooltip at the given x/y.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Useful (e.g.) when points on the line plot corresponds to a point on the map - as the user</span>
+    <span class="doccomment">/// hovers on the map you can highlight the corresponding details on the plot.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_hovering</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">label</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">x</span>: <span class="ident">X</span>, <span class="ident">y</span>: <span class="ident">Y</span>) {
+        <span class="comment">// mimic the tooltip style</span>
+        <span class="kw">let</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::from</span>(<span class="kw">crate</span><span class="ident">::Line</span>(<span class="macro">format!</span>(
+            <span class="string">&quot;{}: at {}, {}&quot;</span>,
+            <span class="ident">label</span>,
             <span class="ident">x</span>.<span class="ident">prettyprint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">unit_fmt</span>),
             <span class="ident">y</span>.<span class="ident">prettyprint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">unit_fmt</span>)
-        ));
+        )))
+        .<span class="ident">bg</span>(<span class="ident">Color::BLACK</span>)
+        .<span class="ident">change_fg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_tooltip_color</span>);
 
         <span class="comment">// Find this point in screen-space</span>
         <span class="kw">let</span> <span class="ident">pt</span> <span class="op">=</span> <span class="ident">Pt2D::new</span>(
