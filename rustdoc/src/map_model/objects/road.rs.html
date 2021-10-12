@@ -1264,7 +1264,7 @@
         <span class="kw">if</span> <span class="op">!</span><span class="ident">can_use</span> <span class="op">|</span><span class="op">|</span> <span class="ident">bike_lanes</span> {
             <span class="kw">return</span> <span class="bool-val">false</span>;
         }
-        <span class="self">self</span>.<span class="ident">get_rank</span>() <span class="op">=</span><span class="op">=</span> <span class="ident">osm::RoadRank::Arterial</span>
+        <span class="self">self</span>.<span class="ident">get_rank</span>() <span class="op">!</span><span class="op">=</span> <span class="ident">osm::RoadRank::Local</span>
     }
 }
 
