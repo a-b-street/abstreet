@@ -253,7 +253,7 @@
         {
             <span class="kw">if</span> <span class="ident">current</span> <span class="op">=</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">name</span>.<span class="ident">clone</span>()) {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::new</span>();
-                <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">Line</span>(<span class="kw-2">&amp;</span><span class="ident">edits</span>.<span class="ident">proposal_description</span>[<span class="number">0</span>]).<span class="ident">small_heading</span>());
+                <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">Line</span>(<span class="ident">edits</span>.<span class="ident">get_title</span>()).<span class="ident">small_heading</span>());
                 <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="ident">edits</span>.<span class="ident">proposal_description</span>.<span class="ident">iter</span>().<span class="ident">skip</span>(<span class="number">1</span>) {
                     <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">l</span>);
                 }
@@ -285,7 +285,7 @@
                 <span class="ident">tab_buttons</span>.<span class="ident">push</span>(
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
                         .<span class="ident">btn_tab</span>
-                        .<span class="ident">text</span>(<span class="kw-2">&amp;</span><span class="ident">edits</span>.<span class="ident">proposal_description</span>[<span class="number">0</span>])
+                        .<span class="ident">text</span>(<span class="ident">edits</span>.<span class="ident">get_title</span>())
                         .<span class="ident">disabled</span>(<span class="bool-val">true</span>)
                         .<span class="ident">build_def</span>(<span class="ident">ctx</span>)
                         .<span class="ident">margin_below</span>(<span class="number">10</span>),
@@ -297,7 +297,7 @@
                 <span class="ident">tab_buttons</span>.<span class="ident">push</span>(
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
                         .<span class="ident">btn_outline</span>
-                        .<span class="ident">text</span>(<span class="kw-2">&amp;</span><span class="ident">edits</span>.<span class="ident">proposal_description</span>[<span class="number">0</span>])
+                        .<span class="ident">text</span>(<span class="ident">edits</span>.<span class="ident">get_title</span>())
                         .<span class="ident">no_tooltip</span>()
                         .<span class="ident">hotkey</span>(<span class="ident">hotkey</span>)
                         .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">name</span>)
