@@ -711,7 +711,7 @@ impl Widget {
                 w.restore(ctx, prev);
             }
         } else if self.widget.can_restore() {
-            if let Some(other) = prev.maybe_find(self.id.as_ref().unwrap()) {
+            if let Some(other) = prev.maybe_find_widget(self.id.as_ref().unwrap()) {
                 self.widget.restore(ctx, other.widget.as_ref());
             }
         }

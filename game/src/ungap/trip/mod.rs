@@ -124,31 +124,34 @@ impl TripPlanner {
     }
 
     fn update_input_panel(&mut self, ctx: &mut EventCtx, app: &App, main_route: Widget) {
-        let col = Widget::col(vec![
-            Widget::col(vec![
-                self.files.get_panel_widget(ctx),
-                Widget::horiz_separator(ctx, 1.0),
-                self.waypoints.get_panel_widget(ctx),
-            ])
-            .section(ctx),
-            Widget::row(vec![
-                Toggle::checkbox(
-                    ctx,
-                    "Avoid steep hills",
-                    None,
-                    app.session.routing_preferences.avoid_hills,
-                ),
-                Toggle::checkbox(
-                    ctx,
-                    "Avoid stressful roads",
-                    None,
-                    app.session.routing_preferences.avoid_stressful_roads,
-                ),
-            ])
-            .section(ctx),
-            main_route.section(ctx),
-        ]);
+        let mut sections = vec![Widget::col(vec![
+            self.files.get_panel_widget(ctx),
+            Widget::horiz_separator(ctx, 1.0),
+            self.waypoints.get_panel_widget(ctx),
+        ])
+        .section(ctx)];
+        if self.waypoints.len() >= 2 {
+            sections.push(
+                Widget::row(vec![
+                    Toggle::checkbox(
+                        ctx,
+                        "Avoid steep hills",
+                        None,
+                        app.session.routing_preferences.avoid_hills,
+                    ),
+                    Toggle::checkbox(
+                        ctx,
+                        "Avoid stressful roads",
+                        None,
+                        app.session.routing_preferences.avoid_stressful_roads,
+                    ),
+                ])
+                .section(ctx),
+            );
+            sections.push(main_route.section(ctx));
+        }
 
+        let col = Widget::col(sections);
         let mut new_panel = Tab::Trip.make_left_panel(ctx, app, col);
 
         // TODO After scrolling down and dragging a slider, sometimes releasing the slider
