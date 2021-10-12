@@ -133,7 +133,8 @@ fn make_quick_changes(
     // TODO Erasing changes
 
     let mut edits = app.primary.map.get_edits().clone();
-    let mut num_changes = 0;
+    let mut changed = 0;
+    let mut unchanged = 0;
     for r in roads {
         let old = app.primary.map.get_r_edit(r);
         let mut new = old.clone();
@@ -142,14 +143,23 @@ fn make_quick_changes(
             buffer_type,
             app.primary.map.get_config().driving_side,
         );
-        if old != new {
-            num_changes += 1;
+        if old == new {
+            unchanged += 1;
+        } else {
+            changed += 1;
             edits.commands.push(EditCmd::ChangeRoad { r, old, new });
         }
     }
     apply_map_edits(ctx, app, edits);
 
-    vec![format!("Changed {} segments", num_changes)]
+    let mut messages = Vec::new();
+    if changed > 0 {
+        messages.push(format!("Added bike lanes to {} segments", changed));
+    }
+    if unchanged > 0 {
+        messages.push(format!("Didn't modify {} segments -- the road isn't wide enough, or there's already a bike lane", unchanged));
+    }
+    messages
 }
 
 #[allow(clippy::unnecessary_unwrap)]
