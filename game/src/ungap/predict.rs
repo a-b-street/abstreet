@@ -348,7 +348,7 @@ impl ModeShiftData {
         scenario: Scenario,
         timer: &mut Timer,
     ) -> ModeShiftData {
-        let map = app
+        let unedited_map = app
             .primary
             .unedited_map
             .as_ref()
@@ -367,16 +367,27 @@ impl ModeShiftData {
                 |trip| {
                     // TODO Does ? work
                     if let (Some(driving_path), Some(biking_path)) = (
-                        TripEndpoint::path_req(trip.origin, trip.destination, TripMode::Drive, map)
-                            .and_then(|req| map.pathfind(req).ok()),
-                        TripEndpoint::path_req(trip.origin, trip.destination, TripMode::Bike, map)
-                            .and_then(|req| map.pathfind(req).ok()),
+                        TripEndpoint::path_req(
+                            trip.origin,
+                            trip.destination,
+                            TripMode::Drive,
+                            unedited_map,
+                        )
+                        .and_then(|req| unedited_map.pathfind(req).ok()),
+                        TripEndpoint::path_req(
+                            trip.origin,
+                            trip.destination,
+                            TripMode::Bike,
+                            unedited_map,
+                        )
+                        .and_then(|req| unedited_map.pathfind(req).ok()),
                     ) {
-                        let (total_elevation_gain, _) = biking_path.get_total_elevation_change(map);
+                        let (total_elevation_gain, _) =
+                            biking_path.get_total_elevation_change(unedited_map);
                         Some(CandidateTrip {
                             bike_req: biking_path.get_req().clone(),
                             estimated_biking_time: biking_path
-                                .estimate_duration(map, Some(map_model::MAX_BIKE_SPEED)),
+                                .estimate_duration(unedited_map, Some(map_model::MAX_BIKE_SPEED)),
                             driving_distance: driving_path.total_length(),
                             total_elevation_gain,
                         })
@@ -395,18 +406,18 @@ impl ModeShiftData {
     }
 
     fn recalculate_gaps(&mut self, ctx: &mut EventCtx, app: &App, timer: &mut Timer) {
-        let map = app
+        let unedited_map = app
             .primary
             .unedited_map
             .as_ref()
             .unwrap_or(&app.primary.map);
 
         // Find all high-stress roads, since we'll filter by them next
-        let high_stress: HashSet<RoadID> = map
+        let high_stress: HashSet<RoadID> = unedited_map
             .all_roads()
             .iter()
             .filter_map(|r| {
-                if r.high_stress_for_bikes(map) {
+                if r.high_stress_for_bikes(unedited_map) {
                     Some(r.id)
                 } else {
                     None
@@ -428,7 +439,7 @@ impl ModeShiftData {
         let mut count_per_road = Counter::new();
         for (idx, path) in timer
             .parallelize("calculate routes", filtered_requests, |(idx, req)| {
-                map.pathfind_v2(req).map(|path| (idx, path))
+                unedited_map.pathfind_v2(req).map(|path| (idx, path))
             })
             .into_iter()
             .flatten()

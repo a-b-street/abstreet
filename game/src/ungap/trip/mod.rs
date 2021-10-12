@@ -12,7 +12,6 @@ mod results;
 
 pub struct TripPlanner {
     layers: Layers,
-    once: bool,
 
     input_panel: Panel,
     waypoints: InputWaypoints,
@@ -39,9 +38,14 @@ impl ObjectID for ID {}
 
 impl TripPlanner {
     pub fn new_state(ctx: &mut EventCtx, app: &mut App, layers: Layers) -> Box<dyn State<App>> {
+        ctx.loading_screen("apply edits", |_, mut timer| {
+            app.primary
+                .map
+                .recalculate_pathfinding_after_edits(&mut timer);
+        });
+
         let mut rp = TripPlanner {
             layers,
-            once: true,
 
             input_panel: Panel::empty(ctx),
             waypoints: InputWaypoints::new(app),
@@ -169,15 +173,6 @@ impl TripPlanner {
 
 impl State<App> for TripPlanner {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        if self.once {
-            self.once = false;
-            ctx.loading_screen("apply edits", |_, mut timer| {
-                app.primary
-                    .map
-                    .recalculate_pathfinding_after_edits(&mut timer);
-            });
-        }
-
         let world_outcome_for_waypoints = match self.world.event(ctx) {
             WorldOutcome::ClickedObject(ID::AltRoute(idx)) => {
                 // Switch routes
