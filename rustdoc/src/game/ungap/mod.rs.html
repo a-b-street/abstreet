@@ -346,10 +346,10 @@
                             <span class="ident">Transition::Pop</span>,
                             <span class="ident">Transition::Replace</span>(<span class="kw">match</span> <span class="self">self</span> {
                                 <span class="ident">Tab::Explore</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ExploreMap::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">layers</span>),
+                                <span class="ident">Tab::Trip</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">trip::TripPlanner::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">layers</span>),
                                 <span class="ident">Tab::AddLanes</span> <span class="op">=</span><span class="op">&gt;</span> {
                                     <span class="ident">quick_sketch::QuickSketch::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">layers</span>)
                                 }
-                                <span class="ident">Tab::Trip</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">trip::TripPlanner::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">layers</span>),
                                 <span class="ident">Tab::PredictImpact</span> <span class="op">=</span><span class="op">&gt;</span> {
                                     <span class="ident">predict::ShowGaps::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">layers</span>)
                                 }

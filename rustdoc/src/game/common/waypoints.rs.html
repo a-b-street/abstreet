@@ -255,6 +255,10 @@
 <span id="255">255</span>
 <span id="256">256</span>
 <span id="257">257</span>
+<span id="258">258</span>
+<span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">FindClosest</span>, <span class="ident">Pt2D</span>};
 <span class="kw">use</span> <span class="ident">sim::TripEndpoint</span>;
@@ -386,6 +390,10 @@
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_waypoints</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TripEndpoint</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">w</span><span class="op">|</span> <span class="ident">w</span>.<span class="ident">at</span>).<span class="ident">collect</span>()
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">len</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+        <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">len</span>()
     }
 
     <span class="doccomment">/// If the outcome from the panel or world isn&#39;t used by the caller, pass it along here. When this</span>

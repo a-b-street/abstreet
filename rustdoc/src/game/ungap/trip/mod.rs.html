@@ -271,6 +271,15 @@
 <span id="271">271</span>
 <span id="272">272</span>
 <span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">map_model::RoutingParams</span>;
 <span class="kw">use</span> <span class="ident">widgetry::mapspace</span>::{<span class="ident">ObjectID</span>, <span class="ident">World</span>, <span class="ident">WorldOutcome</span>};
@@ -312,7 +321,7 @@
 <span class="kw">impl</span> <span class="ident">ObjectID</span> <span class="kw">for</span> <span class="ident">ID</span> {}
 
 <span class="kw">impl</span> <span class="ident">TripPlanner</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">layers</span>: <span class="ident">Layers</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>, <span class="ident">layers</span>: <span class="ident">Layers</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rp</span> <span class="op">=</span> <span class="ident">TripPlanner</span> {
             <span class="ident">layers</span>,
             <span class="ident">once</span>: <span class="bool-val">true</span>,
@@ -324,12 +333,16 @@
             <span class="ident">alt_routes</span>: <span class="ident">Vec::new</span>(),
             <span class="ident">world</span>: <span class="ident">World::bounded</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_bounds</span>()),
         };
-        <span class="ident">rp</span>.<span class="ident">recalculate_routes</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">current_name</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">ungap_current_trip_name</span> {
+            <span class="ident">rp</span>.<span class="ident">files</span>.<span class="ident">set_current</span>(<span class="ident">current_name</span>);
+        }
+        <span class="ident">rp</span>.<span class="ident">sync_from_file_management</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
         <span class="ident">Box::new</span>(<span class="ident">rp</span>)
     }
 
     <span class="comment">// Use the current session settings to determine &quot;main&quot; and alts</span>
-    <span class="kw">fn</span> <span class="ident">recalculate_routes</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
+    <span class="kw">fn</span> <span class="ident">recalculate_routes</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">world</span> <span class="op">=</span> <span class="ident">World::bounded</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_bounds</span>());
 
         <span class="kw">let</span> <span class="ident">main_route</span> <span class="op">=</span> <span class="ident">RouteDetails::main_route</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">get_waypoints</span>());
@@ -340,6 +353,8 @@
             .<span class="ident">zorder</span>(<span class="number">1</span>)
             .<span class="ident">draw</span>(<span class="ident">main_route</span>.<span class="ident">draw</span>)
             .<span class="ident">build</span>(<span class="ident">ctx</span>);
+
+        <span class="self">self</span>.<span class="ident">files</span>.<span class="ident">autosave</span>(<span class="ident">app</span>);
         <span class="comment">// This doesn&#39;t depend on the alt routes, so just do it here</span>
         <span class="self">self</span>.<span class="ident">update_input_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">main_route</span>.<span class="ident">details_widget</span>);
 
@@ -392,31 +407,34 @@
     }
 
     <span class="kw">fn</span> <span class="ident">update_input_panel</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">main_route</span>: <span class="ident">Widget</span>) {
-        <span class="kw">let</span> <span class="ident">col</span> <span class="op">=</span> <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-            <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-                <span class="self">self</span>.<span class="ident">files</span>.<span class="ident">get_panel_widget</span>(<span class="ident">ctx</span>),
-                <span class="ident">Widget::horiz_separator</span>(<span class="ident">ctx</span>, <span class="number">1.0</span>),
-                <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">get_panel_widget</span>(<span class="ident">ctx</span>),
-            ])
-            .<span class="ident">section</span>(<span class="ident">ctx</span>),
-            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                <span class="ident">Toggle::checkbox</span>(
-                    <span class="ident">ctx</span>,
-                    <span class="string">&quot;Avoid steep hills&quot;</span>,
-                    <span class="prelude-val">None</span>,
-                    <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">routing_preferences</span>.<span class="ident">avoid_hills</span>,
-                ),
-                <span class="ident">Toggle::checkbox</span>(
-                    <span class="ident">ctx</span>,
-                    <span class="string">&quot;Avoid stressful roads&quot;</span>,
-                    <span class="prelude-val">None</span>,
-                    <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">routing_preferences</span>.<span class="ident">avoid_stressful_roads</span>,
-                ),
-            ])
-            .<span class="ident">section</span>(<span class="ident">ctx</span>),
-            <span class="ident">main_route</span>.<span class="ident">section</span>(<span class="ident">ctx</span>),
-        ]);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">sections</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
+            <span class="self">self</span>.<span class="ident">files</span>.<span class="ident">get_panel_widget</span>(<span class="ident">ctx</span>),
+            <span class="ident">Widget::horiz_separator</span>(<span class="ident">ctx</span>, <span class="number">1.0</span>),
+            <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">get_panel_widget</span>(<span class="ident">ctx</span>),
+        ])
+        .<span class="ident">section</span>(<span class="ident">ctx</span>)];
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">len</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="number">2</span> {
+            <span class="ident">sections</span>.<span class="ident">push</span>(
+                <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
+                    <span class="ident">Toggle::checkbox</span>(
+                        <span class="ident">ctx</span>,
+                        <span class="string">&quot;Avoid steep hills&quot;</span>,
+                        <span class="prelude-val">None</span>,
+                        <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">routing_preferences</span>.<span class="ident">avoid_hills</span>,
+                    ),
+                    <span class="ident">Toggle::checkbox</span>(
+                        <span class="ident">ctx</span>,
+                        <span class="string">&quot;Avoid stressful roads&quot;</span>,
+                        <span class="prelude-val">None</span>,
+                        <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">routing_preferences</span>.<span class="ident">avoid_stressful_roads</span>,
+                    ),
+                ])
+                .<span class="ident">section</span>(<span class="ident">ctx</span>),
+            );
+            <span class="ident">sections</span>.<span class="ident">push</span>(<span class="ident">main_route</span>.<span class="ident">section</span>(<span class="ident">ctx</span>));
+        }
 
+        <span class="kw">let</span> <span class="ident">col</span> <span class="op">=</span> <span class="ident">Widget::col</span>(<span class="ident">sections</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">new_panel</span> <span class="op">=</span> <span class="ident">Tab::Trip</span>.<span class="ident">make_left_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">col</span>);
 
         <span class="comment">// TODO After scrolling down and dragging a slider, sometimes releasing the slider</span>
@@ -425,7 +443,7 @@
         <span class="self">self</span>.<span class="ident">input_panel</span> <span class="op">=</span> <span class="ident">new_panel</span>;
     }
 
-    <span class="kw">fn</span> <span class="ident">sync_from_file_management</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
+    <span class="kw">fn</span> <span class="ident">sync_from_file_management</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) {
         <span class="self">self</span>.<span class="ident">waypoints</span>
             .<span class="ident">overwrite</span>(<span class="ident">app</span>, <span class="self">self</span>.<span class="ident">files</span>.<span class="ident">current</span>.<span class="ident">waypoints</span>.<span class="ident">clone</span>());
         <span class="self">self</span>.<span class="ident">recalculate_routes</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);

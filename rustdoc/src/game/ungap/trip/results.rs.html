@@ -536,8 +536,6 @@
 <span id="536">536</span>
 <span id="537">537</span>
 <span id="538">538</span>
-<span id="539">539</span>
-<span id="540">540</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">FindClosest</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>};
 <span class="kw">use</span> <span class="ident">map_gui::tools::PopupMsg</span>;
@@ -804,33 +802,31 @@
             }
         }
 
-        <span class="kw">let</span> <span class="ident">current_dist_along</span> <span class="op">=</span> <span class="ident">panel</span>
-            .<span class="ident">find</span>::<span class="op">&lt;</span><span class="ident">LinePlot</span><span class="op">&lt;</span><span class="ident">Distance</span>, <span class="ident">Distance</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="string">&quot;elevation&quot;</span>)
-            .<span class="ident">get_hovering</span>()
-            .<span class="ident">get</span>(<span class="number">0</span>)
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">pair</span><span class="op">|</span> <span class="ident">pair</span>.<span class="number">0</span>);
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">hover_on_line_plot</span>.<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">pair</span><span class="op">|</span> <span class="ident">pair</span>.<span class="number">0</span>) <span class="op">!</span><span class="op">=</span> <span class="ident">current_dist_along</span> {
-            <span class="self">self</span>.<span class="ident">hover_on_line_plot</span> <span class="op">=</span> <span class="ident">current_dist_along</span>.<span class="ident">map</span>(<span class="op">|</span><span class="kw-2">mut</span> <span class="ident">dist</span><span class="op">|</span> {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
-                <span class="comment">// Find this position on the trip</span>
-                <span class="kw">for</span> (<span class="ident">path</span>, <span class="ident">maybe_pl</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">paths</span> {
-                    <span class="kw">if</span> <span class="ident">dist</span> <span class="op">&gt;</span> <span class="ident">path</span>.<span class="ident">total_length</span>() {
-                        <span class="ident">dist</span> <span class="op">-</span><span class="op">=</span> <span class="ident">path</span>.<span class="ident">total_length</span>();
-                        <span class="kw">continue</span>;
-                    }
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">pl</span>) <span class="op">=</span> <span class="ident">maybe_pl</span> {
-                        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>((<span class="ident">pt</span>, <span class="kw">_</span>)) <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">dist_along</span>(<span class="ident">dist</span>) {
-                            <span class="ident">batch</span>.<span class="ident">push</span>(
-                                <span class="ident">Color::YELLOW</span>,
-                                <span class="ident">Circle::new</span>(<span class="ident">pt</span>, <span class="ident">Distance::meters</span>(<span class="number">30.0</span>)).<span class="ident">to_polygon</span>(),
-                            );
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">line_plot</span>) <span class="op">=</span> <span class="ident">panel</span>.<span class="ident">maybe_find</span>::<span class="op">&lt;</span><span class="ident">LinePlot</span><span class="op">&lt;</span><span class="ident">Distance</span>, <span class="ident">Distance</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="string">&quot;elevation&quot;</span>) {
+            <span class="kw">let</span> <span class="ident">current_dist_along</span> <span class="op">=</span> <span class="ident">line_plot</span>.<span class="ident">get_hovering</span>().<span class="ident">get</span>(<span class="number">0</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">pair</span><span class="op">|</span> <span class="ident">pair</span>.<span class="number">0</span>);
+            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">hover_on_line_plot</span>.<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">pair</span><span class="op">|</span> <span class="ident">pair</span>.<span class="number">0</span>) <span class="op">!</span><span class="op">=</span> <span class="ident">current_dist_along</span> {
+                <span class="self">self</span>.<span class="ident">hover_on_line_plot</span> <span class="op">=</span> <span class="ident">current_dist_along</span>.<span class="ident">map</span>(<span class="op">|</span><span class="kw-2">mut</span> <span class="ident">dist</span><span class="op">|</span> {
+                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
+                    <span class="comment">// Find this position on the trip</span>
+                    <span class="kw">for</span> (<span class="ident">path</span>, <span class="ident">maybe_pl</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">paths</span> {
+                        <span class="kw">if</span> <span class="ident">dist</span> <span class="op">&gt;</span> <span class="ident">path</span>.<span class="ident">total_length</span>() {
+                            <span class="ident">dist</span> <span class="op">-</span><span class="op">=</span> <span class="ident">path</span>.<span class="ident">total_length</span>();
+                            <span class="kw">continue</span>;
                         }
+                        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">pl</span>) <span class="op">=</span> <span class="ident">maybe_pl</span> {
+                            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>((<span class="ident">pt</span>, <span class="kw">_</span>)) <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">dist_along</span>(<span class="ident">dist</span>) {
+                                <span class="ident">batch</span>.<span class="ident">push</span>(
+                                    <span class="ident">Color::YELLOW</span>,
+                                    <span class="ident">Circle::new</span>(<span class="ident">pt</span>, <span class="ident">Distance::meters</span>(<span class="number">30.0</span>)).<span class="ident">to_polygon</span>(),
+                                );
+                            }
+                        }
+                        <span class="kw">break</span>;
                     }
-                    <span class="kw">break</span>;
-                }
 
-                (<span class="ident">dist</span>, <span class="ident">batch</span>.<span class="ident">upload</span>(<span class="ident">ctx</span>))
-            });
+                    (<span class="ident">dist</span>, <span class="ident">batch</span>.<span class="ident">upload</span>(<span class="ident">ctx</span>))
+                });
+            }
         }
 
         <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">redo_mouseover</span>() {

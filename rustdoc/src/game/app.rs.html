@@ -873,6 +873,8 @@
 <span id="873">873</span>
 <span id="874">874</span>
 <span id="875">875</span>
+<span id="876">876</span>
+<span id="877">877</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">std::cell::RefCell</span>;
 <span class="kw">use</span> <span class="ident">std::collections::BTreeMap</span>;
@@ -1610,6 +1612,7 @@
     <span class="comment">// Specific to the ungap tool</span>
     <span class="kw">pub</span> <span class="ident">elevation_contours</span>: <span class="ident">Cached</span><span class="op">&lt;</span><span class="ident">MapName</span>, (<span class="ident">FindClosest</span><span class="op">&lt;</span><span class="ident">Distance</span><span class="op">&gt;</span>, <span class="ident">ToggleZoomed</span>)<span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">routing_preferences</span>: <span class="kw">crate</span><span class="ident">::ungap::RoutingPreferences</span>,
+    <span class="kw">pub</span> <span class="ident">ungap_current_trip_name</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
     <span class="comment">// Map and edit change key</span>
     <span class="kw">pub</span> <span class="ident">mode_shift</span>: <span class="ident">Cached</span><span class="op">&lt;</span>(<span class="ident">MapName</span>, <span class="ident">usize</span>), <span class="kw">crate</span><span class="ident">::ungap::ModeShiftData</span><span class="op">&gt;</span>,
 }
@@ -1632,6 +1635,7 @@
 
             <span class="ident">elevation_contours</span>: <span class="ident">Cached::new</span>(),
             <span class="ident">routing_preferences</span>: <span class="kw">crate</span><span class="ident">::ungap::RoutingPreferences::default</span>(),
+            <span class="ident">ungap_current_trip_name</span>: <span class="prelude-val">None</span>,
             <span class="ident">mode_shift</span>: <span class="ident">Cached::new</span>(),
         }
     }
