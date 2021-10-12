@@ -213,6 +213,23 @@
 <span id="213">213</span>
 <span id="214">214</span>
 <span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
 </pre><pre class="rust">
 <span class="kw">mod</span> <span class="ident">bike_network</span>;
 <span class="kw">mod</span> <span class="ident">explore</span>;
@@ -223,10 +240,11 @@
 <span class="kw">mod</span> <span class="ident">quick_sketch</span>;
 <span class="kw">mod</span> <span class="ident">trip</span>;
 
+<span class="kw">use</span> <span class="ident">geom::CornerRadii</span>;
 <span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">grey_out_map</span>, <span class="ident">open_browser</span>, <span class="ident">CityPicker</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Panel</span>, <span class="ident">ScreenDims</span>, <span class="ident">SimpleState</span>, <span class="ident">State</span>, <span class="ident">Text</span>,
-    <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>, <span class="ident">DEFAULT_CORNER_RADIUS</span>,
 };
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::explore::ExploreMap</span>;
@@ -255,7 +273,7 @@
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">contents</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">contents</span>.<span class="ident">section</span>(<span class="ident">ctx</span>));
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">col</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
+        <span class="kw">let</span> <span class="ident">header</span> <span class="op">=</span> <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
             <span class="ident">ctx</span>.<span class="ident">style</span>()
                 .<span class="ident">btn_plain</span>
                 .<span class="ident">btn</span>()
@@ -269,57 +287,73 @@
             <span class="ident">map_gui::tools::change_map_btn</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)
                 .<span class="ident">centered_vert</span>()
                 .<span class="ident">align_right</span>(),
-        ])];
+        ]);
 
-        <span class="ident">col</span>.<span class="ident">push</span>(
-            <span class="ident">ctx</span>.<span class="ident">style</span>()
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">build_tab</span> <span class="op">=</span> <span class="op">|</span>(<span class="ident">tab</span>, <span class="ident">image_path</span>, <span class="ident">tab_title</span>, <span class="ident">hotkey</span>): (<span class="ident">Tab</span>, <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">Key</span>)<span class="op">|</span> {
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">btn</span> <span class="op">=</span> <span class="ident">ctx</span>
+                .<span class="ident">style</span>()
                 .<span class="ident">btn_tab</span>
-                .<span class="ident">icon_text</span>(<span class="string">&quot;system/assets/tools/pan.svg&quot;</span>, <span class="string">&quot;Explore&quot;</span>)
-                .<span class="ident">hotkey</span>(<span class="ident">Key::Num1</span>)
-                .<span class="ident">disabled</span>(<span class="self">self</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Tab::Explore</span>)
-                .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-        );
-        <span class="kw">if</span> <span class="self">self</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Tab::Explore</span> {
-            <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">contents</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>());
-        }
+                .<span class="ident">icon_text</span>(<span class="ident">image_path</span>, <span class="ident">tab_title</span>)
+                .<span class="ident">hotkey</span>(<span class="ident">hotkey</span>);
 
-        <span class="ident">col</span>.<span class="ident">push</span>(
-            <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_tab</span>
-                .<span class="ident">icon_text</span>(<span class="string">&quot;system/assets/tools/pin.svg&quot;</span>, <span class="string">&quot;Your Trip&quot;</span>)
-                .<span class="ident">hotkey</span>(<span class="ident">Key::Num2</span>)
-                .<span class="ident">disabled</span>(<span class="self">self</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Tab::Trip</span>)
-                .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-        );
-        <span class="kw">if</span> <span class="self">self</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Tab::Trip</span> {
-            <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">contents</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>());
-        }
+            <span class="kw">if</span> <span class="self">self</span> <span class="op">=</span><span class="op">=</span> <span class="ident">tab</span> {
+                <span class="ident">btn</span> <span class="op">=</span> <span class="ident">btn</span>
+                    .<span class="ident">corner_rounding</span>(<span class="ident">CornerRadii</span> {
+                        <span class="ident">top_left</span>: <span class="ident">DEFAULT_CORNER_RADIUS</span>,
+                        <span class="ident">top_right</span>: <span class="ident">DEFAULT_CORNER_RADIUS</span>,
+                        <span class="ident">bottom_left</span>: <span class="number">0.0</span>,
+                        <span class="ident">bottom_right</span>: <span class="number">0.0</span>,
+                    })
+                    .<span class="ident">disabled</span>(<span class="bool-val">true</span>);
+            }
 
-        <span class="ident">col</span>.<span class="ident">push</span>(
-            <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_tab</span>
-                .<span class="ident">icon_text</span>(<span class="string">&quot;system/assets/tools/pencil.svg&quot;</span>, <span class="string">&quot;Add bike lanes&quot;</span>)
-                .<span class="ident">hotkey</span>(<span class="ident">Key::Num3</span>)
-                .<span class="ident">disabled</span>(<span class="self">self</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Tab::AddLanes</span>)
-                .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-        );
-        <span class="kw">if</span> <span class="self">self</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Tab::AddLanes</span> {
-            <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">contents</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>());
-        }
+            <span class="comment">// Add a little margin to compensate for the border on the tab content</span>
+            <span class="comment">// otherwise things look ever-so-slightly out of alignment.</span>
+            <span class="kw">let</span> <span class="ident">btn_widget</span> <span class="op">=</span> <span class="ident">btn</span>.<span class="ident">build_def</span>(<span class="ident">ctx</span>).<span class="ident">margin_left</span>(<span class="number">1</span>);
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tab_elements</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">btn_widget</span>];
 
-        <span class="ident">col</span>.<span class="ident">push</span>(
-            <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_tab</span>
-                .<span class="ident">icon_text</span>(<span class="string">&quot;system/assets/meters/trip_histogram.svg&quot;</span>, <span class="string">&quot;Predict impact&quot;</span>)
-                .<span class="ident">hotkey</span>(<span class="ident">Key::Num4</span>)
-                .<span class="ident">disabled</span>(<span class="self">self</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Tab::PredictImpact</span>)
-                .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-        );
-        <span class="kw">if</span> <span class="self">self</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Tab::PredictImpact</span> {
-            <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">contents</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>());
-        }
+            <span class="kw">if</span> <span class="self">self</span> <span class="op">=</span><span class="op">=</span> <span class="ident">tab</span> {
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">contents</span> <span class="op">=</span> <span class="ident">contents</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>();
+                <span class="ident">contents</span> <span class="op">=</span> <span class="ident">contents</span>.<span class="ident">corner_rounding</span>(<span class="ident">CornerRadii</span> {
+                    <span class="ident">top_left</span>: <span class="number">0.0</span>,
+                    <span class="ident">top_right</span>: <span class="ident">DEFAULT_CORNER_RADIUS</span>,
+                    <span class="ident">bottom_left</span>: <span class="ident">DEFAULT_CORNER_RADIUS</span>,
+                    <span class="ident">bottom_right</span>: <span class="ident">DEFAULT_CORNER_RADIUS</span>,
+                });
+                <span class="ident">tab_elements</span>.<span class="ident">push</span>(<span class="ident">contents</span>);
+            }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="ident">col</span>))
+            <span class="ident">Widget::custom_col</span>(<span class="ident">tab_elements</span>)
+        };
+
+        <span class="kw">let</span> <span class="ident">tabs</span> <span class="op">=</span> <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
+            <span class="ident">build_tab</span>((
+                <span class="ident">Tab::Explore</span>,
+                <span class="string">&quot;system/assets/tools/pan.svg&quot;</span>,
+                <span class="string">&quot;Explore&quot;</span>,
+                <span class="ident">Key::Num1</span>,
+            )),
+            <span class="ident">build_tab</span>((
+                <span class="ident">Tab::Trip</span>,
+                <span class="string">&quot;system/assets/tools/pin.svg&quot;</span>,
+                <span class="string">&quot;Your Trip&quot;</span>,
+                <span class="ident">Key::Num2</span>,
+            )),
+            <span class="ident">build_tab</span>((
+                <span class="ident">Tab::AddLanes</span>,
+                <span class="string">&quot;system/assets/tools/pencil.svg&quot;</span>,
+                <span class="string">&quot;Add bike lanes&quot;</span>,
+                <span class="ident">Key::Num3</span>,
+            )),
+            <span class="ident">build_tab</span>((
+                <span class="ident">Tab::PredictImpact</span>,
+                <span class="string">&quot;system/assets/meters/trip_histogram.svg&quot;</span>,
+                <span class="string">&quot;Predict impact&quot;</span>,
+                <span class="ident">Key::Num4</span>,
+            )),
+        ]);
+
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[<span class="ident">header</span>, <span class="ident">tabs</span>]))
             <span class="comment">// The different tabs have different widths. To avoid the UI bouncing around as the user</span>
             <span class="comment">// navigates, this is hardcoded to be a bit wider than the widest tab.</span>
             .<span class="ident">exact_size</span>(<span class="ident">ScreenDims</span> {
