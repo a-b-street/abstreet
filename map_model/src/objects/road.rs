@@ -600,7 +600,7 @@ impl Road {
         if !can_use || bike_lanes {
             return false;
         }
-        self.get_rank() == osm::RoadRank::Arterial
+        self.get_rank() != osm::RoadRank::Local
     }
 }
 
