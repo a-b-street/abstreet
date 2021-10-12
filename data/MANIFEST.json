@@ -181,14 +181,19 @@
       "compressed_size_bytes": 36453
     },
     "data/input/de/berlin/osm/berlin-latest.osm.pbf": {
-      "checksum": "8e7f5ecf37631bb975f062593c5add99",
-      "uncompressed_size_bytes": 60018288,
-      "compressed_size_bytes": 59966045
+      "checksum": "c345973629989625b5849470cb75bb2a",
+      "uncompressed_size_bytes": 66883202,
+      "compressed_size_bytes": 66826196
     },
     "data/input/de/berlin/osm/center.osm": {
-      "checksum": "7411c1f8e1e5ff792445a7cd575f5379",
-      "uncompressed_size_bytes": 61611497,
-      "compressed_size_bytes": 6856874
+      "checksum": "b2bbab538bc6e44fdaf04b597f5a1cfd",
+      "uncompressed_size_bytes": 67311841,
+      "compressed_size_bytes": 7525472
+    },
+    "data/input/de/berlin/osm/neukolln.osm": {
+      "checksum": "d54579a69822bc1eecb4eb414482b4c8",
+      "uncompressed_size_bytes": 169465867,
+      "compressed_size_bytes": 17888122
     },
     "data/input/de/berlin/planning_areas.bin": {
       "checksum": "f1a3bd5118a0e4982b64c2307e01d82a",
@@ -201,9 +206,14 @@
       "compressed_size_bytes": 896845
     },
     "data/input/de/berlin/raw_maps/center.bin": {
-      "checksum": "c90c6e6afd970918654c7477e5a0537d",
-      "uncompressed_size_bytes": 10667430,
-      "compressed_size_bytes": 2595163
+      "checksum": "4eecf43e782cf8cadaa1e2f4486fef00",
+      "uncompressed_size_bytes": 11695970,
+      "compressed_size_bytes": 2793550
+    },
+    "data/input/de/berlin/raw_maps/neukolln.bin": {
+      "checksum": "80723e3c7232b5fe8e35390904391707",
+      "uncompressed_size_bytes": 31871688,
+      "compressed_size_bytes": 7605214
     },
     "data/input/de/bonn/osm/center.osm": {
       "checksum": "b38426dde3822d9030f0a7cb8822133c",
@@ -2531,9 +2541,14 @@
       "compressed_size_bytes": 5422847
     },
     "data/system/de/berlin/maps/center.bin": {
-      "checksum": "58d3a165dca8b5480448078a95929bb3",
-      "uncompressed_size_bytes": 23350696,
-      "compressed_size_bytes": 8225990
+      "checksum": "2960b0405891196d31a35d4a6f83c4c5",
+      "uncompressed_size_bytes": 24102861,
+      "compressed_size_bytes": 8415532
+    },
+    "data/system/de/berlin/maps/neukolln.bin": {
+      "checksum": "d080ca82caaba4ffb1357b0b2e3e1ef7",
+      "uncompressed_size_bytes": 67773393,
+      "compressed_size_bytes": 24186978
     },
     "data/system/de/bonn/maps/center.bin": {
       "checksum": "462b1213f476ef9b2d92e9b3385ccbe2",
