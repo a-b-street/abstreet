@@ -70,6 +70,10 @@ impl SavedTrips {
         }
     }
 
+    fn len(&self) -> usize {
+        self.trips.len()
+    }
+
     fn new_name(&self) -> String {
         let mut i = self.trips.len() + 1;
         loop {
@@ -110,19 +114,24 @@ impl TripManagement {
                 ctx.style()
                     .btn_plain_destructive
                     .icon_text("system/assets/tools/trash.svg", "Delete")
+                    .disabled(self.current.waypoints.len() == 0)
                     .build_def(ctx),
             ]),
             Widget::row(vec![
-                ctx.style().btn_plain.text("Start new trip").build_def(ctx),
+                ctx.style()
+                    .btn_plain
+                    .text("Start new trip")
+                    .disabled(self.current.waypoints.len() == 0)
+                    .build_def(ctx),
                 ctx.style()
                     .btn_prev()
                     .hotkey(Key::LeftArrow)
                     .disabled(self.all.prev(current_name).is_none())
                     .build_widget(ctx, "previous trip"),
-                // TODO Autosave first?
                 ctx.style()
                     .btn_plain
                     .text("Load another trip")
+                    .disabled(self.all.len() < 2)
                     .build_def(ctx),
                 ctx.style()
                     .btn_next()
