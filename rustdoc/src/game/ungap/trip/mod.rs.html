@@ -275,11 +275,6 @@
 <span id="275">275</span>
 <span id="276">276</span>
 <span id="277">277</span>
-<span id="278">278</span>
-<span id="279">279</span>
-<span id="280">280</span>
-<span id="281">281</span>
-<span id="282">282</span>
 </pre><pre class="rust">
 <span class="kw">use</span> <span class="ident">map_model::RoutingParams</span>;
 <span class="kw">use</span> <span class="ident">widgetry::mapspace</span>::{<span class="ident">ObjectID</span>, <span class="ident">World</span>, <span class="ident">WorldOutcome</span>};
@@ -295,7 +290,6 @@
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TripPlanner</span> {
     <span class="ident">layers</span>: <span class="ident">Layers</span>,
-    <span class="ident">once</span>: <span class="ident">bool</span>,
 
     <span class="ident">input_panel</span>: <span class="ident">Panel</span>,
     <span class="ident">waypoints</span>: <span class="ident">InputWaypoints</span>,
@@ -322,9 +316,14 @@
 
 <span class="kw">impl</span> <span class="ident">TripPlanner</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>, <span class="ident">layers</span>: <span class="ident">Layers</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;apply edits&quot;</span>, <span class="op">|</span><span class="kw">_</span>, <span class="kw-2">mut</span> <span class="ident">timer</span><span class="op">|</span> {
+            <span class="ident">app</span>.<span class="ident">primary</span>
+                .<span class="ident">map</span>
+                .<span class="ident">recalculate_pathfinding_after_edits</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>);
+        });
+
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rp</span> <span class="op">=</span> <span class="ident">TripPlanner</span> {
             <span class="ident">layers</span>,
-            <span class="ident">once</span>: <span class="bool-val">true</span>,
 
             <span class="ident">input_panel</span>: <span class="ident">Panel::empty</span>(<span class="ident">ctx</span>),
             <span class="ident">waypoints</span>: <span class="ident">InputWaypoints::new</span>(<span class="ident">app</span>),
@@ -452,15 +451,6 @@
 
 <span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">TripPlanner</span> {
     <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">once</span> {
-            <span class="self">self</span>.<span class="ident">once</span> <span class="op">=</span> <span class="bool-val">false</span>;
-            <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;apply edits&quot;</span>, <span class="op">|</span><span class="kw">_</span>, <span class="kw-2">mut</span> <span class="ident">timer</span><span class="op">|</span> {
-                <span class="ident">app</span>.<span class="ident">primary</span>
-                    .<span class="ident">map</span>
-                    .<span class="ident">recalculate_pathfinding_after_edits</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>);
-            });
-        }
-
         <span class="kw">let</span> <span class="ident">world_outcome_for_waypoints</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">world</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
             <span class="ident">WorldOutcome::ClickedObject</span>(<span class="ident">ID::AltRoute</span>(<span class="ident">idx</span>)) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="comment">// Switch routes</span>
