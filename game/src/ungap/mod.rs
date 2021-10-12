@@ -7,10 +7,11 @@ mod predict;
 mod quick_sketch;
 mod trip;
 
+use geom::CornerRadii;
 use map_gui::tools::{grey_out_map, open_browser, CityPicker};
 use widgetry::{
     EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Panel, ScreenDims, SimpleState, State, Text,
-    VerticalAlignment, Widget,
+    VerticalAlignment, Widget, DEFAULT_CORNER_RADIUS,
 };
 
 pub use self::explore::ExploreMap;
@@ -39,7 +40,7 @@ impl Tab {
 
         let mut contents = Some(contents.section(ctx));
 
-        let mut col = vec![Widget::row(vec![
+        let header = Widget::row(vec![
             ctx.style()
                 .btn_plain
                 .btn()
@@ -53,57 +54,73 @@ impl Tab {
             map_gui::tools::change_map_btn(ctx, app)
                 .centered_vert()
                 .align_right(),
-        ])];
+        ]);
 
-        col.push(
-            ctx.style()
+        let mut build_tab = |(tab, image_path, tab_title, hotkey): (Tab, &str, &str, Key)| {
+            let mut btn = ctx
+                .style()
                 .btn_tab
-                .icon_text("system/assets/tools/pan.svg", "Explore")
-                .hotkey(Key::Num1)
-                .disabled(self == Tab::Explore)
-                .build_def(ctx),
-        );
-        if self == Tab::Explore {
-            col.push(contents.take().unwrap());
-        }
+                .icon_text(image_path, tab_title)
+                .hotkey(hotkey);
 
-        col.push(
-            ctx.style()
-                .btn_tab
-                .icon_text("system/assets/tools/pin.svg", "Your Trip")
-                .hotkey(Key::Num2)
-                .disabled(self == Tab::Trip)
-                .build_def(ctx),
-        );
-        if self == Tab::Trip {
-            col.push(contents.take().unwrap());
-        }
+            if self == tab {
+                btn = btn
+                    .corner_rounding(CornerRadii {
+                        top_left: DEFAULT_CORNER_RADIUS,
+                        top_right: DEFAULT_CORNER_RADIUS,
+                        bottom_left: 0.0,
+                        bottom_right: 0.0,
+                    })
+                    .disabled(true);
+            }
 
-        col.push(
-            ctx.style()
-                .btn_tab
-                .icon_text("system/assets/tools/pencil.svg", "Add bike lanes")
-                .hotkey(Key::Num3)
-                .disabled(self == Tab::AddLanes)
-                .build_def(ctx),
-        );
-        if self == Tab::AddLanes {
-            col.push(contents.take().unwrap());
-        }
+            // Add a little margin to compensate for the border on the tab content
+            // otherwise things look ever-so-slightly out of alignment.
+            let btn_widget = btn.build_def(ctx).margin_left(1);
+            let mut tab_elements = vec![btn_widget];
 
-        col.push(
-            ctx.style()
-                .btn_tab
-                .icon_text("system/assets/meters/trip_histogram.svg", "Predict impact")
-                .hotkey(Key::Num4)
-                .disabled(self == Tab::PredictImpact)
-                .build_def(ctx),
-        );
-        if self == Tab::PredictImpact {
-            col.push(contents.take().unwrap());
-        }
+            if self == tab {
+                let mut contents = contents.take().unwrap();
+                contents = contents.corner_rounding(CornerRadii {
+                    top_left: 0.0,
+                    top_right: DEFAULT_CORNER_RADIUS,
+                    bottom_left: DEFAULT_CORNER_RADIUS,
+                    bottom_right: DEFAULT_CORNER_RADIUS,
+                });
+                tab_elements.push(contents);
+            }
 
-        let mut panel = Panel::new_builder(Widget::col(col))
+            Widget::custom_col(tab_elements)
+        };
+
+        let tabs = Widget::col(vec![
+            build_tab((
+                Tab::Explore,
+                "system/assets/tools/pan.svg",
+                "Explore",
+                Key::Num1,
+            )),
+            build_tab((
+                Tab::Trip,
+                "system/assets/tools/pin.svg",
+                "Your Trip",
+                Key::Num2,
+            )),
+            build_tab((
+                Tab::AddLanes,
+                "system/assets/tools/pencil.svg",
+                "Add bike lanes",
+                Key::Num3,
+            )),
+            build_tab((
+                Tab::PredictImpact,
+                "system/assets/meters/trip_histogram.svg",
+                "Predict impact",
+                Key::Num4,
+            )),
+        ]);
+
+        let mut panel = Panel::new_builder(Widget::col(vec![header, tabs]))
             // The different tabs have different widths. To avoid the UI bouncing around as the user
             // navigates, this is hardcoded to be a bit wider than the widest tab.
             .exact_size(ScreenDims {
