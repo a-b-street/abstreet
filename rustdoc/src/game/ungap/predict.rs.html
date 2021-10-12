@@ -571,7 +571,7 @@
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">top_panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
             <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw">if</span> <span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;read about how this prediction works&quot;</span> {
-                    <span class="ident">open_browser</span>(<span class="string">&quot;https://a-b-street.github.io/docs/software/bike_network/tech_details.html#predict-impact&quot;</span>);
+                    <span class="ident">open_browser</span>(<span class="string">&quot;https://a-b-street.github.io/docs/software/ungap_the_map/tech_details.html#predict-impact&quot;</span>);
                     <span class="kw">return</span> <span class="ident">Transition::Keep</span>;
                 } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;Calculate&quot;</span> {
                     <span class="kw">let</span> <span class="ident">change_key</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits_change_key</span>();
@@ -665,8 +665,8 @@
                     <span class="ident">ctx</span>,
                     <span class="ident">Text::from</span>(<span class="ident">Line</span>(<span class="macro">format!</span>(
                         <span class="string">&quot;{} / {} trips, based on these thresholds&quot;</span>,
-                        <span class="ident">data</span>.<span class="ident">filtered_trips</span>.<span class="ident">len</span>(),
-                        <span class="ident">data</span>.<span class="ident">all_candidate_trips</span>.<span class="ident">len</span>()
+                        <span class="ident">prettyprint_usize</span>(<span class="ident">data</span>.<span class="ident">filtered_trips</span>.<span class="ident">len</span>()),
+                        <span class="ident">prettyprint_usize</span>(<span class="ident">data</span>.<span class="ident">all_candidate_trips</span>.<span class="ident">len</span>())
                     ))),
                     <span class="ident">pct</span>(<span class="ident">data</span>.<span class="ident">filtered_trips</span>.<span class="ident">len</span>(), <span class="ident">data</span>.<span class="ident">all_candidate_trips</span>.<span class="ident">len</span>()),
                 ),
@@ -678,8 +678,8 @@
                     <span class="ident">ctx</span>,
                     <span class="ident">Text::from</span>(<span class="ident">Line</span>(<span class="macro">format!</span>(
                         <span class="string">&quot;{} / {} trips would switch&quot;</span>,
-                        <span class="ident">data</span>.<span class="ident">results</span>.<span class="ident">num_trips</span>,
-                        <span class="ident">data</span>.<span class="ident">all_candidate_trips</span>.<span class="ident">len</span>()
+                        <span class="ident">prettyprint_usize</span>(<span class="ident">data</span>.<span class="ident">results</span>.<span class="ident">num_trips</span>),
+                        <span class="ident">prettyprint_usize</span>(<span class="ident">data</span>.<span class="ident">all_candidate_trips</span>.<span class="ident">len</span>())
                     ))),
                     <span class="ident">pct</span>(<span class="ident">data</span>.<span class="ident">results</span>.<span class="ident">num_trips</span>, <span class="ident">data</span>.<span class="ident">all_candidate_trips</span>.<span class="ident">len</span>()),
                 ),

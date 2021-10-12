@@ -210,6 +210,9 @@
 <span id="210">210</span>
 <span id="211">211</span>
 <span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
 </pre><pre class="rust">
 <span class="kw">mod</span> <span class="ident">bike_network</span>;
 <span class="kw">mod</span> <span class="ident">explore</span>;
@@ -223,7 +226,7 @@
 <span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">grey_out_map</span>, <span class="ident">open_browser</span>, <span class="ident">CityPicker</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Panel</span>, <span class="ident">ScreenDims</span>, <span class="ident">SimpleState</span>, <span class="ident">State</span>, <span class="ident">Text</span>,
-    <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+    <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::explore::ExploreMap</span>;
@@ -259,6 +262,10 @@
                 .<span class="ident">image_path</span>(<span class="string">&quot;system/assets/pregame/logo.svg&quot;</span>)
                 .<span class="ident">image_dims</span>(<span class="number">50.0</span>)
                 .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;about A/B Street&quot;</span>),
+            <span class="ident">Line</span>(<span class="string">&quot;Ungap the Map&quot;</span>)
+                .<span class="ident">small_heading</span>()
+                .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
+                .<span class="ident">centered_vert</span>(),
             <span class="ident">map_gui::tools::change_map_btn</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)
                 .<span class="ident">centered_vert</span>()
                 .<span class="ident">align_right</span>(),
@@ -401,8 +408,7 @@
                 <span class="ident">Line</span>(<span class="string">&quot;Data from OpenStreetMap, King County GIS, King County LIDAR&quot;</span>).<span class="ident">small</span>(),
             ])
             .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-            <span class="string">&quot;This is a simplified version. Check out the full version below.&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
-            <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline</span>.<span class="ident">text</span>(<span class="string">&quot;abstreet.org&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+            <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline</span>.<span class="ident">text</span>(<span class="string">&quot;Read more&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>),
         ]))
         .<span class="ident">build</span>(<span class="ident">ctx</span>);
         <span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">SimpleState</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::new_state</span>(<span class="ident">panel</span>, <span class="ident">Box::new</span>(<span class="ident">About</span>))
@@ -413,8 +419,8 @@
     <span class="kw">fn</span> <span class="ident">on_click</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>, <span class="ident">x</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">Panel</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Transition</span> {
         <span class="kw">if</span> <span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;close&quot;</span> {
             <span class="kw">return</span> <span class="ident">Transition::Pop</span>;
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;abstreet.org&quot;</span> {
-            <span class="ident">open_browser</span>(<span class="string">&quot;https://abstreet.org&quot;</span>);
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">=</span><span class="op">=</span> <span class="string">&quot;Read more&quot;</span> {
+            <span class="ident">open_browser</span>(<span class="string">&quot;https://a-b-street.github.io/docs/software/ungap_the_map/index.html&quot;</span>);
         }
         <span class="ident">Transition::Keep</span>
     }
