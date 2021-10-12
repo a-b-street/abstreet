@@ -95,8 +95,6 @@ impl TripManagement {
 
     pub fn get_panel_widget(&self, ctx: &mut EventCtx) -> Widget {
         let current_name = &self.current.name;
-        let can_save = self.current.waypoints.len() >= 2
-            && Some(&self.current) != self.all.trips.get(current_name);
         Widget::col(vec![
             Widget::row(vec![
                 ctx.style()
@@ -104,11 +102,6 @@ impl TripManagement {
                     .btn()
                     .label_underlined_text(current_name)
                     .build_widget(ctx, "rename trip"),
-                ctx.style()
-                    .btn_plain
-                    .icon_text("system/assets/tools/save.svg", "Save")
-                    .disabled(!can_save)
-                    .build_def(ctx),
                 ctx.style()
                     .btn_plain_destructive
                     .icon_text("system/assets/tools/trash.svg", "Delete")
@@ -135,15 +128,22 @@ impl TripManagement {
         ])
     }
 
+    /// saves iff current trip is changed.
+    pub fn autosave(&mut self, app: &App) {
+        match self.all.trips.get(&self.current.name) {
+            None if self.current.waypoints.len() == 0 => return,
+            Some(existing) if existing == &self.current => return,
+            _ => {}
+        }
+
+        self.all
+            .trips
+            .insert(self.current.name.clone(), self.current.clone());
+        self.all.save(app);
+    }
+
     pub fn on_click(&mut self, ctx: &mut EventCtx, app: &App, action: &str) -> Option<Transition> {
         match action {
-            "Save" => {
-                self.all
-                    .trips
-                    .insert(self.current.name.clone(), self.current.clone());
-                self.all.save(app);
-                Some(Transition::Keep)
-            }
             "Delete" => {
                 if self.all.trips.remove(&self.current.name).is_some() {
                     self.all.save(app);
