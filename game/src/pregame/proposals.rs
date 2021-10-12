@@ -33,7 +33,7 @@ impl Proposals {
         {
             if current == Some(name.clone()) {
                 let mut txt = Text::new();
-                txt.add_line(Line(&edits.proposal_description[0]).small_heading());
+                txt.add_line(Line(edits.get_title()).small_heading());
                 for l in edits.proposal_description.iter().skip(1) {
                     txt.add_line(l);
                 }
@@ -65,7 +65,7 @@ impl Proposals {
                 tab_buttons.push(
                     ctx.style()
                         .btn_tab
-                        .text(&edits.proposal_description[0])
+                        .text(edits.get_title())
                         .disabled(true)
                         .build_def(ctx)
                         .margin_below(10),
@@ -77,7 +77,7 @@ impl Proposals {
                 tab_buttons.push(
                     ctx.style()
                         .btn_outline
-                        .text(&edits.proposal_description[0])
+                        .text(edits.get_title())
                         .no_tooltip()
                         .hotkey(hotkey)
                         .build_widget(ctx, &name)

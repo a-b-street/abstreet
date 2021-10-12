@@ -357,7 +357,8 @@ fn continue_app_setup(
             abstio::path(format!("system/proposals/{}.json", edits_name)),
         ] {
             if abstio::file_exists(&path) {
-                let edits = map_model::MapEdits::load_from_file(
+                // TODO Technically we should only be permissive if this was a proposal
+                let edits = map_model::MapEdits::load_from_file_permissive(
                     &app.primary.map,
                     path,
                     &mut Timer::throwaway(),

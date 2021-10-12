@@ -192,6 +192,16 @@ impl PermanentMapEdits {
         edits.update_derived(map);
         edits
     }
+
+    /// Get the human-friendly of these edits. If they have a descrption, the first line is the
+    /// title. Otherwise we use the filename.
+    pub fn get_title(&self) -> &str {
+        if self.proposal_description.is_empty() {
+            &self.edits_name
+        } else {
+            &self.proposal_description[0]
+        }
+    }
 }
 
 impl EditIntersection {
