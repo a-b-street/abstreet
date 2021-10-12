@@ -133,12 +133,8 @@ fn make_quick_changes(
     // TODO Erasing changes
 
     let mut edits = app.primary.map.get_edits().clone();
-    let already_modified_roads = edits.changed_roads.clone();
     let mut num_changes = 0;
     for r in roads {
-        if already_modified_roads.contains(&r) {
-            continue;
-        }
         let old = app.primary.map.get_r_edit(r);
         let mut new = old.clone();
         maybe_add_bike_lanes(
@@ -192,6 +188,7 @@ fn maybe_add_bike_lanes(
         let mut first_driving_lane = None;
         let mut bus_lane = None;
         let mut num_driving_lanes = 0;
+        let mut already_has_bike_lane = false;
         for (idx, spec) in side.iter().enumerate() {
             if spec.lt == LaneType::Parking && parking_lane.is_none() {
                 parking_lane = Some(idx);
@@ -205,6 +202,13 @@ fn maybe_add_bike_lanes(
             if spec.lt == LaneType::Bus && bus_lane.is_none() {
                 bus_lane = Some(idx);
             }
+            if spec.lt == LaneType::Biking {
+                already_has_bike_lane = true;
+            }
+        }
+        if already_has_bike_lane {
+            // TODO If it's missing a buffer and one is requested, fill it in
+            continue;
         }
         // So if a road is one-way, this shouldn't add a bike lane to the off-side.
         let idx = if let Some(idx) = parking_lane {
@@ -368,6 +372,16 @@ mod tests {
                 no_buffers,
                 "sbddbs",
                 "^^^vvv",
+            ),
+            (
+                "One side already has a bike lane",
+                "https://www.openstreetmap.org/way/427757048",
+                DrivingSide::Right,
+                "spbddps",
+                "vvvv^^^",
+                with_buffers,
+                "spbdd|bs",
+                "vvvv^^^^",
             ),
         ] {
             let input = EditRoad::create_for_test(input_lt, input_dir);
