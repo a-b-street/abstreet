@@ -38,7 +38,7 @@ enum ID {
 impl ObjectID for ID {}
 
 impl TripPlanner {
-    pub fn new_state(ctx: &mut EventCtx, app: &App, layers: Layers) -> Box<dyn State<App>> {
+    pub fn new_state(ctx: &mut EventCtx, app: &mut App, layers: Layers) -> Box<dyn State<App>> {
         let mut rp = TripPlanner {
             layers,
             once: true,
@@ -50,12 +50,16 @@ impl TripPlanner {
             alt_routes: Vec::new(),
             world: World::bounded(app.primary.map.get_bounds()),
         };
-        rp.recalculate_routes(ctx, app);
+
+        if let Some(current_name) = &app.session.ungap_current_trip_name {
+            rp.files.set_current(current_name);
+        }
+        rp.sync_from_file_management(ctx, app);
         Box::new(rp)
     }
 
     // Use the current session settings to determine "main" and alts
-    fn recalculate_routes(&mut self, ctx: &mut EventCtx, app: &App) {
+    fn recalculate_routes(&mut self, ctx: &mut EventCtx, app: &mut App) {
         let mut world = World::bounded(app.primary.map.get_bounds());
 
         let main_route = RouteDetails::main_route(ctx, app, self.waypoints.get_waypoints());
@@ -153,7 +157,7 @@ impl TripPlanner {
         self.input_panel = new_panel;
     }
 
-    fn sync_from_file_management(&mut self, ctx: &mut EventCtx, app: &App) {
+    fn sync_from_file_management(&mut self, ctx: &mut EventCtx, app: &mut App) {
         self.waypoints
             .overwrite(app, self.files.current.waypoints.clone());
         self.recalculate_routes(ctx, app);
