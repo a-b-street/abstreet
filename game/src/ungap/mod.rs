@@ -10,7 +10,7 @@ mod trip;
 use map_gui::tools::{grey_out_map, open_browser, CityPicker};
 use widgetry::{
     EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Panel, ScreenDims, SimpleState, State, Text,
-    TextExt, VerticalAlignment, Widget,
+    VerticalAlignment, Widget,
 };
 
 pub use self::explore::ExploreMap;
@@ -46,6 +46,10 @@ impl Tab {
                 .image_path("system/assets/pregame/logo.svg")
                 .image_dims(50.0)
                 .build_widget(ctx, "about A/B Street"),
+            Line("Ungap the Map")
+                .small_heading()
+                .into_widget(ctx)
+                .centered_vert(),
             map_gui::tools::change_map_btn(ctx, app)
                 .centered_vert()
                 .align_right(),
@@ -188,8 +192,7 @@ impl About {
                 Line("Data from OpenStreetMap, King County GIS, King County LIDAR").small(),
             ])
             .into_widget(ctx),
-            "This is a simplified version. Check out the full version below.".text_widget(ctx),
-            ctx.style().btn_outline.text("abstreet.org").build_def(ctx),
+            ctx.style().btn_outline.text("Read more").build_def(ctx),
         ]))
         .build(ctx);
         <dyn SimpleState<_>>::new_state(panel, Box::new(About))
@@ -200,8 +203,8 @@ impl SimpleState<App> for About {
     fn on_click(&mut self, _: &mut EventCtx, _: &mut App, x: &str, _: &Panel) -> Transition {
         if x == "close" {
             return Transition::Pop;
-        } else if x == "abstreet.org" {
-            open_browser("https://abstreet.org");
+        } else if x == "Read more" {
+            open_browser("https://a-b-street.github.io/docs/software/ungap_the_map/index.html");
         }
         Transition::Keep
     }

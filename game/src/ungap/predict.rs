@@ -64,7 +64,7 @@ impl State<App> for ShowGaps {
         match self.top_panel.event(ctx) {
             Outcome::Clicked(x) => {
                 if x == "read about how this prediction works" {
-                    open_browser("https://a-b-street.github.io/docs/software/bike_network/tech_details.html#predict-impact");
+                    open_browser("https://a-b-street.github.io/docs/software/ungap_the_map/tech_details.html#predict-impact");
                     return Transition::Keep;
                 } else if x == "Calculate" {
                     let change_key = app.primary.map.get_edits_change_key();
@@ -158,8 +158,8 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App) -> Panel {
                     ctx,
                     Text::from(Line(format!(
                         "{} / {} trips, based on these thresholds",
-                        data.filtered_trips.len(),
-                        data.all_candidate_trips.len()
+                        prettyprint_usize(data.filtered_trips.len()),
+                        prettyprint_usize(data.all_candidate_trips.len())
                     ))),
                     pct(data.filtered_trips.len(), data.all_candidate_trips.len()),
                 ),
@@ -171,8 +171,8 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App) -> Panel {
                     ctx,
                     Text::from(Line(format!(
                         "{} / {} trips would switch",
-                        data.results.num_trips,
-                        data.all_candidate_trips.len()
+                        prettyprint_usize(data.results.num_trips),
+                        prettyprint_usize(data.all_candidate_trips.len())
                     ))),
                     pct(data.results.num_trips, data.all_candidate_trips.len()),
                 ),
