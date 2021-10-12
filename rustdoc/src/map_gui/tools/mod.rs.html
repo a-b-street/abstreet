@@ -320,6 +320,7 @@
 <span id="320">320</span>
 <span id="321">321</span>
 <span id="322">322</span>
+<span id="323">323</span>
 </pre><pre class="rust">
 <span class="doccomment">//! Assorted tools and UI states that&#39;re useful for applications built to display maps.</span>
 
@@ -431,6 +432,7 @@
         },
         <span class="string">&quot;de&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw">match</span> (<span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">city</span>.<span class="ident">as_ref</span>(), <span class="ident">name</span>.<span class="ident">map</span>.<span class="ident">as_ref</span>()) {
             (<span class="string">&quot;berlin&quot;</span>, <span class="string">&quot;center&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Berlin (city center)&quot;</span>,
+            (<span class="string">&quot;berlin&quot;</span>, <span class="string">&quot;neukolln&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Berlin-Neukölln&quot;</span>,
             (<span class="string">&quot;bonn&quot;</span>, <span class="string">&quot;center&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Bonn (city center)&quot;</span>,
             (<span class="string">&quot;bonn&quot;</span>, <span class="string">&quot;nordstadt&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Bonn (Nordstadt)&quot;</span>,
             (<span class="string">&quot;bonn&quot;</span>, <span class="string">&quot;venusberg&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;Bonn (Venusberg)&quot;</span>,
