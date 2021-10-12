@@ -66,6 +66,8 @@ impl TripPlanner {
             .zorder(1)
             .draw(main_route.draw)
             .build(ctx);
+
+        self.files.autosave(app);
         // This doesn't depend on the alt routes, so just do it here
         self.update_input_panel(ctx, app, main_route.details_widget);
 
