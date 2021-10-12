@@ -86,10 +86,15 @@ impl SavedTrips {
 impl TripManagement {
     pub fn new(app: &App) -> TripManagement {
         let all = SavedTrips::load(app);
-        let current = NamedTrip {
-            name: all.new_name(),
-            waypoints: Vec::new(),
-        };
+        let current = all
+            .trips
+            .iter()
+            .next()
+            .map(|(_k, v)| v.clone())
+            .unwrap_or(NamedTrip {
+                name: all.new_name(),
+                waypoints: Vec::new(),
+            });
         TripManagement { all, current }
     }
 
@@ -129,7 +134,7 @@ impl TripManagement {
     }
 
     /// saves iff current trip is changed.
-    pub fn autosave(&mut self, app: &App) {
+    pub fn autosave(&mut self, app: &mut App) {
         match self.all.trips.get(&self.current.name) {
             None if self.current.waypoints.len() == 0 => return,
             Some(existing) if existing == &self.current => return,
@@ -140,18 +145,37 @@ impl TripManagement {
             .trips
             .insert(self.current.name.clone(), self.current.clone());
         self.all.save(app);
+        self.save_current_trip_to_session(app);
     }
 
-    pub fn on_click(&mut self, ctx: &mut EventCtx, app: &App, action: &str) -> Option<Transition> {
+    pub fn set_current(&mut self, name: &str) {
+        if self.all.trips.contains_key(name) {
+            self.current = self.all.trips[name].clone();
+        }
+    }
+
+    pub fn on_click(
+        &mut self,
+        ctx: &mut EventCtx,
+        app: &mut App,
+        action: &str,
+    ) -> Option<Transition> {
         match action {
             "Delete" => {
                 if self.all.trips.remove(&self.current.name).is_some() {
                     self.all.save(app);
                 }
-                self.current = NamedTrip {
-                    name: self.all.new_name(),
-                    waypoints: Vec::new(),
-                };
+                self.current = self
+                    .all
+                    .trips
+                    .iter()
+                    .next()
+                    .map(|(_k, v)| v.clone())
+                    .unwrap_or_else(|| NamedTrip {
+                        name: self.all.new_name(),
+                        waypoints: Vec::new(),
+                    });
+                self.save_current_trip_to_session(app);
                 Some(Transition::Keep)
             }
             "Start new trip" => {
@@ -159,6 +183,7 @@ impl TripManagement {
                     name: self.all.new_name(),
                     waypoints: Vec::new(),
                 };
+                app.session.ungap_current_trip_name = None;
                 Some(Transition::Keep)
             }
             "Load another trip" => Some(Transition::Push(ChooseSomething::new_state(
@@ -171,6 +196,7 @@ impl TripManagement {
                         Transition::ModifyState(Box::new(move |state, ctx, app| {
                             let state = state.downcast_mut::<TripPlanner>().unwrap();
                             state.files.current = state.files.all.trips[&choice].clone();
+                            state.files.save_current_trip_to_session(app);
                             state.sync_from_file_management(ctx, app);
                         })),
                     ])
@@ -178,10 +204,12 @@ impl TripManagement {
             ))),
             "previous trip" => {
                 self.current = self.all.prev(&self.current.name).unwrap().clone();
+                self.save_current_trip_to_session(app);
                 Some(Transition::Keep)
             }
             "next trip" => {
                 self.current = self.all.next(&self.current.name).unwrap().clone();
+                self.save_current_trip_to_session(app);
                 Some(Transition::Keep)
             }
             "rename trip" => Some(Transition::Push(RenameTrip::new_state(
@@ -190,6 +218,12 @@ impl TripManagement {
                 &self.all,
             ))),
             _ => None,
+        }
+    }
+
+    fn save_current_trip_to_session(&self, app: &mut App) {
+        if app.session.ungap_current_trip_name.as_ref() != Some(&self.current.name) {
+            app.session.ungap_current_trip_name = Some(self.current.name.clone());
         }
     }
 }
@@ -241,6 +275,7 @@ impl SimpleState<App> for RenameTrip {
                         let state = state.downcast_mut::<TripPlanner>().unwrap();
                         state.files.all.trips.remove(&old_name);
                         state.files.current.name = new_name.clone();
+                        app.session.ungap_current_trip_name = Some(new_name.clone());
                         state
                             .files
                             .all

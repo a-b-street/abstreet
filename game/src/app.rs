@@ -734,6 +734,7 @@ pub struct SessionState {
     // Specific to the ungap tool
     pub elevation_contours: Cached<MapName, (FindClosest<Distance>, ToggleZoomed)>,
     pub routing_preferences: crate::ungap::RoutingPreferences,
+    pub ungap_current_trip_name: Option<String>,
     // Map and edit change key
     pub mode_shift: Cached<(MapName, usize), crate::ungap::ModeShiftData>,
 }
@@ -756,6 +757,7 @@ impl SessionState {
 
             elevation_contours: Cached::new(),
             routing_preferences: crate::ungap::RoutingPreferences::default(),
+            ungap_current_trip_name: None,
             mode_shift: Cached::new(),
         }
     }

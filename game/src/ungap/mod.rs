@@ -133,10 +133,10 @@ impl Tab {
                             Transition::Pop,
                             Transition::Replace(match self {
                                 Tab::Explore => ExploreMap::new_state(ctx, app, layers),
+                                Tab::Trip => trip::TripPlanner::new_state(ctx, app, layers),
                                 Tab::AddLanes => {
                                     quick_sketch::QuickSketch::new_state(ctx, app, layers)
                                 }
-                                Tab::Trip => trip::TripPlanner::new_state(ctx, app, layers),
                                 Tab::PredictImpact => {
                                     predict::ShowGaps::new_state(ctx, app, layers)
                                 }
