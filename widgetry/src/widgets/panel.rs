@@ -466,21 +466,25 @@ impl Panel {
         self.find::<Button>(name).is_enabled()
     }
 
-    pub fn maybe_find(&self, name: &str) -> Option<&Widget> {
+    pub fn maybe_find_widget(&self, name: &str) -> Option<&Widget> {
         self.top_level.find(name)
     }
 
-    pub fn find<T: WidgetImpl>(&self, name: &str) -> &T {
-        if let Some(w) = self.top_level.find(name) {
+    pub fn maybe_find<T: WidgetImpl>(&self, name: &str) -> Option<&T> {
+        self.maybe_find_widget(name).map(|w| {
             if let Some(x) = w.widget.downcast_ref::<T>() {
                 x
             } else {
                 panic!("Found widget {}, but wrong type", name);
             }
-        } else {
-            panic!("Can't find widget {}", name);
-        }
+        })
     }
+
+    pub fn find<T: WidgetImpl>(&self, name: &str) -> &T {
+        self.maybe_find(name)
+            .expect(&format!("Can't find widget {}", name))
+    }
+
     pub fn find_mut<T: WidgetImpl>(&mut self, name: &str) -> &mut T {
         if let Some(w) = self.top_level.find_mut(name) {
             if let Some(x) = w.widget.downcast_mut::<T>() {

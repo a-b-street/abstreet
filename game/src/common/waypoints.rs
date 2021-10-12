@@ -130,6 +130,10 @@ impl InputWaypoints {
         self.waypoints.iter().map(|w| w.at).collect()
     }
 
+    pub fn len(&self) -> usize {
+        self.waypoints.len()
+    }
+
     /// If the outcome from the panel or world isn't used by the caller, pass it along here. When this
     /// returns true, something has changed, so the caller may want to update their view of the
     /// route and call `get_panel_widget` and `rebuild_world` again.

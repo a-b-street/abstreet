@@ -263,33 +263,31 @@ impl RouteDetails {
             }
         }
 
-        let current_dist_along = panel
-            .find::<LinePlot<Distance, Distance>>("elevation")
-            .get_hovering()
-            .get(0)
-            .map(|pair| pair.0);
-        if self.hover_on_line_plot.as_ref().map(|pair| pair.0) != current_dist_along {
-            self.hover_on_line_plot = current_dist_along.map(|mut dist| {
-                let mut batch = GeomBatch::new();
-                // Find this position on the trip
-                for (path, maybe_pl) in &self.paths {
-                    if dist > path.total_length() {
-                        dist -= path.total_length();
-                        continue;
-                    }
-                    if let Some(ref pl) = maybe_pl {
-                        if let Ok((pt, _)) = pl.dist_along(dist) {
-                            batch.push(
-                                Color::YELLOW,
-                                Circle::new(pt, Distance::meters(30.0)).to_polygon(),
-                            );
+        if let Some(line_plot) = panel.maybe_find::<LinePlot<Distance, Distance>>("elevation") {
+            let current_dist_along = line_plot.get_hovering().get(0).map(|pair| pair.0);
+            if self.hover_on_line_plot.as_ref().map(|pair| pair.0) != current_dist_along {
+                self.hover_on_line_plot = current_dist_along.map(|mut dist| {
+                    let mut batch = GeomBatch::new();
+                    // Find this position on the trip
+                    for (path, maybe_pl) in &self.paths {
+                        if dist > path.total_length() {
+                            dist -= path.total_length();
+                            continue;
                         }
+                        if let Some(ref pl) = maybe_pl {
+                            if let Ok((pt, _)) = pl.dist_along(dist) {
+                                batch.push(
+                                    Color::YELLOW,
+                                    Circle::new(pt, Distance::meters(30.0)).to_polygon(),
+                                );
+                            }
+                        }
+                        break;
                     }
-                    break;
-                }
 
-                (dist, batch.upload(ctx))
-            });
+                    (dist, batch.upload(ctx))
+                });
+            }
         }
 
         if ctx.redo_mouseover() {
