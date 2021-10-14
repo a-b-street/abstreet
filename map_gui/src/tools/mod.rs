@@ -39,7 +39,7 @@ mod updater;
 mod url;
 
 // Update this ___before___ pushing the commit with "[rebuild] [release]".
-const NEXT_RELEASE: &str = "0.2.62";
+const NEXT_RELEASE: &str = "0.2.63";
 
 /// Returns the version of A/B Street to link to. When building for a release, this points to that
 /// new release. Otherwise it points to the current dev version.
