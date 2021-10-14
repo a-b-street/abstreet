@@ -98,8 +98,6 @@ pub struct WidgetOutput {
     /// This widget produced an Outcome, and event handling should immediately stop. Most widgets
     /// shouldn't set this.
     pub outcome: Outcome,
-    /// This widget exclusively owned focus as of the last event. Don't modify.
-    pub prev_focus_owned_by: Option<String>,
 }
 
 impl WidgetOutput {
@@ -107,7 +105,6 @@ impl WidgetOutput {
         WidgetOutput {
             redo_layout: false,
             outcome: Outcome::Nothing,
-            prev_focus_owned_by: None,
         }
     }
 }
