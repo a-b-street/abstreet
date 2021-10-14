@@ -113,6 +113,8 @@ impl WidgetImpl for TextBox {
             }
         }
 
+        // TODO Revisit this, which was originally written for a panel containing multiple
+        // textboxes.
         if ctx.normal_left_click() {
             // Let all textboxes see this event, so they can deactivate their own focus.
             // TODO But if a button is clicked before this textbox, that event isn't seen here...
