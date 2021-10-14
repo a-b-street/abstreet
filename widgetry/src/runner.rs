@@ -25,6 +25,8 @@ pub(crate) struct State<A: SharedAppState> {
     pub(crate) app: App<A>,
     pub(crate) canvas: Canvas,
     style: Style,
+
+    focus_owned_by: Option<String>,
 }
 
 impl<A: SharedAppState> State<A> {
@@ -108,9 +110,15 @@ impl<A: SharedAppState> State<A> {
                 style: &mut self.style,
                 updates_requested: vec![],
                 canvas_movement_called: false,
+
+                focus_owned_by: self.focus_owned_by.take(),
+                // If the widget owning focus doesn't renew it, then it'll expire by the end of
+                // this event.
+                next_focus_owned_by: None,
             };
             let started = Instant::now();
             self.app.event(&mut ctx);
+            self.focus_owned_by = ctx.next_focus_owned_by.take();
             if DEBUG_PERFORMANCE {
                 println!("- event() took {}s", elapsed_seconds(started));
             }
@@ -356,6 +364,8 @@ pub fn run<
         style: &mut style,
         updates_requested: vec![],
         canvas_movement_called: false,
+        focus_owned_by: None,
+        next_focus_owned_by: None,
     });
     timer.stop("setup app");
     let app = App {
@@ -364,7 +374,12 @@ pub fn run<
     };
     timer.done();
 
-    let mut state = State { app, canvas, style };
+    let mut state = State {
+        app,
+        canvas,
+        style,
+        focus_owned_by: None,
+    };
 
     let dump_raw_events = settings.dump_raw_events;
 

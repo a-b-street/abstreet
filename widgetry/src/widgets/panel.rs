@@ -31,10 +31,6 @@ pub struct Panel {
     contents_dims: ScreenDims,
     container_dims: ScreenDims,
     clip_rect: Option<ScreenRectangle>,
-
-    // TODO Currently this only works for widgets in the same Panel, but this should handle all
-    // Panels on-screen.
-    focus_owned_by: Option<String>,
 }
 
 impl Panel {
@@ -310,9 +306,6 @@ impl Panel {
 
         let before = self.scroll_offset();
         let mut output = WidgetOutput::new();
-        // If the widget owning focus doesn't renew it, then it'll expire by the end of this event.
-        output.prev_focus_owned_by = self.focus_owned_by.take();
-
         self.top_level.widget.event(ctx, &mut output);
 
         if output.redo_layout {
@@ -323,7 +316,8 @@ impl Panel {
 
         // Remember this for the next event
         if let Outcome::Focused(ref id) = output.outcome {
-            self.focus_owned_by = Some(id.clone());
+            assert!(ctx.next_focus_owned_by.is_none());
+            ctx.next_focus_owned_by = Some(id.clone());
         }
 
         output.outcome
@@ -616,8 +610,6 @@ impl PanelBuilder {
             container_dims: ScreenDims::new(0.0, 0.0),
             clip_rect: None,
             cached_flexbox: None,
-
-            focus_owned_by: None,
         };
         match panel.dims {
             Dims::ExactPercent(w, h) => {

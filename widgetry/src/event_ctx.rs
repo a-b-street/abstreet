@@ -34,6 +34,12 @@ pub struct EventCtx<'a> {
     pub(crate) style: &'a mut Style,
     pub(crate) updates_requested: Vec<UpdateType>,
     pub(crate) canvas_movement_called: bool,
+
+    /// This widget (in some panel) exclusively owns focus. Don't modify.
+    pub(crate) focus_owned_by: Option<String>,
+    /// While handling an event, this widget (in some panel) this widget declared that it owns
+    /// focus. This will become `focus_owned_by` during the next event.
+    pub(crate) next_focus_owned_by: Option<String>,
 }
 
 impl<'a> EventCtx<'a> {
@@ -84,6 +90,8 @@ impl<'a> EventCtx<'a> {
             style: self.style,
             updates_requested: vec![],
             canvas_movement_called: false,
+            focus_owned_by: None,
+            next_focus_owned_by: None,
         };
         let result = cb(&mut tmp);
         self.updates_requested.extend(tmp.updates_requested);
@@ -268,6 +276,8 @@ impl<'a> LoadingScreen<'a> {
             style: &mut self.style,
             updates_requested: vec![],
             canvas_movement_called: false,
+            focus_owned_by: None,
+            next_focus_owned_by: None,
         };
 
         let mut txt = Text::from(Line(&self.title).small_heading());
