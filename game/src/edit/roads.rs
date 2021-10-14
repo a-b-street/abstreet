@@ -605,7 +605,10 @@ fn make_main_panel(
             .map(|buf| {
                 let lt = LaneType::Buffer(buf);
                 let width = LaneSpec::typical_lane_widths(lt, &road.osm_tags)[0].0;
-                Choice::new(format!("{} ({})", lt.short_name(), width), lt)
+                Choice::new(
+                    format!("{} ({})", lt.short_name(), width.to_string(&app.opts.units)),
+                    lt,
+                )
             })
             .collect(),
         )
