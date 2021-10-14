@@ -96,6 +96,11 @@ pub struct WidgetOutput {
     /// This widget produced an Outcome, and event handling should immediately stop. Most widgets
     /// shouldn't set this.
     pub outcome: Outcome,
+    /// This was the widget who called `steal_focus` last event. Don't set directly.
+    pub prev_focus_owned_by: Option<String>,
+    /// If a widget sets their ID here, don't propagate events to other widgets in the panel. Don't
+    /// set this directly; use `steal_focus`.
+    pub current_focus_owned_by: Option<String>,
 }
 
 impl WidgetOutput {
@@ -103,7 +108,27 @@ impl WidgetOutput {
         WidgetOutput {
             redo_layout: false,
             outcome: Outcome::Nothing,
+            prev_focus_owned_by: None,
+            current_focus_owned_by: None,
         }
+    }
+
+    /// Indicate that the widget with this ID currently has focus and should prevent other widgets
+    /// from handling events.
+    ///
+    /// TODO Currently this only works for widgets in the same Panel, but this should handle all
+    /// Panels on-screen.
+    pub fn steal_focus(&mut self, id: String) {
+        if let Some(ref existing) = self.prev_focus_owned_by {
+            if id.as_str() == existing {
+                // Renew the focus, so prev_focus_owned_by is set for the next event
+                self.current_focus_owned_by = Some(id);
+                return;
+            }
+            panic!("{} can't steal focus; {} already has it", id, existing);
+        }
+        assert!(self.current_focus_owned_by.is_none());
+        self.current_focus_owned_by = Some(id);
     }
 }
 

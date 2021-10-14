@@ -124,6 +124,10 @@ impl<T: 'static + Clone> WidgetImpl for Dropdown<T> {
                 self.open_menu(ctx);
             }
         }
+
+        if self.menu.is_some() {
+            output.steal_focus(self.label.clone());
+        }
     }
 
     fn draw(&self, g: &mut GfxCtx) {
