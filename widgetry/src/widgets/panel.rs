@@ -32,6 +32,8 @@ pub struct Panel {
     container_dims: ScreenDims,
     clip_rect: Option<ScreenRectangle>,
 
+    // TODO Currently this only works for widgets in the same Panel, but this should handle all
+    // Panels on-screen.
     focus_owned_by: Option<String>,
 }
 
@@ -320,7 +322,9 @@ impl Panel {
         }
 
         // Remember this for the next event
-        self.focus_owned_by = output.current_focus_owned_by;
+        if let Outcome::Focused(ref id) = output.outcome {
+            self.focus_owned_by = Some(id.clone());
+        }
 
         output.outcome
     }

@@ -109,10 +109,6 @@ impl<T: 'static + Clone + PartialEq> WidgetImpl for PersistentSplit<T> {
 
         let mut tmp_output = WidgetOutput::new();
         self.dropdown.event(ctx, &mut tmp_output);
-        if tmp_output.current_focus_owned_by.is_some() {
-            // The dropdown's label is a dummy value
-            output.steal_focus(self.btn.action.clone());
-        }
 
         let new_value = self.dropdown.current_value();
         if new_value != self.current_value {
@@ -126,6 +122,8 @@ impl<T: 'static + Clone + PartialEq> WidgetImpl for PersistentSplit<T> {
             self.btn = button_builder.build(ctx, &label);
             output.redo_layout = true;
             output.outcome = Outcome::Changed(label);
+        } else if let Outcome::Focused(_) = tmp_output.outcome {
+            output.outcome = Outcome::Focused(self.btn.action.clone());
         }
     }
 

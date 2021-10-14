@@ -347,7 +347,9 @@ impl<T: 'static + Copy + PartialEq> WidgetImpl for DragDrop<T> {
             } => ctx.cursor_grabbable(),
             State::Dragging { .. } => {
                 ctx.cursor_grabbing();
-                output.steal_focus(self.label.clone());
+                if matches!(output.outcome, Outcome::Nothing) {
+                    output.outcome = Outcome::Focused(self.label.clone());
+                }
             }
             _ => {}
         }

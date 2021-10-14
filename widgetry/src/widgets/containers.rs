@@ -48,12 +48,7 @@ impl WidgetImpl for Container {
 
     fn event(&mut self, ctx: &mut EventCtx, output: &mut WidgetOutput) {
         for w in &mut self.members {
-            // If both are filled out, they'll be the same
-            if let Some(id) = output
-                .prev_focus_owned_by
-                .as_ref()
-                .or(output.current_focus_owned_by.as_ref())
-            {
+            if let Some(id) = output.prev_focus_owned_by.as_ref() {
                 // Container is the only place that needs to actually enforce focus. If a Panel
                 // consists of only one top-level widget, then there's nothing else to conflict
                 // with focus. And in the common case, we have a tree of Containers, with
@@ -63,10 +58,8 @@ impl WidgetImpl for Container {
                 }
             }
             w.widget.event(ctx, output);
-            // If the widget produced an outcome or currently has focus, short-circuit.
-            if !matches!(output.outcome, Outcome::Nothing)
-                || output.current_focus_owned_by.is_some()
-            {
+            // If the widget produced an outcome, short-circuit.
+            if !matches!(output.outcome, Outcome::Nothing) {
                 return;
             }
         }
