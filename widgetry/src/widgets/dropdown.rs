@@ -126,7 +126,7 @@ impl<T: 'static + Clone> WidgetImpl for Dropdown<T> {
         }
 
         if self.menu.is_some() {
-            output.steal_focus(self.label.clone());
+            output.outcome = Outcome::Focused(self.label.clone());
         }
     }
 
