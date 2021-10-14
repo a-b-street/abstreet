@@ -5,6 +5,7 @@ use anyhow::Result;
 use geo::algorithm::area::Area;
 use geo::algorithm::convex_hull::ConvexHull;
 use geo::algorithm::intersects::Intersects;
+use geo::algorithm::simplifyvw::SimplifyVWPreserve;
 use geo_booleanop::boolean::BooleanOp;
 use serde::{Deserialize, Serialize};
 
@@ -543,6 +544,10 @@ impl Polygon {
             }
         }
         Ok(results)
+    }
+
+    pub fn simplify(&self, epsilon: f64) -> Polygon {
+        to_geo(self.points()).simplifyvw_preserve(&epsilon).into()
     }
 }
 

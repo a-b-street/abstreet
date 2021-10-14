@@ -6,6 +6,9 @@ use geom::{GPSBounds, LonLat, Polygon, Ring};
 
 use crate::{AreaType, Map};
 
+// Hand-tuned. I think this is in units of meters?
+const POLYGON_EPSILON: f64 = 1000.0;
+
 /// A single city (like Seattle) can be broken down into multiple boundary polygons (udistrict,
 /// ballard, downtown, etc). The load map screen uses this struct to display the entire city.
 #[derive(Serialize, Deserialize)]
@@ -46,7 +49,7 @@ impl City {
             areas: huge_map
                 .all_areas()
                 .iter()
-                .map(|a| (a.area_type, a.polygon.clone()))
+                .map(|a| (a.area_type, a.polygon.simplify(POLYGON_EPSILON)))
                 .collect(),
             districts,
         }
@@ -99,7 +102,10 @@ impl City {
                 let pts = map.gps_bounds.convert_back(area.polygon.points());
                 // TODO Holes in the polygons get lost
                 if let Ok(ring) = Ring::new(gps_bounds.convert(&pts)) {
-                    areas.push((area.area_type, ring.into_polygon()));
+                    areas.push((
+                        area.area_type,
+                        ring.into_polygon().simplify(POLYGON_EPSILON),
+                    ));
                 }
             }
         }

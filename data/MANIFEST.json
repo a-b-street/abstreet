@@ -2461,9 +2461,9 @@
       "compressed_size_bytes": 3827096
     },
     "data/system/at/salzburg/city.bin": {
-      "checksum": "e26ef4a68d4b63c1fe0d9529218cc84f",
-      "uncompressed_size_bytes": 693217,
-      "compressed_size_bytes": 421901
+      "checksum": "1c0a87045a3c9eb40c1875fffcc98fcf",
+      "uncompressed_size_bytes": 202549,
+      "compressed_size_bytes": 96214
     },
     "data/system/at/salzburg/maps/east.bin": {
       "checksum": "caf18102dfc38bc42c2a03362791dff8",
@@ -2506,9 +2506,9 @@
       "compressed_size_bytes": 11641511
     },
     "data/system/ch/zurich/city.bin": {
-      "checksum": "a6b42ad0e987ecce87468abf72469437",
-      "uncompressed_size_bytes": 578592,
-      "compressed_size_bytes": 357426
+      "checksum": "a209c74a10aa23d23feaf25e1c057efb",
+      "uncompressed_size_bytes": 156946,
+      "compressed_size_bytes": 73060
     },
     "data/system/ch/zurich/maps/center.bin": {
       "checksum": "c560f0906533100c3a6260457d9fdf9f",
@@ -2581,9 +2581,9 @@
       "compressed_size_bytes": 19085911
     },
     "data/system/fr/charleville_mezieres/city.bin": {
-      "checksum": "32a65b37219b93f2391b6bfe57950480",
-      "uncompressed_size_bytes": 187433,
-      "compressed_size_bytes": 115902
+      "checksum": "29833aaa77dec950d0fd05e413d783e8",
+      "uncompressed_size_bytes": 54547,
+      "compressed_size_bytes": 29267
     },
     "data/system/fr/charleville_mezieres/maps/secteur1.bin": {
       "checksum": "36eaa21ed50483932f5dfc580a8f0cd4",
@@ -2616,9 +2616,9 @@
       "compressed_size_bytes": 31127978
     },
     "data/system/fr/paris/city.bin": {
-      "checksum": "776a26d6b917b8faaf15b90995d7c4b5",
-      "uncompressed_size_bytes": 2281178,
-      "compressed_size_bytes": 1374614
+      "checksum": "1928619334effd967ad2488ba34ed2c9",
+      "uncompressed_size_bytes": 528230,
+      "compressed_size_bytes": 233651
     },
     "data/system/fr/paris/maps/center.bin": {
       "checksum": "4ff740ba65e93ac842908891417e851c",
@@ -3281,9 +3281,9 @@
       "compressed_size_bytes": 696607
     },
     "data/system/gb/leeds/city.bin": {
-      "checksum": "b1d557a7ffa14cda23b027fa8244353f",
-      "uncompressed_size_bytes": 1857120,
-      "compressed_size_bytes": 1139158
+      "checksum": "bef0f06947cd4a8dd410c9ad45cb31fb",
+      "uncompressed_size_bytes": 560554,
+      "compressed_size_bytes": 273160
     },
     "data/system/gb/leeds/maps/central.bin": {
       "checksum": "699a31916eee6bec07ab7b2b15e7e8f8",
@@ -3826,9 +3826,9 @@
       "compressed_size_bytes": 14789895
     },
     "data/system/ir/tehran/city.bin": {
-      "checksum": "58ed8c751092a59a28685ab73bca10c5",
-      "uncompressed_size_bytes": 613751,
-      "compressed_size_bytes": 371230
+      "checksum": "24b0f2ede5ebb1a483458a21ca349ade",
+      "uncompressed_size_bytes": 201435,
+      "compressed_size_bytes": 93099
     },
     "data/system/ir/tehran/maps/boundary0.bin": {
       "checksum": "c7a6afa1074279b89ef82c49ab5ee854",
@@ -3951,9 +3951,9 @@
       "compressed_size_bytes": 9163366
     },
     "data/system/us/mt_vernon/city.bin": {
-      "checksum": "173b2a66e9cdb9600e48e3c5f1506043",
-      "uncompressed_size_bytes": 197361,
-      "compressed_size_bytes": 109013
+      "checksum": "6c1ccd19661e9bd33c55577e68f1c509",
+      "uncompressed_size_bytes": 37211,
+      "compressed_size_bytes": 22578
     },
     "data/system/us/mt_vernon/maps/burlington.bin": {
       "checksum": "4c35286d6d4da772ecfd238c7497e0c5",
@@ -3966,9 +3966,9 @@
       "compressed_size_bytes": 7426555
     },
     "data/system/us/nyc/city.bin": {
-      "checksum": "93f972082d026257625bd7bc10a45b63",
-      "uncompressed_size_bytes": 892706,
-      "compressed_size_bytes": 477936
+      "checksum": "2d283a1ed31cba01ec51d723aa7e54ea",
+      "uncompressed_size_bytes": 245298,
+      "compressed_size_bytes": 103469
     },
     "data/system/us/nyc/maps/downtown_brooklyn.bin": {
       "checksum": "a0dc47209daedd2896360378871fc307",
@@ -4011,9 +4011,9 @@
       "compressed_size_bytes": 18918169
     },
     "data/system/us/seattle/city.bin": {
-      "checksum": "b147011af15d8dd38fbf9e3c90e29c7d",
-      "uncompressed_size_bytes": 3085409,
-      "compressed_size_bytes": 1952572
+      "checksum": "5e1d2c772ac15649f8b4e52ae1ad4588",
+      "uncompressed_size_bytes": 769593,
+      "compressed_size_bytes": 390647
     },
     "data/system/us/seattle/maps/arboretum.bin": {
       "checksum": "8aac379cc6f1f0931561cf7334f6e1b0",
