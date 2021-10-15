@@ -4,12 +4,16 @@ use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, TextExt, Widg
 
 use crate::app::App;
 
+const RADIUS: Distance = Distance::const_meters(10.0);
+
 // TODO Supercede RoadSelector, probably..
 pub struct RouteSketcher {
     snap_to_intersections: FindClosest<IntersectionID>,
     route: Route,
     mode: Mode,
     preview: Drawable,
+
+    thickness: f64,
 }
 
 impl RouteSketcher {
@@ -24,6 +28,8 @@ impl RouteSketcher {
             route: Route::new(),
             mode: Mode::Neutral,
             preview: Drawable::empty(ctx),
+
+            thickness: 0.0,
         }
     }
 
@@ -99,18 +105,22 @@ impl RouteSketcher {
 
     fn update_preview(&mut self, ctx: &mut EventCtx, app: &App) {
         let map = &app.primary.map;
+        let thickness = zoom_to_thickness(ctx);
         let mut batch = GeomBatch::new();
 
         // Draw the confirmed route
         for pair in self.route.full_path.windows(2) {
             // TODO Inefficient!
-            let r = map.find_road_between(pair[0], pair[1]).unwrap();
-            batch.push(Color::RED.alpha(0.5), map.get_r(r).get_thick_polygon());
+            let r = map.get_r(map.find_road_between(pair[0], pair[1]).unwrap());
+            batch.push(
+                Color::RED.alpha(0.5),
+                r.center_pts.make_polygons(thickness * r.get_width()),
+            );
         }
         for i in &self.route.full_path {
             batch.push(
                 Color::BLUE.alpha(0.5),
-                Circle::new(map.get_i(*i).polygon.center(), Distance::meters(10.0)).to_polygon(),
+                Circle::new(map.get_i(*i).polygon.center(), thickness * RADIUS).to_polygon(),
             );
         }
 
@@ -121,8 +131,7 @@ impl RouteSketcher {
                 cnt += 1;
                 batch.push(
                     Color::RED,
-                    Circle::new(map.get_i(*i).polygon.center(), Distance::meters(10.0))
-                        .to_polygon(),
+                    Circle::new(map.get_i(*i).polygon.center(), thickness * RADIUS).to_polygon(),
                 );
                 batch.append(
                     widgetry::Text::from(Line(format!("{}", cnt)))
@@ -136,7 +145,7 @@ impl RouteSketcher {
         if let Mode::Hovering(i) = self.mode {
             batch.push(
                 Color::BLUE,
-                Circle::new(map.get_i(i).polygon.center(), Distance::meters(10.0)).to_polygon(),
+                Circle::new(map.get_i(i).polygon.center(), thickness * RADIUS).to_polygon(),
             );
             if self.route.waypoints.len() == 1 {
                 if let Some((roads, intersections)) =
@@ -154,11 +163,12 @@ impl RouteSketcher {
         if let Mode::Dragging { at, .. } = self.mode {
             batch.push(
                 Color::BLUE,
-                Circle::new(map.get_i(at).polygon.center(), Distance::meters(10.0)).to_polygon(),
+                Circle::new(map.get_i(at).polygon.center(), thickness * RADIUS).to_polygon(),
             );
         }
 
         self.preview = batch.upload(ctx);
+        self.thickness = thickness;
     }
 
     pub fn get_widget_to_describe(&self, ctx: &mut EventCtx) -> Widget {
@@ -196,7 +206,16 @@ impl RouteSketcher {
         let orig_route = self.route.clone();
         let orig_mode = self.mode.clone();
         self.update_mode(ctx, app);
-        if self.route != orig_route || self.mode != orig_mode {
+        println!(
+            "Current thickness {}, zoom_to_thickness({}) now {}",
+            self.thickness,
+            ctx.canvas.cam_zoom,
+            zoom_to_thickness(ctx)
+        );
+        if self.route != orig_route
+            || self.mode != orig_mode
+            || zoom_to_thickness(ctx) != self.thickness
+        {
             self.update_preview(ctx, app);
             true
         } else {
@@ -221,7 +240,7 @@ impl RouteSketcher {
             if let Some(pt) = g.canvas.get_cursor_in_map_space() {
                 g.draw_polygon(
                     Color::BLUE.alpha(0.5),
-                    Circle::new(pt, Distance::meters(10.0)).to_polygon(),
+                    Circle::new(pt, self.thickness * RADIUS).to_polygon(),
                 );
             }
         }
@@ -327,4 +346,22 @@ enum Mode {
     Neutral,
     Hovering(IntersectionID),
     Dragging { idx: usize, at: IntersectionID },
+}
+
+fn zoom_to_thickness(ctx: &EventCtx) -> f64 {
+    let zoom = ctx.canvas.cam_zoom;
+    let bucketed_zoom = if zoom >= 1.0 {
+        1.0
+    } else {
+        (zoom * 10.0).round() / 10.0
+    };
+
+    // Thicker lines as we zoom out. Scale up to 5x. Never shrink past the road's actual width.
+    let thickness = (0.5 / bucketed_zoom).max(1.0);
+    // And on gigantic maps, zoom may approach 0, so avoid NaNs.
+    if thickness.is_finite() {
+        thickness
+    } else {
+        5.0
+    }
 }
