@@ -223,7 +223,7 @@ impl Canvas {
         // By popular request, some limits ;)
         self.cam_zoom = 1.1_f64
             .powf(old_zoom.log(1.1) + delta * (self.settings.canvas_scroll_speed as f64 / 10.0))
-            .max(self.min_zoom())
+            //.max(self.min_zoom())
             .min(self.max_zoom());
 
         // Make screen_to_map of the focus point still point to the same thing after
