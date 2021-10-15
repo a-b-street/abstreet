@@ -20,6 +20,8 @@ pub struct TripPlanner {
     // TODO We really only need to store preferences and stats, but...
     alt_routes: Vec<RouteDetails>,
     world: World<ID>,
+
+    thickness: f64,
 }
 
 impl TakeLayers for TripPlanner {
@@ -49,10 +51,11 @@ impl TripPlanner {
 
             input_panel: Panel::empty(ctx),
             waypoints: InputWaypoints::new(app),
-            main_route: RouteDetails::main_route(ctx, app, Vec::new()).details,
+            main_route: RouteDetails::main_route(ctx, app, Vec::new(), 0.0).details,
             files: files::TripManagement::new(app),
             alt_routes: Vec::new(),
             world: World::bounded(app.primary.map.get_bounds()),
+            thickness: 0.0,
         };
 
         if let Some(current_name) = &app.session.ungap_current_trip_name {
@@ -64,9 +67,11 @@ impl TripPlanner {
 
     // Use the current session settings to determine "main" and alts
     fn recalculate_routes(&mut self, ctx: &mut EventCtx, app: &mut App) {
+        self.thickness = zoom_to_thickness(ctx);
         let mut world = World::bounded(app.primary.map.get_bounds());
 
-        let main_route = RouteDetails::main_route(ctx, app, self.waypoints.get_waypoints());
+        let main_route =
+            RouteDetails::main_route(ctx, app, self.waypoints.get_waypoints(), self.thickness);
         self.main_route = main_route.details;
         world
             .add(ID::MainRoute)
@@ -101,6 +106,7 @@ impl TripPlanner {
                 self.waypoints.get_waypoints(),
                 &self.main_route,
                 preferences,
+                self.thickness,
             );
             // Dedupe equivalent routes based on their stats, which is usually detailed enough
             if alt.details.stats != self.main_route.stats
@@ -119,8 +125,9 @@ impl TripPlanner {
             }
         }
 
+        // TODO Oh no, even these have to scale with zoom!?
         self.waypoints
-            .rebuild_world(ctx, &mut world, |id| ID::Waypoint(id), 2);
+            .rebuild_world(ctx, &mut world, |id| ID::Waypoint(id), 2, self.thickness);
 
         world.initialize_hover(ctx);
         world.rebuilt_during_drag(&self.world);
@@ -185,6 +192,10 @@ impl State<App> for TripPlanner {
                 _ => unreachable!(),
             }),
         };
+
+        if zoom_to_thickness(ctx) != self.thickness {
+            self.recalculate_routes(ctx, app);
+        }
 
         let panel_outcome = self.input_panel.event(ctx);
         if let Outcome::Clicked(ref x) = panel_outcome {
@@ -273,5 +284,23 @@ impl RoutingPreferences {
             avoid_high_stress: if self.avoid_stressful_roads { 2.0 } else { 1.0 },
             ..Default::default()
         }
+    }
+}
+
+fn zoom_to_thickness(ctx: &EventCtx) -> f64 {
+    let zoom = ctx.canvas.cam_zoom;
+    let bucketed_zoom = if zoom >= 1.0 {
+        1.0
+    } else {
+        (zoom * 10.0).round() / 10.0
+    };
+
+    // Thicker lines as we zoom out. Scale up to 5x. Never shrink past the road's actual width.
+    let thickness = (0.5 / bucketed_zoom).max(1.0);
+    // And on gigantic maps, zoom may approach 0, so avoid NaNs.
+    if thickness.is_finite() {
+        thickness
+    } else {
+        5.0
     }
 }

@@ -33,6 +33,7 @@ pub struct RouteDetails {
     hover_on_line_plot: Option<(Distance, Drawable)>,
     hover_on_route_tooltip: Option<Text>,
 
+    // TODO At least the first one here should also be zoom-responsive
     draw_high_stress: Drawable,
     draw_traffic_signals: Drawable,
     draw_unprotected_turns: Drawable,
@@ -51,7 +52,12 @@ pub struct RouteStats {
 
 impl RouteDetails {
     /// "main" is determined by `app.session.routing_preferences`
-    pub fn main_route(ctx: &mut EventCtx, app: &App, waypoints: Vec<TripEndpoint>) -> BuiltRoute {
+    pub fn main_route(
+        ctx: &mut EventCtx,
+        app: &App,
+        waypoints: Vec<TripEndpoint>,
+        thickness: f64,
+    ) -> BuiltRoute {
         RouteDetails::new(
             ctx,
             app,
@@ -59,6 +65,7 @@ impl RouteDetails {
             Color::RED,
             None,
             app.session.routing_preferences,
+            thickness,
         )
     }
 
@@ -68,6 +75,7 @@ impl RouteDetails {
         waypoints: Vec<TripEndpoint>,
         main: &RouteDetails,
         preferences: RoutingPreferences,
+        thickness: f64,
     ) -> BuiltRoute {
         let mut built = RouteDetails::new(
             ctx,
@@ -76,6 +84,7 @@ impl RouteDetails {
             Color::grey(0.3),
             Some(Color::RED),
             preferences,
+            thickness,
         );
         built.tooltip_for_alt = Some(compare_routes(
             app,
@@ -94,6 +103,7 @@ impl RouteDetails {
         // Only used for alts
         outline_color: Option<Color>,
         preferences: RoutingPreferences,
+        thickness: f64,
     ) -> BuiltRoute {
         let mut draw_route = ToggleZoomed::builder();
         let mut hitbox_pieces = Vec::new();
@@ -135,7 +145,7 @@ impl RouteDetails {
                                 // that're stressful, and use trace
                                 draw_high_stress.push(
                                     Color::YELLOW,
-                                    this_pl.make_polygons(5.0 * NORMAL_LANE_THICKNESS),
+                                    this_pl.make_polygons(thickness * 5.0 * NORMAL_LANE_THICKNESS),
                                 );
                             }
                         }
@@ -144,6 +154,7 @@ impl RouteDetails {
                             elevation_pts.push((current_dist, i.elevation));
                             if i.is_traffic_signal() {
                                 num_traffic_signals += 1;
+                                // TODO scale up by thickness, but how for a general polygon?
                                 draw_traffic_signals.push(Color::YELLOW, i.polygon.clone());
                             }
                             if map.is_unprotected_turn(
@@ -152,6 +163,7 @@ impl RouteDetails {
                                 map.get_t(*t).turn_type,
                             ) {
                                 num_unprotected_turns += 1;
+                                // TODO scale up by thickness, but how for a general polygon?
                                 draw_unprotected_turns.push(Color::YELLOW, i.polygon.clone());
                             }
                         }
@@ -161,7 +173,7 @@ impl RouteDetails {
 
                 let maybe_pl = path.trace(map);
                 if let Some(ref pl) = maybe_pl {
-                    let shape = pl.make_polygons(5.0 * NORMAL_LANE_THICKNESS);
+                    let shape = pl.make_polygons(thickness * 5.0 * NORMAL_LANE_THICKNESS);
                     draw_route
                         .unzoomed
                         .push(route_color.alpha(0.8), shape.clone());
@@ -172,9 +184,10 @@ impl RouteDetails {
                     hitbox_pieces.push(shape);
 
                     if let Some(color) = outline_color {
-                        if let Some(outline) =
-                            pl.to_thick_boundary(5.0 * NORMAL_LANE_THICKNESS, NORMAL_LANE_THICKNESS)
-                        {
+                        if let Some(outline) = pl.to_thick_boundary(
+                            thickness * 5.0 * NORMAL_LANE_THICKNESS,
+                            thickness * NORMAL_LANE_THICKNESS,
+                        ) {
                             draw_route.unzoomed.push(color, outline.clone());
                             draw_route.zoomed.push(color.alpha(0.5), outline);
                         }

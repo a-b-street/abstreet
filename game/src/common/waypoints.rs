@@ -212,9 +212,11 @@ impl InputWaypoints {
         world: &mut World<T>,
         wrap_id: F,
         zorder: usize,
+        thickness: f64,
     ) {
         for (idx, waypoint) in self.waypoints.iter().enumerate() {
-            let hitbox = Circle::new(waypoint.center, Distance::meters(30.0)).to_polygon();
+            let hitbox =
+                Circle::new(waypoint.center, thickness * Distance::meters(30.0)).to_polygon();
             let color = self.get_waypoint_color(idx);
 
             let mut draw_normal = GeomBatch::new();
@@ -222,6 +224,7 @@ impl InputWaypoints {
             draw_normal.append(
                 Text::from(Line(get_waypoint_text(idx).to_string()).fg(Color::WHITE))
                     .render(ctx)
+                    .scale(thickness)
                     .centered_on(waypoint.center),
             );
 
