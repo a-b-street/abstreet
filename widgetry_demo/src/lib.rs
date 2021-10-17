@@ -670,8 +670,13 @@ fn draw_lines(g: &mut GfxCtx) {
     // v2: total width of the object, actually, to preserve the shape
     let scaled = thick.scale_xy(g.canvas.window_width / bounds.width(), g.canvas.window_height / bounds.height());
 
-    //g.fork_screenspace();
     g.fork(Pt2D::new(bounds.min_x, bounds.min_y), widgetry::ScreenPt::new(0.0, 0.0), 1.0, None);
     g.draw_polygon(Color::RED, scaled);
     g.unfork();
+
+    // Conceptually, can we just calculate the screen-space that the object should currently
+    // occupy, then draw it with fixed zoom=1 but just clamped to that area?
+    let top_left_screen = g.canvas.map_to_screen(Pt2D::new(bounds.min_x, bounds.min_y));
+    let bottom_right_screen = g.canvas.map_to_screen(Pt2D::new(bounds.max_x, bounds.max_y));
+    println!("btwn {:?} and {:?}", top_left_screen, bottom_right_screen);
 }
