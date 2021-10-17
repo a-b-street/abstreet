@@ -1,7 +1,7 @@
 use rand::SeedableRng;
 use rand_xorshift::XorShiftRng;
 
-use geom::{Angle, Duration, Percent, Polygon, Pt2D, Time, UnitFmt};
+use geom::{Angle, Distance, Duration, Percent, Polygon, Pt2D, Time, PolyLine, UnitFmt};
 use widgetry::{
     lctrl, Choice, Color, ContentMode, DragDrop, Drawable, EventCtx, Fill, GeomBatch, GfxCtx,
     HorizontalAlignment, Image, Key, Line, LinePlot, Outcome, Panel, PersistentSplit, PlotOptions,
@@ -221,7 +221,7 @@ impl State<App> for Demo {
         // If we're paused, only call event() again when there's some kind of input. If not, also
         // sprinkle in periodic update events as time passes.
         if !self.controls.is_checked("paused") {
-            ctx.request_update(UpdateType::Game);
+            //ctx.request_update(UpdateType::Game);
         }
 
         Transition::Keep
@@ -232,15 +232,16 @@ impl State<App> for Demo {
 
         if self.controls.is_checked("Draw scrollable canvas") {
             g.redraw(&self.scrollable_canvas);
+            g.redraw(&self.texture_demo);
         }
 
-        self.controls.draw(g);
+        //self.controls.draw(g);
 
         if let Some((_, ref p)) = self.timeseries_panel {
             p.draw(g);
         }
 
-        g.redraw(&self.texture_demo);
+        draw_lines(g);
     }
 }
 
@@ -262,7 +263,7 @@ fn setup_texture_demo(ctx: &mut EventCtx, bg_texture: Texture, fg_texture: Textu
     triangle_poly = triangle_poly.translate(400.0, 900.0);
     batch.push(bg_texture, triangle_poly);
 
-    let circle = geom::Circle::new(Pt2D::new(50.0, 50.0), geom::Distance::meters(50.0));
+    let circle = geom::Circle::new(Pt2D::new(50.0, 50.0), Distance::meters(50.0));
     let mut circle_poly = circle.to_polygon();
     circle_poly = circle_poly.translate(600.0, 900.0);
     batch.push(
@@ -649,4 +650,28 @@ pub fn run_wasm(root_dom_id: String, assets_base_url: String, assets_are_gzipped
         .assets_base_url(assets_base_url)
         .assets_are_gzipped(assets_are_gzipped);
     run(settings);
+}
+
+fn draw_lines(g: &mut GfxCtx) {
+    let pl = PolyLine::must_new(vec![
+        Pt2D::new(1000.0, 1000.0),
+        Pt2D::new(2000.0, 2000.0),
+        Pt2D::new(1900.0, 1500.0),
+        Pt2D::new(3000.0, 1500.0),
+    ]);
+    let thick = pl.make_polygons(Distance::meters(50.0));
+    let bounds = thick.get_bounds();
+
+    // Draw it in map-space as a reference...
+    g.draw_polygon(Color::BLUE, thick.clone());
+
+    // Let's scale the total mapspace to fit the total screenspace
+    // v1: g.canvas.map_dims.0
+    // v2: total width of the object, actually, to preserve the shape
+    let scaled = thick.scale_xy(g.canvas.window_width / bounds.width(), g.canvas.window_height / bounds.height());
+
+    //g.fork_screenspace();
+    g.fork(Pt2D::new(bounds.min_x, bounds.min_y), widgetry::ScreenPt::new(0.0, 0.0), 1.0, None);
+    g.draw_polygon(Color::RED, scaled);
+    g.unfork();
 }
