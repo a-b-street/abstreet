@@ -3281,9 +3281,9 @@
       "compressed_size_bytes": 696607
     },
     "data/system/gb/leeds/city.bin": {
-      "checksum": "bef0f06947cd4a8dd410c9ad45cb31fb",
-      "uncompressed_size_bytes": 560554,
-      "compressed_size_bytes": 273160
+      "checksum": "1bc65c45930792885cfc486875a27104",
+      "uncompressed_size_bytes": 315464,
+      "compressed_size_bytes": 154781
     },
     "data/system/gb/leeds/maps/central.bin": {
       "checksum": "699a31916eee6bec07ab7b2b15e7e8f8",
@@ -4011,24 +4011,24 @@
       "compressed_size_bytes": 18918169
     },
     "data/system/us/seattle/city.bin": {
-      "checksum": "5e1d2c772ac15649f8b4e52ae1ad4588",
-      "uncompressed_size_bytes": 769593,
-      "compressed_size_bytes": 390647
+      "checksum": "5205f53fd0402a7e39bbcda758d7ef97",
+      "uncompressed_size_bytes": 326004,
+      "compressed_size_bytes": 169671
     },
     "data/system/us/seattle/maps/arboretum.bin": {
-      "checksum": "8aac379cc6f1f0931561cf7334f6e1b0",
+      "checksum": "0d800a08ab6297477bd41a18319b6604",
       "uncompressed_size_bytes": 6072114,
-      "compressed_size_bytes": 2241333
+      "compressed_size_bytes": 2241332
     },
     "data/system/us/seattle/maps/central_seattle.bin": {
-      "checksum": "c659f5bbfcc0380d847a61d8c305a717",
+      "checksum": "ae2e2d1a4dc389985f22b94c9be2521e",
       "uncompressed_size_bytes": 56838058,
-      "compressed_size_bytes": 21099045
+      "compressed_size_bytes": 21099042
     },
     "data/system/us/seattle/maps/downtown.bin": {
-      "checksum": "62e79dd1ae6549a865a18af5a8315008",
+      "checksum": "822c51177c7c882688b96615ebc13baf",
       "uncompressed_size_bytes": 22071592,
-      "compressed_size_bytes": 7927381
+      "compressed_size_bytes": 7927352
     },
     "data/system/us/seattle/maps/huge_seattle.bin": {
       "checksum": "5f43a98e32eae1784f835f5691d2fd3a",
@@ -4036,59 +4036,59 @@
       "compressed_size_bytes": 102247579
     },
     "data/system/us/seattle/maps/lakeslice.bin": {
-      "checksum": "86f2b78ad2122c1c94b722621a0158c7",
+      "checksum": "9a3f8a88f25e5dbd5e391d42a1181df3",
       "uncompressed_size_bytes": 19802614,
-      "compressed_size_bytes": 7330268
+      "compressed_size_bytes": 7330254
     },
     "data/system/us/seattle/maps/montlake.bin": {
-      "checksum": "7284ce47f01a59889761df8c93926e74",
+      "checksum": "6881538a14ccd93055b85ec3c8c4eee6",
       "uncompressed_size_bytes": 3310485,
-      "compressed_size_bytes": 1184628
+      "compressed_size_bytes": 1184622
     },
     "data/system/us/seattle/maps/north_seattle.bin": {
-      "checksum": "906f82edcf16f1d73792e8eadfb4473d",
+      "checksum": "d49317aed595ba7bfa57c44fd0502ed7",
       "uncompressed_size_bytes": 54706665,
-      "compressed_size_bytes": 20239140
+      "compressed_size_bytes": 20239114
     },
     "data/system/us/seattle/maps/phinney.bin": {
-      "checksum": "5175265198ac3ced7b81e9bf6a82ae4c",
+      "checksum": "fe43c3e77d940820e14a58f47df395a6",
       "uncompressed_size_bytes": 8178695,
-      "compressed_size_bytes": 2911317
+      "compressed_size_bytes": 2911318
     },
     "data/system/us/seattle/maps/qa.bin": {
-      "checksum": "6162f386a7b616c130017b14aa42397f",
+      "checksum": "771c7ff77948b82075e2b21257d03f7a",
       "uncompressed_size_bytes": 2864373,
-      "compressed_size_bytes": 1003383
+      "compressed_size_bytes": 1003385
     },
     "data/system/us/seattle/maps/slu.bin": {
-      "checksum": "4c60e7a7a82b51e9ec69ce5d30b550ec",
+      "checksum": "c1a6e23be03b6bd6cf275c0ee3c727fe",
       "uncompressed_size_bytes": 2067367,
       "compressed_size_bytes": 690013
     },
     "data/system/us/seattle/maps/south_seattle.bin": {
-      "checksum": "27460363c0e1420f9f96e3de756fb664",
+      "checksum": "a45abad713bbb17bdbaa097a5900a7b7",
       "uncompressed_size_bytes": 53787114,
-      "compressed_size_bytes": 19636586
+      "compressed_size_bytes": 19636549
     },
     "data/system/us/seattle/maps/udistrict_ravenna.bin": {
-      "checksum": "f4141962601d56c631b579d4405c5c81",
+      "checksum": "920f6da4808a7a2cb19de6f49cc076d7",
       "uncompressed_size_bytes": 3747359,
-      "compressed_size_bytes": 1312713
+      "compressed_size_bytes": 1312710
     },
     "data/system/us/seattle/maps/wallingford.bin": {
-      "checksum": "50177c65b3a8b764ae5f678a85664bb9",
+      "checksum": "98b0b1809cd3c5991a2d325382ecef84",
       "uncompressed_size_bytes": 6068655,
-      "compressed_size_bytes": 2172084
+      "compressed_size_bytes": 2172081
     },
     "data/system/us/seattle/maps/west_seattle.bin": {
-      "checksum": "2fc150f47f3abec1233deafc5f397277",
+      "checksum": "5692bbbc02e636a476ea9b07e2abc88a",
       "uncompressed_size_bytes": 52866381,
-      "compressed_size_bytes": 19393300
+      "compressed_size_bytes": 19393287
     },
     "data/system/us/seattle/prebaked_results/arboretum/weekday.bin": {
-      "checksum": "c0f52e4f7c82ddae086a95f7ace507d1",
-      "uncompressed_size_bytes": 17507139,
-      "compressed_size_bytes": 6854075
+      "checksum": "66bd5ca9d7d8ccdf1a21927bcbb70ecd",
+      "uncompressed_size_bytes": 17529302,
+      "compressed_size_bytes": 6867607
     },
     "data/system/us/seattle/prebaked_results/montlake/car vs bike contention.bin": {
       "checksum": "83869b144fdc0cb25925bc85dc9f9e33",
@@ -4096,9 +4096,9 @@
       "compressed_size_bytes": 1390
     },
     "data/system/us/seattle/prebaked_results/montlake/weekday.bin": {
-      "checksum": "ad888824032ab767e0739e951617072f",
-      "uncompressed_size_bytes": 8390746,
-      "compressed_size_bytes": 3338777
+      "checksum": "cd91ce55287fc1b1d55a9f0d34992ad5",
+      "uncompressed_size_bytes": 8390743,
+      "compressed_size_bytes": 3338916
     },
     "data/system/us/seattle/scenarios/arboretum/weekday.bin": {
       "checksum": "107e0dec152b2d2d20d6c6ebc0aa0a44",
@@ -4111,9 +4111,9 @@
       "compressed_size_bytes": 12578948
     },
     "data/system/us/seattle/scenarios/downtown/weekday.bin": {
-      "checksum": "96e8649e42db88bdc942db03c52f72dc",
+      "checksum": "44439171899b0416a297bf0903e56cbc",
       "uncompressed_size_bytes": 40179345,
-      "compressed_size_bytes": 10116711
+      "compressed_size_bytes": 10116714
     },
     "data/system/us/seattle/scenarios/huge_seattle/weekday.bin": {
       "checksum": "00d3227b8613d4d9f3390d56226dd9a8",
