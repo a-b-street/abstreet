@@ -36,7 +36,7 @@ impl Layers {
         let mut l = Layers {
             panel: Panel::empty(ctx),
             minimized: true,
-            bike_network: Some(DrawNetworkLayer::new()),
+            bike_network: Some(DrawNetworkLayer::new(ctx, app)),
             labels: Some(DrawRoadLabels::new()),
             elevation: false,
             steep_streets: None,
@@ -59,7 +59,7 @@ impl Layers {
         if self.map_edit_key != key {
             self.map_edit_key = key;
             if self.bike_network.is_some() {
-                self.bike_network = Some(DrawNetworkLayer::new());
+                self.bike_network = Some(DrawNetworkLayer::new(ctx, app));
             }
             self.road_types.clear();
         }
@@ -127,7 +127,7 @@ impl Layers {
             Outcome::Changed(x) => match x.as_ref() {
                 "bike network" => {
                     if self.panel.is_checked("bike network") {
-                        self.bike_network = Some(DrawNetworkLayer::new());
+                        self.bike_network = Some(DrawNetworkLayer::new(ctx, app));
                     } else {
                         self.bike_network = None;
                     }
@@ -212,7 +212,7 @@ impl Layers {
             }
             if draw_bike_layer {
                 if let Some(ref n) = self.bike_network {
-                    n.draw(g, app);
+                    n.draw(g);
                 }
             }
 

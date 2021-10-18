@@ -1,6 +1,8 @@
+mod lines;
 mod world;
 
 use crate::{Drawable, EventCtx, GeomBatch, GfxCtx, RewriteColor};
+pub use lines::UnzoomedLines;
 pub use world::{DummyID, ObjectID, World, WorldOutcome};
 
 /// Draws one of two versions of something, based on whether the canvas is zoomed in past a threshold.
