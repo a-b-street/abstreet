@@ -1,8 +1,8 @@
-use std::cell::RefCell;
 use std::collections::HashMap;
 
 use map_model::{LaneType, PathConstraints, Road};
-use widgetry::{Color, Drawable, GeomBatch, GfxCtx};
+use widgetry::mapspace::UnzoomedLines;
+use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx};
 
 use crate::app::App;
 
@@ -15,50 +15,15 @@ lazy_static::lazy_static! {
 
 /// Shows the bike network while unzoomed. Handles thickening the roads at low zoom levels.
 pub struct DrawNetworkLayer {
-    per_zoom: RefCell<[Option<Drawable>; 11]>,
+    draw_roads: UnzoomedLines,
+    draw_intersections: Drawable,
 }
 
 impl DrawNetworkLayer {
-    pub fn new() -> DrawNetworkLayer {
-        DrawNetworkLayer {
-            per_zoom: Default::default(),
-        }
-    }
-
-    pub fn draw(&self, g: &mut GfxCtx, app: &App) {
-        let (zoom, idx) = DrawNetworkLayer::discretize_zoom(g.canvas.cam_zoom);
-        let value = &mut self.per_zoom.borrow_mut()[idx];
-        if value.is_none() {
-            *value = Some(DrawNetworkLayer::render_network_layer(g, app, zoom));
-        }
-        g.redraw(value.as_ref().unwrap());
-    }
-
-    // Continuously changing road width as we zoom looks great, but it's terribly slow. We'd have
-    // to move line thickening into the shader to do it better. So recalculate with less
-    // granularity.
-    fn discretize_zoom(zoom: f64) -> (f64, usize) {
-        if zoom >= 1.0 {
-            return (1.0, 10);
-        }
-        let rounded = (zoom * 10.0).round();
-        let idx = rounded as usize;
-        (rounded / 10.0, idx)
-    }
-
-    fn render_network_layer(g: &mut GfxCtx, app: &App, zoom: f64) -> Drawable {
-        let mut batch = GeomBatch::new();
-        let map = &app.primary.map;
-
-        // Thicker lines as we zoom out. Scale up to 5x. Never shrink past the road's actual width.
-        let mut thickness = (0.5 / zoom).max(1.0);
-        // And on gigantic maps, zoom may approach 0, so avoid NaNs.
-        if !thickness.is_finite() {
-            thickness = 5.0;
-        }
-
+    pub fn new(ctx: &EventCtx, app: &App) -> DrawNetworkLayer {
+        let mut lines = UnzoomedLines::builder();
         let mut intersections = HashMap::new();
-        for r in map.all_roads() {
+        for r in app.primary.map.all_roads() {
             let mut bike_lane = false;
             let mut buffer = false;
             for l in &r.lanes {
@@ -69,7 +34,7 @@ impl DrawNetworkLayer {
                 }
             }
 
-            let color = if map.get_edits().changed_roads.contains(&r.id) {
+            let color = if app.primary.map.get_edits().changed_roads.contains(&r.id) {
                 Color::CYAN
             } else if r.is_cycleway() {
                 *DEDICATED_TRAIL
@@ -83,19 +48,28 @@ impl DrawNetworkLayer {
                 continue;
             };
 
-            batch.push(color, r.center_pts.make_polygons(thickness * r.get_width()));
+            lines.add(r.center_pts.clone(), r.get_width(), color);
 
             // Arbitrarily pick a color when two different types of roads meet
             intersections.insert(r.src_i, color);
             intersections.insert(r.dst_i, color);
         }
 
+        let mut batch = GeomBatch::new();
         for (i, color) in intersections {
             // No clear way to thicken the intersection at different zoom levels
-            batch.push(color, map.get_i(i).polygon.clone());
+            batch.push(color, app.primary.map.get_i(i).polygon.clone());
         }
 
-        g.upload(batch)
+        DrawNetworkLayer {
+            draw_roads: lines.build(),
+            draw_intersections: ctx.upload(batch),
+        }
+    }
+
+    pub fn draw(&self, g: &mut GfxCtx) {
+        g.redraw(&self.draw_intersections);
+        self.draw_roads.draw(g);
     }
 }
 
