@@ -1,5 +1,6 @@
 use geom::{Circle, Distance, FindClosest};
 use map_model::{IntersectionID, Map, PathConstraints, RoadID};
+use widgetry::mapspace::UnzoomedLines;
 use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, TextExt, Widget};
 
 use crate::app::App;
@@ -9,7 +10,8 @@ pub struct RouteSketcher {
     snap_to_intersections: FindClosest<IntersectionID>,
     route: Route,
     mode: Mode,
-    preview: Drawable,
+    preview_waypoints: Drawable,
+    preview_lines: UnzoomedLines,
 }
 
 impl RouteSketcher {
@@ -23,7 +25,8 @@ impl RouteSketcher {
             snap_to_intersections,
             route: Route::new(),
             mode: Mode::Neutral,
-            preview: Drawable::empty(ctx),
+            preview_waypoints: Drawable::empty(ctx),
+            preview_lines: UnzoomedLines::empty(),
         }
     }
 
@@ -100,12 +103,13 @@ impl RouteSketcher {
     fn update_preview(&mut self, ctx: &mut EventCtx, app: &App) {
         let map = &app.primary.map;
         let mut batch = GeomBatch::new();
+        let mut lines = UnzoomedLines::builder();
 
         // Draw the confirmed route
         for pair in self.route.full_path.windows(2) {
             // TODO Inefficient!
-            let r = map.find_road_between(pair[0], pair[1]).unwrap();
-            batch.push(Color::RED.alpha(0.5), map.get_r(r).get_thick_polygon());
+            let r = map.get_r(map.find_road_between(pair[0], pair[1]).unwrap());
+            lines.add(r.center_pts.clone(), r.get_width(), Color::RED.alpha(0.5));
         }
         for i in &self.route.full_path {
             batch.push(
@@ -143,7 +147,8 @@ impl RouteSketcher {
                     map.simple_path_btwn_v2(self.route.waypoints[0], i, PathConstraints::Car)
                 {
                     for r in roads {
-                        batch.push(Color::BLUE.alpha(0.5), map.get_r(r).get_thick_polygon());
+                        let r = map.get_r(r);
+                        lines.add(r.center_pts.clone(), r.get_width(), Color::BLUE.alpha(0.5));
                     }
                     for i in intersections {
                         batch.push(Color::BLUE.alpha(0.5), map.get_i(i).polygon.clone());
@@ -158,7 +163,8 @@ impl RouteSketcher {
             );
         }
 
-        self.preview = batch.upload(ctx);
+        self.preview_waypoints = batch.upload(ctx);
+        self.preview_lines = lines.build();
     }
 
     pub fn get_widget_to_describe(&self, ctx: &mut EventCtx) -> Widget {
@@ -209,14 +215,16 @@ impl RouteSketcher {
         if x == "Start over" {
             self.route = Route::new();
             self.mode = Mode::Neutral;
-            self.preview = Drawable::empty(ctx);
+            self.preview_waypoints = Drawable::empty(ctx);
+            self.preview_lines = UnzoomedLines::empty();
             return true;
         }
         false
     }
 
     pub fn draw(&self, g: &mut GfxCtx) {
-        g.redraw(&self.preview);
+        self.preview_lines.draw(g);
+        g.redraw(&self.preview_waypoints);
         if matches!(self.mode, Mode::Dragging { .. }) {
             if let Some(pt) = g.canvas.get_cursor_in_map_space() {
                 g.draw_polygon(

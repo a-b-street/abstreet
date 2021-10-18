@@ -26,6 +26,13 @@ pub struct UnzoomedLinesBuilder {
 }
 
 impl UnzoomedLines {
+    pub fn empty() -> Self {
+        Self {
+            lines: Vec::new(),
+            per_zoom: Default::default(),
+        }
+    }
+
     pub fn builder() -> UnzoomedLinesBuilder {
         UnzoomedLinesBuilder { lines: Vec::new() }
     }
