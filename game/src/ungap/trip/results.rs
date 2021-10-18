@@ -1,3 +1,5 @@
+use std::cmp::Ordering;
+
 use geom::{Circle, Distance, Duration, FindClosest, PolyLine, Polygon};
 use map_gui::tools::PopupMsg;
 use map_model::{Path, PathStep, NORMAL_LANE_THICKNESS};
@@ -52,7 +54,7 @@ pub struct RouteStats {
 impl RouteDetails {
     /// "main" is determined by `app.session.routing_preferences`
     pub fn main_route(ctx: &mut EventCtx, app: &App, waypoints: Vec<TripEndpoint>) -> BuiltRoute {
-        RouteDetails::new(
+        RouteDetails::new_route(
             ctx,
             app,
             waypoints,
@@ -69,7 +71,7 @@ impl RouteDetails {
         main: &RouteDetails,
         preferences: RoutingPreferences,
     ) -> BuiltRoute {
-        let mut built = RouteDetails::new(
+        let mut built = RouteDetails::new_route(
             ctx,
             app,
             waypoints,
@@ -86,7 +88,7 @@ impl RouteDetails {
         built
     }
 
-    fn new(
+    fn new_route(
         ctx: &mut EventCtx,
         app: &App,
         waypoints: Vec<TripEndpoint>,
@@ -487,12 +489,18 @@ fn compare_routes(
     if alt.total_up != main.total_up || alt.total_down != main.total_down {
         txt.add_line(Line("Elevation change: "));
         let up = alt.total_up - main.total_up;
-        if up < Distance::ZERO {
-            txt.append(
-                Line(format!("{} less ↑", (-up).to_string(&app.opts.units))).fg(Color::GREEN),
-            );
-        } else if up > Distance::ZERO {
-            txt.append(Line(format!("{} more ↑", up.to_string(&app.opts.units))).fg(Color::RED));
+        match up.cmp(&Distance::ZERO) {
+            Ordering::Less => {
+                txt.append(
+                    Line(format!("{} less ↑", (-up).to_string(&app.opts.units))).fg(Color::GREEN),
+                );
+            }
+            Ordering::Greater => {
+                txt.append(
+                    Line(format!("{} more ↑", up.to_string(&app.opts.units))).fg(Color::RED),
+                );
+            }
+            Ordering::Equal => {}
         }
     }
 
@@ -500,40 +508,48 @@ fn compare_routes(
 }
 
 fn cmp_dist(txt: &mut Text, app: &App, dist: Distance, shorter: &str, longer: &str) {
-    if dist < Distance::ZERO {
-        txt.add_line(
-            Line(format!(
-                "{} {}",
-                (-dist).to_string(&app.opts.units),
-                shorter
-            ))
-            .fg(Color::GREEN),
-        );
-    } else if dist > Distance::ZERO {
-        txt.add_line(
-            Line(format!("{} {}", dist.to_string(&app.opts.units), longer)).fg(Color::RED),
-        );
+    match dist.cmp(&Distance::ZERO) {
+        Ordering::Less => {
+            txt.add_line(
+                Line(format!(
+                    "{} {}",
+                    (-dist).to_string(&app.opts.units),
+                    shorter
+                ))
+                .fg(Color::GREEN),
+            );
+        }
+        Ordering::Greater => {
+            txt.add_line(
+                Line(format!("{} {}", dist.to_string(&app.opts.units), longer)).fg(Color::RED),
+            );
+        }
+        Ordering::Equal => {}
     }
 }
 
 fn cmp_duration(txt: &mut Text, app: &App, duration: Duration, shorter: &str, longer: &str) {
-    if duration < Duration::ZERO {
-        txt.add_line(
-            Line(format!(
-                "{} {}",
-                (-duration).to_string(&app.opts.units),
-                shorter
-            ))
-            .fg(Color::GREEN),
-        );
-    } else if duration > Duration::ZERO {
-        txt.add_line(
-            Line(format!(
-                "{} {}",
-                duration.to_string(&app.opts.units),
-                longer
-            ))
-            .fg(Color::RED),
-        );
+    match duration.cmp(&Duration::ZERO) {
+        Ordering::Less => {
+            txt.add_line(
+                Line(format!(
+                    "{} {}",
+                    (-duration).to_string(&app.opts.units),
+                    shorter
+                ))
+                .fg(Color::GREEN),
+            );
+        }
+        Ordering::Greater => {
+            txt.add_line(
+                Line(format!(
+                    "{} {}",
+                    duration.to_string(&app.opts.units),
+                    longer
+                ))
+                .fg(Color::RED),
+            );
+        }
+        Ordering::Equal => {}
     }
 }

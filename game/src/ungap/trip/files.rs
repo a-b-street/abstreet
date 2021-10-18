@@ -114,14 +114,14 @@ impl TripManagement {
                 ctx.style()
                     .btn_plain_destructive
                     .icon_text("system/assets/tools/trash.svg", "Delete")
-                    .disabled(self.current.waypoints.len() == 0)
+                    .disabled(self.current.waypoints.is_empty())
                     .build_def(ctx),
             ]),
             Widget::row(vec![
                 ctx.style()
                     .btn_plain
                     .text("Start new trip")
-                    .disabled(self.current.waypoints.len() == 0)
+                    .disabled(self.current.waypoints.is_empty())
                     .build_def(ctx),
                 ctx.style()
                     .btn_prev()
@@ -145,7 +145,7 @@ impl TripManagement {
     /// saves iff current trip is changed.
     pub fn autosave(&mut self, app: &mut App) {
         match self.all.trips.get(&self.current.name) {
-            None if self.current.waypoints.len() == 0 => return,
+            None if self.current.waypoints.is_empty() => return,
             Some(existing) if existing == &self.current => return,
             _ => {}
         }

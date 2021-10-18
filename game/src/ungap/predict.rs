@@ -189,7 +189,7 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App) -> Panel {
             let size = Manifest::load()
                 .get_entry(&abstio::path_scenario(&map_name, &scenario_name))
                 .map(|entry| prettyprint_bytes(entry.compressed_size_bytes))
-                .unwrap_or("???".to_string());
+                .unwrap_or_else(|| "???".to_string());
             col = vec![
                 Text::from_multiline(vec![
                     Line("Predicting impact of your proposal may take a moment."),
@@ -445,7 +445,7 @@ impl ModeShiftData {
             for step in path.get_steps() {
                 // No Contraflow steps for bike paths
                 if let PathStepV2::Along(dr) = step {
-                    if high_stress.contains(&dr) {
+                    if high_stress.contains(dr) {
                         count_per_road.inc(dr.id);
 
                         // TODO Assumes the edits have made the road stop being high stress!

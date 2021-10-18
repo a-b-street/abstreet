@@ -488,7 +488,7 @@ impl Panel {
 
     pub fn find<T: WidgetImpl>(&self, name: &str) -> &T {
         self.maybe_find(name)
-            .expect(&format!("Can't find widget {}", name))
+            .unwrap_or_else(|| panic!("Can't find widget {}", name))
     }
 
     pub fn find_mut<T: WidgetImpl>(&mut self, name: &str) -> &mut T {

@@ -120,7 +120,7 @@ impl TripPlanner {
         }
 
         self.waypoints
-            .rebuild_world(ctx, &mut world, |id| ID::Waypoint(id), 2);
+            .rebuild_world(ctx, &mut world, ID::Waypoint, 2);
 
         world.initialize_hover(ctx);
         world.rebuilt_during_drag(&self.world);

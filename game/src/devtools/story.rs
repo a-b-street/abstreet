@@ -353,13 +353,11 @@ impl EditingMarker {
 impl SimpleState<App> for EditingMarker {
     fn on_click(&mut self, _: &mut EventCtx, _: &mut App, x: &str, panel: &Panel) -> Transition {
         match x {
-            "close" => {
-                return Transition::Pop;
-            }
+            "close" => Transition::Pop,
             "confirm" => {
                 let idx = self.idx;
                 let label = panel.text_box("label");
-                return Transition::Multi(vec![
+                Transition::Multi(vec![
                     Transition::Pop,
                     Transition::ModifyState(Box::new(move |state, ctx, app| {
                         let editor = state.downcast_mut::<StoryMapEditor>().unwrap();
@@ -369,11 +367,11 @@ impl SimpleState<App> for EditingMarker {
                         editor.rebuild_panel(ctx);
                         editor.rebuild_world(ctx, app);
                     })),
-                ]);
+                ])
             }
             "delete" => {
                 let idx = self.idx;
-                return Transition::Multi(vec![
+                Transition::Multi(vec![
                     Transition::Pop,
                     Transition::ModifyState(Box::new(move |state, ctx, app| {
                         let editor = state.downcast_mut::<StoryMapEditor>().unwrap();
@@ -383,7 +381,7 @@ impl SimpleState<App> for EditingMarker {
                         editor.rebuild_panel(ctx);
                         editor.rebuild_world(ctx, app);
                     })),
-                ]);
+                ])
             }
             _ => unreachable!(),
         }

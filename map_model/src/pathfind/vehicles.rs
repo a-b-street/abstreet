@@ -335,11 +335,11 @@ pub fn vehicle_cost(
         }
     }
 
-    if constraints == PathConstraints::Bike && (params.avoid_high_stress - 1.0).abs() > f64::EPSILON
+    if constraints == PathConstraints::Bike
+        && (params.avoid_high_stress - 1.0).abs() > f64::EPSILON
+        && map.get_r(dr.id).high_stress_for_bikes(map, dr.dir)
     {
-        if map.get_r(dr.id).high_stress_for_bikes(map, dr.dir) {
-            multiplier *= params.avoid_high_stress;
-        }
+        multiplier *= params.avoid_high_stress;
     }
 
     let mut extra = Duration::ZERO;

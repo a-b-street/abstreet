@@ -275,7 +275,7 @@ impl<ID: ObjectID> World<ID> {
 
     /// Start adding an object to the `World`. The caller should specify the object with methods on
     /// `ObjectBuilder`, then call `build`.
-    pub fn add<'a>(&'a mut self, id: ID) -> ObjectBuilder<'a, ID> {
+    pub fn add(&mut self, id: ID) -> ObjectBuilder<'_, ID> {
         assert!(!self.objects.contains_key(&id), "duplicate object added");
         ObjectBuilder {
             world: self,
@@ -405,10 +405,8 @@ impl<ID: ObjectID> World<ID> {
             if self.hovering.is_none() && ctx.normal_left_click() {
                 return WorldOutcome::ClickedFreeSpace(cursor);
             }
-        } else {
-            if let Some((_, dy)) = ctx.input.get_mouse_scroll() {
-                ctx.canvas.zoom(dy, ctx.canvas.get_cursor());
-            }
+        } else if let Some((_, dy)) = ctx.input.get_mouse_scroll() {
+            ctx.canvas.zoom(dy, ctx.canvas.get_cursor());
         }
 
         WorldOutcome::Nothing
@@ -479,7 +477,7 @@ impl World<DummyID> {
     ///
     /// Note: You must call `build` on this object before calling `add_unnamed` again. Otherwise,
     /// the object IDs will collide.
-    pub fn add_unnamed<'a>(&'a mut self) -> ObjectBuilder<'a, DummyID> {
+    pub fn add_unnamed(&mut self) -> ObjectBuilder<'_, DummyID> {
         self.add(DummyID(self.objects.len()))
     }
 }
