@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use map_model::{LaneType, PathConstraints, Road};
-use widgetry::mapspace::UnzoomedLines;
+use widgetry::mapspace::DrawUnzoomedShapes;
 use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx};
 
 use crate::app::App;
@@ -15,13 +15,13 @@ lazy_static::lazy_static! {
 
 /// Shows the bike network while unzoomed. Handles thickening the roads at low zoom levels.
 pub struct DrawNetworkLayer {
-    draw_roads: UnzoomedLines,
+    draw_roads: DrawUnzoomedShapes,
     draw_intersections: Drawable,
 }
 
 impl DrawNetworkLayer {
     pub fn new(ctx: &EventCtx, app: &App) -> DrawNetworkLayer {
-        let mut lines = UnzoomedLines::builder();
+        let mut lines = DrawUnzoomedShapes::builder();
         let mut intersections = HashMap::new();
         for r in app.primary.map.all_roads() {
             let mut bike_lane = false;
@@ -48,7 +48,7 @@ impl DrawNetworkLayer {
                 continue;
             };
 
-            lines.add(r.center_pts.clone(), r.get_width(), color);
+            lines.add_line(r.center_pts.clone(), r.get_width(), color);
 
             // Arbitrarily pick a color when two different types of roads meet
             intersections.insert(r.src_i, color);

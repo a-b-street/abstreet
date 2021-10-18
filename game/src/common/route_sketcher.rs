@@ -1,21 +1,22 @@
 use geom::{Circle, Distance, FindClosest};
 use map_model::{IntersectionID, Map, PathConstraints, RoadID};
-use widgetry::mapspace::UnzoomedLines;
-use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, TextExt, Widget};
+use widgetry::mapspace::DrawUnzoomedShapes;
+use widgetry::{Color, EventCtx, GfxCtx, TextExt, Widget};
 
 use crate::app::App;
+
+const INTERSECTON_RADIUS: Distance = Distance::const_meters(10.0);
 
 // TODO Supercede RoadSelector, probably..
 pub struct RouteSketcher {
     snap_to_intersections: FindClosest<IntersectionID>,
     route: Route,
     mode: Mode,
-    preview_waypoints: Drawable,
-    preview_lines: UnzoomedLines,
+    preview: DrawUnzoomedShapes,
 }
 
 impl RouteSketcher {
-    pub fn new(ctx: &mut EventCtx, app: &App) -> RouteSketcher {
+    pub fn new(app: &App) -> RouteSketcher {
         let mut snap_to_intersections = FindClosest::new(app.primary.map.get_bounds());
         for i in app.primary.map.all_intersections() {
             snap_to_intersections.add(i.id, i.polygon.points());
@@ -25,15 +26,15 @@ impl RouteSketcher {
             snap_to_intersections,
             route: Route::new(),
             mode: Mode::Neutral,
-            preview_waypoints: Drawable::empty(ctx),
-            preview_lines: UnzoomedLines::empty(),
+            preview: DrawUnzoomedShapes::empty(),
         }
     }
 
     fn mouseover_i(&self, ctx: &EventCtx) -> Option<IntersectionID> {
         let pt = ctx.canvas.get_cursor_in_map_space()?;
         // When zoomed really far out, it's harder to click small intersections, so snap more
-        // aggressively.
+        // aggressively. Note this should always be a larger hitbox than how the waypoint circles
+        // are drawn.
         let threshold = Distance::meters(30.0) / ctx.canvas.cam_zoom;
         let (i, _) = self.snap_to_intersections.closest_pt(pt, threshold)?;
         // After we have a path started, only snap to points on the path to drag them
@@ -100,47 +101,30 @@ impl RouteSketcher {
         }
     }
 
-    fn update_preview(&mut self, ctx: &mut EventCtx, app: &App) {
+    fn update_preview(&mut self, app: &App) {
         let map = &app.primary.map;
-        let mut batch = GeomBatch::new();
-        let mut lines = UnzoomedLines::builder();
+        let mut shapes = DrawUnzoomedShapes::builder();
 
         // Draw the confirmed route
         for pair in self.route.full_path.windows(2) {
             // TODO Inefficient!
             let r = map.get_r(map.find_road_between(pair[0], pair[1]).unwrap());
-            lines.add(r.center_pts.clone(), r.get_width(), Color::RED.alpha(0.5));
+            shapes.add_line(r.center_pts.clone(), r.get_width(), Color::RED.alpha(0.5));
         }
         for i in &self.route.full_path {
-            batch.push(
+            shapes.add_circle(
+                map.get_i(*i).polygon.center(),
+                INTERSECTON_RADIUS,
                 Color::BLUE.alpha(0.5),
-                Circle::new(map.get_i(*i).polygon.center(), Distance::meters(10.0)).to_polygon(),
             );
-        }
-
-        // Debugging
-        if false {
-            let mut cnt = 0;
-            for i in &self.route.waypoints {
-                cnt += 1;
-                batch.push(
-                    Color::RED,
-                    Circle::new(map.get_i(*i).polygon.center(), Distance::meters(10.0))
-                        .to_polygon(),
-                );
-                batch.append(
-                    widgetry::Text::from(Line(format!("{}", cnt)))
-                        .render(ctx)
-                        .centered_on(map.get_i(*i).polygon.center()),
-                );
-            }
         }
 
         // Draw the current operation
         if let Mode::Hovering(i) = self.mode {
-            batch.push(
+            shapes.add_circle(
+                map.get_i(i).polygon.center(),
+                INTERSECTON_RADIUS,
                 Color::BLUE,
-                Circle::new(map.get_i(i).polygon.center(), Distance::meters(10.0)).to_polygon(),
             );
             if self.route.waypoints.len() == 1 {
                 if let Some((roads, intersections)) =
@@ -148,23 +132,31 @@ impl RouteSketcher {
                 {
                     for r in roads {
                         let r = map.get_r(r);
-                        lines.add(r.center_pts.clone(), r.get_width(), Color::BLUE.alpha(0.5));
+                        shapes.add_line(
+                            r.center_pts.clone(),
+                            r.get_width(),
+                            Color::BLUE.alpha(0.5),
+                        );
                     }
                     for i in intersections {
-                        batch.push(Color::BLUE.alpha(0.5), map.get_i(i).polygon.clone());
+                        shapes.add_circle(
+                            map.get_i(i).polygon.center(),
+                            INTERSECTON_RADIUS,
+                            Color::BLUE.alpha(0.5),
+                        );
                     }
                 }
             }
         }
         if let Mode::Dragging { at, .. } = self.mode {
-            batch.push(
+            shapes.add_circle(
+                map.get_i(at).polygon.center(),
+                INTERSECTON_RADIUS,
                 Color::BLUE,
-                Circle::new(map.get_i(at).polygon.center(), Distance::meters(10.0)).to_polygon(),
             );
         }
 
-        self.preview_waypoints = batch.upload(ctx);
-        self.preview_lines = lines.build();
+        self.preview = shapes.build();
     }
 
     pub fn get_widget_to_describe(&self, ctx: &mut EventCtx) -> Widget {
@@ -203,7 +195,7 @@ impl RouteSketcher {
         let orig_mode = self.mode.clone();
         self.update_mode(ctx, app);
         if self.route != orig_route || self.mode != orig_mode {
-            self.update_preview(ctx, app);
+            self.update_preview(app);
             true
         } else {
             false
@@ -211,25 +203,23 @@ impl RouteSketcher {
     }
 
     /// True if something changed. False if this component doesn't even handle that kind of click.
-    pub fn on_click(&mut self, ctx: &EventCtx, x: &str) -> bool {
+    pub fn on_click(&mut self, x: &str) -> bool {
         if x == "Start over" {
             self.route = Route::new();
             self.mode = Mode::Neutral;
-            self.preview_waypoints = Drawable::empty(ctx);
-            self.preview_lines = UnzoomedLines::empty();
+            self.preview = DrawUnzoomedShapes::empty();
             return true;
         }
         false
     }
 
     pub fn draw(&self, g: &mut GfxCtx) {
-        self.preview_lines.draw(g);
-        g.redraw(&self.preview_waypoints);
+        self.preview.draw(g);
         if matches!(self.mode, Mode::Dragging { .. }) {
             if let Some(pt) = g.canvas.get_cursor_in_map_space() {
                 g.draw_polygon(
                     Color::BLUE.alpha(0.5),
-                    Circle::new(pt, Distance::meters(10.0)).to_polygon(),
+                    Circle::new(pt, INTERSECTON_RADIUS).to_polygon(),
                 );
             }
         }

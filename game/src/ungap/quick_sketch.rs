@@ -27,7 +27,7 @@ impl QuickSketch {
         let mut qs = QuickSketch {
             top_panel: Panel::empty(ctx),
             layers,
-            route_sketcher: RouteSketcher::new(ctx, app),
+            route_sketcher: RouteSketcher::new(app),
         };
         qs.update_top_panel(ctx, app);
         Box::new(qs)
@@ -88,13 +88,13 @@ impl State<App> for QuickSketch {
                         self.route_sketcher.all_roads(app),
                         self.top_panel.dropdown_value("buffer type"),
                     );
-                    self.route_sketcher = RouteSketcher::new(ctx, app);
+                    self.route_sketcher = RouteSketcher::new(app);
                     self.update_top_panel(ctx, app);
                     return Transition::Push(PopupMsg::new_state(ctx, "Changes made", messages));
                 }
                 x => {
                     // TODO More brittle routing of outcomes.
-                    if self.route_sketcher.on_click(ctx, x) {
+                    if self.route_sketcher.on_click(x) {
                         self.update_top_panel(ctx, app);
                         return Transition::Keep;
                     }
