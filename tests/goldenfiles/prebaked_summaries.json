@@ -2,30 +2,16 @@
   {
     "map": "arboretum (in seattle (us))",
     "scenario": "weekday",
-    "finished_trips": 76618,
+    "finished_trips": 76640,
     "cancelled_trips": 0,
-    "total_trip_duration_seconds": 51747112.72399941
+    "total_trip_duration_seconds": 48024585.70720022
   },
   {
     "map": "montlake (in seattle (us))",
     "scenario": "weekday",
-    "finished_trips": 36706,
-    "cancelled_trips": 90,
-    "total_trip_duration_seconds": 22717800.186400127
-  },
-  {
-    "map": "lakeslice (in seattle (us))",
-    "scenario": "weekday",
-    "finished_trips": 260914,
-    "cancelled_trips": 4902,
-    "total_trip_duration_seconds": 201405693.34539455
-  },
-  {
-    "map": "wallingford (in seattle (us))",
-    "scenario": "weekday",
-    "finished_trips": 133431,
-    "cancelled_trips": 0,
-    "total_trip_duration_seconds": 69231506.80130064
+    "finished_trips": 36691,
+    "cancelled_trips": 105,
+    "total_trip_duration_seconds": 20310765.155799977
   },
   {
     "map": "center (in poundbury (gb))",

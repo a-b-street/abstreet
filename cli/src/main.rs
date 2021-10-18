@@ -220,18 +220,23 @@ async fn main() -> Result<()> {
 }
 
 fn dump_json(path: String) {
-    if path.contains("/maps/") {
-        let map = map_model::Map::load_synchronously(path, &mut Timer::throwaway());
+    // Just try to deserialize as different formats
+    if let Ok(map) =
+        abstio::maybe_read_binary::<map_model::Map>(path.clone(), &mut Timer::throwaway())
+    {
         println!("{}", abstutil::to_json(&map));
-    } else if path.contains("/scenarios/") {
-        let scenario: sim::Scenario = abstio::read_binary(path, &mut Timer::throwaway());
-        println!("{}", abstutil::to_json(&scenario));
-    } else {
-        panic!(
-            "Don't know how to dump JSON for {}. Only maps and scenarios are supported.",
-            path
-        );
+        return;
     }
+    if let Ok(scenario) =
+        abstio::maybe_read_binary::<sim::Scenario>(path.clone(), &mut Timer::throwaway())
+    {
+        println!("{}", abstutil::to_json(&scenario));
+        return;
+    }
+    panic!(
+        "Don't know how to dump JSON for {}. Only maps and scenarios are supported.",
+        path
+    );
 }
 
 fn random_scenario(rng_seed: u64, map: String, scenario_name: String) {

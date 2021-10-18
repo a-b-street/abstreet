@@ -578,19 +578,18 @@ impl Road {
         panic!("{} doesn't contain both {} and {}", self.id, l1, l2);
     }
 
-    /// A simple classification of if the road is stressful or not for cycling. Arterial roads
-    /// without a bike lane match this. Why arterial, instead of looking at speed limits? Even on
-    /// arterial roads with official speed limits lowered, in practice vehicles still travel at the
-    /// speed suggested by the design of the road.
-    // TODO No treatment of direction
+    /// A simple classification of if the directed road is stressful or not for cycling. Arterial
+    /// roads without a bike lane match this. Why arterial, instead of looking at speed limits?
+    /// Even on arterial roads with official speed limits lowered, in practice vehicles still
+    /// travel at the speed suggested by the design of the road.
     // TODO Should elevation matter or not? Flat high-speed roads are still terrifying, but there's
     // something about slogging up (or flying down!) a pothole-filled road inches from cars.
-    pub fn high_stress_for_bikes(&self, map: &Map) -> bool {
+    pub fn high_stress_for_bikes(&self, map: &Map, dir: Direction) -> bool {
         let mut bike_lanes = false;
         let mut can_use = false;
         // Can a bike even use it, or is it a highway?
         for l in &self.lanes {
-            if l.lane_type == LaneType::Biking {
+            if l.lane_type == LaneType::Biking && l.dir == dir {
                 bike_lanes = true;
             }
             if PathConstraints::Bike.can_use(l, map) {

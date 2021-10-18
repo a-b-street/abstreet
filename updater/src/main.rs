@@ -137,7 +137,19 @@ fn just_compare() {
     // Anything missing or needing updating?
     for (path, entry) in truth.entries {
         if local.entries.get(&path).map(|x| &x.checksum) != Some(&entry.checksum) {
-            println!("- Update {}", path);
+            if let Some(old_bytes) = local.entries.get(&path).map(|x| x.uncompressed_size_bytes) {
+                if old_bytes == entry.uncompressed_size_bytes {
+                    println!("- Update {}. Same size, md5sum changed", path);
+                } else {
+                    println!(
+                        "- Update {}. {} bytes difference",
+                        path,
+                        (old_bytes as isize) - (entry.uncompressed_size_bytes as isize)
+                    );
+                }
+            } else {
+                println!("- Add {}", path);
+            }
         }
     }
 }

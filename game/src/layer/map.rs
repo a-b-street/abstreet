@@ -4,7 +4,7 @@ use abstutil::{prettyprint_usize, Counter};
 use geom::{Distance, Time};
 use map_gui::tools::{ColorDiscrete, ColorLegend, ColorNetwork};
 use map_gui::ID;
-use map_model::{AmenityType, LaneType};
+use map_model::{AmenityType, Direction, LaneType};
 use sim::AgentType;
 use widgetry::mapspace::ToggleZoomed;
 use widgetry::{Color, EventCtx, GfxCtx, Line, Panel, Text, Widget};
@@ -326,7 +326,9 @@ impl Static {
         let mut colorer = ColorDiscrete::new(app, vec![("high stress", app.cs.edits_layer)]);
 
         for r in app.primary.map.all_roads() {
-            if r.high_stress_for_bikes(&app.primary.map) {
+            if r.high_stress_for_bikes(&app.primary.map, Direction::Fwd)
+                || r.high_stress_for_bikes(&app.primary.map, Direction::Back)
+            {
                 colorer.add_r(r.id, "high stress");
             }
         }

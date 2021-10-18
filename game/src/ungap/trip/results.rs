@@ -128,7 +128,8 @@ impl RouteDetails {
                     let this_pl = step.as_traversable().get_polyline(map);
                     match step {
                         PathStep::Lane(l) | PathStep::ContraflowLane(l) => {
-                            if map.get_parent(*l).high_stress_for_bikes(map) {
+                            let road = map.get_parent(*l);
+                            if road.high_stress_for_bikes(map, road.lanes[l.offset].dir) {
                                 dist_along_high_stress_roads += this_pl.length();
 
                                 // TODO It'd be nicer to build up contiguous subsets of the path

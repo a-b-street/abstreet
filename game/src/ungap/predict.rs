@@ -413,17 +413,14 @@ impl ModeShiftData {
             .unwrap_or(&app.primary.map);
 
         // Find all high-stress roads, since we'll filter by them next
-        let high_stress: HashSet<RoadID> = unedited_map
-            .all_roads()
-            .iter()
-            .filter_map(|r| {
-                if r.high_stress_for_bikes(unedited_map) {
-                    Some(r.id)
-                } else {
-                    None
+        let mut high_stress = HashSet::new();
+        for r in unedited_map.all_roads() {
+            for dr in r.id.both_directions() {
+                if r.high_stress_for_bikes(unedited_map, dr.dir) {
+                    high_stress.insert(dr);
                 }
-            })
-            .collect();
+            }
+        }
 
         self.filtered_trips.clear();
         let mut filtered_requests = Vec::new();
@@ -448,7 +445,7 @@ impl ModeShiftData {
             for step in path.get_steps() {
                 // No Contraflow steps for bike paths
                 if let PathStepV2::Along(dr) = step {
-                    if high_stress.contains(&dr.id) {
+                    if high_stress.contains(&dr) {
                         count_per_road.inc(dr.id);
 
                         // TODO Assumes the edits have made the road stop being high stress!
