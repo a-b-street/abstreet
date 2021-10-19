@@ -4,12 +4,10 @@ use geom::{Circle, Distance, PolyLine, Pt2D};
 
 use crate::{Color, Drawable, GeomBatch, GfxCtx};
 
-/// Draw `Circles` and `PolyLines` with constant screen-space size, no matter how much the canvas is
-/// unzoomed.
-///
-/// ... But not yet. As an approximation of that, just discretize zoom into 10 buckets. Also,
-/// specify the behavior when barely unzoomed or zoomed in -- the shape starts being drawn in
-/// map-space "normally" without a constant screen-space size.
+/// Draw `Circles` and `PolyLines` in map-space that scale their size as the canvas is zoomed. The
+/// goal is to appear with roughly constant screen-space size, but for the moment, this is
+/// approximated by discretizing into 10 buckets. The scaling only happens when the canvas is
+/// zoomed out less than a value of 1.0.
 pub struct DrawUnzoomedShapes {
     lines: Vec<UnzoomedLine>,
     circles: Vec<UnzoomedCircle>,
@@ -53,12 +51,11 @@ impl DrawUnzoomedShapes {
         let (zoom, idx) = discretize_zoom(g.canvas.cam_zoom);
         let value = &mut self.per_zoom.borrow_mut()[idx];
         if value.is_none() {
-            // Thicker shapes as we zoom out. Scale up to 5x. Never shrink past the original size.
-            let mut thickness = (0.5 / zoom).max(1.0);
-            // And on gigantic maps, zoom may approach 0, so avoid NaNs.
-            if !thickness.is_finite() {
-                thickness = 5.0;
-            }
+            // Never shrink past the original size -- always at least 1.0.
+            // zoom ranges between [0.0, 1.0], and we want thicker shapes as zoom approaches 0.
+            let max = 5.0;
+            // So thickness ranges between [1.0, 5.0]
+            let thickness = 1.0 + (max - 1.0) * (1.0 - zoom);
 
             let mut batch = GeomBatch::new();
             render_lines(&mut batch, &self.lines, thickness);
@@ -98,6 +95,8 @@ impl DrawUnzoomedShapesBuilder {
 
 // Continuously changing road width as we zoom looks great, but it's terribly slow. We'd have to
 // move line thickening into the shader to do it better. So recalculate with less granularity.
+//
+// Returns ([0.0, 1.0], [0, 10])
 fn discretize_zoom(zoom: f64) -> (f64, usize) {
     if zoom >= 1.0 {
         return (1.0, 10);
