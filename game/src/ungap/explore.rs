@@ -35,7 +35,7 @@ impl ExploreMap {
                 ctx,
                 app,
                 Widget::col(vec![
-                    "Zoom in to see how roads look".text_widget(ctx),
+                    "Zoom in to see detailed lane information".text_widget(ctx),
                     Widget::row(vec![
                         "To explore elevation data,"
                             .text_widget(ctx)
