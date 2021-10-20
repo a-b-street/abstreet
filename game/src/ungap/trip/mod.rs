@@ -1,6 +1,8 @@
 use map_model::RoutingParams;
 use widgetry::mapspace::{ObjectID, World, WorldOutcome};
-use widgetry::{EventCtx, GfxCtx, Outcome, Panel, State, Toggle, Widget};
+use widgetry::{
+    ControlState, EventCtx, GfxCtx, Key, Line, Outcome, Panel, State, Text, Toggle, Widget,
+};
 
 use self::results::RouteDetails;
 use crate::app::{App, Transition};
@@ -198,6 +200,14 @@ impl State<App> for TripPlanner {
                 }
                 return t;
             }
+            if x == "show original map" || x == "show edited map" {
+                app.swap_map();
+                // We're assuming building and intersection IDs haven't changed
+                self.recalculate_routes(ctx, app);
+                // Immediately recalculate the edited layer
+                self.layers.event(ctx, app);
+                return Transition::Keep;
+            }
         }
         if let Outcome::Changed(ref x) = panel_outcome {
             if x == "Avoid steep hills" || x == "Avoid stressful roads" {
@@ -241,6 +251,13 @@ impl State<App> for TripPlanner {
         self.world.draw(g);
         self.main_route.draw(g, &self.input_panel);
     }
+
+    fn on_destroy(&mut self, _: &mut EventCtx, app: &mut App) {
+        // When we switch tabs, always use the edited map
+        if app.primary.is_secondary {
+            app.swap_map();
+        }
+    }
 }
 
 #[derive(Clone, Copy, PartialEq)]
@@ -274,4 +291,37 @@ impl RoutingPreferences {
             ..Default::default()
         }
     }
+}
+
+fn before_after_button(ctx: &mut EventCtx, app: &App) -> Widget {
+    let edits = app.primary.map.get_edits();
+    if app.secondary.is_none() {
+        return Widget::nothing();
+    }
+    let (txt, label) = if edits.commands.is_empty() {
+        (
+            Text::from_all(vec![
+                Line("After / ").secondary(),
+                Line("Before"),
+                Line(" proposal"),
+            ]),
+            "show edited map",
+        )
+    } else {
+        (
+            Text::from_all(vec![
+                Line("After"),
+                Line(" / Before").secondary(),
+                Line(" proposal"),
+            ]),
+            "show original map",
+        )
+    };
+
+    ctx.style()
+        .btn_outline
+        .btn()
+        .label_styled_text(txt, ControlState::Default)
+        .hotkey(Key::Slash)
+        .build_widget(ctx, label)
 }

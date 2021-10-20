@@ -707,11 +707,28 @@ fn make_topcenter(ctx: &mut EventCtx, app: &App) -> Panel {
 
 pub fn apply_map_edits(ctx: &mut EventCtx, app: &mut App, edits: MapEdits) {
     ctx.loading_screen("apply map edits", |ctx, timer| {
-        if app.primary.unedited_map.is_none() {
+        if !app.store_unedited_map_in_secondary && app.primary.unedited_map.is_none() {
             timer.start("save unedited map");
             assert!(app.primary.map.get_edits().commands.is_empty());
             app.primary.unedited_map = Some(app.primary.map.clone());
             timer.stop("save unedited map");
+        }
+        if app.store_unedited_map_in_secondary && app.secondary.is_none() {
+            timer.start("save unedited map for toggling");
+            assert!(app.primary.map.get_edits().commands.is_empty());
+            let mut per_map = crate::app::PerMap::map_loaded(
+                app.primary.map.clone(),
+                app.primary.sim.clone(),
+                app.primary.current_flags.clone(),
+                &app.opts,
+                &app.cs,
+                ctx,
+                timer,
+            );
+            // is_secondary indicates the unedited map
+            per_map.is_secondary = true;
+            app.secondary = Some(per_map);
+            timer.stop("save unedited map for toggling");
         }
 
         timer.start("edit map");
@@ -743,6 +760,8 @@ pub fn apply_map_edits(ctx: &mut EventCtx, app: &mut App, edits: MapEdits) {
         if app.primary.layer.as_ref().and_then(|l| l.name()) == Some("map edits") {
             app.primary.layer = Some(Box::new(crate::layer::map::Static::edits(ctx, app)));
         }
+        // Other parts of the UI poll map.get_edits_change_key() to recalculate things based on
+        // edits.
 
         // Autosave
         app.primary.map.save_edits();

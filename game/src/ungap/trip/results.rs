@@ -10,7 +10,7 @@ use widgetry::{
     ScreenDims, Series, Text, Widget,
 };
 
-use super::RoutingPreferences;
+use super::{before_after_button, RoutingPreferences};
 use crate::app::{App, Transition};
 
 /// A temporary structure that the caller should unpack and use as needed.
@@ -373,6 +373,7 @@ fn make_detail_widget(
 
     Widget::col(vec![
         Line("Route details").small_heading().into_widget(ctx),
+        before_after_button(ctx, app),
         Text::from_all(vec![
             Line("Distance: ").secondary(),
             Line(stats.total_distance.to_string(&app.opts.units)),
