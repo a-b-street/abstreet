@@ -1,20 +1,13 @@
 use geom::{ArrowCap, Distance, PolyLine};
 use map_gui::tools::URLManager;
-use map_gui::ID;
-use map_model::{EditCmd, LaneType};
-use widgetry::{lctrl, Color, EventCtx, GfxCtx, Key, Line, Outcome, Panel, State, TextExt, Widget};
+use widgetry::{Color, EventCtx, GfxCtx, Outcome, Panel, State, TextExt, Widget};
 
 use crate::app::{App, Transition};
-use crate::common::share;
-use crate::edit::{LoadEdits, RoadEditor, SaveEdits};
-use crate::sandbox::gameplay::GameplayMode;
 use crate::ungap::{Layers, Tab, TakeLayers};
 
 pub struct ExploreMap {
     top_panel: Panel,
     layers: Layers,
-
-    map_edit_key: usize,
 }
 
 impl TakeLayers for ExploreMap {
@@ -38,90 +31,35 @@ impl ExploreMap {
         );
 
         Box::new(ExploreMap {
-            top_panel: Panel::empty(ctx),
+            top_panel: Tab::Explore.make_left_panel(
+                ctx,
+                app,
+                Widget::col(vec![
+                    "Zoom in to see how roads look".text_widget(ctx),
+                    Widget::row(vec![
+                        "To explore elevation data,"
+                            .text_widget(ctx)
+                            .centered_vert(),
+                        ctx.style()
+                            .btn_plain
+                            .icon_text("system/assets/tools/layers.svg", "Show more layers")
+                            .build_def(ctx),
+                    ]),
+                ]),
+            ),
             layers,
-
-            // Start with a bogus value, so we fix up the URL when changing maps
-            map_edit_key: usize::MAX,
         })
     }
 }
 
 impl State<App> for ExploreMap {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        // We would normally use Cached, but so many values depend on one key, so this is more
-        // clear.
-        let key = app.primary.map.get_edits_change_key();
-        if self.map_edit_key != key {
-            self.map_edit_key = key;
-            self.top_panel = make_top_panel(ctx, app);
-
-            let map = &app.primary.map;
-            let checksum = map.get_edits().get_checksum(map);
-            if share::UploadedProposals::load().md5sums.contains(&checksum) {
-                URLManager::update_url_param("--edits".to_string(), format!("remote/{}", checksum));
-            } else {
-                URLManager::update_url_param(
-                    "--edits".to_string(),
-                    map.get_edits().edits_name.clone(),
-                );
-            }
-        }
-
         if ctx.canvas_movement() {
             URLManager::update_url_cam(ctx, app.primary.map.get_gps_bounds());
         }
 
-        // Only when zoomed in, click to edit a road in detail
-        if ctx.canvas.is_zoomed() {
-            if ctx.redo_mouseover() {
-                app.primary.current_selection =
-                    match app.mouseover_unzoomed_roads_and_intersections(ctx) {
-                        Some(ID::Road(r)) => Some(r),
-                        Some(ID::Lane(l)) => Some(l.road),
-                        _ => None,
-                    }
-                    .and_then(|r| {
-                        if app.primary.map.get_r(r).is_light_rail() {
-                            None
-                        } else {
-                            Some(ID::Road(r))
-                        }
-                    });
-            }
-            if let Some(ID::Road(r)) = app.primary.current_selection {
-                if ctx.normal_left_click() {
-                    return Transition::Push(RoadEditor::new_state_without_lane(ctx, app, r));
-                }
-            }
-        }
-
         if let Outcome::Clicked(x) = self.top_panel.event(ctx) {
             match x.as_ref() {
-                "Open a proposal" => {
-                    // Dummy mode, just to allow all edits
-                    // TODO Actually, should we make one to express that only road edits are
-                    // relevant?
-                    let mode = GameplayMode::Freeform(app.primary.map.get_name().clone());
-
-                    // TODO Do we want to do SaveEdits first if unsaved_edits()? We have
-                    // auto-saving... and after loading an old "untitled proposal", it looks
-                    // unsaved.
-                    return Transition::Push(LoadEdits::new_state(ctx, app, mode));
-                }
-                "Save this proposal" => {
-                    return Transition::Push(SaveEdits::new_state(
-                        ctx,
-                        app,
-                        format!("Save \"{}\" as", app.primary.map.get_edits().edits_name),
-                        false,
-                        Some(Transition::Pop),
-                        Box::new(|_, _| {}),
-                    ));
-                }
-                "Share proposal" => {
-                    return Transition::Push(share::ShareProposal::new_state(ctx, app, "--ungap"));
-                }
                 "Show more layers" => {
                     self.layers.show_panel(ctx, app);
                 }
@@ -158,77 +96,4 @@ impl State<App> for ExploreMap {
             g.unfork();
         }
     }
-}
-
-fn make_top_panel(ctx: &mut EventCtx, app: &App) -> Panel {
-    let mut col = Vec::new();
-    let edits = app.primary.map.get_edits();
-
-    let total_mileage = {
-        // Look for the new lanes...
-        let mut total = Distance::ZERO;
-        // TODO We're assuming the edits have been compressed.
-        for cmd in &edits.commands {
-            if let EditCmd::ChangeRoad { r, old, new } = cmd {
-                let num_before = old
-                    .lanes_ltr
-                    .iter()
-                    .filter(|spec| spec.lt == LaneType::Biking)
-                    .count();
-                let num_after = new
-                    .lanes_ltr
-                    .iter()
-                    .filter(|spec| spec.lt == LaneType::Biking)
-                    .count();
-                if num_before != num_after {
-                    let multiplier = (num_after as f64) - (num_before) as f64;
-                    total += multiplier * app.primary.map.get_r(*r).length();
-                }
-            }
-        }
-        total
-    };
-    if edits.commands.is_empty() {
-        col.push("Today's network".text_widget(ctx));
-    } else {
-        col.push(Line(&edits.edits_name).into_widget(ctx));
-    }
-    col.push(
-        Line(format!(
-            "{:.1} miles of new bike lanes",
-            total_mileage.to_miles()
-        ))
-        .secondary()
-        .into_widget(ctx),
-    );
-    col.push(Widget::row(vec![
-        ctx.style()
-            .btn_outline
-            .text("Open a proposal")
-            .hotkey(lctrl(Key::O))
-            .build_def(ctx),
-        ctx.style()
-            .btn_outline
-            .icon_text("system/assets/tools/save.svg", "Save this proposal")
-            .hotkey(lctrl(Key::S))
-            .disabled(edits.commands.is_empty())
-            .build_def(ctx),
-    ]));
-    col.push(
-        ctx.style()
-            .btn_outline
-            .text("Share proposal")
-            .disabled(edits.commands.is_empty())
-            .build_def(ctx),
-    );
-    // TODO Should undo/redo, save, share functionality also live here?
-
-    col.push(
-        ctx.style()
-            .btn_plain
-            .icon_text("system/assets/tools/layers.svg", "Show more layers")
-            .build_def(ctx),
-    );
-
-    Tab::Explore.make_left_panel(ctx, app, Widget::col(col))
 }
