@@ -20,7 +20,7 @@ struct UnzoomedLine {
     color: Color,
 }
 
-struct UnzoomedCircle {
+pub struct UnzoomedCircle {
     center: Pt2D,
     radius: Distance,
     color: Color,

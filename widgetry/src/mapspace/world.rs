@@ -8,6 +8,7 @@ use geom::{Bounds, Circle, Distance, Polygon, Pt2D};
 
 use crate::mapspace::{ToggleZoomed, ToggleZoomedBuilder};
 use crate::{Color, EventCtx, GeomBatch, GfxCtx, MultiKey, RewriteColor, Text};
+use crate::mapspace::unzoomed::UnzoomedCircle;
 
 // TODO Tests...
 // - start drag in screenspace, release in map
@@ -83,10 +84,17 @@ pub struct ObjectBuilder<'a, ID: ObjectID> {
     world: &'a mut World<ID>,
 
     id: ID,
+
+    // For regular map-space things
     hitbox: Option<Polygon>,
-    zorder: usize,
     draw_normal: Option<ToggleZoomedBuilder>,
     draw_hover: Option<ToggleZoomedBuilder>,
+
+    // For unzoomed circles
+    // TODO Enums
+    unzoomed_circle: Option<UnzoomedCircle>,
+
+    zorder: usize,
     tooltip: Option<Text>,
     clickable: bool,
     draggable: bool,
@@ -200,6 +208,11 @@ impl<'a, ID: ObjectID> ObjectBuilder<'a, ID> {
 
     /// Finalize the object, adding it to the `World`.
     pub fn build(mut self, ctx: &mut EventCtx) {
+        // TODO what do we want to put in the quadtree in this case? do we just have two different
+        // quadtrees or strategies? Maybe we treat the objects as separate, merge both lists when
+        // needed, stop trying to shoehorn into one thing.
+        let body = if let Some(circle) = self.unzoomed_circle
+
         let hitbox = self.hitbox.take().expect("didn't specify hitbox");
         let bounds = hitbox.get_bounds();
         let quadtree_id = self
@@ -231,16 +244,64 @@ impl<'a, ID: ObjectID> ObjectBuilder<'a, ID> {
 struct Object<ID: ObjectID> {
     _id: ID,
     _quadtree_id: ItemId,
-    hitbox: Polygon,
+
+    body: Body,
     zorder: usize,
-    draw_normal: ToggleZoomed,
-    draw_hover: Option<ToggleZoomed>,
     tooltip: Option<Text>,
     clickable: bool,
     draggable: bool,
     // TODO How should we communicate these keypresses are possible? Something standard, like
     // button tooltips?
     keybindings: Vec<(MultiKey, &'static str)>,
+}
+
+enum Body {
+    MapspacePrebaked {
+        hitbox: Polygon,
+        draw_normal: ToggleZoomed,
+        draw_hover: Option<ToggleZoomed>,
+    },
+    // TODO We can have mapspace stuff that lazily calculates draw_hover and caches or something
+    Circle {
+        circle: UnzoomedCircle,
+    },
+}
+
+impl Body {
+    fn is_hoverable(&self) -> bool {
+        match self {
+            Body::MapspacePrebaked { ref draw_hover, .. } => draw_hover.is_some(),
+            Body::Circle { .. } => true,
+        }
+    }
+
+    fn contains_pt(&self, ctx: &EventCtx, pt: Pt2D) -> bool {
+        match self {
+            Body::MapspacePrebaked { ref hitbox, .. } => hitbox.contains_pt(pt),
+            Body::Circle {ref circle } => Circle::new(circle.pt, circle.radius / ctx.canvas.cam_zoom).contains_pt(pt),
+        }
+    }
+
+    fn draw_normal(&self, g: &mut GfxCtx) {
+        match self {
+            Body::MapspacePrebaked { ref draw_normal, .. } => g.redraw(draw_normal),
+            Body::Circle { ref circle } => {
+                // TODO Do something more efficient
+                g.draw_polygon(circle.color, Circle::new(circle.pt, circle.radius / g.canvas.cam_zoom).to_polygon());
+            }
+        }
+    }
+
+    fn draw_hovered(&self, g: &mut GfxCtx) {
+        match self {
+            // draw_hovered must be set if the object is being hovered on
+            Body::MapspacePrebaked { ref draw_hovered, .. } => g.redraw(draw_hovered.unwrap()),
+            Body::Circle { ref circle } => {
+                // TODO Do something more efficient
+                g.draw_polygon(circle.color, Circle::new(circle.pt, circle.radius / g.canvas.cam_zoom).to_polygon());
+            }
+        }
+    }
 }
 
 impl<ID: ObjectID> World<ID> {
@@ -280,11 +341,13 @@ impl<ID: ObjectID> World<ID> {
         ObjectBuilder {
             world: self,
 
-            id,
             hitbox: None,
-            zorder: 0,
             draw_normal: None,
             draw_hover: None,
+            unzoomed_circle: None,
+
+            id,
+            zorder: 0,
             tooltip: None,
             clickable: false,
             draggable: false,
@@ -298,7 +361,7 @@ impl<ID: ObjectID> World<ID> {
         self.hovering = ctx
             .canvas
             .get_cursor_in_map_space()
-            .and_then(|cursor| self.calculate_hover(cursor));
+            .and_then(|cursor| self.calculate_hover(ctx, cursor));
     }
 
     /// If a drag event causes the world to be totally rebuilt, call this with the previous world
@@ -336,7 +399,7 @@ impl<ID: ObjectID> World<ID> {
                 self.hovering = ctx
                     .canvas
                     .get_cursor_in_map_space()
-                    .and_then(|cursor| self.calculate_hover(cursor));
+                    .and_then(|cursor| self.calculate_hover(ctx, cursor));
                 return WorldOutcome::Nothing;
             }
             // Allow zooming, but not panning, while dragging
@@ -370,7 +433,7 @@ impl<ID: ObjectID> World<ID> {
 
         // Possibly recalculate hovering
         if ctx.redo_mouseover() {
-            self.hovering = self.calculate_hover(cursor);
+            self.hovering = self.calculate_hover(ctx, cursor);
         }
 
         // If we're hovering on a draggable thing, only allow zooming, not panning
@@ -412,7 +475,7 @@ impl<ID: ObjectID> World<ID> {
         WorldOutcome::Nothing
     }
 
-    fn calculate_hover(&self, cursor: Pt2D) -> Option<ID> {
+    fn calculate_hover(&self, ctx: &EventCtx, cursor: Pt2D) -> Option<ID> {
         let mut objects = Vec::new();
         for &(id, _, _) in &self.quadtree.query(
             // Maybe worth tuning. Since we do contains_pt below, it doesn't matter if this is too
@@ -428,7 +491,7 @@ impl<ID: ObjectID> World<ID> {
 
         for id in objects {
             let obj = &self.objects[&id];
-            if obj.draw_hover.is_some() && obj.hitbox.contains_pt(cursor) {
+            if obj.is_hoverable() && obj.contains_pt(ctx, cursor) {
                 return Some(id);
             }
         }
@@ -449,19 +512,14 @@ impl<ID: ObjectID> World<ID> {
         objects.sort_by_key(|id| self.objects[id].zorder);
 
         for id in objects {
-            let mut drawn = false;
             let obj = &self.objects[&id];
             if Some(id) == self.hovering {
-                if let Some(ref draw) = obj.draw_hover {
-                    draw.draw(g);
-                    drawn = true;
-                }
+                obj.body.draw_hovered(g);
                 if let Some(ref txt) = obj.tooltip {
                     g.draw_mouse_tooltip(txt.clone());
                 }
-            }
-            if !drawn {
-                obj.draw_normal.draw(g);
+            } else {
+                obj.body.draw_normal(g);
             }
         }
     }

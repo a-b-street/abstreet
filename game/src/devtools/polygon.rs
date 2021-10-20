@@ -1,7 +1,7 @@
 use geom::{Circle, Distance, FindClosest, LonLat, Pt2D, Ring};
 use widgetry::mapspace::{ObjectID, World, WorldOutcome};
 use widgetry::{
-    Cached, Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State,
+    Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State,
     VerticalAlignment, Widget,
 };
 
@@ -12,8 +12,7 @@ pub struct PolygonEditor {
     panel: Panel,
     name: String,
     points: Vec<Pt2D>,
-    // The points change size as we zoom out, so rebuild based on cam_zoom
-    world: Cached<f64, World<Obj>>,
+    world: World<Obj>,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
@@ -49,7 +48,7 @@ impl PolygonEditor {
             .build(ctx),
             name,
             points,
-            world: Cached::new(),
+            world: World::bounded(app.primary.map.get_bounds()),
         })
     }
 
@@ -72,10 +71,10 @@ impl PolygonEditor {
         for (idx, pt) in self.points.iter().enumerate() {
             world
                 .add(Obj::Point(idx))
-                // Scale the circle as we zoom out
-                .hitbox(Circle::new(*pt, Distance::meters(10.0) / ctx.canvas.cam_zoom).to_polygon())
+                .scale_invariant_circle(*pt, Distance::meters(10.0), Color::RED)
+                //.hitbox(Circle::new(*pt, Distance::meters(10.0) / ctx.canvas.cam_zoom).to_polygon())
                 .zorder(1)
-                .draw_color(Color::RED)
+                //.draw_color(Color::RED)
                 .hover_alpha(0.8)
                 .hotkey(Key::Backspace, "delete")
                 .draggable()
@@ -83,22 +82,14 @@ impl PolygonEditor {
         }
 
         world.initialize_hover(ctx);
-
-        if let Some(prev) = self.world.value() {
-            world.rebuilt_during_drag(prev);
-        }
-        self.world.set(ctx.canvas.cam_zoom, world);
+        world.rebuilt_during_drag(&self.world);
+        self.world = world;
     }
 }
 
 impl State<App> for PolygonEditor {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        // Recalculate if zoom has changed
-        if self.world.key() != Some(ctx.canvas.cam_zoom) {
-            self.rebuild_world(ctx, app);
-        }
-
-        match self.world.value_mut().unwrap().event(ctx) {
+        match self.world.event(ctx) {
             WorldOutcome::ClickedFreeSpace(pt) => {
                 // Insert the new point in the "middle" of the closest line segment
                 let mut closest = FindClosest::new(app.primary.map.get_bounds());
@@ -164,6 +155,6 @@ impl State<App> for PolygonEditor {
 
     fn draw(&self, g: &mut GfxCtx, _: &App) {
         self.panel.draw(g);
-        self.world.value().unwrap().draw(g);
+        self.world.draw(g);
     }
 }
