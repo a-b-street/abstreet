@@ -189,14 +189,16 @@ impl RouteSketcher {
         ])
     }
 
-    /// True if anything changed
+    /// True if the route changed
     pub fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> bool {
         let orig_route = self.route.clone();
         let orig_mode = self.mode.clone();
         self.update_mode(ctx, app);
         if self.route != orig_route || self.mode != orig_mode {
             self.update_preview(app);
-            true
+            // Only route changes count as a change for the caller, not just hovering on something
+            // different
+            self.route != orig_route
         } else {
             false
         }
@@ -234,7 +236,13 @@ impl RouteSketcher {
         roads
     }
 
+    /// Has the user even picked a start point?
     pub fn is_route_started(&self) -> bool {
+        !self.route.waypoints.is_empty()
+    }
+
+    /// Has the user specified a full route?
+    pub fn is_route_valid(&self) -> bool {
         self.route.waypoints.len() > 1
     }
 }

@@ -1,19 +1,26 @@
 use abstutil::Tags;
-use map_gui::tools::PopupMsg;
+use geom::Distance;
+use map_gui::tools::{PopupMsg, URLManager};
+use map_gui::ID;
 use map_model::{
     BufferType, Direction, DrivingSide, EditCmd, EditRoad, LaneSpec, LaneType, RoadID,
 };
-use widgetry::{Choice, EventCtx, GfxCtx, Key, Outcome, Panel, State, TextExt, Widget};
+use widgetry::{
+    lctrl, Choice, EventCtx, GfxCtx, Key, Line, Outcome, Panel, State, TextExt, Widget,
+};
 
 use crate::app::{App, Transition};
-use crate::common::RouteSketcher;
-use crate::edit::apply_map_edits;
+use crate::common::{share, RouteSketcher};
+use crate::edit::{apply_map_edits, LoadEdits, RoadEditor, SaveEdits};
+use crate::sandbox::gameplay::GameplayMode;
 use crate::ungap::{Layers, Tab, TakeLayers};
 
 pub struct QuickSketch {
     top_panel: Panel,
     layers: Layers,
     route_sketcher: RouteSketcher,
+
+    map_edit_key: usize,
 }
 
 impl TakeLayers for QuickSketch {
@@ -28,15 +35,21 @@ impl QuickSketch {
             top_panel: Panel::empty(ctx),
             layers,
             route_sketcher: RouteSketcher::new(app),
+
+            map_edit_key: usize::MAX,
         };
         qs.update_top_panel(ctx, app);
         Box::new(qs)
     }
 
     fn update_top_panel(&mut self, ctx: &mut EventCtx, app: &App) {
-        let mut col = vec![self.route_sketcher.get_widget_to_describe(ctx)];
+        let mut col = Vec::new();
+        if !self.route_sketcher.is_route_started() {
+            col.push("Zoom in and click a road to edit in detail".text_widget(ctx));
+        }
+        col.push(self.route_sketcher.get_widget_to_describe(ctx));
 
-        if self.route_sketcher.is_route_started() {
+        if self.route_sketcher.is_route_valid() {
             // We're usually replacing an existing panel, except the very first time.
             let default_buffer = if self.top_panel.has_widget("buffer type") {
                 self.top_panel.dropdown_value("buffer type")
@@ -67,18 +80,64 @@ impl QuickSketch {
                     .btn_solid_primary
                     .text("Add bike lanes")
                     .hotkey(Key::Enter)
-                    .disabled(!self.route_sketcher.is_route_started())
+                    .disabled(!self.route_sketcher.is_route_valid())
                     .build_def(ctx)])
                 .evenly_spaced(),
             );
         }
 
-        self.top_panel = Tab::AddLanes.make_left_panel(ctx, app, Widget::col(col));
+        let proposals = proposal_management(ctx, app).section(ctx);
+        self.top_panel = Tab::AddLanes.make_left_panel(
+            ctx,
+            app,
+            Widget::col(vec![Widget::col(col).section(ctx), proposals]),
+        );
+
+        // Also manage the URL here, since this is called for every edit
+        let map = &app.primary.map;
+        let checksum = map.get_edits().get_checksum(map);
+        if share::UploadedProposals::load().md5sums.contains(&checksum) {
+            URLManager::update_url_param("--edits".to_string(), format!("remote/{}", checksum));
+        } else {
+            URLManager::update_url_param("--edits".to_string(), map.get_edits().edits_name.clone());
+        }
     }
 }
 
 impl State<App> for QuickSketch {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+        let key = app.primary.map.get_edits_change_key();
+        if self.map_edit_key != key {
+            self.map_edit_key = key;
+            self.update_top_panel(ctx, app);
+        }
+
+        // Only when zoomed in and not drawing a route, click to edit a road in detail
+        if !self.route_sketcher.is_route_started() && ctx.canvas.is_zoomed() {
+            if ctx.redo_mouseover() {
+                app.primary.current_selection =
+                    match app.mouseover_unzoomed_roads_and_intersections(ctx) {
+                        Some(ID::Road(r)) => Some(r),
+                        Some(ID::Lane(l)) => Some(l.road),
+                        _ => None,
+                    }
+                    .and_then(|r| {
+                        if app.primary.map.get_r(r).is_light_rail() {
+                            None
+                        } else {
+                            Some(ID::Road(r))
+                        }
+                    });
+            }
+            if let Some(ID::Road(r)) = app.primary.current_selection {
+                if ctx.normal_left_click() {
+                    return Transition::Push(RoadEditor::new_state_without_lane(ctx, app, r));
+                }
+            }
+        } else {
+            app.primary.current_selection = None;
+        }
+
         if let Outcome::Clicked(x) = self.top_panel.event(ctx) {
             match x.as_ref() {
                 "Add bike lanes" => {
@@ -91,6 +150,30 @@ impl State<App> for QuickSketch {
                     self.route_sketcher = RouteSketcher::new(app);
                     self.update_top_panel(ctx, app);
                     return Transition::Push(PopupMsg::new_state(ctx, "Changes made", messages));
+                }
+                "Open a proposal" => {
+                    // Dummy mode, just to allow all edits
+                    // TODO Actually, should we make one to express that only road edits are
+                    // relevant?
+                    let mode = GameplayMode::Freeform(app.primary.map.get_name().clone());
+
+                    // TODO Do we want to do SaveEdits first if unsaved_edits()? We have
+                    // auto-saving... and after loading an old "untitled proposal", it looks
+                    // unsaved.
+                    return Transition::Push(LoadEdits::new_state(ctx, app, mode));
+                }
+                "Save this proposal" => {
+                    return Transition::Push(SaveEdits::new_state(
+                        ctx,
+                        app,
+                        format!("Save \"{}\" as", app.primary.map.get_edits().edits_name),
+                        false,
+                        Some(Transition::Pop),
+                        Box::new(|_, _| {}),
+                    ));
+                }
+                "Share proposal" => {
+                    return Transition::Push(share::ShareProposal::new_state(ctx, app, "--ungap"));
                 }
                 x => {
                     // TODO More brittle routing of outcomes.
@@ -416,4 +499,69 @@ mod tests {
         }
         assert!(ok);
     }
+}
+
+fn proposal_management(ctx: &mut EventCtx, app: &App) -> Widget {
+    let mut col = Vec::new();
+    let edits = app.primary.map.get_edits();
+
+    let total_mileage = {
+        // Look for the new lanes...
+        let mut total = Distance::ZERO;
+        // TODO We're assuming the edits have been compressed.
+        for cmd in &edits.commands {
+            if let EditCmd::ChangeRoad { r, old, new } = cmd {
+                let num_before = old
+                    .lanes_ltr
+                    .iter()
+                    .filter(|spec| spec.lt == LaneType::Biking)
+                    .count();
+                let num_after = new
+                    .lanes_ltr
+                    .iter()
+                    .filter(|spec| spec.lt == LaneType::Biking)
+                    .count();
+                if num_before != num_after {
+                    let multiplier = (num_after as f64) - (num_before) as f64;
+                    total += multiplier * app.primary.map.get_r(*r).length();
+                }
+            }
+        }
+        total
+    };
+    if edits.commands.is_empty() {
+        col.push("Today's network".text_widget(ctx));
+    } else {
+        col.push(Line(&edits.edits_name).into_widget(ctx));
+    }
+    col.push(
+        Line(format!(
+            "{:.1} miles of new bike lanes",
+            total_mileage.to_miles()
+        ))
+        .secondary()
+        .into_widget(ctx),
+    );
+    col.push(Widget::row(vec![
+        ctx.style()
+            .btn_outline
+            .text("Open a proposal")
+            .hotkey(lctrl(Key::O))
+            .build_def(ctx),
+        ctx.style()
+            .btn_outline
+            .icon_text("system/assets/tools/save.svg", "Save this proposal")
+            .hotkey(lctrl(Key::S))
+            .disabled(edits.commands.is_empty())
+            .build_def(ctx),
+    ]));
+    col.push(
+        ctx.style()
+            .btn_outline
+            .text("Share proposal")
+            .disabled(edits.commands.is_empty())
+            .build_def(ctx),
+    );
+
+    Widget::col(col)
 }

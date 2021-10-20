@@ -103,13 +103,13 @@ impl Tab {
             build_tab((
                 Tab::Trip,
                 "system/assets/tools/pin.svg",
-                "Your Trip",
+                "Your trip",
                 Key::Num2,
             )),
             build_tab((
                 Tab::AddLanes,
                 "system/assets/tools/pencil.svg",
-                "Add bike lanes",
+                "Propose new bike lanes",
                 Key::Num3,
             )),
             build_tab((
@@ -170,11 +170,11 @@ impl Tab {
                 let state = state.downcast::<T>().ok().unwrap();
                 vec![ExploreMap::new_state(ctx, app, state.take_layers())]
             }))),
-            "Your Trip" => Some(Transition::ConsumeState(Box::new(|state, ctx, app| {
+            "Your trip" => Some(Transition::ConsumeState(Box::new(|state, ctx, app| {
                 let state = state.downcast::<T>().ok().unwrap();
                 vec![trip::TripPlanner::new_state(ctx, app, state.take_layers())]
             }))),
-            "Add bike lanes" => {
+            "Propose new bike lanes" => {
                 // This is only necessary to do coming from ExploreMap, but eh
                 app.primary.current_selection = None;
                 Some(Transition::ConsumeState(Box::new(|state, ctx, app| {
