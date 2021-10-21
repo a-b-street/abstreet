@@ -89,6 +89,7 @@ impl Map {
 
         self.edits = self.new_edits();
         self.recalculate_road_to_buildings();
+        self.recalculate_turns(timer);
         self.recalculate_all_movements(timer);
 
         // Enable to work on shrinking map file sizes. Never run this on the web though --
@@ -831,6 +832,16 @@ impl Map {
         );
         for (i, movements) in self.intersections.iter_mut().zip(movements.into_iter()) {
             i.movements = movements;
+        }
+    }
+
+    fn recalculate_turns(&mut self, timer: &mut Timer) {
+        let turns = timer.parallelize(
+            "generate turns",
+            self.intersections.iter().collect(),
+            |i| crate::make::turns::make_all_turns(self, i));
+        for t in turns.into_iter().flatten() {
+            self.intersections[t.id.parent.0].turns.push(t);
         }
     }
 
