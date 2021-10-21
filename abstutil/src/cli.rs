@@ -21,7 +21,7 @@ impl CmdArgs {
             let raw = match parse_args() {
                 Ok(raw) => raw,
                 Err(err) => {
-                    log::warn!("Didn't parse arguments from URL query params: {}", err);
+                    warn!("Didn't parse arguments from URL query params: {}", err);
                     Vec::new()
                 }
             };

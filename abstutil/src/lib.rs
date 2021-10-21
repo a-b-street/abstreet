@@ -7,8 +7,10 @@
 
 #[macro_use]
 extern crate anyhow;
+#[macro_use]
+extern crate log;
 
-// I'm not generally a fan of wildcard exports, but they're more maintable here.
+// I'm not generally a fan of wildcard exports, but they're more maintainable here.
 pub use crate::serde::*;
 pub use cli::*;
 pub use clone::*;

@@ -56,7 +56,7 @@ impl Progress {
                 prettyprint_time(elapsed)
             );
             if self.total_items == 1 {
-                Timer::selfless_println(maybe_sink, line.clone());
+                temporary_println(maybe_sink, line.clone());
             } else {
                 clear_current_line();
                 println!("{}", line);
@@ -147,23 +147,8 @@ impl<'a> Timer<'a> {
         Timer::new("throwaway")
     }
 
-    fn println(&mut self, line: String) {
-        Timer::selfless_println(&mut self.sink, line);
-    }
-
-    // Workaround for borrow checker
-    fn selfless_println(maybe_sink: &mut Option<Box<dyn TimerSink + 'a>>, line: String) {
-        #[cfg(not(target_arch = "wasm32"))]
-        {
-            println!("{}", line);
-        }
-        #[cfg(target_arch = "wasm32")]
-        {
-            log::debug!("{}", line);
-        }
-        if let Some(ref mut sink) = maybe_sink {
-            sink.println(line);
-        }
+    fn temporary_println(&mut self, line: String) {
+        temporary_println(&mut self.sink, line);
     }
 
     /// Used to end the scope of a timer early.
@@ -175,7 +160,7 @@ impl<'a> Timer<'a> {
         }
 
         let name = raw_name.into();
-        self.println(format!("{}...", name));
+        self.temporary_println(format!("{}...", name));
         self.stack.push(StackEntry::TimerSpan(TimerSpan {
             name,
             started_at: Instant::now(),
@@ -205,7 +190,7 @@ impl<'a> Timer<'a> {
                 s.nested_results.push(format!("{}- {}", padding, line));
                 s.nested_results.extend(span.nested_results);
                 if span.nested_time != 0.0 {
-                    Timer::selfless_println(
+                    temporary_println(
                         &mut self.sink,
                         format!(
                             "{}... plus {}",
@@ -226,7 +211,7 @@ impl<'a> Timer<'a> {
                 self.results.push(format!("{}- {}", padding, line));
                 self.results.extend(span.nested_results);
                 if span.nested_time != 0.0 {
-                    self.println(format!(
+                    self.temporary_println(format!(
                         "{}... plus {}",
                         name,
                         prettyprint_time(elapsed - span.nested_time)
@@ -240,7 +225,7 @@ impl<'a> Timer<'a> {
             }
         }
 
-        self.println(line);
+        self.temporary_println(line);
     }
 
     pub fn start_iter<S: Into<String>>(&mut self, raw_name: S, total_items: usize) {
@@ -417,16 +402,16 @@ impl<'a> std::ops::Drop for Timer<'a> {
         match self.stack.last() {
             Some(StackEntry::TimerSpan(ref s)) => {
                 if s.name != stop_name {
-                    println!("dropping Timer during {}, due to panic?", s.name);
+                    error!("dropping Timer during {}, due to panic?", s.name);
                     return;
                 }
             }
             Some(StackEntry::File(ref r)) => {
-                println!("dropping Timer while reading {}, due to panic?", r.path);
+                error!("dropping Timer while reading {}, due to panic?", r.path);
                 return;
             }
             Some(StackEntry::Progress(ref p)) => {
-                println!(
+                error!(
                     "dropping Timer while doing progress {}, due to panic?",
                     p.label
                 );
@@ -437,19 +422,17 @@ impl<'a> std::ops::Drop for Timer<'a> {
 
         self.stop(&stop_name);
         assert!(self.stack.is_empty());
-        self.println(String::new());
         for line in &self.results {
-            Timer::selfless_println(&mut self.sink, line.to_string());
+            finalized_println(&mut self.sink, line.to_string());
         }
 
         if std::thread::panicking() {
-            self.println(String::new());
-            self.println(String::new());
-            self.println(String::new());
-            self.println(String::new());
-            self.println(
-                "!!! The program panicked, look above for the stack trace !!!".to_string(),
-            );
+            error!("");
+            error!("");
+            error!("");
+            error!("");
+            error!("");
+            error!("!!! The program panicked, look above for the stack trace !!!");
         }
     }
 }
@@ -534,7 +517,7 @@ impl<'a> Read for Timer<'a> {
             );
             if self.outermost_name != "throwaway" {
                 if file.last_printed_at.is_none() {
-                    self.println(line.clone());
+                    self.temporary_println(line.clone());
                 } else {
                     clear_current_line();
                     println!("{}", line);
@@ -574,5 +557,28 @@ impl<'a> Read for Timer<'a> {
         }
 
         Ok(bytes)
+    }
+}
+
+// Print progress info while a Timer is still active. Invisible on web by default.
+fn temporary_println<'a>(maybe_sink: &mut Option<Box<dyn TimerSink + 'a>>, line: String) {
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+        println!("{}", line);
+    }
+    #[cfg(target_arch = "wasm32")]
+    {
+        debug!("{}", line);
+    }
+    if let Some(ref mut sink) = maybe_sink {
+        sink.println(line);
+    }
+}
+
+// Print info about a completed Timer. Always uses info logs, so works on native and web.
+fn finalized_println<'a>(maybe_sink: &mut Option<Box<dyn TimerSink + 'a>>, line: String) {
+    info!("{}", line);
+    if let Some(ref mut sink) = maybe_sink {
+        sink.println(line);
     }
 }
