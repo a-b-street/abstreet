@@ -565,8 +565,8 @@ impl Widget {
 
     // Populate a flattened list of Nodes, matching the traversal order
     fn get_flexbox(&self, parent: Node, stretch: &mut Stretch, nodes: &mut Vec<Node>) {
+        let mut style = self.layout.style;
         if let Some(container) = self.widget.downcast_ref::<Container>() {
-            let mut style = self.layout.style;
             style.flex_direction = if container.is_row {
                 FlexDirection::Row
             } else {
@@ -579,7 +579,6 @@ impl Widget {
             }
             stretch.add_child(parent, node).unwrap();
         } else {
-            let mut style = self.layout.style;
             style.size = Size {
                 width: Dimension::Points(self.widget.get_dims().width as f32),
                 height: Dimension::Points(self.widget.get_dims().height as f32),

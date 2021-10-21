@@ -2,7 +2,7 @@
 name = "map_gui"
 version = "0.1.0"
 authors = ["Dustin Carlino <dabreegster@gmail.com>"]
-edition = "2018"
+edition = "2021"
 
 [features]
 native = ["clipboard", "subprocess", "tokio", "widgetry/native-backend"]

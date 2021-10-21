@@ -2,7 +2,7 @@
 name = "game"
 version = "0.1.0"
 authors = ["Dustin Carlino <dabreegster@gmail.com>"]
-edition = "2018"
+edition = "2021"
 description = "A traffic simulation game based on OpenStreetMap"
 repository = "https://github.com/a-b-street/abstreet"
 license = "Apache-2.0"

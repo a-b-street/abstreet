@@ -2,7 +2,7 @@
 name = "collisions"
 version = "0.1.0"
 authors = ["Dustin Carlino <dabreegster@gmail.com>"]
-edition = "2018"
+edition = "2021"
 
 [dependencies]
 geom = { path = "../geom" }

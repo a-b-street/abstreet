@@ -373,7 +373,7 @@ impl<A: AppLike + 'static> CitiesInCountryPicker<A> {
                         .small_heading()
                         .into_widget(ctx)
                         .margin_right(20)];
-                    row.extend(buttons.drain(..));
+                    row.append(&mut buttons);
                     col.push(
                         Widget::custom_row(row).flex_wrap_no_inner_spacing(ctx, Percent::int(70)),
                     );
@@ -396,7 +396,7 @@ impl<A: AppLike + 'static> CitiesInCountryPicker<A> {
                 .small_heading()
                 .into_widget(ctx)
                 .margin_right(20)];
-            row.extend(buttons.drain(..));
+            row.append(&mut buttons);
             col.push(Widget::custom_row(row).flex_wrap_no_inner_spacing(ctx, Percent::int(70)));
         }
 
