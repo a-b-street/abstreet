@@ -9,7 +9,7 @@ use abstutil::Timer;
 
 use crate::assets::Assets;
 use crate::backend_glow::{build_program, GfxCtxInnards, PrerenderInnards, SpriteTexture};
-use crate::{Prerender, ScreenDims, Settings, Style};
+use crate::{Canvas, GfxCtx, Prerender, ScreenDims, Settings, Style};
 
 pub fn setup(
     settings: &Settings,
@@ -175,39 +175,51 @@ impl WindowAdapter {
 
 // TODO Don't expose stuff at this layer. This just needs to be able to hand out an EventCtx (for
 // setup) and a GfxCtx.
-#[wasm_bindgen::prelude::wasm_bindgen]
 pub struct RenderOnly {
     prerender: Prerender,
+    style: Style,
+    canvas: Canvas,
 }
 
-#[wasm_bindgen::prelude::wasm_bindgen]
 impl RenderOnly {
-    pub fn draw(&self, gl: web_sys::WebGlRenderingContext) {
-        info!("drawing!");
+    pub fn new(raw_gl: web_sys::WebGlRenderingContext) -> RenderOnly {
+        info!("Setting up renderonly widgetry");
+        let mut timer = Timer::new("setup renderonly");
+        // TODO Mapbox always hands up webgl1?
+        let initial_size = ScreenDims::new(
+            raw_gl.drawing_buffer_width().into(),
+            raw_gl.drawing_buffer_height().into(),
+        );
+        info!("Canvas dims {:?}", initial_size);
+        let (gl, program) =
+            webgl1_program(glow::Context::from_webgl1_context(raw_gl), &mut timer).unwrap();
+        let prerender_innards = PrerenderInnards::new(gl, program, None);
+
+        let style = Style::light_bg();
+        let settings = Settings::new("TODO take these as input");
+        let prerender = Prerender {
+            assets: Assets::new(
+                style.clone(),
+                settings.assets_base_url,
+                settings.assets_are_gzipped,
+                settings.read_svg,
+            ),
+            num_uploads: Cell::new(0),
+            inner: prerender_innards,
+            scale_factor: settings.scale_factor.unwrap_or(1.0),
+        };
+        let canvas = Canvas::new(initial_size, settings.canvas_settings);
+
+        RenderOnly {
+            prerender,
+            style,
+            canvas,
+        }
     }
-}
 
-pub fn setup_renderonly(raw_gl: web_sys::WebGlRenderingContext) -> RenderOnly {
-    info!("Setting up renderonly widgetry");
-    let mut timer = Timer::new("setup renderonly");
-    // TODO Mapbox always hands up webgl1?
-    let (gl, program) =
-        webgl1_program(glow::Context::from_webgl1_context(raw_gl), &mut timer).unwrap();
-    let prerender_innards = PrerenderInnards::new(gl, program, None);
-
-    let style = Style::light_bg();
-    let settings = Settings::new("TODO take these as input");
-    let prerender = Prerender {
-        assets: Assets::new(
-            style.clone(),
-            settings.assets_base_url,
-            settings.assets_are_gzipped,
-            settings.read_svg,
-        ),
-        num_uploads: Cell::new(0),
-        inner: prerender_innards,
-        scale_factor: settings.scale_factor.unwrap_or(1.0),
-    };
-
-    RenderOnly { prerender }
+    pub fn gfx_ctx(&self) -> GfxCtx {
+        self.prerender.inner.use_program_for_renderonly();
+        let screenshot = false;
+        GfxCtx::new(&self.prerender, &self.canvas, &self.style, screenshot)
+    }
 }

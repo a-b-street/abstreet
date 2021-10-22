@@ -201,7 +201,7 @@ pub struct Settings {
     window_icon: Option<String>,
     loading_tips: Option<Text>,
     pub(crate) read_svg: Box<dyn Fn(&str) -> Vec<u8>>,
-    canvas_settings: CanvasSettings,
+    pub(crate) canvas_settings: CanvasSettings,
 }
 
 impl Settings {

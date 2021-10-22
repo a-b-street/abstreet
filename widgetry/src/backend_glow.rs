@@ -461,6 +461,12 @@ impl PrerenderInnards {
         )?;
         Ok(())
     }
+
+    pub fn use_program_for_renderonly(&self) {
+        unsafe {
+            self.gl.use_program(Some(self.program));
+        }
+    }
 }
 
 /// Uploads a sprite sheet of textures to the GPU so they can be used by Fill::Texture and

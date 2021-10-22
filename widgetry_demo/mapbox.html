@@ -25,7 +25,7 @@
 	<h1>Demo</h1>
 	<div id="map"></div>
 	<script type="module">
-		import init, { setup_renderonly } from "./pkg/widgetry_demo.js";
+		import init, { PiggybackDemo } from "./pkg/widgetry_demo.js";
 
 		async function setup() {
 			// Initialize the WASM function.
@@ -46,10 +46,10 @@
 				id: 'widgetry',
 				type: 'custom',
 				onAdd: function (map, gl) {
-					this.widgetry = setup_renderonly(gl);
+					this.piggyback = PiggybackDemo.create(gl);
 				},
 				render: function (gl, matrix) {
-					this.widgetry.draw(gl);
+					this.piggyback.draw();
 				}
 			};
 

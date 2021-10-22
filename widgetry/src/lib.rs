@@ -108,7 +108,7 @@ mod backend {
 }
 
 #[cfg(feature = "wasm-backend")]
-pub use crate::backend_glow_wasm::{setup_renderonly, RenderOnly};
+pub use crate::backend_glow_wasm::RenderOnly;
 
 /// Like [`std::include_bytes!`], but also returns its argument, the relative path to the bytes
 ///
