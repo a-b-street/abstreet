@@ -650,3 +650,11 @@ pub fn run_wasm(root_dom_id: String, assets_base_url: String, assets_are_gzipped
         .assets_are_gzipped(assets_are_gzipped);
     run(settings);
 }
+
+#[cfg(target_arch = "wasm32")]
+#[wasm_bindgen(js_name = "setup_renderonly")]
+pub fn setup_renderonly(gl: web_sys::WebGlRenderingContext) -> widgetry::RenderOnly {
+    // Use this to initialize logging.
+    abstutil::CmdArgs::new().done();
+    widgetry::setup_renderonly(gl)
+}

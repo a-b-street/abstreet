@@ -169,3 +169,20 @@ impl WindowAdapter {
 
     pub fn draw_finished(&self, _gfc_ctx_innards: GfxCtxInnards) {}
 }
+
+#[wasm_bindgen::prelude::wasm_bindgen]
+pub struct RenderOnly {
+    dummy: usize,
+}
+
+#[wasm_bindgen::prelude::wasm_bindgen]
+impl RenderOnly {
+    pub fn draw(&self, gl: web_sys::WebGlRenderingContext) {
+        info!("drawing!");
+    }
+}
+
+pub fn setup_renderonly(gl: web_sys::WebGlRenderingContext) -> RenderOnly {
+    info!("got the context!");
+    RenderOnly { dummy: 42 }
+}

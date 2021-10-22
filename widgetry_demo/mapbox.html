@@ -18,22 +18,14 @@
 			height: 500px;
 			width: 90%;
 		}
-
-		#rust {
-			height: 500px;
-			width: 90%;
-		}
 	</style>
 </head>
 
 <body>
 	<h1>Demo</h1>
 	<div id="map"></div>
-	<h2>widgetry here</h2>
-	<div id="rust"></div>
-	<h2>widgetry above</h2>
 	<script type="module">
-		import init, { run } from "./pkg/widgetry_demo.js";
+		import init, { setup_renderonly } from "./pkg/widgetry_demo.js";
 
 		async function setup() {
 			// Initialize the WASM function.
@@ -50,9 +42,19 @@
 				zoom: 13
 			});
 
+			const widgetryLayer = {
+				id: 'widgetry',
+				type: 'custom',
+				onAdd: function (map, gl) {
+					this.widgetry = setup_renderonly(gl);
+				},
+				render: function (gl, matrix) {
+					this.widgetry.draw(gl);
+				}
+			};
+
 			map.on('load', () => {
-				// This blocks, so do it after mapbox is live
-				run("rust", "localhost", false);
+				map.addLayer(widgetryLayer);
 			});
 		}
 

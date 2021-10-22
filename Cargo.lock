@@ -4421,6 +4421,7 @@ dependencies = [
  "rand_xorshift",
  "svg_face",
  "wasm-bindgen",
+ "web-sys",
  "widgetry",
 ]
 
