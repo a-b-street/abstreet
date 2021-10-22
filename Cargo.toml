@@ -12,6 +12,7 @@ members = [
   "headless",
   "importer",
   "kml",
+  "mapbox",
   "map_editor",
   "map_gui",
   "map_model",

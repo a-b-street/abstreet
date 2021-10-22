@@ -2247,6 +2247,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "mapbox"
+version = "0.1.0"
+dependencies = [
+ "abstio",
+ "abstutil",
+ "geom",
+ "log",
+ "wasm-bindgen",
+ "web-sys",
+ "widgetry",
+]
+
+[[package]]
 name = "maplit"
 version = "1.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4421,7 +4434,6 @@ dependencies = [
  "rand_xorshift",
  "svg_face",
  "wasm-bindgen",
- "web-sys",
  "widgetry",
 ]
 

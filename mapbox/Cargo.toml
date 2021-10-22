@@ -1,0 +1,17 @@
+[package]
+name = "mapbox"
+version = "0.1.0"
+authors = ["Dustin Carlino <dabreegster@gmail.com>"]
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+
+[dependencies]
+abstio = { path = "../abstio" }
+abstutil = { path = "../abstutil" }
+geom = { path = "../geom" }
+log = "0.4.14"
+wasm-bindgen = { version = "0.2.70" }
+web-sys = { version = "0.3.47" }
+widgetry = { path = "../widgetry", features = ["wasm-backend"] }
