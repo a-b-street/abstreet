@@ -530,7 +530,7 @@ fn make_controls(ctx: &mut EventCtx, tabs: &mut TabController) -> Panel {
                 .margin_above(30),
             Widget::row(vec![
                 Toggle::new_widget(
-                    false,
+                    true,
                     ctx.style()
                         .btn_outline
                         .text("Pause")
