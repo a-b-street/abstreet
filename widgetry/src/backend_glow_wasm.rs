@@ -1,11 +1,15 @@
+use std::cell::Cell;
 use std::rc::Rc;
+
+use anyhow::Result;
 use wasm_bindgen::JsCast;
 use winit::platform::web::WindowExtWebSys;
 
 use abstutil::Timer;
 
+use crate::assets::Assets;
 use crate::backend_glow::{build_program, GfxCtxInnards, PrerenderInnards, SpriteTexture};
-use crate::{ScreenDims, Settings};
+use crate::{Prerender, ScreenDims, Settings, Style};
 
 pub fn setup(
     settings: &Settings,
@@ -63,22 +67,18 @@ pub fn setup(
     // First try WebGL 2.0 context.
     // WebGL 2.0 isn't supported by default on macOS Safari, or any iOS browser (which are all just
     // Safari wrappers).
-    let (program, gl) = webgl2_program_context(&canvas, timer)
+    let (gl, program) = webgl2_glow_context(&canvas)
+        .and_then(|gl| webgl2_program(gl, timer))
         .or_else(|err| {
             warn!(
                 "failed to build WebGL 2.0 context with error: \"{}\". Trying WebGL 1.0 instead...",
                 err
             );
-            webgl1_program_context(&canvas, timer)
+            webgl1_glow_context(&canvas).and_then(|gl| webgl1_program(gl, timer))
         })
         .unwrap();
 
-    debug!("built WebGL context");
-
-    fn webgl2_program_context(
-        canvas: &web_sys::HtmlCanvasElement,
-        timer: &mut Timer,
-    ) -> anyhow::Result<(glow::Program, glow::Context)> {
+    fn webgl2_glow_context(canvas: &web_sys::HtmlCanvasElement) -> Result<glow::Context> {
         let maybe_context: Option<_> = canvas
             .get_context("webgl2")
             .map_err(|err| anyhow!("error getting context for WebGL 2.0: {:?}", err))?;
@@ -87,34 +87,10 @@ pub fn setup(
         let webgl2_context = js_webgl2_context
             .dyn_into::<web_sys::WebGl2RenderingContext>()
             .map_err(|err| anyhow!("unable to cast to WebGl2RenderingContext. error: {:?}", err))?;
-        let gl = glow::Context::from_webgl2_context(webgl2_context);
-        let program = unsafe {
-            build_program(
-                &gl,
-                include_str!("../shaders/vertex_300.glsl"),
-                include_str!("../shaders/fragment_300.glsl"),
-            )?
-        };
-
-        timer.start("load textures");
-        let sprite_texture = SpriteTexture::new(
-            include_bytes!("../textures/spritesheet.png").to_vec(),
-            64,
-            64,
-        )
-        .expect("failed to format texture sprite sheet");
-        sprite_texture
-            .upload_gl2(&gl)
-            .expect("failed to upload textures");
-        timer.stop("load textures");
-
-        Ok((program, gl))
+        Ok(glow::Context::from_webgl2_context(webgl2_context))
     }
 
-    fn webgl1_program_context(
-        canvas: &web_sys::HtmlCanvasElement,
-        timer: &mut Timer,
-    ) -> anyhow::Result<(glow::Program, glow::Context)> {
+    fn webgl1_glow_context(canvas: &web_sys::HtmlCanvasElement) -> Result<glow::Context> {
         let maybe_context: Option<_> = canvas
             .get_context("webgl")
             .map_err(|err| anyhow!("error getting context for WebGL 1.0: {:?}", err))?;
@@ -123,34 +99,61 @@ pub fn setup(
         let webgl1_context = js_webgl1_context
             .dyn_into::<web_sys::WebGlRenderingContext>()
             .map_err(|err| anyhow!("unable to cast to WebGlRenderingContext. error: {:?}", err))?;
-        let gl = glow::Context::from_webgl1_context(webgl1_context);
-        let program = unsafe {
-            build_program(
-                &gl,
-                include_str!("../shaders/vertex_webgl1.glsl"),
-                include_str!("../shaders/fragment_webgl1.glsl"),
-            )?
-        };
-
-        timer.start("load textures");
-        let sprite_texture = SpriteTexture::new(
-            include_bytes!("../textures/spritesheet.png").to_vec(),
-            64,
-            64,
-        )
-        .expect("failed to format texture sprite sheet");
-        sprite_texture
-            .upload_webgl1(&gl)
-            .expect("failed to upload textures");
-        timer.stop("load textures");
-
-        Ok((program, gl))
+        Ok(glow::Context::from_webgl1_context(webgl1_context))
     }
 
     (
-        PrerenderInnards::new(gl, program, WindowAdapter(winit_window)),
+        PrerenderInnards::new(gl, program, Some(WindowAdapter(winit_window))),
         event_loop,
     )
+}
+
+fn webgl2_program(gl: glow::Context, timer: &mut Timer) -> Result<(glow::Context, glow::Program)> {
+    let program = unsafe {
+        build_program(
+            &gl,
+            include_str!("../shaders/vertex_300.glsl"),
+            include_str!("../shaders/fragment_300.glsl"),
+        )?
+    };
+
+    timer.start("load textures");
+    let sprite_texture = SpriteTexture::new(
+        include_bytes!("../textures/spritesheet.png").to_vec(),
+        64,
+        64,
+    )
+    .expect("failed to format texture sprite sheet");
+    sprite_texture
+        .upload_gl2(&gl)
+        .expect("failed to upload textures");
+    timer.stop("load textures");
+
+    Ok((gl, program))
+}
+
+fn webgl1_program(gl: glow::Context, timer: &mut Timer) -> Result<(glow::Context, glow::Program)> {
+    let program = unsafe {
+        build_program(
+            &gl,
+            include_str!("../shaders/vertex_webgl1.glsl"),
+            include_str!("../shaders/fragment_webgl1.glsl"),
+        )?
+    };
+
+    timer.start("load textures");
+    let sprite_texture = SpriteTexture::new(
+        include_bytes!("../textures/spritesheet.png").to_vec(),
+        64,
+        64,
+    )
+    .expect("failed to format texture sprite sheet");
+    sprite_texture
+        .upload_webgl1(&gl)
+        .expect("failed to upload textures");
+    timer.stop("load textures");
+
+    Ok((gl, program))
 }
 
 pub struct WindowAdapter(Rc<winit::window::Window>);
@@ -170,9 +173,11 @@ impl WindowAdapter {
     pub fn draw_finished(&self, _gfc_ctx_innards: GfxCtxInnards) {}
 }
 
+// TODO Don't expose stuff at this layer. This just needs to be able to hand out an EventCtx (for
+// setup) and a GfxCtx.
 #[wasm_bindgen::prelude::wasm_bindgen]
 pub struct RenderOnly {
-    dummy: usize,
+    prerender: Prerender,
 }
 
 #[wasm_bindgen::prelude::wasm_bindgen]
@@ -182,7 +187,27 @@ impl RenderOnly {
     }
 }
 
-pub fn setup_renderonly(gl: web_sys::WebGlRenderingContext) -> RenderOnly {
-    info!("got the context!");
-    RenderOnly { dummy: 42 }
+pub fn setup_renderonly(raw_gl: web_sys::WebGlRenderingContext) -> RenderOnly {
+    info!("Setting up renderonly widgetry");
+    let mut timer = Timer::new("setup renderonly");
+    // TODO Mapbox always hands up webgl1?
+    let (gl, program) =
+        webgl1_program(glow::Context::from_webgl1_context(raw_gl), &mut timer).unwrap();
+    let prerender_innards = PrerenderInnards::new(gl, program, None);
+
+    let style = Style::light_bg();
+    let settings = Settings::new("TODO take these as input");
+    let prerender = Prerender {
+        assets: Assets::new(
+            style.clone(),
+            settings.assets_base_url,
+            settings.assets_are_gzipped,
+            settings.read_svg,
+        ),
+        num_uploads: Cell::new(0),
+        inner: prerender_innards,
+        scale_factor: settings.scale_factor.unwrap_or(1.0),
+    };
+
+    RenderOnly { prerender }
 }

@@ -196,11 +196,11 @@ pub struct Settings {
     pub(crate) assets_base_url: Option<String>,
     pub(crate) assets_are_gzipped: bool,
     dump_raw_events: bool,
-    scale_factor: Option<f64>,
+    pub(crate) scale_factor: Option<f64>,
     require_minimum_width: Option<f64>,
     window_icon: Option<String>,
     loading_tips: Option<Text>,
-    read_svg: Box<dyn Fn(&str) -> Vec<u8>>,
+    pub(crate) read_svg: Box<dyn Fn(&str) -> Vec<u8>>,
     canvas_settings: CanvasSettings,
 }
 
