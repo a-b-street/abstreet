@@ -311,6 +311,7 @@ fn continue_app_setup(
     // Just apply this here, don't plumb to SimFlags or anything else. We recreate things using
     // these flags later, but we don't want to keep applying the same edits.
     if let Some(ref edits_name) = setup.start_with_edits {
+        // Remote edits require another intermediate state to load
         if let Some(id) = edits_name.strip_prefix("remote/") {
             let (_, outer_progress_rx) = futures_channel::mpsc::channel(1);
             let (_, inner_progress_rx) = futures_channel::mpsc::channel(1);
@@ -357,8 +358,7 @@ fn continue_app_setup(
             abstio::path(format!("system/proposals/{}.json", edits_name)),
         ] {
             if abstio::file_exists(&path) {
-                // TODO Technically we should only be permissive if this was a proposal
-                let edits = map_model::MapEdits::load_from_file_permissive(
+                let edits = map_model::MapEdits::load_from_file(
                     &app.primary.map,
                     path,
                     &mut Timer::throwaway(),

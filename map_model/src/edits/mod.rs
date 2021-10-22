@@ -217,50 +217,35 @@ impl MapEdits {
         }
     }
 
-    /// Load map edits from a JSON file. If any part of the edits don't match the current map, fail.
-    pub fn load_from_file(map: &Map, path: String, timer: &mut Timer) -> Result<MapEdits> {
-        match abstio::maybe_read_json::<PermanentMapEdits>(path.clone(), timer) {
-            Ok(perma) => perma.into_edits(map),
-            Err(_) => {
-                // The JSON format may have changed, so attempt backwards compatibility.
-                let bytes = abstio::slurp_file(path)?;
-                let contents = std::str::from_utf8(&bytes)?;
-                let value = serde_json::from_str(contents)?;
-                let perma = compat::upgrade(value, map)?;
-                perma.into_edits(map)
-            }
-        }
-    }
-
-    /// Load map edits from the given JSON bytes. If any part of the edits don't match the current
-    /// map, fail.
-    pub fn load_from_bytes(map: &Map, bytes: Vec<u8>) -> Result<MapEdits> {
-        match abstutil::from_json::<PermanentMapEdits>(&bytes) {
-            Ok(perma) => perma.into_edits(map),
-            Err(_) => {
-                // The JSON format may have changed, so attempt backwards compatibility.
-                let contents = std::str::from_utf8(&bytes)?;
-                let value = serde_json::from_str(contents)?;
-                let perma = compat::upgrade(value, map)?;
-                perma.into_edits(map)
-            }
-        }
-    }
-
     /// Load map edits from a JSON file. Strip out any commands that're broken because they don't
     /// match the current map. If the resulting edits are totally empty, consider that a failure --
-    /// the edits likely don't cover this map at all. This is currently most appropriate when using
-    /// system proposals that cover a large area.
-    pub fn load_from_file_permissive(
-        map: &Map,
-        path: String,
-        timer: &mut Timer,
-    ) -> Result<MapEdits> {
+    /// the edits likely don't cover this map at all.
+    pub fn load_from_file(map: &Map, path: String, timer: &mut Timer) -> Result<MapEdits> {
         let perma = match abstio::maybe_read_json::<PermanentMapEdits>(path.clone(), timer) {
             Ok(perma) => perma,
             Err(_) => {
                 // The JSON format may have changed, so attempt backwards compatibility.
                 let bytes = abstio::slurp_file(path)?;
+                let contents = std::str::from_utf8(&bytes)?;
+                let value = serde_json::from_str(contents)?;
+                compat::upgrade(value, map)?
+            }
+        };
+        let edits = perma.into_edits_permissive(map);
+        if edits.commands.is_empty() {
+            bail!("None of the edits apply to this map");
+        }
+        Ok(edits)
+    }
+
+    /// Load map edits from the given JSON bytes. Strip out any commands that're broken because
+    /// they don't match the current map. If the resulting edits are totally empty, consider that a
+    /// failure -- the edits likely don't cover this map at all.
+    pub fn load_from_bytes(map: &Map, bytes: Vec<u8>) -> Result<MapEdits> {
+        let perma = match abstutil::from_json::<PermanentMapEdits>(&bytes) {
+            Ok(perma) => perma,
+            Err(_) => {
+                // The JSON format may have changed, so attempt backwards compatibility.
                 let contents = std::str::from_utf8(&bytes)?;
                 let value = serde_json::from_str(contents)?;
                 compat::upgrade(value, map)?
