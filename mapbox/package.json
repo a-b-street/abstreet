@@ -1,0 +1,17 @@
+{
+  "name": "mapbox-abst",
+  "version": "1.0.0",
+  "description": "A/B Street rendered with Mapbox GL",
+  "main": "index.js",
+  "scripts": {
+    "start": "http-server"
+  },
+  "author": "Dustin Carlino",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "mapbox-gl": "^2.5.1"
+  },
+  "devDependencies": {
+    "http-server": "^14.0.0"
+  }
+}

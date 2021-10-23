@@ -5,8 +5,9 @@
 	<meta charset="utf-8" />
 	<title>MVP</title>
 	<meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
-	<link href="https://api.mapbox.com/mapbox-gl-js/v2.5.1/mapbox-gl.css" rel="stylesheet">
-	<script src="https://api.mapbox.com/mapbox-gl-js/v2.5.1/mapbox-gl.js"></script>
+	<!-- TODO Why is the ecosystem so enormous and unclear? Webpack? Browserify? -->
+	<link href="node_modules/mapbox-gl/dist/mapbox-gl.css" rel="stylesheet">
+	<script src="node_modules/mapbox-gl/dist/mapbox-gl.js"></script>
 	<style>
 		body {
 			margin: 0px;
@@ -33,7 +34,7 @@
 
 			// TODO Ideally we'd display the map immediately, but not sure how to make onAdd async
 			console.log('fetching map file');
-			const resp = await fetch('http://0.0.0.0:8000/data/system/us/seattle/maps/montlake.bin');
+			const resp = await fetch('/data/system/us/seattle/maps/montlake.bin');
 			const mapBytes = await resp.arrayBuffer();
 
 			// TODO I feel like I probably just copied this from an example somewhere
