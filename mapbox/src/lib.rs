@@ -15,6 +15,7 @@ pub struct PiggybackDemo {
     render_only: RenderOnly,
     map: Map,
     draw_map: DrawMap,
+    cs: ColorScheme,
 }
 
 #[cfg(target_arch = "wasm32")]
@@ -47,14 +48,20 @@ impl PiggybackDemo {
             render_only,
             map,
             draw_map,
+            cs,
         }
     }
 
     pub fn draw(&self) {
         log::info!("Drawing...");
         let mut g = self.render_only.gfx_ctx();
-        g.fork_screenspace();
-        g.draw_polygon(Color::RED, Polygon::rectangle(50.0, 50.0));
-        g.unfork();
+
+        //g.clear(self.cs.void_background);
+        //g.redraw(&self.draw_map.boundary_polygon);
+        //g.redraw(&self.draw_map.draw_all_areas);
+        g.redraw(&self.draw_map.draw_all_unzoomed_parking_lots);
+        g.redraw(&self.draw_map.draw_all_unzoomed_roads_and_intersections);
+        //g.redraw(&self.draw_map.draw_all_buildings);
+        //g.redraw(&self.draw_map.draw_all_building_outlines);
     }
 }
