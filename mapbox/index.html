@@ -47,20 +47,31 @@
 				zoom: 13
 			});
 
+			var piggyback = null;
+
 			const widgetryLayer = {
 				id: 'widgetry',
 				type: 'custom',
 				onAdd: function (map, gl) {
-					this.piggyback = PiggybackDemo.create_with_map_bytes(gl, mapBytes);
+					piggyback = PiggybackDemo.create_with_map_bytes(gl, mapBytes);
+					sync_canvas();
 				},
 				render: function (gl, matrix) {
-					this.piggyback.draw();
+					piggyback.draw();
 				}
 			};
 
 			map.on('load', () => {
 				map.addLayer(widgetryLayer);
 			});
+			map.on('move', sync_canvas);
+
+			function sync_canvas() {
+				const bounds = map.getBounds();
+				const ne = bounds.getNorthEast();
+				const sw = bounds.getSouthWest();
+				piggyback.move_canvas(ne.lng, ne.lat, sw.lng, sw.lat);
+			}
 		}
 
 		setup();

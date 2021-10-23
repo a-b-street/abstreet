@@ -4,7 +4,7 @@ extern crate log;
 use wasm_bindgen::prelude::*;
 
 use abstutil::Timer;
-use geom::Polygon;
+use geom::{LonLat, Pt2D};
 use map_gui::colors::ColorScheme;
 use map_gui::render::DrawMap;
 use map_model::Map;
@@ -52,14 +52,33 @@ impl PiggybackDemo {
         }
     }
 
+    pub fn move_canvas(&mut self, ne_lon: f64, ne_lat: f64, sw_lon: f64, sw_lat: f64) {
+        let gps_bounds = self.map.get_gps_bounds();
+        let top_left = LonLat::new(ne_lon, ne_lat).to_pt(gps_bounds);
+        let bottom_right = LonLat::new(sw_lon, sw_lat).to_pt(gps_bounds);
+        let center =
+            LonLat::new((ne_lon + sw_lon) / 2.0, (ne_lat + sw_lat) / 2.0).to_pt(gps_bounds);
+
+        let mut ctx = self.render_only.event_ctx();
+        // This is quite a strange way of calculating zoom
+        let want_diagonal_dist = top_left.dist_to(bottom_right);
+        let b = ctx.canvas.get_screen_bounds();
+        let current_diagonal_dist =
+            Pt2D::new(b.min_x, b.min_y).dist_to(Pt2D::new(b.max_x, b.max_y));
+        // We can do this calculation before changing the center, because we're working in mercator
+        // already
+
+        ctx.canvas.cam_zoom *= current_diagonal_dist / want_diagonal_dist;
+        ctx.canvas.center_on_map_pt(center);
+    }
+
     pub fn draw(&self) {
-        log::info!("Drawing...");
         let mut g = self.render_only.gfx_ctx();
 
         //g.clear(self.cs.void_background);
         //g.redraw(&self.draw_map.boundary_polygon);
         //g.redraw(&self.draw_map.draw_all_areas);
-        g.redraw(&self.draw_map.draw_all_unzoomed_parking_lots);
+        //g.redraw(&self.draw_map.draw_all_unzoomed_parking_lots);
         g.redraw(&self.draw_map.draw_all_unzoomed_roads_and_intersections);
         //g.redraw(&self.draw_map.draw_all_buildings);
         //g.redraw(&self.draw_map.draw_all_building_outlines);
