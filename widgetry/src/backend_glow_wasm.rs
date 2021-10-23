@@ -182,7 +182,11 @@ pub struct RenderOnly {
 }
 
 impl RenderOnly {
-    pub fn new(raw_gl: web_sys::WebGlRenderingContext) -> RenderOnly {
+    pub fn new(raw_gl: web_sys::WebGlRenderingContext, settings: Settings) -> RenderOnly {
+        std::panic::set_hook(Box::new(|info| {
+            error!("Panicked: {}", info);
+        }));
+
         info!("Setting up renderonly widgetry");
         let mut timer = Timer::new("setup renderonly");
         // TODO Mapbox always hands up webgl1?
@@ -196,7 +200,6 @@ impl RenderOnly {
         let prerender_innards = PrerenderInnards::new(gl, program, None);
 
         let style = Style::light_bg();
-        let settings = Settings::new("TODO take these as input");
         let prerender = Prerender {
             assets: Assets::new(
                 style.clone(),

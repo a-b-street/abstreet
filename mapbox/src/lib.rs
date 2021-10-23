@@ -4,11 +4,13 @@ extern crate log;
 use wasm_bindgen::prelude::*;
 
 use abstutil::Timer;
-use geom::{LonLat, Pt2D};
+use geom::{LonLat, Pt2D, Time};
 use map_gui::colors::ColorScheme;
-use map_gui::render::DrawMap;
+use map_gui::options::Options;
+use map_gui::render::{DrawMap, DrawOptions};
+use map_gui::{AppLike, ID};
 use map_model::Map;
-use widgetry::{Color, RenderOnly};
+use widgetry::{EventCtx, GfxCtx, RenderOnly, Settings, State};
 
 #[wasm_bindgen]
 pub struct PiggybackDemo {
@@ -16,6 +18,7 @@ pub struct PiggybackDemo {
     map: Map,
     draw_map: DrawMap,
     cs: ColorScheme,
+    options: Options,
 }
 
 #[cfg(target_arch = "wasm32")]
@@ -28,7 +31,10 @@ impl PiggybackDemo {
         // Use this to initialize logging.
         abstutil::CmdArgs::new().done();
 
-        let mut render_only = RenderOnly::new(gl);
+        let mut render_only = RenderOnly::new(
+            gl,
+            Settings::new("Piggyback demo").read_svg(Box::new(abstio::slurp_bytes)),
+        );
 
         // This is convoluted and it works
         let array = js_sys::Uint8Array::new(&bytes);
@@ -49,6 +55,7 @@ impl PiggybackDemo {
             map,
             draw_map,
             cs,
+            options,
         }
     }
 
@@ -72,15 +79,79 @@ impl PiggybackDemo {
         ctx.canvas.center_on_map_pt(center);
     }
 
-    pub fn draw(&self) {
-        let mut g = self.render_only.gfx_ctx();
+    pub fn draw_zoomed(&self) {
+        let g = &mut self.render_only.gfx_ctx();
 
-        //g.clear(self.cs.void_background);
-        //g.redraw(&self.draw_map.boundary_polygon);
-        //g.redraw(&self.draw_map.draw_all_areas);
-        //g.redraw(&self.draw_map.draw_all_unzoomed_parking_lots);
-        g.redraw(&self.draw_map.draw_all_unzoomed_roads_and_intersections);
-        //g.redraw(&self.draw_map.draw_all_buildings);
-        //g.redraw(&self.draw_map.draw_all_building_outlines);
+        let objects = self
+            .draw_map
+            .get_renderables_back_to_front(g.get_screen_bounds(), &self.map);
+
+        let opts = DrawOptions::new();
+        for obj in objects {
+            if matches!(
+                obj.get_id(),
+                ID::Lane(_) | ID::Intersection(_) | ID::Road(_)
+            ) {
+                obj.draw(g, self, &opts);
+            }
+        }
+    }
+}
+
+// Drawing some of the objects requires this interface. The unreachable methods should, as the name
+// suggests, not actually get called
+impl AppLike for PiggybackDemo {
+    fn map(&self) -> &Map {
+        &self.map
+    }
+    fn sim(&self) -> &sim::Sim {
+        unreachable!()
+    }
+    fn cs(&self) -> &ColorScheme {
+        &self.cs
+    }
+    fn mut_cs(&mut self) -> &mut ColorScheme {
+        &mut self.cs
+    }
+    fn draw_map(&self) -> &DrawMap {
+        &self.draw_map
+    }
+    fn mut_draw_map(&mut self) -> &mut DrawMap {
+        &mut self.draw_map
+    }
+    fn opts(&self) -> &Options {
+        &self.options
+    }
+    fn mut_opts(&mut self) -> &mut Options {
+        &mut self.options
+    }
+    fn map_switched(&mut self, _: &mut EventCtx, _: map_model::Map, _: &mut abstutil::Timer) {
+        unreachable!()
+    }
+    fn draw_with_opts(&self, _: &mut GfxCtx, _: map_gui::render::DrawOptions) {
+        unreachable!()
+    }
+    fn make_warper(
+        &mut self,
+        _: &EventCtx,
+        _: Pt2D,
+        _: Option<f64>,
+        _: Option<map_gui::ID>,
+    ) -> Box<dyn State<PiggybackDemo>> {
+        unreachable!()
+    }
+    fn sim_time(&self) -> Time {
+        Time::START_OF_DAY
+    }
+    fn current_stage_and_remaining_time(
+        &self,
+        i: map_model::IntersectionID,
+    ) -> (usize, geom::Duration) {
+        (
+            0,
+            self.map.get_traffic_signal(i).stages[0]
+                .stage_type
+                .simple_duration(),
+        )
     }
 }

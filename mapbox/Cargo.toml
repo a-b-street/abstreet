@@ -16,6 +16,7 @@ js-sys = { version = "0.3.51" }
 log = "0.4.14"
 map_gui= { path = "../map_gui", features = ["wasm"] }
 map_model = { path = "../map_model" }
+sim = { path = "../sim" }
 wasm-bindgen = { version = "0.2.70" }
 web-sys = { version = "0.3.47" }
 widgetry = { path = "../widgetry", features = ["wasm-backend"] }

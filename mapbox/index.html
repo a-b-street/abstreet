@@ -44,7 +44,8 @@
 				container: 'map',
 				style: 'mapbox://styles/mapbox/streets-v11',
 				center: [-122.3037, 47.6427],
-				zoom: 13
+				zoom: 15,
+				antialias: true
 			});
 
 			var piggyback = null;
@@ -57,7 +58,9 @@
 					sync_canvas();
 				},
 				render: function (gl, matrix) {
-					piggyback.draw();
+					if (map.getZoom() >= 16) {
+						piggyback.draw_zoomed();
+					}
 				}
 			};
 
