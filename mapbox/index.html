@@ -44,7 +44,7 @@
 				container: 'map',
 				style: 'mapbox://styles/mapbox/streets-v11',
 				center: [-122.3037, 47.6427],
-				zoom: 15,
+				zoom: 16,
 				antialias: true
 			});
 
@@ -68,6 +68,15 @@
 				map.addLayer(widgetryLayer);
 			});
 			map.on('move', sync_canvas);
+			map.on('click', (e) => {
+				const debug = piggyback.debug_object_at(e.lngLat.lng, e.lngLat.lat);
+				if (debug != null) {
+					new mapboxgl.Popup()
+						.setLngLat(e.lngLat)
+						.setHTML(`<pre style="overflow-x: scroll; overflow-y: scroll; max-width: 240px; max-height: 300px;">${debug}</pre>`)
+						.addTo(map);
+				}
+			});
 
 			function sync_canvas() {
 				const bounds = map.getBounds();

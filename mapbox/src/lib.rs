@@ -4,7 +4,7 @@ extern crate log;
 use wasm_bindgen::prelude::*;
 
 use abstutil::Timer;
-use geom::{LonLat, Pt2D, Time};
+use geom::{Circle, Distance, LonLat, Pt2D, Time};
 use map_gui::colors::ColorScheme;
 use map_gui::options::Options;
 use map_gui::render::{DrawMap, DrawOptions};
@@ -95,6 +95,27 @@ impl PiggybackDemo {
                 obj.draw(g, self, &opts);
             }
         }
+    }
+
+    pub fn debug_object_at(&self, lon: f64, lat: f64) -> Option<String> {
+        let pt = LonLat::new(lon, lat).to_pt(self.map.get_gps_bounds());
+        let mut objects = self.draw_map.get_renderables_back_to_front(
+            Circle::new(pt, Distance::meters(3.0)).get_bounds(),
+            &self.map,
+        );
+        objects.reverse();
+        for obj in objects {
+            if obj.contains_pt(pt, &self.map) {
+                let json = match obj.get_id() {
+                    ID::Road(r) => abstutil::to_json(self.map.get_r(r)),
+                    ID::Intersection(i) => abstutil::to_json(self.map.get_i(i)),
+                    ID::Area(a) => abstutil::to_json(self.map.get_a(a)),
+                    _ => continue,
+                };
+                return Some(json);
+            }
+        }
+        None
     }
 }
 
