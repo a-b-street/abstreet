@@ -32,9 +32,14 @@
 			// Initialize the WASM function.
 			await init();
 
+			var loadPath = new URL(window.location).searchParams.get('map');
+			if (loadPath == null) {
+				loadPath = '/data/system/us/seattle/maps/montlake.bin';
+			}
+
 			// TODO Ideally we'd display the map immediately, but not sure how to make onAdd async
-			console.log('fetching map file');
-			const resp = await fetch('/data/system/us/seattle/maps/montlake.bin');
+			console.log(`fetching ${loadPath}`);
+			const resp = await fetch(loadPath);
 			const mapBytes = await resp.arrayBuffer();
 
 			// TODO I feel like I probably just copied this from an example somewhere
@@ -47,6 +52,8 @@
 				center: [-122.3037, 47.6427],
 				zoom: 16,
 				antialias: true,
+				// TODO This appears to duplicate the parameter as soon as we move...
+				//hash: `map=${loadPath}`
 				hash: true
 			});
 
@@ -57,10 +64,11 @@
 				type: 'custom',
 				onAdd: function (map, gl) {
 					piggyback = PiggybackDemo.create_with_map_bytes(gl, mapBytes);
+					// TODO If the URL didn't specify an initial location, warp to the center of this map?
 					sync_canvas();
 				},
 				render: function (gl, matrix) {
-					if (map.getZoom() >= 16) {
+					if (map.getZoom() >= 16 && piggyback != null) {
 						piggyback.draw_zoomed();
 					}
 				}
@@ -81,10 +89,13 @@
 			});
 
 			function sync_canvas() {
-				const bounds = map.getBounds();
-				const ne = bounds.getNorthEast();
-				const sw = bounds.getSouthWest();
-				piggyback.move_canvas(ne.lng, ne.lat, sw.lng, sw.lat);
+				// If things broken during initialization, don't spam the console trying to call methods on a null object
+				if (piggyback != null) {
+					const bounds = map.getBounds();
+					const ne = bounds.getNorthEast();
+					const sw = bounds.getSouthWest();
+					piggyback.move_canvas(ne.lng, ne.lat, sw.lng, sw.lat);
+				}
 			}
 		}
 

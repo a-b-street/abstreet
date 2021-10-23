@@ -28,8 +28,7 @@ impl PiggybackDemo {
         gl: web_sys::WebGlRenderingContext,
         bytes: js_sys::ArrayBuffer,
     ) -> PiggybackDemo {
-        // Use this to initialize logging.
-        abstutil::CmdArgs::new().done();
+        abstutil::logger::setup();
 
         let mut render_only = RenderOnly::new(
             gl,

@@ -11,3 +11,6 @@ You'll need `wasm-pack` and `npm` setup. You'll also need the `data/system/` dir
 Quick development: `wasm-pack build --dev --target web && npm start`
 
 To build the WASM in release mode: `wasm-pack build --release --target web && npm start`
+
+Maps can be specified by URL:
+- http://localhost:8080/?map=/data/system/us/seattle/maps/arboretum.bin

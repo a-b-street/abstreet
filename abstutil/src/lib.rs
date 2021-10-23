@@ -23,7 +23,7 @@ pub use utils::*;
 mod cli;
 mod clone;
 mod collections;
-mod logger;
+pub mod logger;
 mod process;
 mod serde;
 pub mod time;
