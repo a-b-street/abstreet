@@ -9,7 +9,7 @@ use abstutil::Timer;
 
 use crate::assets::Assets;
 use crate::backend_glow::{build_program, GfxCtxInnards, PrerenderInnards, SpriteTexture};
-use crate::{Canvas, GfxCtx, Prerender, ScreenDims, Settings, Style};
+use crate::{Canvas, Event, EventCtx, GfxCtx, Prerender, ScreenDims, Settings, Style, UserInput};
 
 pub fn setup(
     settings: &Settings,
@@ -214,6 +214,20 @@ impl RenderOnly {
             prerender,
             style,
             canvas,
+        }
+    }
+
+    pub fn event_ctx(&mut self) -> EventCtx {
+        EventCtx {
+            fake_mouseover: true,
+            input: UserInput::new(Event::NoOp, &self.canvas),
+            canvas: &mut self.canvas,
+            prerender: &self.prerender,
+            style: &mut self.style,
+            updates_requested: vec![],
+            canvas_movement_called: false,
+            focus_owned_by: None,
+            next_focus_owned_by: None,
         }
     }
 

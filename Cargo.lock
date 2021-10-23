@@ -2256,6 +2256,7 @@ dependencies = [
  "getrandom",
  "js-sys",
  "log",
+ "map_gui",
  "map_model",
  "wasm-bindgen",
  "web-sys",

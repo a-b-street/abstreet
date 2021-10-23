@@ -54,6 +54,7 @@ impl DrawMap {
         let mut roads: Vec<DrawRoad> = Vec::new();
         let mut low_z = 0;
         let mut high_z = 0;
+        info!("make roads");
         timer.start_iter("make DrawRoads", map.all_roads().len());
         for r in map.all_roads() {
             timer.next();
@@ -61,6 +62,7 @@ impl DrawMap {
             low_z = low_z.min(r.zorder);
             high_z = high_z.max(r.zorder);
         }
+        info!("make intersections");
 
         let mut intersections: Vec<DrawIntersection> = Vec::new();
         timer.start_iter("make DrawIntersections", map.all_intersections().len());
@@ -69,8 +71,12 @@ impl DrawMap {
             intersections.push(DrawIntersection::new(i, map));
         }
 
+        info!("unzoomed");
+
         let draw_all_unzoomed_roads_and_intersections =
             DrawMap::regenerate_unzoomed_layer(map, cs, ctx, timer);
+
+        info!("bldgs");
 
         let mut buildings: Vec<DrawBuilding> = Vec::new();
         let mut all_buildings = GeomBatch::new();
@@ -93,19 +99,24 @@ impl DrawMap {
         let draw_all_building_outlines = all_building_outlines.upload(ctx);
         timer.stop("upload all buildings");
 
+        info!("plots");
+
         timer.start("make DrawParkingLot");
         let mut parking_lots: Vec<DrawParkingLot> = Vec::new();
         let mut all_unzoomed_parking_lots = GeomBatch::new();
-        for pl in map.all_parking_lots() {
+        // TODO Wat? Something here crashes
+        /*for pl in map.all_parking_lots() {
             parking_lots.push(DrawParkingLot::new(
                 ctx,
                 pl,
                 cs,
                 &mut all_unzoomed_parking_lots,
             ));
-        }
+        }*/
         let draw_all_unzoomed_parking_lots = all_unzoomed_parking_lots.upload(ctx);
         timer.stop("make DrawParkingLot");
+
+        info!("bus stops");
 
         timer.start_iter("make DrawBusStop", map.all_bus_stops().len());
         let mut bus_stops: HashMap<BusStopID, DrawBusStop> = HashMap::new();
@@ -113,6 +124,8 @@ impl DrawMap {
             timer.next();
             bus_stops.insert(s.id, DrawBusStop::new(ctx, s, map, cs));
         }
+
+        info!("areas");
 
         let mut areas: Vec<DrawArea> = Vec::new();
         let mut all_areas = GeomBatch::new();
@@ -129,6 +142,8 @@ impl DrawMap {
             cs.map_background.clone(),
             map.get_boundary_polygon().clone(),
         )]));
+
+        info!("quadtree");
 
         timer.start("create quadtree");
         let mut quadtree = QuadTree::default(map.get_bounds().as_bbox());
