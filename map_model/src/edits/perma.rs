@@ -172,7 +172,7 @@ impl PermanentMapEdits {
     }
 
     /// Transform permanent edits to MapEdits, looking up the map IDs by the hopefully stabler OSM
-    /// IDs. Strip out commands that're broken.
+    /// IDs. Strip out commands that're broken, but log warnings.
     pub fn into_edits_permissive(self, map: &Map) -> MapEdits {
         let mut edits = MapEdits {
             edits_name: self.edits_name,
@@ -181,7 +181,13 @@ impl PermanentMapEdits {
             commands: self
                 .commands
                 .into_iter()
-                .filter_map(|cmd| cmd.into_cmd(map).ok())
+                .filter_map(|cmd| match cmd.into_cmd(map) {
+                    Ok(cmd) => Some(cmd),
+                    Err(err) => {
+                        warn!("Skipping broken command: {}", err);
+                        None
+                    }
+                })
                 .collect(),
             merge_zones: self.merge_zones,
 
