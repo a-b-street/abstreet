@@ -462,6 +462,7 @@ impl PrerenderInnards {
         Ok(())
     }
 
+    #[allow(unused)]
     pub fn use_program_for_renderonly(&self) {
         unsafe {
             self.gl.use_program(Some(self.program));
