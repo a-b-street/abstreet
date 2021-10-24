@@ -24,6 +24,9 @@
 
 <body>
 	<h1>Demo</h1>
+	<input type="checkbox" id="show_roads" checked/>
+	<label for="show_roads">Show A/B Street roads</label>
+	<span id="traffic_controls"></span>
 	<div id="map"></div>
 	<script type="module">
 		import init, { PiggybackDemo } from "./pkg/mapbox.js";
@@ -69,7 +72,9 @@
 				},
 				render: function (gl, matrix) {
 					if (map.getZoom() >= 16 && piggyback != null) {
-						piggyback.draw_zoomed();
+						if (document.getElementById("show_roads").checked) {
+							piggyback.draw_zoomed();
+						}
 					}
 				}
 			};
@@ -87,6 +92,10 @@
 						.addTo(map);
 				}
 			});
+			// We don't have map until here, so set up the handler now
+			document.getElementById('show_roads').onclick = function() {
+				map.triggerRepaint();
+			}
 
 			function sync_canvas() {
 				// If things broken during initialization, don't spam the console trying to call methods on a null object
@@ -97,6 +106,39 @@
 					piggyback.move_canvas(ne.lng, ne.lat, sw.lng, sw.lat);
 				}
 			}
+
+			function traffic_controls_inactive() {
+				const span = document.getElementById("traffic_controls");
+				span.innerHTML = `
+				<button type="button" onclick="start_traffic_sim()">Start traffic simulation</button>
+				`;
+			}
+
+			function traffic_controls_active() {
+				const span = document.getElementById("traffic_controls");
+				span.innerHTML = `
+				<button type="button" onclick="pause_or_resume()">Pause / resume</button>
+				<button type="button" onclick="clear_traffic_sim()">Clear simulation</button>
+				`;
+			}
+
+			function start_traffic_sim() {
+				traffic_controls_active();
+			}
+
+			function pause_or_resume() {
+			}
+
+			function clear_traffic_sim() {
+				traffic_controls_inactive();
+			}
+
+			traffic_controls_inactive();
+
+			// So the onclick handlers work. Alternatively, grab them here and set onclick
+			window.start_traffic_sim = start_traffic_sim;
+			window.pause_or_resume = pause_or_resume;
+			window.clear_traffic_sim = clear_traffic_sim;
 		}
 
 		setup();
