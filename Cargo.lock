@@ -1359,7 +1359,7 @@ dependencies = [
 [[package]]
 name = "geo"
 version = "0.18.0"
-source = "git+https://github.com/georust/geo?branch=mkirk/concave-hull-fix-empty-crash#243ad260ba9dec5fe6ab5d184ac625f6ed01b53b"
+source = "git+https://github.com/georust/geo#2ebbc7f8a8774d9a4a68e9a1b40bcdd22b02fac9"
 dependencies = [
  "geo-types",
  "geographiclib-rs",
@@ -1372,7 +1372,7 @@ dependencies = [
 [[package]]
 name = "geo-booleanop"
 version = "0.3.2"
-source = "git+https://github.com/michaelkirk/rust-geo-booleanop?branch=mkirk/geo-types-0.7#c1c6680bc5540d1378e0f6d269665281bf612169"
+source = "git+https://github.com/21re/rust-geo-booleanop#188f016e44a3ec737ce8e279215caf558443de89"
 dependencies = [
  "float_next_after",
  "geo-types",
@@ -1383,7 +1383,7 @@ dependencies = [
 [[package]]
 name = "geo-types"
 version = "0.7.2"
-source = "git+https://github.com/georust/geo?branch=mkirk/concave-hull-fix-empty-crash#243ad260ba9dec5fe6ab5d184ac625f6ed01b53b"
+source = "git+https://github.com/georust/geo#2ebbc7f8a8774d9a4a68e9a1b40bcdd22b02fac9"
 dependencies = [
  "approx",
  "num-traits 0.2.14",

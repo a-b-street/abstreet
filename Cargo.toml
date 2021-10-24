@@ -36,12 +36,12 @@ members = [
 opt-level = 3
 
 [patch.crates-io]
-# update to geo-types 0.7 - upstream: https://github.com/21re/rust-geo-booleanop/pull/27
-geo-booleanop = { git = "https://github.com/michaelkirk/rust-geo-booleanop", branch = "mkirk/geo-types-0.7" }
+# Waiting for release: https://github.com/21re/rust-geo-booleanop/pull/27
+geo-booleanop = { git = "https://github.com/21re/rust-geo-booleanop" }
 
 # Waiting for a new crates.io release, but git uses latest geo versions
 polylabel = { git = "https://github.com/urschrei/polylabel-rs" }
 
 # Waiting on release of PR: https://github.com/georust/geo/pull/654
-geo = { git = "https://github.com/georust/geo", branch = "mkirk/concave-hull-fix-empty-crash" }
-geo-types = { git = "https://github.com/georust/geo", branch = "mkirk/concave-hull-fix-empty-crash" }
+geo = { git = "https://github.com/georust/geo" }
+geo-types = { git = "https://github.com/georust/geo" }

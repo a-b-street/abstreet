@@ -1,5 +1,8 @@
 #!/bin/bash
-# TODO describe
+# If `updater --dry` says a file changed, like
+# `data/system/us/seattle/maps/montlake.bin`, call this to dump the old and new
+# versions of the file to JSON and compare them manually. This only works if
+# you have a copy of the S3 directory in ~/s3_abst_data.
 
 set -e
 
