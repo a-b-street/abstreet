@@ -349,9 +349,9 @@ impl ModeShiftData {
         timer: &mut Timer,
     ) -> ModeShiftData {
         let unedited_map = app
-            .primary
-            .unedited_map
+            .secondary
             .as_ref()
+            .map(|x| &x.map)
             .unwrap_or(&app.primary.map);
         let all_candidate_trips = timer
             .parallelize(
@@ -407,9 +407,9 @@ impl ModeShiftData {
 
     fn recalculate_gaps(&mut self, ctx: &mut EventCtx, app: &App, timer: &mut Timer) {
         let unedited_map = app
-            .primary
-            .unedited_map
+            .secondary
             .as_ref()
+            .map(|x| &x.map)
             .unwrap_or(&app.primary.map);
 
         // Find all high-stress roads, since we'll filter by them next

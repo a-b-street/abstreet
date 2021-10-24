@@ -31,10 +31,15 @@ pub type Transition = widgetry::Transition<App>;
 
 /// The top-level data that lasts through the entire game, no matter what state the game is in.
 pub struct App {
+    /// State (like the simulation and drawing stuff) associated with the "primary" map.
     pub primary: PerMap,
-    /// This is only used right now for a debug mode to compare two versions of the same map. In
-    /// the future, it might be used for some kind of live "side-by-side" comparison.
+    /// Represents state for a different version of the `primary` map. `swap_map` can be used to
+    /// switch the primary and secondary state. This is currently used to compare an edited and
+    /// unedited map for Ungap the Map and as a debug mode to compare different files representing
+    /// the same area.
     pub secondary: Option<PerMap>,
+    pub store_unedited_map_in_secondary: bool,
+
     pub cs: ColorScheme,
     pub opts: Options,
 
@@ -446,6 +451,14 @@ impl App {
             self.set_prebaked(None);
         });
     }
+
+    /// This swaps the primary and secondary PerMaps. Depending on what state the rest of the app
+    /// is in, things like IDs might totally change!
+    pub fn swap_map(&mut self) {
+        let secondary = self.secondary.take().expect("no secondary map set");
+        let primary = std::mem::replace(&mut self.primary, secondary);
+        self.secondary = Some(primary);
+    }
 }
 
 impl App {
@@ -514,6 +527,7 @@ impl map_gui::AppLike for App {
             timer,
         );
         self.primary.init_camera_for_loaded_map(ctx, false);
+        self.secondary = None;
     }
 
     fn draw_with_opts(&self, g: &mut GfxCtx, opts: DrawOptions) {
@@ -606,7 +620,8 @@ pub struct PerMap {
     /// Any ScenarioModifiers in effect?
     pub has_modified_trips: bool,
 
-    /// If the map has been edited, store the unedited version here.
+    /// If the map has been edited and `app.store_unedited_map_in_secondary` is false, store the
+    /// unedited map here.
     pub unedited_map: Option<Map>,
 
     pub layer: Option<Box<dyn Layer>>,

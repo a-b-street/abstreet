@@ -236,6 +236,7 @@ fn setup_app(ctx: &mut EventCtx, mut setup: Setup) -> (App, Vec<Box<dyn State<Ap
         let app = App {
             primary,
             secondary,
+            store_unedited_map_in_secondary: false,
             cs,
             opts: setup.opts.clone(),
             per_obj: crate::app::PerObjectActions::new(),
@@ -269,6 +270,7 @@ fn setup_app(ctx: &mut EventCtx, mut setup: Setup) -> (App, Vec<Box<dyn State<Ap
         let mut app = App {
             primary,
             secondary,
+            store_unedited_map_in_secondary: false,
             cs,
             opts: setup.opts.clone(),
             per_obj: crate::app::PerObjectActions::new(),
@@ -383,6 +385,9 @@ fn finish_app_setup(
     edits: Option<MapEdits>,
     setup: Setup,
 ) -> Vec<Box<dyn State<App>>> {
+    if setup.ungap {
+        app.store_unedited_map_in_secondary = true;
+    }
     if let Some(edits) = edits {
         ctx.loading_screen("apply initial edits", |ctx, mut timer| {
             crate::edit::apply_map_edits(ctx, app, edits);
