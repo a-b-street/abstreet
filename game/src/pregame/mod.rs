@@ -400,8 +400,8 @@ mod built_info {
 
         let txt = Text::from(format!("This version built on {}", t.date().naive_local()))
             .into_widget(ctx);
-        // Releases every Sunday... but sometimes we miss a week
-        if (chrono::Utc::now() - t).num_days() > 15 {
+        // Disable this warning; no promise about a release schedule anymore
+        if false && (chrono::Utc::now() - t).num_days() > 15 {
             Widget::row(vec![
                 txt.centered_vert(),
                 ctx.style()
