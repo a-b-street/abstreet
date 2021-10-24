@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_gui&#x2F;src&#x2F;tools&#x2F;mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../map_gui/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_gui&#x2F;src&#x2F;tools&#x2F;mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../map_gui/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -321,29 +321,28 @@
 <span id="321">321</span>
 <span id="322">322</span>
 <span id="323">323</span>
-</pre><pre class="rust">
-<span class="doccomment">//! Assorted tools and UI states that&#39;re useful for applications built to display maps.</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Assorted tools and UI states that&#39;re useful for applications built to display maps.</span>
 
 <span class="kw">use</span> <span class="ident">abstio::MapName</span>;
 <span class="kw">use</span> <span class="ident">geom::Polygon</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">lctrl</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Text</span>, <span class="ident">Widget</span>};
 
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::camera</span>::{<span class="ident">CameraState</span>, <span class="ident">DefaultMap</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::city_picker::CityPicker</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::colors</span>::{<span class="ident">ColorDiscrete</span>, <span class="ident">ColorLegend</span>, <span class="ident">ColorNetwork</span>, <span class="ident">ColorScale</span>, <span class="ident">DivergingScale</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::heatmap</span>::{<span class="ident">draw_isochrone</span>, <span class="ident">make_heatmap</span>, <span class="ident">Grid</span>, <span class="ident">HeatmapOptions</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::icons</span>::{<span class="ident">goal_marker</span>, <span class="ident">start_marker</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::minimap</span>::{<span class="ident">Minimap</span>, <span class="ident">MinimapControls</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::navigate::Navigator</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::turn_explorer::TurnExplorer</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::ui</span>::{<span class="ident">ChooseSomething</span>, <span class="ident">FilePicker</span>, <span class="ident">PopupMsg</span>, <span class="ident">PromptInput</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::url::URLManager</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::AppLike</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::camera</span>::{<span class="ident">CameraState</span>, <span class="ident">DefaultMap</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::city_picker::CityPicker</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::colors</span>::{<span class="ident">ColorDiscrete</span>, <span class="ident">ColorLegend</span>, <span class="ident">ColorNetwork</span>, <span class="ident">ColorScale</span>, <span class="ident">DivergingScale</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::heatmap</span>::{<span class="ident">draw_isochrone</span>, <span class="ident">make_heatmap</span>, <span class="ident">Grid</span>, <span class="ident">HeatmapOptions</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::icons</span>::{<span class="ident">goal_marker</span>, <span class="ident">start_marker</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::minimap</span>::{<span class="ident">Minimap</span>, <span class="ident">MinimapControls</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::navigate::Navigator</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::turn_explorer::TurnExplorer</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::ui</span>::{<span class="ident">ChooseSomething</span>, <span class="ident">FilePicker</span>, <span class="ident">PopupMsg</span>, <span class="ident">PromptInput</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::url::URLManager</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::AppLike</span>;
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>))]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::command::RunCommand</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::command::RunCommand</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>))]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span><span class="ident">::updater::prompt_to_download_missing_data</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::updater::prompt_to_download_missing_data</span>;
 
 <span class="kw">mod</span> <span class="ident">camera</span>;
 <span class="kw">mod</span> <span class="ident">city_picker</span>;
@@ -363,7 +362,7 @@
 <span class="kw">mod</span> <span class="ident">url</span>;
 
 <span class="comment">// Update this ___before___ pushing the commit with &quot;[rebuild] [release]&quot;.</span>
-<span class="kw">const</span> <span class="ident">NEXT_RELEASE</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="string">&quot;0.2.62&quot;</span>;
+<span class="kw">const</span> <span class="ident">NEXT_RELEASE</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="string">&quot;0.2.63&quot;</span>;
 
 <span class="doccomment">/// Returns the version of A/B Street to link to. When building for a release, this points to that</span>
 <span class="doccomment">/// new release. Otherwise it points to the current dev version.</span>
@@ -645,7 +644,7 @@
         .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key::L</span>))
         .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;change map&quot;</span>)
 }
-</pre></div>
+</code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_gui" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
     <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script>
 </body></html>

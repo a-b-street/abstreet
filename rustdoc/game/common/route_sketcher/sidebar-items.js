@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["Mode",""]],"struct":[["Route",""],["RouteSketcher",""]]});
+initSidebarItems({"constant":[["INTERSECTON_RADIUS",""]],"enum":[["Mode",""]],"struct":[["Route",""],["RouteSketcher",""]]});

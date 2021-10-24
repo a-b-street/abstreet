@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["ID",""]],"mod":[["files",""],["results",""]],"struct":[["RoutingPreferences",""],["TripPlanner",""]]});
+initSidebarItems({"enum":[["ID",""]],"fn":[["before_after_button",""]],"mod":[["files",""],["results",""]],"struct":[["RoutingPreferences",""],["TripPlanner",""]]});

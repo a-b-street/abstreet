@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model&#x2F;src&#x2F;raw.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>raw.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../map_model/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model&#x2F;src&#x2F;raw.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>raw.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../map_model/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -743,8 +743,7 @@
 <span id="743">743</span>
 <span id="744">744</span>
 <span id="745">745</span>
-</pre><pre class="rust">
-<span class="doccomment">//! The convert_osm crate produces a RawMap from OSM and other data. Storing this intermediate</span>
+</pre><pre class="rust"><code><span class="doccomment">//! The convert_osm crate produces a RawMap from OSM and other data. Storing this intermediate</span>
 <span class="doccomment">//! structure is useful to iterate quickly on parts of the map importing pipeline without having to</span>
 <span class="doccomment">//! constantly read .osm files, and to visualize the intermediate state with map_editor.</span>
 
@@ -759,7 +758,7 @@
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">deserialize_btreemap</span>, <span class="ident">serialize_btreemap</span>, <span class="ident">Tags</span>, <span class="ident">Timer</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">GPSBounds</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
 
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::make::initial::lane_specs::get_lane_specs_ltr</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::make::initial::lane_specs::get_lane_specs_ltr</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">osm</span>, <span class="ident">Amenity</span>, <span class="ident">AreaType</span>, <span class="ident">Direction</span>, <span class="ident">DrivingSide</span>, <span class="ident">IntersectionType</span>, <span class="ident">LaneType</span>, <span class="ident">MapConfig</span>,
 };
@@ -919,7 +918,7 @@
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">id</span>: <span class="ident">osm::NodeID</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">Polygon</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">Polygon</span>)<span class="op">&gt;</span>)<span class="op">&gt;</span> {
-        <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::make::initial</span>;
+        <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::make::initial</span>;
 
         <span class="kw">let</span> <span class="ident">intersection_roads</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">OriginalRoad</span><span class="op">&gt;</span> <span class="op">=</span>
             <span class="self">self</span>.<span class="ident">roads_per_intersection</span>(<span class="ident">id</span>).<span class="ident">into_iter</span>().<span class="ident">collect</span>();
@@ -947,7 +946,7 @@
 
     <span class="doccomment">/// Generate the trimmed `PolyLine` for a single RawRoad by calculating both intersections</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">trimmed_road_geometry</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">road</span>: <span class="ident">OriginalRoad</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PolyLine</span><span class="op">&gt;</span> {
-        <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::make::initial</span>;
+        <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::make::initial</span>;
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">roads</span> <span class="op">=</span> <span class="ident">BTreeMap::new</span>();
         <span class="kw">for</span> <span class="ident">id</span> <span class="kw">in</span> [<span class="ident">road</span>.<span class="ident">i1</span>, <span class="ident">road</span>.<span class="ident">i2</span>] {
@@ -1269,27 +1268,27 @@
         <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer</span>,
     ) {
         <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;trimming dead-end cycleways (round 1)&quot;</span>);
-        <span class="kw">crate</span><span class="ident">::make::collapse_intersections::trim_deadends</span>(<span class="self">self</span>);
+        <span class="ident"><span class="kw">crate</span>::make::collapse_intersections::trim_deadends</span>(<span class="self">self</span>);
         <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;trimming dead-end cycleways (round 1)&quot;</span>);
 
         <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;snap separate cycleways&quot;</span>);
-        <span class="kw">crate</span><span class="ident">::make::snappy::snap_cycleways</span>(<span class="self">self</span>);
+        <span class="ident"><span class="kw">crate</span>::make::snappy::snap_cycleways</span>(<span class="self">self</span>);
         <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;snap separate cycleways&quot;</span>);
 
         <span class="comment">// More dead-ends can be created after snapping cycleways. But also, snapping can be easier</span>
         <span class="comment">// to do after trimming some dead-ends. So... just run it twice.</span>
         <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;trimming dead-end cycleways (round 2)&quot;</span>);
-        <span class="kw">crate</span><span class="ident">::make::collapse_intersections::trim_deadends</span>(<span class="self">self</span>);
+        <span class="ident"><span class="kw">crate</span>::make::collapse_intersections::trim_deadends</span>(<span class="self">self</span>);
         <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;trimming dead-end cycleways (round 2)&quot;</span>);
 
-        <span class="kw">crate</span><span class="ident">::make::remove_disconnected::remove_disconnected_roads</span>(<span class="self">self</span>, <span class="ident">timer</span>);
+        <span class="ident"><span class="kw">crate</span>::make::remove_disconnected::remove_disconnected_roads</span>(<span class="self">self</span>, <span class="ident">timer</span>);
 
         <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;merging short roads&quot;</span>);
-        <span class="kw">crate</span><span class="ident">::make::merge_intersections::merge_short_roads</span>(<span class="self">self</span>, <span class="ident">consolidate_all_intersections</span>);
+        <span class="ident"><span class="kw">crate</span>::make::merge_intersections::merge_short_roads</span>(<span class="self">self</span>, <span class="ident">consolidate_all_intersections</span>);
         <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;merging short roads&quot;</span>);
 
         <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;collapsing degenerate intersections&quot;</span>);
-        <span class="kw">crate</span><span class="ident">::make::collapse_intersections::collapse</span>(<span class="self">self</span>);
+        <span class="ident"><span class="kw">crate</span>::make::collapse_intersections::collapse</span>(<span class="self">self</span>);
         <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;collapsing degenerate intersections&quot;</span>);
     }
 }
@@ -1489,7 +1488,7 @@
     <span class="doccomment">/// If it&#39;s not explicitly mapped, we&#39;ll do equiv_pos.</span>
     <span class="kw">pub</span> <span class="ident">ped_pos</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>,
 }
-</pre></div>
+</code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="map_model" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script>
 </body></html>

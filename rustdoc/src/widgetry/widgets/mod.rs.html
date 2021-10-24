@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry&#x2F;src&#x2F;widgets&#x2F;mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../widgetry/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry&#x2F;src&#x2F;widgets&#x2F;mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../widgetry/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -853,8 +853,8 @@
 <span id="853">853</span>
 <span id="854">854</span>
 <span id="855">855</span>
-</pre><pre class="rust">
-<span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
+<span id="856">856</span>
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 
 <span class="kw">use</span> <span class="ident">stretch::geometry</span>::{<span class="ident">Rect</span>, <span class="ident">Size</span>};
 <span class="kw">use</span> <span class="ident">stretch::node</span>::{<span class="ident">Node</span>, <span class="ident">Stretch</span>};
@@ -866,8 +866,8 @@
 <span class="kw">use</span> <span class="ident">abstutil::CloneableAny</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">CornerRadii</span>, <span class="ident">Distance</span>, <span class="ident">Percent</span>, <span class="ident">Polygon</span>};
 
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::widgets::containers</span>::{<span class="ident">Container</span>, <span class="ident">Nothing</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="kw">crate</span><span class="ident">::widgets::panel::Panel</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::widgets::containers</span>::{<span class="ident">Container</span>, <span class="ident">Nothing</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::widgets::panel::Panel</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">Button</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">DeferDraw</span>, <span class="ident">Drawable</span>, <span class="ident">Dropdown</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">JustDraw</span>,
     <span class="ident">OutlineStyle</span>, <span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>, <span class="ident">ScreenRectangle</span>, <span class="ident">Toggle</span>,
@@ -936,6 +936,8 @@
     <span class="doccomment">/// On a DragDrop widget, a member was clicked on and released. Its position may have changed.</span>
     <span class="doccomment">/// (name, orig_idx, new_idx)</span>
     <span class="ident">DragDropReleased</span>(<span class="ident">String</span>, <span class="ident">usize</span>, <span class="ident">usize</span>),
+    <span class="doccomment">/// Some named widget currently holds focus</span>
+    <span class="ident">Focused</span>(<span class="ident">String</span>),
     <span class="doccomment">/// Nothing happened</span>
     <span class="ident">Nothing</span>,
 }
@@ -1326,7 +1328,7 @@
 
     <span class="doccomment">/// Creates a column with the specified widgets. Every member gets a default vertical margin.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">col</span>(<span class="ident">widgets</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Widget</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
-        <span class="self">Self</span><span class="ident">::evenly_spaced_col</span>(<span class="number">10</span>, <span class="ident">widgets</span>)
+        <span class="ident"><span class="self">Self</span>::evenly_spaced_col</span>(<span class="number">10</span>, <span class="ident">widgets</span>)
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">nothing</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Widget</span> {
@@ -1419,8 +1421,8 @@
 
     <span class="comment">// Populate a flattened list of Nodes, matching the traversal order</span>
     <span class="kw">fn</span> <span class="ident">get_flexbox</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">parent</span>: <span class="ident">Node</span>, <span class="ident">stretch</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Stretch</span>, <span class="ident">nodes</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Node</span><span class="op">&gt;</span>) {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">style</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">layout</span>.<span class="ident">style</span>;
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">container</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">widget</span>.<span class="ident">downcast_ref</span>::<span class="op">&lt;</span><span class="ident">Container</span><span class="op">&gt;</span>() {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">style</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">layout</span>.<span class="ident">style</span>;
             <span class="ident">style</span>.<span class="ident">flex_direction</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">container</span>.<span class="ident">is_row</span> {
                 <span class="ident">FlexDirection::Row</span>
             } <span class="kw">else</span> {
@@ -1433,7 +1435,6 @@
             }
             <span class="ident">stretch</span>.<span class="ident">add_child</span>(<span class="ident">parent</span>, <span class="ident">node</span>).<span class="ident">unwrap</span>();
         } <span class="kw">else</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">style</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">layout</span>.<span class="ident">style</span>;
             <span class="ident">style</span>.<span class="ident">size</span> <span class="op">=</span> <span class="ident">Size</span> {
                 <span class="ident">width</span>: <span class="ident">Dimension::Points</span>(<span class="self">self</span>.<span class="ident">widget</span>.<span class="ident">get_dims</span>().<span class="ident">width</span> <span class="kw">as</span> <span class="ident">f32</span>),
                 <span class="ident">height</span>: <span class="ident">Dimension::Points</span>(<span class="self">self</span>.<span class="ident">widget</span>.<span class="ident">get_dims</span>().<span class="ident">height</span> <span class="kw">as</span> <span class="ident">f32</span>),
@@ -1709,7 +1710,7 @@
         }
     }
 }
-</pre></div>
+</code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="widgetry" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
     <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script>
 </body></html>

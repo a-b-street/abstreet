@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `game&#x2F;src&#x2F;app.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>app.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../game/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `game&#x2F;src&#x2F;app.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>app.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../game/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -875,8 +875,22 @@
 <span id="875">875</span>
 <span id="876">876</span>
 <span id="877">877</span>
-</pre><pre class="rust">
-<span class="kw">use</span> <span class="ident">std::cell::RefCell</span>;
+<span id="878">878</span>
+<span id="879">879</span>
+<span id="880">880</span>
+<span id="881">881</span>
+<span id="882">882</span>
+<span id="883">883</span>
+<span id="884">884</span>
+<span id="885">885</span>
+<span id="886">886</span>
+<span id="887">887</span>
+<span id="888">888</span>
+<span id="889">889</span>
+<span id="890">890</span>
+<span id="891">891</span>
+<span id="892">892</span>
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::cell::RefCell</span>;
 <span class="kw">use</span> <span class="ident">std::collections::BTreeMap</span>;
 
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
@@ -897,22 +911,27 @@
 <span class="kw">use</span> <span class="ident">widgetry::mapspace::ToggleZoomed</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Cached</span>, <span class="ident">Canvas</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">Prerender</span>, <span class="ident">SharedAppState</span>, <span class="ident">State</span>};
 
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::challenges::HighScore</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::common::Warping</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::edit::apply_map_edits</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::layer::Layer</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::sandbox::dashboards::DashTab</span>;
-<span class="kw">use</span> <span class="kw">crate</span><span class="ident">::sandbox</span>::{<span class="ident">GameplayMode</span>, <span class="ident">TutorialState</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::challenges::HighScore</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::common::Warping</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::edit::apply_map_edits</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::layer::Layer</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::sandbox::dashboards::DashTab</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::sandbox</span>::{<span class="ident">GameplayMode</span>, <span class="ident">TutorialState</span>};
 
 <span class="comment">// Convenient typedef</span>
 <span class="kw">pub</span> <span class="kw">type</span> <span class="ident">Transition</span> <span class="op">=</span> <span class="ident">widgetry::Transition</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span>;
 
 <span class="doccomment">/// The top-level data that lasts through the entire game, no matter what state the game is in.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">App</span> {
+    <span class="doccomment">/// State (like the simulation and drawing stuff) associated with the &quot;primary&quot; map.</span>
     <span class="kw">pub</span> <span class="ident">primary</span>: <span class="ident">PerMap</span>,
-    <span class="doccomment">/// This is only used right now for a debug mode to compare two versions of the same map. In</span>
-    <span class="doccomment">/// the future, it might be used for some kind of live &quot;side-by-side&quot; comparison.</span>
+    <span class="doccomment">/// Represents state for a different version of the `primary` map. `swap_map` can be used to</span>
+    <span class="doccomment">/// switch the primary and secondary state. This is currently used to compare an edited and</span>
+    <span class="doccomment">/// unedited map for Ungap the Map and as a debug mode to compare different files representing</span>
+    <span class="doccomment">/// the same area.</span>
     <span class="kw">pub</span> <span class="ident">secondary</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PerMap</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">store_unedited_map_in_secondary</span>: <span class="ident">bool</span>,
+
     <span class="kw">pub</span> <span class="ident">cs</span>: <span class="ident">ColorScheme</span>,
     <span class="kw">pub</span> <span class="ident">opts</span>: <span class="ident">Options</span>,
 
@@ -1324,6 +1343,14 @@
             <span class="self">self</span>.<span class="ident">set_prebaked</span>(<span class="prelude-val">None</span>);
         });
     }
+
+    <span class="doccomment">/// This swaps the primary and secondary PerMaps. Depending on what state the rest of the app</span>
+    <span class="doccomment">/// is in, things like IDs might totally change!</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">swap_map</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+        <span class="kw">let</span> <span class="ident">secondary</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">secondary</span>.<span class="ident">take</span>().<span class="ident">expect</span>(<span class="string">&quot;no secondary map set&quot;</span>);
+        <span class="kw">let</span> <span class="ident">primary</span> <span class="op">=</span> <span class="ident">std::mem::replace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">primary</span>, <span class="ident">secondary</span>);
+        <span class="self">self</span>.<span class="ident">secondary</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">primary</span>);
+    }
 }
 
 <span class="kw">impl</span> <span class="ident">App</span> {
@@ -1392,6 +1419,7 @@
             <span class="ident">timer</span>,
         );
         <span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">init_camera_for_loaded_map</span>(<span class="ident">ctx</span>, <span class="bool-val">false</span>);
+        <span class="self">self</span>.<span class="ident">secondary</span> <span class="op">=</span> <span class="prelude-val">None</span>;
     }
 
     <span class="kw">fn</span> <span class="ident">draw_with_opts</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">GfxCtx</span>, <span class="ident">opts</span>: <span class="ident">DrawOptions</span>) {
@@ -1484,7 +1512,8 @@
     <span class="doccomment">/// Any ScenarioModifiers in effect?</span>
     <span class="kw">pub</span> <span class="ident">has_modified_trips</span>: <span class="ident">bool</span>,
 
-    <span class="doccomment">/// If the map has been edited, store the unedited version here.</span>
+    <span class="doccomment">/// If the map has been edited and `app.store_unedited_map_in_secondary` is false, store the</span>
+    <span class="doccomment">/// unedited map here.</span>
     <span class="kw">pub</span> <span class="ident">unedited_map</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Map</span><span class="op">&gt;</span>,
 
     <span class="kw">pub</span> <span class="ident">layer</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Layer</span><span class="op">&gt;</span><span class="op">&gt;</span>,
@@ -1611,10 +1640,10 @@
 
     <span class="comment">// Specific to the ungap tool</span>
     <span class="kw">pub</span> <span class="ident">elevation_contours</span>: <span class="ident">Cached</span><span class="op">&lt;</span><span class="ident">MapName</span>, (<span class="ident">FindClosest</span><span class="op">&lt;</span><span class="ident">Distance</span><span class="op">&gt;</span>, <span class="ident">ToggleZoomed</span>)<span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">routing_preferences</span>: <span class="kw">crate</span><span class="ident">::ungap::RoutingPreferences</span>,
+    <span class="kw">pub</span> <span class="ident">routing_preferences</span>: <span class="ident"><span class="kw">crate</span>::ungap::RoutingPreferences</span>,
     <span class="kw">pub</span> <span class="ident">ungap_current_trip_name</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
     <span class="comment">// Map and edit change key</span>
-    <span class="kw">pub</span> <span class="ident">mode_shift</span>: <span class="ident">Cached</span><span class="op">&lt;</span>(<span class="ident">MapName</span>, <span class="ident">usize</span>), <span class="kw">crate</span><span class="ident">::ungap::ModeShiftData</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">mode_shift</span>: <span class="ident">Cached</span><span class="op">&lt;</span>(<span class="ident">MapName</span>, <span class="ident">usize</span>), <span class="ident"><span class="kw">crate</span>::ungap::ModeShiftData</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">SessionState</span> {
@@ -1634,7 +1663,7 @@
             <span class="ident">buffer_lane_type</span>: <span class="ident">LaneType::Buffer</span>(<span class="ident">BufferType::Stripes</span>),
 
             <span class="ident">elevation_contours</span>: <span class="ident">Cached::new</span>(),
-            <span class="ident">routing_preferences</span>: <span class="kw">crate</span><span class="ident">::ungap::RoutingPreferences::default</span>(),
+            <span class="ident">routing_preferences</span>: <span class="ident"><span class="kw">crate</span>::ungap::RoutingPreferences::default</span>(),
             <span class="ident">ungap_current_trip_name</span>: <span class="prelude-val">None</span>,
             <span class="ident">mode_shift</span>: <span class="ident">Cached::new</span>(),
         }
@@ -1753,7 +1782,7 @@
     }
     <span class="prelude-val">Ok</span>(())
 }
-</pre></div>
+</code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="game" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script>
 </body></html>
