@@ -71,10 +71,13 @@
 					sync_canvas();
 				},
 				render: function (gl, matrix) {
-					if (map.getZoom() >= 16 && piggyback != null) {
-						if (document.getElementById("show_roads").checked) {
-							piggyback.draw_zoomed();
-						}
+					if (piggyback == null) {
+						return;
+					}
+					if (map.getZoom() >= 16) {
+						piggyback.draw_zoomed(document.getElementById("show_roads").checked);
+					} else {
+						piggyback.draw_unzoomed();
 					}
 				}
 			};
@@ -122,15 +125,43 @@
 				`;
 			}
 
+			var lastTime = performance.now();
+			var animationRequest = null;
+
 			function start_traffic_sim() {
 				traffic_controls_active();
+				lastTime = performance.now();
+				animationRequest = requestAnimationFrame(runSimulation);
+				piggyback.spawn_traffic();
 			}
 
 			function pause_or_resume() {
+				if (animationRequest == null) {
+					lastTime = performance.now();
+					animationRequest = requestAnimationFrame(runSimulation);
+				} else {
+					cancelAnimationFrame(animationRequest);
+					animationRequest = null;
+				}
 			}
 
 			function clear_traffic_sim() {
 				traffic_controls_inactive();
+				cancelAnimationFrame(animationRequest);
+				animationRequest = null;
+				piggyback.clear_traffic();
+			}
+
+			function runSimulation(timestamp) {
+				const now = performance.now();
+				const dt = now - lastTime;
+				// This is called over 60 times per second or so! Throttle to about 10fps
+				if (dt >= 100) {
+					lastTime = now;
+					piggyback.advance_sim_time(dt);
+					map.triggerRepaint();
+				}
+				animationRequest = requestAnimationFrame(runSimulation);
 			}
 
 			traffic_controls_inactive();

@@ -163,7 +163,13 @@ impl App {
             }
 
             let mut cache = self.primary.agents.borrow_mut();
-            cache.draw_unzoomed_agents(g, self);
+            cache.draw_unzoomed_agents(
+                g,
+                &self.primary.map,
+                &self.primary.sim,
+                &self.cs,
+                &self.opts,
+            );
 
             if let Some(a) = self
                 .primary
@@ -419,10 +425,8 @@ impl App {
         borrows.extend(bus_stops);
 
         // Expand all of the Traversables into agents, populating the cache if needed.
-        {
-            for on in &agents_on {
-                agents.populate_if_needed(*on, map, &self.primary.sim, &self.cs, prerender);
-            }
+        for on in &agents_on {
+            agents.populate_if_needed(*on, map, &self.primary.sim, &self.cs, prerender);
         }
 
         for on in agents_on {
@@ -666,7 +670,7 @@ impl PerMap {
             map,
             draw_map,
             sim,
-            agents: RefCell::new(AgentCache::new_state()),
+            agents: RefCell::new(AgentCache::new()),
             current_selection: None,
             current_flags: flags,
             last_warped_from: None,

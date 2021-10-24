@@ -4,19 +4,22 @@ extern crate log;
 use wasm_bindgen::prelude::*;
 
 use abstutil::Timer;
-use geom::{Circle, Distance, LonLat, Pt2D, Time};
+use geom::{Circle, Distance, Duration, LonLat, Pt2D, Time};
 use map_gui::colors::ColorScheme;
 use map_gui::options::Options;
-use map_gui::render::{DrawMap, DrawOptions};
+use map_gui::render::{AgentCache, DrawMap, DrawOptions};
 use map_gui::{AppLike, ID};
-use map_model::Map;
+use map_model::{Map, Traversable};
+use sim::Sim;
 use widgetry::{EventCtx, GfxCtx, RenderOnly, Settings, State};
 
 #[wasm_bindgen]
 pub struct PiggybackDemo {
     render_only: RenderOnly,
     map: Map,
+    sim: Sim,
     draw_map: DrawMap,
+    agents: AgentCache,
     cs: ColorScheme,
     options: Options,
 }
@@ -43,6 +46,8 @@ impl PiggybackDemo {
         map.map_loaded_directly(&mut timer);
         info!("loaded {:?}", map.get_name());
 
+        let sim = Sim::new(&map, sim::SimOptions::default());
+
         let mut ctx = render_only.event_ctx();
         let cs = ColorScheme::new(&mut ctx, map_gui::colors::ColorSchemeChoice::DayMode);
         let options = map_gui::options::Options::load_or_default();
@@ -52,7 +57,9 @@ impl PiggybackDemo {
         PiggybackDemo {
             render_only,
             map,
+            sim,
             draw_map,
+            agents: AgentCache::new(),
             cs,
             options,
         }
@@ -78,7 +85,33 @@ impl PiggybackDemo {
         ctx.canvas.center_on_map_pt(center);
     }
 
-    pub fn draw_zoomed(&self) {
+    pub fn advance_sim_time(&mut self, delta_milliseconds: f64) {
+        let dt = Duration::milliseconds(delta_milliseconds);
+        self.sim.time_limited_step(
+            &self.map, dt, // Use the real time passed as the deadline
+            dt, &mut None,
+        );
+    }
+
+    pub fn spawn_traffic(&mut self) {
+        let mut rng = sim::SimFlags::for_test("spawn_traffic").make_rng();
+        let mut timer = Timer::new("spawn traffic");
+        sim::ScenarioGenerator::small_run(&self.map)
+            .generate(&self.map, &mut rng, &mut timer)
+            .instantiate(&mut self.sim, &self.map, &mut rng, &mut timer);
+    }
+
+    pub fn clear_traffic(&mut self) {
+        self.sim = Sim::new(&self.map, sim::SimOptions::default());
+    }
+
+    // mut because of AgentCache
+    pub fn draw_zoomed(&mut self, show_roads: bool) {
+        // Short-circuit if there's nothing to do
+        if !show_roads && self.sim.is_empty() {
+            return;
+        }
+
         let g = &mut self.render_only.gfx_ctx();
 
         let objects = self
@@ -86,14 +119,40 @@ impl PiggybackDemo {
             .get_renderables_back_to_front(g.get_screen_bounds(), &self.map);
 
         let opts = DrawOptions::new();
+        let mut agents_on = Vec::new();
         for obj in objects {
-            if matches!(
-                obj.get_id(),
-                ID::Lane(_) | ID::Intersection(_) | ID::Road(_)
-            ) {
+            if show_roads {
+                if let ID::Lane(_) | ID::Intersection(_) | ID::Road(_) = obj.get_id() {
+                    obj.draw(g, self, &opts);
+                }
+            }
+
+            if let ID::Lane(l) = obj.get_id() {
+                agents_on.push(Traversable::Lane(l));
+            }
+            if let ID::Intersection(i) = obj.get_id() {
+                for t in &self.map.get_i(i).turns {
+                    agents_on.push(Traversable::Turn(t.id));
+                }
+            }
+        }
+
+        for on in agents_on {
+            self.agents
+                .populate_if_needed(on, &self.map, &self.sim, &self.cs, g.prerender);
+            for obj in self.agents.get(on) {
                 obj.draw(g, self, &opts);
             }
         }
+    }
+
+    pub fn draw_unzoomed(&mut self) {
+        if self.sim.is_empty() {
+            return;
+        }
+        let g = &mut self.render_only.gfx_ctx();
+        self.agents
+            .draw_unzoomed_agents(g, &self.map, &self.sim, &self.cs, &self.options);
     }
 
     pub fn debug_object_at(&self, lon: f64, lat: f64) -> Option<String> {
@@ -124,8 +183,8 @@ impl AppLike for PiggybackDemo {
     fn map(&self) -> &Map {
         &self.map
     }
-    fn sim(&self) -> &sim::Sim {
-        unreachable!()
+    fn sim(&self) -> &Sim {
+        &self.sim
     }
     fn cs(&self) -> &ColorScheme {
         &self.cs
@@ -161,17 +220,6 @@ impl AppLike for PiggybackDemo {
         unreachable!()
     }
     fn sim_time(&self) -> Time {
-        Time::START_OF_DAY
-    }
-    fn current_stage_and_remaining_time(
-        &self,
-        i: map_model::IntersectionID,
-    ) -> (usize, geom::Duration) {
-        (
-            0,
-            self.map.get_traffic_signal(i).stages[0]
-                .stage_type
-                .simple_duration(),
-        )
+        self.sim.time()
     }
 }

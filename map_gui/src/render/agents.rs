@@ -12,10 +12,10 @@ use sim::{AgentID, Sim, UnzoomedAgent, VehicleType};
 use widgetry::{Color, Drawable, GeomBatch, GfxCtx, Panel, Prerender};
 
 use crate::colors::ColorScheme;
+use crate::options::Options;
 use crate::render::{
     draw_vehicle, unzoomed_agent_radius, DrawPedCrowd, DrawPedestrian, Renderable,
 };
-use crate::AppLike;
 
 pub struct AgentCache {
     /// This is controlled almost entirely by the minimap panel. It has no meaning in edit mode.
@@ -30,7 +30,7 @@ pub struct AgentCache {
 }
 
 impl AgentCache {
-    pub fn new_state() -> AgentCache {
+    pub fn new() -> AgentCache {
         AgentCache {
             unzoomed_agents: UnzoomedAgents::new(),
             time: None,
@@ -87,9 +87,11 @@ impl AgentCache {
     pub fn calculate_unzoomed_agents<P: AsRef<Prerender>>(
         &mut self,
         prerender: &mut P,
-        app: &dyn AppLike,
+        map: &Map,
+        sim: &Sim,
+        cs: &ColorScheme,
     ) -> &QuadTree<AgentID> {
-        let now = app.sim().time();
+        let now = sim.time();
         let mut recalc = true;
         if let Some((time, ref orig_agents, _, _)) = self.unzoomed {
             if now == time && self.unzoomed_agents == orig_agents.clone() {
@@ -98,10 +100,10 @@ impl AgentCache {
         }
 
         if recalc {
-            let highlighted = app.sim().get_highlighted_people();
+            let highlighted = sim.get_highlighted_people();
 
             let mut batch = GeomBatch::new();
-            let mut quadtree = QuadTree::default(app.map().get_bounds().as_bbox());
+            let mut quadtree = QuadTree::default(map.get_bounds().as_bbox());
             // It's quite silly to produce triangles for the same circle over and over again. ;)
             let car_circle = Circle::new(
                 Pt2D::new(0.0, 0.0),
@@ -111,8 +113,8 @@ impl AgentCache {
             let ped_circle =
                 Circle::new(Pt2D::new(0.0, 0.0), unzoomed_agent_radius(None)).to_polygon();
 
-            for agent in app.sim().get_unzoomed_agents(app.map()) {
-                if let Some(mut color) = self.unzoomed_agents.color(&agent, app.cs()) {
+            for agent in sim.get_unzoomed_agents(map) {
+                if let Some(mut color) = self.unzoomed_agents.color(&agent, cs) {
                     // If the sim has highlighted people, then fade all others out.
                     if highlighted
                         .as_ref()
@@ -141,19 +143,26 @@ impl AgentCache {
         &self.unzoomed.as_ref().unwrap().2
     }
 
-    pub fn draw_unzoomed_agents(&mut self, g: &mut GfxCtx, app: &dyn AppLike) {
-        self.calculate_unzoomed_agents(g, app);
+    pub fn draw_unzoomed_agents(
+        &mut self,
+        g: &mut GfxCtx,
+        map: &Map,
+        sim: &Sim,
+        cs: &ColorScheme,
+        opts: &Options,
+    ) {
+        self.calculate_unzoomed_agents(g, map, sim, cs);
         g.redraw(&self.unzoomed.as_ref().unwrap().3);
 
-        if app.opts().debug_all_agents {
+        if opts.debug_all_agents {
             let mut cnt = 0;
-            for input in app.sim().get_all_draw_cars(app.map()) {
+            for input in sim.get_all_draw_cars(map) {
                 cnt += 1;
-                draw_vehicle(input, app.map(), app.sim(), g.prerender, app.cs());
+                draw_vehicle(input, map, sim, g.prerender, cs);
             }
             println!(
                 "At {}, debugged {} cars",
-                app.sim().time(),
+                sim.time(),
                 abstutil::prettyprint_usize(cnt)
             );
             // Pedestrians aren't the ones crashing

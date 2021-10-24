@@ -26,7 +26,7 @@ impl MinimapControls<App> for MinimapController {
         }
 
         let mut cache = app.primary.agents.borrow_mut();
-        cache.draw_unzoomed_agents(g, app);
+        cache.draw_unzoomed_agents(g, &app.primary.map, &app.primary.sim, &app.cs, &app.opts);
     }
 
     fn make_unzoomed_panel(&self, ctx: &mut EventCtx, app: &App) -> Panel {
