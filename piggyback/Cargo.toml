@@ -1,5 +1,5 @@
 [package]
-name = "mapbox"
+name = "piggyback"
 version = "0.1.0"
 authors = ["Dustin Carlino <dabreegster@gmail.com>"]
 edition = "2021"
