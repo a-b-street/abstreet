@@ -23,28 +23,29 @@
 </head>
 
 <body>
-	<input type="checkbox" id="show_roads" checked/>
+	<input type="checkbox" id="show_roads" checked />
 	<label for="show_roads">Show A/B Street roads</label>
 	<span id="traffic_controls"></span>
 	<div id="map"></div>
 	<script type="module">
-		import init, { PiggybackDemo } from "./pkg/piggyback.js";
+		import init, { PiggybackDemo } from './pkg/piggyback.js';
 
 		async function setup() {
-			// Initialize the WASM function.
+			// Initialize the WASM library.
 			await init();
 
+			// What map should we load?
 			var loadPath = new URL(window.location).searchParams.get('map');
 			if (loadPath == null) {
 				loadPath = '/data/system/us/seattle/maps/montlake.bin';
 			}
 
-			// TODO Ideally we'd display the map immediately, but not sure how to make onAdd async
-			console.log(`fetching ${loadPath}`);
+			// TODO Ideally we'd load this in the background and let Mapbox run first, but I'm not sure how to make the map.on('load') callback async.
+			console.log(`Fetching ${loadPath}`);
 			const resp = await fetch(loadPath);
 			const mapBytes = await resp.arrayBuffer();
 
-			// TODO I feel like I probably just copied this from an example somewhere
+			// TODO I definitely copied this from example code somewhere. Generate my own and restrict its use once we decide how to deploy this demo.
 			mapboxgl.accessToken = 'pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw';
 
 			// Create the Mapbox map
@@ -61,8 +62,8 @@
 
 			var piggyback = null;
 
-			const widgetryLayer = {
-				id: 'widgetry',
+			const abstLayer = {
+				id: 'abst',
 				type: 'custom',
 				onAdd: function (map, gl) {
 					piggyback = PiggybackDemo.create_with_map_bytes(gl, mapBytes);
@@ -74,7 +75,7 @@
 						return;
 					}
 					if (map.getZoom() >= 16) {
-						piggyback.draw_zoomed(document.getElementById("show_roads").checked);
+						piggyback.draw_zoomed(document.getElementById('show_roads').checked);
 					} else {
 						piggyback.draw_unzoomed();
 					}
@@ -82,7 +83,7 @@
 			};
 
 			map.on('load', () => {
-				map.addLayer(widgetryLayer);
+				map.addLayer(abstLayer);
 			});
 			map.on('move', sync_canvas);
 			map.on('click', (e) => {
@@ -95,12 +96,12 @@
 				}
 			});
 			// We don't have map until here, so set up the handler now
-			document.getElementById('show_roads').onclick = function() {
+			document.getElementById('show_roads').onclick = function () {
 				map.triggerRepaint();
 			}
 
 			function sync_canvas() {
-				// If things broken during initialization, don't spam the console trying to call methods on a null object
+				// If things broke during initialization, don't spam the console trying to call methods on a null object
 				if (piggyback != null) {
 					const bounds = map.getBounds();
 					const ne = bounds.getNorthEast();
@@ -110,14 +111,14 @@
 			}
 
 			function traffic_controls_inactive() {
-				const span = document.getElementById("traffic_controls");
+				const span = document.getElementById('traffic_controls');
 				span.innerHTML = `
 				<button type="button" onclick="start_traffic_sim()">Start traffic simulation</button>
 				`;
 			}
 
 			function traffic_controls_active() {
-				const span = document.getElementById("traffic_controls");
+				const span = document.getElementById('traffic_controls');
 				span.innerHTML = `
 				<button type="button" onclick="pause_or_resume()">Pause / resume</button>
 				<button type="button" onclick="clear_traffic_sim()">Clear simulation</button>
@@ -165,7 +166,7 @@
 
 			traffic_controls_inactive();
 
-			// So the onclick handlers work. Alternatively, grab them here and set onclick
+			// Let the onclick handlers reach into this scope. Alternatively, grab the buttons here and set onclick handlers.
 			window.start_traffic_sim = start_traffic_sim;
 			window.pause_or_resume = pause_or_resume;
 			window.clear_traffic_sim = clear_traffic_sim;

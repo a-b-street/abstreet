@@ -173,8 +173,8 @@ impl WindowAdapter {
     pub fn draw_finished(&self, _gfc_ctx_innards: GfxCtxInnards) {}
 }
 
-// TODO Don't expose stuff at this layer. This just needs to be able to hand out an EventCtx (for
-// setup) and a GfxCtx.
+/// Sets up widgetry in a mode where it just draws to a WebGL context and doesn't handle events or
+/// interactions at all.
 pub struct RenderOnly {
     prerender: Prerender,
     style: Style,
@@ -187,14 +187,13 @@ impl RenderOnly {
             error!("Panicked: {}", info);
         }));
 
-        info!("Setting up renderonly widgetry");
-        let mut timer = Timer::new("setup renderonly");
-        // TODO Mapbox always hands up webgl1?
+        info!("Setting up widgetry in render-only mode");
+        let mut timer = Timer::new("setup rende-ronly");
         let initial_size = ScreenDims::new(
             raw_gl.drawing_buffer_width().into(),
             raw_gl.drawing_buffer_height().into(),
         );
-        info!("Canvas dims {:?}", initial_size);
+        // Mapbox always seems to hand us WebGL1
         let (gl, program) =
             webgl1_program(glow::Context::from_webgl1_context(raw_gl), &mut timer).unwrap();
         let prerender_innards = PrerenderInnards::new(gl, program, None);
@@ -220,6 +219,8 @@ impl RenderOnly {
         }
     }
 
+    /// Creates a no-op `EventCtx`, just for client code that needs this interface to upload
+    /// geometry. There's no actual event.
     pub fn event_ctx(&mut self) -> EventCtx {
         EventCtx {
             fake_mouseover: true,
@@ -234,6 +235,7 @@ impl RenderOnly {
         }
     }
 
+    /// Creates a `GfxCtx`, allowing things to be drawn.
     pub fn gfx_ctx(&self) -> GfxCtx {
         self.prerender.inner.use_program_for_renderonly();
         let screenshot = false;
