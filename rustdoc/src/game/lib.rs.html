@@ -471,6 +471,12 @@
 <span id="471">471</span>
 <span id="472">472</span>
 <span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
+<span id="476">476</span>
+<span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
 </pre><pre class="rust"><code><span class="comment">// Disable some noisy lints</span>
 <span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::too_many_arguments</span>, <span class="ident">clippy::type_complexity</span>)]</span>
 
@@ -489,7 +495,7 @@
 <span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">Sim</span>, <span class="ident">SimFlags</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">EventCtx</span>, <span class="ident">Settings</span>, <span class="ident">State</span>, <span class="ident">Transition</span>};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::app</span>::{<span class="ident">App</span>, <span class="ident">Flags</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::app</span>::{<span class="ident">App</span>, <span class="ident">Flags</span>, <span class="ident">PerMap</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::common::jump_to_time_upon_startup</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pregame::TitleScreen</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::sandbox</span>::{<span class="ident">GameplayMode</span>, <span class="ident">SandboxMode</span>};
@@ -674,7 +680,7 @@
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">map</span>: <span class="ident">Map</span> <span class="op">=</span> <span class="ident">abstio::read_binary</span>(<span class="ident">path</span>.<span class="ident">clone</span>(), <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>);
             <span class="ident">map</span>.<span class="ident">map_loaded_directly</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>);
             <span class="kw">let</span> <span class="ident">sim</span> <span class="op">=</span> <span class="ident">Sim::new</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>, <span class="ident">setup</span>.<span class="ident">flags</span>.<span class="ident">sim_flags</span>.<span class="ident">opts</span>.<span class="ident">clone</span>());
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">per_map</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::app::PerMap::map_loaded</span>(
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">per_map</span> <span class="op">=</span> <span class="ident">PerMap::map_loaded</span>(
                 <span class="ident">map</span>,
                 <span class="ident">sim</span>,
                 <span class="ident">setup</span>.<span class="ident">flags</span>.<span class="ident">clone</span>(),
@@ -697,7 +703,7 @@
         <span class="comment">// Get App created with a dummy blank map</span>
         <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">Map::blank</span>();
         <span class="kw">let</span> <span class="ident">sim</span> <span class="op">=</span> <span class="ident">Sim::new</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>, <span class="ident">setup</span>.<span class="ident">flags</span>.<span class="ident">sim_flags</span>.<span class="ident">opts</span>.<span class="ident">clone</span>());
-        <span class="kw">let</span> <span class="ident">primary</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::app::PerMap::map_loaded</span>(
+        <span class="kw">let</span> <span class="ident">primary</span> <span class="op">=</span> <span class="ident">PerMap::map_loaded</span>(
             <span class="ident">map</span>,
             <span class="ident">sim</span>,
             <span class="ident">setup</span>.<span class="ident">flags</span>.<span class="ident">clone</span>(),
@@ -708,7 +714,7 @@
         );
         <span class="kw">let</span> <span class="ident">app</span> <span class="op">=</span> <span class="ident">App</span> {
             <span class="ident">primary</span>,
-            <span class="ident">secondary</span>,
+            <span class="ident">secondary</span>: <span class="prelude-val">None</span>,
             <span class="ident">store_unedited_map_in_secondary</span>: <span class="bool-val">false</span>,
             <span class="ident">cs</span>,
             <span class="ident">opts</span>: <span class="ident">setup</span>.<span class="ident">opts</span>.<span class="ident">clone</span>(),
@@ -720,7 +726,9 @@
             <span class="ident">ctx</span>,
             <span class="kw-2">&amp;</span><span class="ident">app</span>,
             <span class="ident">map_name</span>,
-            <span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> <span class="ident">Transition::Clear</span>(<span class="ident">continue_app_setup</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">title</span>, <span class="ident">setup</span>))),
+            <span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
+                <span class="ident">Transition::Clear</span>(<span class="ident">continue_app_setup</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">title</span>, <span class="ident">setup</span>, <span class="ident">secondary</span>))
+            }),
         )];
         (<span class="ident">app</span>, <span class="ident">states</span>)
     } <span class="kw">else</span> {
@@ -729,7 +737,7 @@
         <span class="kw">let</span> <span class="ident">primary</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;load map&quot;</span>, <span class="op">|</span><span class="ident">ctx</span>, <span class="kw-2">mut</span> <span class="ident">timer</span><span class="op">|</span> {
             <span class="macro">assert!</span>(<span class="ident">setup</span>.<span class="ident">flags</span>.<span class="ident">sim_flags</span>.<span class="ident">modifiers</span>.<span class="ident">is_empty</span>());
             <span class="kw">let</span> (<span class="ident">map</span>, <span class="ident">sim</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">setup</span>.<span class="ident">flags</span>.<span class="ident">sim_flags</span>.<span class="ident">load_synchronously</span>(<span class="ident">timer</span>);
-            <span class="ident"><span class="kw">crate</span>::app::PerMap::map_loaded</span>(
+            <span class="ident">PerMap::map_loaded</span>(
                 <span class="ident">map</span>,
                 <span class="ident">sim</span>,
                 <span class="ident">setup</span>.<span class="ident">flags</span>.<span class="ident">clone</span>(),
@@ -742,7 +750,7 @@
         <span class="macro">assert!</span>(<span class="ident">secondary</span>.<span class="ident">is_none</span>());
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">app</span> <span class="op">=</span> <span class="ident">App</span> {
             <span class="ident">primary</span>,
-            <span class="ident">secondary</span>,
+            <span class="ident">secondary</span>: <span class="prelude-val">None</span>,
             <span class="ident">store_unedited_map_in_secondary</span>: <span class="bool-val">false</span>,
             <span class="ident">cs</span>,
             <span class="ident">opts</span>: <span class="ident">setup</span>.<span class="ident">opts</span>.<span class="ident">clone</span>(),
@@ -750,7 +758,7 @@
             <span class="ident">session</span>: <span class="ident"><span class="kw">crate</span>::app::SessionState::empty</span>(),
         };
 
-        <span class="kw">let</span> <span class="ident">states</span> <span class="op">=</span> <span class="ident">continue_app_setup</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">app</span>, <span class="ident">title</span>, <span class="ident">setup</span>);
+        <span class="kw">let</span> <span class="ident">states</span> <span class="op">=</span> <span class="ident">continue_app_setup</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">app</span>, <span class="ident">title</span>, <span class="ident">setup</span>, <span class="prelude-val">None</span>);
         (<span class="ident">app</span>, <span class="ident">states</span>)
     }
 }
@@ -760,7 +768,11 @@
     <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">App</span>,
     <span class="ident">title</span>: <span class="ident">bool</span>,
     <span class="ident">setup</span>: <span class="ident">Setup</span>,
+    <span class="ident">secondary</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PerMap</span><span class="op">&gt;</span>,
 ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="comment">// Run this after loading the primary map. That process wipes out app.secondary.</span>
+    <span class="ident">app</span>.<span class="ident">secondary</span> <span class="op">=</span> <span class="ident">secondary</span>;
+
     <span class="kw">if</span> <span class="op">!</span><span class="ident">URLManager::change_camera</span>(
         <span class="ident">ctx</span>,
         <span class="ident">setup</span>.<span class="ident">center_camera</span>.<span class="ident">as_ref</span>(),
