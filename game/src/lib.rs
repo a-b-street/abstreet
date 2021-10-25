@@ -16,7 +16,7 @@ use map_model::{Map, MapEdits};
 use sim::{Sim, SimFlags};
 use widgetry::{EventCtx, Settings, State, Transition};
 
-use crate::app::{App, Flags};
+use crate::app::{App, Flags, PerMap};
 use crate::common::jump_to_time_upon_startup;
 use crate::pregame::TitleScreen;
 use crate::sandbox::{GameplayMode, SandboxMode};
@@ -201,7 +201,7 @@ fn setup_app(ctx: &mut EventCtx, mut setup: Setup) -> (App, Vec<Box<dyn State<Ap
             let mut map: Map = abstio::read_binary(path.clone(), &mut timer);
             map.map_loaded_directly(&mut timer);
             let sim = Sim::new(&map, setup.flags.sim_flags.opts.clone());
-            let mut per_map = crate::app::PerMap::map_loaded(
+            let mut per_map = PerMap::map_loaded(
                 map,
                 sim,
                 setup.flags.clone(),
@@ -224,7 +224,7 @@ fn setup_app(ctx: &mut EventCtx, mut setup: Setup) -> (App, Vec<Box<dyn State<Ap
         // Get App created with a dummy blank map
         let map = Map::blank();
         let sim = Sim::new(&map, setup.flags.sim_flags.opts.clone());
-        let primary = crate::app::PerMap::map_loaded(
+        let primary = PerMap::map_loaded(
             map,
             sim,
             setup.flags.clone(),
@@ -235,7 +235,7 @@ fn setup_app(ctx: &mut EventCtx, mut setup: Setup) -> (App, Vec<Box<dyn State<Ap
         );
         let app = App {
             primary,
-            secondary,
+            secondary: None,
             store_unedited_map_in_secondary: false,
             cs,
             opts: setup.opts.clone(),
@@ -247,7 +247,9 @@ fn setup_app(ctx: &mut EventCtx, mut setup: Setup) -> (App, Vec<Box<dyn State<Ap
             ctx,
             &app,
             map_name,
-            Box::new(move |ctx, app| Transition::Clear(continue_app_setup(ctx, app, title, setup))),
+            Box::new(move |ctx, app| {
+                Transition::Clear(continue_app_setup(ctx, app, title, setup, secondary))
+            }),
         )];
         (app, states)
     } else {
@@ -256,7 +258,7 @@ fn setup_app(ctx: &mut EventCtx, mut setup: Setup) -> (App, Vec<Box<dyn State<Ap
         let primary = ctx.loading_screen("load map", |ctx, mut timer| {
             assert!(setup.flags.sim_flags.modifiers.is_empty());
             let (map, sim, _) = setup.flags.sim_flags.load_synchronously(timer);
-            crate::app::PerMap::map_loaded(
+            PerMap::map_loaded(
                 map,
                 sim,
                 setup.flags.clone(),
@@ -269,7 +271,7 @@ fn setup_app(ctx: &mut EventCtx, mut setup: Setup) -> (App, Vec<Box<dyn State<Ap
         assert!(secondary.is_none());
         let mut app = App {
             primary,
-            secondary,
+            secondary: None,
             store_unedited_map_in_secondary: false,
             cs,
             opts: setup.opts.clone(),
@@ -277,7 +279,7 @@ fn setup_app(ctx: &mut EventCtx, mut setup: Setup) -> (App, Vec<Box<dyn State<Ap
             session: crate::app::SessionState::empty(),
         };
 
-        let states = continue_app_setup(ctx, &mut app, title, setup);
+        let states = continue_app_setup(ctx, &mut app, title, setup, None);
         (app, states)
     }
 }
@@ -287,7 +289,11 @@ fn continue_app_setup(
     app: &mut App,
     title: bool,
     setup: Setup,
+    secondary: Option<PerMap>,
 ) -> Vec<Box<dyn State<App>>> {
+    // Run this after loading the primary map. That process wipes out app.secondary.
+    app.secondary = secondary;
+
     if !URLManager::change_camera(
         ctx,
         setup.center_camera.as_ref(),
