@@ -6,11 +6,11 @@ What is it? Goals?
 
 ## How to run
 
-You'll need `wasm-pack` and `npm` setup. You'll also need the `data/system/` directory to contain some maps.
+You'll need `wasm-pack` and `python3` setup. You'll also need the `data/system/` directory to contain some maps.
 
-Quick development: `wasm-pack build --dev --target web -- --features wasm && npm start`
+Quick development: `wasm-pack build --dev --target web -- --features wasm && ./serve_locally.py`
 
-To build the WASM in release mode: `wasm-pack build --release --target web -- --features wasm && npm start`
+To build the WASM in release mode: `wasm-pack build --release --target web -- --features wasm && ./serve_locally.py`
 
 Maps can be specified by URL:
 - http://localhost:8080/?map=/data/system/us/seattle/maps/arboretum.bin
