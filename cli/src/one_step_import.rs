@@ -76,17 +76,13 @@ pub async fn run(
     }
 
     // Import!
-    {
-        let mut args = vec![
-            format!("--oneshot={}", osm),
-            "--oneshot_clip=boundary0.poly".to_string(),
-        ];
-        if drive_on_left {
-            args.push("--oneshot_drive_on_left".to_string());
-        }
-        println!("Running importer");
-        importer::run(args).await;
-    }
+    println!("Running importer");
+    importer::oneshot(
+        osm,
+        Some("boundary0.poly".to_string()),
+        !drive_on_left,
+        map_model::RawToMapOptions::default(),
+    );
 
     // Clean up temporary files. If we broke before this, deliberately leave them around for
     // debugging.

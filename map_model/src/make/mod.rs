@@ -3,6 +3,8 @@
 
 use std::collections::{BTreeMap, HashMap, HashSet};
 
+use structopt::StructOpt;
+
 use abstutil::{MultiMap, Tags, Timer};
 use geom::{Distance, FindClosest, HashablePt2D, Line, Polygon, Speed, EPSILON_DIST};
 
@@ -30,25 +32,18 @@ pub mod turns;
 mod walking_turns;
 
 /// Options for converting RawMaps to Maps.
-#[derive(Clone)]
+#[derive(Clone, Default, StructOpt)]
 pub struct RawToMapOptions {
     /// Should contraction hierarchies for pathfinding be built? They're slow to build, but without
     /// them, pathfinding on the map later will be very slow.
-    pub build_ch: bool,
+    #[structopt(long)]
+    pub skip_ch: bool,
     /// Try to consolidate all short roads. Will likely break.
+    #[structopt(long)]
     pub consolidate_all_intersections: bool,
     /// Preserve all OSM tags for buildings, increasing the final file size substantially.
+    #[structopt(long)]
     pub keep_bldg_tags: bool,
-}
-
-impl RawToMapOptions {
-    pub fn default() -> RawToMapOptions {
-        RawToMapOptions {
-            build_ch: true,
-            consolidate_all_intersections: false,
-            keep_bldg_tags: false,
-        }
-    }
 }
 
 impl Map {
@@ -314,10 +309,10 @@ impl Map {
         }
 
         timer.start("setup pathfinding");
-        let engine = if opts.build_ch {
-            CreateEngine::CH
-        } else {
+        let engine = if opts.skip_ch {
             CreateEngine::Dijkstra
+        } else {
+            CreateEngine::CH
         };
         map.pathfinder = Pathfinder::new(&map, map.routing_params().clone(), engine, timer);
         timer.stop("setup pathfinding");

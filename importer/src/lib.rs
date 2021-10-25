@@ -9,6 +9,8 @@ extern crate anyhow;
 #[macro_use]
 extern crate log;
 
+use structopt::StructOpt;
+
 use abstio::{CityName, MapName};
 use abstutil::Timer;
 use geom::Distance;
@@ -24,81 +26,8 @@ mod soundcast;
 mod uk;
 mod utils;
 
-// TODO Might be cleaner to express as a dependency graph?
-
-pub async fn run(raw_args: Vec<String>) {
-    let config: ImporterConfiguration = load_configuration();
-
-    let mut args = abstutil::CmdArgs::from_args(raw_args);
-    let opts = RawToMapOptions {
-        build_ch: !args.enabled("--skip_ch"),
-        consolidate_all_intersections: args.enabled("--consolidate_all_intersections"),
-        keep_bldg_tags: args.enabled("--keep_bldg_tags"),
-    };
-
-    if let Some(path) = args.optional("--oneshot") {
-        let clip = args.optional("--oneshot_clip");
-        let drive_on_left = args.enabled("--oneshot_drive_on_left");
-        args.done();
-
-        oneshot(path, clip, !drive_on_left, opts);
-        return;
-    }
-
-    if args.enabled("--regen_all") {
-        assert!(opts.build_ch);
-        assert!(!opts.keep_bldg_tags);
-        let shard_num = args
-            .optional_parse("--shard_num", |s| s.parse::<usize>())
-            .unwrap_or(0);
-        let num_shards = args
-            .optional_parse("--num_shards", |s| s.parse::<usize>())
-            .unwrap_or(1);
-        regenerate_everything(config, shard_num, num_shards).await;
-        return;
-    }
-    if args.enabled("--regen_all_maps_parallel") {
-        assert!(opts.build_ch);
-        assert!(!opts.keep_bldg_tags);
-        regenerate_all_maps(opts);
-        return;
-    }
-
-    // Otherwise, we're just operating on a single city.
-    let job = Job {
-        city: match args.optional("--city") {
-            Some(x) => CityName::parse(&x).unwrap(),
-            None => CityName::seattle(),
-        },
-        // Download all raw input files, then convert OSM to the intermediate RawMap.
-        osm_to_raw: args.enabled("--raw"),
-        // Convert the RawMap to the final Map format.
-        raw_to_map: args.enabled("--map"),
-        // Download trip demand data, then produce the typical weekday scenario.
-        scenario: args.enabled("--scenario"),
-        // Produce a city overview from all of the individual maps in a city.
-        city_overview: args.enabled("--city_overview"),
-
-        // Only process one map. If not specified, process all maps defined by clipping polygons in
-        // importer/config/$city/.
-        only_map: args.optional_free(),
-    };
-    args.done();
-
-    if !job.osm_to_raw && !job.raw_to_map && !job.scenario && !job.city_overview {
-        println!(
-            "Nothing to do! Pass some combination of --raw, --map, --scenario, --city_overview, \
-             or --oneshot"
-        );
-        std::process::exit(1);
-    }
-
-    let mut timer = Timer::new("import map data");
-
-    job.run(&config, opts, &mut timer).await;
-}
-
-async fn regenerate_everything(config: ImporterConfiguration, shard_num: usize, num_shards: usize) {
+/// Regenerate all maps and scenarios from scratch.
+pub async fn regenerate_everything(shard_num: usize, num_shards: usize) {
     // Discover all cities by looking at config. But always operate on Seattle first. Special
     // treatment ;)
     let mut all_cities = CityName::list_all_cities_from_importer_config();
@@ -114,6 +43,7 @@ async fn regenerate_everything(config: ImporterConfiguration, shard_num: usize, 
             scenario: false,
             city_overview: false,
             only_map: None,
+            opts: RawToMapOptions::default(),
         };
         // Only some maps run extra tasks
         if city == CityName::seattle() || city.country == "gb" {
@@ -132,13 +62,13 @@ async fn regenerate_everything(config: ImporterConfiguration, shard_num: usize, 
         }
 
         if cnt % num_shards == shard_num {
-            job.run(&config, RawToMapOptions::default(), &mut timer)
-                .await;
+            job.run(&mut timer).await;
         }
     }
 }
 
-fn regenerate_all_maps(opts: RawToMapOptions) {
+/// Regenerate all maps from RawMaps in parallel.
+pub fn regenerate_all_maps() {
     // Omit Seattle and Berlin, because they have special follow-up actions (GTFS, minifying some
     // maps, and distributing residents)
     let all_maps: Vec<MapName> = CityName::list_all_cities_from_importer_config()
@@ -151,27 +81,93 @@ fn regenerate_all_maps(opts: RawToMapOptions) {
     Timer::new("regenerate all maps").parallelize("import each city", all_maps, |name| {
         // Don't pass in a timer; the logs are way too spammy.
         // It's also recommended to run with RUST_LOG=none
-        utils::raw_to_map(&name, opts.clone(), &mut Timer::throwaway())
+        utils::raw_to_map(&name, RawToMapOptions::default(), &mut Timer::throwaway())
     });
 }
 
-struct Job {
-    city: CityName,
-    osm_to_raw: bool,
-    raw_to_map: bool,
-    scenario: bool,
-    city_overview: bool,
+/// Transforms a .osm file to a map in one step.
+pub fn oneshot(
+    osm_path: String,
+    clip: Option<String>,
+    drive_on_right: bool,
+    opts: RawToMapOptions,
+) {
+    let mut timer = abstutil::Timer::new("oneshot");
+    println!("- Running convert_osm on {}", osm_path);
+    let name = abstutil::basename(&osm_path);
+    let raw = convert_osm::convert(
+        convert_osm::Options {
+            osm_input: osm_path,
+            name: MapName::new("zz", "oneshot", &name),
 
-    only_map: Option<String>,
+            clip,
+            map_config: map_model::MapConfig {
+                driving_side: if drive_on_right {
+                    map_model::DrivingSide::Right
+                } else {
+                    map_model::DrivingSide::Left
+                },
+                bikes_can_use_bus_lanes: true,
+                inferred_sidewalks: true,
+                street_parking_spot_length: Distance::meters(8.0),
+            },
+
+            onstreet_parking: convert_osm::OnstreetParking::JustOSM,
+            public_offstreet_parking: convert_osm::PublicOffstreetParking::None,
+            private_offstreet_parking: convert_osm::PrivateOffstreetParking::FixedPerBldg(1),
+            include_railroads: true,
+            extra_buildings: None,
+            skip_local_roads: false,
+        },
+        &mut timer,
+    );
+    // Often helpful to save intermediate representation in case user wants to load into map_editor
+    raw.save();
+    let map = map_model::Map::create_from_raw(raw, opts, &mut timer);
+    timer.start("save map");
+    map.save();
+    timer.stop("save map");
+    println!("{} has been created", map.get_name().path());
+}
+
+/// A specification for importing all maps in a single city.
+#[derive(StructOpt)]
+pub struct Job {
+    #[structopt(long, parse(try_from_str = CityName::parse), default_value = "us/seattle")]
+    pub city: CityName,
+    /// Download all raw input files, then convert OSM to the intermediate RawMap.
+    #[structopt(long = "--raw")]
+    pub osm_to_raw: bool,
+    /// Convert the RawMap to the final Map format.
+    #[structopt(long = "--map")]
+    pub raw_to_map: bool,
+    /// Download trip demand data, then produce the typical weekday scenario.
+    #[structopt(long)]
+    pub scenario: bool,
+    /// Produce a city overview from all of the individual maps in a city.
+    #[structopt(long)]
+    pub city_overview: bool,
+
+    /// Only process one map. If not specified, process all maps defined by clipping polygons in
+    /// importer/config/$city/.
+    #[structopt()]
+    pub only_map: Option<String>,
+
+    #[structopt(flatten)]
+    pub opts: RawToMapOptions,
 }
 
 impl Job {
-    async fn run(
-        self,
-        config: &ImporterConfiguration,
-        opts: RawToMapOptions,
-        timer: &mut Timer<'_>,
-    ) {
+    pub async fn run(self, timer: &mut Timer<'_>) {
+        if !self.osm_to_raw && !self.raw_to_map && !self.scenario && !self.city_overview {
+            println!(
+                "Nothing to do! Pass some combination of --raw, --map, --scenario, or --city_overview"
+            );
+            std::process::exit(1);
+        }
+
+        let config: ImporterConfiguration = load_configuration();
+
         timer.start(format!("import {}", self.city.describe()));
         let names = if let Some(n) = self.only_map {
             println!("- Just working on {}", n);
@@ -191,7 +187,7 @@ impl Job {
             timer.start("ensure_popdat_exists");
             let (popdat, huge_map) = seattle::ensure_popdat_exists(
                 timer,
-                config,
+                &config,
                 &mut built_raw_huge_seattle,
                 &mut built_map_huge_seattle,
             )
@@ -211,7 +207,7 @@ impl Job {
                 // Still special-cased
                 if name.city == CityName::seattle() {
                     if !built_raw_huge_seattle || name.map != "huge_seattle" {
-                        seattle::osm_to_raw(&name.map, timer, config).await;
+                        seattle::osm_to_raw(&name.map, timer, &config).await;
                     }
                 } else {
                     let raw = match abstio::maybe_read_json::<generic::GenericCityImporter>(
@@ -221,18 +217,18 @@ impl Job {
                         ),
                         timer,
                     ) {
-                        Ok(city_cfg) => city_cfg.osm_to_raw(name.clone(), timer, config).await,
+                        Ok(city_cfg) => city_cfg.osm_to_raw(name.clone(), timer, &config).await,
                         Err(err) => {
                             panic!("Can't import {}: {}", name.describe(), err);
                         }
                     };
 
                     if name.city == CityName::new("de", "berlin") {
-                        berlin::import_extra_data(&raw, config, timer).await;
+                        berlin::import_extra_data(&raw, &config, timer).await;
                     } else if name == MapName::new("gb", "leeds", "huge") {
-                        uk::import_collision_data(&raw, config, timer).await;
+                        uk::import_collision_data(&raw, &config, timer).await;
                     } else if name.city == CityName::new("gb", "london") {
-                        uk::import_collision_data(&raw, config, timer).await;
+                        uk::import_collision_data(&raw, &config, timer).await;
                     }
                 }
             }
@@ -242,7 +238,7 @@ impl Job {
                 {
                     map_model::Map::load_synchronously(name.path(), timer)
                 } else {
-                    utils::raw_to_map(&name, opts.clone(), timer)
+                    utils::raw_to_map(&name, self.opts.clone(), timer)
                 };
 
                 // Another strange step in the pipeline.
@@ -261,7 +257,7 @@ impl Job {
                     // intention of --skip_ch is usually to quickly iterate on the map importer,
                     // not in release mode. This import is broken/unused right now anyway and takes
                     // way too much time in debug mode.
-                    if opts.build_ch {
+                    if !self.opts.skip_ch {
                         timer.start(format!("add GTFS schedules for {}", name.describe()));
                         seattle::add_gtfs_schedules(&mut map);
                         timer.stop(format!("add GTFS schedules for {}", name.describe()));
@@ -321,7 +317,7 @@ impl Job {
                 }
 
                 if self.city.country == "gb" {
-                    uk::generate_scenario(maybe_map.as_ref().unwrap(), config, timer)
+                    uk::generate_scenario(maybe_map.as_ref().unwrap(), &config, timer)
                         .await
                         .unwrap();
                 }
@@ -349,43 +345,4 @@ impl Job {
 
         timer.stop(format!("import {}", self.city.describe()));
     }
-}
-
-fn oneshot(osm_path: String, clip: Option<String>, drive_on_right: bool, opts: RawToMapOptions) {
-    let mut timer = abstutil::Timer::new("oneshot");
-    println!("- Running convert_osm on {}", osm_path);
-    let name = abstutil::basename(&osm_path);
-    let raw = convert_osm::convert(
-        convert_osm::Options {
-            osm_input: osm_path,
-            name: MapName::new("zz", "oneshot", &name),
-
-            clip,
-            map_config: map_model::MapConfig {
-                driving_side: if drive_on_right {
-                    map_model::DrivingSide::Right
-                } else {
-                    map_model::DrivingSide::Left
-                },
-                bikes_can_use_bus_lanes: true,
-                inferred_sidewalks: true,
-                street_parking_spot_length: Distance::meters(8.0),
-            },
-
-            onstreet_parking: convert_osm::OnstreetParking::JustOSM,
-            public_offstreet_parking: convert_osm::PublicOffstreetParking::None,
-            private_offstreet_parking: convert_osm::PrivateOffstreetParking::FixedPerBldg(1),
-            include_railroads: true,
-            extra_buildings: None,
-            skip_local_roads: false,
-        },
-        &mut timer,
-    );
-    // Often helpful to save intermediate representation in case user wants to load into map_editor
-    raw.save();
-    let map = map_model::Map::create_from_raw(raw, opts, &mut timer);
-    timer.start("save map");
-    map.save();
-    timer.stop("save map");
-    println!("{} has been created", map.get_name().path());
 }

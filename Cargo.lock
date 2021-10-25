@@ -1846,6 +1846,7 @@ dependencies = [
  "serde",
  "serde_json",
  "sim",
+ "structopt",
 ]
 
 [[package]]
@@ -2240,6 +2241,7 @@ dependencies = [
  "rand_xorshift",
  "serde",
  "serde_json",
+ "structopt",
  "strum 0.21.0",
  "strum_macros 0.21.1",
  "thread_local",

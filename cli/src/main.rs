@@ -143,7 +143,7 @@ enum Command {
         #[structopt()]
         input: String,
     },
-    /// Imports a one-shot A/B Street map in a single command.
+    /// Imports a one-shot A/B Street map from a GeoJSON boundary in a single command.
     OneStepImport {
         /// The path to a GeoJSON file with a boundary
         #[structopt(long)]
@@ -159,12 +159,37 @@ enum Command {
         #[structopt(long)]
         use_geofabrik: bool,
     },
-    /// Runs the main A/B Street importer, which manages maps and scenarios for many cities.
-    Import {
-        /// See the importer's source code for the defined flags. You should first pass a bare "--"
-        /// to avoid arguments being parsed.
+    /// Imports a one-shot A/B Street map from an .osm file in a single command.
+    OneshotImport {
         #[structopt()]
-        raw_args: Vec<String>,
+        osm_input: String,
+        /// The path to an Osmosis boundary polygon. If omitted, a boundary will be derived from
+        /// the .osm file, but borders will likely be broken or missing.
+        #[structopt(long)]
+        clip_path: Option<String>,
+        /// Do people drive on the left side of the road in this map?
+        #[structopt(long)]
+        drive_on_left: bool,
+        #[structopt(flatten)]
+        opts: map_model::RawToMapOptions,
+    },
+    /// Regenerate all maps and scenarios from scratch.
+    RegenerateEverything {
+        /// If this command is being run in the cloud, parallelize the jobs by specifying which
+        /// shard this invocation should run.
+        #[structopt(long, default_value = "0")]
+        shard_num: usize,
+        /// If this command is being run in the cloud, parallelize the jobs by specifying how many
+        /// total shards there are.
+        #[structopt(long, default_value = "1")]
+        num_shards: usize,
+    },
+    /// Regenerate all maps from RawMaps in parallel.
+    RegenerateAllMaps,
+    /// Import RawMaps, maps, scenarios, and city overviews for a single city.
+    Import {
+        #[structopt(flatten)]
+        job: importer::Job,
     },
 }
 
@@ -214,7 +239,18 @@ async fn main() -> Result<()> {
             drive_on_left,
             use_geofabrik,
         } => one_step_import::run(geojson_path, map_name, drive_on_left, use_geofabrik).await?,
-        Command::Import { raw_args } => importer::run(raw_args).await,
+        Command::OneshotImport {
+            osm_input,
+            clip_path,
+            drive_on_left,
+            opts,
+        } => importer::oneshot(osm_input, clip_path, drive_on_left, opts),
+        Command::RegenerateEverything {
+            shard_num,
+            num_shards,
+        } => importer::regenerate_everything(shard_num, num_shards).await,
+        Command::RegenerateAllMaps => importer::regenerate_all_maps(),
+        Command::Import { job } => job.run(&mut Timer::new("import one city")).await,
     }
     Ok(())
 }

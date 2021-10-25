@@ -389,7 +389,7 @@ pub fn default_scenario_for_map(name: &MapName) -> String {
 }
 
 #[cfg(not(target_arch = "wasm32"))]
-#[allow(unused)]
+#[allow(unused, clippy::logic_bug)]
 mod built_info {
     use super::*;
 
