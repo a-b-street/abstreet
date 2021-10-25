@@ -269,6 +269,42 @@
 <span id="269">269</span>
 <span id="270">270</span>
 <span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
 </pre><pre class="rust"><code><span class="doccomment">//! A collection of tools, mostly related to importing maps and scenarios. These are bundled as a</span>
 <span class="doccomment">//! single executable to reduce the cost of static linking in the release&#39;s file size.</span>
 
@@ -414,7 +450,7 @@
         <span class="attribute">#[<span class="ident">structopt</span>()]</span>
         <span class="ident">input</span>: <span class="ident">String</span>,
     },
-    <span class="doccomment">/// Imports a one-shot A/B Street map in a single command.</span>
+    <span class="doccomment">/// Imports a one-shot A/B Street map from a GeoJSON boundary in a single command.</span>
     <span class="ident">OneStepImport</span> {
         <span class="doccomment">/// The path to a GeoJSON file with a boundary</span>
         <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
@@ -430,12 +466,37 @@
         <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
         <span class="ident">use_geofabrik</span>: <span class="ident">bool</span>,
     },
-    <span class="doccomment">/// Runs the main A/B Street importer, which manages maps and scenarios for many cities.</span>
-    <span class="ident">Import</span> {
-        <span class="doccomment">/// See the importer&#39;s source code for the defined flags. You should first pass a bare &quot;--&quot;</span>
-        <span class="doccomment">/// to avoid arguments being parsed.</span>
+    <span class="doccomment">/// Imports a one-shot A/B Street map from an .osm file in a single command.</span>
+    <span class="ident">OneshotImport</span> {
         <span class="attribute">#[<span class="ident">structopt</span>()]</span>
-        <span class="ident">raw_args</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+        <span class="ident">osm_input</span>: <span class="ident">String</span>,
+        <span class="doccomment">/// The path to an Osmosis boundary polygon. If omitted, a boundary will be derived from</span>
+        <span class="doccomment">/// the .osm file, but borders will likely be broken or missing.</span>
+        <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
+        <span class="ident">clip_path</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+        <span class="doccomment">/// Do people drive on the left side of the road in this map?</span>
+        <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
+        <span class="ident">drive_on_left</span>: <span class="ident">bool</span>,
+        <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">flatten</span>)]</span>
+        <span class="ident">opts</span>: <span class="ident">map_model::RawToMapOptions</span>,
+    },
+    <span class="doccomment">/// Regenerate all maps and scenarios from scratch.</span>
+    <span class="ident">RegenerateEverything</span> {
+        <span class="doccomment">/// If this command is being run in the cloud, parallelize the jobs by specifying which</span>
+        <span class="doccomment">/// shard this invocation should run.</span>
+        <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>, <span class="ident">default_value</span> <span class="op">=</span> <span class="string">&quot;0&quot;</span>)]</span>
+        <span class="ident">shard_num</span>: <span class="ident">usize</span>,
+        <span class="doccomment">/// If this command is being run in the cloud, parallelize the jobs by specifying how many</span>
+        <span class="doccomment">/// total shards there are.</span>
+        <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>, <span class="ident">default_value</span> <span class="op">=</span> <span class="string">&quot;1&quot;</span>)]</span>
+        <span class="ident">num_shards</span>: <span class="ident">usize</span>,
+    },
+    <span class="doccomment">/// Regenerate all maps from RawMaps in parallel.</span>
+    <span class="ident">RegenerateAllMaps</span>,
+    <span class="doccomment">/// Import RawMaps, maps, scenarios, and city overviews for a single city.</span>
+    <span class="ident">Import</span> {
+        <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">flatten</span>)]</span>
+        <span class="ident">job</span>: <span class="ident">importer::Job</span>,
     },
 }
 
@@ -485,7 +546,18 @@
             <span class="ident">drive_on_left</span>,
             <span class="ident">use_geofabrik</span>,
         } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">one_step_import::run</span>(<span class="ident">geojson_path</span>, <span class="ident">map_name</span>, <span class="ident">drive_on_left</span>, <span class="ident">use_geofabrik</span>).<span class="kw">await</span><span class="question-mark">?</span>,
-        <span class="ident">Command::Import</span> { <span class="ident">raw_args</span> } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">importer::run</span>(<span class="ident">raw_args</span>).<span class="kw">await</span>,
+        <span class="ident">Command::OneshotImport</span> {
+            <span class="ident">osm_input</span>,
+            <span class="ident">clip_path</span>,
+            <span class="ident">drive_on_left</span>,
+            <span class="ident">opts</span>,
+        } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">importer::oneshot</span>(<span class="ident">osm_input</span>, <span class="ident">clip_path</span>, <span class="ident">drive_on_left</span>, <span class="ident">opts</span>),
+        <span class="ident">Command::RegenerateEverything</span> {
+            <span class="ident">shard_num</span>,
+            <span class="ident">num_shards</span>,
+        } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">importer::regenerate_everything</span>(<span class="ident">shard_num</span>, <span class="ident">num_shards</span>).<span class="kw">await</span>,
+        <span class="ident">Command::RegenerateAllMaps</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">importer::regenerate_all_maps</span>(),
+        <span class="ident">Command::Import</span> { <span class="ident">job</span> } <span class="op">=</span><span class="op">&gt;</span> <span class="ident">job</span>.<span class="ident">run</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer::new</span>(<span class="string">&quot;import one city&quot;</span>)).<span class="kw">await</span>,
     }
     <span class="prelude-val">Ok</span>(())
 }

@@ -814,7 +814,7 @@
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>))]</span>
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused</span>)]</span>
+<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused</span>, <span class="ident">clippy::logic_bug</span>)]</span>
 <span class="kw">mod</span> <span class="ident">built_info</span> {
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
 

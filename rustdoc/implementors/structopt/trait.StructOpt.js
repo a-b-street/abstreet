@@ -1,3 +1,5 @@
 (function() {var implementors = {};
 implementors["cli"] = [{"text":"impl StructOpt for <a class=\"enum\" href=\"cli/enum.Command.html\" title=\"enum cli::Command\">Command</a>","synthetic":false,"types":["cli::Command"]}];
+implementors["importer"] = [{"text":"impl StructOpt for <a class=\"struct\" href=\"importer/struct.Job.html\" title=\"struct importer::Job\">Job</a>","synthetic":false,"types":["importer::Job"]}];
+implementors["map_model"] = [{"text":"impl StructOpt for <a class=\"struct\" href=\"map_model/make/struct.RawToMapOptions.html\" title=\"struct map_model::make::RawToMapOptions\">RawToMapOptions</a>","synthetic":false,"types":["map_model::make::RawToMapOptions"]}];
 if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
