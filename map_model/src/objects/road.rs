@@ -151,14 +151,6 @@ impl RoadSideID {
             SideOfRoad::Left => &r.lanes[0],
         }
     }
-
-    pub fn get_pl(self, map: &Map) -> PolyLine {
-        let r = map.get_r(self.id);
-        match self.side {
-            SideOfRoad::Left => r.center_pts.must_shift_left(r.get_half_width()),
-            SideOfRoad::Right => r.center_pts.must_shift_right(r.get_half_width()),
-        }
-    }
 }
 
 /// A Road represents a segment between exactly two Intersections. It contains Lanes as children.

@@ -4,7 +4,7 @@ use abstutil::wraparound_get;
 use geom::{Polygon, Ring};
 use map_gui::tools::PopupMsg;
 use map_gui::ID;
-use map_model::{LaneID, Map, RoadSideID};
+use map_model::{LaneID, Map, SideOfRoad, RoadSideID};
 use widgetry::{
     Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line, Panel, SimpleState,
     State, TextExt, Toggle, VerticalAlignment, Widget,
@@ -101,6 +101,10 @@ impl OneBlock {
                 .btn_outline
                 .text("Show perimeter in order")
                 .build_def(ctx),
+            ctx.style()
+                .btn_outline
+                .text("Debug polygon")
+                .build_def(ctx),
         ]))
         .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
         .build(ctx);
@@ -125,6 +129,14 @@ impl SimpleState<App> for OneBlock {
                     ctx,
                     "side of road",
                     items,
+                    None,
+                ));
+            }
+            "Debug polygon" => {
+                return Transition::Push(polygons::PolygonDebugger::new_state(
+                    ctx,
+                    "pt",
+                    self.block.polygon.clone().into_points().into_iter().map(polygons::Item::Point).collect(),
                     None,
                 ));
             }
@@ -208,7 +220,11 @@ impl Block {
         for pair in perimeter.roads.windows(2) {
             let lane1 = pair[0].get_outermost_lane(map);
             let lane2 = pair[1].get_outermost_lane(map);
-            let pl = pair[0].get_pl(map);
+            assert_ne!(lane1.id, lane2.id);
+            let pl = match pair[0].side {
+                SideOfRoad::Right => lane1.lane_center_pts.must_shift_right(lane1.width / 2.0),
+                SideOfRoad::Left => lane1.lane_center_pts.must_shift_left(lane1.width / 2.0),
+            };
             if lane1.common_endpt(lane2) == lane1.dst_i {
                 pts.extend(pl.into_points());
             } else {
