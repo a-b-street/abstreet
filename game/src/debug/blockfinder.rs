@@ -157,6 +157,7 @@ impl RoadLoop {
         let mut current_road_side = start_road_side;
         let mut current_intersection = map.get_l(start).dst_i;
         loop {
+            println!("at {:?} pointing to {}", current_road_side, current_intersection);
             let i = map.get_i(current_intersection);
             let sorted_roads = i.get_road_sides_sorted_by_incoming_angle(map);
             // Find this one
@@ -164,6 +165,7 @@ impl RoadLoop {
                 .iter()
                 .position(|x| *x == current_road_side)
                 .unwrap() as isize;
+            println!("  idx {} in sorted {:?}", idx, sorted_roads);
             // Do we go clockwise or counter-clockwise? Well, unless we're at a dead-end, we want
             // to avoid the other side of the same road.
             let mut next = *wraparound_get(&sorted_roads, idx + 1);
@@ -187,6 +189,7 @@ impl RoadLoop {
                 break;
             }
         }
+        assert_eq!(roads[0], *roads.last().unwrap());
         Ok(RoadLoop { roads })
     }
 }
