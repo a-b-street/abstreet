@@ -30,7 +30,7 @@ To build the WASM in release mode:
 
 Maps can be specified by URL:
 
-- http://localhost:8080/?map=/data/system/us/seattle/maps/arboretum.bin
+- http://localhost:8000/?map=/data/system/us/seattle/maps/arboretum.bin
 
 No deployment instructions yet.
 

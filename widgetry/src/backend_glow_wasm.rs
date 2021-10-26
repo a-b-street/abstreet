@@ -188,7 +188,7 @@ impl RenderOnly {
         }));
 
         info!("Setting up widgetry in render-only mode");
-        let mut timer = Timer::new("setup rende-ronly");
+        let mut timer = Timer::new("setup render-only");
         let initial_size = ScreenDims::new(
             raw_gl.drawing_buffer_width().into(),
             raw_gl.drawing_buffer_height().into(),

@@ -37,7 +37,7 @@
 			// What map should we load?
 			var loadPath = new URL(window.location).searchParams.get('map');
 			if (loadPath == null) {
-				loadPath = '/data/system/us/seattle/maps/montlake.bin';
+				loadPath = 'data/system/us/seattle/maps/montlake.bin';
 			}
 
 			// TODO Ideally we'd load this in the background and let Mapbox run first, but I'm not sure how to make the map.on('load') callback async.
@@ -150,6 +150,7 @@
 				cancelAnimationFrame(animationRequest);
 				animationRequest = null;
 				piggyback.clear_traffic();
+				map.triggerRepaint();
 			}
 
 			function runSimulation(timestamp) {
