@@ -1,13 +1,13 @@
-// This runs a simulation without any graphics and serves a very basic API to control things. See
-// https://a-b-street.github.io/docs/tech/dev/api.html for documentation. To run this:
-//
-// > cd headless; cargo run -- --port=1234
-// > curl http://localhost:1234/sim/get-time
-// 00:00:00.0
-// > curl http://localhost:1234/sim/goto-time?t=01:01:00
-// it's now 01:01:00.0
-// > curl http://localhost:1234/data/get-road-thruput
-// ... huge JSON blob
+//! This runs a simulation without any graphics and serves a very basic API to control things. See
+//! https://a-b-street.github.io/docs/tech/dev/api.html for documentation. To run this:
+//!
+//! > cd headless; cargo run -- --port=1234
+//! > curl http://localhost:1234/sim/get-time
+//! 00:00:00.0
+//! > curl http://localhost:1234/sim/goto-time?t=01:01:00
+//! it's now 01:01:00.0
+//! > curl http://localhost:1234/data/get-road-thruput
+//! ... huge JSON blob
 
 #[macro_use]
 extern crate anyhow;
@@ -23,9 +23,10 @@ use hyper::{Body, Request, Response, Server, StatusCode};
 use rand::SeedableRng;
 use rand_xorshift::XorShiftRng;
 use serde::{Deserialize, Serialize};
+use structopt::StructOpt;
 
 use abstio::MapName;
-use abstutil::{serialize_btreemap, CmdArgs, Timer};
+use abstutil::{serialize_btreemap, Timer};
 use geom::{Distance, Duration, LonLat, Time};
 use map_model::{
     CompressedMovementID, ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, Map,
@@ -50,28 +51,40 @@ lazy_static::lazy_static! {
     });
 }
 
+#[derive(StructOpt)]
+#[structopt(
+    name = "headless",
+    about = "Simulate traffic with a JSON API, not a GUI"
+)]
+struct Args {
+    /// What port to run the JSON API on.
+    #[structopt(long)]
+    port: u16,
+    /// An arbitrary number to seed the random number generator. This is input to the deterministic
+    /// simulation, so different values affect results.
+    // TODO default_value can only handle strings, so copying SimFlags::RNG_SEED
+    #[structopt(long, default_value = "42")]
+    rng_seed: u64,
+    #[structopt(flatten)]
+    opts: SimOptions,
+}
+
 #[tokio::main]
 async fn main() {
-    let mut args = CmdArgs::new();
-    let mut timer = Timer::new("setup headless");
-    let rng_seed = args
-        .optional_parse("--rng_seed", |s| s.parse())
-        .unwrap_or(SimFlags::RNG_SEED);
-    let opts = SimOptions::from_args(&mut args, rng_seed);
-    let port = args.required("--port").parse::<u16>().unwrap();
-    args.done();
+    abstutil::logger::setup();
+    let args = Args::from_args();
 
     {
         let mut load = LOAD.write().unwrap();
-        load.rng_seed = rng_seed;
-        load.opts = opts;
+        load.rng_seed = args.rng_seed;
+        load.opts = args.opts;
 
-        let (map, sim) = load.setup(&mut timer);
+        let (map, sim) = load.setup(&mut Timer::new("setup headless"));
         *MAP.write().unwrap() = map;
         *SIM.write().unwrap() = sim;
     }
 
-    let addr = std::net::SocketAddr::from(([127, 0, 0, 1], port));
+    let addr = std::net::SocketAddr::from(([127, 0, 0, 1], args.port));
     info!("Listening on http://{}", addr);
     let serve_future = Server::bind(&addr).serve(hyper::service::make_service_fn(|_| async {
         Ok::<_, hyper::Error>(hyper::service::service_fn(serve_req))

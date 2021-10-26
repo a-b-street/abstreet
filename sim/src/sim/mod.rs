@@ -8,6 +8,7 @@ use instant::Instant;
 use rand::SeedableRng;
 use rand_xorshift::XorShiftRng;
 use serde::{Deserialize, Serialize};
+use structopt::StructOpt;
 
 use abstio::{CityName, MapName};
 use abstutil::{prettyprint_usize, serialized_size_bytes, CmdArgs, Timer};
@@ -74,62 +75,85 @@ pub(crate) struct Ctx<'a> {
 }
 
 /// Options controlling the traffic simulation.
-#[derive(Clone)]
+#[derive(Clone, StructOpt)]
 pub struct SimOptions {
     /// Used to distinguish savestates for running the same scenario.
+    #[structopt(long, default_value = "unnamed")]
     pub run_name: String,
     /// Ignore all stop signs and traffic signals, instead using a "freeform" policy to control
     /// access to intersections. If a requested turn doesn't conflict with an already accepted one,
     /// immediately accept it. FIFO ordering, no balancing between different movements.
+    #[structopt(long)]
     pub use_freeform_policy_everywhere: bool,
-    /// Prevent a vehicle from starting a turn if their target lane is already full, since this may
-    /// mean they'll get stuck blocking the intersection.
-    pub dont_block_the_box: bool,
-    /// As a vehicle follows a route, opportunistically make small changes to use a different lane,
-    /// based on some score of "least-loaded" lane.
-    pub recalc_lanechanging: bool,
-    /// If a cycle of vehicles depending on each other to turn is detected, temporarily allow
-    /// "blocking the box" to try to break gridlock.
-    pub break_turn_conflict_cycles: bool,
-    /// Enable experimental handling for "uber-turns", sequences of turns through complex
+    /// Allow a vehicle to start a turn, even if their target lane is already full. This may mean
+    /// they'll get stuck blocking the intersection.
+    #[structopt(long)]
+    pub allow_block_the_box: bool,
+    /// Normally as a vehicle follows a route, it opportunistically make small changes to use a different lane,
+    /// based on some score of "least-loaded" lane. Disable this default behavior.
+    #[structopt(long)]
+    pub dont_recalc_lanechanging: bool,
+    /// Normally if a cycle of vehicles depending on each other to turn is detected, temporarily allow
+    /// "blocking the box" to try to break gridlock. Disable this default behavior.
+    #[structopt(long)]
+    pub dont_break_turn_conflict_cycles: bool,
+    /// Disable experimental handling for "uber-turns", sequences of turns through complex
     /// intersections with short roads. "Locks" the entire movement before starting, and ignores
     /// red lights after starting.
-    pub handle_uber_turns: bool,
-    /// Enable an experimental SEIR pandemic model.
+    #[structopt(long)]
+    pub dont_handle_uber_turns: bool,
+    /// Enable an experimental SEIR pandemic model. This requires an RNG seed, which can be the
+    /// same or different from the one used for the rest of the simulation.
+    #[structopt(long, parse(try_from_str = parse_rng))]
     pub enable_pandemic_model: Option<XorShiftRng>,
     /// When a warning is encountered during simulation, specifies how to respond.
+    #[structopt(long, parse(try_from_str = parse_alert_handler), default_value = "print")]
     pub alerts: AlertHandler,
     /// Ignore parking data in the map and instead treat every building as if it has unlimited
     /// capacity for vehicles.
     ///
     /// Some maps always have this hardcoded on -- see the code for the list.
+    #[structopt(long)]
     pub infinite_parking: bool,
     /// Allow all agents to immediately proceed into an intersection, even if they'd hit another
     /// agent. Obviously this destroys realism of the simulation, but can be used to debug
     /// gridlock. Also implies freeform_policy, so vehicles ignore traffic signals.
+    #[structopt(long)]
     pub disable_turn_conflicts: bool,
     /// Don't collect any analytics. Only useful for benchmarking and debugging gridlock more
     /// quickly.
+    #[structopt(long)]
     pub skip_analytics: bool,
 }
 
-impl Default for SimOptions {
-    fn default() -> SimOptions {
-        SimOptions::new("tmp")
-    }
-}
-
 impl SimOptions {
+    pub fn new(run_name: &str) -> SimOptions {
+        SimOptions {
+            run_name: run_name.to_string(),
+            use_freeform_policy_everywhere: false,
+            allow_block_the_box: false,
+            dont_recalc_lanechanging: false,
+            dont_break_turn_conflict_cycles: false,
+            dont_handle_uber_turns: false,
+            enable_pandemic_model: None,
+            alerts: AlertHandler::Print,
+            infinite_parking: false,
+            disable_turn_conflicts: false,
+            skip_analytics: false,
+        }
+    }
+
+    // TODO Remove
     pub fn from_args(args: &mut CmdArgs, rng_seed: u64) -> SimOptions {
         SimOptions {
             run_name: args
                 .optional("--run_name")
                 .unwrap_or_else(|| "unnamed".to_string()),
             use_freeform_policy_everywhere: args.enabled("--freeform_policy"),
-            dont_block_the_box: !args.enabled("--disable_block_the_box"),
-            recalc_lanechanging: !args.enabled("--disable_recalc_lc"),
-            break_turn_conflict_cycles: !args.enabled("--disable_break_turn_conflict_cycles"),
-            handle_uber_turns: !args.enabled("--disable_handle_uber_turns"),
+            allow_block_the_box: args.enabled("--disable_block_the_box"),
+            dont_recalc_lanechanging: args.enabled("--disable_recalc_lc"),
+            dont_break_turn_conflict_cycles: args.enabled("--disable_break_turn_conflict_cycles"),
+            dont_handle_uber_turns: args.enabled("--disable_handle_uber_turns"),
             enable_pandemic_model: if args.enabled("--pandemic") {
                 Some(XorShiftRng::seed_from_u64(rng_seed))
             } else {
@@ -151,6 +175,17 @@ impl SimOptions {
     }
 }
 
+impl Default for SimOptions {
+    fn default() -> SimOptions {
+        SimOptions::new("tmp")
+    }
+}
+
+fn parse_rng(x: &str) -> Result<XorShiftRng> {
+    let seed: u64 = x.parse()?;
+    Ok(XorShiftRng::seed_from_u64(seed))
+}
+
 #[derive(Clone)]
 pub enum AlertHandler {
     /// Just print the alert to STDOUT
@@ -167,21 +202,12 @@ impl Default for AlertHandler {
     }
 }
 
-impl SimOptions {
-    pub fn new(run_name: &str) -> SimOptions {
-        SimOptions {
-            run_name: run_name.to_string(),
-            use_freeform_policy_everywhere: false,
-            dont_block_the_box: true,
-            recalc_lanechanging: true,
-            break_turn_conflict_cycles: true,
-            handle_uber_turns: true,
-            enable_pandemic_model: None,
-            alerts: AlertHandler::Print,
-            infinite_parking: false,
-            disable_turn_conflicts: false,
-            skip_analytics: false,
-        }
+fn parse_alert_handler(x: &str) -> Result<AlertHandler> {
+    match x {
+        "print" => Ok(AlertHandler::Print),
+        "block" => Ok(AlertHandler::Block),
+        "silence" => Ok(AlertHandler::Silence),
+        _ => bail!("Bad --alerts={}. Must be print|block|silence", x),
     }
 }
 
@@ -204,7 +230,7 @@ impl Sim {
 
         // Hack around simulation bugs to get a Tehran map running.
         if map.get_name() == &MapName::new("ir", "tehran", "parliament") {
-            opts.dont_block_the_box = false;
+            opts.allow_block_the_box = true;
         }
 
         Sim {

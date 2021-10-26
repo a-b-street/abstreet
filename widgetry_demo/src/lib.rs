@@ -10,8 +10,7 @@ use widgetry::{
 };
 
 pub fn main() {
-    // Use this to initialize logging.
-    abstutil::CmdArgs::new().done();
+    abstutil::logger::setup();
 
     let settings = Settings::new("widgetry demo");
     run(settings);
@@ -642,8 +641,7 @@ use wasm_bindgen::prelude::*;
 #[cfg(target_arch = "wasm32")]
 #[wasm_bindgen(js_name = "run")]
 pub fn run_wasm(root_dom_id: String, assets_base_url: String, assets_are_gzipped: bool) {
-    // Use this to initialize logging.
-    abstutil::CmdArgs::new().done();
+    abstutil::logger::setup();
     let settings = Settings::new("widgetry demo")
         .root_dom_element_id(root_dom_id)
         .assets_base_url(assets_base_url)

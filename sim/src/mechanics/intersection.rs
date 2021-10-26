@@ -92,9 +92,9 @@ impl IntersectionSimState {
         let mut sim = IntersectionSimState {
             state: BTreeMap::new(),
             use_freeform_policy_everywhere: opts.use_freeform_policy_everywhere,
-            dont_block_the_box: opts.dont_block_the_box,
-            break_turn_conflict_cycles: opts.break_turn_conflict_cycles,
-            handle_uber_turns: opts.handle_uber_turns,
+            dont_block_the_box: !opts.allow_block_the_box,
+            break_turn_conflict_cycles: !opts.dont_break_turn_conflict_cycles,
+            handle_uber_turns: !opts.dont_handle_uber_turns,
             disable_turn_conflicts: opts.disable_turn_conflicts,
             blocked_by: BTreeSet::new(),
             events: Vec::new(),

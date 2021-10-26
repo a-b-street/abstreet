@@ -59,8 +59,8 @@ impl DrivingSimState {
             cars: FixedMap::new(),
             queues: HashMap::new(),
             events: Vec::new(),
-            recalc_lanechanging: opts.recalc_lanechanging,
-            handle_uber_turns: opts.handle_uber_turns,
+            recalc_lanechanging: !opts.dont_recalc_lanechanging,
+            handle_uber_turns: !opts.dont_handle_uber_turns,
             waiting_to_spawn: BTreeMap::new(),
 
             time_to_unpark_onstreet: Duration::seconds(10.0),
