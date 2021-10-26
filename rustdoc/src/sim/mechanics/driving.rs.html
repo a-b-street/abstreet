@@ -1722,8 +1722,8 @@
             <span class="ident">cars</span>: <span class="ident">FixedMap::new</span>(),
             <span class="ident">queues</span>: <span class="ident">HashMap::new</span>(),
             <span class="ident">events</span>: <span class="ident">Vec::new</span>(),
-            <span class="ident">recalc_lanechanging</span>: <span class="ident">opts</span>.<span class="ident">recalc_lanechanging</span>,
-            <span class="ident">handle_uber_turns</span>: <span class="ident">opts</span>.<span class="ident">handle_uber_turns</span>,
+            <span class="ident">recalc_lanechanging</span>: <span class="op">!</span><span class="ident">opts</span>.<span class="ident">dont_recalc_lanechanging</span>,
+            <span class="ident">handle_uber_turns</span>: <span class="op">!</span><span class="ident">opts</span>.<span class="ident">dont_handle_uber_turns</span>,
             <span class="ident">waiting_to_spawn</span>: <span class="ident">BTreeMap::new</span>(),
 
             <span class="ident">time_to_unpark_onstreet</span>: <span class="ident">Duration::seconds</span>(<span class="number">10.0</span>),

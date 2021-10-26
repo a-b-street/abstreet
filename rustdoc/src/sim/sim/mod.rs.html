@@ -1032,6 +1032,32 @@
 <span id="1032">1032</span>
 <span id="1033">1033</span>
 <span id="1034">1034</span>
+<span id="1035">1035</span>
+<span id="1036">1036</span>
+<span id="1037">1037</span>
+<span id="1038">1038</span>
+<span id="1039">1039</span>
+<span id="1040">1040</span>
+<span id="1041">1041</span>
+<span id="1042">1042</span>
+<span id="1043">1043</span>
+<span id="1044">1044</span>
+<span id="1045">1045</span>
+<span id="1046">1046</span>
+<span id="1047">1047</span>
+<span id="1048">1048</span>
+<span id="1049">1049</span>
+<span id="1050">1050</span>
+<span id="1051">1051</span>
+<span id="1052">1052</span>
+<span id="1053">1053</span>
+<span id="1054">1054</span>
+<span id="1055">1055</span>
+<span id="1056">1056</span>
+<span id="1057">1057</span>
+<span id="1058">1058</span>
+<span id="1059">1059</span>
+<span id="1060">1060</span>
 </pre><pre class="rust"><code><span class="comment">// This file has a jumbled mess of queries, setup, and mutating methods.</span>
 
 <span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeSet</span>, <span class="ident">HashSet</span>};
@@ -1042,6 +1068,7 @@
 <span class="kw">use</span> <span class="ident">rand::SeedableRng</span>;
 <span class="kw">use</span> <span class="ident">rand_xorshift::XorShiftRng</span>;
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+<span class="kw">use</span> <span class="ident">structopt::StructOpt</span>;
 
 <span class="kw">use</span> <span class="ident">abstio</span>::{<span class="ident">CityName</span>, <span class="ident">MapName</span>};
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">serialized_size_bytes</span>, <span class="ident">CmdArgs</span>, <span class="ident">Timer</span>};
@@ -1108,62 +1135,85 @@
 }
 
 <span class="doccomment">/// Options controlling the traffic simulation.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">StructOpt</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SimOptions</span> {
     <span class="doccomment">/// Used to distinguish savestates for running the same scenario.</span>
+    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>, <span class="ident">default_value</span> <span class="op">=</span> <span class="string">&quot;unnamed&quot;</span>)]</span>
     <span class="kw">pub</span> <span class="ident">run_name</span>: <span class="ident">String</span>,
     <span class="doccomment">/// Ignore all stop signs and traffic signals, instead using a &quot;freeform&quot; policy to control</span>
     <span class="doccomment">/// access to intersections. If a requested turn doesn&#39;t conflict with an already accepted one,</span>
     <span class="doccomment">/// immediately accept it. FIFO ordering, no balancing between different movements.</span>
+    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
     <span class="kw">pub</span> <span class="ident">use_freeform_policy_everywhere</span>: <span class="ident">bool</span>,
-    <span class="doccomment">/// Prevent a vehicle from starting a turn if their target lane is already full, since this may</span>
-    <span class="doccomment">/// mean they&#39;ll get stuck blocking the intersection.</span>
-    <span class="kw">pub</span> <span class="ident">dont_block_the_box</span>: <span class="ident">bool</span>,
-    <span class="doccomment">/// As a vehicle follows a route, opportunistically make small changes to use a different lane,</span>
-    <span class="doccomment">/// based on some score of &quot;least-loaded&quot; lane.</span>
-    <span class="kw">pub</span> <span class="ident">recalc_lanechanging</span>: <span class="ident">bool</span>,
-    <span class="doccomment">/// If a cycle of vehicles depending on each other to turn is detected, temporarily allow</span>
-    <span class="doccomment">/// &quot;blocking the box&quot; to try to break gridlock.</span>
-    <span class="kw">pub</span> <span class="ident">break_turn_conflict_cycles</span>: <span class="ident">bool</span>,
-    <span class="doccomment">/// Enable experimental handling for &quot;uber-turns&quot;, sequences of turns through complex</span>
+    <span class="doccomment">/// Allow a vehicle to start a turn, even if their target lane is already full. This may mean</span>
+    <span class="doccomment">/// they&#39;ll get stuck blocking the intersection.</span>
+    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
+    <span class="kw">pub</span> <span class="ident">allow_block_the_box</span>: <span class="ident">bool</span>,
+    <span class="doccomment">/// Normally as a vehicle follows a route, it opportunistically make small changes to use a different lane,</span>
+    <span class="doccomment">/// based on some score of &quot;least-loaded&quot; lane. Disable this default behavior.</span>
+    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
+    <span class="kw">pub</span> <span class="ident">dont_recalc_lanechanging</span>: <span class="ident">bool</span>,
+    <span class="doccomment">/// Normally if a cycle of vehicles depending on each other to turn is detected, temporarily allow</span>
+    <span class="doccomment">/// &quot;blocking the box&quot; to try to break gridlock. Disable this default behavior.</span>
+    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
+    <span class="kw">pub</span> <span class="ident">dont_break_turn_conflict_cycles</span>: <span class="ident">bool</span>,
+    <span class="doccomment">/// Disable experimental handling for &quot;uber-turns&quot;, sequences of turns through complex</span>
     <span class="doccomment">/// intersections with short roads. &quot;Locks&quot; the entire movement before starting, and ignores</span>
     <span class="doccomment">/// red lights after starting.</span>
-    <span class="kw">pub</span> <span class="ident">handle_uber_turns</span>: <span class="ident">bool</span>,
-    <span class="doccomment">/// Enable an experimental SEIR pandemic model.</span>
+    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
+    <span class="kw">pub</span> <span class="ident">dont_handle_uber_turns</span>: <span class="ident">bool</span>,
+    <span class="doccomment">/// Enable an experimental SEIR pandemic model. This requires an RNG seed, which can be the</span>
+    <span class="doccomment">/// same or different from the one used for the rest of the simulation.</span>
+    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>, <span class="ident">parse</span>(<span class="ident">try_from_str</span> <span class="op">=</span> <span class="ident">parse_rng</span>))]</span>
     <span class="kw">pub</span> <span class="ident">enable_pandemic_model</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">XorShiftRng</span><span class="op">&gt;</span>,
     <span class="doccomment">/// When a warning is encountered during simulation, specifies how to respond.</span>
+    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>, <span class="ident">parse</span>(<span class="ident">try_from_str</span> <span class="op">=</span> <span class="ident">parse_alert_handler</span>), <span class="ident">default_value</span> <span class="op">=</span> <span class="string">&quot;print&quot;</span>)]</span>
     <span class="kw">pub</span> <span class="ident">alerts</span>: <span class="ident">AlertHandler</span>,
     <span class="doccomment">/// Ignore parking data in the map and instead treat every building as if it has unlimited</span>
     <span class="doccomment">/// capacity for vehicles.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Some maps always have this hardcoded on -- see the code for the list.</span>
+    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
     <span class="kw">pub</span> <span class="ident">infinite_parking</span>: <span class="ident">bool</span>,
     <span class="doccomment">/// Allow all agents to immediately proceed into an intersection, even if they&#39;d hit another</span>
     <span class="doccomment">/// agent. Obviously this destroys realism of the simulation, but can be used to debug</span>
     <span class="doccomment">/// gridlock. Also implies freeform_policy, so vehicles ignore traffic signals.</span>
+    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
     <span class="kw">pub</span> <span class="ident">disable_turn_conflicts</span>: <span class="ident">bool</span>,
     <span class="doccomment">/// Don&#39;t collect any analytics. Only useful for benchmarking and debugging gridlock more</span>
     <span class="doccomment">/// quickly.</span>
+    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
     <span class="kw">pub</span> <span class="ident">skip_analytics</span>: <span class="ident">bool</span>,
 }
 
-<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">SimOptions</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">SimOptions</span> {
-        <span class="ident">SimOptions::new</span>(<span class="string">&quot;tmp&quot;</span>)
-    }
-}
-
 <span class="kw">impl</span> <span class="ident">SimOptions</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">run_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">SimOptions</span> {
+        <span class="ident">SimOptions</span> {
+            <span class="ident">run_name</span>: <span class="ident">run_name</span>.<span class="ident">to_string</span>(),
+            <span class="ident">use_freeform_policy_everywhere</span>: <span class="bool-val">false</span>,
+            <span class="ident">allow_block_the_box</span>: <span class="bool-val">false</span>,
+            <span class="ident">dont_recalc_lanechanging</span>: <span class="bool-val">false</span>,
+            <span class="ident">dont_break_turn_conflict_cycles</span>: <span class="bool-val">false</span>,
+            <span class="ident">dont_handle_uber_turns</span>: <span class="bool-val">false</span>,
+            <span class="ident">enable_pandemic_model</span>: <span class="prelude-val">None</span>,
+            <span class="ident">alerts</span>: <span class="ident">AlertHandler::Print</span>,
+            <span class="ident">infinite_parking</span>: <span class="bool-val">false</span>,
+            <span class="ident">disable_turn_conflicts</span>: <span class="bool-val">false</span>,
+            <span class="ident">skip_analytics</span>: <span class="bool-val">false</span>,
+        }
+    }
+
+    <span class="comment">// TODO Remove</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_args</span>(<span class="ident">args</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">CmdArgs</span>, <span class="ident">rng_seed</span>: <span class="ident">u64</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">SimOptions</span> {
         <span class="ident">SimOptions</span> {
             <span class="ident">run_name</span>: <span class="ident">args</span>
                 .<span class="ident">optional</span>(<span class="string">&quot;--run_name&quot;</span>)
                 .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="string">&quot;unnamed&quot;</span>.<span class="ident">to_string</span>()),
             <span class="ident">use_freeform_policy_everywhere</span>: <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--freeform_policy&quot;</span>),
-            <span class="ident">dont_block_the_box</span>: <span class="op">!</span><span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--disable_block_the_box&quot;</span>),
-            <span class="ident">recalc_lanechanging</span>: <span class="op">!</span><span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--disable_recalc_lc&quot;</span>),
-            <span class="ident">break_turn_conflict_cycles</span>: <span class="op">!</span><span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--disable_break_turn_conflict_cycles&quot;</span>),
-            <span class="ident">handle_uber_turns</span>: <span class="op">!</span><span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--disable_handle_uber_turns&quot;</span>),
+            <span class="ident">allow_block_the_box</span>: <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--disable_block_the_box&quot;</span>),
+            <span class="ident">dont_recalc_lanechanging</span>: <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--disable_recalc_lc&quot;</span>),
+            <span class="ident">dont_break_turn_conflict_cycles</span>: <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--disable_break_turn_conflict_cycles&quot;</span>),
+            <span class="ident">dont_handle_uber_turns</span>: <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--disable_handle_uber_turns&quot;</span>),
             <span class="ident">enable_pandemic_model</span>: <span class="kw">if</span> <span class="ident">args</span>.<span class="ident">enabled</span>(<span class="string">&quot;--pandemic&quot;</span>) {
                 <span class="prelude-val">Some</span>(<span class="ident">XorShiftRng::seed_from_u64</span>(<span class="ident">rng_seed</span>))
             } <span class="kw">else</span> {
@@ -1185,6 +1235,17 @@
     }
 }
 
+<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">SimOptions</span> {
+    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">SimOptions</span> {
+        <span class="ident">SimOptions::new</span>(<span class="string">&quot;tmp&quot;</span>)
+    }
+}
+
+<span class="kw">fn</span> <span class="ident">parse_rng</span>(<span class="ident">x</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">XorShiftRng</span><span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">seed</span>: <span class="ident">u64</span> <span class="op">=</span> <span class="ident">x</span>.<span class="ident">parse</span>()<span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(<span class="ident">XorShiftRng::seed_from_u64</span>(<span class="ident">seed</span>))
+}
+
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">AlertHandler</span> {
     <span class="doccomment">/// Just print the alert to STDOUT</span>
@@ -1201,21 +1262,12 @@
     }
 }
 
-<span class="kw">impl</span> <span class="ident">SimOptions</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">run_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">SimOptions</span> {
-        <span class="ident">SimOptions</span> {
-            <span class="ident">run_name</span>: <span class="ident">run_name</span>.<span class="ident">to_string</span>(),
-            <span class="ident">use_freeform_policy_everywhere</span>: <span class="bool-val">false</span>,
-            <span class="ident">dont_block_the_box</span>: <span class="bool-val">true</span>,
-            <span class="ident">recalc_lanechanging</span>: <span class="bool-val">true</span>,
-            <span class="ident">break_turn_conflict_cycles</span>: <span class="bool-val">true</span>,
-            <span class="ident">handle_uber_turns</span>: <span class="bool-val">true</span>,
-            <span class="ident">enable_pandemic_model</span>: <span class="prelude-val">None</span>,
-            <span class="ident">alerts</span>: <span class="ident">AlertHandler::Print</span>,
-            <span class="ident">infinite_parking</span>: <span class="bool-val">false</span>,
-            <span class="ident">disable_turn_conflicts</span>: <span class="bool-val">false</span>,
-            <span class="ident">skip_analytics</span>: <span class="bool-val">false</span>,
-        }
+<span class="kw">fn</span> <span class="ident">parse_alert_handler</span>(<span class="ident">x</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">AlertHandler</span><span class="op">&gt;</span> {
+    <span class="kw">match</span> <span class="ident">x</span> {
+        <span class="string">&quot;print&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">AlertHandler::Print</span>),
+        <span class="string">&quot;block&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">AlertHandler::Block</span>),
+        <span class="string">&quot;silence&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">AlertHandler::Silence</span>),
+        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="macro">bail!</span>(<span class="string">&quot;Bad --alerts={}. Must be print|block|silence&quot;</span>, <span class="ident">x</span>),
     }
 }
 
@@ -1238,7 +1290,7 @@
 
         <span class="comment">// Hack around simulation bugs to get a Tehran map running.</span>
         <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_name</span>() <span class="op">=</span><span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">MapName::new</span>(<span class="string">&quot;ir&quot;</span>, <span class="string">&quot;tehran&quot;</span>, <span class="string">&quot;parliament&quot;</span>) {
-            <span class="ident">opts</span>.<span class="ident">dont_block_the_box</span> <span class="op">=</span> <span class="bool-val">false</span>;
+            <span class="ident">opts</span>.<span class="ident">allow_block_the_box</span> <span class="op">=</span> <span class="bool-val">true</span>;
         }
 
         <span class="ident">Sim</span> {

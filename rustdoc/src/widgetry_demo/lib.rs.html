@@ -648,8 +648,6 @@
 <span id="648">648</span>
 <span id="649">649</span>
 <span id="650">650</span>
-<span id="651">651</span>
-<span id="652">652</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">rand::SeedableRng</span>;
 <span class="kw">use</span> <span class="ident">rand_xorshift::XorShiftRng</span>;
 
@@ -662,8 +660,7 @@
 };
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">main</span>() {
-    <span class="comment">// Use this to initialize logging.</span>
-    <span class="ident">abstutil::CmdArgs::new</span>().<span class="ident">done</span>();
+    <span class="ident">abstutil::logger::setup</span>();
 
     <span class="kw">let</span> <span class="ident">settings</span> <span class="op">=</span> <span class="ident">Settings::new</span>(<span class="string">&quot;widgetry demo&quot;</span>);
     <span class="ident">run</span>(<span class="ident">settings</span>);
@@ -1294,8 +1291,7 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>)]</span>
 <span class="attribute">#[<span class="ident">wasm_bindgen</span>(<span class="ident">js_name</span> <span class="op">=</span> <span class="string">&quot;run&quot;</span>)]</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">run_wasm</span>(<span class="ident">root_dom_id</span>: <span class="ident">String</span>, <span class="ident">assets_base_url</span>: <span class="ident">String</span>, <span class="ident">assets_are_gzipped</span>: <span class="ident">bool</span>) {
-    <span class="comment">// Use this to initialize logging.</span>
-    <span class="ident">abstutil::CmdArgs::new</span>().<span class="ident">done</span>();
+    <span class="ident">abstutil::logger::setup</span>();
     <span class="kw">let</span> <span class="ident">settings</span> <span class="op">=</span> <span class="ident">Settings::new</span>(<span class="string">&quot;widgetry demo&quot;</span>)
         .<span class="ident">root_dom_element_id</span>(<span class="ident">root_dom_id</span>)
         .<span class="ident">assets_base_url</span>(<span class="ident">assets_base_url</span>)

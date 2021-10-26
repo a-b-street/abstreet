@@ -584,16 +584,29 @@
 <span id="584">584</span>
 <span id="585">585</span>
 <span id="586">586</span>
-</pre><pre class="rust"><code><span class="comment">// This runs a simulation without any graphics and serves a very basic API to control things. See</span>
-<span class="comment">// https://a-b-street.github.io/docs/tech/dev/api.html for documentation. To run this:</span>
-<span class="comment">//</span>
-<span class="comment">// &gt; cd headless; cargo run -- --port=1234</span>
-<span class="comment">// &gt; curl http://localhost:1234/sim/get-time</span>
-<span class="comment">// 00:00:00.0</span>
-<span class="comment">// &gt; curl http://localhost:1234/sim/goto-time?t=01:01:00</span>
-<span class="comment">// it&#39;s now 01:01:00.0</span>
-<span class="comment">// &gt; curl http://localhost:1234/data/get-road-thruput</span>
-<span class="comment">// ... huge JSON blob</span>
+<span id="587">587</span>
+<span id="588">588</span>
+<span id="589">589</span>
+<span id="590">590</span>
+<span id="591">591</span>
+<span id="592">592</span>
+<span id="593">593</span>
+<span id="594">594</span>
+<span id="595">595</span>
+<span id="596">596</span>
+<span id="597">597</span>
+<span id="598">598</span>
+<span id="599">599</span>
+</pre><pre class="rust"><code><span class="doccomment">//! This runs a simulation without any graphics and serves a very basic API to control things. See</span>
+<span class="doccomment">//! https://a-b-street.github.io/docs/tech/dev/api.html for documentation. To run this:</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! &gt; cd headless; cargo run -- --port=1234</span>
+<span class="doccomment">//! &gt; curl http://localhost:1234/sim/get-time</span>
+<span class="doccomment">//! 00:00:00.0</span>
+<span class="doccomment">//! &gt; curl http://localhost:1234/sim/goto-time?t=01:01:00</span>
+<span class="doccomment">//! it&#39;s now 01:01:00.0</span>
+<span class="doccomment">//! &gt; curl http://localhost:1234/data/get-road-thruput</span>
+<span class="doccomment">//! ... huge JSON blob</span>
 
 <span class="attribute">#[<span class="ident">macro_use</span>]</span>
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">anyhow</span>;
@@ -609,9 +622,10 @@
 <span class="kw">use</span> <span class="ident">rand::SeedableRng</span>;
 <span class="kw">use</span> <span class="ident">rand_xorshift::XorShiftRng</span>;
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+<span class="kw">use</span> <span class="ident">structopt::StructOpt</span>;
 
 <span class="kw">use</span> <span class="ident">abstio::MapName</span>;
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">serialize_btreemap</span>, <span class="ident">CmdArgs</span>, <span class="ident">Timer</span>};
+<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">serialize_btreemap</span>, <span class="ident">Timer</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">LonLat</span>, <span class="ident">Time</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{
     <span class="ident">CompressedMovementID</span>, <span class="ident">ControlTrafficSignal</span>, <span class="ident">EditCmd</span>, <span class="ident">EditIntersection</span>, <span class="ident">IntersectionID</span>, <span class="ident">Map</span>,
@@ -636,28 +650,40 @@
     });
 }
 
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">StructOpt</span>)]</span>
+<span class="attribute">#[<span class="ident">structopt</span>(
+    <span class="ident">name</span> <span class="op">=</span> <span class="string">&quot;headless&quot;</span>,
+    <span class="ident">about</span> <span class="op">=</span> <span class="string">&quot;Simulate traffic with a JSON API, not a GUI&quot;</span>
+)]</span>
+<span class="kw">struct</span> <span class="ident">Args</span> {
+    <span class="doccomment">/// What port to run the JSON API on.</span>
+    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
+    <span class="ident">port</span>: <span class="ident">u16</span>,
+    <span class="doccomment">/// An arbitrary number to seed the random number generator. This is input to the deterministic</span>
+    <span class="doccomment">/// simulation, so different values affect results.</span>
+    <span class="comment">// TODO default_value can only handle strings, so copying SimFlags::RNG_SEED</span>
+    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>, <span class="ident">default_value</span> <span class="op">=</span> <span class="string">&quot;42&quot;</span>)]</span>
+    <span class="ident">rng_seed</span>: <span class="ident">u64</span>,
+    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">flatten</span>)]</span>
+    <span class="ident">opts</span>: <span class="ident">SimOptions</span>,
+}
+
 <span class="attribute">#[<span class="ident">tokio::main</span>]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">main</span>() {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">args</span> <span class="op">=</span> <span class="ident">CmdArgs::new</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">timer</span> <span class="op">=</span> <span class="ident">Timer::new</span>(<span class="string">&quot;setup headless&quot;</span>);
-    <span class="kw">let</span> <span class="ident">rng_seed</span> <span class="op">=</span> <span class="ident">args</span>
-        .<span class="ident">optional_parse</span>(<span class="string">&quot;--rng_seed&quot;</span>, <span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">parse</span>())
-        .<span class="ident">unwrap_or</span>(<span class="ident">SimFlags::RNG_SEED</span>);
-    <span class="kw">let</span> <span class="ident">opts</span> <span class="op">=</span> <span class="ident">SimOptions::from_args</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">args</span>, <span class="ident">rng_seed</span>);
-    <span class="kw">let</span> <span class="ident">port</span> <span class="op">=</span> <span class="ident">args</span>.<span class="ident">required</span>(<span class="string">&quot;--port&quot;</span>).<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
-    <span class="ident">args</span>.<span class="ident">done</span>();
+    <span class="ident">abstutil::logger::setup</span>();
+    <span class="kw">let</span> <span class="ident">args</span> <span class="op">=</span> <span class="ident">Args::from_args</span>();
 
     {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">load</span> <span class="op">=</span> <span class="ident">LOAD</span>.<span class="ident">write</span>().<span class="ident">unwrap</span>();
-        <span class="ident">load</span>.<span class="ident">rng_seed</span> <span class="op">=</span> <span class="ident">rng_seed</span>;
-        <span class="ident">load</span>.<span class="ident">opts</span> <span class="op">=</span> <span class="ident">opts</span>;
+        <span class="ident">load</span>.<span class="ident">rng_seed</span> <span class="op">=</span> <span class="ident">args</span>.<span class="ident">rng_seed</span>;
+        <span class="ident">load</span>.<span class="ident">opts</span> <span class="op">=</span> <span class="ident">args</span>.<span class="ident">opts</span>;
 
-        <span class="kw">let</span> (<span class="ident">map</span>, <span class="ident">sim</span>) <span class="op">=</span> <span class="ident">load</span>.<span class="ident">setup</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>);
+        <span class="kw">let</span> (<span class="ident">map</span>, <span class="ident">sim</span>) <span class="op">=</span> <span class="ident">load</span>.<span class="ident">setup</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Timer::new</span>(<span class="string">&quot;setup headless&quot;</span>));
         <span class="kw-2">*</span><span class="ident">MAP</span>.<span class="ident">write</span>().<span class="ident">unwrap</span>() <span class="op">=</span> <span class="ident">map</span>;
         <span class="kw-2">*</span><span class="ident">SIM</span>.<span class="ident">write</span>().<span class="ident">unwrap</span>() <span class="op">=</span> <span class="ident">sim</span>;
     }
 
-    <span class="kw">let</span> <span class="ident">addr</span> <span class="op">=</span> <span class="ident">std::net::SocketAddr::from</span>(([<span class="number">127</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>], <span class="ident">port</span>));
+    <span class="kw">let</span> <span class="ident">addr</span> <span class="op">=</span> <span class="ident">std::net::SocketAddr::from</span>(([<span class="number">127</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>], <span class="ident">args</span>.<span class="ident">port</span>));
     <span class="macro">info!</span>(<span class="string">&quot;Listening on http://{}&quot;</span>, <span class="ident">addr</span>);
     <span class="kw">let</span> <span class="ident">serve_future</span> <span class="op">=</span> <span class="ident">Server::bind</span>(<span class="kw-2">&amp;</span><span class="ident">addr</span>).<span class="ident">serve</span>(<span class="ident">hyper::service::make_service_fn</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="kw">async</span> {
         <span class="prelude-val">Ok</span>::<span class="op">&lt;</span><span class="kw">_</span>, <span class="ident">hyper::Error</span><span class="op">&gt;</span>(<span class="ident">hyper::service::service_fn</span>(<span class="ident">serve_req</span>))

@@ -1,5 +1,7 @@
 (function() {var implementors = {};
 implementors["cli"] = [{"text":"impl StructOpt for <a class=\"enum\" href=\"cli/enum.Command.html\" title=\"enum cli::Command\">Command</a>","synthetic":false,"types":["cli::Command"]}];
+implementors["headless"] = [{"text":"impl StructOpt for <a class=\"struct\" href=\"headless/struct.Args.html\" title=\"struct headless::Args\">Args</a>","synthetic":false,"types":["headless::Args"]}];
 implementors["importer"] = [{"text":"impl StructOpt for <a class=\"struct\" href=\"importer/struct.Job.html\" title=\"struct importer::Job\">Job</a>","synthetic":false,"types":["importer::Job"]}];
 implementors["map_model"] = [{"text":"impl StructOpt for <a class=\"struct\" href=\"map_model/make/struct.RawToMapOptions.html\" title=\"struct map_model::make::RawToMapOptions\">RawToMapOptions</a>","synthetic":false,"types":["map_model::make::RawToMapOptions"]}];
+implementors["sim"] = [{"text":"impl StructOpt for <a class=\"struct\" href=\"sim/sim/struct.SimOptions.html\" title=\"struct sim::sim::SimOptions\">SimOptions</a>","synthetic":false,"types":["sim::sim::SimOptions"]}];
 if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

@@ -1196,9 +1196,9 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">sim</span> <span class="op">=</span> <span class="ident">IntersectionSimState</span> {
             <span class="ident">state</span>: <span class="ident">BTreeMap::new</span>(),
             <span class="ident">use_freeform_policy_everywhere</span>: <span class="ident">opts</span>.<span class="ident">use_freeform_policy_everywhere</span>,
-            <span class="ident">dont_block_the_box</span>: <span class="ident">opts</span>.<span class="ident">dont_block_the_box</span>,
-            <span class="ident">break_turn_conflict_cycles</span>: <span class="ident">opts</span>.<span class="ident">break_turn_conflict_cycles</span>,
-            <span class="ident">handle_uber_turns</span>: <span class="ident">opts</span>.<span class="ident">handle_uber_turns</span>,
+            <span class="ident">dont_block_the_box</span>: <span class="op">!</span><span class="ident">opts</span>.<span class="ident">allow_block_the_box</span>,
+            <span class="ident">break_turn_conflict_cycles</span>: <span class="op">!</span><span class="ident">opts</span>.<span class="ident">dont_break_turn_conflict_cycles</span>,
+            <span class="ident">handle_uber_turns</span>: <span class="op">!</span><span class="ident">opts</span>.<span class="ident">dont_handle_uber_turns</span>,
             <span class="ident">disable_turn_conflicts</span>: <span class="ident">opts</span>.<span class="ident">disable_turn_conflicts</span>,
             <span class="ident">blocked_by</span>: <span class="ident">BTreeSet::new</span>(),
             <span class="ident">events</span>: <span class="ident">Vec::new</span>(),
