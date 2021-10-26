@@ -116,8 +116,48 @@
 <span id="116">116</span>
 <span id="117">117</span>
 <span id="118">118</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">rand::SeedableRng</span>;
+<span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
+<span id="126">126</span>
+<span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
+<span id="131">131</span>
+<span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">anyhow::Result</span>;
+<span class="kw">use</span> <span class="ident">rand::SeedableRng</span>;
 <span class="kw">use</span> <span class="ident">rand_xorshift::XorShiftRng</span>;
+<span class="kw">use</span> <span class="ident">structopt::StructOpt</span>;
 
 <span class="kw">use</span> <span class="ident">abstio::MapName</span>;
 <span class="kw">use</span> <span class="ident">abstutil::CmdArgs</span>;
@@ -125,46 +165,78 @@
 
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Scenario</span>, <span class="ident">ScenarioModifier</span>, <span class="ident">Sim</span>, <span class="ident">SimOptions</span>};
 
-<span class="doccomment">/// SimFlags specifies a simulation to setup.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
+<span class="doccomment">/// SimFlags specifies a simulation to setup. After parsing from structopt, you must call</span>
+<span class="doccomment">/// `initialize`.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">StructOpt</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SimFlags</span> {
-    <span class="doccomment">/// A path to some file.</span>
-    <span class="doccomment">/// - a savestate: restore the simulation exactly from some savestate</span>
-    <span class="doccomment">/// - a scenario</span>
+    <span class="doccomment">/// A path to some file:</span>
+    <span class="doccomment">///</span>
     <span class="doccomment">/// - some kind of map: start an empty simulation on the map</span>
+    <span class="doccomment">/// - a scenario</span>
+    <span class="doccomment">/// - a savestate: restore the simulation exactly from some savestate</span>
+    <span class="attribute">#[<span class="ident">structopt</span>()]</span>
+    <span class="ident">load_path</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// The same as `load_path`, but with a default value filled out. Call `initialize` to set this</span>
+    <span class="doccomment">/// up.</span>
+    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">skip</span>)]</span>
     <span class="kw">pub</span> <span class="ident">load</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">modifiers</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ScenarioModifier</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// A JSON list of modifiers to transform the scenario. These can be generated with the GUI.</span>
+    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>, <span class="ident">parse</span>(<span class="ident">try_from_str</span> <span class="op">=</span> <span class="ident">parse_modifiers</span>), <span class="ident">default_value</span> <span class="op">=</span> <span class="string">&quot;[]&quot;</span>)]</span>
+    <span class="kw">pub</span> <span class="ident">scenario_modifiers</span>: <span class="ident">ModifierList</span>,
+    <span class="doccomment">/// An arbitrary number to seed the random number generator. This is input to the deterministic</span>
+    <span class="doccomment">/// simulation, so different values affect results.</span>
+    <span class="comment">// TODO default_value can only handle strings, so copying SimFlags::RNG_SEED</span>
+    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>, <span class="ident">default_value</span> <span class="op">=</span> <span class="string">&quot;42&quot;</span>)]</span>
     <span class="kw">pub</span> <span class="ident">rng_seed</span>: <span class="ident">u64</span>,
+    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">flatten</span>)]</span>
     <span class="kw">pub</span> <span class="ident">opts</span>: <span class="ident">SimOptions</span>,
+}
+
+<span class="comment">// See https://github.com/TeXitoi/structopt/issues/94</span>
+<span class="kw">type</span> <span class="ident">ModifierList</span> <span class="op">=</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ScenarioModifier</span><span class="op">&gt;</span>;
+
+<span class="kw">fn</span> <span class="ident">parse_modifiers</span>(<span class="ident">x</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ModifierList</span><span class="op">&gt;</span> {
+    <span class="ident">abstutil::from_json</span>(<span class="kw-2">&amp;</span><span class="ident">x</span>.<span class="ident">to_string</span>().<span class="ident">into_bytes</span>())
 }
 
 <span class="kw">impl</span> <span class="ident">SimFlags</span> {
     <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">RNG_SEED</span>: <span class="ident">u64</span> <span class="op">=</span> <span class="number">42</span>;
 
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">initialize</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+        <span class="comment">// default_value can&#39;t call functions and this value can&#39;t be hardcoded</span>
+        <span class="self">self</span>.<span class="ident">load</span> <span class="op">=</span> <span class="self">self</span>
+            .<span class="ident">load_path</span>
+            .<span class="ident">clone</span>()
+            .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">MapName::seattle</span>(<span class="string">&quot;montlake&quot;</span>).<span class="ident">path</span>());
+    }
+
+    <span class="comment">// TODO Remove</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_args</span>(<span class="ident">args</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">CmdArgs</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">SimFlags</span> {
         <span class="kw">let</span> <span class="ident">rng_seed</span> <span class="op">=</span> <span class="ident">args</span>
             .<span class="ident">optional_parse</span>(<span class="string">&quot;--rng_seed&quot;</span>, <span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">parse</span>())
             .<span class="ident">unwrap_or</span>(<span class="ident">SimFlags::RNG_SEED</span>);
-        <span class="kw">let</span> <span class="ident">modifiers</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ScenarioModifier</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">args</span>
+        <span class="kw">let</span> <span class="ident">scenario_modifiers</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ScenarioModifier</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">args</span>
             .<span class="ident">optional_parse</span>(<span class="string">&quot;--scenario_modifiers&quot;</span>, <span class="op">|</span><span class="ident">s</span><span class="op">|</span> {
                 <span class="ident">abstutil::from_json</span>(<span class="kw-2">&amp;</span><span class="ident">s</span>.<span class="ident">to_string</span>().<span class="ident">into_bytes</span>())
             })
             .<span class="ident">unwrap_or_else</span>(<span class="ident">Vec::new</span>);
-        <span class="ident">SimFlags</span> {
-            <span class="ident">load</span>: <span class="ident">args</span>
-                .<span class="ident">optional_free</span>()
-                .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">MapName::seattle</span>(<span class="string">&quot;montlake&quot;</span>).<span class="ident">path</span>()),
-            <span class="ident">modifiers</span>,
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">flags</span> <span class="op">=</span> <span class="ident">SimFlags</span> {
+            <span class="ident">load_path</span>: <span class="ident">args</span>.<span class="ident">optional_free</span>(),
+            <span class="ident">load</span>: <span class="ident">String::new</span>(),
+            <span class="ident">scenario_modifiers</span>,
             <span class="ident">rng_seed</span>,
             <span class="ident">opts</span>: <span class="ident">SimOptions::from_args</span>(<span class="ident">args</span>, <span class="ident">rng_seed</span>),
-        }
+        };
+        <span class="ident">flags</span>.<span class="ident">initialize</span>();
+        <span class="ident">flags</span>
     }
 
     <span class="comment">// TODO rename seattle_test</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">for_test</span>(<span class="ident">run_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">SimFlags</span> {
         <span class="ident">SimFlags</span> {
+            <span class="ident">load_path</span>: <span class="prelude-val">None</span>,
             <span class="ident">load</span>: <span class="ident">MapName::seattle</span>(<span class="string">&quot;montlake&quot;</span>).<span class="ident">path</span>(),
-            <span class="ident">modifiers</span>: <span class="ident">Vec::new</span>(),
+            <span class="ident">scenario_modifiers</span>: <span class="ident">Vec::new</span>(),
             <span class="ident">rng_seed</span>: <span class="ident">SimFlags::RNG_SEED</span>,
             <span class="ident">opts</span>: <span class="ident">SimOptions::new</span>(<span class="ident">run_name</span>),
         }
@@ -176,6 +248,10 @@
 
     <span class="doccomment">/// Loads a map and simulation. Not appropriate for use in the UI or on web.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">load_synchronously</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">abstutil::Timer</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">Map</span>, <span class="ident">Sim</span>, <span class="ident">XorShiftRng</span>) {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">load</span>.<span class="ident">is_empty</span>() {
+            <span class="macro">panic!</span>(<span class="string">&quot;You forgot to call initialize on SimFlags after parsing from structopt&quot;</span>);
+        }
+
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">make_rng</span>();
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">opts</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">opts</span>.<span class="ident">clone</span>();
@@ -208,7 +284,7 @@
 
             <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">Map::load_synchronously</span>(<span class="ident">scenario</span>.<span class="ident">map_name</span>.<span class="ident">path</span>(), <span class="ident">timer</span>);
 
-            <span class="kw">for</span> <span class="ident">m</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">modifiers</span> {
+            <span class="kw">for</span> <span class="ident">m</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">scenario_modifiers</span> {
                 <span class="ident">scenario</span> <span class="op">=</span> <span class="ident">m</span>.<span class="ident">apply</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>, <span class="ident">scenario</span>);
             }
 

@@ -134,9 +134,20 @@
 <span id="134">134</span>
 <span id="135">135</span>
 <span id="136">136</span>
-</pre><pre class="rust"><code><span class="comment">// This is a tool that runs a simulation, constantly interrupting to apply random map edits to the</span>
-<span class="comment">// live sim without resetting to midnight. The purpose is to trigger crashes and find bugs.</span>
-<span class="comment">//</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+</pre><pre class="rust"><code><span class="doccomment">//! This is a tool that runs a simulation, constantly interrupting to apply random map edits to the</span>
+<span class="doccomment">//! live sim without resetting to midnight. The purpose is to trigger crashes and find bugs.</span>
+
 <span class="comment">// TODO Eventually rewrite this to go through the public API. Faster to iterate in Rust for now.</span>
 
 <span class="attribute">#[<span class="ident">macro_use</span>]</span>
@@ -144,16 +155,27 @@
 
 <span class="kw">use</span> <span class="ident">rand::seq::SliceRandom</span>;
 <span class="kw">use</span> <span class="ident">rand_xorshift::XorShiftRng</span>;
+<span class="kw">use</span> <span class="ident">structopt::StructOpt</span>;
 
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">CmdArgs</span>, <span class="ident">Timer</span>};
+<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">Timer</span>};
 <span class="kw">use</span> <span class="ident">geom::Duration</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">LaneID</span>, <span class="ident">LaneType</span>, <span class="ident">Map</span>, <span class="ident">MapEdits</span>};
-<span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">Sim</span>, <span class="ident">SimFlags</span>};
+<span class="kw">use</span> <span class="ident">sim::Sim</span>;
+
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">StructOpt</span>)]</span>
+<span class="attribute">#[<span class="ident">structopt</span>(
+    <span class="ident">name</span> <span class="op">=</span> <span class="string">&quot;traffic_seitan&quot;</span>,
+    <span class="ident">about</span> <span class="op">=</span> <span class="string">&quot;Automated fuzz testing for live map edits&quot;</span>
+)]</span>
+<span class="kw">struct</span> <span class="ident">Args</span> {
+    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">flatten</span>)]</span>
+    <span class="ident">flags</span>: <span class="ident">sim::SimFlags</span>,
+}
 
 <span class="kw">fn</span> <span class="ident">main</span>() {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">args</span> <span class="op">=</span> <span class="ident">CmdArgs::new</span>();
-    <span class="kw">let</span> <span class="ident">sim_flags</span> <span class="op">=</span> <span class="ident">SimFlags::from_args</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">args</span>);
-    <span class="ident">args</span>.<span class="ident">done</span>();
+    <span class="ident">abstutil::logger::setup</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">sim_flags</span> <span class="op">=</span> <span class="ident">Args::from_args</span>().<span class="ident">flags</span>;
+    <span class="ident">sim_flags</span>.<span class="ident">initialize</span>();
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">timer</span> <span class="op">=</span> <span class="ident">Timer::throwaway</span>();
     <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">map</span>, <span class="kw-2">mut</span> <span class="ident">sim</span>, <span class="kw-2">mut</span> <span class="ident">rng</span>) <span class="op">=</span> <span class="ident">sim_flags</span>.<span class="ident">load_synchronously</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">timer</span>);

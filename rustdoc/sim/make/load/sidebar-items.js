@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["SimFlags","SimFlags specifies a simulation to setup."]]});
+initSidebarItems({"fn":[["parse_modifiers",""]],"struct":[["SimFlags","SimFlags specifies a simulation to setup. After parsing from structopt, you must call `initialize`."]],"type":[["ModifierList",""]]});
