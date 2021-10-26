@@ -122,7 +122,7 @@ fn run(mut settings: Settings) {
 
     // Don't keep the scenario modifiers in the original sim_flags; they shouldn't apply to
     // other scenarios loaed in the UI later.
-    let modifiers = setup.flags.sim_flags.modifiers.drain(..).collect();
+    let modifiers = setup.flags.sim_flags.scenario_modifiers.drain(..).collect();
 
     if setup.maybe_mode.is_none() && setup.flags.sim_flags.load.contains("scenarios/") {
         let (map_name, scenario) = abstio::parse_scenario_path(&setup.flags.sim_flags.load);
@@ -256,7 +256,7 @@ fn setup_app(ctx: &mut EventCtx, mut setup: Setup) -> (App, Vec<Box<dyn State<Ap
         // We're loading a savestate or a RawMap. Do it with blocking IO. This won't
         // work on the web.
         let primary = ctx.loading_screen("load map", |ctx, mut timer| {
-            assert!(setup.flags.sim_flags.modifiers.is_empty());
+            assert!(setup.flags.sim_flags.scenario_modifiers.is_empty());
             let (map, sim, _) = setup.flags.sim_flags.load_synchronously(timer);
             PerMap::map_loaded(
                 map,

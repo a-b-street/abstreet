@@ -1,5 +1,7 @@
+use anyhow::Result;
 use rand::SeedableRng;
 use rand_xorshift::XorShiftRng;
+use structopt::StructOpt;
 
 use abstio::MapName;
 use abstutil::CmdArgs;
@@ -7,46 +9,78 @@ use map_model::{Map, MapEdits};
 
 use crate::{Scenario, ScenarioModifier, Sim, SimOptions};
 
-/// SimFlags specifies a simulation to setup.
-#[derive(Clone)]
+/// SimFlags specifies a simulation to setup. After parsing from structopt, you must call
+/// `initialize`.
+#[derive(Clone, StructOpt)]
 pub struct SimFlags {
-    /// A path to some file.
-    /// - a savestate: restore the simulation exactly from some savestate
-    /// - a scenario
+    /// A path to some file:
+    ///
     /// - some kind of map: start an empty simulation on the map
+    /// - a scenario
+    /// - a savestate: restore the simulation exactly from some savestate
+    #[structopt()]
+    load_path: Option<String>,
+    /// The same as `load_path`, but with a default value filled out. Call `initialize` to set this
+    /// up.
+    #[structopt(skip)]
     pub load: String,
-    pub modifiers: Vec<ScenarioModifier>,
+    /// A JSON list of modifiers to transform the scenario. These can be generated with the GUI.
+    #[structopt(long, parse(try_from_str = parse_modifiers), default_value = "[]")]
+    pub scenario_modifiers: ModifierList,
+    /// An arbitrary number to seed the random number generator. This is input to the deterministic
+    /// simulation, so different values affect results.
+    // TODO default_value can only handle strings, so copying SimFlags::RNG_SEED
+    #[structopt(long, default_value = "42")]
     pub rng_seed: u64,
+    #[structopt(flatten)]
     pub opts: SimOptions,
+}
+
+// See https://github.com/TeXitoi/structopt/issues/94
+type ModifierList = Vec<ScenarioModifier>;
+
+fn parse_modifiers(x: &str) -> Result<ModifierList> {
+    abstutil::from_json(&x.to_string().into_bytes())
 }
 
 impl SimFlags {
     pub const RNG_SEED: u64 = 42;
 
+    pub fn initialize(&mut self) {
+        // default_value can't call functions and this value can't be hardcoded
+        self.load = self
+            .load_path
+            .clone()
+            .unwrap_or_else(|| MapName::seattle("montlake").path());
+    }
+
+    // TODO Remove
     pub fn from_args(args: &mut CmdArgs) -> SimFlags {
         let rng_seed = args
             .optional_parse("--rng_seed", |s| s.parse())
             .unwrap_or(SimFlags::RNG_SEED);
-        let modifiers: Vec<ScenarioModifier> = args
+        let scenario_modifiers: Vec<ScenarioModifier> = args
             .optional_parse("--scenario_modifiers", |s| {
                 abstutil::from_json(&s.to_string().into_bytes())
             })
             .unwrap_or_else(Vec::new);
-        SimFlags {
-            load: args
-                .optional_free()
-                .unwrap_or_else(|| MapName::seattle("montlake").path()),
-            modifiers,
+        let mut flags = SimFlags {
+            load_path: args.optional_free(),
+            load: String::new(),
+            scenario_modifiers,
             rng_seed,
             opts: SimOptions::from_args(args, rng_seed),
-        }
+        };
+        flags.initialize();
+        flags
     }
 
     // TODO rename seattle_test
     pub fn for_test(run_name: &str) -> SimFlags {
         SimFlags {
+            load_path: None,
             load: MapName::seattle("montlake").path(),
-            modifiers: Vec::new(),
+            scenario_modifiers: Vec::new(),
             rng_seed: SimFlags::RNG_SEED,
             opts: SimOptions::new(run_name),
         }
@@ -58,6 +92,10 @@ impl SimFlags {
 
     /// Loads a map and simulation. Not appropriate for use in the UI or on web.
     pub fn load_synchronously(&self, timer: &mut abstutil::Timer) -> (Map, Sim, XorShiftRng) {
+        if self.load.is_empty() {
+            panic!("You forgot to call initialize on SimFlags after parsing from structopt");
+        }
+
         let mut rng = self.make_rng();
 
         let mut opts = self.opts.clone();
@@ -90,7 +128,7 @@ impl SimFlags {
 
             let map = Map::load_synchronously(scenario.map_name.path(), timer);
 
-            for m in &self.modifiers {
+            for m in &self.scenario_modifiers {
                 scenario = m.apply(&map, scenario);
             }
 

@@ -15,7 +15,6 @@ extern crate anyhow;
 extern crate log;
 
 use std::collections::{BTreeMap, BTreeSet, HashMap};
-use std::convert::TryFrom;
 use std::sync::RwLock;
 
 use anyhow::Result;

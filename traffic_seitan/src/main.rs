@@ -1,6 +1,6 @@
-// This is a tool that runs a simulation, constantly interrupting to apply random map edits to the
-// live sim without resetting to midnight. The purpose is to trigger crashes and find bugs.
-//
+//! This is a tool that runs a simulation, constantly interrupting to apply random map edits to the
+//! live sim without resetting to midnight. The purpose is to trigger crashes and find bugs.
+
 // TODO Eventually rewrite this to go through the public API. Faster to iterate in Rust for now.
 
 #[macro_use]
@@ -8,16 +8,27 @@ extern crate log;
 
 use rand::seq::SliceRandom;
 use rand_xorshift::XorShiftRng;
+use structopt::StructOpt;
 
-use abstutil::{prettyprint_usize, CmdArgs, Timer};
+use abstutil::{prettyprint_usize, Timer};
 use geom::Duration;
 use map_model::{LaneID, LaneType, Map, MapEdits};
-use sim::{Sim, SimFlags};
+use sim::Sim;
+
+#[derive(StructOpt)]
+#[structopt(
+    name = "traffic_seitan",
+    about = "Automated fuzz testing for live map edits"
+)]
+struct Args {
+    #[structopt(flatten)]
+    flags: sim::SimFlags,
+}
 
 fn main() {
-    let mut args = CmdArgs::new();
-    let sim_flags = SimFlags::from_args(&mut args);
-    args.done();
+    abstutil::logger::setup();
+    let mut sim_flags = Args::from_args().flags;
+    sim_flags.initialize();
 
     let mut timer = Timer::throwaway();
     let (mut map, mut sim, mut rng) = sim_flags.load_synchronously(&mut timer);

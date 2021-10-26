@@ -1,15 +1,31 @@
 //! A simple tool that just runs a simulation for the specified number of hours. Use for profiling
 //! and benchmarking.
 
-fn main() {
-    let mut args = abstutil::CmdArgs::new();
-    let interruptible = args.enabled("--interruptible");
-    let hours = geom::Duration::hours(args.required("--hours").parse::<usize>().unwrap());
-    let (mut map, mut sim, _) =
-        sim::SimFlags::from_args(&mut args).load_synchronously(&mut abstutil::Timer::new("setup"));
-    args.done();
+use structopt::StructOpt;
 
-    if interruptible {
+#[derive(StructOpt)]
+#[structopt(name = "run_scenario", about = "Simulates a scenario")]
+struct Args {
+    /// Pressing Control+C will interrupt and savestate.
+    #[structopt(long)]
+    interruptible: bool,
+    /// How many hours to simulate.
+    #[structopt(long)]
+    hours: usize,
+    #[structopt(flatten)]
+    flags: sim::SimFlags,
+}
+
+fn main() {
+    abstutil::logger::setup();
+    let mut args = Args::from_args();
+    args.flags.initialize();
+    let hours = geom::Duration::hours(args.hours);
+    let (mut map, mut sim, _) = args
+        .flags
+        .load_synchronously(&mut abstutil::Timer::new("setup"));
+
+    if args.interruptible {
         // Pressing ^C will savestate. This needs a more complex loop to check for the interrupt.
         // This is guarded by the --interruptible flag to keep the benchmarking case simple.
         use std::sync::atomic::{AtomicBool, Ordering};
