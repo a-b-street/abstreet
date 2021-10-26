@@ -5,7 +5,7 @@ use std::fmt;
 use serde::{Deserialize, Serialize};
 
 use abstutil::{deserialize_usize, serialize_usize};
-use geom::{Distance, Pt2D, Polygon};
+use geom::{Distance, Polygon};
 
 use crate::{
     osm, CompressedMovementID, DirectedRoadID, LaneID, Map, Movement, MovementID, PathConstraints,
@@ -160,33 +160,19 @@ impl Intersection {
     // TODO walking_turns_v2 and the intersection geometry algorithm also do something like this.
     // Refactor?
     pub fn get_road_sides_sorted_by_incoming_angle(&self, map: &Map) -> Vec<RoadSideID> {
-        let mut sides: Vec<(RoadSideID, Pt2D)> = Vec::new();
-        let mut endpts = Vec::new();
-        for r in &self.roads {
-            for side in [SideOfRoad::Left, SideOfRoad::Right] {
-                let id = RoadSideID {
-                    id: *r,
-                    side,
-                };
-                let r = map.get_r(*r);
-                let pl = id.get_pl(map);
-                let endpt = if r.src_i == self.id {
-                    pl.first_pt()
-                } else if r.dst_i == self.id {
-                    pl.last_pt()
-                } else {
-                    unreachable!();
-                };
-                sides.push((id, endpt));
-                endpts.push(endpt);
+        let mut sides = Vec::new();
+        for r in self.get_roads_sorted_by_incoming_angle(map) {
+            let r = map.get_r(r);
+            // TODO Probably right-handed driving centric
+            if r.dst_i == self.id {
+                sides.push(RoadSideID { id: r.id, side: SideOfRoad::Right });
+                sides.push(RoadSideID { id: r.id, side: SideOfRoad::Left });
+            } else {
+                sides.push(RoadSideID { id: r.id, side: SideOfRoad::Left });
+                sides.push(RoadSideID { id: r.id, side: SideOfRoad::Right });
             }
         }
-        // Sort by the center of these endpoints, not the center of the polygon
-        let center = Pt2D::center(&endpts);
-        sides.sort_by_key(|(_, pt)| {
-            pt.angle_to(center).normalized_degrees() as i64
-        });
-        sides.into_iter().map(|(id, _)| id).collect()
+        sides
     }
 
     /// Return all incoming roads to an intersection, sorted by angle. This skips one-way roads

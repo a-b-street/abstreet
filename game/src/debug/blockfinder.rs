@@ -217,6 +217,7 @@ impl Block {
         }
         // TODO Depending where we start, this sometimes misses the SharedSidewalkCorner?
         pts.push(pts[0]);
+        pts.dedup();
         let polygon = Ring::new(pts)?.into_polygon();
 
         Ok(Block { perimeter, polygon })
