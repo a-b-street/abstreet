@@ -28,6 +28,7 @@ use crate::sandbox::GameplayMode;
 pub use self::routes::PathCostDebugger;
 
 mod blocked_by;
+mod blockfinder;
 mod floodfill;
 mod objects;
 pub mod path_counter;
@@ -131,7 +132,11 @@ impl DebugMode {
                     ctx.style()
                         .btn_outline
                         .text("blocked-by graph")
-                        .hotkey(Key::B)
+                        .build_def(ctx),
+                    ctx.style()
+                        .btn_outline
+                        .text("blockfinder")
+                        .hotkey(lctrl(Key::B))
                         .build_def(ctx),
                     ctx.style()
                         .btn_outline
@@ -350,6 +355,9 @@ impl State<App> for DebugMode {
                 }
                 "blocked-by graph" => {
                     return Transition::Push(blocked_by::Viewer::new_state(ctx, app));
+                }
+                "blockfinder" => {
+                    return Transition::Push(blockfinder::Blockfinder::new_state(ctx));
                 }
                 "render to GeoJSON" => {
                     // TODO Loading screen doesn't actually display anything because of the rules

@@ -7,8 +7,8 @@ use abstutil::{wraparound_get, Tags};
 use geom::{Distance, Line, PolyLine, Polygon, Pt2D, Ring};
 
 use crate::{
-    osm, BusStopID, DirectedRoadID, Direction, IntersectionID, Map, MapConfig, Road, RoadID,
-    TurnType,
+    osm, BusStopID, DirectedRoadID, Direction, DrivingSide, IntersectionID, Map, MapConfig, Road,
+    RoadID, RoadSideID, SideOfRoad, TurnType,
 };
 
 /// From some manually audited cases in Seattle, the length of parallel street parking spots is a
@@ -366,6 +366,21 @@ impl Lane {
         }
     }
 
+    /// This is just based on typical driving sides. Bidirectional or contraflow cycletracks as
+    /// input may produce weird results.
+    pub fn get_nearest_side_of_road(&self, map: &Map) -> RoadSideID {
+        let side = match (self.dir, map.get_config().driving_side) {
+            (Direction::Fwd, DrivingSide::Right) => SideOfRoad::Right,
+            (Direction::Back, DrivingSide::Right) => SideOfRoad::Left,
+            (Direction::Fwd, DrivingSide::Left) => SideOfRoad::Left,
+            (Direction::Back, DrivingSide::Left) => SideOfRoad::Right,
+        };
+        RoadSideID {
+            id: self.id.road,
+            side,
+        }
+    }
+
     /// Returns the set of allowed turn types, based on individual turn lane restrictions. `None`
     /// means all turn types are allowed.
     ///
@@ -501,6 +516,17 @@ impl Lane {
         pts.push(pts[0]);
         pts.dedup();
         Some((Ring::new(pts).ok()?.into_polygon(), visited))
+    }
+
+    pub fn common_endpt(&self, other: &Lane) -> IntersectionID {
+        #![allow(clippy::suspicious_operation_groupings)]
+        if self.src_i == other.src_i || self.src_i == other.dst_i {
+            return self.src_i;
+        }
+        if self.dst_i == other.src_i || self.dst_i == other.dst_i {
+            return self.dst_i;
+        }
+        panic!("{} and {} have no common_endpt", self.id, other.id);
     }
 }
 

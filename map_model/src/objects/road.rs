@@ -130,6 +130,37 @@ impl DirectedRoadID {
     }
 }
 
+/// See https://wiki.openstreetmap.org/wiki/Forward_%26_backward,_left_%26_right.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
+pub enum SideOfRoad {
+    Right,
+    Left,
+}
+
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
+pub struct RoadSideID {
+    pub id: RoadID,
+    pub side: SideOfRoad,
+}
+
+impl RoadSideID {
+    pub fn get_outermost_lane(self, map: &Map) -> &Lane {
+        let r = map.get_r(self.id);
+        match self.side {
+            SideOfRoad::Right => r.lanes.last().unwrap(),
+            SideOfRoad::Left => &r.lanes[0],
+        }
+    }
+
+    pub fn get_pl(self, map: &Map) -> PolyLine {
+        let r = map.get_r(self.id);
+        match self.side {
+            SideOfRoad::Left => r.center_pts.must_shift_left(r.get_half_width()),
+            SideOfRoad::Right => r.center_pts.must_shift_right(r.get_half_width()),
+        }
+    }
+}
+
 /// A Road represents a segment between exactly two Intersections. It contains Lanes as children.
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Road {
