@@ -518,12 +518,20 @@ impl Lane {
         Some((Ring::new(pts).ok()?.into_polygon(), visited))
     }
 
+    /// If the lanes share one endpoint, returns it. If they share two -- because they belong to
+    /// the same road or there are two different roads connecting the same pair of intersections --
+    /// or if they share no common endpoint, panics.
     pub fn common_endpt(&self, other: &Lane) -> IntersectionID {
         #![allow(clippy::suspicious_operation_groupings)]
-        if self.src_i == other.src_i || self.src_i == other.dst_i {
+        let src = self.src_i == other.src_i || self.src_i == other.dst_i;
+        let dst = self.dst_i == other.src_i || self.dst_i == other.dst_i;
+        if src && dst {
+            panic!("{} and {} share two common_endpts", self.id, other.id);
+        }
+        if src {
             return self.src_i;
         }
-        if self.dst_i == other.src_i || self.dst_i == other.dst_i {
+        if dst {
             return self.dst_i;
         }
         panic!("{} and {} have no common_endpt", self.id, other.id);

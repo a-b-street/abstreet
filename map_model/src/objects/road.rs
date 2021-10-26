@@ -442,6 +442,7 @@ impl Road {
     }
 
     /// Returns the common intersection between two roads, panicking if they're not adjacent
+    // TODO Doesn't handle two roads between the same pair of intersections
     pub fn common_endpt(&self, other: &Road) -> IntersectionID {
         #![allow(clippy::suspicious_operation_groupings)] // false positive
         if self.src_i == other.src_i || self.src_i == other.dst_i {

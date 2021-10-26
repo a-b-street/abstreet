@@ -4,7 +4,7 @@ use abstutil::wraparound_get;
 use geom::{Polygon, Ring};
 use map_gui::tools::PopupMsg;
 use map_gui::ID;
-use map_model::{LaneID, Map, SideOfRoad, RoadSideID};
+use map_model::{LaneID, Map, RoadSideID, SideOfRoad};
 use widgetry::{
     Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line, Panel, SimpleState,
     State, TextExt, Toggle, VerticalAlignment, Widget,
@@ -101,10 +101,7 @@ impl OneBlock {
                 .btn_outline
                 .text("Show perimeter in order")
                 .build_def(ctx),
-            ctx.style()
-                .btn_outline
-                .text("Debug polygon")
-                .build_def(ctx),
+            ctx.style().btn_outline.text("Debug polygon").build_def(ctx),
         ]))
         .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
         .build(ctx);
@@ -136,7 +133,13 @@ impl SimpleState<App> for OneBlock {
                 return Transition::Push(polygons::PolygonDebugger::new_state(
                     ctx,
                     "pt",
-                    self.block.polygon.clone().into_points().into_iter().map(polygons::Item::Point).collect(),
+                    self.block
+                        .polygon
+                        .clone()
+                        .into_points()
+                        .into_iter()
+                        .map(polygons::Item::Point)
+                        .collect(),
                     None,
                 ));
             }
@@ -169,7 +172,10 @@ impl RoadLoop {
         let mut current_road_side = start_road_side;
         let mut current_intersection = map.get_l(start).dst_i;
         loop {
-            println!("at {:?} pointing to {}", current_road_side, current_intersection);
+            println!(
+                "at {:?} pointing to {}",
+                current_road_side, current_intersection
+            );
             let i = map.get_i(current_intersection);
             let sorted_roads = i.get_road_sides_sorted_by_incoming_angle(map);
             // Find this one
@@ -217,6 +223,7 @@ impl Block {
         let perimeter = RoadLoop::new(map, start)?;
 
         let mut pts = Vec::new();
+        let mut reversed_last = false;
         for pair in perimeter.roads.windows(2) {
             let lane1 = pair[0].get_outermost_lane(map);
             let lane2 = pair[1].get_outermost_lane(map);
@@ -225,10 +232,21 @@ impl Block {
                 SideOfRoad::Right => lane1.lane_center_pts.must_shift_right(lane1.width / 2.0),
                 SideOfRoad::Left => lane1.lane_center_pts.must_shift_left(lane1.width / 2.0),
             };
-            if lane1.common_endpt(lane2) == lane1.dst_i {
+            if pair[0].id == pair[1].id {
+                // We're doubling back at a dead-end
+                if reversed_last {
+                    pts.extend(pl.into_points());
+                    reversed_last = false;
+                } else {
+                    pts.extend(pl.into_points());
+                    reversed_last = true;
+                }
+            } else if lane1.common_endpt(lane2) == lane1.dst_i {
                 pts.extend(pl.into_points());
+                reversed_last = false;
             } else {
                 pts.extend(pl.reversed().into_points());
+                reversed_last = true;
             }
         }
         // TODO Depending where we start, this sometimes misses the SharedSidewalkCorner?

@@ -26,7 +26,10 @@ impl ObjectDebugger {
                     if let Some((dist, _)) = pl.dist_along_of_point(pl.project_pt(pt)) {
                         txt.add_line(Position::new(l, dist).to_string());
                     }
-                    txt.add_line(format!("{:?}", lane.get_nearest_side_of_road(&app.primary.map)));
+                    txt.add_line(format!(
+                        "{:?}",
+                        lane.get_nearest_side_of_road(&app.primary.map)
+                    ));
                 }
                 g.draw_mouse_tooltip(txt);
             }

@@ -165,11 +165,23 @@ impl Intersection {
             let r = map.get_r(r);
             // TODO Probably right-handed driving centric
             if r.dst_i == self.id {
-                sides.push(RoadSideID { id: r.id, side: SideOfRoad::Right });
-                sides.push(RoadSideID { id: r.id, side: SideOfRoad::Left });
+                sides.push(RoadSideID {
+                    id: r.id,
+                    side: SideOfRoad::Right,
+                });
+                sides.push(RoadSideID {
+                    id: r.id,
+                    side: SideOfRoad::Left,
+                });
             } else {
-                sides.push(RoadSideID { id: r.id, side: SideOfRoad::Left });
-                sides.push(RoadSideID { id: r.id, side: SideOfRoad::Right });
+                sides.push(RoadSideID {
+                    id: r.id,
+                    side: SideOfRoad::Left,
+                });
+                sides.push(RoadSideID {
+                    id: r.id,
+                    side: SideOfRoad::Right,
+                });
             }
         }
         sides
