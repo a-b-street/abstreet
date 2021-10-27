@@ -10,7 +10,7 @@ use map_gui::render::{calculate_corners, DrawMap, DrawOptions};
 use map_gui::tools::{ChooseSomething, PopupMsg, PromptInput};
 use map_gui::{AppLike, ID};
 use map_model::{
-    osm, ControlTrafficSignal, IntersectionID, PathConstraints, Position, RoadID,
+    osm, Block, ControlTrafficSignal, IntersectionID, PathConstraints, Position, RoadID,
     NORMAL_LANE_THICKNESS,
 };
 use sim::{Sim, TripEndpoint};
@@ -357,7 +357,8 @@ impl State<App> for DebugMode {
                     return Transition::Push(blocked_by::Viewer::new_state(ctx, app));
                 }
                 "blockfinder" => {
-                    return Transition::Push(blockfinder::Blockfinder::new_state(ctx));
+                    app.primary.current_selection = None;
+                    return Transition::Push(blockfinder::Blockfinder::new_state(ctx, app));
                 }
                 "render to GeoJSON" => {
                     // TODO Loading screen doesn't actually display anything because of the rules
@@ -610,6 +611,7 @@ impl ContextualActions for Actions {
                 actions.push((Key::F2, "debug lane triangles geometry".to_string()));
                 actions.push((Key::C, "export roads".to_string()));
                 actions.push((Key::E, "show equiv_pos".to_string()));
+                actions.push((Key::B, "trace this block".to_string()));
                 if cfg!(not(target_arch = "wasm32")) {
                     actions.push((Key::M, "merge short segment".to_string()));
                 }
@@ -785,6 +787,17 @@ impl ContextualActions for Actions {
                         }
                     }
                 }))
+            }
+            (ID::Lane(l), "trace this block") => {
+                app.primary.current_selection = None;
+                return Transition::Push(match Block::single_block(&app.primary.map, l) {
+                    Ok(block) => blockfinder::OneBlock::new_state(ctx, block),
+                    Err(err) => {
+                        // Rendering the error message is breaking
+                        error!("Blockfinding failed: {}", err);
+                        PopupMsg::new_state(ctx, "Error", vec!["See console"])
+                    }
+                });
             }
             #[cfg(not(target_arch = "wasm32"))]
             (ID::Lane(l), "merge short segment") => {

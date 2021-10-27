@@ -1,99 +1,134 @@
-use geom::Distance;
-use map_gui::tools::PopupMsg;
-use map_gui::ID;
+use std::collections::{HashMap, HashSet};
+
 use map_model::Block;
+use widgetry::mapspace::{ObjectID, World, WorldOutcome};
 use widgetry::{
-    Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line, Panel, SimpleState,
-    State, TextExt, Toggle, VerticalAlignment, Widget,
+    Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, SimpleState, State,
+    TextExt, VerticalAlignment, Widget,
 };
 
 use crate::app::{App, Transition};
 use crate::debug::polygons;
 
 pub struct Blockfinder {
-    draw_all_blocks: Option<Drawable>,
+    panel: Panel,
+    id_counter: usize,
+    blocks: HashMap<Obj, Block>,
+    world: World<Obj>,
+    to_merge: HashSet<Obj>,
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+struct Obj(usize);
+impl ObjectID for Obj {}
+
 impl Blockfinder {
-    pub fn new_state(ctx: &mut EventCtx) -> Box<dyn State<App>> {
+    pub fn new_state(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
+        let mut id_counter = 0;
+        let mut blocks = HashMap::new();
+        let mut world = World::bounded(app.primary.map.get_bounds());
+        ctx.loading_screen("calculate all blocks", |ctx, _| {
+            for block in Block::find_all_single_blocks(&app.primary.map) {
+                let id = Obj(id_counter);
+                id_counter += 1;
+                world
+                    .add(id)
+                    .hitbox(block.polygon.clone())
+                    .draw_color(Color::RED.alpha(0.5))
+                    // TODO an outline would be nicer
+                    .hover_alpha(0.9)
+                    .clickable()
+                    .hotkey(Key::Space, "add to merge set")
+                    .build(ctx);
+                blocks.insert(id, block);
+            }
+        });
+        world.initialize_hover(ctx);
+
         let panel = Panel::new_builder(Widget::col(vec![
             Widget::row(vec![
                 Line("Blockfinder").small_heading().into_widget(ctx),
                 ctx.style().btn_close_widget(ctx),
             ]),
-            Toggle::checkbox(ctx, "Draw all blocks", None, false),
-            "Click a lane to find one block".text_widget(ctx),
+            "Click a block to examine.".text_widget(ctx),
+            "Press space to mark/unmark for merging".text_widget(ctx),
+            ctx.style()
+                .btn_outline
+                .text("Merge")
+                .hotkey(Key::M)
+                .build_def(ctx),
         ]))
-        .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
+        .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
         .build(ctx);
-        <dyn SimpleState<_>>::new_state(
+        Box::new(Blockfinder {
             panel,
-            Box::new(Blockfinder {
-                draw_all_blocks: None,
-            }),
-        )
+            id_counter,
+            blocks,
+            world,
+            to_merge: HashSet::new(),
+        })
     }
 }
 
-impl SimpleState<App> for Blockfinder {
-    fn on_click(&mut self, _: &mut EventCtx, _: &mut App, x: &str, _: &Panel) -> Transition {
-        match x {
-            "close" => Transition::Pop,
-            _ => unreachable!(),
-        }
-    }
-
-    fn panel_changed(
-        &mut self,
-        ctx: &mut EventCtx,
-        app: &mut App,
-        _: &mut Panel,
-    ) -> Option<Transition> {
-        if self.draw_all_blocks.is_some() {
-            self.draw_all_blocks = None;
-        } else {
-            let mut batch = GeomBatch::new();
-            for block in Block::find_all_single_blocks(&app.primary.map) {
-                batch.push(Color::RED.alpha(0.5), block.polygon.clone());
-                if let Ok(outline) = block.polygon.to_outline(Distance::meters(3.0)) {
-                    batch.push(Color::BLACK, outline);
+impl State<App> for Blockfinder {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+        if let Outcome::Clicked(x) = self.panel.event(ctx) {
+            match x.as_ref() {
+                "close" => {
+                    return Transition::Pop;
                 }
-            }
-            self.draw_all_blocks = Some(batch.upload(ctx));
-        }
-        None
-    }
-
-    fn on_mouseover(&mut self, ctx: &mut EventCtx, app: &mut App) {
-        app.recalculate_current_selection(ctx);
-    }
-
-    fn other_event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
-        ctx.canvas_movement();
-        if let Some(ID::Lane(l)) = app.primary.current_selection {
-            if app.per_obj.left_click(ctx, "trace this block") {
-                app.primary.current_selection = None;
-                return Transition::Push(match Block::single_block(&app.primary.map, l) {
-                    Ok(block) => OneBlock::new_state(ctx, block),
-                    Err(err) => {
-                        // Rendering the error message is breaking
-                        error!("Blockfinding failed: {}", err);
-                        PopupMsg::new_state(ctx, "Error", vec!["See console"])
-                    }
-                });
+                "Merge" => {
+                    // TODO We could update the panel, but meh
+                    return Transition::Keep;
+                }
+                _ => unreachable!(),
             }
         }
+
+        match self.world.event(ctx) {
+            WorldOutcome::Keypress("add to merge set", id) => {
+                self.to_merge.insert(id);
+                let block = &self.blocks[&id];
+                self.world.delete_before_replacement(id);
+                // TODO Refactor?
+                self.world
+                    .add(id)
+                    .hitbox(block.polygon.clone())
+                    .draw_color(Color::CYAN.alpha(0.5))
+                    .hover_alpha(0.9)
+                    .clickable()
+                    .hotkey(Key::Space, "remove from merge set")
+                    .build(ctx);
+            }
+            WorldOutcome::Keypress("remove from merge set", id) => {
+                self.to_merge.remove(&id);
+                let block = &self.blocks[&id];
+                self.world.delete_before_replacement(id);
+                self.world
+                    .add(id)
+                    .hitbox(block.polygon.clone())
+                    .draw_color(Color::RED.alpha(0.5))
+                    .hover_alpha(0.9)
+                    .clickable()
+                    .hotkey(Key::Space, "add to merge set")
+                    .build(ctx);
+            }
+            WorldOutcome::ClickedObject(id) => {
+                return Transition::Push(OneBlock::new_state(ctx, self.blocks[&id].clone()));
+            }
+            _ => {}
+        }
+
         Transition::Keep
     }
 
     fn draw(&self, g: &mut GfxCtx, _: &App) {
-        if let Some(ref draw) = self.draw_all_blocks {
-            g.redraw(draw);
-        }
+        self.world.draw(g);
+        self.panel.draw(g);
     }
 }
 
-struct OneBlock {
+pub struct OneBlock {
     block: Block,
 }
 

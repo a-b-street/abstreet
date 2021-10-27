@@ -5,13 +5,14 @@ use anyhow::Result;
 use abstutil::wraparound_get;
 use geom::{Polygon, Pt2D, Ring};
 
-use crate::{LaneID, Map, RoadSideID, SideOfRoad};
+use crate::{LaneID, Map, RoadID, RoadSideID, SideOfRoad};
 
 /// A block is defined by a perimeter that traces along the sides of roads. Inside the perimeter,
 /// the block may contain buildings and interior roads. In the simple case, a block represents a
 /// single "city block", with no interior roads. It may also cover a "neighborhood", where the
 /// perimeter contains some "major" and the interior consists only of "minor" roads.
 // TODO Maybe "block" is a misleading term. "Contiguous road trace area"?
+#[derive(Clone)]
 pub struct Block {
     pub perimeter: RoadLoop,
     /// The polygon covers the interior of the block.
@@ -23,6 +24,7 @@ pub struct Block {
 /// along this sequence should geometrically yield a simple polygon.
 // TODO Handle the map boundary. Sometimes this loop should be broken up by border intersections or
 // possibly by water/park areas.
+#[derive(Clone)]
 pub struct RoadLoop {
     pub roads: Vec<RoadSideID>,
 }
@@ -66,6 +68,48 @@ impl RoadLoop {
         }
         assert_eq!(roads[0], *roads.last().unwrap());
         RoadLoop { roads }
+    }
+
+    /// Merges two loops using a road in common. Panics if they don't have that road in common.
+    /// TODO What if they share many roads?
+    pub fn merge(mut self, mut other: RoadLoop, common_road: RoadID) -> RoadLoop {
+        // TODO Alt algorithm would rotate until common is first or last...
+        let idx1 = self
+            .roads
+            .iter()
+            .position(|x| x.id == common_road)
+            .unwrap_or_else(|| panic!("First RoadLoop doesn't have {}", common_road));
+        let idx2 = other
+            .roads
+            .iter()
+            .position(|x| x.id == common_road)
+            .unwrap_or_else(|| panic!("Second RoadLoop doesn't have {}", common_road));
+
+        // The first element is the common road, now an interior
+        let last_pieces = self.roads.split_off(idx1);
+        let middle_pieces = other.roads.split_off(idx2);
+
+        let mut roads = self.roads;
+        roads.extend(middle_pieces.into_iter().skip(1));
+        roads.append(&mut other.roads);
+        roads.extend(last_pieces.into_iter().skip(1));
+
+        assert_eq!(roads[0], *roads.last().unwrap());
+        RoadLoop { roads }
+    }
+
+    /// Find an arbitrary road that two loops have in common.
+    pub fn find_common_road(&self, other: &RoadLoop) -> Option<RoadID> {
+        let mut roads = HashSet::new();
+        for id in self.roads.iter().skip(1) {
+            roads.insert(id.id);
+        }
+        for id in &other.roads {
+            if roads.contains(&id.id) {
+                return Some(id.id);
+            }
+        }
+        None
     }
 }
 
