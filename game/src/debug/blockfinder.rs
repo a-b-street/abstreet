@@ -1,7 +1,9 @@
+use std::collections::HashSet;
+
 use anyhow::Result;
 
 use abstutil::wraparound_get;
-use geom::{Polygon, Ring};
+use geom::{Distance, Polygon, Ring};
 use map_gui::tools::PopupMsg;
 use map_gui::ID;
 use map_model::{LaneID, Map, RoadSideID, SideOfRoad};
@@ -49,14 +51,20 @@ impl SimpleState<App> for Blockfinder {
     fn panel_changed(
         &mut self,
         ctx: &mut EventCtx,
-        _: &mut App,
+        app: &mut App,
         _: &mut Panel,
     ) -> Option<Transition> {
         if self.draw_all_blocks.is_some() {
             self.draw_all_blocks = None;
         } else {
-            // TODO Calculate all blocks
-            self.draw_all_blocks = Some(Drawable::empty(ctx));
+            let mut batch = GeomBatch::new();
+            for block in Block::find_all(&app.primary.map) {
+                batch.push(Color::RED.alpha(0.5), block.polygon.clone());
+                if let Ok(outline) = block.polygon.to_outline(Distance::meters(3.0)) {
+                    batch.push(Color::BLACK, outline);
+                }
+            }
+            self.draw_all_blocks = Some(batch.upload(ctx));
         }
         None
     }
@@ -72,7 +80,11 @@ impl SimpleState<App> for Blockfinder {
                 app.primary.current_selection = None;
                 return Transition::Push(match Block::new(&app.primary.map, l) {
                     Ok(block) => OneBlock::new_state(ctx, block),
-                    Err(err) => PopupMsg::new_state(ctx, "Error", vec![err.to_string()]),
+                    Err(err) => {
+                        // Rendering the error message is breaking
+                        error!("Blockfinding failed: {}", err);
+                        PopupMsg::new_state(ctx, "Error", vec!["See console"])
+                    }
                 });
             }
         }
@@ -227,7 +239,12 @@ impl Block {
         for pair in perimeter.roads.windows(2) {
             let lane1 = pair[0].get_outermost_lane(map);
             let lane2 = pair[1].get_outermost_lane(map);
-            assert_ne!(lane1.id, lane2.id);
+            if lane1.id == lane2.id {
+                bail!(
+                    "Perimeter road has duplicate adjacent. {:?}",
+                    perimeter.roads
+                );
+            }
             let pl = match pair[0].side {
                 SideOfRoad::Right => lane1.lane_center_pts.must_shift_right(lane1.width / 2.0),
                 SideOfRoad::Left => lane1.lane_center_pts.must_shift_left(lane1.width / 2.0),
@@ -255,5 +272,29 @@ impl Block {
         let polygon = Ring::new(pts)?.into_polygon();
 
         Ok(Block { perimeter, polygon })
+    }
+
+    // TODO Doesn't handle leftovers yet
+    fn find_all(map: &Map) -> Vec<Block> {
+        let mut seen = HashSet::new();
+        let mut blocks = Vec::new();
+        for lane in map.all_lanes() {
+            let side = lane.get_nearest_side_of_road(map);
+            if seen.contains(&side) {
+                continue;
+            }
+            match Block::new(map, lane.id) {
+                Ok(block) => {
+                    seen.extend(block.perimeter.roads.clone());
+                    blocks.push(block);
+                }
+                Err(err) => {
+                    warn!("Failed from {}: {}", lane.id, err);
+                    // Don't try again
+                    seen.insert(side);
+                }
+            }
+        }
+        blocks
     }
 }
