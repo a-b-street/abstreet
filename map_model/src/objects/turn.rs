@@ -103,10 +103,18 @@ impl Turn {
         self.geom.intersection(&other.geom).is_some()
     }
 
-    // TODO What should this be for zero-length turns? Probably src's pt1 to dst's pt2 or
-    // something.
+    // The relative angle of the turn, should be the angle from the src lane to the dst lane, but
+    // instead uses the first and last lines of the turn geometry, which is currently not quite the
+    // same angle as between the source and destination lanes
     pub fn angle(&self) -> Angle {
-        self.geom.first_pt().angle_to(self.geom.last_pt())
+        if self.geom.points().len() < 3 {
+            return Angle::ZERO;
+        }
+
+        self.geom
+            .last_line()
+            .angle()
+            .shortest_rotation_towards(self.geom.first_line().angle())
     }
 
     pub fn between_sidewalks(&self) -> bool {

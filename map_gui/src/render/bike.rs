@@ -92,8 +92,8 @@ impl DrawBike {
             draw_default.push(
                 cs.turn_arrow,
                 PolyLine::must_new(vec![
-                    body_pos.project_away(body_radius / 2.0, angle.opposite()),
-                    body_pos.project_away(body_radius / 2.0, angle),
+                    body_pos.project_away(body_radius / 2.0, (facing + angle).opposite()),
+                    body_pos.project_away(body_radius / 2.0, facing + angle),
                 ])
                 .make_arrow(Distance::meters(0.15), ArrowCap::Triangle),
             );
