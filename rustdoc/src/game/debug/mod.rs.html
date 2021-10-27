@@ -1082,19 +1082,6 @@
 <span id="1082">1082</span>
 <span id="1083">1083</span>
 <span id="1084">1084</span>
-<span id="1085">1085</span>
-<span id="1086">1086</span>
-<span id="1087">1087</span>
-<span id="1088">1088</span>
-<span id="1089">1089</span>
-<span id="1090">1090</span>
-<span id="1091">1091</span>
-<span id="1092">1092</span>
-<span id="1093">1093</span>
-<span id="1094">1094</span>
-<span id="1095">1095</span>
-<span id="1096">1096</span>
-<span id="1097">1097</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
 
 <span class="kw">use</span> <span class="ident">abstio::MapName</span>;
@@ -1125,6 +1112,7 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::routes::PathCostDebugger</span>;
 
 <span class="kw">mod</span> <span class="ident">blocked_by</span>;
+<span class="kw">mod</span> <span class="ident">blockfinder</span>;
 <span class="kw">mod</span> <span class="ident">floodfill</span>;
 <span class="kw">mod</span> <span class="ident">objects</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">path_counter</span>;
@@ -1228,7 +1216,11 @@
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
                         .<span class="ident">btn_outline</span>
                         .<span class="ident">text</span>(<span class="string">&quot;blocked-by graph&quot;</span>)
-                        .<span class="ident">hotkey</span>(<span class="ident">Key::B</span>)
+                        .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+                    <span class="ident">ctx</span>.<span class="ident">style</span>()
+                        .<span class="ident">btn_outline</span>
+                        .<span class="ident">text</span>(<span class="string">&quot;blockfinder&quot;</span>)
+                        .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key::B</span>))
                         .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                     <span class="ident">ctx</span>.<span class="ident">style</span>()
                         .<span class="ident">btn_outline</span>
@@ -1447,6 +1439,9 @@
                 }
                 <span class="string">&quot;blocked-by graph&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">blocked_by::Viewer::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
+                }
+                <span class="string">&quot;blockfinder&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
+                    <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">blockfinder::Blockfinder::new_state</span>(<span class="ident">ctx</span>));
                 }
                 <span class="string">&quot;render to GeoJSON&quot;</span> <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="comment">// TODO Loading screen doesn&#39;t actually display anything because of the rules</span>
@@ -1697,10 +1692,6 @@
                 }
                 <span class="ident">actions</span>.<span class="ident">push</span>((<span class="ident">Key::X</span>, <span class="string">&quot;debug lane geometry&quot;</span>.<span class="ident">to_string</span>()));
                 <span class="ident">actions</span>.<span class="ident">push</span>((<span class="ident">Key::F2</span>, <span class="string">&quot;debug lane triangles geometry&quot;</span>.<span class="ident">to_string</span>()));
-                <span class="ident">actions</span>.<span class="ident">push</span>((
-                    <span class="ident">Key::B</span>,
-                    <span class="string">&quot;trace the block to the left of this road&quot;</span>.<span class="ident">to_string</span>(),
-                ));
                 <span class="ident">actions</span>.<span class="ident">push</span>((<span class="ident">Key::C</span>, <span class="string">&quot;export roads&quot;</span>.<span class="ident">to_string</span>()));
                 <span class="ident">actions</span>.<span class="ident">push</span>((<span class="ident">Key::E</span>, <span class="string">&quot;show equiv_pos&quot;</span>.<span class="ident">to_string</span>()));
                 <span class="kw">if</span> <span class="macro">cfg!</span>(<span class="ident">not</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>)) {
@@ -1849,23 +1840,6 @@
                         .<span class="ident">collect</span>(),
                     <span class="prelude-val">None</span>,
                 ))
-            }
-            (<span class="ident">ID::Lane</span>(<span class="ident">l</span>), <span class="string">&quot;trace the block to the left of this road&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
-                <span class="ident">Transition::ModifyState</span>(<span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">mode</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">downcast_mut</span>::<span class="op">&lt;</span><span class="ident">DebugMode</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
-                    <span class="comment">// Just abuse this to display the results</span>
-                    <span class="ident">mode</span>.<span class="ident">search_results</span> <span class="op">=</span> <span class="ident">app</span>
-                        .<span class="ident">primary</span>
-                        .<span class="ident">map</span>
-                        .<span class="ident">get_l</span>(<span class="ident">l</span>)
-                        .<span class="ident">trace_around_block</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>)
-                        .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">poly</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">SearchResults</span> {
-                            <span class="ident">query</span>: <span class="macro">format!</span>(<span class="string">&quot;block around {}&quot;</span>, <span class="ident">l</span>),
-                            <span class="ident">num_matches</span>: <span class="number">0</span>,
-                            <span class="ident">draw</span>: <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">GeomBatch::from</span>(<span class="macro">vec!</span>[(<span class="ident">Color::RED</span>, <span class="ident">poly</span>)])),
-                        });
-                    <span class="ident">mode</span>.<span class="ident">reset_info</span>(<span class="ident">ctx</span>);
-                }))
             }
             (<span class="ident">ID::Lane</span>(<span class="ident">l</span>), <span class="string">&quot;export roads&quot;</span>) <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="ident">Transition::Push</span>(<span class="ident">select_roads::BulkSelect::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">l</span>.<span class="ident">road</span>))

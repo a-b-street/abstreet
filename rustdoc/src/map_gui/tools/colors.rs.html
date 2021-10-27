@@ -419,12 +419,6 @@
 <span id="419">419</span>
 <span id="420">420</span>
 <span id="421">421</span>
-<span id="422">422</span>
-<span id="423">423</span>
-<span id="424">424</span>
-<span id="425">425</span>
-<span id="426">426</span>
-<span id="427">427</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
 <span class="kw">use</span> <span class="ident">abstutil::Counter</span>;
@@ -480,10 +474,7 @@
         <span class="self">self</span>.<span class="ident">unzoomed</span>
             .<span class="ident">push</span>(<span class="ident">color</span>, <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">get_parent</span>(<span class="ident">l</span>).<span class="ident">get_thick_polygon</span>());
         <span class="kw">let</span> <span class="ident">lane</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>);
-        <span class="self">self</span>.<span class="ident">zoomed</span>.<span class="ident">push</span>(
-            <span class="ident">color</span>.<span class="ident">alpha</span>(<span class="number">0.4</span>),
-            <span class="ident">lane</span>.<span class="ident">lane_center_pts</span>.<span class="ident">make_polygons</span>(<span class="ident">lane</span>.<span class="ident">width</span>),
-        );
+        <span class="self">self</span>.<span class="ident">zoomed</span>.<span class="ident">push</span>(<span class="ident">color</span>.<span class="ident">alpha</span>(<span class="number">0.4</span>), <span class="ident">lane</span>.<span class="ident">get_thick_polygon</span>());
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_r</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">r</span>: <span class="ident">RoadID</span>, <span class="ident">category</span>: <span class="ident">I</span>) {
@@ -718,10 +709,7 @@
         <span class="self">self</span>.<span class="ident">unzoomed</span>
             .<span class="ident">push</span>(<span class="ident">color</span>, <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">get_parent</span>(<span class="ident">l</span>).<span class="ident">get_thick_polygon</span>());
         <span class="kw">let</span> <span class="ident">lane</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>);
-        <span class="self">self</span>.<span class="ident">zoomed</span>.<span class="ident">push</span>(
-            <span class="ident">color</span>.<span class="ident">alpha</span>(<span class="number">0.4</span>),
-            <span class="ident">lane</span>.<span class="ident">lane_center_pts</span>.<span class="ident">make_polygons</span>(<span class="ident">lane</span>.<span class="ident">width</span>),
-        );
+        <span class="self">self</span>.<span class="ident">zoomed</span>.<span class="ident">push</span>(<span class="ident">color</span>.<span class="ident">alpha</span>(<span class="number">0.4</span>), <span class="ident">lane</span>.<span class="ident">get_thick_polygon</span>());
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_r</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">r</span>: <span class="ident">RoadID</span>, <span class="ident">color</span>: <span class="ident">Color</span>) {

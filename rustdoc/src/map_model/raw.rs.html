@@ -743,6 +743,7 @@
 <span id="743">743</span>
 <span id="744">744</span>
 <span id="745">745</span>
+<span id="746">746</span>
 </pre><pre class="rust"><code><span class="doccomment">//! The convert_osm crate produces a RawMap from OSM and other data. Storing this intermediate</span>
 <span class="doccomment">//! structure is useful to iterate quickly on parts of the map importing pipeline without having to</span>
 <span class="doccomment">//! constantly read .osm files, and to visualize the intermediate state with map_editor.</span>
@@ -837,6 +838,7 @@
         )
     }
 
+    <span class="comment">// TODO Doesn&#39;t handle two roads between the same pair of intersections</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">common_endpt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="ident">OriginalRoad</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">osm::NodeID</span> {
         <span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::suspicious_operation_groupings</span>)]</span>
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">i1</span> <span class="op">=</span><span class="op">=</span> <span class="ident">other</span>.<span class="ident">i1</span> <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">i1</span> <span class="op">=</span><span class="op">=</span> <span class="ident">other</span>.<span class="ident">i2</span> {
