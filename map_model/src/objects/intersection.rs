@@ -155,15 +155,12 @@ impl Intersection {
         roads
     }
 
-    // Talking about the left/right side of a road is much more clear than the forwards and
-    // backwards direction -- consider a road with only one lane (or a few lanes in one direction).
     // TODO walking_turns_v2 and the intersection geometry algorithm also do something like this.
     // Refactor?
     pub fn get_road_sides_sorted_by_incoming_angle(&self, map: &Map) -> Vec<RoadSideID> {
         let mut sides = Vec::new();
         for r in self.get_roads_sorted_by_incoming_angle(map) {
             let r = map.get_r(r);
-            // TODO Probably right-handed driving centric
             if r.dst_i == self.id {
                 sides.push(RoadSideID {
                     id: r.id,
