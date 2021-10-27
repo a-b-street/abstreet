@@ -22,7 +22,7 @@ impl DrawLane {
     pub fn new(lane: &Lane, road: &Road) -> DrawLane {
         DrawLane {
             id: lane.id,
-            polygon: lane.lane_center_pts.make_polygons(lane.width),
+            polygon: lane.get_thick_polygon(),
             zorder: road.zorder,
             draw_default: RefCell::new(None),
         }
@@ -478,7 +478,7 @@ fn calculate_buffer_markings(
             }
         }
         BufferType::Curb => {
-            batch.push(dark_grey, lane.lane_center_pts.make_polygons(lane.width));
+            batch.push(dark_grey, lane.get_thick_polygon());
         }
     }
 }

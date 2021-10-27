@@ -130,9 +130,7 @@ impl SimpleState<App> for OneBlock {
                 let map = &app.primary.map;
                 for road_side in &self.block.perimeter.roads {
                     let lane = road_side.get_outermost_lane(map);
-                    items.push(polygons::Item::Polygon(
-                        lane.lane_center_pts.make_polygons(lane.width),
-                    ));
+                    items.push(polygons::Item::Polygon(lane.get_thick_polygon()));
                 }
                 return Transition::Push(polygons::PolygonDebugger::new_state(
                     ctx,
@@ -184,10 +182,10 @@ impl RoadLoop {
         let mut current_road_side = start_road_side;
         let mut current_intersection = map.get_l(start).dst_i;
         loop {
-            println!(
+            /*println!(
                 "at {:?} pointing to {}",
                 current_road_side, current_intersection
-            );
+            );*/
             let i = map.get_i(current_intersection);
             let sorted_roads = i.get_road_sides_sorted_by_incoming_angle(map);
             // Find this one
@@ -195,7 +193,7 @@ impl RoadLoop {
                 .iter()
                 .position(|x| *x == current_road_side)
                 .unwrap() as isize;
-            println!("  idx {} in sorted {:?}", idx, sorted_roads);
+            //println!("  idx {} in sorted {:?}", idx, sorted_roads);
             // Do we go clockwise or counter-clockwise? Well, unless we're at a dead-end, we want
             // to avoid the other side of the same road.
             let mut next = *wraparound_get(&sorted_roads, idx + 1);
@@ -313,7 +311,10 @@ impl Block {
                     blocks.push(block);
                 }
                 Err(err) => {
-                    warn!("Failed from {}: {}", lane.id, err);
+                    // Logspam really slows down!
+                    if false {
+                        warn!("Failed from {}: {}", lane.id, err);
+                    }
                     // Don't try again
                     seen.insert(side);
                 }

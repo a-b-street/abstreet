@@ -537,6 +537,10 @@ impl Lane {
         }
         panic!("{} and {} have no common_endpt", self.id, other.id);
     }
+
+    pub fn get_thick_polygon(&self) -> Polygon {
+        self.lane_center_pts.make_polygons(self.width)
+    }
 }
 
 impl LaneSpec {
