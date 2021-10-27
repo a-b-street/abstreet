@@ -70,9 +70,9 @@ impl RoadLoop {
         RoadLoop { roads }
     }
 
-    /// Merges two loops using a road in common. Panics if they don't have that road in common.
+    /// Merges two loops using a road in common. Mutates the current loop. Panics if they don't have that road in common.
     /// TODO What if they share many roads?
-    pub fn merge(mut self, mut other: RoadLoop, common_road: RoadID) -> RoadLoop {
+    pub fn merge(&mut self, mut other: RoadLoop, common_road: RoadID) {
         // TODO Alt algorithm would rotate until common is first or last...
         let idx1 = self
             .roads
@@ -87,15 +87,23 @@ impl RoadLoop {
 
         // The first element is the common road, now an interior
         let last_pieces = self.roads.split_off(idx1);
-        let middle_pieces = other.roads.split_off(idx2);
+        let mut middle_pieces = other.roads.split_off(idx2);
+        // We repeat the first and last road, but we don't want that for the middle piece
+        middle_pieces.pop();
 
-        let mut roads = self.roads;
+        // TODO just operate on self
+        let mut roads = std::mem::take(&mut self.roads);
         roads.extend(middle_pieces.into_iter().skip(1));
         roads.append(&mut other.roads);
         roads.extend(last_pieces.into_iter().skip(1));
 
-        assert_eq!(roads[0], *roads.last().unwrap());
-        RoadLoop { roads }
+        // If the common_road is the first or last, we might wind up not matching here...
+        if roads[0] != *roads.last().unwrap() {
+            roads.push(roads[0]);
+        }
+
+        println!("common was {}. sup {:?}", common_road, roads);
+        self.roads = roads;
     }
 
     /// Find an arbitrary road that two loops have in common.
@@ -118,8 +126,10 @@ impl Block {
     /// block, with no interior roads. This will fail if a map boundary is reached. The results are
     /// unusual when crossing the entrance to a tunnel or bridge.
     pub fn single_block(map: &Map, start: LaneID) -> Result<Block> {
-        let perimeter = RoadLoop::single_block(map, start);
+        Block::from_loop(map, RoadLoop::single_block(map, start))
+    }
 
+    fn from_loop(map: &Map, perimeter: RoadLoop) -> Result<Block> {
         // Trace along the loop and build the polygon
         let mut pts: Vec<Pt2D> = Vec::new();
         for pair in perimeter.roads.windows(2) {
@@ -194,5 +204,36 @@ impl Block {
             }
         }
         blocks
+    }
+
+    /// Try to merge all given blocks. If successful, only one block will be returned. Blocks are
+    /// never "destroyed" -- if not merged, they'll appear in the results.
+    /// TODO This may not handle all possible merges yet, the order is brittle...
+    pub fn merge_all(map: &Map, list: Vec<Block>) -> Vec<Block> {
+        // TODO Can we avoid recalculating polygons unnecessarily?
+        let mut results: Vec<RoadLoop> = Vec::new();
+        let input: Vec<RoadLoop> = list.into_iter().map(|x| x.perimeter).collect();
+
+        for perimeter in input {
+            let mut partner = None;
+            for (idx, adjacent) in results.iter().enumerate() {
+                if let Some(r) = perimeter.find_common_road(adjacent) {
+                    partner = Some((idx, r));
+                    break;
+                }
+            }
+
+            if let Some((idx, r)) = partner {
+                results[idx].merge(perimeter, r);
+            } else {
+                results.push(perimeter);
+            }
+        }
+        // TODO Fixpoint...
+        // TODO Shouldn't be any new errors, right?
+        results
+            .into_iter()
+            .map(|x| Block::from_loop(map, x).unwrap())
+            .collect()
     }
 }

@@ -79,6 +79,26 @@ impl State<App> for Blockfinder {
                 }
                 "Merge" => {
                     // TODO We could update the panel, but meh
+                    let mut blocks = Vec::new();
+                    for id in self.to_merge.drain() {
+                        blocks.push(self.blocks.remove(&id).unwrap());
+                        // TODO If we happen to be hovering on one, uh oh! It's going to change
+                        // ID...
+                        self.world.delete(id);
+                    }
+                    for block in Block::merge_all(&app.primary.map, blocks) {
+                        let id = Obj(self.id_counter);
+                        self.id_counter += 1;
+                        self.world
+                            .add(id)
+                            .hitbox(block.polygon.clone())
+                            .draw_color(Color::RED.alpha(0.5))
+                            .hover_alpha(0.9)
+                            .clickable()
+                            .hotkey(Key::Space, "add to merge set")
+                            .build(ctx);
+                        self.blocks.insert(id, block);
+                    }
                     return Transition::Keep;
                 }
                 _ => unreachable!(),
