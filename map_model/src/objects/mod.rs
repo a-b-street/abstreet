@@ -1,4 +1,5 @@
 pub mod area;
+pub mod block;
 pub mod building;
 pub mod bus_stop;
 pub mod intersection;
