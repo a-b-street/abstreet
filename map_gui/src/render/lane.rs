@@ -372,7 +372,7 @@ fn calculate_one_way_markings(lane: &Lane, road: &Road) -> Vec<Polygon> {
         return results;
     }
 
-    let arrow_len = Distance::meters(4.0);
+    let arrow_len = Distance::meters(1.75);
     let thickness = Distance::meters(0.25);
     // Stop 1m before the calculate_turn_markings() stuff starts
     for (pt, angle) in lane.lane_center_pts.step_along_start_end(
@@ -385,7 +385,8 @@ fn calculate_one_way_markings(lane: &Lane, road: &Road) -> Vec<Polygon> {
                 pt.project_away(arrow_len / 2.0, angle.opposite()),
                 pt.project_away(arrow_len / 2.0, angle),
             ])
-            .make_arrow(thickness, ArrowCap::Triangle),
+            .make_arrow(thickness * 2.0, ArrowCap::Triangle)
+            .to_outline(thickness / 2.0).unwrap()
         );
     }
     results
