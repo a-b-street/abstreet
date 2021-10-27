@@ -130,6 +130,29 @@ impl DirectedRoadID {
     }
 }
 
+/// See https://wiki.openstreetmap.org/wiki/Forward_%26_backward,_left_%26_right.
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
+pub enum SideOfRoad {
+    Right,
+    Left,
+}
+
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
+pub struct RoadSideID {
+    pub id: RoadID,
+    pub side: SideOfRoad,
+}
+
+impl RoadSideID {
+    pub fn get_outermost_lane(self, map: &Map) -> &Lane {
+        let r = map.get_r(self.id);
+        match self.side {
+            SideOfRoad::Right => r.lanes.last().unwrap(),
+            SideOfRoad::Left => &r.lanes[0],
+        }
+    }
+}
+
 /// A Road represents a segment between exactly two Intersections. It contains Lanes as children.
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Road {
@@ -419,6 +442,7 @@ impl Road {
     }
 
     /// Returns the common intersection between two roads, panicking if they're not adjacent
+    // TODO Doesn't handle two roads between the same pair of intersections
     pub fn common_endpt(&self, other: &Road) -> IntersectionID {
         #![allow(clippy::suspicious_operation_groupings)] // false positive
         if self.src_i == other.src_i || self.src_i == other.dst_i {

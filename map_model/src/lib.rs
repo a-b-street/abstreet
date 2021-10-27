@@ -43,6 +43,7 @@ pub use crate::edits::{
 pub use crate::make::RawToMapOptions;
 pub use crate::map::{DrivingSide, MapConfig};
 pub use crate::objects::area::{Area, AreaID, AreaType};
+pub use crate::objects::block::{Block, RoadLoop};
 pub use crate::objects::building::{
     Amenity, AmenityType, Building, BuildingID, BuildingType, NamePerLanguage, OffstreetParking,
 };
@@ -54,7 +55,7 @@ pub use crate::objects::lane::{
 };
 pub use crate::objects::movement::{CompressedMovementID, Movement, MovementID};
 pub use crate::objects::parking_lot::{ParkingLot, ParkingLotID};
-pub use crate::objects::road::{DirectedRoadID, Direction, Road, RoadID};
+pub use crate::objects::road::{DirectedRoadID, Direction, Road, RoadID, RoadSideID, SideOfRoad};
 pub use crate::objects::stop_signs::{ControlStopSign, RoadWithStopSign};
 pub use crate::objects::traffic_signals::{ControlTrafficSignal, Stage, StageType};
 pub use crate::objects::turn::{Turn, TurnID, TurnPriority, TurnType};

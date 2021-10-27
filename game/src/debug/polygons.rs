@@ -45,7 +45,7 @@ impl PolygonDebugger {
                         .btn_prev()
                         .hotkey(Key::LeftArrow)
                         .build_widget(ctx, "previous"),
-                    "noun X/Y".text_widget(ctx).named("pointer"),
+                    "noun X/Y".text_widget(ctx).named("pointer").centered_vert(),
                     ctx.style()
                         .btn_next()
                         .hotkey(Key::RightArrow)

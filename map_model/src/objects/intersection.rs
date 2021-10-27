@@ -9,7 +9,7 @@ use geom::{Distance, Polygon};
 
 use crate::{
     osm, CompressedMovementID, DirectedRoadID, LaneID, Map, Movement, MovementID, PathConstraints,
-    Road, RoadID, Turn, TurnID,
+    Road, RoadID, RoadSideID, SideOfRoad, Turn, TurnID,
 };
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
@@ -153,6 +153,35 @@ impl Intersection {
             endpt.angle_to(center).normalized_degrees() as i64
         });
         roads
+    }
+
+    // TODO walking_turns_v2 and the intersection geometry algorithm also do something like this.
+    // Refactor?
+    pub fn get_road_sides_sorted_by_incoming_angle(&self, map: &Map) -> Vec<RoadSideID> {
+        let mut sides = Vec::new();
+        for r in self.get_roads_sorted_by_incoming_angle(map) {
+            let r = map.get_r(r);
+            if r.dst_i == self.id {
+                sides.push(RoadSideID {
+                    id: r.id,
+                    side: SideOfRoad::Right,
+                });
+                sides.push(RoadSideID {
+                    id: r.id,
+                    side: SideOfRoad::Left,
+                });
+            } else {
+                sides.push(RoadSideID {
+                    id: r.id,
+                    side: SideOfRoad::Left,
+                });
+                sides.push(RoadSideID {
+                    id: r.id,
+                    side: SideOfRoad::Right,
+                });
+            }
+        }
+        sides
     }
 
     /// Return all incoming roads to an intersection, sorted by angle. This skips one-way roads

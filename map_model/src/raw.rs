@@ -92,6 +92,7 @@ impl OriginalRoad {
         )
     }
 
+    // TODO Doesn't handle two roads between the same pair of intersections
     pub fn common_endpt(&self, other: OriginalRoad) -> osm::NodeID {
         #![allow(clippy::suspicious_operation_groupings)]
         if self.i1 == other.i1 || self.i1 == other.i2 {

@@ -3,12 +3,12 @@ use std::fmt;
 
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
-use abstutil::{wraparound_get, Tags};
-use geom::{Distance, Line, PolyLine, Polygon, Pt2D, Ring};
+use abstutil::Tags;
+use geom::{Distance, Line, PolyLine, Polygon, Pt2D};
 
 use crate::{
-    osm, BusStopID, DirectedRoadID, Direction, IntersectionID, Map, MapConfig, Road, RoadID,
-    TurnType,
+    osm, BusStopID, DirectedRoadID, Direction, DrivingSide, IntersectionID, Map, MapConfig, Road,
+    RoadID, RoadSideID, SideOfRoad, TurnType,
 };
 
 /// From some manually audited cases in Seattle, the length of parallel street parking spots is a
@@ -366,6 +366,21 @@ impl Lane {
         }
     }
 
+    /// This is just based on typical driving sides. Bidirectional or contraflow cycletracks as
+    /// input may produce weird results.
+    pub fn get_nearest_side_of_road(&self, map: &Map) -> RoadSideID {
+        let side = match (self.dir, map.get_config().driving_side) {
+            (Direction::Fwd, DrivingSide::Right) => SideOfRoad::Right,
+            (Direction::Back, DrivingSide::Right) => SideOfRoad::Left,
+            (Direction::Fwd, DrivingSide::Left) => SideOfRoad::Left,
+            (Direction::Back, DrivingSide::Left) => SideOfRoad::Right,
+        };
+        RoadSideID {
+            id: self.id.road,
+            side,
+        }
+    }
+
     /// Returns the set of allowed turn types, based on individual turn lane restrictions. `None`
     /// means all turn types are allowed.
     ///
@@ -435,72 +450,28 @@ impl Lane {
         Some(part.split(';').flat_map(parse_turn_type_from_osm).collect())
     }
 
-    /// Starting from this lane, follow the lane's left edge to the intersection, continuing to
-    /// "walk around the block" until we reach the starting point. This only makes sense for the
-    /// outermost lanes on a road. Returns the polygon and all visited lanes.
-    ///
-    /// TODO This process currently fails for some starting positions; orienting is weird.
-    pub fn trace_around_block(&self, map: &Map) -> Option<(Polygon, BTreeSet<LaneID>)> {
-        let start = self.id;
-        let mut pts = Vec::new();
-        let mut current = start;
-        let mut fwd = map.get_parent(start).lanes[0].id == start;
-        let mut visited = BTreeSet::new();
-        loop {
-            let l = map.get_l(current);
-            let lane_pts = if fwd {
-                l.lane_center_pts.shift_left(l.width / 2.0)
-            } else {
-                l.lane_center_pts.reversed().shift_left(l.width / 2.0)
-            }
-            .unwrap()
-            .into_points();
-            if let Some(last_pt) = pts.last().cloned() {
-                if last_pt != lane_pts[0] {
-                    let last_i = if fwd { l.src_i } else { l.dst_i };
-                    if let Some(pl) = map
-                        .get_i(last_i)
-                        .polygon
-                        .clone()
-                        .into_ring()
-                        .get_shorter_slice_btwn(last_pt, lane_pts[0])
-                    {
-                        pts.extend(pl.into_points());
-                    }
-                }
-            }
-            pts.extend(lane_pts);
-            // Imagine pointing down this lane to the intersection. Rotate left -- which road is
-            // next?
-            let i = if fwd { l.dst_i } else { l.src_i };
-            // TODO Remove these debug statements entirely after stabilizing this
-            //println!("{}, fwd={}, pointing to {}", current, fwd, i);
-            let mut roads = map.get_i(i).get_roads_sorted_by_incoming_angle(map);
-            roads.retain(|r| !map.get_r(*r).is_footway());
-            let idx = roads.iter().position(|r| *r == l.id.road).unwrap();
-            // Get the next road counter-clockwise
-            let next_road = map.get_r(*wraparound_get(&roads, (idx as isize) + 1));
-            // Depending on if this road points to or from the intersection, get the left- or
-            // right-most lane.
-            let next_lane = if next_road.src_i == i {
-                next_road.lanes[0].id
-            } else {
-                next_road.lanes.last().unwrap().id
-            };
-            if next_lane == start {
-                break;
-            }
-            if visited.contains(&current) {
-                //println!("Loop, something's broken");
-                return None;
-            }
-            visited.insert(current);
-            current = next_lane;
-            fwd = map.get_l(current).src_i == i;
+    /// If the lanes share one endpoint, returns it. If they share two -- because they belong to
+    /// the same road or there are two different roads connecting the same pair of intersections --
+    /// then return `None`. If they share no common endpoint, panic.
+    /// (This is a weird API, really should be an enum with 3 cases)
+    pub fn common_endpt(&self, other: &Lane) -> Option<IntersectionID> {
+        #![allow(clippy::suspicious_operation_groupings)]
+        let src = self.src_i == other.src_i || self.src_i == other.dst_i;
+        let dst = self.dst_i == other.src_i || self.dst_i == other.dst_i;
+        if src && dst {
+            return None;
         }
-        pts.push(pts[0]);
-        pts.dedup();
-        Some((Ring::new(pts).ok()?.into_polygon(), visited))
+        if src {
+            return Some(self.src_i);
+        }
+        if dst {
+            return Some(self.dst_i);
+        }
+        panic!("{} and {} have no common_endpt", self.id, other.id);
+    }
+
+    pub fn get_thick_polygon(&self) -> Polygon {
+        self.lane_center_pts.make_polygons(self.width)
     }
 }
 

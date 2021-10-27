@@ -5,23 +5,22 @@ use std::collections::{BTreeMap, HashMap, HashSet};
 
 use structopt::StructOpt;
 
-use abstutil::{MultiMap, Tags, Timer};
+use abstutil::{MultiMap, Timer};
 use geom::{Distance, FindClosest, HashablePt2D, Line, Polygon, Speed, EPSILON_DIST};
 
 pub use self::parking_lots::snap_driveway;
 use crate::pathfind::{CreateEngine, Pathfinder};
 use crate::raw::{OriginalRoad, RawMap};
 use crate::{
-    connectivity, osm, AccessRestrictions, Area, AreaID, AreaType, ControlStopSign,
-    ControlTrafficSignal, Intersection, IntersectionID, IntersectionType, Lane, LaneID, Map,
-    MapEdits, PathConstraints, Position, Road, RoadID, RoutingParams, Zone,
+    connectivity, osm, AccessRestrictions, Area, AreaID, ControlStopSign, ControlTrafficSignal,
+    Intersection, IntersectionID, IntersectionType, Lane, LaneID, Map, MapEdits, PathConstraints,
+    Position, Road, RoadID, RoutingParams, Zone,
 };
 
 mod bridges;
 mod buildings;
 pub mod collapse_intersections;
 pub mod initial;
-mod medians;
 pub mod merge_intersections;
 mod parking_lots;
 pub mod remove_disconnected;
@@ -242,17 +241,6 @@ impl Map {
 
         map.zones = Zone::make_all(&map);
 
-        // Create medians first, so they wind up rendering underneath areas from OSM. Sometimes
-        // medians contain mapped grass.
-        for polygon in medians::find_medians(&map) {
-            map.areas.push(Area {
-                id: AreaID(map.areas.len()),
-                area_type: AreaType::MedianStrip,
-                polygon,
-                osm_tags: Tags::empty(),
-                osm_id: None,
-            });
-        }
         for a in &raw.areas {
             map.areas.push(Area {
                 id: AreaID(map.areas.len()),

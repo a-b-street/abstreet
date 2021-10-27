@@ -21,10 +21,15 @@ impl ObjectDebugger {
                     g.canvas.cam_x, g.canvas.cam_y
                 ));
                 if let Some(ID::Lane(l)) = app.primary.current_selection {
-                    let pl = &app.primary.map.get_l(l).lane_center_pts;
+                    let lane = app.primary.map.get_l(l);
+                    let pl = &lane.lane_center_pts;
                     if let Some((dist, _)) = pl.dist_along_of_point(pl.project_pt(pt)) {
                         txt.add_line(Position::new(l, dist).to_string());
                     }
+                    txt.add_line(format!(
+                        "{:?}",
+                        lane.get_nearest_side_of_road(&app.primary.map)
+                    ));
                 }
                 g.draw_mouse_tooltip(txt);
             }
