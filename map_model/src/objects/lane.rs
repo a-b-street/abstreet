@@ -520,19 +520,20 @@ impl Lane {
 
     /// If the lanes share one endpoint, returns it. If they share two -- because they belong to
     /// the same road or there are two different roads connecting the same pair of intersections --
-    /// or if they share no common endpoint, panics.
-    pub fn common_endpt(&self, other: &Lane) -> IntersectionID {
+    /// then return `None`. If they share no common endpoint, panic.
+    /// (This is a weird API, really should be an enum with 3 cases)
+    pub fn common_endpt(&self, other: &Lane) -> Option<IntersectionID> {
         #![allow(clippy::suspicious_operation_groupings)]
         let src = self.src_i == other.src_i || self.src_i == other.dst_i;
         let dst = self.dst_i == other.src_i || self.dst_i == other.dst_i;
         if src && dst {
-            panic!("{} and {} share two common_endpts", self.id, other.id);
+            return None;
         }
         if src {
-            return self.src_i;
+            return Some(self.src_i);
         }
         if dst {
-            return self.dst_i;
+            return Some(self.dst_i);
         }
         panic!("{} and {} have no common_endpt", self.id, other.id);
     }

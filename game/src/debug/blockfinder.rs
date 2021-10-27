@@ -258,12 +258,36 @@ impl Block {
                     pts.extend(pl.into_points());
                     reversed_last = true;
                 }
-            } else if lane1.common_endpt(lane2) == lane1.dst_i {
-                pts.extend(pl.into_points());
-                reversed_last = false;
             } else {
-                pts.extend(pl.reversed().into_points());
-                reversed_last = true;
+                match lane1.common_endpt(lane2) {
+                    Some(i) => {
+                        if i == lane1.dst_i {
+                            pts.extend(pl.into_points());
+                            reversed_last = false;
+                        } else {
+                            pts.extend(pl.reversed().into_points());
+                            reversed_last = true;
+                        }
+                    }
+                    None => {
+                        // Two different roads link the same two intersections. I don't think we
+                        // can decide the order of points other than seeing which endpoint is
+                        // closest to our last point.
+                        if let Some(last) = pts.last() {
+                            if last.dist_to(pl.first_pt()) < last.dist_to(pl.last_pt()) {
+                                pts.extend(pl.into_points());
+                                reversed_last = false;
+                            } else {
+                                pts.extend(pl.reversed().into_points());
+                                reversed_last = true;
+                            }
+                        } else {
+                            // Doesn't matter
+                            pts.extend(pl.into_points());
+                            reversed_last = false;
+                        }
+                    }
+                }
             }
         }
         // TODO Depending where we start, this sometimes misses the SharedSidewalkCorner?
