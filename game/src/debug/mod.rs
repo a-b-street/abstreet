@@ -608,10 +608,6 @@ impl ContextualActions for Actions {
                 }
                 actions.push((Key::X, "debug lane geometry".to_string()));
                 actions.push((Key::F2, "debug lane triangles geometry".to_string()));
-                actions.push((
-                    Key::B,
-                    "trace the block to the left of this road".to_string(),
-                ));
                 actions.push((Key::C, "export roads".to_string()));
                 actions.push((Key::E, "show equiv_pos".to_string()));
                 if cfg!(not(target_arch = "wasm32")) {
@@ -760,23 +756,6 @@ impl ContextualActions for Actions {
                         .collect(),
                     None,
                 ))
-            }
-            (ID::Lane(l), "trace the block to the left of this road") => {
-                Transition::ModifyState(Box::new(move |state, ctx, app| {
-                    let mut mode = state.downcast_mut::<DebugMode>().unwrap();
-                    // Just abuse this to display the results
-                    mode.search_results = app
-                        .primary
-                        .map
-                        .get_l(l)
-                        .trace_around_block(&app.primary.map)
-                        .map(|(poly, _)| SearchResults {
-                            query: format!("block around {}", l),
-                            num_matches: 0,
-                            draw: ctx.upload(GeomBatch::from(vec![(Color::RED, poly)])),
-                        });
-                    mode.reset_info(ctx);
-                }))
             }
             (ID::Lane(l), "export roads") => {
                 Transition::Push(select_roads::BulkSelect::new_state(ctx, app, l.road))
