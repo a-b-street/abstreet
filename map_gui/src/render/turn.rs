@@ -199,7 +199,7 @@ impl DrawMovement {
 }
 
 // Produces (circle, arrow)
-fn make_circle_geom(offset: f64, pl: PolyLine, angle: Angle) -> (Polygon, Polygon) {
+fn make_circle_geom(offset: f64, pl: PolyLine, turn_angle: Angle) -> (Polygon, Polygon) {
     let height = 2.0 * TURN_ICON_ARROW_LENGTH;
     // Always extend the pl first to handle short entry lanes
     let extension = PolyLine::must_new(vec![
@@ -212,9 +212,10 @@ fn make_circle_geom(offset: f64, pl: PolyLine, angle: Angle) -> (Polygon, Polygo
     let center = slice.middle();
     let block = Circle::new(center, TURN_ICON_ARROW_LENGTH).to_polygon();
 
+    let arrow_angle = pl.last_line().angle().opposite() + turn_angle;
     let arrow = PolyLine::must_new(vec![
-        center.project_away(TURN_ICON_ARROW_LENGTH / 2.0, angle.opposite()),
-        center.project_away(TURN_ICON_ARROW_LENGTH / 2.0, angle),
+        center.project_away(TURN_ICON_ARROW_LENGTH / 2.0, arrow_angle.opposite()),
+        center.project_away(TURN_ICON_ARROW_LENGTH / 2.0, arrow_angle),
     ])
     .make_arrow(Distance::meters(0.5), ArrowCap::Triangle);
 
