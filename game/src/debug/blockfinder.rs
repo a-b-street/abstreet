@@ -3,7 +3,7 @@ use std::collections::HashSet;
 use anyhow::Result;
 
 use abstutil::wraparound_get;
-use geom::{Distance, Polygon, Ring};
+use geom::{Distance, Polygon, Pt2D, Ring};
 use map_gui::tools::PopupMsg;
 use map_gui::ID;
 use map_model::{LaneID, Map, RoadSideID, SideOfRoad};
@@ -232,8 +232,7 @@ impl Block {
     fn new(map: &Map, start: LaneID) -> Result<Block> {
         let perimeter = RoadLoop::new(map, start)?;
 
-        let mut pts = Vec::new();
-        let mut reversed_last = false;
+        let mut pts: Vec<Pt2D> = Vec::new();
         for pair in perimeter.roads.windows(2) {
             let lane1 = pair[0].get_outermost_lane(map);
             let lane2 = pair[1].get_outermost_lane(map);
@@ -247,45 +246,29 @@ impl Block {
                 SideOfRoad::Right => lane1.lane_center_pts.must_shift_right(lane1.width / 2.0),
                 SideOfRoad::Left => lane1.lane_center_pts.must_shift_left(lane1.width / 2.0),
             };
-            if pair[0].id == pair[1].id {
-                // We're doubling back at a dead-end
-                if reversed_last {
-                    pts.extend(pl.into_points());
-                    reversed_last = false;
-                } else {
-                    pts.extend(pl.into_points());
-                    reversed_last = true;
-                }
+            let keep_lane_orientation = if pair[0].id == pair[1].id {
+                // We're doubling back at a dead-end. Always follow the orientation of the lane.
+                true
             } else {
                 match lane1.common_endpt(lane2) {
-                    Some(i) => {
-                        if i == lane1.dst_i {
-                            pts.extend(pl.into_points());
-                            reversed_last = false;
-                        } else {
-                            pts.extend(pl.reversed().into_points());
-                            reversed_last = true;
-                        }
-                    }
+                    Some(i) => i == lane1.dst_i,
                     None => {
                         // Two different roads link the same two intersections. I don't think we
                         // can decide the order of points other than seeing which endpoint is
                         // closest to our last point.
                         if let Some(last) = pts.last() {
-                            if last.dist_to(pl.first_pt()) < last.dist_to(pl.last_pt()) {
-                                pts.extend(pl.into_points());
-                                reversed_last = false;
-                            } else {
-                                pts.extend(pl.reversed().into_points());
-                                reversed_last = true;
-                            }
+                            last.dist_to(pl.first_pt()) < last.dist_to(pl.last_pt())
                         } else {
-                            // Doesn't matter
-                            pts.extend(pl.into_points());
-                            reversed_last = false;
+                            // The orientation doesn't matter
+                            true
                         }
                     }
                 }
+            };
+            if keep_lane_orientation {
+                pts.extend(pl.into_points());
+            } else {
+                pts.extend(pl.reversed().into_points());
             }
         }
         // TODO Depending where we start, this sometimes misses the SharedSidewalkCorner?
