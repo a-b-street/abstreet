@@ -10,13 +10,12 @@ use widgetry::{
 };
 
 pub fn main() {
-    abstutil::logger::setup();
-
     let settings = Settings::new("widgetry demo");
     run(settings);
 }
 
 fn run(mut settings: Settings) {
+    abstutil::logger::setup();
     settings = settings.read_svg(Box::new(abstio::slurp_bytes));
     // Control flow surrendered here. App implements State, which has an event handler and a draw
     // callback.
@@ -641,7 +640,6 @@ use wasm_bindgen::prelude::*;
 #[cfg(target_arch = "wasm32")]
 #[wasm_bindgen(js_name = "run")]
 pub fn run_wasm(root_dom_id: String, assets_base_url: String, assets_are_gzipped: bool) {
-    abstutil::logger::setup();
     let settings = Settings::new("widgetry demo")
         .root_dom_element_id(root_dom_id)
         .assets_base_url(assets_base_url)
