@@ -328,8 +328,7 @@ fn calculate_turn_markings(map: &Map, lane: &Lane) -> Vec<Polygon> {
         return Vec::new();
     }
 
-    // Don't call out the strange lane-changing in intersections. Per target road, find the average
-    // turn angle.
+    // Don't call out the strange lane-changing in intersections. Collect all turn angles per target road.
     let mut angles_per_road: HashMap<RoadID, Vec<Angle>> = HashMap::new();
     for turn in map.get_turns_from_lane(lane.id) {
         angles_per_road
@@ -348,11 +347,18 @@ fn calculate_turn_markings(map: &Map, lane: &Lane) -> Vec<Polygon> {
     results.push(common_base.make_polygons(thickness));
 
     for (_, angles) in angles_per_road.into_iter() {
-        let avg = Angle::average(angles);
+        let lane_angle = common_base.last_line().angle();
+        // f64 isn't Ord. Avoid ordered_float dependency by just rounding to 2 decimal places
+        let turn_angle = angles
+            .into_iter()
+            .min_by_key(|a| (a.simple_shortest_rotation_towards(lane_angle).abs() * 100.0) as usize)
+            .unwrap();
         results.push(
             PolyLine::must_new(vec![
                 common_base.last_pt(),
-                common_base.last_pt().project_away(lane.width / 2.0, avg),
+                common_base
+                    .last_pt()
+                    .project_away(lane.width / 2.0, turn_angle),
             ])
             .make_arrow(thickness, ArrowCap::Triangle),
         );
