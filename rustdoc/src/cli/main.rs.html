@@ -305,6 +305,16 @@
 <span id="305">305</span>
 <span id="306">306</span>
 <span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
+<span id="317">317</span>
 </pre><pre class="rust"><code><span class="doccomment">//! A collection of tools, mostly related to importing maps and scenarios. These are bundled as a</span>
 <span class="doccomment">//! single executable to reduce the cost of static linking in the release&#39;s file size.</span>
 
@@ -502,6 +512,16 @@
 
 <span class="attribute">#[<span class="ident">tokio::main</span>]</span>
 <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">main</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">let</span> <span class="ident">cmd</span> <span class="op">=</span> <span class="ident">Command::from_args</span>();
+
+    <span class="comment">// All but a few commands want logging</span>
+    <span class="kw">if</span> <span class="op">!</span><span class="macro">matches!</span>(
+        <span class="ident">cmd</span>,
+        <span class="ident">Command::DumpJSON</span> { .. } <span class="op">|</span> <span class="ident">Command::PickGeofabrik</span> { .. },
+    ) {
+        <span class="ident">abstutil::logger::setup</span>();
+    }
+
     <span class="comment">// Short implementations can stay in this file, but please split larger subcommands to their</span>
     <span class="comment">// own module.</span>
     <span class="kw">match</span> <span class="ident">Command::from_args</span>() {
