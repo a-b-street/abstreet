@@ -113,7 +113,9 @@ fn glue_to_boundary(result_pl: PolyLine, boundary: &Ring) -> Option<Polygon> {
     }
 
     let trimmed_result = result_pl.trim_to_endpts(hits[0], hits[1]);
-    let boundary_glue = boundary.get_shorter_slice_btwn(hits[0], hits[1]).unwrap();
+    let boundary_glue = boundary
+        .get_shorter_slice_between(hits[0], hits[1])
+        .unwrap();
 
     let mut trimmed_pts = trimmed_result.points().clone();
     if trimmed_result.last_pt() == boundary_glue.first_pt() {

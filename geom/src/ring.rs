@@ -82,29 +82,48 @@ impl Ring {
         hits
     }
 
-    pub(crate) fn get_both_slices_btwn(
+    /// Assuming both points are somewhere along the ring, trace along the ring between the two
+    /// points. There are two ways to do this, so return both. The result is oriented from `pt1` to
+    /// `pt2`. If the input points are the same, returns `None`.
+    pub(crate) fn get_both_slices_between(
         &self,
         pt1: Pt2D,
         pt2: Pt2D,
     ) -> Option<(PolyLine, PolyLine)> {
-        assert!(pt1 != pt2);
+        if pt1 == pt2 {
+            return None;
+        }
         let pl = PolyLine::unchecked_new(self.pts.clone());
 
         let mut dist1 = pl.dist_along_of_point(pt1)?.0;
         let mut dist2 = pl.dist_along_of_point(pt2)?.0;
+        let mut swapped = false;
         if dist1 > dist2 {
             std::mem::swap(&mut dist1, &mut dist2);
-        }
-        if dist1 == dist2 {
-            return None;
+            swapped = true;
         }
 
-        // TODO If we reversed the points, we need to reverse these results! Argh
-        let candidate1 = pl.maybe_exact_slice(dist1, dist2).ok()?;
-        let candidate2 = pl
+        let mut candidate1 = pl.maybe_exact_slice(dist1, dist2).ok()?;
+        let mut candidate2 = pl
             .maybe_exact_slice(dist2, pl.length())
             .ok()?
             .must_extend(pl.maybe_exact_slice(Distance::ZERO, dist1).ok()?);
+
+        // Orient both results from pt1 to pt2
+        if swapped {
+            candidate1 = candidate1.reversed();
+        } else {
+            candidate2 = candidate2.reversed();
+        }
+        // TODO Breaking in blockfinder...
+        /*if candidate1.first_pt() != pt1 {
+            println!("wat? pt1 {}, pt2 {}, candidate1 {}, swapped {}", pt1, pt2, candidate1, swapped);
+        }
+        assert_eq!(candidate1.first_pt(), pt1);
+        assert_eq!(candidate2.first_pt(), pt1);
+        assert_eq!(candidate1.last_pt(), pt2);
+        assert_eq!(candidate2.last_pt(), pt2);*/
+
         Some((candidate1, candidate2))
     }
 
@@ -112,22 +131,7 @@ impl Ring {
     /// tracing along the ring in the shorter direction. If both points are the same, returns
     /// `None`.  The result is oriented from `pt1` to `pt2`.
     pub fn get_shorter_slice_between(&self, pt1: Pt2D, pt2: Pt2D) -> Option<PolyLine> {
-        if pt1 == pt2 {
-            return None;
-        }
-        let slice = self.get_shorter_slice_btwn(pt1, pt2)?;
-        if slice.first_pt() == pt1 {
-            Some(slice)
-        } else {
-            // TODO Do we want to be paranoid here? Or just do the fix in get_both_slices_btwn
-            // directly?
-            Some(slice.reversed())
-        }
-    }
-
-    // TODO Rmove this one, fix all callers
-    pub fn get_shorter_slice_btwn(&self, pt1: Pt2D, pt2: Pt2D) -> Option<PolyLine> {
-        let (candidate1, candidate2) = self.get_both_slices_btwn(pt1, pt2)?;
+        let (candidate1, candidate2) = self.get_both_slices_between(pt1, pt2)?;
         if candidate1.length() < candidate2.length() {
             Some(candidate1)
         } else {

@@ -471,7 +471,7 @@ fn make_shared_sidewalk_corner(
             .polygon
             .clone()
             .into_ring()
-            .get_shorter_slice_btwn(corner1, corner2)
+            .get_shorter_slice_between(corner1, corner2)
             .unwrap();
     }
 

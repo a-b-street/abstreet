@@ -442,7 +442,7 @@ impl Polygon {
                 return Some(input.points().clone());
             }
         } else if hits.len() == 2 {
-            let (pl1, pl2) = input.get_both_slices_btwn(hits[0], hits[1])?;
+            let (pl1, pl2) = input.get_both_slices_between(hits[0], hits[1])?;
 
             // One of these should be partly outside the polygon. The endpoints won't be in the
             // polygon itself, but they'll be on the ring.

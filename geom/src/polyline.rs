@@ -839,6 +839,8 @@ impl PolyLine {
         None
     }
 
+    /// Trims the polyline to have endpoints of `pt1` and `pt2`. Retains the original orientation
+    /// of the polyline. Panics if those points are the same or if they're not on the polyline.
     pub fn trim_to_endpts(&self, pt1: Pt2D, pt2: Pt2D) -> PolyLine {
         assert!(pt1 != pt2);
         let mut dist1 = self.dist_along_of_point(pt1).unwrap().0;

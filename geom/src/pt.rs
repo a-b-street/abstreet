@@ -127,7 +127,7 @@ impl Pt2D {
         result
     }
 
-    // TODO Try to deprecate in favor of Ring::get_shorter_slice_btwn
+    // TODO Try to deprecate in favor of Ring::get_shorter_slice_between
     pub fn find_pts_between(
         pts: &[Pt2D],
         start: Pt2D,
