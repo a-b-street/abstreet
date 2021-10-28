@@ -1,5 +1,6 @@
 use std::collections::{HashMap, HashSet};
 
+use geom::Distance;
 use map_model::Block;
 use widgetry::mapspace::{ObjectID, World, WorldOutcome};
 use widgetry::{
@@ -35,8 +36,7 @@ impl Blockfinder {
                     .add(id)
                     .hitbox(block.polygon.clone())
                     .draw_color(Color::RED.alpha(0.5))
-                    // TODO an outline would be nicer
-                    .hover_alpha(0.9)
+                    .hover_outline(Color::BLACK, Distance::meters(5.0))
                     .clickable()
                     .hotkey(Key::Space, "add to merge set")
                     .build(ctx);
@@ -93,7 +93,7 @@ impl State<App> for Blockfinder {
                             .add(id)
                             .hitbox(block.polygon.clone())
                             .draw_color(Color::RED.alpha(0.5))
-                            .hover_alpha(0.9)
+                            .hover_outline(Color::BLACK, Distance::meters(5.0))
                             .clickable()
                             .hotkey(Key::Space, "add to merge set")
                             .build(ctx);
@@ -115,7 +115,7 @@ impl State<App> for Blockfinder {
                     .add(id)
                     .hitbox(block.polygon.clone())
                     .draw_color(Color::CYAN.alpha(0.5))
-                    .hover_alpha(0.9)
+                    .hover_outline(Color::BLACK, Distance::meters(5.0))
                     .clickable()
                     .hotkey(Key::Space, "remove from merge set")
                     .build(ctx);
@@ -128,7 +128,7 @@ impl State<App> for Blockfinder {
                     .add(id)
                     .hitbox(block.polygon.clone())
                     .draw_color(Color::RED.alpha(0.5))
-                    .hover_alpha(0.9)
+                    .hover_outline(Color::BLACK, Distance::meters(5.0))
                     .clickable()
                     .hotkey(Key::Space, "add to merge set")
                     .build(ctx);

@@ -159,6 +159,23 @@ impl<'a, ID: ObjectID> ObjectBuilder<'a, ID> {
         self.draw_hover_rewrite(RewriteColor::ChangeAlpha(alpha))
     }
 
+    /// Draw the object in a hovered state by adding an outline to the normal drawing.
+    pub fn hover_outline(self, color: Color, thickness: Distance) -> Self {
+        let mut draw = self
+            .draw_normal
+            .clone()
+            .expect("first specify how to draw normally");
+        if let Ok(p) = self
+            .hitbox
+            .clone()
+            .expect("call hitbox first")
+            .to_outline(thickness)
+        {
+            draw = draw.push(color, p);
+        }
+        self.draw_hovered(draw)
+    }
+
     /// Draw a tooltip while hovering over this object.
     pub fn tooltip(mut self, txt: Text) -> Self {
         assert!(self.tooltip.is_none(), "already specified tooltip");
