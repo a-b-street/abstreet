@@ -825,13 +825,13 @@
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">Eq</span>, <span class="ident">Hash</span>, <span class="ident">PartialEq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RoadSideID</span> {
-    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">RoadID</span>,
+    <span class="kw">pub</span> <span class="ident">road</span>: <span class="ident">RoadID</span>,
     <span class="kw">pub</span> <span class="ident">side</span>: <span class="ident">SideOfRoad</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">RoadSideID</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_outermost_lane</span>(<span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">Lane</span> {
-        <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="self">self</span>.<span class="ident">id</span>);
+        <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="self">self</span>.<span class="ident">road</span>);
         <span class="kw">match</span> <span class="self">self</span>.<span class="ident">side</span> {
             <span class="ident">SideOfRoad::Right</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">r</span>.<span class="ident">lanes</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>(),
             <span class="ident">SideOfRoad::Left</span> <span class="op">=</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">r</span>.<span class="ident">lanes</span>[<span class="number">0</span>],

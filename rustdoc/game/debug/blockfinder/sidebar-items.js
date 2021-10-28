@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["Blockfinder",""],["OneBlock",""]]});
+initSidebarItems({"fn":[["make_panel",""]],"struct":[["Blockfinder",""],["Obj",""],["OneBlock",""]]});
