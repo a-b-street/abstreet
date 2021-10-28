@@ -195,6 +195,16 @@ enum Command {
 
 #[tokio::main]
 async fn main() -> Result<()> {
+    let cmd = Command::from_args();
+
+    // All but a few commands want logging
+    if !matches!(
+        cmd,
+        Command::DumpJSON { .. } | Command::PickGeofabrik { .. },
+    ) {
+        abstutil::logger::setup();
+    }
+
     // Short implementations can stay in this file, but please split larger subcommands to their
     // own module.
     match Command::from_args() {
