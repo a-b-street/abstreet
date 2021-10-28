@@ -123,12 +123,17 @@ impl RoadLoop {
     /// Consider the loops as a graph, with adjacency determined by sharing any road in common.
     /// Merge all adjacent loops that the predicate allows. Returns the partitioning of adjacent
     /// loops; all of them should be able to sent through merge_all and wind up with one result...
-    // TODO Maybe express as floodfill?
-    pub fn merge_all_by_metric<F: Fn(RoadID) -> bool>(input: Vec<RoadLoop>, predicate: F) -> Vec<Vec<RoadLoop>> {
+    pub fn partition_by_predicate<F: Fn(RoadID) -> bool>(
+        input: Vec<RoadLoop>,
+        predicate: F,
+    ) -> Vec<Vec<RoadLoop>> {
         let mut road_to_loops: HashMap<RoadID, Vec<usize>> = HashMap::new();
         for (idx, perimeter) in input.iter().enumerate() {
             for id in &perimeter.roads {
-                road_to_loops.entry(id.id).or_insert_with(Vec::new).push(idx);
+                road_to_loops
+                    .entry(id.id)
+                    .or_insert_with(Vec::new)
+                    .push(idx);
             }
         }
 
@@ -178,6 +183,10 @@ impl RoadLoop {
             assert!(maybe_loop.is_none());
         }
         results
+    }
+
+    pub fn to_block(self, map: &Map) -> Result<Block> {
+        Block::from_loop(map, self)
     }
 }
 

@@ -1,7 +1,8 @@
 use std::collections::{HashMap, HashSet};
 
 use geom::Distance;
-use map_model::Block;
+use map_model::osm::RoadRank;
+use map_model::{Block, PathConstraints, RoadLoop};
 use widgetry::mapspace::{ObjectID, World, WorldOutcome};
 use widgetry::{
     Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, SimpleState, State,
@@ -57,6 +58,11 @@ impl Blockfinder {
                 .text("Merge")
                 .hotkey(Key::M)
                 .build_def(ctx),
+            ctx.style()
+                .btn_outline
+                .text("Auto-merge all neighborhoods")
+                .hotkey(Key::N)
+                .build_def(ctx),
         ]))
         .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
         .build(ctx);
@@ -100,6 +106,46 @@ impl State<App> for Blockfinder {
                         self.blocks.insert(id, block);
                     }
                     return Transition::Keep;
+                }
+                "Auto-merge all neighborhoods" => {
+                    let loops: Vec<RoadLoop> =
+                        self.blocks.drain().map(|(_, b)| b.perimeter).collect();
+                    let map = &app.primary.map;
+                    let partitions = RoadLoop::partition_by_predicate(loops, |r| {
+                        // "Interior" roads of a neighborhood aren't classified as arterial and are
+                        // driveable (so existing bike-only connections induce a split)
+                        let road = map.get_r(r);
+                        road.get_rank() == RoadRank::Local
+                            && road
+                                .lanes
+                                .iter()
+                                .any(|l| PathConstraints::Car.can_use(l, map))
+                    });
+
+                    // Reset pretty much all of our state
+                    self.id_counter = 0;
+                    self.world = World::bounded(app.primary.map.get_bounds());
+                    self.to_merge.clear();
+
+                    // Until we can actually do the merge, just color the partition to show results
+                    for (color_idx, loops) in partitions.into_iter().enumerate() {
+                        let color =
+                            [Color::RED, Color::YELLOW, Color::GREEN, Color::PURPLE][color_idx % 4];
+                        for perimeter in loops {
+                            if let Ok(block) = perimeter.to_block(map) {
+                                let id = Obj(self.id_counter);
+                                self.id_counter += 1;
+                                self.world
+                                    .add(id)
+                                    .hitbox(block.polygon.clone())
+                                    .draw_color(color.alpha(0.5))
+                                    .hover_outline(Color::BLACK, Distance::meters(5.0))
+                                    .clickable()
+                                    .hotkey(Key::Space, "add to merge set")
+                                    .build(ctx);
+                            }
+                        }
+                    }
                 }
                 _ => unreachable!(),
             }
