@@ -461,18 +461,28 @@ fn make_shared_sidewalk_corner(
     let baseline = PolyLine::must_new(vec![l1.last_pt(), l2.first_pt()]);
 
     // Find all of the points on the intersection polygon between the two sidewalks. Assumes
-    // sidewalks are the same length.
+    // sidewalks are the same width.
     let corner1 = l1.last_line().shift_right(l1.width / 2.0).pt2();
     let corner2 = l2.first_line().shift_right(l2.width / 2.0).pt1();
 
     // TODO Something like this will be MUCH simpler and avoid going around the long way sometimes.
-    if false {
-        return i
+    if true {
+        if let Some(pl) = i
             .polygon
             .clone()
             .into_ring()
             .get_shorter_slice_between(corner1, corner2)
-            .unwrap();
+            .and_then(|pl| pl.shift_left(l1.width.min(l2.width) / 2.0).ok())
+        {
+            return pl;
+        } else {
+            warn!(
+                "SharedSidewalkCorner between {} and {} has weird duplicate geometry, so just \
+                 doing straight line",
+                l1.id, l2.id
+            );
+            return baseline;
+        }
     }
 
     // The order of the points here seems backwards, but it's because we scan from corner2
