@@ -26,53 +26,46 @@ impl ObjectID for Obj {}
 
 impl Blockfinder {
     pub fn new_state(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
-        let mut id_counter = 0;
-        let mut blocks = HashMap::new();
-        let mut world = World::bounded(app.primary.map.get_bounds());
+        let mut state = Blockfinder {
+            panel: make_panel(ctx),
+            id_counter: 0,
+            blocks: HashMap::new(),
+            world: World::bounded(app.primary.map.get_bounds()),
+            to_merge: HashSet::new(),
+        };
+
         ctx.loading_screen("calculate all blocks", |ctx, _| {
             for block in Block::find_all_single_blocks(&app.primary.map) {
-                let id = Obj(id_counter);
-                id_counter += 1;
-                world
-                    .add(id)
-                    .hitbox(block.polygon.clone())
-                    .draw_color(Color::RED.alpha(0.5))
-                    .hover_outline(Color::BLACK, Distance::meters(5.0))
-                    .clickable()
-                    .hotkey(Key::Space, "add to merge set")
-                    .build(ctx);
-                blocks.insert(id, block);
+                let id = state.new_id();
+                state.add_block(ctx, id, None, block);
             }
         });
-        world.initialize_hover(ctx);
+        state.world.initialize_hover(ctx);
+        Box::new(state)
+    }
 
-        let panel = Panel::new_builder(Widget::col(vec![
-            Widget::row(vec![
-                Line("Blockfinder").small_heading().into_widget(ctx),
-                ctx.style().btn_close_widget(ctx),
-            ]),
-            "Click a block to examine.".text_widget(ctx),
-            "Press space to mark/unmark for merging".text_widget(ctx),
-            ctx.style()
-                .btn_outline
-                .text("Merge")
-                .hotkey(Key::M)
-                .build_def(ctx),
-            ctx.style()
-                .btn_outline
-                .text("Auto-merge all neighborhoods")
-                .hotkey(Key::N)
-                .build_def(ctx),
-        ]))
-        .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
-        .build(ctx);
-        Box::new(Blockfinder {
-            panel,
-            id_counter,
-            blocks,
-            world,
-            to_merge: HashSet::new(),
-        })
+    fn new_id(&mut self) -> Obj {
+        let id = Obj(self.id_counter);
+        self.id_counter += 1;
+        id
+    }
+
+    fn add_block(&mut self, ctx: &mut EventCtx, id: Obj, color: Option<Color>, block: Block) {
+        let color = color.unwrap_or(Color::RED);
+        let mut obj = self
+            .world
+            .add(id)
+            .hitbox(block.polygon.clone())
+            .draw_color(color.alpha(0.5))
+            .hover_outline(Color::BLACK, Distance::meters(5.0))
+            .clickable();
+        if self.to_merge.contains(&id) {
+            obj = obj.hotkey(Key::Space, "remove from merge set")
+        } else {
+            obj = obj.hotkey(Key::Space, "add to merge set")
+        }
+        obj.build(ctx);
+        self.blocks.insert(id, block);
     }
 }
 
@@ -93,17 +86,8 @@ impl State<App> for Blockfinder {
                         self.world.delete(id);
                     }
                     for block in Block::merge_all(&app.primary.map, blocks) {
-                        let id = Obj(self.id_counter);
-                        self.id_counter += 1;
-                        self.world
-                            .add(id)
-                            .hitbox(block.polygon.clone())
-                            .draw_color(Color::RED.alpha(0.5))
-                            .hover_outline(Color::BLACK, Distance::meters(5.0))
-                            .clickable()
-                            .hotkey(Key::Space, "add to merge set")
-                            .build(ctx);
-                        self.blocks.insert(id, block);
+                        let id = self.new_id();
+                        self.add_block(ctx, id, None, block);
                     }
                     return Transition::Keep;
                 }
@@ -133,16 +117,8 @@ impl State<App> for Blockfinder {
                             [Color::RED, Color::YELLOW, Color::GREEN, Color::PURPLE][color_idx % 4];
                         for perimeter in loops {
                             if let Ok(block) = perimeter.to_block(map) {
-                                let id = Obj(self.id_counter);
-                                self.id_counter += 1;
-                                self.world
-                                    .add(id)
-                                    .hitbox(block.polygon.clone())
-                                    .draw_color(color.alpha(0.5))
-                                    .hover_outline(Color::BLACK, Distance::meters(5.0))
-                                    .clickable()
-                                    .hotkey(Key::Space, "add to merge set")
-                                    .build(ctx);
+                                let id = self.new_id();
+                                self.add_block(ctx, id, Some(color), block);
                             }
                         }
                     }
@@ -154,30 +130,15 @@ impl State<App> for Blockfinder {
         match self.world.event(ctx) {
             WorldOutcome::Keypress("add to merge set", id) => {
                 self.to_merge.insert(id);
-                let block = &self.blocks[&id];
+                let block = self.blocks.remove(&id).unwrap();
                 self.world.delete_before_replacement(id);
-                // TODO Refactor?
-                self.world
-                    .add(id)
-                    .hitbox(block.polygon.clone())
-                    .draw_color(Color::CYAN.alpha(0.5))
-                    .hover_outline(Color::BLACK, Distance::meters(5.0))
-                    .clickable()
-                    .hotkey(Key::Space, "remove from merge set")
-                    .build(ctx);
+                self.add_block(ctx, id, Some(Color::CYAN), block);
             }
             WorldOutcome::Keypress("remove from merge set", id) => {
                 self.to_merge.remove(&id);
-                let block = &self.blocks[&id];
+                let block = self.blocks.remove(&id).unwrap();
                 self.world.delete_before_replacement(id);
-                self.world
-                    .add(id)
-                    .hitbox(block.polygon.clone())
-                    .draw_color(Color::RED.alpha(0.5))
-                    .hover_outline(Color::BLACK, Distance::meters(5.0))
-                    .clickable()
-                    .hotkey(Key::Space, "add to merge set")
-                    .build(ctx);
+                self.add_block(ctx, id, None, block);
             }
             WorldOutcome::ClickedObject(id) => {
                 return Transition::Push(OneBlock::new_state(ctx, self.blocks[&id].clone()));
@@ -261,4 +222,27 @@ impl SimpleState<App> for OneBlock {
     fn draw(&self, g: &mut GfxCtx, _: &App) {
         g.draw_polygon(Color::RED.alpha(0.8), self.block.polygon.clone());
     }
+}
+
+fn make_panel(ctx: &mut EventCtx) -> Panel {
+    Panel::new_builder(Widget::col(vec![
+        Widget::row(vec![
+            Line("Blockfinder").small_heading().into_widget(ctx),
+            ctx.style().btn_close_widget(ctx),
+        ]),
+        "Click a block to examine.".text_widget(ctx),
+        "Press space to mark/unmark for merging".text_widget(ctx),
+        ctx.style()
+            .btn_outline
+            .text("Merge")
+            .hotkey(Key::M)
+            .build_def(ctx),
+        ctx.style()
+            .btn_outline
+            .text("Auto-merge all neighborhoods")
+            .hotkey(Key::N)
+            .build_def(ctx),
+    ]))
+    .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
+    .build(ctx)
 }
