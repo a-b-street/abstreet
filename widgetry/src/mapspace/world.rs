@@ -522,7 +522,7 @@ impl World<DummyID> {
     /// Note: You must call `build` on this object before calling `add_unnamed` again. Otherwise,
     /// the object IDs will collide.
     ///
-    /// TODO When we support deletion, this will break!
+    /// TODO This will break when objects are deleted!
     pub fn add_unnamed(&mut self) -> ObjectBuilder<'_, DummyID> {
         self.add(DummyID(self.objects.len()))
     }

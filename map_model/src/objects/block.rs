@@ -71,8 +71,7 @@ impl Perimeter {
     }
 
     /// Merges two perimeters using a road in common. Mutates the current perimeter. Panics if they
-    /// don't have that road in common.
-    /// TODO What if they share many roads?
+    /// don't have that road in common. Doesn't handle blocks that have multiple roads in common.
     pub fn merge(&mut self, mut other: Perimeter, common_road: RoadID) {
         // TODO Alt algorithm would rotate until common is first or last...
         let idx1 = self
@@ -103,12 +102,11 @@ impl Perimeter {
             roads.push(roads[0]);
         }
 
-        println!("common was {}. sup {:?}", common_road, roads);
         self.roads = roads;
     }
 
     /// Find an arbitrary road that two perimeters have in common.
-    pub fn find_common_road(&self, other: &Perimeter) -> Option<RoadID> {
+    fn find_common_road(&self, other: &Perimeter) -> Option<RoadID> {
         let mut roads = HashSet::new();
         for id in self.roads.iter().skip(1) {
             roads.insert(id.road);
