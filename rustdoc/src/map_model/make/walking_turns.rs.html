@@ -567,10 +567,13 @@
 <span id="567">567</span>
 <span id="568">568</span>
 <span id="569">569</span>
+<span id="570">570</span>
+<span id="571">571</span>
+<span id="572">572</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
 
 <span class="kw">use</span> <span class="ident">abstutil::wraparound_get</span>;
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Line</span>, <span class="ident">PolyLine</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>};
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Line</span>, <span class="ident">PolyLine</span>, <span class="ident">Pt2D</span>};
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
     <span class="ident">Direction</span>, <span class="ident">DrivingSide</span>, <span class="ident">Intersection</span>, <span class="ident">IntersectionID</span>, <span class="ident">Lane</span>, <span class="ident">LaneID</span>, <span class="ident">LaneType</span>, <span class="ident">Map</span>, <span class="ident">Road</span>, <span class="ident">Turn</span>,
@@ -1036,7 +1039,10 @@
 
     <span class="comment">// TODO Something like this will be MUCH simpler and avoid going around the long way sometimes.</span>
     <span class="kw">if</span> <span class="bool-val">false</span> {
-        <span class="kw">return</span> <span class="ident">Ring::must_new</span>(<span class="ident">i</span>.<span class="ident">polygon</span>.<span class="ident">points</span>().<span class="ident">clone</span>())
+        <span class="kw">return</span> <span class="ident">i</span>
+            .<span class="ident">polygon</span>
+            .<span class="ident">clone</span>()
+            .<span class="ident">into_ring</span>()
             .<span class="ident">get_shorter_slice_btwn</span>(<span class="ident">corner1</span>, <span class="ident">corner2</span>)
             .<span class="ident">unwrap</span>();
     }

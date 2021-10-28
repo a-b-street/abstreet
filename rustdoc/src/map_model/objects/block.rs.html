@@ -312,6 +312,45 @@
 <span id="312">312</span>
 <span id="313">313</span>
 <span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
+<span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
+<span id="347">347</span>
+<span id="348">348</span>
+<span id="349">349</span>
+<span id="350">350</span>
+<span id="351">351</span>
+<span id="352">352</span>
+<span id="353">353</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
@@ -319,7 +358,7 @@
 <span class="kw">use</span> <span class="ident">abstutil::wraparound_get</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>};
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">RoadID</span>, <span class="ident">RoadSideID</span>, <span class="ident">SideOfRoad</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Direction</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">RoadID</span>, <span class="ident">RoadSideID</span>, <span class="ident">SideOfRoad</span>};
 
 <span class="doccomment">/// A block is defined by a perimeter that traces along the sides of roads. Inside the perimeter,</span>
 <span class="doccomment">/// the block may contain buildings and interior roads. In the simple case, a block represents a</span>
@@ -514,19 +553,26 @@
     <span class="kw">fn</span> <span class="ident">from_perimeter</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">perimeter</span>: <span class="ident">Perimeter</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Block</span><span class="op">&gt;</span> {
         <span class="comment">// Trace along the perimeter and build the polygon</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">first_intersection</span> <span class="op">=</span> <span class="prelude-val">None</span>;
         <span class="kw">for</span> <span class="ident">pair</span> <span class="kw">in</span> <span class="ident">perimeter</span>.<span class="ident">roads</span>.<span class="ident">windows</span>(<span class="number">2</span>) {
             <span class="kw">let</span> <span class="ident">lane1</span> <span class="op">=</span> <span class="ident">pair</span>[<span class="number">0</span>].<span class="ident">get_outermost_lane</span>(<span class="ident">map</span>);
+            <span class="kw">let</span> <span class="ident">road1</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_parent</span>(<span class="ident">lane1</span>.<span class="ident">id</span>);
             <span class="kw">let</span> <span class="ident">lane2</span> <span class="op">=</span> <span class="ident">pair</span>[<span class="number">1</span>].<span class="ident">get_outermost_lane</span>(<span class="ident">map</span>);
+            <span class="comment">// TODO What about tracing along a road with exactly one lane? False error. I&#39;m not</span>
+            <span class="comment">// sure looking at lanes here is helpful at all...</span>
             <span class="kw">if</span> <span class="ident">lane1</span>.<span class="ident">id</span> <span class="op">=</span><span class="op">=</span> <span class="ident">lane2</span>.<span class="ident">id</span> {
                 <span class="macro">bail!</span>(
                     <span class="string">&quot;Perimeter road has duplicate adjacent. {:?}&quot;</span>,
                     <span class="ident">perimeter</span>.<span class="ident">roads</span>
                 );
             }
-            <span class="kw">let</span> <span class="ident">pl</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">pair</span>[<span class="number">0</span>].<span class="ident">side</span> {
-                <span class="ident">SideOfRoad::Right</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">lane1</span>.<span class="ident">lane_center_pts</span>.<span class="ident">must_shift_right</span>(<span class="ident">lane1</span>.<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>),
-                <span class="ident">SideOfRoad::Left</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">lane1</span>.<span class="ident">lane_center_pts</span>.<span class="ident">must_shift_left</span>(<span class="ident">lane1</span>.<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>),
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pl</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">pair</span>[<span class="number">0</span>].<span class="ident">side</span> {
+                <span class="ident">SideOfRoad::Right</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">road1</span>.<span class="ident">center_pts</span>.<span class="ident">must_shift_right</span>(<span class="ident">road1</span>.<span class="ident">get_half_width</span>()),
+                <span class="ident">SideOfRoad::Left</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">road1</span>.<span class="ident">center_pts</span>.<span class="ident">must_shift_left</span>(<span class="ident">road1</span>.<span class="ident">get_half_width</span>()),
             };
+            <span class="kw">if</span> <span class="ident">lane1</span>.<span class="ident">dir</span> <span class="op">=</span><span class="op">=</span> <span class="ident">Direction::Back</span> {
+                <span class="ident">pl</span> <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">reversed</span>();
+            }
             <span class="kw">let</span> <span class="ident">keep_lane_orientation</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">pair</span>[<span class="number">0</span>].<span class="ident">road</span> <span class="op">=</span><span class="op">=</span> <span class="ident">pair</span>[<span class="number">1</span>].<span class="ident">road</span> {
                 <span class="comment">// We&#39;re doubling back at a dead-end. Always follow the orientation of the lane.</span>
                 <span class="bool-val">true</span>
@@ -546,10 +592,42 @@
                     }
                 }
             };
-            <span class="kw">if</span> <span class="ident">keep_lane_orientation</span> {
-                <span class="ident">pts</span>.<span class="ident">extend</span>(<span class="ident">pl</span>.<span class="ident">into_points</span>());
+            <span class="kw">if</span> <span class="op">!</span><span class="ident">keep_lane_orientation</span> {
+                <span class="ident">pl</span> <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">reversed</span>();
+            }
+
+            <span class="comment">// Before we add this road&#39;s points, try to trace along the polygon&#39;s boundary. Usually</span>
+            <span class="comment">// this has no effect (we&#39;ll dedupe points), but sometimes there&#39;s an extra curve.</span>
+            <span class="comment">//</span>
+            <span class="comment">// Note this logic is similar to how we find SharedSidewalkCorners. Don&#39;t rely on that</span>
+            <span class="comment">// existing, since the outermost lane mightn&#39;t be a sidewalk.</span>
+            <span class="kw">let</span> <span class="ident">prev_i</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">keep_lane_orientation</span> {
+                <span class="ident">lane1</span>.<span class="ident">src_i</span>
             } <span class="kw">else</span> {
-                <span class="ident">pts</span>.<span class="ident">extend</span>(<span class="ident">pl</span>.<span class="ident">reversed</span>().<span class="ident">into_points</span>());
+                <span class="ident">lane1</span>.<span class="ident">dst_i</span>
+            };
+            <span class="kw">if</span> <span class="ident">first_intersection</span>.<span class="ident">is_none</span>() {
+                <span class="ident">first_intersection</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">prev_i</span>);
+            }
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">last_pt</span>) <span class="op">=</span> <span class="ident">pts</span>.<span class="ident">last</span>() {
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ring</span>) <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">prev_i</span>).<span class="ident">polygon</span>.<span class="ident">get_outer_ring</span>() {
+                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">slice</span>) <span class="op">=</span> <span class="ident">ring</span>.<span class="ident">get_shorter_slice_between</span>(<span class="kw-2">*</span><span class="ident">last_pt</span>, <span class="ident">pl</span>.<span class="ident">first_pt</span>()) {
+                        <span class="ident">pts</span>.<span class="ident">extend</span>(<span class="ident">slice</span>.<span class="ident">into_points</span>());
+                    }
+                }
+            }
+
+            <span class="ident">pts</span>.<span class="ident">extend</span>(<span class="ident">pl</span>.<span class="ident">into_points</span>());
+        }
+        <span class="comment">// Do the intersection boundary tracing for the last piece. We didn&#39;t know enough to do it</span>
+        <span class="comment">// the first time.</span>
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ring</span>) <span class="op">=</span> <span class="ident">map</span>
+            .<span class="ident">get_i</span>(<span class="ident">first_intersection</span>.<span class="ident">unwrap</span>())
+            .<span class="ident">polygon</span>
+            .<span class="ident">get_outer_ring</span>()
+        {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">slice</span>) <span class="op">=</span> <span class="ident">ring</span>.<span class="ident">get_shorter_slice_between</span>(<span class="kw-2">*</span><span class="ident">pts</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>(), <span class="ident">pts</span>[<span class="number">0</span>]) {
+                <span class="ident">pts</span>.<span class="ident">extend</span>(<span class="ident">slice</span>.<span class="ident">into_points</span>());
             }
         }
         <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">pts</span>[<span class="number">0</span>]);
