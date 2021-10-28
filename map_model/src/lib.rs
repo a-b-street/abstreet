@@ -43,7 +43,7 @@ pub use crate::edits::{
 pub use crate::make::RawToMapOptions;
 pub use crate::map::{DrivingSide, MapConfig};
 pub use crate::objects::area::{Area, AreaID, AreaType};
-pub use crate::objects::block::{Block, RoadLoop};
+pub use crate::objects::block::{Block, Perimeter};
 pub use crate::objects::building::{
     Amenity, AmenityType, Building, BuildingID, BuildingType, NamePerLanguage, OffstreetParking,
 };

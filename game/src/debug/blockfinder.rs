@@ -2,7 +2,7 @@ use std::collections::{HashMap, HashSet};
 
 use geom::Distance;
 use map_model::osm::RoadRank;
-use map_model::{Block, PathConstraints, RoadLoop};
+use map_model::{Block, PathConstraints, Perimeter};
 use widgetry::mapspace::{ObjectID, World, WorldOutcome};
 use widgetry::{
     Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, SimpleState, State,
@@ -92,10 +92,10 @@ impl State<App> for Blockfinder {
                     return Transition::Keep;
                 }
                 "Auto-merge all neighborhoods" => {
-                    let loops: Vec<RoadLoop> =
+                    let perimeters: Vec<Perimeter> =
                         self.blocks.drain().map(|(_, b)| b.perimeter).collect();
                     let map = &app.primary.map;
-                    let partitions = RoadLoop::partition_by_predicate(loops, |r| {
+                    let partitions = Perimeter::partition_by_predicate(perimeters, |r| {
                         // "Interior" roads of a neighborhood aren't classified as arterial and are
                         // driveable (so existing bike-only connections induce a split)
                         let road = map.get_r(r);
@@ -112,10 +112,10 @@ impl State<App> for Blockfinder {
                     self.to_merge.clear();
 
                     // Until we can actually do the merge, just color the partition to show results
-                    for (color_idx, loops) in partitions.into_iter().enumerate() {
+                    for (color_idx, perimeters) in partitions.into_iter().enumerate() {
                         let color =
                             [Color::RED, Color::YELLOW, Color::GREEN, Color::PURPLE][color_idx % 4];
-                        for perimeter in loops {
+                        for perimeter in perimeters {
                             if let Ok(block) = perimeter.to_block(map) {
                                 let id = self.new_id();
                                 self.add_block(ctx, id, Some(color), block);

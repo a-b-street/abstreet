@@ -14,7 +14,7 @@ use crate::{LaneID, Map, RoadID, RoadSideID, SideOfRoad};
 // TODO Maybe "block" is a misleading term. "Contiguous road trace area"?
 #[derive(Clone)]
 pub struct Block {
-    pub perimeter: RoadLoop,
+    pub perimeter: Perimeter,
     /// The polygon covers the interior of the block.
     pub polygon: Polygon,
     // TODO Track interior buildings and roads
@@ -22,15 +22,15 @@ pub struct Block {
 
 /// A sequence of roads in order, beginning and ending at the same place. No "crossings" -- tracing
 /// along this sequence should geometrically yield a simple polygon.
-// TODO Handle the map boundary. Sometimes this loop should be broken up by border intersections or
-// possibly by water/park areas.
+// TODO Handle the map boundary. Sometimes this perimeter should be broken up by border
+// intersections or possibly by water/park areas.
 #[derive(Clone)]
-pub struct RoadLoop {
+pub struct Perimeter {
     pub roads: Vec<RoadSideID>,
 }
 
-impl RoadLoop {
-    fn single_block(map: &Map, start: LaneID) -> RoadLoop {
+impl Perimeter {
+    fn single_block(map: &Map, start: LaneID) -> Perimeter {
         let mut roads = Vec::new();
         let start_road_side = map.get_l(start).get_nearest_side_of_road(map);
         // We need to track which side of the road we're at, but also which direction we're facing
@@ -67,23 +67,24 @@ impl RoadLoop {
             }
         }
         assert_eq!(roads[0], *roads.last().unwrap());
-        RoadLoop { roads }
+        Perimeter { roads }
     }
 
-    /// Merges two loops using a road in common. Mutates the current loop. Panics if they don't have that road in common.
+    /// Merges two perimeters using a road in common. Mutates the current perimeter. Panics if they
+    /// don't have that road in common.
     /// TODO What if they share many roads?
-    pub fn merge(&mut self, mut other: RoadLoop, common_road: RoadID) {
+    pub fn merge(&mut self, mut other: Perimeter, common_road: RoadID) {
         // TODO Alt algorithm would rotate until common is first or last...
         let idx1 = self
             .roads
             .iter()
             .position(|x| x.road == common_road)
-            .unwrap_or_else(|| panic!("First RoadLoop doesn't have {}", common_road));
+            .unwrap_or_else(|| panic!("First Perimeter doesn't have {}", common_road));
         let idx2 = other
             .roads
             .iter()
             .position(|x| x.road == common_road)
-            .unwrap_or_else(|| panic!("Second RoadLoop doesn't have {}", common_road));
+            .unwrap_or_else(|| panic!("Second Perimeter doesn't have {}", common_road));
 
         // The first element is the common road, now an interior
         let last_pieces = self.roads.split_off(idx1);
@@ -106,8 +107,8 @@ impl RoadLoop {
         self.roads = roads;
     }
 
-    /// Find an arbitrary road that two loops have in common.
-    pub fn find_common_road(&self, other: &RoadLoop) -> Option<RoadID> {
+    /// Find an arbitrary road that two perimeters have in common.
+    pub fn find_common_road(&self, other: &Perimeter) -> Option<RoadID> {
         let mut roads = HashSet::new();
         for id in self.roads.iter().skip(1) {
             roads.insert(id.road);
@@ -120,25 +121,25 @@ impl RoadLoop {
         None
     }
 
-    /// Consider the loops as a graph, with adjacency determined by sharing any road in common.
-    /// Merge all adjacent loops that the predicate allows. Returns the partitioning of adjacent
-    /// loops; all of them should be able to sent through merge_all and wind up with one result...
+    /// Consider the perimeters as a graph, with adjacency determined by sharing any road in common.
+    /// Partition adjacent perimeters, subject to the predicate. Each partition should produce a
+    /// single result with `merge_all`.
     pub fn partition_by_predicate<F: Fn(RoadID) -> bool>(
-        input: Vec<RoadLoop>,
+        input: Vec<Perimeter>,
         predicate: F,
-    ) -> Vec<Vec<RoadLoop>> {
-        let mut road_to_loops: HashMap<RoadID, Vec<usize>> = HashMap::new();
+    ) -> Vec<Vec<Perimeter>> {
+        let mut road_to_perimeters: HashMap<RoadID, Vec<usize>> = HashMap::new();
         for (idx, perimeter) in input.iter().enumerate() {
             for id in &perimeter.roads {
-                road_to_loops
+                road_to_perimeters
                     .entry(id.road)
                     .or_insert_with(Vec::new)
                     .push(idx);
             }
         }
 
-        // Start at one loop, floodfill to adjacent loops, subject to the predicate. Returns the
-        // indices of everything in that component.
+        // Start at one perimeter, floodfill to adjacent perimeters, subject to the predicate.
+        // Returns the indices of everything in that component.
         let floodfill = |start: usize| -> HashSet<usize> {
             let mut visited = HashSet::new();
             let mut queue = vec![start];
@@ -150,7 +151,7 @@ impl RoadLoop {
                 visited.insert(current);
                 for id in &input[current].roads {
                     if predicate(id.road) {
-                        queue.extend(road_to_loops[&id.road].clone());
+                        queue.extend(road_to_perimeters[&id.road].clone());
                     }
                 }
             }
@@ -168,25 +169,25 @@ impl RoadLoop {
             partitions.push(partition);
         }
 
-        // Map the indices back to the actual loops.
-        let mut loops: Vec<Option<RoadLoop>> = input.into_iter().map(Some).collect();
+        // Map the indices back to the actual perimeters.
+        let mut perimeters: Vec<Option<Perimeter>> = input.into_iter().map(Some).collect();
         let mut results = Vec::new();
         for indices in partitions {
             let mut partition = Vec::new();
             for idx in indices {
-                partition.push(loops[idx].take().unwrap());
+                partition.push(perimeters[idx].take().unwrap());
             }
             results.push(partition);
         }
         // Sanity check
-        for maybe_loop in loops {
-            assert!(maybe_loop.is_none());
+        for maybe_perimeter in perimeters {
+            assert!(maybe_perimeter.is_none());
         }
         results
     }
 
     pub fn to_block(self, map: &Map) -> Result<Block> {
-        Block::from_loop(map, self)
+        Block::from_perimeter(map, self)
     }
 }
 
@@ -195,11 +196,11 @@ impl Block {
     /// block, with no interior roads. This will fail if a map boundary is reached. The results are
     /// unusual when crossing the entrance to a tunnel or bridge.
     pub fn single_block(map: &Map, start: LaneID) -> Result<Block> {
-        Block::from_loop(map, RoadLoop::single_block(map, start))
+        Block::from_perimeter(map, Perimeter::single_block(map, start))
     }
 
-    fn from_loop(map: &Map, perimeter: RoadLoop) -> Result<Block> {
-        // Trace along the loop and build the polygon
+    fn from_perimeter(map: &Map, perimeter: Perimeter) -> Result<Block> {
+        // Trace along the perimeter and build the polygon
         let mut pts: Vec<Pt2D> = Vec::new();
         for pair in perimeter.roads.windows(2) {
             let lane1 = pair[0].get_outermost_lane(map);
@@ -279,8 +280,8 @@ impl Block {
     /// never "destroyed" -- if not merged, they'll appear in the results.
     /// TODO This may not handle all possible merges yet, the order is brittle...
     pub fn merge_all(map: &Map, list: Vec<Block>) -> Vec<Block> {
-        let mut results: Vec<RoadLoop> = Vec::new();
-        let input: Vec<RoadLoop> = list.into_iter().map(|x| x.perimeter).collect();
+        let mut results: Vec<Perimeter> = Vec::new();
+        let input: Vec<Perimeter> = list.into_iter().map(|x| x.perimeter).collect();
 
         // To debug, return after any single change
         let mut debug = false;
@@ -309,7 +310,7 @@ impl Block {
         // TODO Shouldn't be any new errors, right?
         results
             .into_iter()
-            .map(|x| Block::from_loop(map, x).unwrap())
+            .map(|x| Block::from_perimeter(map, x).unwrap())
             .collect()
     }
 }
