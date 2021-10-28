@@ -376,7 +376,7 @@ impl Lane {
             (Direction::Back, DrivingSide::Left) => SideOfRoad::Right,
         };
         RoadSideID {
-            id: self.id.road,
+            road: self.id.road,
             side,
         }
     }

@@ -163,20 +163,20 @@ impl Intersection {
             let r = map.get_r(r);
             if r.dst_i == self.id {
                 sides.push(RoadSideID {
-                    id: r.id,
+                    road: r.id,
                     side: SideOfRoad::Right,
                 });
                 sides.push(RoadSideID {
-                    id: r.id,
+                    road: r.id,
                     side: SideOfRoad::Left,
                 });
             } else {
                 sides.push(RoadSideID {
-                    id: r.id,
+                    road: r.id,
                     side: SideOfRoad::Left,
                 });
                 sides.push(RoadSideID {
-                    id: r.id,
+                    road: r.id,
                     side: SideOfRoad::Right,
                 });
             }

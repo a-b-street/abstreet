@@ -47,10 +47,10 @@ impl RoadLoop {
             // at a dead-end, we want to avoid the other side of the same road.
             let mut next = *wraparound_get(&sorted_roads, idx + 1);
             assert_ne!(next, current_road_side);
-            if next.id == current_road_side.id {
+            if next.road == current_road_side.road {
                 next = *wraparound_get(&sorted_roads, idx - 1);
                 assert_ne!(next, current_road_side);
-                if next.id == current_road_side.id {
+                if next.road == current_road_side.road {
                     // We must be at a dead-end
                     assert_eq!(2, sorted_roads.len());
                 }
@@ -58,7 +58,7 @@ impl RoadLoop {
             roads.push(current_road_side);
             current_road_side = next;
             current_intersection = map
-                .get_r(current_road_side.id)
+                .get_r(current_road_side.road)
                 .other_endpt(current_intersection);
 
             if current_road_side == start_road_side {
@@ -77,12 +77,12 @@ impl RoadLoop {
         let idx1 = self
             .roads
             .iter()
-            .position(|x| x.id == common_road)
+            .position(|x| x.road == common_road)
             .unwrap_or_else(|| panic!("First RoadLoop doesn't have {}", common_road));
         let idx2 = other
             .roads
             .iter()
-            .position(|x| x.id == common_road)
+            .position(|x| x.road == common_road)
             .unwrap_or_else(|| panic!("Second RoadLoop doesn't have {}", common_road));
 
         // The first element is the common road, now an interior
@@ -110,11 +110,11 @@ impl RoadLoop {
     pub fn find_common_road(&self, other: &RoadLoop) -> Option<RoadID> {
         let mut roads = HashSet::new();
         for id in self.roads.iter().skip(1) {
-            roads.insert(id.id);
+            roads.insert(id.road);
         }
         for id in &other.roads {
-            if roads.contains(&id.id) {
-                return Some(id.id);
+            if roads.contains(&id.road) {
+                return Some(id.road);
             }
         }
         None
@@ -131,7 +131,7 @@ impl RoadLoop {
         for (idx, perimeter) in input.iter().enumerate() {
             for id in &perimeter.roads {
                 road_to_loops
-                    .entry(id.id)
+                    .entry(id.road)
                     .or_insert_with(Vec::new)
                     .push(idx);
             }
@@ -149,8 +149,8 @@ impl RoadLoop {
                 }
                 visited.insert(current);
                 for id in &input[current].roads {
-                    if predicate(id.id) {
-                        queue.extend(road_to_loops[&id.id].clone());
+                    if predicate(id.road) {
+                        queue.extend(road_to_loops[&id.road].clone());
                     }
                 }
             }
@@ -214,7 +214,7 @@ impl Block {
                 SideOfRoad::Right => lane1.lane_center_pts.must_shift_right(lane1.width / 2.0),
                 SideOfRoad::Left => lane1.lane_center_pts.must_shift_left(lane1.width / 2.0),
             };
-            let keep_lane_orientation = if pair[0].id == pair[1].id {
+            let keep_lane_orientation = if pair[0].road == pair[1].road {
                 // We're doubling back at a dead-end. Always follow the orientation of the lane.
                 true
             } else {
