@@ -12,6 +12,17 @@ use widgetry::{
 use crate::app::{App, Transition};
 use crate::debug::polygons;
 
+const COLORS: [Color; 6] = [
+    Color::BLUE,
+    Color::YELLOW,
+    Color::GREEN,
+    Color::PURPLE,
+    Color::PINK,
+    Color::ORANGE,
+];
+const MODIFIED: Color = Color::RED;
+const TO_MERGE: Color = Color::CYAN;
+
 pub struct Blockfinder {
     panel: Panel,
     id_counter: usize,
@@ -35,9 +46,16 @@ impl Blockfinder {
         };
 
         ctx.loading_screen("calculate all blocks", |ctx, _| {
-            for block in Block::find_all_single_blocks(&app.primary.map) {
+            let blocks = Block::find_all_single_blocks(&app.primary.map);
+            let colors = Perimeter::calculate_coloring(
+                blocks.iter().map(|x| &x.perimeter).collect(),
+                COLORS.len(),
+            )
+            .unwrap_or_else(|| (0..blocks.len()).collect());
+
+            for (block, color_idx) in blocks.into_iter().zip(colors.into_iter()) {
                 let id = state.new_id();
-                state.add_block(ctx, id, None, block);
+                state.add_block(ctx, id, COLORS[color_idx % COLORS.len()], block);
             }
         });
         state.world.initialize_hover(ctx);
@@ -50,8 +68,7 @@ impl Blockfinder {
         id
     }
 
-    fn add_block(&mut self, ctx: &mut EventCtx, id: Obj, color: Option<Color>, block: Block) {
-        let color = color.unwrap_or(Color::RED);
+    fn add_block(&mut self, ctx: &mut EventCtx, id: Obj, color: Color, block: Block) {
         let mut obj = self
             .world
             .add(id)
@@ -87,7 +104,7 @@ impl State<App> for Blockfinder {
                     }
                     for block in Block::merge_all(&app.primary.map, blocks) {
                         let id = self.new_id();
-                        self.add_block(ctx, id, None, block);
+                        self.add_block(ctx, id, MODIFIED, block);
                     }
                     return Transition::Keep;
                 }
@@ -113,12 +130,11 @@ impl State<App> for Blockfinder {
 
                     // Until we can actually do the merge, just color the partition to show results
                     for (color_idx, perimeters) in partitions.into_iter().enumerate() {
-                        let color =
-                            [Color::RED, Color::YELLOW, Color::GREEN, Color::PURPLE][color_idx % 4];
+                        let color = COLORS[color_idx % COLORS.len()];
                         for perimeter in perimeters {
                             if let Ok(block) = perimeter.to_block(map) {
                                 let id = self.new_id();
-                                self.add_block(ctx, id, Some(color), block);
+                                self.add_block(ctx, id, color, block);
                             }
                         }
                     }
@@ -132,13 +148,14 @@ impl State<App> for Blockfinder {
                 self.to_merge.insert(id);
                 let block = self.blocks.remove(&id).unwrap();
                 self.world.delete_before_replacement(id);
-                self.add_block(ctx, id, Some(Color::CYAN), block);
+                self.add_block(ctx, id, TO_MERGE, block);
             }
             WorldOutcome::Keypress("remove from merge set", id) => {
                 self.to_merge.remove(&id);
                 let block = self.blocks.remove(&id).unwrap();
                 self.world.delete_before_replacement(id);
-                self.add_block(ctx, id, None, block);
+                // We'll lose the original coloring, oh well
+                self.add_block(ctx, id, MODIFIED, block);
             }
             WorldOutcome::ClickedObject(id) => {
                 return Transition::Push(OneBlock::new_state(ctx, self.blocks[&id].clone()));

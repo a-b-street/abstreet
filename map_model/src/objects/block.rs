@@ -184,6 +184,44 @@ impl Perimeter {
         results
     }
 
+    /// Assign each perimeter one of `num_colors`, such that no two adjacent perimeters share the
+    /// same color. May fail. The resulting colors are expressed as `[0, num_colors)`.
+    pub fn calculate_coloring(input: Vec<&Perimeter>, num_colors: usize) -> Option<Vec<usize>> {
+        let mut road_to_perimeters: HashMap<RoadID, Vec<usize>> = HashMap::new();
+        for (idx, perimeter) in input.iter().enumerate() {
+            for id in &perimeter.roads {
+                road_to_perimeters
+                    .entry(id.road)
+                    .or_insert_with(Vec::new)
+                    .push(idx);
+            }
+        }
+
+        // Greedily fill out a color for each perimeter, in the same order as the input
+        let mut assigned_colors = Vec::new();
+        for (this_idx, perimeter) in input.iter().enumerate() {
+            let mut available_colors: Vec<bool> =
+                std::iter::repeat(true).take(num_colors).collect();
+            // Find all neighbors
+            for id in &perimeter.roads {
+                for other_idx in &road_to_perimeters[&id.road] {
+                    // We assign colors in order, so any neighbor index smaller than us has been
+                    // chosen
+                    if *other_idx < this_idx {
+                        available_colors[assigned_colors[*other_idx]] = false;
+                    }
+                }
+            }
+            if let Some(color) = available_colors.iter().position(|x| *x) {
+                assigned_colors.push(color);
+            } else {
+                // Too few colors?
+                return None;
+            }
+        }
+        Some(assigned_colors)
+    }
+
     pub fn to_block(self, map: &Map) -> Result<Block> {
         Block::from_perimeter(map, self)
     }
