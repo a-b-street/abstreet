@@ -1,7 +1,7 @@
 use std::collections::BTreeSet;
 
 use abstutil::wraparound_get;
-use geom::{Distance, Line, PolyLine, Pt2D};
+use geom::{Distance, Line, PolyLine, Pt2D, Ring};
 
 use crate::{
     Direction, DrivingSide, Intersection, IntersectionID, Lane, LaneID, LaneType, Map, Road, Turn,
@@ -35,7 +35,7 @@ pub fn make_walking_turns(map: &Map, i: &Intersection) -> Vec<Turn> {
         1
     };
 
-    if roads.len() == 2 {
+    if i.is_degenerate() {
         if let Some(turns) = make_degenerate_crosswalks(map, i.id, roads[0], roads[1]) {
             result.extend(turns);
         }
@@ -467,10 +467,7 @@ fn make_shared_sidewalk_corner(
 
     // TODO Something like this will be MUCH simpler and avoid going around the long way sometimes.
     if false {
-        return i
-            .polygon
-            .clone()
-            .into_ring()
+        return Ring::must_new(i.polygon.points().clone())
             .get_shorter_slice_btwn(corner1, corner2)
             .unwrap();
     }

@@ -106,6 +106,17 @@ impl Intersection {
         self.roads.iter().all(|r| map.get_r(*r).is_cycleway())
     }
 
+    /// Does this intersection only connect two road segments? Then usually, the intersection only
+    /// exists to mark the road name or lanes changing.
+    pub fn is_degenerate(&self) -> bool {
+        self.roads.len() == 2
+    }
+
+    /// Does this intersection connect to only a single road segment?
+    pub fn is_deadend(&self) -> bool {
+        self.roads.len() == 1
+    }
+
     pub fn get_incoming_lanes(&self, map: &Map, constraints: PathConstraints) -> Vec<LaneID> {
         self.incoming_lanes
             .iter()

@@ -109,13 +109,18 @@ impl Ring {
     }
 
     /// Assuming both points are somewhere along the ring, return the points in between the two, by
-    /// tracing along the ring in the shorter direction. If both points are the same, returns
-    /// `None`.  The result is oriented from `pt1` to `pt2`.
-    pub fn get_shorter_slice_between(&self, pt1: Pt2D, pt2: Pt2D) -> Option<PolyLine> {
+    /// tracing along the ring in the longer or shorter direction (depending on `longer`). If both
+    /// points are the same, returns `None`.  The result is oriented from `pt1` to `pt2`.
+    pub fn get_slice_between(&self, pt1: Pt2D, pt2: Pt2D, longer: bool) -> Option<PolyLine> {
         if pt1 == pt2 {
             return None;
         }
-        let slice = self.get_shorter_slice_btwn(pt1, pt2)?;
+        let (candidate1, candidate2) = self.get_both_slices_btwn(pt1, pt2)?;
+        let slice = if longer == (candidate1.length() > candidate2.length()) {
+            candidate1
+        } else {
+            candidate2
+        };
         if slice.first_pt() == pt1 {
             Some(slice)
         } else {
@@ -123,6 +128,13 @@ impl Ring {
             // directly?
             Some(slice.reversed())
         }
+    }
+
+    /// Assuming both points are somewhere along the ring, return the points in between the two, by
+    /// tracing along the ring in the shorter direction. If both points are the same, returns
+    /// `None`.  The result is oriented from `pt1` to `pt2`.
+    pub fn get_shorter_slice_between(&self, pt1: Pt2D, pt2: Pt2D) -> Option<PolyLine> {
+        self.get_slice_between(pt1, pt2, false)
     }
 
     // TODO Rmove this one, fix all callers

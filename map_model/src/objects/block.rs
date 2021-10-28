@@ -257,8 +257,11 @@ impl Block {
                 first_intersection = Some(prev_i);
             }
             if let Some(last_pt) = pts.last() {
-                if let Some(ring) = map.get_i(prev_i).polygon.get_outer_ring() {
-                    if let Some(slice) = ring.get_shorter_slice_between(*last_pt, pl.first_pt()) {
+                let prev_i = map.get_i(prev_i);
+                if let Some(ring) = prev_i.polygon.get_outer_ring() {
+                    // At dead-ends, trace around the intersection on the longer side
+                    let longer = prev_i.is_deadend();
+                    if let Some(slice) = ring.get_slice_between(*last_pt, pl.first_pt(), longer) {
                         pts.extend(slice.into_points());
                     }
                 }
@@ -268,12 +271,10 @@ impl Block {
         }
         // Do the intersection boundary tracing for the last piece. We didn't know enough to do it
         // the first time.
-        if let Some(ring) = map
-            .get_i(first_intersection.unwrap())
-            .polygon
-            .get_outer_ring()
-        {
-            if let Some(slice) = ring.get_shorter_slice_between(*pts.last().unwrap(), pts[0]) {
+        let first_intersection = map.get_i(first_intersection.unwrap());
+        if let Some(ring) = first_intersection.polygon.get_outer_ring() {
+            let longer = first_intersection.is_deadend();
+            if let Some(slice) = ring.get_slice_between(*pts.last().unwrap(), pts[0], longer) {
                 pts.extend(slice.into_points());
             }
         }
