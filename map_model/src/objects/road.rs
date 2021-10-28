@@ -139,6 +139,7 @@ pub enum SideOfRoad {
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct RoadSideID {
+    // TODO Change to road
     pub id: RoadID,
     pub side: SideOfRoad,
 }

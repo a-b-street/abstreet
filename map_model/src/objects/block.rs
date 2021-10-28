@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 
 use anyhow::Result;
 
@@ -118,6 +118,66 @@ impl RoadLoop {
             }
         }
         None
+    }
+
+    /// Consider the loops as a graph, with adjacency determined by sharing any road in common.
+    /// Merge all adjacent loops that the predicate allows. Returns the partitioning of adjacent
+    /// loops; all of them should be able to sent through merge_all and wind up with one result...
+    // TODO Maybe express as floodfill?
+    pub fn merge_all_by_metric<F: Fn(RoadID) -> bool>(input: Vec<RoadLoop>, predicate: F) -> Vec<Vec<RoadLoop>> {
+        let mut road_to_loops: HashMap<RoadID, Vec<usize>> = HashMap::new();
+        for (idx, perimeter) in input.iter().enumerate() {
+            for id in &perimeter.roads {
+                road_to_loops.entry(id.id).or_insert_with(Vec::new).push(idx);
+            }
+        }
+
+        // Start at one loop, floodfill to adjacent loops, subject to the predicate. Returns the
+        // indices of everything in that component.
+        let floodfill = |start: usize| -> HashSet<usize> {
+            let mut visited = HashSet::new();
+            let mut queue = vec![start];
+            while !queue.is_empty() {
+                let current = queue.pop().unwrap();
+                if visited.contains(&current) {
+                    continue;
+                }
+                visited.insert(current);
+                for id in &input[current].roads {
+                    if predicate(id.id) {
+                        queue.extend(road_to_loops[&id.id].clone());
+                    }
+                }
+            }
+            visited
+        };
+
+        let mut partitions: Vec<HashSet<usize>> = Vec::new();
+        let mut finished: HashSet<usize> = HashSet::new();
+        for start in 0..input.len() {
+            if finished.contains(&start) {
+                continue;
+            }
+            let partition = floodfill(start);
+            finished.extend(partition.clone());
+            partitions.push(partition);
+        }
+
+        // Map the indices back to the actual loops.
+        let mut loops: Vec<Option<RoadLoop>> = input.into_iter().map(Some).collect();
+        let mut results = Vec::new();
+        for indices in partitions {
+            let mut partition = Vec::new();
+            for idx in indices {
+                partition.push(loops[idx].take().unwrap());
+            }
+            results.push(partition);
+        }
+        // Sanity check
+        for maybe_loop in loops {
+            assert!(maybe_loop.is_none());
+        }
+        results
     }
 }
 
