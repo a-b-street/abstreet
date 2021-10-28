@@ -5,7 +5,7 @@ use anyhow::Result;
 use abstutil::wraparound_get;
 use geom::{Polygon, Pt2D, Ring};
 
-use crate::{LaneID, Map, RoadID, RoadSideID, SideOfRoad};
+use crate::{Direction, LaneID, Map, RoadID, RoadSideID, SideOfRoad};
 
 /// A block is defined by a perimeter that traces along the sides of roads. Inside the perimeter,
 /// the block may contain buildings and interior roads. In the simple case, a block represents a
@@ -200,19 +200,26 @@ impl Block {
     fn from_perimeter(map: &Map, perimeter: Perimeter) -> Result<Block> {
         // Trace along the perimeter and build the polygon
         let mut pts: Vec<Pt2D> = Vec::new();
+        let mut first_intersection = None;
         for pair in perimeter.roads.windows(2) {
             let lane1 = pair[0].get_outermost_lane(map);
+            let road1 = map.get_parent(lane1.id);
             let lane2 = pair[1].get_outermost_lane(map);
+            // TODO What about tracing along a road with exactly one lane? False error. I'm not
+            // sure looking at lanes here is helpful at all...
             if lane1.id == lane2.id {
                 bail!(
                     "Perimeter road has duplicate adjacent. {:?}",
                     perimeter.roads
                 );
             }
-            let pl = match pair[0].side {
-                SideOfRoad::Right => lane1.lane_center_pts.must_shift_right(lane1.width / 2.0),
-                SideOfRoad::Left => lane1.lane_center_pts.must_shift_left(lane1.width / 2.0),
+            let mut pl = match pair[0].side {
+                SideOfRoad::Right => road1.center_pts.must_shift_right(road1.get_half_width()),
+                SideOfRoad::Left => road1.center_pts.must_shift_left(road1.get_half_width()),
             };
+            if lane1.dir == Direction::Back {
+                pl = pl.reversed();
+            }
             let keep_lane_orientation = if pair[0].road == pair[1].road {
                 // We're doubling back at a dead-end. Always follow the orientation of the lane.
                 true
@@ -232,10 +239,42 @@ impl Block {
                     }
                 }
             };
-            if keep_lane_orientation {
-                pts.extend(pl.into_points());
+            if !keep_lane_orientation {
+                pl = pl.reversed();
+            }
+
+            // Before we add this road's points, try to trace along the polygon's boundary. Usually
+            // this has no effect (we'll dedupe points), but sometimes there's an extra curve.
+            //
+            // Note this logic is similar to how we find SharedSidewalkCorners. Don't rely on that
+            // existing, since the outermost lane mightn't be a sidewalk.
+            let prev_i = if keep_lane_orientation {
+                lane1.src_i
             } else {
-                pts.extend(pl.reversed().into_points());
+                lane1.dst_i
+            };
+            if first_intersection.is_none() {
+                first_intersection = Some(prev_i);
+            }
+            if let Some(last_pt) = pts.last() {
+                if let Some(ring) = map.get_i(prev_i).polygon.get_outer_ring() {
+                    if let Some(slice) = ring.get_shorter_slice_between(*last_pt, pl.first_pt()) {
+                        pts.extend(slice.into_points());
+                    }
+                }
+            }
+
+            pts.extend(pl.into_points());
+        }
+        // Do the intersection boundary tracing for the last piece. We didn't know enough to do it
+        // the first time.
+        if let Some(ring) = map
+            .get_i(first_intersection.unwrap())
+            .polygon
+            .get_outer_ring()
+        {
+            if let Some(slice) = ring.get_shorter_slice_between(*pts.last().unwrap(), pts[0]) {
+                pts.extend(slice.into_points());
             }
         }
         pts.push(pts[0]);

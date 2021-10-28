@@ -99,6 +99,7 @@ impl Ring {
             return None;
         }
 
+        // TODO If we reversed the points, we need to reverse these results! Argh
         let candidate1 = pl.maybe_exact_slice(dist1, dist2).ok()?;
         let candidate2 = pl
             .maybe_exact_slice(dist2, pl.length())
@@ -107,6 +108,24 @@ impl Ring {
         Some((candidate1, candidate2))
     }
 
+    /// Assuming both points are somewhere along the ring, return the points in between the two, by
+    /// tracing along the ring in the shorter direction. If both points are the same, returns
+    /// `None`.  The result is oriented from `pt1` to `pt2`.
+    pub fn get_shorter_slice_between(&self, pt1: Pt2D, pt2: Pt2D) -> Option<PolyLine> {
+        if pt1 == pt2 {
+            return None;
+        }
+        let slice = self.get_shorter_slice_btwn(pt1, pt2)?;
+        if slice.first_pt() == pt1 {
+            Some(slice)
+        } else {
+            // TODO Do we want to be paranoid here? Or just do the fix in get_both_slices_btwn
+            // directly?
+            Some(slice.reversed())
+        }
+    }
+
+    // TODO Rmove this one, fix all callers
     pub fn get_shorter_slice_btwn(&self, pt1: Pt2D, pt2: Pt2D) -> Option<PolyLine> {
         let (candidate1, candidate2) = self.get_both_slices_btwn(pt1, pt2)?;
         if candidate1.length() < candidate2.length() {

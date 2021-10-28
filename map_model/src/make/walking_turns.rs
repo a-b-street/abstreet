@@ -1,7 +1,7 @@
 use std::collections::BTreeSet;
 
 use abstutil::wraparound_get;
-use geom::{Distance, Line, PolyLine, Pt2D, Ring};
+use geom::{Distance, Line, PolyLine, Pt2D};
 
 use crate::{
     Direction, DrivingSide, Intersection, IntersectionID, Lane, LaneID, LaneType, Map, Road, Turn,
@@ -467,7 +467,10 @@ fn make_shared_sidewalk_corner(
 
     // TODO Something like this will be MUCH simpler and avoid going around the long way sometimes.
     if false {
-        return Ring::must_new(i.polygon.points().clone())
+        return i
+            .polygon
+            .clone()
+            .into_ring()
             .get_shorter_slice_btwn(corner1, corner2)
             .unwrap();
     }
