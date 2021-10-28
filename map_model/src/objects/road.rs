@@ -139,13 +139,13 @@ pub enum SideOfRoad {
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct RoadSideID {
-    pub id: RoadID,
+    pub road: RoadID,
     pub side: SideOfRoad,
 }
 
 impl RoadSideID {
     pub fn get_outermost_lane(self, map: &Map) -> &Lane {
-        let r = map.get_r(self.id);
+        let r = map.get_r(self.road);
         match self.side {
             SideOfRoad::Right => r.lanes.last().unwrap(),
             SideOfRoad::Left => &r.lanes[0],

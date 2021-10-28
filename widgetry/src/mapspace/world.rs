@@ -159,6 +159,23 @@ impl<'a, ID: ObjectID> ObjectBuilder<'a, ID> {
         self.draw_hover_rewrite(RewriteColor::ChangeAlpha(alpha))
     }
 
+    /// Draw the object in a hovered state by adding an outline to the normal drawing.
+    pub fn hover_outline(self, color: Color, thickness: Distance) -> Self {
+        let mut draw = self
+            .draw_normal
+            .clone()
+            .expect("first specify how to draw normally");
+        if let Ok(p) = self
+            .hitbox
+            .clone()
+            .expect("call hitbox first")
+            .to_outline(thickness)
+        {
+            draw = draw.push(color, p);
+        }
+        self.draw_hovered(draw)
+    }
+
     /// Draw a tooltip while hovering over this object.
     pub fn tooltip(mut self, txt: Text) -> Self {
         assert!(self.tooltip.is_none(), "already specified tooltip");
@@ -211,7 +228,7 @@ impl<'a, ID: ObjectID> ObjectBuilder<'a, ID> {
             self.id,
             Object {
                 _id: self.id,
-                _quadtree_id: quadtree_id,
+                quadtree_id,
                 hitbox,
                 zorder: self.zorder,
                 draw_normal: self
@@ -230,7 +247,7 @@ impl<'a, ID: ObjectID> ObjectBuilder<'a, ID> {
 
 struct Object<ID: ObjectID> {
     _id: ID,
-    _quadtree_id: ItemId,
+    quadtree_id: ItemId,
     hitbox: Polygon,
     zorder: usize,
     draw_normal: ToggleZoomed,
@@ -289,6 +306,33 @@ impl<ID: ObjectID> World<ID> {
             clickable: false,
             draggable: false,
             keybindings: Vec::new(),
+        }
+    }
+
+    /// Delete an object. Not idempotent -- this will panic if the object doesn't exist. Will panic
+    /// if the object is deleted in the middle of being dragged.
+    pub fn delete(&mut self, id: ID) {
+        if self.hovering == Some(id) {
+            self.hovering = None;
+            if self.dragging_from.is_some() {
+                panic!("Can't delete {:?} mid-drag", id);
+            }
+        }
+
+        self.delete_before_replacement(id);
+    }
+
+    /// Delete an object, with the promise to recreate it with the same ID before the next call to
+    /// `event`. This may be called while the object is being hovered on or dragged.
+    pub fn delete_before_replacement(&mut self, id: ID) {
+        if let Some(obj) = self.objects.remove(&id) {
+            if self.quadtree.remove(obj.quadtree_id).is_none() {
+                // This can happen for objects that're out-of-bounds. One example is intersections
+                // in map_editor.
+                warn!("{:?} wasn't in the quadtree", id);
+            }
+        } else {
+            panic!("Can't delete {:?}; it's not in the World", id);
         }
     }
 
@@ -477,6 +521,8 @@ impl World<DummyID> {
     ///
     /// Note: You must call `build` on this object before calling `add_unnamed` again. Otherwise,
     /// the object IDs will collide.
+    ///
+    /// TODO This will break when objects are deleted!
     pub fn add_unnamed(&mut self) -> ObjectBuilder<'_, DummyID> {
         self.add(DummyID(self.objects.len()))
     }

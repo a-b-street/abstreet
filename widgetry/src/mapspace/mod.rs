@@ -1,7 +1,9 @@
 mod unzoomed;
 mod world;
 
-use crate::{Drawable, EventCtx, GeomBatch, GfxCtx, RewriteColor};
+use geom::Polygon;
+
+use crate::{Drawable, EventCtx, Fill, GeomBatch, GfxCtx, RewriteColor};
 pub use unzoomed::DrawUnzoomedShapes;
 pub use world::{DummyID, ObjectID, World, WorldOutcome};
 
@@ -59,7 +61,19 @@ impl ToggleZoomedBuilder {
     /// Transforms all colors in both batches.
     pub fn color(mut self, transformation: RewriteColor) -> Self {
         self.unzoomed = self.unzoomed.color(transformation);
-        self.zoomed = self.zoomed.color(transformation);
+        if !self.always_draw_unzoomed {
+            self.zoomed = self.zoomed.color(transformation);
+        }
+        self
+    }
+
+    /// Adds a single polygon to both batches, painted according to `Fill`
+    pub fn push<F: Into<Fill>>(mut self, fill: F, p: Polygon) -> Self {
+        let fill = fill.into();
+        if !self.always_draw_unzoomed {
+            self.zoomed.push(fill.clone(), p.clone());
+        }
+        self.unzoomed.push(fill, p);
         self
     }
 
