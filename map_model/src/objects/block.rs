@@ -210,11 +210,17 @@ impl Block {
     /// never "destroyed" -- if not merged, they'll appear in the results.
     /// TODO This may not handle all possible merges yet, the order is brittle...
     pub fn merge_all(map: &Map, list: Vec<Block>) -> Vec<Block> {
-        // TODO Can we avoid recalculating polygons unnecessarily?
         let mut results: Vec<RoadLoop> = Vec::new();
         let input: Vec<RoadLoop> = list.into_iter().map(|x| x.perimeter).collect();
 
+        // To debug, return after any single change
+        let mut debug = false;
         for perimeter in input {
+            if debug {
+                results.push(perimeter);
+                continue;
+            }
+
             let mut partner = None;
             for (idx, adjacent) in results.iter().enumerate() {
                 if let Some(r) = perimeter.find_common_road(adjacent) {
@@ -225,6 +231,7 @@ impl Block {
 
             if let Some((idx, r)) = partner {
                 results[idx].merge(perimeter, r);
+                debug = true;
             } else {
                 results.push(perimeter);
             }
