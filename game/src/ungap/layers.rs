@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use geom::Distance;
-use map_gui::tools::{Navigator, PopupMsg};
+use map_gui::tools::{DrawRoadLabels, Navigator, PopupMsg};
 use map_model::osm::RoadRank;
 use map_model::LaneType;
 use widgetry::{
@@ -13,7 +13,6 @@ use widgetry::{
 use crate::app::{App, Transition};
 use crate::ungap::bike_network;
 use crate::ungap::bike_network::DrawNetworkLayer;
-use crate::ungap::labels::DrawRoadLabels;
 
 /// A bottom-right panel for managing a bunch of toggleable layers in the "ungap the map" tool.
 pub struct Layers {
@@ -37,7 +36,7 @@ impl Layers {
             panel: Panel::empty(ctx),
             minimized: true,
             bike_network: Some(DrawNetworkLayer::new(ctx, app)),
-            labels: Some(DrawRoadLabels::new()),
+            labels: Some(DrawRoadLabels::only_major_roads()),
             elevation: false,
             steep_streets: None,
             road_types: HashMap::new(),
@@ -135,7 +134,7 @@ impl Layers {
                 }
                 "road labels" => {
                     if self.panel.is_checked("road labels") {
-                        self.labels = Some(DrawRoadLabels::new());
+                        self.labels = Some(DrawRoadLabels::only_major_roads());
                     } else {
                         self.labels = None;
                     }

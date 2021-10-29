@@ -1,6 +1,5 @@
 mod bike_network;
 mod explore;
-mod labels;
 mod layers;
 //mod magnifying;
 mod predict;

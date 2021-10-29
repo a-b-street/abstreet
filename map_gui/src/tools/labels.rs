@@ -5,29 +5,39 @@ use lazy_static::lazy_static;
 use regex::Regex;
 
 use geom::{Distance, Pt2D};
-use map_model::osm;
+use map_model::{osm, Road};
 use widgetry::{Color, Drawable, GeomBatch, GfxCtx, Line, Text};
 
-use crate::app::App;
+use crate::AppLike;
 
 /// Labels roads when unzoomed. Label size and frequency depends on the zoom level.
 pub struct DrawRoadLabels {
     per_zoom: RefCell<[Option<Drawable>; 11]>,
+    include_roads: Box<dyn Fn(&Road) -> bool>,
 }
 
 impl DrawRoadLabels {
-    pub fn new() -> DrawRoadLabels {
+    /// Label roads that the predicate approves
+    pub fn new(include_roads: Box<dyn Fn(&Road) -> bool>) -> DrawRoadLabels {
         DrawRoadLabels {
             per_zoom: Default::default(),
+            include_roads,
         }
     }
 
-    pub fn draw(&self, g: &mut GfxCtx, app: &App) {
+    /// Only label major roads
+    pub fn only_major_roads() -> DrawRoadLabels {
+        DrawRoadLabels::new(Box::new(|r| {
+            r.get_rank() != osm::RoadRank::Local && !r.is_light_rail()
+        }))
+    }
+
+    pub fn draw(&self, g: &mut GfxCtx, app: &dyn AppLike) {
         let (zoom, idx) = DrawRoadLabels::discretize_zoom(g.canvas.cam_zoom);
         let value = &mut self.per_zoom.borrow_mut()[idx];
         if value.is_none() {
             debug!("computing DrawRoadLabels(zoom: {}, idx: {})", zoom, idx);
-            *value = Some(DrawRoadLabels::render(g, app, zoom));
+            *value = Some(DrawRoadLabels::render(g, app, &self.include_roads, zoom));
         }
         g.redraw(value.as_ref().unwrap());
     }
@@ -42,9 +52,14 @@ impl DrawRoadLabels {
         (rounded / 10.0, idx)
     }
 
-    fn render(g: &mut GfxCtx, app: &App, zoom: f64) -> Drawable {
+    fn render(
+        g: &mut GfxCtx,
+        app: &dyn AppLike,
+        include_roads: &Box<dyn Fn(&Road) -> bool>,
+        zoom: f64,
+    ) -> Drawable {
         let mut batch = GeomBatch::new();
-        let map = &app.primary.map;
+        let map = app.map();
 
         let text_scale = 1.0 + 2.0 * (1.0 - zoom);
         //println!("at zoom {}, scale labels {}", zoom, text_scale);
@@ -52,13 +67,11 @@ impl DrawRoadLabels {
         let mut quadtree = QuadTree::default(map.get_bounds().as_bbox());
 
         'ROAD: for r in map.all_roads() {
-            if r.get_rank() == osm::RoadRank::Local
-                || r.is_light_rail()
-                || r.length() < Distance::meters(30.0)
-            {
+            if !include_roads(r) || r.length() < Distance::meters(30.0) {
                 continue;
             }
-            let name = if let Some(x) = simplify_name(r.get_name(app.opts.language.as_ref())) {
+
+            let name = if let Some(x) = simplify_name(r.get_name(app.opts().language.as_ref())) {
                 x
             } else {
                 continue;

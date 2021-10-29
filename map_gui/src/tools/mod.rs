@@ -9,6 +9,7 @@ pub use self::city_picker::CityPicker;
 pub use self::colors::{ColorDiscrete, ColorLegend, ColorNetwork, ColorScale, DivergingScale};
 pub use self::heatmap::{draw_isochrone, make_heatmap, Grid, HeatmapOptions};
 pub use self::icons::{goal_marker, start_marker};
+pub use self::labels::DrawRoadLabels;
 pub use self::minimap::{Minimap, MinimapControls};
 pub use self::navigate::Navigator;
 pub use self::turn_explorer::TurnExplorer;
@@ -30,6 +31,7 @@ mod heatmap;
 mod icons;
 #[cfg(not(target_arch = "wasm32"))]
 mod importer;
+mod labels;
 mod minimap;
 mod navigate;
 mod turn_explorer;

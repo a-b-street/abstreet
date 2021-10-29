@@ -1,6 +1,6 @@
 use std::collections::BTreeSet;
 
-use map_gui::tools::CityPicker;
+use map_gui::tools::{CityPicker, DrawRoadLabels};
 use map_gui::ID;
 use widgetry::{
     Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line, Outcome, Panel, State,
@@ -14,6 +14,7 @@ use crate::common::intersections_from_roads;
 pub struct BrowseNeighborhoods {
     panel: Panel,
     draw_neighborhoods: Drawable,
+    labels: DrawRoadLabels,
 }
 
 impl BrowseNeighborhoods {
@@ -33,6 +34,7 @@ impl BrowseNeighborhoods {
         Box::new(BrowseNeighborhoods {
             panel,
             draw_neighborhoods,
+            labels: DrawRoadLabels::only_major_roads(),
         })
     }
 }
@@ -71,9 +73,10 @@ impl State<App> for BrowseNeighborhoods {
         Transition::Keep
     }
 
-    fn draw(&self, g: &mut GfxCtx, _: &App) {
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
         self.panel.draw(g);
         g.redraw(&self.draw_neighborhoods);
+        self.labels.draw(g, app);
     }
 }
 

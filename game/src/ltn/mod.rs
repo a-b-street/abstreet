@@ -1,7 +1,7 @@
 use std::collections::BTreeSet;
 
 use geom::{Distance, Line, PolyLine, Polygon};
-use map_gui::tools::{CityPicker, ColorDiscrete};
+use map_gui::tools::{CityPicker, ColorDiscrete, DrawRoadLabels};
 use map_gui::ID;
 use map_model::{IntersectionID, Map, Road, RoadID};
 use widgetry::mapspace::ToggleZoomed;
@@ -23,6 +23,7 @@ pub struct Viewer {
     draw_neighborhood: ToggleZoomed,
     // Rat runs and modal filters
     draw_dynamic_stuff: Drawable,
+    labels: DrawRoadLabels,
 
     current_rat_run_idx: usize,
 }
@@ -67,12 +68,17 @@ impl Viewer {
         .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
         .build(ctx);
 
+        let mut label_roads = neighborhood.interior.clone();
+        label_roads.extend(neighborhood.perimeter.clone());
+
         let mut viewer = Viewer {
             panel,
             neighborhood,
             draw_neighborhood,
             current_rat_run_idx: 0,
             draw_dynamic_stuff: Drawable::empty(ctx),
+            // We could try to share with browse mode, but we include different roads here
+            labels: DrawRoadLabels::new(Box::new(move |r| label_roads.contains(&r.id))),
         };
         viewer.recalculate(ctx, app);
         Box::new(viewer)
@@ -219,6 +225,12 @@ impl State<App> for Viewer {
         self.panel.draw(g);
         self.draw_neighborhood.draw(g);
         g.redraw(&self.draw_dynamic_stuff);
+        // TODO Since we cover such a small area, treating multiple segments of one road as the
+        // same might be nice. And we should seed the quadtree with the locations of filters and
+        // arrows, possibly.
+        if g.canvas.is_unzoomed() {
+            self.labels.draw(g, app);
+        }
 
         if let Some(ID::Road(r)) = app.primary.current_selection {
             if self.neighborhood.interior.contains(&r) {
