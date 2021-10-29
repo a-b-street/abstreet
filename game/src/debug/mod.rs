@@ -10,7 +10,7 @@ use map_gui::render::{calculate_corners, DrawMap, DrawOptions};
 use map_gui::tools::{ChooseSomething, PopupMsg, PromptInput};
 use map_gui::{AppLike, ID};
 use map_model::{
-    osm, Block, ControlTrafficSignal, IntersectionID, PathConstraints, Position, RoadID,
+    osm, ControlTrafficSignal, IntersectionID, PathConstraints, Perimeter, Position, RoadID,
     NORMAL_LANE_THICKNESS,
 };
 use sim::{Sim, TripEndpoint};
@@ -790,14 +790,18 @@ impl ContextualActions for Actions {
             }
             (ID::Lane(l), "trace this block") => {
                 app.primary.current_selection = None;
-                return Transition::Push(match Block::single_block(&app.primary.map, l) {
-                    Ok(block) => blockfinder::OneBlock::new_state(ctx, block),
-                    Err(err) => {
-                        // Rendering the error message is breaking
-                        error!("Blockfinding failed: {}", err);
-                        PopupMsg::new_state(ctx, "Error", vec!["See console"])
-                    }
-                });
+                return Transition::Push(
+                    match Perimeter::single_block(&app.primary.map, l)
+                        .and_then(|perim| perim.to_block(&app.primary.map))
+                    {
+                        Ok(block) => blockfinder::OneBlock::new_state(ctx, block),
+                        Err(err) => {
+                            // Rendering the error message is breaking
+                            error!("Blockfinding failed: {}", err);
+                            PopupMsg::new_state(ctx, "Error", vec!["See console"])
+                        }
+                    },
+                );
             }
             #[cfg(not(target_arch = "wasm32"))]
             (ID::Lane(l), "merge short segment") => {

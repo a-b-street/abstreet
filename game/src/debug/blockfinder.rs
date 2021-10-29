@@ -45,8 +45,24 @@ impl Blockfinder {
             to_merge: HashSet::new(),
         };
 
-        ctx.loading_screen("calculate all blocks", |ctx, _| {
-            let blocks = Block::find_all_single_blocks(&app.primary.map);
+        ctx.loading_screen("calculate all blocks", |ctx, timer| {
+            timer.start("find single blocks");
+            let perimeters = Perimeter::find_all_single_blocks(&app.primary.map);
+            timer.stop("find single blocks");
+            timer.start_iter("blockify", perimeters.len());
+            let mut blocks = Vec::new();
+            for perimeter in perimeters {
+                timer.next();
+                match perimeter.to_block(&app.primary.map) {
+                    Ok(block) => {
+                        blocks.push(block);
+                    }
+                    Err(err) => {
+                        warn!("Failed to make a block from a perimeter: {}", err);
+                    }
+                }
+            }
+
             let colors = Perimeter::calculate_coloring(
                 blocks.iter().map(|x| &x.perimeter).collect(),
                 COLORS.len(),
@@ -102,9 +118,18 @@ impl State<App> for Blockfinder {
                         // ID...
                         self.world.delete(id);
                     }
-                    for block in Block::merge_all(&app.primary.map, blocks) {
+                    let results = Block::merge_all(&app.primary.map, blocks);
+                    let debug = results.len() > 1;
+                    for block in results {
                         let id = self.new_id();
-                        self.add_block(ctx, id, MODIFIED, block);
+                        // To make the one-merge-at-a-time debugging easier, keep these in the
+                        // merge set
+                        if debug {
+                            self.to_merge.insert(id);
+                            self.add_block(ctx, id, TO_MERGE, block);
+                        } else {
+                            self.add_block(ctx, id, MODIFIED, block);
+                        }
                     }
                     return Transition::Keep;
                 }
@@ -257,7 +282,7 @@ fn make_panel(ctx: &mut EventCtx) -> Panel {
         ctx.style()
             .btn_outline
             .text("Auto-merge all neighborhoods")
-            .hotkey(Key::N)
+            .hotkey(Key::A)
             .build_def(ctx),
     ]))
     .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)

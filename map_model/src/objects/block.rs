@@ -30,7 +30,10 @@ pub struct Perimeter {
 }
 
 impl Perimeter {
-    fn single_block(map: &Map, start: LaneID) -> Perimeter {
+    /// Starting at any lane, snap to the nearest side of that road, then begin tracing a single
+    /// block, with no interior roads. This will fail if a map boundary is reached. The results are
+    /// unusual when crossing the entrance to a tunnel or bridge.
+    pub fn single_block(map: &Map, start: LaneID) -> Result<Perimeter> {
         let mut roads = Vec::new();
         let start_road_side = map.get_l(start).get_nearest_side_of_road(map);
         // We need to track which side of the road we're at, but also which direction we're facing
@@ -38,6 +41,9 @@ impl Perimeter {
         let mut current_intersection = map.get_l(start).dst_i;
         loop {
             let i = map.get_i(current_intersection);
+            if i.is_border() {
+                bail!("hit the map boundary");
+            }
             let sorted_roads = i.get_road_sides_sorted_by_incoming_angle(map);
             let idx = sorted_roads
                 .iter()
@@ -67,7 +73,36 @@ impl Perimeter {
             }
         }
         assert_eq!(roads[0], *roads.last().unwrap());
-        Perimeter { roads }
+        Ok(Perimeter { roads })
+    }
+
+    /// This calculates all single block perimeters for the entire map. The resulting list does not
+    /// cover roads near the map boundary.
+    pub fn find_all_single_blocks(map: &Map) -> Vec<Perimeter> {
+        let mut seen = HashSet::new();
+        let mut perimeters = Vec::new();
+        for lane in map.all_lanes() {
+            let side = lane.get_nearest_side_of_road(map);
+            if seen.contains(&side) {
+                continue;
+            }
+            match Perimeter::single_block(map, lane.id) {
+                Ok(perimeter) => {
+                    seen.extend(perimeter.roads.clone());
+                    perimeters.push(perimeter);
+                }
+                Err(err) => {
+                    // The logs are quite spammy and not helpful yet, since they're all expected
+                    // cases near the map boundary
+                    if false {
+                        warn!("Failed from {}: {}", lane.id, err);
+                    }
+                    // Don't try again
+                    seen.insert(side);
+                }
+            }
+        }
+        perimeters
     }
 
     /// Merges two perimeters using a road in common. Mutates the current perimeter. Panics if they
@@ -228,13 +263,6 @@ impl Perimeter {
 }
 
 impl Block {
-    /// Starting at any lane, snap to the nearest side of that road, then begin tracing a single
-    /// block, with no interior roads. This will fail if a map boundary is reached. The results are
-    /// unusual when crossing the entrance to a tunnel or bridge.
-    pub fn single_block(map: &Map, start: LaneID) -> Result<Block> {
-        Block::from_perimeter(map, Perimeter::single_block(map, start))
-    }
-
     fn from_perimeter(map: &Map, perimeter: Perimeter) -> Result<Block> {
         // Trace along the perimeter and build the polygon
         let mut pts: Vec<Pt2D> = Vec::new();
@@ -247,7 +275,8 @@ impl Block {
             // sure looking at lanes here is helpful at all...
             if lane1.id == lane2.id {
                 bail!(
-                    "Perimeter road has duplicate adjacent. {:?}",
+                    "Perimeter road has duplicate adjacent roads at {}: {:?}",
+                    lane1.id,
                     perimeter.roads
                 );
             }
@@ -321,35 +350,6 @@ impl Block {
         let polygon = Ring::new(pts)?.into_polygon();
 
         Ok(Block { perimeter, polygon })
-    }
-
-    /// This calculates all single blocks for the entire map. The resulting list does not cover
-    /// roads near the map boundary.
-    pub fn find_all_single_blocks(map: &Map) -> Vec<Block> {
-        let mut seen = HashSet::new();
-        let mut blocks = Vec::new();
-        for lane in map.all_lanes() {
-            let side = lane.get_nearest_side_of_road(map);
-            if seen.contains(&side) {
-                continue;
-            }
-            match Block::single_block(map, lane.id) {
-                Ok(block) => {
-                    seen.extend(block.perimeter.roads.clone());
-                    blocks.push(block);
-                }
-                Err(err) => {
-                    // The logs are quite spammy and not helpful yet, since they're all expected
-                    // cases near the map boundary
-                    if false {
-                        warn!("Failed from {}: {}", lane.id, err);
-                    }
-                    // Don't try again
-                    seen.insert(side);
-                }
-            }
-        }
-        blocks
     }
 
     /// Try to merge all given blocks. If successful, only one block will be returned. Blocks are
