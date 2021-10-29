@@ -354,7 +354,7 @@ fn calculate_corner_curbs(i: &Intersection, map: &Map) -> Vec<Polygon> {
                     let first_line = l2.first_line().shift_either_direction(width);
                     pts.push(first_line.pt1());
                     pts.push(first_line.unbounded_dist_along(thickness));
-                    let last_line = l1.last_line().shift_either_direction(width).reverse();
+                    let last_line = l1.last_line().shift_either_direction(width).reversed();
                     pts.insert(0, last_line.pt1());
                     pts.insert(0, last_line.unbounded_dist_along(thickness));
                     PolyLine::deduping_new(pts).ok()
@@ -375,7 +375,7 @@ fn calculate_corner_curbs(i: &Intersection, map: &Map) -> Vec<Polygon> {
                     .first_line()
                     .shift_either_direction(direction * shift(l2.width));
                 if let Ok(pl) = PolyLine::deduping_new(vec![
-                    last_line.reverse().unbounded_dist_along(thickness),
+                    last_line.reversed().unbounded_dist_along(thickness),
                     last_line.pt2(),
                     first_line.pt1(),
                     first_line.unbounded_dist_along(thickness),
@@ -409,7 +409,7 @@ fn calculate_border_arrows(i: &Intersection, r: &Road, map: &Map) -> Vec<Polygon
     if !i.outgoing_lanes.is_empty() {
         let (line, width) = if r.dst_i == i.id {
             (
-                center.last_line().shift_left(width_back / 2.0).reverse(),
+                center.last_line().shift_left(width_back / 2.0).reversed(),
                 width_back,
             )
         } else {
@@ -429,7 +429,7 @@ fn calculate_border_arrows(i: &Intersection, r: &Road, map: &Map) -> Vec<Polygon
     if !i.incoming_lanes.is_empty() {
         let (line, width) = if r.dst_i == i.id {
             (
-                center.last_line().shift_right(width_fwd / 2.0).reverse(),
+                center.last_line().shift_right(width_fwd / 2.0).reversed(),
                 width_fwd,
             )
         } else {

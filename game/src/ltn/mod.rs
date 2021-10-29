@@ -1,6 +1,6 @@
 use std::collections::BTreeSet;
 
-use geom::{Distance, Line};
+use geom::{Distance, Line, PolyLine, Polygon};
 use map_gui::tools::{CityPicker, ColorDiscrete};
 use map_gui::ID;
 use map_model::{IntersectionID, Map, Road, RoadID};
@@ -242,7 +242,6 @@ impl Neighborhood {
             vec![
                 ("interior", Color::BLUE.alpha(0.8)),
                 ("perimeter", Color::hex("#40B5AD").alpha(0.8)),
-                ("border", Color::CYAN.alpha(0.8)),
                 ("rat-run", Color::RED.alpha(0.8)),
                 ("modal filter", Color::GREEN),
             ],
@@ -257,9 +256,36 @@ impl Neighborhood {
             colorer.add_r(*r, "perimeter");
         }
         for i in &self.borders {
-            colorer.add_i(*i, "border");
+            // TODO These should have a higher z-order than rat runs
+            let arrow = self.border_arrow(&app.primary.map, *i);
+            colorer.unzoomed.push(Color::PURPLE, arrow.clone());
+            colorer.zoomed.push(Color::PURPLE, arrow.clone());
         }
         colorer.build(ctx)
+    }
+
+    fn border_arrow(&self, map: &Map, i: IntersectionID) -> Polygon {
+        assert!(self.borders.contains(&i));
+        // Multiple interior roads could connect to one border, but let's just use one (the common
+        // case anyway)
+        let road = map.get_r(
+            *map.get_i(i)
+                .roads
+                .iter()
+                .find(|r| self.interior.contains(r))
+                .unwrap(),
+        );
+        let line = if road.dst_i == i {
+            road.center_pts.last_line()
+        } else {
+            road.center_pts.first_line().reversed()
+        };
+        PolyLine::must_new(vec![
+            line.pt2(),
+            line.pt2()
+                .project_away(Distance::meters(30.0), line.angle()),
+        ])
+        .make_double_arrow(Distance::meters(5.0), geom::ArrowCap::Triangle)
     }
 }
 

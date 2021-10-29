@@ -743,7 +743,7 @@ impl Pedestrian {
             PedState::EnteringParkingLot(pl, ref time_int) => {
                 let line = &map.get_pl(pl).sidewalk_line;
                 (
-                    line.reverse()
+                    line.reversed()
                         .percent_along(time_int.percent(now))
                         .unwrap_or_else(|| line.pt1()),
                     line.angle().opposite(),

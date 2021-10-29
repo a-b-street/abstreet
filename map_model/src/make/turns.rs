@@ -232,7 +232,7 @@ fn curvey_turn(src: &Lane, dst: &Lane) -> Result<PolyLine> {
     // The control points are straight out/in from the source/destination lanes, so
     // that the car exits and enters at the same angle as the road.
     let src_line = src.last_line();
-    let dst_line = dst.first_line().reverse();
+    let dst_line = dst.first_line().reversed();
 
     // TODO Tune the 5.0 and pieces
     let pt1 = src.last_pt();

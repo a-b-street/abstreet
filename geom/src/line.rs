@@ -142,7 +142,7 @@ impl Line {
     }
 
     /// Returns a reversed line segment
-    pub fn reverse(&self) -> Line {
+    pub fn reversed(&self) -> Line {
         Line::must_new(self.pt2(), self.pt1())
     }
 

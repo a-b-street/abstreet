@@ -291,7 +291,7 @@ impl Lane {
     /// pt2 will be endpoint
     pub fn end_line(&self, i: IntersectionID) -> Line {
         if i == self.src_i {
-            self.first_line().reverse()
+            self.first_line().reversed()
         } else if i == self.dst_i {
             self.last_line()
         } else {
